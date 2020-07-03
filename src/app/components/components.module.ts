@@ -98,6 +98,7 @@ import { CalendarModule } from 'angular-calendar';
 import { DateAdapter } from 'angular-calendar';
 import { adapterFactory } from 'angular-calendar/date-adapters/moment';
 import * as moment from 'moment';
+import { CalendarComponent } from './calendar/calendar.component';
 
 export function momentAdapterFactory() {
   return adapterFactory(moment);
@@ -197,7 +198,8 @@ export function momentAdapterFactory() {
     DiscussionsComponent,
     DiscussionComponent,
     DiscussionReplyFormComponent,
-    CourseMoreComponent
+    CourseMoreComponent,
+    CalendarComponent
   ],
   exports: [
     TabsModule,
