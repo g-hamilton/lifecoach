@@ -1,0 +1,335 @@
+<app-auth-course-navbar [course]="course" [lecturesComplete]="lecturesComplete"></app-auth-course-navbar>
+
+<div class="full-page learn-page">
+    <div class=" content">
+
+        <!-- Loading spinner if server -->
+        <div *ngIf="!browser" class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+    
+        <!-- browser -->
+        <div *ngIf="browser">
+            <div class=" row">
+
+                <!-- player & info col -->
+                <div class=" col-md-8 pr-0">
+
+                    <!-- lecture type video -->
+                    <div *ngIf="lecture?.type === 'Video'">
+                        <!-- Video player -->
+                        <vg-player (onPlayerReady)="onPlayerReady($event)">
+                        <vg-controls>
+                            <vg-play-pause></vg-play-pause>
+                            <vg-playback-button></vg-playback-button>
+                        
+                            <vg-time-display vgProperty="current" vgFormat="mm:ss"></vg-time-display>
+                        
+                            <vg-scrub-bar>
+                                <vg-scrub-bar-current-time></vg-scrub-bar-current-time>
+                                <vg-scrub-bar-buffering-time></vg-scrub-bar-buffering-time>
+                            </vg-scrub-bar>
+                        
+                            <vg-time-display vgProperty="total" vgFormat="mm:ss"></vg-time-display>
+                        
+                            <vg-mute></vg-mute>
+                            <vg-volume></vg-volume>
+
+                            <div class=" cue-point-manager-button" (click)="pauseVideo() ; bookmarkModal.show()">
+                                <i
+                                class="fas fa-bookmark"
+                                style="margin-left: 1rem; margin-top: 1.1rem; font-size: 1rem;">
+                                </i>
+                            </div>
+                        
+                            <vg-fullscreen></vg-fullscreen>
+                        </vg-controls>
+                        
+                        <video #media [vgMedia]="media" id="courseVideo" preload="auto" autoplay="true">
+                            <source *ngFor="let video of videoSources" [src]="video">
+                        </video>
+                        </vg-player>
+                        <!-- end video player -->
+                    </div>
+                    <!-- end lecture type video -->
+
+                    <!-- lecture type article -->
+                    <div *ngIf="lecture?.type === 'Article'">
+                        <div id="article-container">
+                            <div [innerHTML]="lecture.article" id="article-box"></div>
+                            <div id="article-overlay-bar">
+                                <div class=" text-primary ml-auto mr-auto nav-buttons">
+                                    <i class="fas fa-caret-left mr-3" tooltip="Go to previous lecture" (click)="onArticlePreviousLecture()"></i>
+                                    <i class="fas fa-caret-right" tooltip="Go to next lecture" (click)="onArticleNextLecture()"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end lecture type article -->
+
+                    <!-- course info -->
+                    <div class="card">
+                        <div class="card-header">
+                          <tabset class="nav-tabs-primary">
+                            <tab>
+                              <ng-template tabHeading>
+                                <i class="fas fa-graduation-cap"></i> Overview
+                              </ng-template>
+                              <div class=" tab-body">
+                                <h3> About this course </h3>
+                                <h4> {{ course?.title }} </h4>
+                                <h5> {{ course?.subtitle }} </h5>
+                                <table class=" table">
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <p>
+                                                    By the numbers
+                                                </p>
+                                            </td>
+                                            <td>
+                                                <p>
+                                                    Level:
+                                                    <span *ngIf="course?.level === 'all'">
+                                                        All levels
+                                                    </span>
+                                                    <span *ngIf="course?.level === 'beginner'">
+                                                        Beginner
+                                                    </span>
+                                                    <span *ngIf="course?.level === 'intermediate'">
+                                                        Intermediate
+                                                    </span>
+                                                    <span *ngIf="course?.level === 'advanced'">
+                                                        Advanced
+                                                    </span>
+                                                </p>
+                                                <p>
+                                                    Students: {{ totalEnrollments ? totalEnrollments : '-'}}
+                                                </p>
+                                                <p>
+                                                    Lectures: {{ course?.lectures.length }}
+                                                </p>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <p>
+                                                    Description
+                                                </p>
+                                            </td>
+                                            <td>
+                                                <div class=" card-description" [innerHTML]="course?.description"></div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <p>
+                                                    Coach
+                                                </p>
+                                            </td>
+                                            <td>
+                                                <app-course-coach [course]="course" [previewAsStudent]="previewAsStudent"></app-course-coach>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                              </div>
+                            </tab>
+                            <tab>
+                              <ng-template tabHeading>
+                                <i class="far fa-comments"></i> Discussions
+                              </ng-template>
+                              <div class=" tab-body">
+                                <h3> Course Discussions </h3>
+                                <app-course-qa [course]="course" [userId]="userId" [lecture]="lecture"></app-course-qa>
+                              </div>
+                            </tab>
+                            <tab>
+                              <ng-template tabHeading>
+                                <i class="far fa-bookmark"></i> Bookmarks
+                              </ng-template>
+                              <div class=" tab-body">
+                                    <h3> Saved Bookmarks </h3>
+                                    <div *ngIf="!bookmarks || bookmarks.length === 0">
+                                        <p>
+                                            You have not saved any bookmarks yet.
+                                        </p>
+                                    </div>
+                                    <div *ngIf="bookmarks && bookmarks.length > 0">
+                                        <table class=" table">
+                                            <tbody>
+                                                <tr *ngFor="let bookmark of bookmarks ; let i = index">
+                                                    <td>
+                                                        {{ i + 1 }}
+                                                    </td>
+                                                    <td>
+                                                        {{ getLectureTitle(bookmark.lectureId) }}
+                                                    </td>
+                                                    <td>
+                                                        {{ fancyTimeFormat(bookmark.position) }}
+                                                    </td>
+                                                    <td>
+                                                        <p *ngIf="bookmark.note">
+                                                            {{ truncate(bookmark.note, 50) }}
+                                                        </p>
+                                                    </td>
+                                                    <td class="td-actions text-right">
+                                                        <button
+                                                        type="button"
+                                                        rel="tooltip"
+                                                        class="btn btn-primary btn-icon btn-sm"
+                                                        data-original-title=""
+                                                        title=""
+                                                        [routerLink]="['/course', bookmark.courseId, 'learn', 'lecture', bookmark.lectureId]"
+                                                        [queryParams]="{bookmark: bookmark.position}"
+                                                        >
+                                                            <i class="tim-icons icon-triangle-right-17"></i>
+                                                        </button>
+                                                        <button
+                                                        type="button"
+                                                        rel="tooltip"
+                                                        class="btn btn-danger btn-icon btn-sm ml-2"
+                                                        data-original-title=""
+                                                        title=""
+                                                        (click)="bookmarkToRemove = bookmark ; removeBookmarkModal.show()">
+                                                            <i class="tim-icons icon-trash-simple"></i>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                              </div>
+                            </tab>
+                            <tab>
+                                <ng-template tabHeading>
+                                    <i class="far fa-comment-alt"></i> Announcements
+                                </ng-template>
+                                <div class=" tab-body">
+                                  <p>
+                                      There are no announcements.
+                                  </p>
+                                </div>
+                              </tab>
+                          </tabset>
+                        </div>
+                    </div>
+                    <!-- end course info -->
+
+                </div>
+                <!-- end player & info col -->
+
+                <!-- curriculum col -->
+                <div class=" col-md-4 pl-0">
+                    <div class=" card">
+                        <div class=" card-body">
+                            <app-learn-lectures-navigator
+                            [course]="course"
+                            [lecturesComplete]="lecturesComplete"
+                            [adminMode]="false"
+                            [previewAsStudent]="previewAsStudent"
+                            (lectureCompleteEvent)="onLectureCompleteChange($event)">
+                            </app-learn-lectures-navigator>
+                        </div>
+                    </div>
+                </div>
+                <!-- end curriculum col -->
+
+            </div>
+        </div>
+        <!-- end browser -->
+        
+    </div>
+</div>
+
+<!-- Bookmark modal -->
+<div
+aria-hidden="true"
+aria-labelledby="bookmarkModalLabel"
+bsModal
+class="modal fade"
+#bookmarkModal="bs-modal"
+id="bookmarkModal"
+role="dialog"
+tabindex="-1"
+>
+<div class="modal-dialog" style="transform: translate(0,0);">
+    <div class="modal-content">
+    <div class="modal-body">
+        <div class="card card-login card-white">
+            <div class=" card-header">
+            <h1 class=" card-title"> Save Bookmark </h1>
+            </div>
+            <div class=" card-body">
+
+                <p>
+                    Bookmark this point in the lecture for quick reference later.
+                </p>
+
+                <form [formGroup]="bookmarkForm">
+                    <div class="form-group">
+                        <label for="note"> Note (optional) </label>
+                        <textarea
+                            class="form-control" 
+                            id="note" rows="3" 
+                            formControlName="note"
+                            placeholder="Save an optional note with this bookmark..."
+                        ></textarea>
+                    </div>
+                </form>
+
+                <button class=" btn btn-primary btn-block mt-4" (click)="saveBookmark() ; bookmarkModal.hide()">
+                    Save Bookmark
+                </button>
+                <button class=" btn btn-default btn-block mt-3" (click)="bookmarkModal.hide()">
+                    Close
+                </button>
+
+            </div>
+        </div>
+    </div>
+    </div>
+</div>
+</div>
+<!-- End of bookmark modal -->
+
+<!-- Remove bookmark modal -->
+<div
+aria-hidden="true"
+aria-labelledby="removeBookmarkModalLabel"
+bsModal
+class="modal fade"
+#removeBookmarkModal="bs-modal"
+id="removeBookmarkModal"
+role="dialog"
+tabindex="-1"
+>
+<div class="modal-dialog" style="transform: translate(0,0);">
+    <div class="modal-content">
+    <div class="modal-body">
+        <div class="card card-login card-white">
+            <div class=" card-header">
+            <h1 class=" card-title"> Delete Bookmark? </h1>
+            </div>
+            <div class=" card-body">
+
+                <p>
+                    Are you sure you want to delete this bookmark. This cannot be undone.
+                </p>
+
+                <button class=" btn btn-primary btn-block mt-4" (click)="removeBookmark() ; removeBookmarkModal.hide()">
+                    Delete Bookmark
+                </button>
+                <button class=" btn btn-default btn-block mt-3" (click)="removeBookmarkModal.hide()">
+                    Cancel
+                </button>
+
+            </div>
+        </div>
+    </div>
+    </div>
+</div>
+</div>
+<!-- End remove bookmark modal -->

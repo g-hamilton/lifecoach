@@ -1,0 +1,114 @@
+<div class=" card">
+  <div class=" card-body">
+    <!-- Search bar -->
+    <h5 class=" card-title"> Search Coaches </h5>
+    <div class=" row">
+      <div class=" col-md-10">
+        <div class="input-group input-group-lg" id="browse-search">
+          <div class="input-group-prepend">
+            <span class="input-group-text" id="inputGroup-sizing-lg" [ngClass]="{'focus': focus}">
+              <i class=" tim-icons icon-zoom-split mr-3"></i>
+            </span>
+          </div>
+          <input
+          type="text"
+          class="form-control"
+          aria-label="Large"
+          aria-describedby="inputGroup-sizing-sm"
+          placeholder="eg. Health & Wellness Coach"
+          [(ngModel)]="searchTerm"
+          (focus)="focus = true; focusTouched = true"
+          (blur)="focus = false"
+          >
+        </div>
+      </div>
+      <div class=" col-md-2">
+          <a
+          class="btn btn-primary btn-lg btn-round"
+          [routerLink]="['/coaches']"
+          [queryParams]="{q: searchTerm}"
+          role="button"> Go! </a>
+      </div>
+    </div>
+
+    <!-- Browse coach filters -->
+    <div class=" row">
+      <!-- Browse by coach speciality -->
+        <div class=" col-md-4">
+            <h5 class=" card-title"> Browse Coaches by Speciality </h5>
+            <div class=" form-group">
+              <angular2-multiselect
+                [data]="specialitiesList"
+                [settings]="{
+                  enableSearchFilter: false,
+                  searchBy: ['itemName'],
+                  primaryKey: 'itemName',
+                  singleSelection: true,
+                  text: 'Speciality',
+                  classes: 'selectpicker btn-primary'
+                }"
+                [ngModel]="selectedSpecialities"
+                (onSelect)="onSpecialitySelect($event)"
+              >
+              </angular2-multiselect>
+            </div>
+        </div>
+
+        <!-- Refine by coach country -->
+        <div class=" col-md-4">
+            <h5 class=" card-title"> Refine by Country </h5>
+            <div class=" form-group">
+              <angular2-multiselect
+                [data]="coachCountries"
+                [settings]="{
+                  enableSearchFilter: true,
+                  searchPlaceholderText: 'Search countries',
+                  searchBy: ['itemName'],
+                  primaryKey: 'itemName',
+                  singleSelection: true,
+                  text: 'Country',
+                  classes: 'selectpicker btn-success'
+                }"
+                [ngModel]="selectedCountries"
+                (onSelect)="onCountrySelect($event)"
+              >
+                <!-- <c-item>
+                    <ng-template let-item="item">
+                    <label>{{ item.itemName + ' ' + item.itemCount }}</label>
+                    </ng-template>
+                </c-item> -->
+              </angular2-multiselect>
+            </div>
+        </div>
+
+        <!-- Refine coaches by city -->
+        <div class=" col-md-4">
+            <h5 class=" card-title"> Refine by City </h5>
+            <div class=" form-group">
+              <angular2-multiselect
+                [data]="coachCities"
+                [settings]="{
+                  enableSearchFilter: true,
+                  searchPlaceholderText: 'Search cities',
+                  searchBy: ['itemName'],
+                  primaryKey: 'itemName',
+                  singleSelection: true,
+                  text: 'City',
+                  classes: 'selectpicker btn-success',
+                  disabled: selectedCountries.length > 0 ? false : true
+                }"
+                [ngModel]="selectedCities"
+                (onSelect)="onCitySelect($event)"
+              >
+              </angular2-multiselect>
+                <!-- <c-item>
+                    <ng-template let-item="item">
+                    <label>{{ item.itemName + ' ' + item.itemCount }}</label>
+                    </ng-template>
+                </c-item> -->
+            </div>
+        </div>
+
+    </div>
+  </div>
+</div>

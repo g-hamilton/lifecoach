@@ -1,0 +1,225 @@
+<div class=" content">
+    <!-- Loading spinner -->
+    <div *ngIf="!browser" class="text-center">
+        <div class="spinner-border" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+    <!-- Browser -->
+    <div *ngIf="browser">
+
+        <!-- General user data -->
+        <div class=" row">
+            <div class=" col">
+                <div class=" card">
+                    <div class=" card-header">
+                        <h5 class=" card-category"> General User Info </h5>
+                        <h4 class=" card-title"> User </h4>
+                    </div>
+                    <div class=" card-body">
+                        <form>
+                            <div class=" row">
+                                <!-- Lifecoach UID -->
+                                <div class=" col-md-6">
+                                    <div class="form-group">
+                                        <label for="user-uid"> Lifecoach UID
+                                        </label>
+                                        <input type="text" class="form-control" id="user-uid" [value]="targetUserUid">
+                                    </div>
+                                </div>
+                                <!-- Account Email -->
+                                <div class=" col-md-6">
+                                    <div class="form-group">
+                                        <label for="account-email"> Account Email
+                                        </label>
+                                        <input type="email" class="form-control" id="account-email" [value]="account.accountEmail">
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Financial Data -->
+        <div class=" row">
+            <div class=" col">
+                <div class=" card">
+                    <div class=" card-header">
+                        <h5 class=" card-category"> User Financial Data </h5>
+                        <h4 class=" card-title"> Financial </h4>
+                    </div>
+                    <div class=" card-body">
+                        <form>
+                            <div *ngIf="accountType === 'coach'" class=" row">
+                                <div class=" col-md-6">
+                                    <div class="form-group">
+                                        <label for="stripe-uid"> Stripe UID
+                                        </label>
+                                        <input type="text" class="form-control" id="stripe-uid"
+                                        [value]="account.stripeUid ? account.stripeUid : 'Not enabled'">
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User profile data -->
+        <div class=" row">
+            <div class=" col">
+                <div class=" card">
+                    <div class=" card-header">
+                        <h5 class=" card-category"> User Profile Info </h5>
+                        <h4 class=" card-title"> Profile </h4>
+                    </div>
+                    <div class=" card-body">
+
+                        <!-- view profile as public -->
+                        <button
+                        type="button"
+                        class=" btn btn-default btn-round mr-3"
+                        tooltip="View this user's public profile"
+                        (click)="viewPublicUserProfile()"
+                        >
+                            View Public Profile
+                        </button>
+
+                        <!-- edit profile as user -->
+                        <button
+                        type="button"
+                        class=" btn btn-warning btn-round"
+                        tooltip="Edit this user's profile as them"
+                        (click)="editUserProfile()"
+                        >
+                            Edit Profile
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User course(s) data -->
+        <div class=" row">
+            <div class=" col">
+                <div class=" card">
+                    <div class=" card-header">
+                        <h5 class=" card-category"> User Courses Info </h5>
+                        <h4 class=" card-title"> Courses </h4>
+                    </div>
+                    <div class=" card-body">
+                        
+                        <!-- User created courses -->
+                        <h5>
+                            Created Courses
+                            <span *ngIf="courses?.length" class=" ml-1">
+                                ({{ courses.length }})
+                            </span>
+                        </h5>
+                        <div *ngIf="courses?.length" class=" table-responsive">
+                            <table class=" table">
+                            <thead class=" text-primary">
+                                <tr>
+                                <th> Title </th>
+                                <th> ID </th>
+                                <th class=" text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let course of courses">
+                                <td> {{ course.title }} </td>
+                                <td> {{ course.courseId }} </td>
+                                <td class=" text-right">
+                                    <!-- view course as student -->
+                                    <button
+                                    class=" btn btn-success btn-link btn-icon btn-sm btn-simple"
+                                    tooltip="View course as student"
+                                    type="button"
+                                    (click)="viewUserCourse(course.courseId)"
+                                    >
+                                    <i class=" tim-icons icon-single-02"> </i>
+                                    </button>
+                                    <!-- edit course as user -->
+                                    <button
+                                    class=" btn btn-warning btn-link btn-icon btn-sm btn-simple"
+                                    tooltip="Edit course as user"
+                                    type="button"
+                                    (click)="editUserCourse(course.courseId)"
+                                    >
+                                    <i class=" tim-icons icon-single-02"> </i>
+                                    </button>
+                                </td>
+                                </tr>
+                            </tbody>
+                            </table>
+                        </div>
+
+                        <div *ngIf="!courses?.length">
+                            <p>
+                                No courses created
+                            </p>
+                        </div>
+
+                        <!-- Create course as user -->
+                        <button
+                        type="button"
+                        class=" btn btn-primary btn-round mt-3"
+                        tooltip="Create a course as this user"
+                        (click)="createUserCourse()"
+                        >
+                            Create Course
+                        </button>
+
+                        <!-- User purchased courses -->
+                        <div class=" mt-5">
+                            <h5>
+                                Purchased Courses
+                                <span *ngIf="purchasedCourses?.length" class=" ml-1">
+                                    ({{ purchasedCourses.length }})
+                                </span>
+                            </h5>
+                            <div *ngIf="purchasedCourses?.length" class=" table-responsive">
+                                <table class=" table">
+                                <thead class=" text-primary">
+                                    <tr>
+                                    <th> Title </th>
+                                    <th> ID </th>
+                                    <th class=" text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let course of purchasedCourses">
+                                    <td> {{ course.title }} </td>
+                                    <td> {{ course.courseId }} </td>
+                                    <td class=" text-right">
+                                        <!--?? -->
+                                        <button
+                                        class=" btn btn-success btn-link btn-icon btn-sm btn-simple"
+                                        tooltip="??"
+                                        type="button"
+                                        >
+                                        <i class=" tim-icons icon-single-02"> </i>
+                                        </button>
+                                    </td>
+                                    </tr>
+                                </tbody>
+                                </table>
+                            </div>
+
+                            <div *ngIf="!purchasedCourses?.length">
+                                <p>
+                                    No purchased courses
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

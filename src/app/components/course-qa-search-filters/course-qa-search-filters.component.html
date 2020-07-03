@@ -1,0 +1,53 @@
+<!-- Search bar -->
+<div class=" row">
+  <div class=" col-md-9">
+    <div class="input-group input-group-lg" id="qa-search">
+      <div class="input-group-prepend">
+        <span class="input-group-text" id="inputGroup-sizing-lg" [ngClass]="{'focus': focus}">
+          <i class=" tim-icons icon-zoom-split mr-3"></i>
+        </span>
+      </div>
+      <input
+      type="text"
+      class="form-control"
+      aria-label="qa-search"
+      aria-describedby="inputGroup-sizing-lg"
+      placeholder="Search course questions..."
+      [(ngModel)]="searchTerm"
+      (focus)="focus = true; focusTouched = true"
+      (blur)="focus = false"
+      >
+    </div>
+  </div>
+  <div class=" col-md-3">
+      <button
+      class="btn btn-primary btn-simple btn-round"
+      type="button"
+      (click)="searchQuestions()"> Search
+    </button>
+  </div>
+</div>
+
+<!-- Browse course filters -->
+<div class=" row mt-3">
+
+  <!-- Browse by course category -->
+  <div class=" col-md-8">
+    <!-- <h5 class=" card-title"> Browse Courses By Category </h5>
+    <div class="form-group">
+        <select class="form-control" [(ngModel)]="selectedCategory" (change)="onCategorySelect($event)">
+            <option [ngValue]="null"> Select a category... </option>
+            <option *ngFor="let item of categories" [value]="item">
+                {{ item }}
+            </option>
+        </select>
+    </div> -->
+  </div>
+
+  <!-- ask new question -->
+  <div class=" col-md-4">
+    <!--  -->
+  </div>
+
+</div>
+

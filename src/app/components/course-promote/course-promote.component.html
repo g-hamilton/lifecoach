@@ -1,0 +1,40 @@
+<div class=" card">
+    <div class=" card-body">
+        <!-- Promote form -->
+        <form *ngIf="promoteForm" [formGroup]="promoteForm">
+
+            <div class=" mb-3">
+                <a href="https://lifecoach.freshdesk.com/a/solutions/articles/47001127721" target="_blank">
+                    <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> Help with promoting your course </span>
+                </a>
+            </div>
+
+            <!-- Referral code -->
+            <div class=" row">
+                <div class=" col">
+                    <h4> Refer Students </h4>
+                    <div class="">
+                        <div class="form-group">
+                            <label for="referral-code"> Any time a student uses this link, we will credit you with the sale.
+                                <a href="https://lifecoach.freshdesk.com/a/solutions/articles/47001127721" target="_blank">
+                                    Learn more
+                                </a>
+                            </label>
+                            <input #referralCode type="text" class="form-control" id="referral-code" formControlName="referralCode">
+                        </div>
+                    </div>
+                    <button 
+                    *ngIf="browser"
+                    type="button"
+                    class=" btn btn-primary btn-round btn-fill pull-right"
+                    (click)="copyReferralCode(referralCode)">
+                        Copy Link
+                    </button>
+                </div>
+            </div>
+
+        </form>
+        <!-- end promote form -->
+    </div>
+</div>
+

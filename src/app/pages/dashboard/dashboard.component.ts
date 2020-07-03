@@ -1,0 +1,167 @@
+import { Component, OnInit, Inject, PLATFORM_ID  } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+
+import { DataService } from '../../services/data.service';
+import { AuthService } from '../../services/auth.service';
+import { AnalyticsService } from '../../services/analytics.service';
+import { SearchService } from '../../services/search.service';
+import { SsoService } from 'app/services/sso.service';
+
+import { UserTask } from '../../interfaces/user.tasks.interface';
+
+@Component({
+  selector: 'app-dashboard',
+  templateUrl: 'dashboard.component.html'
+})
+export class DashboardComponent implements OnInit {
+
+  private uid: string;
+  public userType: 'coach' | 'regular' | 'admin';
+
+  public adminCountAllUsers: number;
+  public adminCountRegularUsers: number;
+  public adminCountCoachUsers: number;
+  public adminPublicCoachesCount: number;
+  public adminCountAdminUsers: number;
+  public adminNewestUsers: any;
+  public adminPublishedCoursesCount: number;
+  public adminDraftCoursesCount: number;
+  public adminCourseReviewRequests: number;
+  public adminCourseRefundRequests: number;
+  public adminNewestLeads: any;
+  public adminTotalLeads: number;
+
+  public todos: UserTask[];
+  public clients: any;
+
+  public feedbackUrl = 'https://lifecoach.nolt.io';
+
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: object,
+    private authService: AuthService,
+    private dataService: DataService,
+    private analyticsService: AnalyticsService,
+    private searchService: SearchService,
+    private ssoService: SsoService
+  ) {
+  }
+
+  ngOnInit() {
+    if (isPlatformBrowser(this.platformId)) {
+      this.analyticsService.pageView();
+      this.loadUserData();
+    }
+  }
+
+  async loadUserData() {
+    // Get user ID
+    const tempAuthSub = this.authService.getAuthUser()
+    .subscribe(user => {
+      if (user) {
+        // User is authorised
+        // console.log(`User ${user.uid} is authorised`);
+        this.uid = user.uid; // <-- Ensure we get an authorised uid before calling for user data
+
+        // Get a SSO token for this user
+        this.getUserSSOToken();
+
+        // Check the user's custom auth claims for user type
+        user.getIdTokenResult()
+        .then(tokenRes => {
+          // console.log('Custom user claims:', tokenRes.claims);
+          const c = tokenRes.claims;
+          if (c.admin) {
+            this.userType = 'admin';
+            this.loadAdminData();
+          } else if (c.coach) {
+            this.userType = 'coach';
+            this.loadTodos();
+            // this.loadClients();
+          } else if (c.regular) {
+            this.userType = 'regular';
+          } else {
+            this.userType = null;
+          }
+        });
+      }
+      tempAuthSub.unsubscribe();
+    });
+  }
+
+  loadTodos() {
+    this.dataService.getUserTasksTodos(this.uid)
+    .subscribe(todos => {
+      this.todos = todos;
+    });
+  }
+
+  loadClients() {
+    this.clients = [
+      {
+        id: '000000001',
+        firstName: 'Tania',
+        lastName: 'Mike',
+        jobRole: 'CEO',
+        photo: 'assets/img/tania.jpg',
+        actions: [
+          {
+            id: '000000001'
+          }
+        ]
+      }
+    ];
+  }
+
+  async loadAdminData() {
+    const publicCoaches = await this.searchService.searchCoaches(1, 1);
+    this.adminPublicCoachesCount = publicCoaches.nbHits;
+
+    const allUsers = await this.searchService.searchUsers(10, 1);
+    this.adminCountAllUsers = allUsers.nbHits;
+    this.adminNewestUsers = allUsers.hits; // no filter required as index is sorted by date created (descending)
+    // console.log('NEW', this.adminNewestUsers);
+
+    const regularUsers = await this.searchService.searchUsers(1, 1, { params: { accountType: 'regular' }});
+    this.adminCountRegularUsers = regularUsers.nbHits;
+
+    const coachUsers = await this.searchService.searchUsers(1, 1, { params: { accountType: 'coach' }});
+    this.adminCountCoachUsers = coachUsers.nbHits;
+
+    const adminUsers = await this.searchService.searchUsers(1, 1, { params: { accountType: 'admin' }});
+    this.adminCountAdminUsers = adminUsers.nbHits;
+
+    const draftCourses = await this.searchService.searchDraftCourses(1, 1, {}, false);
+    this.adminDraftCoursesCount = draftCourses.nbHits;
+
+    const coursesCount = await this.searchService.searchCourses(1, 1, {}, false);
+    this.adminPublishedCoursesCount = coursesCount.nbHits;
+
+    this.dataService.getTotalAdminCoursesInReview().subscribe(total => {
+      total ? this.adminCourseReviewRequests = total.totalRecords : this.adminCourseReviewRequests = 0;
+    });
+
+    const refundRequestCount = await this.searchService.searchCourseRefundRequests(1, 1, {});
+    this.adminCourseRefundRequests = refundRequestCount.nbHits;
+
+    const leads = await this.searchService.searchCoachLeads(10, 1, {});
+    this.adminTotalLeads = leads.nbHits;
+    this.adminNewestLeads = leads.hits;
+  }
+
+  round(num: number) {
+    return Math.round(num);
+  }
+
+  timestampToDate(timestamp: number) {
+    // Convert unix timestamp (epoch) to date string
+    return new Date(timestamp * 1000).toDateString();
+  }
+
+  async getUserSSOToken() {
+    const token = await this.ssoService.getSsoToken(this.uid);
+    if (token) {
+      this.feedbackUrl = `https://lifecoach.nolt.io/sso/${token}`;
+    }
+  }
+
+}

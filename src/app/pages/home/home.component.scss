@@ -1,0 +1,123 @@
+#home-jumbotron { // see styles.scss for other styles
+    background: url('../../../assets/img/lifecoach-life-coach-hero.png') no-repeat bottom center / cover;
+    margin-bottom: 0;
+}
+
+#coach-rotator:before {
+    content: 'Life';
+    animation: animate infinite 40s;
+    color: #00f2c3;
+}
+@keyframes animate {
+    5% {
+        content: 'Academic';
+    }
+    10% {
+        content: 'Business';
+    }
+    15% {
+        content: 'Career';
+    }
+    20% {
+        content: 'Family';
+    }
+    25% {
+        content: 'Financial';
+    }
+    30% {
+        content: 'Fitness';
+    }
+    35% {
+        content: 'Health';
+    }
+    40% {
+        content: 'Holistic';
+    }
+    45% {
+        content: 'Management';
+    }
+    50% {
+        content: 'Mindset';
+    }
+    55% {
+        content: 'Parenting';
+    }
+    60% {
+        content: 'Productivity';
+    }
+    65% {
+        content: 'Relationship';
+    }
+    70% {
+        content: 'Relocation';
+    }
+    75% {
+        content: 'Retirement';
+    }
+    80% {
+        content: 'Spiritual';
+    }
+    85% {
+        content: 'Sports';
+    }
+    90% {
+        content: 'Transformation';
+    }
+    95% {
+        content: 'Wellness';
+    }
+}
+
+#hero-search {
+    input {
+        background-color: rgba(255, 255, 255, 0.9);
+        border-color: rgba(255, 255, 255, 0.9);
+        color: black;
+    }
+    .input-group-prepend {
+        background-color: #E14ECA;
+        border-radius: 6px 0 0 6px;
+
+        .input-group-text {
+            border: 0;
+
+            i {
+                opacity: 1;
+            }
+        }
+    }
+}
+
+.padded-section {
+    padding-top: 100px;
+    padding-bottom: 100px;
+}
+
+.custom-badge {
+    padding: 1rem 1rem;
+    font-size: 1rem;
+    margin-right: 5px;
+}
+
+#section-one {
+    .container {
+        padding-top: 10vh;
+        padding-bottom: 10vh;
+    }
+}
+
+#section-two {
+    background: linear-gradient(rgba(0,0,0,.3), rgba(0,0,0,.3)), url('../../../assets/img/lifecoach-remote-life-coaches.png') no-repeat bottom center / cover;
+    .container {
+        padding-top: 20vh;
+        padding-bottom: 20vh;
+    }
+}
+
+#section-four {
+    background: linear-gradient(rgba(0,0,0,.5), rgba(0,0,0,.5)), url('../../../assets/img/lifecoach-request-life-coaching.png') no-repeat bottom center / cover;
+    .container {
+        padding-top: 20vh;
+        padding-bottom: 20vh;
+    }
+}

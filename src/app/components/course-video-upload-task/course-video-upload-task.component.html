@@ -1,0 +1,28 @@
+<!-- Only display progress & upload options while upload in progress -->
+<div *ngIf="(inProgress) && percentage | async as pct" class=" mb-2">
+    <p> Uploads </p>
+  </div>
+  
+  <div *ngIf="(inProgress) && percentage | async as pct" class=" progress-container progress-success">
+  
+    <span class=" progress-badge"> {{ file.name }} </span>
+  
+    <progressbar class=" progress-bar-success" [value]="pct" max="100">
+      <span class=" progress-value"> {{ pct.toFixed() | number }}% </span>
+    </progressbar>
+  
+  </div>
+  
+  <div *ngIf="(percentage | async) < 100 && (snapshot | async) as snap">
+  
+    <!-- display mb to one d.p. -->
+    {{ (snap.bytesTransferred / 1024 / 1024).toFixed(1) }} mb of {{ (snap.totalBytes / 1024 / 1024).toFixed(1) }} mb
+  
+    <hr>
+  
+    <!-- Upload options -->
+    <button type="button" (click)="task.pause()" class=" btn btn-warning btn-sm mr-2" [disabled]="!isActive(snap)">Pause</button>
+    <button type="button" (click)="task.cancel()" class=" btn btn-danger btn-sm mr-2" [disabled]="!isActive(snap)">Cancel</button>
+    <button type="button" (click)="task.resume()" class=" btn btn-info btn-sm"   [disabled]="!(snap?.state === 'paused')">Resume</button>
+  
+  </div>  

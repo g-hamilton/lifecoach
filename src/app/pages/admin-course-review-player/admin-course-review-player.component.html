@@ -1,0 +1,363 @@
+<div class=" content">
+    <!-- Loading spinner -->
+    <div *ngIf="!browser" class="text-center">
+        <div class="spinner-border" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+    <div *ngIf="browser">
+
+        <!-- If previously rejected -->
+        <div *ngIf="course?.reviewRequest?.rejected" class=" card">
+            <div class=" card-header">
+                <h6> Resubmission <i class="tim-icons icon-alert-circle-exc text-warning ml-1"> </i> </h6>
+            </div>
+            <div class="card-body">
+                This course was previously rejected on 
+                <span class=" text-warning">
+                    {{ getDisplayDate(course?.reviewRequest?.rejected) }}
+                </span> 
+                 by Admin User 
+                <span class=" text-warning">
+                    {{ course?.reviewRequest?.reviewerUid }}
+                </span>
+                 for the following reason(s):
+                <div class=" highlight-box">
+                    {{ course.reviewRequest.rejectData.reason }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Course player -->
+        <div *ngIf="course" class=" row">
+            <!-- player & info col -->
+            <div class=" col-md-8 pr-0">
+
+                <!-- lecture type video -->
+                <div *ngIf="lecture?.type === 'Video'">
+                    <!-- Video player -->
+                    <vg-player (onPlayerReady)="onPlayerReady($event)">
+                    <vg-controls>
+                        <vg-play-pause></vg-play-pause>
+                        <vg-playback-button></vg-playback-button>
+                    
+                        <vg-time-display vgProperty="current" vgFormat="mm:ss"></vg-time-display>
+                    
+                        <vg-scrub-bar>
+                            <vg-scrub-bar-current-time></vg-scrub-bar-current-time>
+                            <vg-scrub-bar-buffering-time></vg-scrub-bar-buffering-time>
+                        </vg-scrub-bar>
+                    
+                        <vg-time-display vgProperty="total" vgFormat="mm:ss"></vg-time-display>
+                    
+                        <vg-mute></vg-mute>
+                        <vg-volume></vg-volume>
+                    
+                        <vg-fullscreen></vg-fullscreen>
+                    </vg-controls>
+                    
+                    <video #media [vgMedia]="media" id="courseVideo" preload="auto" autoplay="true">
+                        <source *ngFor="let video of videoSources" [src]="video">
+                    </video>
+                    </vg-player>
+                    <!-- end video player -->
+                </div>
+                <!-- end lecture type video -->
+
+                <!-- lecture type article -->
+                <div *ngIf="lecture?.type === 'Article'">
+                    <div
+                    style="overflow-y: scroll; height: 64vh; padding: 0 2rem 3rem 0;"
+                    [innerHTML]="lecture.article">
+                    </div>
+                </div>
+                <!-- end lecture type article -->
+
+                <!-- course info -->
+                <div class="card">
+                    <div class="card-header">
+                      <tabset class="nav-tabs-primary">
+                        <tab>
+                          <ng-template tabHeading>
+                            <i class="fas fa-graduation-cap"></i> Overview
+                          </ng-template>
+                          <div class=" tab-body">
+                            <h3> About this course </h3>
+                            <h4> {{ course?.title }} </h4>
+                            <h5> {{ course?.subtitle }} </h5>
+                            <table class=" table">
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <p>
+                                                Price
+                                            </p>
+                                        </td>
+                                        <td>
+                                            <p *ngIf="course.pricingStrategy === 'paid'">
+                                                Currency: {{ course.currency }}
+                                            </p>
+                                            <p >
+                                                Amount: {{ course.pricingStrategy === 'paid' ? course.price : 'FREE' }}
+                                            </p>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <p>
+                                                By the numbers
+                                            </p>
+                                        </td>
+                                        <td>
+                                            <p>
+                                                Level:
+                                                <span *ngIf="course?.level === 'all'">
+                                                    All levels
+                                                </span>
+                                                <span *ngIf="course?.level === 'beginner'">
+                                                    Beginner
+                                                </span>
+                                                <span *ngIf="course?.level === 'intermediate'">
+                                                    Intermediate
+                                                </span>
+                                                <span *ngIf="course?.level === 'advanced'">
+                                                    Advanced
+                                                </span>
+                                            </p>
+                                            <p>
+                                                Lectures: {{ course?.lectures.length }}
+                                            </p>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <p>
+                                                Description
+                                            </p>
+                                        </td>
+                                        <td>
+                                            <div class=" card-description" [innerHTML]="course?.description"></div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <p>
+                                                Coach
+                                            </p>
+                                        </td>
+                                        <td>
+                                            <app-course-coach [course]="course"></app-course-coach>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                          </div>
+                        </tab>
+                        <tab>
+                            <ng-template tabHeading>
+                                <i class="far fa-images"></i> Image & Promo Video
+                            </ng-template>
+                            <div class=" tab-body">
+                                <div class="mb-3">
+                                    <!-- course promo vid? -->
+                                    <div *ngIf="course.promoVideo">
+                                        <vg-player>
+                                        <vg-controls>
+                                            <vg-play-pause></vg-play-pause>
+                                            <vg-playback-button></vg-playback-button>
+                                        
+                                            <vg-time-display vgProperty="current" vgFormat="mm:ss"></vg-time-display>
+                                        
+                                            <vg-scrub-bar>
+                                                <vg-scrub-bar-current-time></vg-scrub-bar-current-time>
+                                                <vg-scrub-bar-buffering-time></vg-scrub-bar-buffering-time>
+                                            </vg-scrub-bar>
+                                        
+                                            <vg-time-display vgProperty="total" vgFormat="mm:ss"></vg-time-display>
+                                        
+                                            <vg-mute></vg-mute>
+                                            <vg-volume></vg-volume>
+                                        
+                                            <vg-fullscreen></vg-fullscreen>
+                                        </vg-controls>
+                                        
+                                        <video #media [vgMedia]="media" id="singleVideo" preload="auto">
+                                            <source [src]="course.promoVideo.downloadURL">
+                                        </video>
+                                        </vg-player>
+                                    </div>
+
+                                    <!-- course image? -->
+                                    <img
+                                    *ngIf="course.image"
+                                    class=""
+                                    [src]="course.image ? course.image : 'assets/img/image_placeholder.jpg'"
+                                    [alt]="course.title" />
+                                </div>
+                            </div>
+                        </tab>
+                        <tab>
+                            <ng-template tabHeading>
+                                <i class="fas fa-file-alt"></i> Landing Page Info
+                            </ng-template>
+                            <div class=" tab-body">
+                                <div class=" mb-3">
+                                    <!-- learning points -->
+                                    <div *ngIf="course.learningPoints" class=" mt-4">
+                                        <h4 class=""> What you'll learn </h4>
+                                        <ul>
+                                            <li *ngFor="let item of course.learningPoints">
+                                            {{ item }}
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <!-- requirements -->
+                                    <div class=" mt-4">
+                                        <h4 class=""> Requirements </h4>
+                                        <ul>
+                                            <li *ngFor="let item of course.requirements">
+                                            {{ item }}
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <!-- target students -->
+                                    <div class=" mt-4">
+                                        <h4 class=""> Target Students </h4>
+                                        <ul>
+                                            <li *ngFor="let item of course.targets">
+                                            {{ item }}
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </tab>                     
+                      </tabset>
+                    </div>
+                </div>
+                <!-- end course info -->
+
+            </div>
+            <!-- end player & info col -->
+
+            <!-- curriculum col -->
+            <div class=" col-md-4 pl-0">
+                <div class=" card">
+                    <div class=" card-body">
+                        <app-learn-lectures-navigator
+                        [course]="course"
+                        [lecturesComplete]="lecturesComplete"
+                        [adminMode]="true"
+                        (lectureCompleteEvent)="onLectureCompleteChange($event)">
+                        </app-learn-lectures-navigator>
+                    </div>
+                </div>
+            </div>
+            <!-- end curriculum col -->
+        </div>
+
+        <!-- Admin review decision panel -->
+        <div class=" card">
+            <div class=" card-header">
+                <h6> Admin Decision </h6>
+            </div>
+            <div class=card-body>
+                <div class="pull-right">
+                    <button class="btn btn-danger mr-2" (click)="rejectModal.show()">
+                        <i class="fas fa-thumbs-down"></i> Reject 
+                    </button>
+                    <button class="btn btn-success" (click)="approveCourse()">
+                        <span *ngIf="!approving">
+                            <i class="fas fa-thumbs-up"></i>
+                          </span>
+                          <span
+                          *ngIf="approving"
+                          class="spinner-border spinner-border-sm"
+                          role="status"
+                          ></span> {{ approving ? 'Approving...' : 'Approve'}} 
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reject modal -->
+    <div
+    aria-hidden="true"
+    aria-labelledby="rejectModalLabel"
+    bsModal
+    class="modal fade"
+    #rejectModal="bs-modal"
+    id="rejectModal"
+    role="dialog"
+    tabindex="-1"
+    >
+    <div class="modal-dialog" style="transform: translate(0,0);">
+        <div class="modal-content">
+        <div class="modal-body">
+            <div class="card card-login card-white">
+                <div class=" card-header">
+                <h1 class=" card-title"> Reject This Course </h1>
+                </div>
+                <div class=" card-body">
+                    <form [formGroup]="rejectForm">
+                        <div class="form-group">
+                            <label for="rejectReason"> Reason </label>
+                            <textarea
+                            class="form-control"
+                            id="rejectReason"
+                            rows="3"
+                            formControlName="reason"
+                            (focus)="focus = true; focusTouched = true"
+                            (blur)="focus = false"
+                            [ngClass]="{
+                                'has-danger':
+                                ((focusTouched || rejecting) &&
+                                    rejectF.reason.errors) ||
+                                (rejectF.reason.value != '' &&
+                                    rejectF.reason.errors),
+                                'has-success': !rejectF.reason.errors
+                            }">
+                            </textarea>
+                            <label
+                            class="error custom-error-label"
+                            *ngIf="
+                            ((focusTouched || rejecting) &&
+                            rejectF.reason.errors) ||
+                            (rejectF.reason.value != '' &&
+                            rejectF.reason.errors)"
+                            > Please provide a reason. Note: The user will see this!
+                            </label>
+                          </div>
+                    </form>
+                    <!-- Submit Button -->
+                    <button
+                    class=" btn btn-primary btn-lg btn-block btn-round mt-4 mb-3"
+                    type="button"
+                    (click)="rejectCourse()"
+                    >
+                        <span
+                        *ngIf="rejecting"
+                        class="spinner-border spinner-border-sm"
+                        role="status"
+                        ></span> {{ rejecting ? 'Rejecting...' : 'Confirm Reject' }}
+                    </button>
+
+                    <!-- Cancel Button -->
+                    <button
+                    class=" btn btn-success btn-lg btn-block btn-round mt-4 mb-3"
+                    (click)="rejectModal.hide()"
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+    </div>
+    <!-- End of reject modal -->
+
+</div>

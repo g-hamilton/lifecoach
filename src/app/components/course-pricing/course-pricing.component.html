@@ -1,0 +1,183 @@
+<div class=" card">
+    <div class=" card-body">
+        <form *ngIf="pricingForm" [formGroup]="pricingForm" (submit)="onSubmit()">
+
+            <h5>Course Pricing
+                <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001126533-how-to-price-your-course" target="_blank">
+                    <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> Help with pricing </span>
+                </a>
+            </h5>
+
+            <!-- Course free vs paid -->
+            <div class=" row">
+                <div class=" col">
+                    <div class="form-check form-check-radio">
+                        <label class="form-check-label">
+                            <input class="form-check-input" type="radio" id="pricing-radio-free" value="free" formControlName="pricingStrategy">
+                            Always free
+                            <span class="form-check-sign"></span>
+                        </label>
+                    </div>
+                    <div class="form-check form-check-radio">
+                        <label class="form-check-label">
+                            <input class="form-check-input" type="radio" id="pricing-radio-paid" value="paid" formControlName="pricingStrategy" (change)="onStrategyChange($event)">
+                            Paid
+                            <span class="form-check-sign"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Course price & currency -->
+            <div class=" row mt-3" *ngIf="pricingF?.pricingStrategy.value === 'paid'">
+
+                <!-- Currency -->
+                <div class=" col-6">
+                    <div class="">
+                        <label> Course Currency </label>
+                    </div>
+                    <app-select-currency
+                    [currency]="pricingF?.currency?.value"
+                    (currencyEvent)="onCurrencyEvent($event)">
+                    </app-select-currency>
+                </div>
+
+                <!-- Price -->
+                <div class=" col-6">
+                <div class="">
+                    <label> Course price </label>
+                </div>
+                <div
+                class="form-group"
+                [ngClass]="{
+                    'has-danger':
+                    ((focusTouched || saving) && pricingF.price.value != '' && pricingF.price.errors) ||
+                    (pricingF.price.value != '' && pricingF.price.errors),
+                    'has-success': !pricingF.price.errors
+                }">
+                    <input
+                    type="number"
+                    class="form-control"
+                    formControlName="price"
+                    placeholder="eg. 9.99"
+                    (focus)="focusTouched = true">
+                </div>
+                <div *ngIf="((focusTouched || saving) && pricingF.price.value != '' && pricingF.price.errors) ||
+                    (pricingF.price.value != '' && pricingF.price.errors)">
+                    <label
+                    *ngFor="let error of objKeys(pricingF.price.errors)"
+                    class="error custom-error-label"
+                    >{{ showError('price', error) }}
+                    </label>
+                </div>
+                <!-- End of course price -->
+                </div>
+            </div>
+
+            <!-- Promotions reminder -->
+            <p *ngIf="pricingF.pricingStrategy.value === 'paid'" class=" mt-4 small">
+                <span class=" text-success">Pricing Tip</span>: Opt into the 'Deals' & 'Extended Promotions' programs in 
+                <a [routerLink]="['/account']">'Account > Course Settings'</a> 
+                to join our platform wide promotions programs.
+            </p>
+
+            <!-- Course support -->
+            <div class=" mt-5">
+                <h5>
+                    Course Support
+                </h5>
+                <!-- Disable instructor support -->
+                <div>
+                    <div class=" form-group mt-3">
+                        <label> Disable your support for this course </label>
+                        <a href="" target="_blank">
+                            <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> What is this? </span>
+                        </a>
+                        <div class=" mt-3">
+                            <bSwitch
+                            [switch-on-color]="'danger'"
+                            [switch-off-color]="'danger'"
+                            [switch-off-text]="'NO'"
+                            [switch-on-text]="'YES'"
+                            [(ngModel)]="pricingF.disableInstructorSupport.value"
+                            [ngModelOptions]="{standalone: true}"
+                            (changeState)="onDisableInstructorSupportToggle($event)"
+                        >
+                        </bSwitch>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Disable all discussion -->
+                <div class=" mt-3">
+                    <div class=" form-group mt-3">
+                        <label> Disable all public course discussion </label>
+                        <a href="" target="_blank">
+                            <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> What is this? </span>
+                        </a>
+                        <div class=" mt-3">
+                            <bSwitch
+                            [switch-on-color]="'danger'"
+                            [switch-off-color]="'danger'"
+                            [switch-off-text]="'NO'"
+                            [switch-on-text]="'YES'"
+                            [(ngModel)]="pricingF.disableAllDiscussion.value"
+                            [ngModelOptions]="{standalone: true}"
+                            (changeState)="onDisableAllDiscussionToggle($event)"
+                        >
+                        </bSwitch>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coaching for Coaches -->
+            <div class=" mt-5">
+                <h5>
+                    Coaching for Coaches Program
+                </h5>
+                <div class=" form-group mt-3">
+                    <label> Include this course in the Lifecoach 'Coaching for Coaches' Program </label>
+                    <a href="" target="_blank">
+                        <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> What is this? </span>
+                    </a>
+                    <p class=" small mt-3">
+                        <span class=" text-primary">Important</span>: Only check yes if this course is aimed specifically at Coaches.
+                        <br>
+                        Selecting yes will market this course directly to Coaches under the Lifecoach 'Coaching for Coaches program', which
+                        seeks to help Coaches of all experience levels to grow & improve.
+                    </p>
+                    <div class=" mt-3">
+                        <bSwitch
+                        [switch-on-color]="'danger'"
+                        [switch-off-color]="'danger'"
+                        [switch-off-text]="'NO'"
+                        [switch-on-text]="'YES'"
+                        [(ngModel)]="pricingF.includeInCoachingForCoaches.value"
+                        [ngModelOptions]="{standalone: true}"
+                        (changeState)="onIncludeInCoachingForCoachesToggle($event)"
+                      >
+                      </bSwitch>
+                    </div>
+                    
+                </div>
+    
+            </div>
+
+            <!-- Form submit button -->
+            <div class=" pull-right">
+                <button type="submit" class=" btn btn-primary btn-round btn-fill mt-4">
+                    <span *ngIf="!saving">
+                        <i class="fas fa-save"></i>
+                      </span>
+                      <span
+                      *ngIf="saving"
+                      class="spinner-border spinner-border-sm"
+                      role="status"
+                      ></span> {{ saving ? 'Saving...' : 'Save'}}
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>

@@ -1,0 +1,77 @@
+<!-- Loading spinner -->
+<!-- <div *ngIf="" class="text-center">
+    <div class="spinner-border" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+</div> -->
+
+<div *ngIf="results && results.length > 0">
+    <!-- Results table -->
+    <table class=" table">
+        <thead>
+          <tr>
+            <th>
+              <label> Library </label>
+              <span class=" h5 text-light ml-2">
+                <i
+                class="fas fa-info-circle btn-tooltip"
+                data-animation="true"
+                data-container="body"
+                placement="top"
+                tooltip="Any files that you upload to this course will appear here in your course library.">
+                </i>
+              </span>
+            </th>
+            <th class="text-right"> Select </th>
+          </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor=" let item of results; let i = index">
+              <td>
+                {{ item.fileName }}
+              </td>
+              <td class="td-actions text-right">
+                <button
+                  type="button"
+                  rel="tooltip"
+                  class="btn btn-success btn-icon btn-sm"
+                  data-original-title=""
+                  title=""
+                  (click)="onLibraryItemSelect(i)"
+                  [disabled]="isAlreadySelected(i)">
+                    <i class="tim-icons icon-check-2"></i>
+                </button>
+              </td>
+            </tr>
+        </tbody>
+      </table>
+
+    <!-- Results pager -->
+    <div class=" row justify-content-center">
+        <div class=" col-md-6">
+            <div class=" card-body">
+            <nav>
+                <pagination
+                class=" pagination-primary justify-content-center mt-3"
+                [boundaryLinks]="true"
+                [rotate]="true"
+                [(ngModel)]="page"
+                [totalItems]="totalItems"
+                [itemsPerPage]="itemsPerPage"
+                [maxSize]="maxSize"
+                [previousText]="'Prev'"
+                (pageChanged)="pageChanged($event)">
+                </pagination>
+            </nav>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- No library items uploaded yet -->
+<div *ngIf="!results || results.length === 0">
+  <p class=" text-muted">
+    <i class="tim-icons icon-alert-circle-exc"></i> You haven't uploaded any files yet.
+  </p>
+</div>

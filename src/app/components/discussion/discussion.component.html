@@ -1,0 +1,50 @@
+<div class=" card card-highlight-on-hover mb-3">
+    <div class=" card-body" [routerLink]="['/course-discussions', 'rooms', question.id]">
+        <div class=" row">
+            <div class=" col-auto">
+                <!-- avatar -->
+                <td>
+                    <div class=" text-center">
+                        <img *ngIf="question.askerPhoto"
+                        [src]="question.askerPhoto"
+                        style="width: 40px; height: 40px; border-radius: 40px; object-fit: cover;">
+                        <img
+                        *ngIf="!question.askerPhoto"
+                        src="https://eu.ui-avatars.com/api/?name={{question.askerFirstName}}+{{question.askerLastName}}&background=00f2c3&color=fff&rounded=true&bold=true"
+                        style="width: 40px; height: 40px; border-radius: 40px; object-fit: cover;">
+                    </div>
+                </td>
+            </div>
+            <div class=" col">
+                <p>
+                    <strong> {{ question.title }} </strong>
+                </p>
+            </div>
+        </div>
+        <div class=" row">
+            <div class=" col">
+                <small> {{ question.askerFirstName + ' ' + question.askerLastName + ' - ' + lectureTitle + ' - ' + displayDate(question.created) }} </small>
+                <p>
+                    <small>
+                        {{ question.upVotes ? question.upVotes : '0' }}
+                        <i
+                        class="fa fa-arrow-up btn-tooltip ml-1 upvote"
+                        data-animation="true"
+                        data-container="body"
+                        placement="top"
+                        tooltip="Upvote this question."
+                        ></i>
+
+                        {{ question.replies ? question.replies : '0' }}
+                        <i
+                        class="fa fa-comments btn-tooltip ml-1"
+                        data-animation="true"
+                        data-container="body"
+                        placement="top"
+                        tooltip="Number of replies."></i>
+                    </small>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

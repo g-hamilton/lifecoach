@@ -1,0 +1,38 @@
+<app-auth-navbar></app-auth-navbar>
+
+<div class="full-page browse-page">
+
+  <div class=" content" id="browse-page-content">
+    <div class=" container">
+
+      <!-- Search & Filters View -->
+      <app-search-filter-ui
+      (messageEventCountries)="onCountriesUpdated($event)"
+      (messageEventCities)="onCitiesUpdated($event)"
+      ></app-search-filter-ui>
+
+      <!-- Results View -->
+      <app-results [results]="hits"></app-results>
+
+      <!-- Navigator View -->
+      <app-navigator
+      [page]="page"
+      [totalItems]="totalHits"
+      [itemsPerPage]="hitsPerPage"
+      [maxSize]="maxSize"
+      (messageEvent)="receivePageUpdate($event)"
+      ></app-navigator>
+
+      <!-- Botlinks View -->
+      <app-botlinks
+      [filters]="filters"
+      [countries]="coachCountries"
+      [cities]="coachCities"
+      ></app-botlinks>
+
+    </div>
+  </div>
+
+</div>
+
+<app-page-footer></app-page-footer>

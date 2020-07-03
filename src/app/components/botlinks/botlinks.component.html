@@ -1,0 +1,27 @@
+<div class=" botlinks">
+    <div *ngIf="filters.params.category && !filters.params['country']">
+        <p>Find a {{ filters.params.category }} life coach in:</p>
+        <ul>
+            <li *ngFor=" let country of countries">
+                <a
+                [routerLink]="['/coaches']"
+                [queryParams]="{category: filters.params['category'], country: country.itemName}">
+                    {{ country.itemName }}
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+    <div *ngIf="filters.params.category && filters.params['country']">
+        <p>Find a {{ filters.params.category }} life coach in:</p>
+        <ul>
+            <li *ngFor=" let city of cities">
+                <a
+                [routerLink]="['/coaches']"
+                [queryParams]="{category: filters.params['category'], country: filters.params['country'], city: city.itemName}">
+                    {{ city.itemName }}
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>

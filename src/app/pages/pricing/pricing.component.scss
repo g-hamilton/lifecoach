@@ -1,0 +1,47 @@
+#pricing-jumbotron {
+    background: url('../../../assets/img/become-a-life-coach-lifecoach.png') no-repeat bottom center / cover;
+}
+
+.padded-section {
+    padding-top: 100px;
+    padding-bottom: 100px;
+}
+
+#section-one {
+    .container {
+        padding-top: 10vh;
+        padding-bottom: 10vh;
+    }
+}
+
+#section-two {
+    background-color: #161515;
+    .container {
+        padding-top: 10vh;
+        padding-bottom: 10vh;
+    }
+}
+
+#section-four {
+    background: linear-gradient(rgba(0,0,0,.75), rgba(0,0,0,.75)), url('../../../assets/img/lifecoach-coaching-online-courses.png') no-repeat bottom center / cover;
+    .container {
+        padding-top: 10vh;
+        padding-bottom: 10vh;
+    }
+}
+
+#section-five {
+    background-color: #161515;
+    .container {
+        padding-top: 10vh;
+        padding-bottom: 10vh;
+    }
+}
+
+#section-six {
+    padding-bottom: 0;
+    .container {
+        padding-top: 10vh;
+        padding-bottom: 20vh;
+    }
+}

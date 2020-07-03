@@ -1,0 +1,128 @@
+<!-- Loading spinner -->
+<div *ngIf="!course" class="text-center">
+    <div class="spinner-border" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+</div>
+
+<!-- Course loaded -->
+<div *ngIf="course">
+    <div
+    aria-multiselectable="true"
+    class="card-collapse"
+    id="accordion"
+    role="tablist"
+    >
+    <!-- Draggable section container -->
+    <div cdkDropList #sectionList="cdkDropList" (cdkDropListDropped)="onSectionDrop($event)">
+        <!-- Draggable accordion section elements -->
+        <div *ngFor="let section of course.sections ; let s = index" class="card card-plain" cdkDragLockAxis="y" cdkDrag>
+            <div class="card-header" [id]="'heading' + s" role="tab">
+            <a
+                [attr.aria-controls]="'Collapse' + s"
+                class="d-flex"
+                data-parent="#accordion"
+                [attr.aria-expanded]="!section.expanded"
+                [id]="'Collapse' + s"
+            >
+                <i
+                class="fas fa-bars mr-2"
+                tooltip="Drag sections to re-order them">
+                </i>
+                <h6
+                style="display: inline-block;"
+                tooltip="Click to edit section titles">
+                    <a
+                    [routerLink]="['/my-courses', course.courseId, 'content', 'section', section.id]"
+                    [queryParams]="{ targetUser: targetUserUid }">
+                        {{ section.title }}
+                    </a>
+                </h6>
+                <i
+                class="far fa-trash-alt text-danger ml-auto"
+                tooltip="Click to delete this section"
+                (click)="confirmDeleteSection(section, s)">
+                </i>
+                <i
+                [ngClass]="{
+                    'tim-icons' : true,
+                    'icon-minimal-down' : !section.expanded,
+                    'icon-minimal-up' : section.expanded,
+                    'ml-3' : true
+                }"
+                tooltip="Click to show or hide lectures"
+                (click)="section.expanded = !section.expanded ; autoSaveCourse()">
+                </i>
+            </a>
+            </div>
+            <div
+            [attr.aria-labelledby]="'heading' + s"
+            class="show"
+            [isAnimated]="true"
+            [collapse]="!section.expanded"
+            [id]="'Collapse' + s"
+            role="tabpanel"
+            >
+                <div class="card-body">
+                    <!-- Child draggable lecture container -->
+                    <div
+                    cdkDropList
+                    (cdkDropListDropped)="onLectureDrop($event)"
+                    [id]="'lectureList' + s"
+                    [cdkDropListConnectedTo]="allLectureLists">
+                        <!-- Draggable accordion lecture elements -->
+                        <div *ngFor="let lecture of (course.lectures | filterLectures:section) ; let l = index" class="card card-plain" cdkDragLockAxis="y" cdkDrag>
+                            <div class="card-body">
+                                <i
+                                class="fas fa-bars mr-2"
+                                tooltip="Drag lectures to re-order them">
+                                </i>
+                                <p tooltip="Click to edit lecture" style="display: inline-block;">
+                                    <a
+                                    [routerLink]="['/my-courses', course.courseId, 'content', 'section', section.id, 'lecture', lecture.id]"
+                                    [queryParams]="{ targetUser: targetUserUid }">
+                                        {{ truncate(lecture.title, 26) }}
+                                    </a>
+                                </p>
+                                <i
+                                class="far fa-trash-alt text-danger pull-right"
+                                tooltip="Click to delete lecture"
+                                (click)="confirmDeleteLecture(s, l, lecture)">
+                                </i>
+                            </div>
+                        </div>
+                        <!-- Add new lecture -->
+                        <div>
+                            <p>
+                                <button
+                                type="button"
+                                class="btn btn-primary btn-link"
+                                [routerLink]="['/my-courses', course.courseId, 'content', 'section', section.id, 'lecture', 'new']"
+                                [queryParams]="{ targetUser: targetUserUid }"
+                                tooltip="Click to add a new lecture into this section"
+                                (click)="onAddNewLecture()">
+                                <i class="fas fa-plus"></i> Add New Lecture 
+                                </button>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <!-- Add new section -->
+    <div>
+        <p>
+            <button
+            type="button"
+            class="btn btn-primary btn-link"
+            [routerLink]="['/my-courses', course.courseId, 'content', 'section', 'new']"
+            [queryParams]="{ targetUser: targetUserUid }"
+            tooltip="Click to add a new section to this course"
+            (click)="onAddNewSection()"> 
+            <i class="fas fa-plus"></i> Add New Section 
+            </button>
+        </p>
+    </div>
+</div>

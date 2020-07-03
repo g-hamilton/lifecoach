@@ -1,0 +1,88 @@
+<div class=" content">
+    <!-- Loading spinner -->
+    <div *ngIf="!browser" class="text-center">
+        <div class="spinner-border" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+    <div *ngIf="browser">
+        <div class=" row">
+            <div class=" col">
+                <div class=" card">
+                    <div class=" card-header">
+                        <h5 class=" card-title"> Requested Refunds </h5>
+                    </div>
+                    <div class=" card-body">
+                        <ais-instantsearch [config]="aisConfig">
+                            <ais-search-box></ais-search-box>
+                            <ais-hits>
+                                <ng-template let-hits="hits">
+                                    <div class=" table-responsive">
+                                        <table class=" table">
+                                        <thead class=" text-primary">
+                                            <tr>
+                                            <th> Requested </th>
+                                            <th> Purchased </th>
+                                            <th> Course ID </th>
+                                            <th> Amount </th>
+                                            <th> Currency </th>
+                                            <th> Reason </th>
+                                            <th> Status </th>
+                                            <th class=" text-right"> Actions </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let hit of hits" class="">
+                                            <td> {{ timestampToDate(hit.created) }} </td>
+                                            <td> {{ timestampToDate(hit.paymentIntent.created) }} </td>
+                                            <td> {{ hit.paymentIntent.metadata.course_id }} </td>
+                                            <td> {{ hit.paymentIntent.amount / 100 }} </td>
+                                            <td> {{ (hit.paymentIntent.currency).toUpperCase() }} </td>
+                                            <td> {{ hit.formData.reason }} </td>
+                                            <td>
+                                                <p
+                                                class="text-capitalize"
+                                                [ngClass]="{
+                                                    'text-warning': hit.status === 'requested',
+                                                    'text-success': hit.status === 'refunded'
+                                                }"
+                                                >
+                                                    {{ hit.status }} 
+                                                </p>
+                                            </td>
+                                            <td class=" text-right">
+                                                <!-- Action buttons -->
+                                                <!-- Approve -->
+                                                <button
+                                                class=" btn btn-success btn-link btn-icon btn-sm btn-simple"
+                                                tooltip="Approve"
+                                                type="button"
+                                                (click)="approveRefund(hit)"
+                                                [disabled]="hit.status === 'refunded'"
+                                                >
+                                                <i class=" tim-icons icon-check-2"> </i>
+                                                </button>
+                                                <!-- Deny -->
+                                                <button
+                                                class=" btn btn-danger btn-link btn-icon btn-sm btn-simple"
+                                                tooltip="Deny"
+                                                type="button"
+                                                [disabled]="hit.status === 'refunded'"
+                                                >
+                                                <i class=" tim-icons icon-simple-remove"> </i>
+                                                </button>
+                                            </td>
+                                            </tr>
+                                        </tbody>
+                                        </table>
+                                    </div>
+                                </ng-template>
+                            </ais-hits>
+                        </ais-instantsearch>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>

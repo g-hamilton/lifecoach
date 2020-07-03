@@ -1,0 +1,237 @@
+<!-- no results -->
+<div *ngIf="!results">
+    <p class=" text-center m-3">
+        This course has no questions yet. 
+    </p>
+</div>
+
+<!-- results loaded -->
+<div *ngIf="results">
+    <table class=" table mt-4">
+        <tbody>
+            <tr *ngFor="let question of results" class=" question">
+                <!-- avatar -->
+                <td (click)="selectedQuestion = question ; replies = [] ; loadSelectedQuestionReplies(question) ; questionReplyModal.show()">
+                    <div class=" text-center">
+                        <img *ngIf="question.askerPhoto"
+                        [src]="question.askerPhoto"
+                        style="width: 40px; height: 40px; border-radius: 40px; object-fit: cover;">
+                        <img
+                        *ngIf="!question.askerPhoto"
+                        src="https://eu.ui-avatars.com/api/?name={{question.askerFirstName}}+{{question.askerLastName}}&background=00f2c3&color=fff&rounded=true&bold=true"
+                        style="width: 40px; height: 40px; border-radius: 40px; object-fit: cover;">
+                    </div>
+                </td>
+                <!-- question -->
+                <td (click)="selectedQuestion = question ; replies = [] ;  loadSelectedQuestionReplies(question) ; questionReplyModal.show()">
+                    <div>
+                        <strong>
+                            <span *ngIf="question.type === 'platform'" class=" badge badge-pill badge-default mr-2">
+                                Technical
+                            </span>
+                                {{ question.title }} 
+                        </strong>
+                        <p [innerHTML]="question.detail"></p>
+                        <small> {{ question.askerFirstName + ' ' + question.askerLastName + ' - ' + getLectureTitle(question.lectureId) + ' - ' + displayDate(question.created) }} </small>
+                    </div>
+                </td>
+                <!-- upvotes & comments -->
+                <td>
+                    <div>
+                        <p> 
+                            {{ question.upVotes ? question.upVotes : '0' }}
+                            <i
+                            class="fa fa-arrow-up btn-tooltip ml-1 upvote"
+                            data-animation="true"
+                            data-container="body"
+                            placement="top"
+                            tooltip="Upvote this question."
+                            (click)="upVote(question)"></i>
+                        </p>
+                        <p (click)="selectedQuestion = question ; replies = [] ;  loadSelectedQuestionReplies(question) ; questionReplyModal.show()"> 
+                            {{ question.replies ? question.replies : '0' }}
+                            <i
+                            class="fa fa-comments btn-tooltip ml-1"
+                            data-animation="true"
+                            data-container="body"
+                            placement="top"
+                            tooltip="Number of replies."></i>
+                        </p>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Question reply modal -->
+<div
+aria-hidden="true"
+aria-labelledby="questionReplyLabel"
+bsModal
+class="modal fade"
+#questionReplyModal="bs-modal"
+id="questionReplyModal"
+role="dialog"
+tabindex="-1"
+>
+<div class="modal-dialog modal-dialog-scrollable" style="transform: translate(0,0); max-width: 80%;">
+    <div class="modal-content">
+    <div class="modal-body">
+        <div class="card card-login card-white">
+            <div class=" card-body">
+
+                <table *ngIf="selectedQuestion" class=" table mt-4">
+                    <tbody>
+                        <tr class="">
+                            <!-- avatar -->
+                            <td>
+                                <div class=" text-center">
+                                    <img *ngIf="selectedQuestion.askerPhoto"
+                                    [src]="selectedQuestion.askerPhoto"
+                                    style="width: 40px; height: 40px; border-radius: 40px; object-fit: cover;">
+                                    <img
+                                    *ngIf="!selectedQuestion.askerPhoto"
+                                    src="https://eu.ui-avatars.com/api/?name={{selectedQuestion.askerFirstName}}+{{selectedQuestion.askerLastName}}&background=00f2c3&color=fff&rounded=true&bold=true"
+                                    style="width: 40px; height: 40px; border-radius: 40px; object-fit: cover;">
+                                </div>
+                            </td>
+                            <!-- question -->
+                            <td class=" test">
+                                <div>
+                                    <p *ngIf="selectedQuestion.type === 'platform'">
+                                        <span class=" badge badge-pill badge-default mr-2">
+                                            Technical Question
+                                        </span>
+                                    </p>
+                                    <strong> {{ selectedQuestion.title }} </strong>
+                                    <p [innerHTML]="selectedQuestion.detail"></p>
+                                    <small> {{ selectedQuestion.askerFirstName + ' ' + selectedQuestion.askerLastName + ' - ' + getLectureTitle(selectedQuestion.lectureId) + ' - ' + displayDate(selectedQuestion.created) }} </small>
+                                </div>
+                            </td>
+                            <!-- upvotes & comments -->
+                            <td>
+                                <div>
+                                    <p> 
+                                        {{ selectedQuestion.upVotes ? selectedQuestion.upVotes : '0' }}
+                                        <i
+                                        class="fa fa-arrow-up btn-tooltip ml-1 upvote"
+                                        data-animation="true"
+                                        data-container="body"
+                                        placement="top"
+                                        tooltip="Upvote this question."
+                                        (click)="upVote(selectedQuestion)"></i>
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p>
+                    {{ selectedQuestion?.replies ? selectedQuestion.replies : '0' }} {{ selectedQuestion?.replies === 1 ? 'reply' : 'replies' }}
+                </p>
+                <hr>
+
+                <!-- replies -->
+                <table *ngIf="replies" class=" table mt-4">
+                    <tbody>
+                        <tr *ngFor="let reply of replies">
+                            <!-- avatar -->
+                            <td>
+                                <div class=" text-center">
+                                    <img *ngIf="reply.replierPhoto"
+                                    [src]="reply.replierPhoto"
+                                    style="width: 40px; height: 40px; border-radius: 40px; object-fit: cover;">
+                                    <img
+                                    *ngIf="!reply.replierPhoto"
+                                    src="https://eu.ui-avatars.com/api/?name={{reply.replierFirstName}}+{{reply.replierLastName}}&background=00f2c3&color=fff&rounded=true&bold=true"
+                                    style="width: 40px; height: 40px; border-radius: 40px; object-fit: cover;">
+                                </div>
+                            </td>
+                            <!-- question -->
+                            <td class=" test">
+                                <div>
+                                    <p [innerHTML]="reply.detail"></p>
+                                    <small> {{ reply.replierFirstName + ' ' + reply.replierLastName + ' - ' + displayDate(reply.created) }} </small>
+                                </div>
+                            </td>
+                            <!-- upvotes -->
+                            <td>
+                                <div>
+                                    <p> 
+                                        {{ reply.upVotes ? reply.upVotes : '0' }}
+                                        <i
+                                        class="fa fa-arrow-up btn-tooltip ml-1 upvote"
+                                        data-animation="true"
+                                        data-container="body"
+                                        placement="top"
+                                        tooltip="Upvote this reply."
+                                        (click)="upVoteReply(reply)"></i>
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- navigator -->
+                <app-navigator
+                [page]="page"
+                [totalItems]="selectedQuestion?.replies"
+                [itemsPerPage]="hitsPerPage"
+                [maxSize]="maxSize"
+                (messageEvent)="receivePageUpdate($event)"
+                ></app-navigator>
+
+                <!-- end replies -->
+
+                <form [formGroup]="replyForm">
+
+                    <div class=" row">
+                        <div class=" col-md-12">
+                        <label> Add reply </label> 
+                        <span class=" h5 text-light ml-2">
+                            <i
+                            class="fas fa-info-circle btn-tooltip"
+                            data-animation="true"
+                            data-container="body"
+                            placement="top"
+                            tooltip="Add a public reply to this question.">
+                            </i>
+                        </span>
+                        <div *ngIf="viewLoaded" class=" form-group">
+                            <editor 
+                            apiKey="swb6l7gw85zcl8aw2dh7551jt3t5ydravtthultgf8fo3w2l" 
+                            [init]="{
+                            height: 160,
+                            menubar: false,
+                            plugins: 'link lists paste',
+                            toolbar: 'paste | bold italic link'
+                            }"
+                            formControlName="detail"
+                            >
+                            </editor>
+                        </div>
+                        </div>
+                    </div>
+                </form>
+
+                <button class=" btn btn-default mt-3" (click)="questionReplyModal.hide()">
+                    Close
+                </button>
+
+                <button
+                class=" btn btn-primary mt-3 pull-right"
+                (click)="questionReplyModal.hide() ; addReply()"
+                [disabled]="false">
+                    Submit Public Reply
+                </button>
+
+            </div>
+        </div>
+    </div>
+    </div>
+</div>
+</div>
+<!-- End question reply modal -->

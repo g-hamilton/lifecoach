@@ -1,0 +1,33 @@
+<div class="fileinput text-center">
+  <input type="file" (change)="handleImageChange($event)" #fileInput />
+  <div class="thumbnail" [ngClass]="{ 'img-circle': avatar }">
+    <img src="{{ imagePreviewUrl }}" alt="My Lifecoach profile pic" />
+  </div>
+  <div>
+    <button
+      *ngIf="file === null && !inputImg && avatar"
+      type="button"
+      class="btn-round btn btn-danger"
+      (click)="handleClick()"
+    >
+      <i class="fas fa-cloud-upload-alt"></i> Add Photo
+    </button>
+    <button
+      *ngIf="file === null && !inputImg && !avatar"
+      type="button"
+      class="btn-round btn btn-primary"
+      (click)="handleClick()"
+    >
+      <i class="fas fa-cloud-upload-alt"></i> Select image
+    </button>
+    <span *ngIf="file !== null || inputImg">
+      <button class="btn-round btn btn-primary" type="button" (click)="handleClick()">
+        <i class="fas fa-cloud-upload-alt"></i> Change
+      </button>
+      <br *ngIf="avatar" />
+      <button class="btn-round btn btn-danger ml-3" type="button" (click)="handleRemove()">
+        <i class="fa fa-times"></i> Remove
+      </button>
+    </span>
+  </div>
+</div>

@@ -1,0 +1,69 @@
+<footer class=" footer">
+    <div class=" container">
+        <div class=" row text-center text-xs-center text-sm-left text-md-left">
+            <div class=" col-xs-12 col-sm-4 col-md-4">
+                <h4> Find Coaches </h4>
+                <ul class=" nav">
+                    <li><a class=" nav-link" [routerLink]="['/coaches']" [queryParams]="{category: 'business & career'}"><i class=" tim-icons icon-minimal-right"></i> Business & Career Coaches</a></li>
+                    <li><a class=" nav-link" [routerLink]="['/coaches']" [queryParams]="{category: 'family'}"><i class=" tim-icons icon-minimal-right"></i> Family Coaches</a></li>
+                    <li><a class=" nav-link" [routerLink]="['/coaches']" [queryParams]="{category: 'health, fitness & wellness'}"><i class=" tim-icons icon-minimal-right"></i> Health, Fitness & Wellness Coaches</a></li>
+                    <li><a class=" nav-link" [routerLink]="['/coaches']" [queryParams]="{category: 'money & financial'}"><i class=" tim-icons icon-minimal-right"></i> Money & Financial Coaches</a></li>
+                    <li><a class=" nav-link" [routerLink]="['/coaches']" [queryParams]="{category: 'relationship'}"><i class=" tim-icons icon-minimal-right"></i> Relationship Coaches</a></li>
+                    <li><a class=" nav-link" [routerLink]="['/coaches']" [queryParams]="{category: 'religion & faith'}"><i class=" tim-icons icon-minimal-right"></i> Religion & Faith Based Coaches</a></li>
+                    <li><a class=" nav-link" [routerLink]="['/coaches']" [queryParams]="{category: 'relocation'}"><i class=" tim-icons icon-minimal-right"></i> Relocation Coaches</a></li>
+                    <li><a class=" nav-link" [routerLink]="['/coaches']" [queryParams]="{category: 'retirement'}"><i class=" tim-icons icon-minimal-right"></i> Retirement Coaches</a></li>
+                    <li><a class=" nav-link" [routerLink]="['/coaches']" [queryParams]="{category: 'transformation & mindset'}"><i class=" tim-icons icon-minimal-right"></i> Transformation & Mindset Coaches</a></li>
+                    <li><a class=" nav-link" [routerLink]="['/coaches']" [queryParams]="{category: 'academic'}"><i class=" tim-icons icon-minimal-right"></i> Academic Coaches</a></li>
+                    <li><a class=" nav-link" [routerLink]="['/coaches']" [queryParams]="{category: 'holistic'}"><i class=" tim-icons icon-minimal-right"></i> Holistic Coaches</a></li>
+                    <li><a class=" nav-link" [routerLink]="['/coaches']" [queryParams]="{category: 'productivity & personal organisation'}"><i class=" tim-icons icon-minimal-right"></i> Productivity & Personal Organisation Coaches</a></li>
+                </ul>
+            </div>
+            <div class="col-xs-12 col-sm-4 col-md-4">
+                <h4> For Coaches </h4>
+                <ul class="list-unstyled quick-links">
+                    <li><a class=" nav-link" [routerLink]="['/for-life-coaches']"><i class=" tim-icons icon-minimal-right"></i> Join Lifecoach</a></li>
+                    <li><a class=" nav-link" [routerLink]="['/sell-coaching-courses']"><i class=" tim-icons icon-minimal-right"></i> Publish Self-Study Courses</a></li>
+                    <li><a class=" nav-link" href="https://www.emccglobal.org/"><i class=" tim-icons icon-minimal-right"></i> Get Accredited - EMCC</a></li>
+                    <li><a class=" nav-link" href="https://www.apecs.org/"><i class=" tim-icons icon-minimal-right"></i> Get Accredited - APECS</a></li>
+                    <li><a class=" nav-link" href="https://www.associationforcoaching.com/"><i class=" tim-icons icon-minimal-right"></i> Get Accredited - AC</a></li>
+                    <li><a class=" nav-link" href="https://coachfederation.org/"><i class=" tim-icons icon-minimal-right"></i> Get Accredited - ICF</a></li>
+                </ul>
+            </div>
+            <div class="col-xs-12 col-sm-4 col-md-4">
+                <h4> About Lifecoach </h4>
+                <ul class="list-unstyled quick-links">
+                    <li><a class=" nav-link" [routerLink]="['/']"><i class=" tim-icons icon-minimal-right"></i> Home </a></li>
+                    <li><a class=" nav-link" [routerLink]="['/about']"><i class=" tim-icons icon-minimal-right"></i> About </a></li>
+                    <li><a class=" nav-link" href="https://lifecoach.freshdesk.com/support/solutions" target="_blank"><i class=" tim-icons icon-minimal-right"></i> FAQ </a></li>
+                    <li><a class=" nav-link" href="https://lifecoach.freshdesk.com/support/home" target="_blank"><i class=" tim-icons icon-minimal-right"></i> Get Support </a></li>
+                    <li><a class=" nav-link" [routerLink]="['/contact']"><i class=" tim-icons icon-minimal-right"></i> Contact </a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 mt-2 mt-sm-5 text-center">
+                <img id="footer-logo" src="../../../assets/img/lifecoach-logo-dark-monotone.svg" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 mt-2 mt-sm-5">
+                <ul class="list-unstyled list-inline social text-center">
+                    <li class="list-inline-item"><a href="javascript:void();"><i class="fab fa-facebook-f"></i></a></li>
+                    <!-- <li class="list-inline-item"><a href="javascript:void();"><i class="fab fa-twitter"></i></a></li> -->
+                    <!-- <li class="list-inline-item"><a href="javascript:void();"><i class="fab fa-instagram"></i></a></li> -->
+                    <li class="list-inline-item"><a href="javascript:void();"><i class="fab fa-linkedin-in"></i></a></li>
+                    <li class="list-inline-item"><a href="javascript:void();" target="_blank"><i class="fa fa-envelope"></i></a></li>
+                </ul>
+            </div>
+            <hr>
+        </div>	
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 mt-2 mt-sm-2 text-center text-white">
+                &copy; Lifecoach {{ myDate | date: "yyyy" }}. All rights reserved.
+                <p>
+                    Made with <i class=" tim-icons icon-heart-2"> </i> for a more empowered world.
+                </p>
+            </div>
+        </div>	
+    </div>
+</footer>

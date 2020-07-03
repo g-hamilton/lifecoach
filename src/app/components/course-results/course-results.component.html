@@ -1,0 +1,12 @@
+<div class=" results-container">
+    <div class=" row">
+        <div *ngFor="let result of results" class=" col-md-3">
+            <app-course-card
+            [course]="result"
+            [rates]="rates"
+            [clientCurrency]="clientCurrency"
+            [clientCountry]="clientCountry">
+            </app-course-card>
+        </div>
+    </div>
+</div>

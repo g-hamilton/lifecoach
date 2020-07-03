@@ -1,0 +1,60 @@
+<div class=" card">
+    <div class=" card-body">
+        <div class=" mb-3">
+
+            <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001126535-how-to-submit-your-course-for-review" target="_blank">
+                <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> Help with course review </span>
+            </a>
+
+            <div class=" mt-5">
+                <div class=" pl-2">
+                    <label> Course Status </label>
+                    <span *ngIf="course?.reviewRequest?.status === 'submitted'" class=" text-info"> Submitted for review: {{ getDisplayDate(course.reviewRequest.requested) }} </span>
+                    <div *ngIf="course?.reviewRequest?.status === 'approved'">
+                        <span class=" text-success"> Approved: {{ getDisplayDate(course.reviewRequest.requested) }} </span>
+                        - Available for sale.
+                    </div>
+                    <div *ngIf="!course?.coachName || !course?.coachPhoto">
+                        <a [routerLink]="['/profile']">Complete your public coach profile</a> before submitting your course.
+                    </div>
+                    <div *ngIf="!course?.reviewRequest" class=" text-warning">
+                        Draft
+                    </div>
+                    <div *ngIf="course?.reviewRequest?.status === 'rejected'">
+                        <span class=" text-danger"> Needs action </span>
+                        - Our Quality Team noticed the following issue(s) with your course:
+                        <div class=" row highlight-box">
+                            <div class=" col">
+                                {{ course.reviewRequest.rejectData.reason }}
+                            </div>
+                        </div>
+                        <div>
+                            <strong>Important:</strong> Please only re-submit your course when you have read through the issues above carefully and actioned any
+                            recommended changes appropriately.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit button -->
+            <div class=" pull-right">
+                <button
+                type="button"
+                class=" btn btn-primary btn-round btn-fill mt-4"
+                (click)="onSubmit()"
+                [disabled]="course?.reviewRequest?.status === 'submitted' || 
+                course?.reviewRequest?.status === 'approved' || course?.reviewRequest?.status === 'in-review'">
+                    <span *ngIf="!requesting">
+                        <i class="fas fa-flag-checkered"></i>
+                      </span>
+                      <span
+                      *ngIf="requesting"
+                      class="spinner-border spinner-border-sm"
+                      role="status"
+                      ></span> {{ requesting ? 'Submitting...' : course?.reviewRequest?.status === 'rejected' ? 'Re-submit Course' : 'Submit Course'}}
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>

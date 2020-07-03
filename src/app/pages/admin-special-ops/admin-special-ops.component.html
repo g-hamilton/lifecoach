@@ -1,0 +1,34 @@
+<div class=" content">
+    <!-- Loading spinner -->
+    <div *ngIf="!browser" class="text-center">
+        <div class="spinner-border" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+    <div *ngIf="browser">
+        <div class=" row">
+            <div class=" col">
+                <div class=" card">
+                    <div class=" card-header">
+                        <h5 class=" card-title"> Special Operations </h5>
+                    </div>
+                    <div class=" card-body">
+                        <p class="text-danger">
+                            Danger!
+                        </p>
+                        <p>
+                            Be sure you know what you're doing and ALWAYS <a href="https://firebase.google.com/docs/firestore/manage-data/export-import" target="_blank">run a DB backup</a> before proceeding!
+                        </p>
+                        <button type="button" class="btn btn-danger btn-round" (click)="triggerServerSideProfileUpdateInSequence()">
+                            <span
+                            *ngIf="runningProfileUpdate"
+                            class="spinner-border spinner-border-sm"
+                            role="status"
+                            ></span> {{ runningProfileUpdate ? 'Running...' : 'Run' }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

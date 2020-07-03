@@ -1,0 +1,5 @@
+<div *ngIf="userRooms">
+    <div *ngFor="let room of userRooms">
+        <app-discussion [userId]="userId" [question]="room"></app-discussion>
+    </div>
+</div>

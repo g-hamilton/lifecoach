@@ -1,0 +1,333 @@
+<div>
+
+    <!-- search & filters -->
+    <app-course-qa-search-filters (searchEvent)="onSearchEvent($event)"></app-course-qa-search-filters>
+
+    <div class=" row">
+        <div class=" col">
+            {{ liveCourse?.questions ? liveCourse?.questions : '0' }} {{ liveCourse?.questions === 1 ? 'question' : 'questions' }} in this course
+        </div>
+        <div class=" col">
+            <button type="button" class=" btn btn-round btn-primary d-inline-block pull-right" (click)="newQuestionTypeModal.show()">
+                Ask New Question
+            </button>
+        </div>
+    </div>
+
+    <!-- results -->
+    <div class=" row">
+        <div class=" col">
+            <app-course-qa-results [userId]="userId" [userProfile]="userProfile" [results]="questions" [course]="course"></app-course-qa-results>
+        </div>
+    </div>
+
+    <!-- navigator -->
+    <app-navigator
+    [page]="page"
+    [totalItems]="totalHits"
+    [itemsPerPage]="hitsPerPage"
+    [maxSize]="maxSize"
+    (messageEvent)="receivePageUpdate($event)"
+    ></app-navigator>
+
+</div>
+
+<!-- New question type modal -->
+<div
+aria-hidden="true"
+aria-labelledby="newQuestionTypeModalLabel"
+bsModal
+class="modal fade"
+#newQuestionTypeModal="bs-modal"
+id="newQuestionTypeModal"
+role="dialog"
+tabindex="-1"
+>
+<div class="modal-dialog" style="transform: translate(0,0);">
+    <div class="modal-content">
+    <div class="modal-body">
+        <div class="card card-login card-white">
+            <div class=" card-header">
+            <h1 class=" card-title"> My question relates to </h1>
+            </div>
+            <div class=" card-body">
+
+                <form>
+                    <div class="form-check form-check-radio">
+                        <label class="form-check-label">
+                            <input class="form-check-input" type="radio" name="question-type" id="question-type1" value="course" [(ngModel)]="questionType">
+                            Course content: Anything you might want to ask your Coach. For example, questions about a specific lecture, theory or idea.
+                            <span class="form-check-sign"></span>
+                        </label>
+                    </div>
+                    <div class="form-check form-check-radio">
+                        <label class="form-check-label">
+                            <input class="form-check-input" type="radio" name="question-type" id="question-type2" value="platform" [(ngModel)]="questionType">
+                            A technical issue: For example, a question about video quality or a download link not working.
+                            <span class="form-check-sign"></span>
+                        </label>
+                    </div>
+                </form>
+
+                <div class=" top-tip mt-2">
+                    <h5><strong> Before you continue: </strong> Do a quick search to see if your question has been asked before, as it may already have an answer. </h5>
+                </div>
+
+                <a 
+                *ngIf="questionType === 'platform'"
+                href="https://lifecoach.freshdesk.com/a/solutions/articles/47001134621" target="_blank">
+                    <button
+                    class=" btn btn-primary btn-block mt-3"
+                    (click)="newQuestionTypeModal.hide();">
+                        Continue
+                    </button>
+                </a>
+
+                <button
+                *ngIf="questionType === 'course'"
+                class=" btn btn-primary btn-block mt-3"
+                (click)="newQuestionTypeModal.hide() ; popQuestionModal()">
+                    Continue
+                </button>
+
+                <button
+                *ngIf="!questionType"
+                class=" btn btn-primary btn-block mt-3"
+                [disabled]="true">
+                    Continue
+                </button>
+
+                <button class=" btn btn-default btn-block mt-3" (click)="newQuestionTypeModal.hide()">
+                    Cancel
+                </button>
+
+            </div>
+        </div>
+    </div>
+    </div>
+</div>
+</div>
+<!-- End new question type modal -->
+
+<!-- Course question modal -->
+<div
+aria-hidden="true"
+aria-labelledby="courseQuestionModalLabel"
+bsModal
+class="modal fade"
+#courseQuestionModal="bs-modal"
+id="courseQuestionModal"
+role="dialog"
+tabindex="-1"
+>
+<div class="modal-dialog modal-dialog-scrollable" style="transform: translate(0,0); max-width: 80%;">
+    <div class="modal-content">
+    <div class="modal-body">
+        <div class="card card-login card-white">
+            <div class=" card-header">
+            <h1 class=" card-title"> New Question </h1>
+            </div>
+            <div class=" card-body">
+
+                <div id="related-lecture">
+                    <h5> Question on: <strong>{{ lecture?.title }}</strong> </h5>
+                </div>
+
+                <form [formGroup]="courseQuestionForm">
+                    <!-- question title -->
+                    <div class=" mt-2">
+                        <label> Question </label>
+                    </div>
+                    <div
+                    class="input-group no-symbol"
+                    [ngClass]="{
+                        'has-danger':
+                        ((focusTouched || saving) && cQF.title.value != '' && cQF.title.errors) ||
+                        (cQF.title.value != '' && cQF.title.errors),
+                        'has-success': !cQF.title.errors
+                    }">
+                        <input
+                        type="text"
+                        class="form-control"
+                        formControlName="title"
+                        placeholder="eg. What does 'introspective' mean?"
+                        (focus)="focusTouched = true"
+                        (input)="onTitleInput($event)">
+                        <div class="input-group-append">
+                        <span class="input-group-text">
+                            {{ titleActualLength + '/' + titleMaxLength }}
+                        </span>
+                        </div>
+                    </div>
+                    <div *ngIf="((focusTouched || saving) && cQF.title.value != '' && cQF.title.errors) ||
+                        (cQF.title.value != '' && cQF.title.errors)">
+                        <label
+                        *ngFor="let error of objKeys(cQF.title.errors)"
+                        class="error custom-error-label"
+                        >{{ showError('title', error) }}
+                        </label>
+                    </div>
+                    <!-- end question title -->
+
+                    <!-- detail -->
+                    <div class=" row">
+                        <div class=" col-md-12">
+                        <label> Detail (optional) </label> 
+                        <span class=" h5 text-light ml-2">
+                            <i
+                            class="fas fa-info-circle btn-tooltip"
+                            data-animation="true"
+                            data-container="body"
+                            placement="top"
+                            tooltip="Your question will be made public. Give as much detail as you can to make your question clear and easier to answer.">
+                            </i>
+                        </span>
+                        <div *ngIf="viewLoaded" class=" form-group">
+                            <editor 
+                            apiKey="swb6l7gw85zcl8aw2dh7551jt3t5ydravtthultgf8fo3w2l" 
+                            [init]="{
+                            height: 160,
+                            menubar: false,
+                            plugins: 'link lists paste',
+                            toolbar: 'paste | bold italic link'
+                            }"
+                            formControlName="detail"
+                            >
+                            </editor>
+                        </div>
+                        </div>
+                    </div>
+                </form>
+
+                <button class=" btn btn-default btn-block mt-3" (click)="courseQuestionModal.hide()">
+                    Cancel
+                </button>
+
+                <button
+                class=" btn btn-primary btn-block mt-3 pull-right"
+                (click)="courseQuestionModal.hide() ; askCourseQuestion()"
+                [disabled]="courseQuestionForm.invalid">
+                    Submit Public Question
+                </button>
+
+            </div>
+        </div>
+    </div>
+    </div>
+</div>
+</div>
+<!-- End course question modal -->
+
+<!-- Platform question modal -->
+<!-- NOT CURRENTLY IN USE. Redircting these issues via Freshdesk -->
+<div
+aria-hidden="true"
+aria-labelledby="platformQuestionModalLabel"
+bsModal
+class="modal fade"
+#platformQuestionModal="bs-modal"
+id="platformQuestionModal"
+role="dialog"
+tabindex="-1"
+>
+<div class="modal-dialog" style="transform: translate(0,0); max-width: 80%;">
+    <div class="modal-content">
+    <div class="modal-body">
+        <div class="card card-login card-white">
+            <div class=" card-header">
+            <h1 class=" card-title"> New Technical Question </h1>
+            </div>
+            <div class=" card-body">
+
+                <div class=" top-tip">
+                    <p>
+                        <strong>Note:</strong> These questions go direct to the friendly Lifecoach technical support team, and <strong>not your Coach</strong>. 
+                        If your question relates specifically to course content then please go back and choose 'course content' 
+                        to make sure your question gets answered as quickly as possible.
+                    </p>
+                </div>
+
+                <form [formGroup]="platformQuestionForm">
+                    <!-- question title -->
+                    <div class=" mt-2">
+                        <label> Question </label>
+                    </div>
+                    <div
+                    class="input-group no-symbol"
+                    [ngClass]="{
+                        'has-danger':
+                        ((focus1Touched || saving) && pQF.title.value != '' && pQF.title.errors) ||
+                        (pQF.title.value != '' && pQF.title.errors),
+                        'has-success': !pQF.title.errors
+                    }">
+                        <input
+                        type="text"
+                        class="form-control"
+                        formControlName="title"
+                        placeholder="eg. Video appears blurry"
+                        (focus)="focus1Touched = true"
+                        (input)="onTitleInput($event)">
+                        <div class="input-group-append">
+                        <span class="input-group-text">
+                            {{ titleActualLength + '/' + titleMaxLength }}
+                        </span>
+                        </div>
+                    </div>
+                    <div *ngIf="((focus1Touched || saving) && pQF.title.value != '' && pQF.title.errors) ||
+                        (pQF.title.value != '' && pQF.title.errors)">
+                        <label
+                        *ngFor="let error of objKeys(pQF.title.errors)"
+                        class="error custom-error-label"
+                        >{{ showError('title', error) }}
+                        </label>
+                    </div>
+                    <!-- end question title -->
+
+                    <!-- detail -->
+                    <div class=" row">
+                        <div class=" col-md-12">
+                        <label> Detail (optional) </label> 
+                        <span class=" h5 text-light ml-2">
+                            <i
+                            class="fas fa-info-circle btn-tooltip"
+                            data-animation="true"
+                            data-container="body"
+                            placement="top"
+                            tooltip="Your question will be made public. Give as much detail as you can to make your question clear and easier to answer.">
+                            </i>
+                        </span>
+                        <div *ngIf="viewLoaded" class=" form-group">
+                            <editor 
+                            apiKey="swb6l7gw85zcl8aw2dh7551jt3t5ydravtthultgf8fo3w2l" 
+                            [init]="{
+                            height: 160,
+                            menubar: false,
+                            plugins: 'link lists paste',
+                            toolbar: 'paste | bold italic link'
+                            }"
+                            formControlName="detail"
+                            >
+                            </editor>
+                        </div>
+                        </div>
+                    </div>
+                </form>
+
+                <button
+                class=" btn btn-primary btn-block mt-5"
+                (click)="platformQuestionModal.hide() ; askPlatformQuestion()"
+                [disabled]="platformQuestionForm.invalid">
+                    Submit
+                </button>
+
+                <button class=" btn btn-default btn-block mt-3" (click)="platformQuestionModal.hide() ; askPlatformQuestion()">
+                    Cancel
+                </button>
+
+            </div>
+        </div>
+    </div>
+    </div>
+</div>
+</div>
+<!-- End platform question modal -->

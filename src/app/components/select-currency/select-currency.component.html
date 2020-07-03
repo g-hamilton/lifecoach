@@ -1,0 +1,17 @@
+<div *ngIf="browser">
+    <form>
+        <div class="form-group">
+            <!-- <label for="selectCurrency">Show prices in</label> -->
+            <select
+            class="form-control"
+            id="selectCurrency"
+            [(ngModel)]="currency"
+            [ngModelOptions]="{standalone: true}"
+            (change)="onChange($event)">
+                <option *ngFor="let key of objKeys(currencies)" [value]="currencies[key].code">
+                    {{ currencies[key].name }}
+                </option>
+            </select>
+          </div>
+    </form>
+</div>

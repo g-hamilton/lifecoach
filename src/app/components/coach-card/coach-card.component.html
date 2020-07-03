@@ -1,0 +1,129 @@
+<a [routerLink]="['/coach', coachProfile.objectID]">
+  <div class=" card card-user">
+    <div class=" card-body">
+      <p class=" card-text"></p>
+      <div class=" author">
+        <div class=" block block-one"></div>
+        <div class=" block block-two"></div>
+        <div class=" block block-three"></div>
+        <div class=" block block-four"></div>
+        <!-- Avatar -->
+        <div>
+          <img
+          [alt]="coachProfile.firstName + ' ' + coachProfile.lastName + ' ' + coachProfile.speciality1.itemName + ' ' + 'Coach'"
+          class=" avatar"
+          src="{{ coachProfile.photo }}"
+          />
+          <div *ngIf="coachProfile.profileVideo" id="profile-vid-play">
+            <i class="fab fa-youtube" tooltip="Video intro"></i>
+          </div>
+        </div>
+        <!-- Name -->
+        <p class=" description">
+          {{ coachProfile.firstName + ' ' + coachProfile.lastName + ' ' + coachProfile.country.emoji }}
+        </p>
+        <!-- Speciality Title -->
+        <h5 class=" title">
+          {{ coachProfile.speciality1.itemName + ' ' + 'Coach' }}
+        </h5>
+        <!-- Tags -->
+        <span *ngFor="let tag of coachProfile.goalTags" class=" badge badge-success mr-2">
+          {{ tag.value }}
+        </span>
+      </div>
+      <!-- Short Summary -->
+      <div class=" card-description">
+        {{ coachProfile.proSummary }}
+      </div>
+      <!-- Location -->
+      <h6 class=" text-muted text-center mt-3">
+        <i class=" tim-icons icon-square-pin"></i> {{ coachProfile.city + ' | ' + coachProfile.country.name }}
+      </h6>
+      <!-- Qualifications -->
+      <!-- <h6
+      class=" text-muted text-center mt-3"
+      *ngIf="coachProfile.qualBa || coachProfile.qualBsc || coachProfile.qualBcomm || coachProfile.qualMa ||
+      coachProfile.qualMs || coachProfile.qualMba || coachProfile.qualMapp || coachProfile.qualPhd ||
+      coachProfile.qualMba || coachProfile.qualAcc || coachProfile.qualPcc || coachProfile.qualMcc"
+      >
+        <i class=" tim-icons icon-paper"></i> 
+        {{ coachProfile.qualBa ? 'BA ' : '' }}
+        {{ coachProfile.qualBsc ? 'BSc ' : '' }}
+        {{ coachProfile.qualBcomm ? 'BComm ' : '' }}
+        {{ coachProfile.qualMa ? 'MA ' : '' }}
+        {{ coachProfile.qualMs ? 'MS ' : '' }}
+        {{ coachProfile.qualMba ? 'MBA ' : '' }}
+        {{ coachProfile.qualMapp ? 'MAPP ' : '' }}
+        {{ coachProfile.qualPhd ? 'PhD ' : '' }}
+        {{ coachProfile.qualMba ? 'MBA ' : '' }}
+        {{ coachProfile.qualAcc ? 'ICF-ACC ' : '' }}
+        {{ coachProfile.qualPcc ? 'ICF-PCC ' : '' }}
+        {{ coachProfile.qualMcc ? 'ICF-MCC ' : '' }}
+      </h6> -->
+    </div>
+    <!-- <div class=" card-footer">
+      <div class=" button-container">
+        <button
+          *ngIf="coachProfile.facebook && coachProfile.facebook.valid"
+          class=" btn btn-icon btn-round btn-facebook mr-1"
+        >
+          <a
+          href="{{ 'https://facebook.com/' + coachProfile.facebook }}"
+          target="_blank">
+            <i class=" fab fa-facebook"> </i>
+          </a>
+        </button>
+        <button
+          *ngIf="coachProfile.twitter && coachProfile.twitter.valid"
+          class=" btn btn-icon btn-round btn-twitter mr-1"
+        >
+          <a
+          href="{{ 'https://twitter.com/' + coachProfile.twitter }}"
+          target="_blank">
+            <i class=" fab fa-twitter"> </i>
+          </a>
+        </button>
+        <button
+          *ngIf="coachProfile.linkedin && coachProfile.linkedin.valid"
+          class=" btn btn-icon btn-round btn-linkedin mr-1"
+        >
+          <a
+          href="{{ 'https://linkedin.com/' + coachProfile.linkedin }}"
+          target="_blank">
+            <i class=" fab fa-linkedin"> </i>
+          </a>
+        </button>
+        <button
+          *ngIf="coachProfile.youtube && coachProfile.youtube.valid"
+          class=" btn btn-icon btn-round btn-youtube mr-1"
+        >
+          <a
+          href="{{ 'https://youtube.com/channel/' + coachProfile.youtube }}"
+          target="_blank">
+            <i class=" fab fa-youtube"> </i>
+          </a>
+        </button>
+        <button
+          *ngIf="coachProfile.instagram && coachProfile.instagram.valid"
+          class=" btn btn-icon btn-round btn-instagram mr-1"
+        >
+          <a
+          href="{{ 'https://instagram.com/' + coachProfile.instagram }}"
+          target="_blank">
+            <i class=" fab fa-instagram"> </i>
+          </a>
+        </button>
+        <button
+          *ngIf="coachProfile.website && coachProfile.website.valid"
+          class=" btn btn-icon btn-round btn-website mr-1"
+        >
+          <a
+          href="{{ coachProfile.website }}"
+          target="_blank">
+            <i class=" fas fa-laptop"> </i>
+          </a>
+        </button>
+      </div>
+    </div> -->
+  </div>
+</a>

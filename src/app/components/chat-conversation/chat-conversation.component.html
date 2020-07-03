@@ -1,0 +1,57 @@
+<div *ngIf="conversation" class=" card card-highlight-on-hover" id="chat-conversation-card">
+    <div class=" card-body" (click)="onRoomClick()">
+        <!-- Show chat participants -->
+        <div *ngFor="let user of conversation.users">
+            <!-- Filter out user's own data -->
+            <div *ngIf="user !== userId">
+                <div class=" table-responsive">
+                    <table class=" table">
+                        <tr>
+                            <td>
+                                <div *ngIf="otherUserAvatar" class=" avatar">
+                                    <img alt="photo" src="{{ otherUserAvatar }}" style="width: 30px; height: 30px; object-fit: cover;" />
+                                </div>
+                            </td>
+                            <td>
+                                <p *ngIf="otherUserFullName">
+                                    {{ otherUserFullName }}
+                                </p>
+                                <p *ngIf="!otherUserFullName">
+                                    Deleted User
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                    <div class=" truncate-parent">
+                        <p class=" truncate">
+                            <span [ngClass]="{ 
+                                'text-success': conversation.lastSender === userId,
+                                'text-primary': conversation.lastSender !== userId
+                            }">
+                                {{ conversation.lastSender === userId ? 
+                                'You: ' : 
+                                otherUserFirstName? otherUserFirstName + ': ' :
+                                'Deleted: ' }}
+                            </span>
+                            {{ conversation.lastMsg }}
+                        </p>
+                    </div>
+                    <span class=" pull-left">
+                        <small class="">
+                            {{ getDisplayDate(conversation.lastActive) }}
+                        </small>
+                    </span>
+                    <span class=" pull-right">
+                        <small class="">
+                            {{ getDisplaytime(conversation.lastActive) }}
+                        </small>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Unread messages badge -->
+    <div *ngIf="unreadMessagesCount" class=" badge badge-primary" id="conversation-badge">
+        {{ unreadMessagesCount }}
+    </div>
+</div>

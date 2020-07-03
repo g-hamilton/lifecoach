@@ -1,0 +1,20 @@
+<div
+*ngIf="message"
+class=" card"
+id="chat-message-card"
+[ngClass]="{ 
+'my-msg': userId === message.from,
+'bg-success': userId === message.from,
+'not-my-msg': userId !== message.from,
+'bg-neutral': userId !== message.from
+}"
+>
+    <div class=" card-body">
+        <p class=" text-dark">{{ message.msg }}</p>
+        <div class=" pull-right">
+            <p class=" text-dark" id="timestamp">
+                {{ convertTimestamp(message.sent) }}
+            </p>
+        </div>
+    </div>
+</div>

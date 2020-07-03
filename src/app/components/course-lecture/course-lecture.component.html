@@ -1,0 +1,371 @@
+<div class=" row">
+    <div class=" col">
+        <!-- Loading spinner -->
+        <div *ngIf="!course" class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+        <!-- Course loaded -->
+        <div *ngIf="course" class="card">
+            <div class="card-body">
+                <h4 class="card-title">
+                  {{ isNewLecture ? 'New Lecture' : lectureF.title.value }} 
+                </h4>
+                <h6 class="card-subtitle mb-4 text-muted"> 
+                    {{ isNewLecture && course.lectures.length < 1 ? 'Course sections should contain at least one lecture' : 'Editing Lecture' }}
+                </h6>
+                <div class=" p-3">
+                    <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001124312-how-to-use-lectures-in-your-course" target="_blank">
+                        <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> Help with lectures </span>
+                    </a>
+                    <div class="mt-3">
+                        <form *ngIf="lectureForm" [formGroup]="lectureForm" (submit)="onSubmit(true)">
+
+                            <!-- Lecture title -->
+                            <div class="">
+                                <label> Title </label>
+                            </div>
+                            <div
+                            class="input-group no-symbol"
+                            [ngClass]="{
+                                'has-danger':
+                                ((focusTouched || saving) && lectureF.title.value != '' && lectureF.title.errors) ||
+                                (lectureF.title.value != '' && lectureF.title.errors),
+                                'has-success': !lectureF.title.errors
+                            }">
+                                <input
+                                type="text"
+                                class="form-control"
+                                formControlName="title"
+                                placeholder="eg. Introduction"
+                                (focus)="focusTouched = true"
+                                (input)="onTitleInput($event)">
+                                <div class="input-group-append">
+                                <span class="input-group-text">
+                                    {{ titleActualLength + '/' + titleMaxLength }}
+                                </span>
+                                </div>
+                            </div>
+                            <div *ngIf="((focusTouched || saving) && lectureF.title.value != '' && lectureF.title.errors) ||
+                                (lectureF.title.value != '' && lectureF.title.errors)">
+                                <label
+                                *ngFor="let error of objKeys(lectureF.title.errors)"
+                                class="error custom-error-label"
+                                >{{ showError('title', error) }}
+                                </label>
+                            </div>
+                            <!-- End of lecture title -->
+
+                            <!-- Lecture title must be saved to generate & save lecture ID prior to adding more detail -->
+                            <div *ngIf="this.lectureF.id.value">
+                                <!-- Lecture type -->
+                                <hr>
+                                <div class="">
+                                    <label> Lecture Type </label>
+                                </div>
+                                <tabset
+                                #lectureTypeTabs
+                                class="nav-pills-primary nav-pills-icons"
+                                type="pills"
+                                >
+                                    <!-- Lecture type video -->
+                                    <tab heading="Video" (selectTab)="onLectureTypeTabSelect($event)">
+                                    <ng-template tabHeading>
+                                        <i class="tim-icons icon-video-66"> </i>
+                                    </ng-template>
+
+                                    <div class=" mb-3">
+                                        <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001124312-how-to-use-lectures-in-your-course" target="_blank">
+                                            <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> Help with video uploads </span>
+                                        </a>
+                                    </div>
+
+                                    <!-- Video upload options -->
+                                    <tabset class="nav-pills-default" type="pills">
+
+                                        <!-- Upload from computer tab -->
+                                        <tab>
+                                            <ng-template tabHeading>
+                                                <i
+                                                class="fas fa-upload mr-2" 
+                                                style="display: inline-block; line-height: 30px; font-size: 20px;"> </i> Upload Video
+                                            </ng-template>
+
+                                            <p class=" text-muted mt-2">
+                                                Note: All files should be .mp4 format, at least 720p and less than 4.0GB
+                                            </p>
+
+                                            <!-- Video drop / upload -->
+                                            <app-course-video-uploader
+                                            [uid]="userId"
+                                            [course]="course"
+                                            [lectureId]="activatedLectureId">
+                                            </app-course-video-uploader>
+
+                                        </tab>
+
+                                        <!-- Add from library tab -->
+                                        <tab>
+                                            <ng-template tabHeading>
+                                                <i
+                                                class="fas fa-file-video mr-2" 
+                                                style="display: inline-block; line-height: 30px; font-size: 20px;"> </i> Add From Library
+                                            </ng-template>
+
+                                            <!-- User video library -->
+                                            <app-course-video-library
+                                            [userId]="userId"
+                                            [selectedItems]="videoSources"
+                                            (messageEvent)="onLibraryItemSelectVideo($event)">
+                                            </app-course-video-library>
+                                            <!-- End of user video library -->
+
+                                        </tab>
+                                    </tabset>
+                                    <!-- End video upload options -->
+                                    
+                                    <!-- Lecture video player -->
+                                    <div *ngIf="lectureF.video.value && lectureF.video.value.downloadURL" class=" mt-3">
+                                        <vg-player>
+                                        <vg-controls>
+                                            <vg-play-pause></vg-play-pause>
+                                            <vg-playback-button></vg-playback-button>
+                                        
+                                            <vg-time-display vgProperty="current" vgFormat="mm:ss"></vg-time-display>
+                                        
+                                            <vg-scrub-bar>
+                                                <vg-scrub-bar-current-time></vg-scrub-bar-current-time>
+                                                <vg-scrub-bar-buffering-time></vg-scrub-bar-buffering-time>
+                                            </vg-scrub-bar>
+                                        
+                                            <vg-time-display vgProperty="total" vgFormat="mm:ss"></vg-time-display>
+                                        
+                                            <vg-mute></vg-mute>
+                                            <vg-volume></vg-volume>
+                                        
+                                            <vg-fullscreen></vg-fullscreen>
+                                        </vg-controls>
+                                        
+                                        <video #media [vgMedia]="media" id="singleVideo" preload="auto">
+                                            <source *ngFor="let video of videoSources" [src]="video.src" type="video/mp4">
+                                        </video>
+                                        </vg-player>
+                                    </div>
+                                    <!-- End lecture video player -->
+
+                                    </tab>
+                                    <!-- End lecture type video -->
+
+                                    <!-- Lecture type article -->
+                                    <tab heading="Article" (selectTab)="onLectureTypeTabSelect($event)">
+                                    <ng-template tabHeading>
+                                        <i class="tim-icons icon-paper"> </i>
+                                    </ng-template>
+                                    
+                                    <div class=" mb-3">
+                                        <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001124312-how-to-use-lectures-in-your-course" target="_blank">
+                                            <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> Help with articles </span>
+                                        </a>
+                                    </div>
+
+                                    <editor
+                                    *ngIf="viewLoaded"
+                                    apiKey="swb6l7gw85zcl8aw2dh7551jt3t5ydravtthultgf8fo3w2l"
+                                    [init]="tinymceInit"
+                                    formControlName="article"
+                                    >
+                                    </editor>
+
+                                    </tab>
+                                    <!-- End lecture type article -->
+
+                                </tabset>
+                                <!-- End of lecture type -->
+                            </div>
+
+                            <div *ngIf="!isNewLecture">
+                                <!-- include resources? -->
+                                <div class=" row mt-3">
+                                    <div class=" col-md-12">
+                                    <div class=" form-group">
+                                        <label> Include resources with this lecture? </label>
+                                        <span class=" h5 text-light ml-2">
+                                        <i
+                                        class="fas fa-info-circle btn-tooltip"
+                                        data-animation="true"
+                                        data-container="body"
+                                        placement="top"
+                                        tooltip="Resources can be included with all lecture types to share extra information with your students.
+                                        For example, you might inlcude a supporting PDF to download in addition to your main article, or a link to a web page to highlight something you discuss in your main video.">
+                                        </i>
+                                        </span>
+                                        <br />
+                                        <bSwitch
+                                        [switch-on-color]="'danger'"
+                                        [switch-off-color]="'danger'"
+                                        [switch-off-text]="'NO'"
+                                        [switch-on-text]="'YES'"
+                                        formControlName="includeResources"
+                                        (onChangeState)="onIncludeResourcesChange($event)"
+                                        (click)="onIncludeResourcesChange($event)"
+                                        >
+                                        </bSwitch>
+                                    </div>
+                                    </div>
+                                </div>
+
+                                <div [ngClass]="{'hide': !lectureF?.includeResources.value}">
+                                    <div class=" mb-3">
+                                        <a href="https://lifecoach.freshdesk.com/a/solutions/articles/47001131632" target="_blank">
+                                            <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> Help with lecture resources </span>
+                                        </a>
+                                    </div>
+
+                                    <!-- Resources options -->
+                                    <tabset class="nav-pills-default" type="pills">
+
+                                        <!-- Upload from computer tab -->
+                                        <tab>
+                                            <ng-template tabHeading>
+                                                <i
+                                                class="fas fa-upload mr-2" 
+                                                style="display: inline-block; line-height: 30px; font-size: 20px;"> </i> Upload file
+                                            </ng-template>
+
+                                            <p class=" text-muted mt-2">
+                                                Note: All files should be less than 1.0GB
+                                            </p>
+
+                                            <!-- File drop / upload -->
+                                            <app-course-resource-uploader
+                                            [uid]="userId"
+                                            [course]="course"
+                                            [lectureId]="activatedLectureId">
+                                            </app-course-resource-uploader>
+
+                                        </tab>
+
+                                        <!-- Add from library tab -->
+                                        <tab>
+                                            <ng-template tabHeading>
+                                                <i
+                                                class="fas fa-paperclip mr-2" 
+                                                style="display: inline-block; line-height: 30px; font-size: 20px;"> </i> Add From Library
+                                            </ng-template>
+
+                                            <!-- User library -->
+                                            <app-course-video-library
+                                            [userId]="userId"
+                                            [selectedItems]="lectureF?.resources.value"
+                                            (messageEvent)="onLibraryItemSelectResource($event)">
+                                            </app-course-video-library>
+                                            <!-- End of user library -->
+
+                                        </tab>
+                                    </tabset>
+                                    <!-- End Resource options -->
+                                </div>
+
+                                <!-- Added resources -->
+                                <div *ngIf="lectureF?.includeResources.value">
+                                    <div *ngIf="!lectureF?.resources.value || lectureF.resources.value.length === 0">
+                                        <p class=" text-muted mt-3">
+                                            <i class="tim-icons icon-alert-circle-exc"></i> You haven't added any resources to this lecture yet.
+                                        </p>
+                                    </div>
+                                    <div *ngIf="lectureF?.resources.value && lectureF.resources.value.length !== 0">
+                                        
+                                        <table class=" table">
+                                            <thead>
+                                                <tr>
+                                                    <th>
+                                                        <label> Resources </label>
+                                                        <span class=" h5 text-light ml-2">
+                                                            <i
+                                                            class="fas fa-info-circle btn-tooltip"
+                                                            data-animation="true"
+                                                            data-container="body"
+                                                            placement="top"
+                                                            tooltip="These resources will be included with this lecture. 
+                                                            All files added here will be downloadable for students">
+                                                            </i>
+                                                        </span>
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr *ngFor="let item of lectureF.resources.value ; let r = index">
+                                                    <td>
+                                                        {{ item.fileName }}
+                                                    </td>
+                                                    <td class="td-actions text-right">
+                                                        <button
+                                                        type="button"
+                                                        rel="tooltip"
+                                                        class="btn btn-danger btn-icon btn-sm"
+                                                        data-original-title=""
+                                                        title=""
+                                                        (click)="removeResource(r)">
+                                                        <i class="tim-icons icon-trash-simple"></i>
+                                                    </button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!-- allow preview? -->
+                                <div class=" row mt-3">
+                                    <div class=" col-md-12">
+                                    <div class=" form-group">
+                                        <label> Allow users to preview this lecture before purchasing your course? </label>
+                                        <span class=" h5 text-light ml-2">
+                                        <i
+                                        class="fas fa-info-circle btn-tooltip"
+                                        data-animation="true"
+                                        data-container="body"
+                                        placement="top"
+                                        tooltip="Set YES to allow potential students to preview this lecture before buying your course. Allowing
+                                        users to preview a few of your most engaging lectures can help to increase sales!">
+                                        </i>
+                                        </span>
+                                        <br />
+                                        <bSwitch
+                                        [switch-on-color]="'danger'"
+                                        [switch-off-color]="'danger'"
+                                        [switch-off-text]="'NO'"
+                                        [switch-on-text]="'YES'"
+                                        formControlName="preview"
+                                        (onChangeState)="onPreviewChange($event)"
+                                        (click)="onPreviewChange($event)"
+                                        >
+                                        </bSwitch>
+                                    </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Form submit button -->
+                            <div class=" pull-right">
+                                <button type="submit" class=" btn btn-primary btn-round btn-fill mt-3">
+                                    <span *ngIf="!saving">
+                                        <i class="fas fa-save"></i>
+                                      </span>
+                                      <span
+                                      *ngIf="saving"
+                                      class="spinner-border spinner-border-sm"
+                                      role="status"
+                                      ></span> {{ saving ? 'Saving...' : 'Save'}} 
+                                </button>
+                            </div>
+                            
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

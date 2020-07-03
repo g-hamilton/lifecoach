@@ -1,0 +1,49 @@
+<div *ngIf="feed">
+    <!-- Original question - expanded detail -->
+    <div *ngIf="selectedQuestion" class=" card">
+        <div class=" card-body">
+            <div class=" row">
+                <!-- avatar -->
+                <div class=" col-auto">
+                    <div class=" text-center">
+                        <img *ngIf="selectedQuestion.askerPhoto"
+                        [src]="selectedQuestion.askerPhoto"
+                        style="width: 60px; height: 60px; border-radius: 60px; object-fit: cover;">
+                        <img
+                        *ngIf="!selectedQuestion.askerPhoto"
+                        src="https://eu.ui-avatars.com/api/?name={{selectedQuestion.askerFirstName}}+{{selectedQuestion.askerLastName}}&background=00f2c3&color=fff&rounded=true&bold=true"
+                        style="width: 60px; height: 60px; border-radius: 60px; object-fit: cover;">
+                    </div>
+                </div>
+                <!-- question title -->
+                <div class=" col-auto">
+                    <small> {{ selectedQuestion.askerFirstName + ' ' + selectedQuestion.askerLastName + ' - ' + lectureTitle + ' - ' + displayDate(selectedQuestion.created) }} </small>
+                    <h4>
+                        {{ selectedQuestion.title }}
+                    </h4>
+                    <p [innerHTML]="selectedQuestion.detail"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- If loading older messages -->
+    <div *ngIf="loading" class="text-center" id="loading-messages">
+        <div class="spinner-border" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+
+    <!-- If all older messages loaded into view -->
+    <!-- <p *ngIf="done" class="text-center" id="no-more-messages">
+        No more replies
+    </p> -->
+
+    <!-- Replies -->
+    <app-discussion-reply *ngFor="let reply of feed" [userId]="userId" [reply]="reply"></app-discussion-reply>
+
+    <!-- No replies yet -->
+    <p *ngIf="!feed.length" class="text-center" id="no-replies">
+        No replies. Be the first to answer...
+    </p>
+</div>

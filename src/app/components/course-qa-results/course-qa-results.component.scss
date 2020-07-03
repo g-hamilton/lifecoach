@@ -1,0 +1,17 @@
+.question:hover {
+    background-color: #1e202f;
+    cursor: pointer;
+}
+
+.avoid-click {
+    pointer-events: none;
+}
+
+.upvote:hover {
+    color: #e14eca;
+    cursor: pointer;
+}
+
+.test {
+    color: #222a42 !important;
+}

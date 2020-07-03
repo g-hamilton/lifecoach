@@ -1,0 +1,116 @@
+<!-- Loading spinner only if we're on the server -->
+<div *ngIf="!browser" class="text-center">
+    <div class="spinner-border" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+</div>
+
+<!-- We're in the browser -->
+<div *ngIf="browser" class=" content">
+
+    <!-- Communication type navigator -->
+    <div class=" row">
+        <div class=" col">
+            <div
+                class=" btn-group btn-group-toggle text-center mb-3"
+                data-toggle="buttons"
+              >
+                <label
+                  class=" btn btn-sm btn-primary btn-simple"
+                  (click)="leadsSelected = true ; courseQaSelected = false"
+                  [routerLink]="['/messages']"
+                  [ngClass]="{ active: leadsSelected }"
+                >
+                  <input checked="checked" name="options" type="radio" />
+
+                  <span
+                    class=" d-none d-sm-block d-md-block d-lg-block d-xl-block"
+                  >
+                    Leads
+                  </span>
+                  <span class=" d-block d-sm-none">
+                    <i class=" tim-icons icon-email-85"> </i>
+                  </span>
+                </label>
+                <label
+                  class=" btn btn-sm btn-primary btn-simple"
+                  (click)="courseQaSelected = true ; leadsSelected = false"
+                  [ngClass]="{ active: courseQaSelected }"
+                >
+                  <input
+                    class=" d-none d-sm-none"
+                    name="options"
+                    type="radio"
+                  />
+
+                  <span
+                    class=" d-none d-sm-block d-md-block d-lg-block d-xl-block"
+                  >
+                    Course Discussions
+                  </span>
+                  <span class=" d-block d-sm-none">
+                    <i class=" tim-icons icon-chat-33"> </i>
+                  </span>
+                </label>
+              </div>
+        </div>
+    </div>
+
+    <!-- Loading until room data loaded -->
+    <div *ngIf="!roomLoaded && !noUserRooms" class="text-center">
+        <div class="spinner-border" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Room data loaded -->
+    <!-- Hide rather than ngIf so we can access the DOM for scrollFeed -->
+    <div [hidden]="!roomLoaded">
+        <div id="chat-content">
+            <div class=" row">
+                <div
+                #roomsFeed
+                appScrollable
+                (scrollPosition)="roomScrollHandler($event)"
+                class=" col-sm-4 col-md-3"
+                id="left">
+                    <div id="chatrooms-wrapper">
+                        <app-discussions [userId]="userId" [userRooms]="userRooms"></app-discussions>
+                    </div>
+                </div>
+                <div
+                #scrollFeed
+                appScrollable
+                (scrollPosition)="feedScrollHandler($event)"
+                class=" col-sm-8 offset-sm-4 col-md-9 offset-md-3"
+                id="right"
+                >
+                    <div class=" row">
+                        <div class=" col-sm-12">
+                            <div *ngIf="feedPaginationService" id="chatfeed-wrapper">
+                                <!-- Discussion feed -->
+                                <app-discussion-feed
+                                [userId]="userId"
+                                [feed]="feedPaginationService.data | async"
+                                [done]="feedPaginationService.done | async"
+                                [loading]="feedPaginationService.loading | async">
+                                </app-discussion-feed>
+                            </div>
+                        </div>
+                        <div class=" col-sm-12" id="bottom">
+                            <div id="chatform-wrapper">
+                              <app-discussion-reply-form [userId]="userId" [roomId]="roomID" [userProfile]="userProfile"></app-discussion-reply-form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User has no rooms -->
+    <div *ngIf="noUserRooms">
+        <p>You have no course discussions.</p>
+    </div>
+
+</div>

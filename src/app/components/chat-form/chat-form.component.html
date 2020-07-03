@@ -1,0 +1,46 @@
+<form class=" form" id="chatForm" [formGroup]="chatForm" (ngSubmit)="sendMessage()">
+    <div class=" row">
+        <div class=" col-md-8">
+            <div
+            class=" input-group input-group-lg"
+            [ngClass]="{
+                'input-group-focus': focus === true
+            }"
+            >
+                <div class=" input-group-prepend">
+                    <div class=" input-group-text">
+                      <i class=" tim-icons icon-chat-33"> </i>
+                    </div>
+                </div>
+                <input
+                class=" form-control"
+                name="message"
+                formControlName="message"
+                placeholder="Reply..."
+                type="text"
+                (focus)="focus = true; focusTouched = true"
+                (blur)="focus = false"
+                required=""
+                />
+            </div>
+            <!-- <div
+            class="error custom-error-label"
+            *ngIf="
+                ((focusTouched || sendingMessage) && chatF.message.errors) ||
+                (chatF.message.value != '' && chatF.message.errors)
+            "
+            > Invalid message.
+            </div> -->
+        </div>
+        <div class=" col-md-4">
+            <button class=" btn btn-primary btn-round btn-lg" type="submit">
+                <span
+                    *ngIf="sendingMessage"
+                    class="spinner-border spinner-border-sm"
+                    role="status"
+                ></span> {{ sendingMessage ? 'Sending...' : 'Send'}}
+            </button>
+        </div>
+    </div>
+    
+</form>

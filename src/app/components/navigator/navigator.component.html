@@ -1,0 +1,22 @@
+<div class="">
+    <div class=" row justify-content-center">
+        <div class=" col-md-6">
+            <div *ngIf="totalItems" class="">
+              <nav>
+                <pagination
+                  class=" pagination-primary justify-content-center mt-3"
+                  [boundaryLinks]="true"
+                  [rotate]="true"
+                  [(ngModel)]="page"
+                  [totalItems]="totalItems"
+                  [itemsPerPage]="itemsPerPage"
+                  [maxSize]="maxSize"
+                  [previousText]="'Prev'"
+                  (pageChanged)="pageChanged($event)"
+                >
+                </pagination>
+              </nav>
+            </div>
+          </div>
+    </div>
+</div>

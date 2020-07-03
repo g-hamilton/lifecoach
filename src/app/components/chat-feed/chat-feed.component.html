@@ -1,0 +1,3 @@
+<div *ngIf="feed">
+    <app-chat-msg *ngFor="let msg of feed" [userId]="userId" [message]="msg"></app-chat-msg>
+</div>

@@ -1,0 +1,57 @@
+<div class=" card">
+    <div class=" card-body">
+      <!-- Search bar -->
+      <h5 class=" card-title"> Search Coaching Courses </h5>
+      <div class=" row">
+        <div class=" col-md-10">
+          <div class="input-group input-group-lg" id="browse-search">
+            <div class="input-group-prepend">
+              <span class="input-group-text" id="inputGroup-sizing-lg" [ngClass]="{'focus': focus}">
+                <i class=" tim-icons icon-zoom-split mr-3"></i>
+              </span>
+            </div>
+            <input
+            type="text"
+            class="form-control"
+            aria-label="Large"
+            aria-describedby="inputGroup-sizing-sm"
+            placeholder="eg. How to develop a growth mindset"
+            [(ngModel)]="searchTerm"
+            (focus)="focus = true; focusTouched = true"
+            (blur)="focus = false"
+            >
+          </div>
+        </div>
+        <div class=" col-md-2">
+            <a
+            class="btn btn-primary btn-lg btn-round"
+            [routerLink]="['/courses']"
+            [queryParams]="{q: searchTerm}"
+            role="button"> Go! </a>
+        </div>
+      </div>
+  
+      <!-- Browse course filters -->
+      <div class=" row mt-3">
+
+        <!-- Browse by course category -->
+        <div class=" col-md-4">
+          <h5 class=" card-title"> Browse Courses By Category </h5>
+          <div class="form-group">
+              <select class="form-control" [(ngModel)]="selectedCategory" (change)="onCategorySelect($event)">
+                  <option [ngValue]="null"> Select a category... </option>
+                  <option *ngFor="let item of categories" [value]="item">
+                      {{ item }}
+                  </option>
+              </select>
+          </div>
+        </div>
+
+        <!-- Browse by course category -->
+        <div class=" col-md-4">
+          <h5 class=" card-title"> Show prices in </h5>
+          <app-select-currency [currency]="clientCurrency" (currencyEvent)="onManualCurrencyChange($event)"></app-select-currency>
+        </div>
+      </div>
+    </div>
+</div>

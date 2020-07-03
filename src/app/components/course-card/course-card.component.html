@@ -1,0 +1,30 @@
+<a [routerLink]="['/course', courseId]">
+    <div class=" card">
+
+        <!-- Card image -->
+        <img
+        class=" card-img-top course-card-image"
+        [src]="course.image ? course.image : 'assets/img/image_placeholder.jpg'"
+        [alt]="course.title" />
+
+        <!-- Card body -->
+        <div class=" card-body">
+            <h4 class="card-title"> {{ course?.title }} </h4>
+            <h6 class="card-subtitle mb-2 text-muted"> {{ course?.coachName }} </h6>
+            <div *ngIf="browser">
+                <app-stars
+                *ngIf="course"
+                [course]="course">
+                </app-stars>
+            </div>
+            <div *ngIf="clientCurrency && rates" style="clear: both;">
+                <h4 *ngIf="course?.pricingStrategy === 'paid'"> {{ currencySymbol + '' + displayPrice }} </h4>
+                <h4 *ngIf="course?.pricingStrategy === 'free'"> FREE </h4>
+            </div>
+            <span class=" badge badge-success">
+                New
+            </span>
+        </div>
+
+    </div>
+</a>

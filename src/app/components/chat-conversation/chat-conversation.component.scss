@@ -1,0 +1,16 @@
+#chat-conversation-card {
+    table {
+        margin-bottom: 0;
+
+        td {
+            padding: 1rem 0 0 0;
+        }
+    }
+}
+
+#conversation-badge {
+    width: fit-content;
+    position: absolute;
+    right: -0.4rem;
+    top: -0.4rem;
+}

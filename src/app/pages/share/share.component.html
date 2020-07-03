@@ -1,0 +1,70 @@
+<div class=" content">
+    <div class=" row">
+        <div class=" col-md-8">
+            <div class=" card">
+                <div class=" card-header">
+                    <h5 class=" card-category"> Sharing & Promotional Tools </h5>
+                    <h3 class=" card-title"> Promote Yourself With Lifecoach </h3>
+                </div>
+                <div class=" card-body">
+                    <tabset class="nav-pills-primary" type="pills">
+
+                        <!-- Profile sharing tab -->
+                        <tab heading="Promote Your Profile">
+                            <div class=" pull-left">
+                                <div *ngIf="profile && profile.isPublic && profile.shortUrl">
+                                    <h6 class=" mt-4"> Sharable Link </h6>
+                                    <p>
+                                        Copy & paste this unique shortlink into emails, marketing & social media posts
+                                        to promote your Lifecoach profile.
+                                    </p>
+                                    <input
+                                        class=" form-control"
+                                        name="profileShortlink"
+                                        placeholder=""
+                                        [value]="profile.shortUrl"
+                                        type="text"
+                                    />
+                                </div>
+                                <div *ngIf="profile && !profile.isPublic">
+                                    <h6 class=" mt-4">
+                                        <i class="fas fa-lock"></i> Feature locked 
+                                    </h6>
+                                    <p>
+                                        Your profile must be public before you can use this feature.
+                                    </p>
+                                </div>
+                                <div *ngIf="profile && profile.isPublic && !profile.shortUrl">
+                                    <h6 class=" mt-4"> Generate a smart link </h6>
+                                    <button
+                                    type="button"
+                                    class="btn btn-fill btn-round btn-primary"
+                                    (click)="generateSmartlink()"
+                                    >
+                                        <span *ngIf="!generatingSmartlink">
+                                            <i class="fas fa-link"></i>
+                                        </span>
+                                        <span
+                                        *ngIf="generatingSmartlink"
+                                        class="spinner-border spinner-border-sm"
+                                        role="status"
+                                        ></span> {{ generatingSmartlink ? 'Generating...' : 'Generate Smartlink'}}
+                                    </button>
+                                </div>
+                            </div>
+                        </tab>
+
+                        <!-- Other tab -->
+                        <!-- <tab heading="Other">
+                            <div class=" pull-left">
+                                <h6 class=" mt-4"> Lorem </h6>
+                                
+                            </div>
+                        </tab> -->
+
+                    </tabset>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,84 @@
+/* responsively apply fixed position */
+
+// Extra small devices (portrait phones, less than 576px)
+// No media query for `xs` since this is the default in Bootstrap
+
+// Small devices (landscape phones, 576px and up)
+@media (min-width: 576px) { 
+    #left {
+        position: fixed;
+        height: 72vh;
+        overflow-y: auto;
+    }
+    #right {
+        position: fixed;
+        height: 60vh;
+        max-width: 62%;
+        overflow-y: auto;
+    }
+    #bottom {
+        position: fixed;
+        bottom: 80px;
+        max-width: 62%;
+    }
+ }
+
+// Medium devices (tablets, 768px and up)
+@media (min-width: 768px) { 
+    #left {
+        position: fixed;
+        height: 72vh;
+        overflow-y: auto;
+    }
+    #right {
+        position: fixed;
+        height: 60vh;
+        max-width: 72%;
+        overflow-y: auto;
+    }
+    #bottom {
+        position: fixed;
+        bottom: 80px;
+        max-width: 78%;
+    }
+ }
+
+// Large devices (desktops, 992px and up)
+@media (min-width: 992px) { 
+    #left {
+        position: fixed;
+        height: 72vh;
+        overflow-y: auto;
+    }
+    #right {
+        position: fixed;
+        height: 66%;
+        max-width: 60vh;
+        overflow-y: auto;
+    }
+    #bottom {
+        position: fixed;
+        bottom: 80px;
+        max-width: 84%;
+    }
+ }
+
+// Extra large devices (large desktops, 1200px and up)
+@media (min-width: 1200px) { 
+    #left {
+        position: fixed;
+        height: 72vh;
+        overflow-y: auto;
+    }
+    #right {
+        position: fixed;
+        height: 60vh;
+        max-width: 54%;
+        overflow-y: auto;
+    }
+    #bottom {
+        position: fixed;
+        bottom: 80px;
+        max-width: 60%;
+    }
+}

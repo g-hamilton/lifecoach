@@ -1,0 +1,224 @@
+<form (keydown.enter)="$event.preventDefault()" [formGroup]="contactForm" (ngSubmit)="onSubmit()" *ngIf="contactForm != null">
+    
+    <div [ngClass]="{ 'hide': (loginRequired) }">
+
+        <div *ngIf="sendingMessage" class=" row mt-4">
+          <div class=" col-md-12">
+            <alert class="alert-with-icon" [type]="'success alert-with-icon'"  [dismissible]="true">
+              <span class=" tim-icons icon-send" data-notify="icon"></span>
+              <span>Sending your message. Just a moment...</span>
+            </alert>
+          </div>
+        </div>
+
+        <!-- First & last name only if user not authenticated -->
+        <div *ngIf="!userId" class=" row mt-4">
+            <div class=" col-md-6 pr-md-1">
+              <!-- First Name -->
+              <label> First Name </label>
+              <div
+              class=" input-group"
+              [ngClass]="{
+                'input-group-focus': focus === true,
+                'has-danger':
+                  (focusTouched &&
+                    contactF.firstName.errors) ||
+                  (contactF.firstName.value != '' &&
+                    contactF.firstName.errors),
+                'has-success': contactF.firstName.value != '' && !contactF.firstName.errors
+              }"
+              >
+                <div class=" input-group-prepend">
+                  <div class=" input-group-text">
+                    <i class=" tim-icons icon-single-02"> </i>
+                  </div>
+                </div>
+                <input
+                  class=" form-control"
+                  name="firstname"
+                  placeholder="First Name..."
+                  type="text"
+                  formControlName="firstName"
+                  (focus)="focus = true; focusTouched = true"
+                  (blur)="focus = false"
+                />
+              </div>
+              <label
+                class="error custom-error-label"
+                *ngIf="
+                  ((focusTouched || submitted) &&
+                    contactF.firstName.errors) ||
+                  (contactF.firstName.value != '' &&
+                    contactF.firstName.errors)
+                "
+                >This field is required.</label
+              >
+            </div>
+            <div class=" col-md-6 pl-md-1">
+              <!-- Last Name -->
+              <label> Last Name </label>
+              <div
+              class=" input-group"
+              [ngClass]="{
+                'input-group-focus': focus1 === true,
+                'has-danger':
+                  (focus1Touched &&
+                    contactF.lastName.errors) ||
+                  (contactF.lastName.value != '' &&
+                    contactF.lastName.errors),
+                'has-success': contactF.lastName.value != '' && !contactF.lastName.errors
+              }"
+              >
+                <div class=" input-group-prepend">
+                  <div class=" input-group-text">
+                    <i class=" tim-icons icon-caps-small"> </i>
+                  </div>
+                </div>
+                <input
+                  class=" form-control"
+                  name="lastname"
+                  formControlName="lastName"
+                  placeholder="Last Name..."
+                  type="text"
+                  (focus)="focus1 = true; focus1Touched = true"
+                  (blur)="focus1 = false"
+                />
+              </div>
+              <label
+                class="error custom-error-label"
+                *ngIf="
+                  ((focus1Touched || submitted) &&
+                    contactF.lastName.errors) ||
+                  (contactF.lastName.value != '' &&
+                    contactF.lastName.errors)
+                "
+                >This field is required.</label
+              >
+            </div>
+        </div>
+    
+        <!-- Email field only if user not authenticated -->
+        <div *ngIf="!userId" class=" row">
+            <div class=" col-md-6 pr-md-1">
+              <label> Email </label>
+              <div
+              class=" input-group"
+              [ngClass]="{
+                'input-group-focus': focus2 === true,
+                'has-danger':
+                  (focus2Touched &&
+                    contactF.email.errors) ||
+                  (contactF.email.value != '' &&
+                    contactF.email.errors),
+                'has-success': contactF.email.value != '' && !contactF.email.errors
+              }"
+              >
+                <div class=" input-group-prepend">
+                  <div class=" input-group-text">
+                    <i class=" tim-icons icon-email-85"> </i>
+                  </div>
+                </div>
+                <input
+                  class=" form-control"
+                  name="email"
+                  placeholder="Your email..."
+                  type="email"
+                  formControlName="email"
+                  (focus)="focus2 = true; focus2Touched = true"
+                  (blur)="focus2 = false"
+                />
+              </div>
+              <label
+                class="error custom-error-label"
+                *ngIf="
+                  ((focus2Touched || submitted) &&
+                    contactF.email.errors) ||
+                  (contactF.email.value != '' &&
+                    contactF.email.errors)
+                "
+                >This field is required.</label
+              >
+            </div>
+        </div>
+    
+        <!-- Message -->
+        <div class=" row">
+            <div class=" col-md-12">
+                <div class=" form-group">
+                    <label> Message </label>
+                    <span class=" h5 text-light ml-2">
+                        <i
+                        class="fas fa-info-circle btn-tooltip"
+                        data-animation="true"
+                        data-container="body"
+                        placement="top"
+                        tooltip="Reach out to this coach.">
+                        </i>
+                    </span>
+                    <textarea
+                    class=" form-control"
+                    cols="80"
+                    rows="5"
+                    formControlName="message"
+                    (focus)="focus3 = true; focus3Touched = true"
+                    (blur)="focus3 = false"
+                    required=""
+                    placeholder="Ask me anything..."
+                    ></textarea>
+                </div>
+            </div>
+        </div>
+    
+        <div class=" row mt-3">
+            <div class="col-md-12">
+                <div class=" pull-left">
+                    <re-captcha
+                    siteKey="6Lfv4s4UAAAAABduuk92M1zEVvao_ElECmUC_jNW"
+                    formControlName="recaptchaReactive"
+                    (resolved)="recaptchaResolved($event)">
+                    </re-captcha>
+                </div>
+            </div>
+        </div>
+    
+        <div class=" row">
+            <!-- <div class=" col-md-10">
+              <label class=" text-muted">
+                <span class="text-primary">We respect your privacy</span>
+              </label>
+            </div> -->
+            <!-- Send Button -->
+            <div class=" col-md-12 mt-1">
+                <div class=" pull-right">
+                  <button 
+                  class=" btn btn-fill btn-round btn-primary mr-2 mb-2" 
+                  type="submit"
+                  [disabled]="contactForm.invalid"
+                  >
+                    <span *ngIf="!submitted">
+                      <i class="fas fa-save"></i>
+                    </span>
+                    <span
+                    *ngIf="submitted"
+                    class="spinner-border spinner-border-sm"
+                    role="status"
+                    ></span> {{ submitted ? 'Sending...' : 'Send'}} 
+                  </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="loginRequired">
+        <app-login-in-flow
+        [email]="contactF.email.value"
+        [firstName]="contactF.firstName.value"
+        [lastName]="contactF.lastName.value"
+        [showAlert]="true"
+        [alertText]="'Sign in or register FREE to send your message'"
+        (loginEvent)="onUserAuth($event)"
+        (registerEvent)="onUserAuth($event)"
+        ></app-login-in-flow>
+    </div>
+
+</form>

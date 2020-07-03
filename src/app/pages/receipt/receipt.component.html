@@ -1,0 +1,109 @@
+<div class=" content">
+    <div class=" row">
+        <div class=" col">
+            <div *ngIf="purchasedItem && account" class=" card">
+                <div class=" card-header">
+                    <h5> 
+                        Receipt - {{ timestampToDate(purchasedItem.created) }}
+                    </h5>
+                </div>
+                <div class=" card-body">
+                    <hr>
+                    <div class=" row align-items-end">
+                        <div class=" col-md-6">
+                            <h4> Lifecoach </h4>
+                            <p>
+                                86-90 Paul Street <br>
+                                London <br>
+                                United Kingdom <br>
+                                EC2A 4NE <br>
+                                <a href="https://lifecoach.io">
+                                    lifecoach.io
+                                </a>
+                            </p>
+                        </div>
+                        <div class=" col-md-6">
+                            <p class="text-right pr-3">
+                                <strong> Date </strong>: {{ timestampToDate(purchasedItem.created) }} <br>
+                                <strong> Order # </strong>: {{ purchasedItem.id }}
+                            </p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class=" row">
+                        <div class=" col">
+                            <p>
+                                <strong>Sold to</strong>: {{ account.firstName + ' ' + account.lastName + ' - ' + account.accountEmail }}
+                            </p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class=" table-responsive">
+                        <table class=" table">
+                        <thead class=" text-primary">
+                            <tr>
+                                <th> Item </th>
+                                <th> Ordered </th>
+                                <th> Coupon Codes </th>
+                                <th> Quantity </th>
+                                <th> Price </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td> {{ purchasedItem.metadata.course_title }} </td>
+                                <td> {{ timestampToDate(purchasedItem.created) }} </td>
+                                <td> </td>
+                                <td> 1 </td>
+                                <td> {{ currencies[(purchasedItem.currency).toUpperCase()].symbol + purchasedItem.amount / 100 }} </td>
+                            </tr>
+                            <tr>
+                                <td> </td>
+                                <td> </td>
+                                <td> </td>
+                                <td> Total </td>
+                                <td> {{ currencies[(purchasedItem.currency).toUpperCase()].symbol + ((purchasedItem.amount / 100) * 1) }} </td>
+                            </tr>
+                            <tr>
+                                <td> </td>
+                                <td> </td>
+                                <td> </td>
+                                <td> Net Amount </td>
+                                <td> {{ currencies[(purchasedItem.currency).toUpperCase()].symbol + ((purchasedItem.amount / 100) * 1) }} </td>
+                            </tr>
+                            <tr>
+                                <td> </td>
+                                <td> </td>
+                                <td> </td>
+                                <td> Tax* </td>
+                                <td> 0 </td>
+                            </tr>
+                            <tr>
+                                <td> </td>
+                                <td> </td>
+                                <td> </td>
+                                <td> Total Paid </td>
+                                <td> {{ currencies[(purchasedItem.currency).toUpperCase()].symbol + ((purchasedItem.amount / 100) * 1) }} </td>
+                            </tr>
+                        </tbody>
+                        </table>
+                    </div>
+                    <hr>
+                    <p>
+                        *No tax paid
+                    </p>
+                    <!-- <p>
+                        *For any users charged VAT, the Tax amount is calculated on the Subtotal, not the Total Amount. VAT #: EU000000000
+                    </p> -->
+                    <hr>
+                    <p>
+                        If you have any questions about this receipt, please contact our 
+                        <a href="https://lifecoach.freshdesk.com/support/home" target="_blank">
+                            support team
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

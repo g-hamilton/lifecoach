@@ -1,0 +1,118 @@
+<!-- Loading spinner -->
+<div *ngIf="!course" class="text-center">
+    <div class="spinner-border" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+</div>
+
+<!-- Course loaded -->
+<div *ngIf="course">
+    <div
+    aria-multiselectable="true"
+    class="card-collapse"
+    id="accordion"
+    role="tablist"
+  >
+    <div *ngFor="let section of course.sections ; let s = index" class="card card-plain">
+      <div class="card-header" [id]="'heading' + s" role="tab">
+        <a
+            [attr.aria-controls]="'Collapse' + s"
+            class="d-flex"
+            data-parent="#accordion"
+            [attr.aria-expanded]="!section.expanded"
+            [id]="'Collapse' + s"
+        >
+            <h6
+            style="display: inline-block;"
+            tooltip="Expand sections to view lectures">
+                <a href="javascript:void(0)">
+                    {{ 'Section ' + (s + 1) + ': ' + section.title }}
+                </a>
+            </h6>
+            <i
+            [ngClass]="{
+                'tim-icons' : true,
+                'icon-minimal-down' : !section.expanded,
+                'icon-minimal-up' : section.expanded,
+                'ml-auto' : true
+            }"
+            tooltip="Click to show or hide lectures"
+            (click)="section.expanded = !section.expanded">
+            </i>
+        </a>
+        <div>
+            {{ getSectionCompletedNumLectures(s) + '/' + section.lectures?.length }} {{ getLecturesTotalDuration(s) === '0:00' ? '' : ' | ' + getLecturesTotalDuration(s) }}
+        </div>
+      </div>
+      <div
+        [attr.aria-labelledby]="'heading' + s"
+        class="show"
+        [isAnimated]="true"
+        [collapse]="!section.expanded"
+        [id]="'Collapse' + s"
+        role="tabpanel"
+      >
+        <div *ngFor="let lecture of (course.lectures | filterLectures:section) ; let l = index" class="card card-plain">
+          <div class=" card-body pl-3 pr-3 pb-0">
+            <table class=" table mb-0">
+                <tbody>
+                    <tr>
+                        <td class=" pl-0 pr-0">
+
+                            <form class=" d-inline-block" style="margin-left: -4px;">
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                        <input
+                                        class="form-check-input"
+                                        type="checkbox" 
+                                        value=""
+                                        [checked]="lecturesComplete?.includes(lecture.id)"
+                                        (change)="onLectureCompleteChange(lecture.id, $event)">
+                                        <span class="form-check-sign">
+                                            <span class="check"></span>
+                                        </span>
+                                    </label>
+                                </div>
+                            </form>
+                            <span class="">
+                                <a [routerLink]="[baseUrl, course.courseId, 'learn', 'lecture', lecture.id]" [queryParams]="previewAsStudent ? {previewAsStudent: true} : null">
+                                    {{ (l + 1) + '. ' + lecture.title }}
+                                </a>
+                            </span>
+
+                            <div class=" d-block mt-2">
+                                <i *ngIf="lecture.type === 'Video'" class="fas fa-play-circle" tooltip="This is lecture is a video"></i>
+                                <i *ngIf="lecture.type === 'Article'" class="fas fa-file-alt" tooltip="This is lecture is an article"></i>
+                                <span *ngIf="lecture.type === 'Video'" class=" d-inline" tooltip="Lecture duration">
+                                    {{ fancyTimeFormat(lecture.video?.duration) }}
+                                </span>
+
+                                <!-- resources -->
+                                <span *ngIf="lecture.includeResources && lecture.resources && lecture.resources.length > 0" class=" pull-right">
+                                    <div class=" dropdown show" dropdown>
+                                        <a aria-expanded="false" aria-haspopup="true" class=" btn btn-primary dropdown-toggle dropdown-toggle" data-toggle="dropdown" dropdownToggle href="javascript:void(0)" id="dropdownMenuLink" role="button">
+                                          Resources
+                                        </a>
+                                        <div aria-labelledby="dropdownMenuLink" class=" dropdown-menu dropdown-menu-right" *dropdownMenu>
+                                          <a
+                                            *ngFor="let resource of lecture.resources"
+                                            class=" dropdown-item"
+                                            [href]="resource.downloadURL"
+                                            target="_blank">
+                                            {{ resource.fileName }}
+                                          </a>
+                                        </div>
+                                    </div>
+                                </span>
+                                
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

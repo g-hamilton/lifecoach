@@ -1,0 +1,143 @@
+<!-- Loading spinner -->
+<div *ngIf="!course" class="text-center">
+    <div class="spinner-border" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+</div>
+
+<!-- Course loaded -->
+<div class=" pull-right d-inline-block">
+  <p>
+    <span class=" pr-3">
+      <button class=" btn btn-primary btn-link" (click)="expandAllSections()">
+        Expand all
+      </button>
+    </span>
+    <span class=" pr-3">
+      {{ course.lectures.length }} lectures
+    </span>
+    <span class=" pr-2">
+      {{ totalLecturesRuntime }}
+    </span>
+  </p>
+</div>
+<div *ngIf="course">
+    <div
+    aria-multiselectable="true"
+    class="card-collapse"
+    id="accordion"
+    role="tablist"
+  >
+    <div *ngFor="let s of course?.sections" class="card card-plain">
+      <div class="card-header" id="heading+s" role="tab">
+        <a
+          aria-controls="collapse+s"
+          class="d-flex"
+          data-parent="#accordion"
+          [attr.aria-expanded]="s.expanded"
+          (click)="s.expanded = !s.expanded"
+          id="collapse+s"
+          href="javascript:void(0)"
+        >
+          {{ s.title }}
+          <i
+            [ngClass]="{
+                'tim-icons' : true,
+                'icon-minimal-down' : !s.expanded,
+                'icon-minimal-up' : s.expanded,
+                'ml-auto' : true
+            }"
+            tooltip="Click to expand lecture content">
+            </i>
+        </a>
+      </div>
+      <div
+        aria-labelledby="heading+s"
+        class="show"
+        [isAnimated]="true"
+        [collapse]="!s.expanded"
+        id="collapse+s"
+        role="tabpanel"
+      >
+        <div class="card-body">
+            <table class="table">
+                <tbody>
+                    <tr *ngFor="let l of (course.lectures | filterLectures:s) ; let i = index">
+                        <td>
+                            <i *ngIf="l.type === 'Video'" class="fas fa-play-circle" tooltip="This is lecture is a video"></i>
+                            <i *ngIf="l.type === 'Article'" class="fas fa-file-alt" tooltip="This is lecture is an article"></i>
+                        </td>
+                        <td>{{ l.title }}</td>
+                        <td class=" text-right">
+                            <button 
+                            *ngIf="l.preview"
+                            class="btn btn-primary btn-link"
+                            tooltip="Click to preview this lecture"
+                            (click)="previewVideoDownloadUrl = l.video.downloadURL ; previewModal.show()">
+                                Preview
+                            </button>
+                        </td>
+                        <td class=" text-right">
+                            <div *ngIf="l.type !== 'Video' || !l.video?.duration">
+                                -
+                            </div>
+                            <div *ngIf="l.type === 'Video'" tooltip="Lecture duration" placement="right">
+                                {{ fancyTimeFormat(l.video?.duration) }}
+                            </div>
+                        </td>
+                    </tr>                
+                </tbody>
+            </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preview player modal -->
+    <div
+      aria-hidden="true"
+      aria-labelledby="previewModalLabel"
+      bsModal
+      class="modal fade"
+      #previewModal="bs-modal"
+      id="previewModal"
+      role="dialog"
+      tabindex="-1"
+      (onHide)="onPreviewModalHide($event)"
+    >
+      <div class="modal-dialog" style="transform: translate(0,0);">
+        <div class="modal-content">
+          <div class="modal-body">
+            <!-- lecture preview player -->
+            <div *ngIf="previewVideoDownloadUrl">
+              <vg-player>
+                <vg-controls>
+                    <vg-play-pause></vg-play-pause>
+                    <vg-playback-button></vg-playback-button>
+              
+                    <vg-time-display vgProperty="current" vgFormat="mm:ss"></vg-time-display>
+              
+                    <vg-scrub-bar>
+                        <vg-scrub-bar-current-time></vg-scrub-bar-current-time>
+                        <vg-scrub-bar-buffering-time></vg-scrub-bar-buffering-time>
+                    </vg-scrub-bar>
+              
+                    <vg-time-display vgProperty="total" vgFormat="mm:ss"></vg-time-display>
+              
+                    <vg-mute></vg-mute>
+                    <vg-volume></vg-volume>
+              
+                    <vg-fullscreen></vg-fullscreen>
+                </vg-controls>
+              
+                <video #media [vgMedia]="media" id="singleVideo" preload="auto" autoplay="true">
+                    <source [src]="previewVideoDownloadUrl">
+                </video>
+              </vg-player>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

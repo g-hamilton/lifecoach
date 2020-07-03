@@ -1,0 +1,1283 @@
+<div class=" content">
+
+  <!-- Loading spinner -->
+  <div *ngIf="!fetchedProfile && !loadWizard" class="text-center">
+    <div class="spinner-border" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+  </div>
+
+  <!-- EDIT USER PROFILE (saved profile loaded) -->
+  <div *ngIf="fetchedProfile">
+
+    <div class=" row">
+      <div class=" col-md-8">
+        <div class=" card">
+          <div class=" card-header">
+            <h5 class=" title"> Edit Profile 
+              <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001133909-help-with-your-lifecoach-profile" target="_blank">
+                <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> Help with your profile </span>
+              </a>
+            </h5>
+          </div>
+          <div class=" card-body">
+
+            <!-- Begin form -->
+            <form [formGroup]="userProfile">
+  
+              <!-- Photo Picker -->
+              <div class=" row">
+                <div class=" col-lg-10">
+                  <app-picture-upload 
+                  [avatar]="true" 
+                  [inputImg]="profileF.photo.value" 
+                  (messageEvent)="receiveMessage($event)">
+                  </app-picture-upload>
+                </div>
+              </div>
+  
+              <div class=" row mt-4">
+                <div class=" col-md-6 pr-md-1">
+                  <!-- First Name -->
+                  <label> First Name<span class="required-star">*</span> </label>
+                  <div
+                  class=" input-group"
+                  [ngClass]="{
+                    'input-group-focus': focus === true,
+                    'has-danger':
+                      ((focusTouched || savingProfile) &&
+                        profileF.firstName.errors) ||
+                      (profileF.firstName.value != '' &&
+                        profileF.firstName.errors),
+                    'has-success': profileF.firstName.value != '' && !profileF.firstName.errors
+                  }"
+                  >
+                    <div class=" input-group-prepend">
+                      <div class=" input-group-text">
+                        <i class=" tim-icons icon-single-02"> </i>
+                      </div>
+                    </div>
+                    <input
+                      class=" form-control"
+                      name="firstname"
+                      placeholder="First Name..."
+                      type="text"
+                      formControlName="firstName"
+                      (focus)="focus = true; focusTouched = true"
+                      (blur)="focus = false"
+                    />
+                  </div>
+                  <label
+                    class="error custom-error-label"
+                    *ngIf="
+                      ((focusTouched || savingProfile) &&
+                        profileF.firstName.errors) ||
+                      (profileF.firstName.value != '' &&
+                        profileF.firstName.errors)
+                    "
+                    >This field is required.</label
+                  >
+                </div>
+                <div class=" col-md-6 pl-md-1">
+                  <!-- Last Name -->
+                  <label> Last Name<span class="required-star">*</span> </label>
+                  <div
+                  class=" input-group"
+                  [ngClass]="{
+                    'input-group-focus': focus1 === true,
+                    'has-danger':
+                      ((focus1Touched || savingProfile) &&
+                        profileF.lastName.errors) ||
+                      (profileF.lastName.value != '' &&
+                        profileF.lastName.errors),
+                    'has-success': profileF.lastName.value != '' && !profileF.lastName.errors
+                  }"
+                  >
+                    <div class=" input-group-prepend">
+                      <div class=" input-group-text">
+                        <i class=" tim-icons icon-caps-small"> </i>
+                      </div>
+                    </div>
+                    <input
+                      class=" form-control"
+                      name="lastname"
+                      formControlName="lastName"
+                      placeholder="Last Name..."
+                      type="text"
+                      (focus)="focus1 = true; focus1Touched = true"
+                      (blur)="focus1 = false"
+                    />
+                  </div>
+                  <label
+                    class="error custom-error-label"
+                    *ngIf="
+                      ((focus1Touched || savingProfile) &&
+                        profileF.lastName.errors) ||
+                      (profileF.lastName.value != '' &&
+                        profileF.lastName.errors)
+                    "
+                    >This field is required.</label
+                  >
+                </div>
+              </div>
+              <div class=" row">
+                <!-- City -->
+                <div class=" col-md-6 pr-md-1">
+                  <label> City<span class="required-star">*</span> </label>
+                  <div
+                  class=" input-group"
+                  [ngClass]="{
+                    'input-group-focus': focus2 === true,
+                    'has-danger':
+                      ((focus2Touched || savingProfile) &&
+                        profileF.city.errors) ||
+                      (profileF.city.value != '' &&
+                        profileF.city.errors),
+                    'has-success': profileF.city.value != '' && !profileF.city.errors
+                  }"
+                  >
+                    <div class=" input-group-prepend">
+                      <div class=" input-group-text">
+                        <i class=" tim-icons icon-square-pin"> </i>
+                      </div>
+                    </div>
+                    <input
+                    class=" form-control"
+                    name="city"
+                    placeholder="City..."
+                    formControlName="city"
+                    type="text"
+                    required=""
+                    (focus)="focus2 = true; focus2Touched = true"
+                    (blur)="focus2 = false"
+                    />
+                    <label
+                      class="error custom-error-label"
+                      *ngIf="
+                        ((focus2Touched || savingProfile) &&
+                          profileF.city.errors) ||
+                        (profileF.city.value != '' &&
+                          profileF.city.errors)
+                      "
+                      >Required even if you work remotely.</label
+                    >
+                  </div>
+                </div>
+                <!-- Country --> 
+                <div class=" col-md-6 pl-md-1">
+                  <label> Country<span class="required-star">*</span> </label>
+                  <div class=" form-group" *ngIf="browser">
+                    <select
+                    class="form-control"
+                    id="countrySelect"
+                    formControlName="country"
+                    (focus)="focus3 = true; focus3Touched = true"
+                    (blur)="focus3 = false">
+                      <option [ngValue]="null"> Country... </option>
+                      <option *ngFor="let country of countryList" [value]="country.code">
+                        {{ country.emoji + ' ' + country.name }}
+                      </option>
+                    </select>
+                    <div
+                      class="error custom-error-label"
+                      *ngIf="
+                        ((focus3Touched || savingProfile) &&
+                          profileF.country.errors) ||
+                        (profileF.country.value != '' &&
+                          profileF.country.errors)
+                      "
+                      >Please select a country.
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Short Summary -->
+              <div class=" row mt-3">
+                <div class=" col-md-12">
+                  <div class=" form-group">
+                    <label> Short Summary<span class="required-star">*</span> </label>
+                    <span class=" h5 text-light ml-2">
+                      <i
+                      class="fas fa-info-circle btn-tooltip"
+                      data-animation="true"
+                      data-container="body"
+                      placement="top"
+                      tooltip="A short summary to introduce yourself to prospective clients. 
+                      Clients will see this immediately on your profile card when browsing 
+                      and searching coaches. We recommend you expand on this info using the 
+                      'Full Description' field below.">
+                      </i>
+                    </span>
+                    <textarea
+                    class=" form-control"
+                    cols="80"
+                    rows="5"
+                    formControlName="proSummary"
+                    (focus)="focus4 = true; focus4Touched = true"
+                    (blur)="focus4 = false"
+                    required=""
+                    >
+                      A little about me...
+                    </textarea>
+                    <label
+                      class="error custom-error-label"
+                      *ngIf="
+                        ((focus4Touched || savingProfile) &&
+                          profileF.proSummary.errors) ||
+                        (profileF.proSummary.value != '' &&
+                          profileF.proSummary.errors)
+                      "
+                      >Must be between 90 - 210 characters.</label
+                    >
+                  </div>
+                </div>
+              </div>
+  
+              <!-- Field -->
+              <div class=" row mt-3">
+                <div class=" col-lg-10">
+                  <label> My Field<span class="required-star">*</span> </label> 
+                  <span class=" h5 text-light ml-2">
+                    <i
+                    class="fas fa-info-circle btn-tooltip"
+                    data-animation="true"
+                    data-container="body"
+                    placement="top"
+                    tooltip="If you don't fit into any of these fields, use the 'suggest new feature' button at the bottom of this page to request we add a new field.">
+                    </i>
+                  </span>
+                </div>
+              </div>
+              <div class=" row mt-2">
+                <div class=" col-sm-5">
+                  <div class=" form-group" *ngIf="browser">
+                    <select
+                      class="form-control"
+                      id="specialitySelect"
+                      formControlName="speciality1"
+                      (focus)="focus5 = true; focus5Touched = true"
+                      (blur)="focus5 = false">
+                      <option [ngValue]="null"> Select... </option>
+                      <option *ngFor="let item of specialityList" [value]="item.id">
+                        {{ item.itemName }}
+                      </option>
+                    </select>
+                    <div
+                      class="error custom-error-label"
+                      *ngIf="
+                        ((focus5Touched || savingProfile) &&
+                          profileF.speciality1.errors) ||
+                        (profileF.speciality1.value != '' &&
+                          profileF.speciality1.errors)
+                      "
+                      >Please select a coaching field.
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Specialist areas -->
+              <div class=" row mt-3">
+                <div class=" col-lg-10">
+                  <label> My Specialist Area(s)<span class="required-star">*</span> </label>
+                  <span class=" h5 text-light ml-2">
+                    <i
+                    class="fas fa-info-circle btn-tooltip"
+                    data-animation="true"
+                    data-container="body"
+                    placement="top"
+                    tooltip="Help prospective clients to find you in search by entering up to 3 of your specialist coaching areas.">
+                    </i>
+                  </span>
+                </div>
+              </div>
+              <div class=" row">
+                <div class=" col-md-6 pr-md-1">
+                  <div formArrayName="goalTags" *ngFor="let item of profileF.goalTags.value?.controls ; let i = index">
+                    <div
+                    class="input-group no-symbol"
+                    [ngClass]="{
+                        'has-danger':
+                        ((profileF.goalTags.value.controls[i].touched || savingProfile) &&  
+                        profileF.goalTags.value.controls[i].errors) ||
+                        (profileF.goalTags.value.controls[i].value != '' && 
+                        profileF.goalTags.value.controls[i].errors),
+                        'has-success': !profileF.goalTags.value.controls[i].errors
+                    }">
+                        <input
+                        type="text"
+                        class="form-control"
+                        [formControl]="profileF.goalTags.value.controls[i]"
+                        placeholder="eg. Mindfulness">
+                        <div class="input-group-append">
+                        <span class="input-group-text">
+                            {{ profileF.goalTags.value.controls[i].value.length + '/' + goalTagMaxLength }}
+                        </span>
+                        </div>
+                        <div class=" d-inline">
+                          <i
+                          class="far fa-trash-alt text-danger ml-3 mt-3"
+                          tooltip="Delete this specialist area"
+                          (click)="removeGoalTag(i)">
+                          </i>  
+                        </div>
+                    </div>
+                    <div *ngIf="((profileF.goalTags.value.controls[i].touched || savingProfile) && 
+                        profileF.goalTags.value.controls[i].errors) ||
+                        (profileF.goalTags.value.controls[i].value != '' && 
+                        profileF.goalTags.value.controls[i].errors)">
+                        <label
+                        *ngFor="let error of objKeys(profileF.goalTags.value.controls[i].errors)"
+                        class="error custom-error-label"
+                        >{{ showError('learningPoints', error) }}
+                        </label>
+                    </div>
+                  </div>
+                  <button
+                  type="button"
+                  class=" btn btn-primary btn-link"
+                  (click)="addGoalTag()"
+                  [disabled]="profileF.goalTags.value?.controls?.length >= goalTagsMax">
+                      <i class="fas fa-plus"></i> Add a specialist area
+                  </button>
+                </div>
+              </div>
+              <!-- Qualifications -->
+              <div class=" row mt-5">
+                <div class=" col-lg-10">
+                  <label> Qualifications </label> 
+                    <span class=" h5 text-light ml-2">
+                      <i
+                      class="fas fa-info-circle btn-tooltip"
+                      data-animation="true"
+                      data-container="body"
+                      placement="top"
+                      tooltip="Add your qualifications & professional life coaching
+                      certifications.">
+                      </i>
+                    </span>
+                </div>
+              </div>
+              <div class=" row">
+                <!-- Col 1 -->
+                <div class=" col-sm-3">
+                  <div class=" form-check">
+                    <label class=" form-check-label">
+                      <input class=" form-check-input" type="checkbox" name="qualBa" formControlName="qualBa" />
+  
+                      <span class=" form-check-sign"> </span> BA
+                    </label>
+                  </div>
+                  <div class=" form-check">
+                    <label class=" form-check-label">
+                      <input class=" form-check-input" type="checkbox" name="qualBsc" formControlName="qualBsc" />
+  
+                      <span class=" form-check-sign"> </span> BSc
+                    </label>
+                  </div>
+                  <div class=" form-check">
+                    <label class=" form-check-label">
+                      <input class=" form-check-input" type="checkbox" name="qualBcomm" formControlName="qualBcomm" />
+  
+                      <span class=" form-check-sign"> </span> BComm
+                    </label>
+                  </div>
+                  <div class=" form-check">
+                    <label class=" form-check-label">
+                      <input class=" form-check-input" type="checkbox" name="qualMa" formControlName="qualMa" />
+  
+                      <span class=" form-check-sign"> </span> MA
+                    </label>
+                  </div>
+                  <div class=" form-check">
+                    <label class=" form-check-label">
+                      <input class=" form-check-input" type="checkbox" name="qualMs" formControlName="qualMs" />
+  
+                      <span class=" form-check-sign"> </span> MS
+                    </label>
+                  </div>
+                  <div class=" form-check">
+                    <label class=" form-check-label">
+                      <input class=" form-check-input" type="checkbox" name="qualMba" formControlName="qualMba" />
+  
+                      <span class=" form-check-sign"> </span> MBA
+                    </label>
+                  </div>
+                </div>
+                <!-- Col 2 -->
+                <div class=" col-sm-3">
+                  <div class=" form-check">
+                    <label class=" form-check-label">
+                      <input class=" form-check-input" type="checkbox" name="qualMapp" formControlName="qualMapp" />
+  
+                      <span class=" form-check-sign"> </span> MAPP
+                    </label>
+                  </div>
+                  <div class=" form-check">
+                    <label class=" form-check-label">
+                      <input class=" form-check-input" type="checkbox" name="qualPhd" formControlName="qualPhd" />
+  
+                      <span class=" form-check-sign"> </span> PhD
+                    </label>
+                  </div>
+                  <div class=" form-check">
+                    <label class=" form-check-label">
+                      <input class=" form-check-input" type="checkbox" name="qualAcc" formControlName="qualAcc" />
+  
+                      <span class=" form-check-sign"> </span> ICF - ACC
+                    </label>
+                  </div>
+                  <div class=" form-check">
+                    <label class=" form-check-label">
+                      <input class=" form-check-input" type="checkbox" name="qualPcc" formControlName="qualPcc" />
+  
+                      <span class=" form-check-sign"> </span> ICF - PCC
+                    </label>
+                  </div>
+                  <div class=" form-check">
+                    <label class=" form-check-label">
+                      <input class=" form-check-input" type="checkbox" name="qualMcc" formControlName="qualMcc" />
+  
+                      <span class=" form-check-sign"> </span> ICF - MCC
+                    </label>
+                  </div>
+                  <div class=" form-check">
+                    <label class=" form-check-label">
+                      <input class=" form-check-input" type="checkbox" name="qualEia" formControlName="qualEia" />
+  
+                      <span class=" form-check-sign"> </span> EMCC - EIA
+                    </label>
+                  </div>
+                </div>
+                <!-- Col 3 -->
+                <div class=" col-sm-3">
+                  <div class=" form-check">
+                    <label class=" form-check-label">
+                      <input class=" form-check-input" type="checkbox" name="qualEqa" formControlName="qualEqa" />
+  
+                      <span class=" form-check-sign"> </span> EMCC - EQA
+                    </label>
+                  </div>
+                  <div class=" form-check">
+                    <label class=" form-check-label">
+                      <input class=" form-check-input" type="checkbox" name="qualEsia" formControlName="qualEsia" />
+  
+                      <span class=" form-check-sign"> </span> EMCC - ESIA
+                    </label>
+                  </div>
+                  <div class=" form-check">
+                    <label class=" form-check-label">
+                      <input class=" form-check-input" type="checkbox" name="qualEsqa" formControlName="qualEsqa" />
+  
+                      <span class=" form-check-sign"> </span> EMCC - ESQA
+                    </label>
+                  </div>
+                  <div class=" form-check">
+                    <label class=" form-check-label">
+                      <input class=" form-check-input" type="checkbox" name="qualIsmcp" formControlName="qualIsmcp" />
+  
+                      <span class=" form-check-sign"> </span> EMCC - ISMCP
+                    </label>
+                  </div>
+                  <div class=" form-check">
+                    <label class=" form-check-label">
+                      <input class=" form-check-input" type="checkbox" name="qualApecs" formControlName="qualApecs" />
+  
+                      <span class=" form-check-sign"> </span> APECS
+                    </label>
+                  </div>
+                </div>
+                <!-- col 4 -->
+                <div class=" col-sm-3">
+                  <div class=" form-check">
+                    <label class=" form-check-label">
+                      <input class=" form-check-input" type="checkbox" name="qualEcas" formControlName="qualEcas" />
+  
+                      <span class=" form-check-sign"> </span> AC - ECAS
+                    </label>
+                  </div>
+                  <div class=" form-check">
+                    <label class=" form-check-label">
+                      <input class=" form-check-input" type="checkbox" name="qualCas" formControlName="qualCas" />
+  
+                      <span class=" form-check-sign"> </span> AC - CAS
+                    </label>
+                  </div>
+                  <div class=" form-check">
+                    <label class=" form-check-label">
+                      <input class=" form-check-input" type="checkbox" name="qualCsa" formControlName="qualCsa" />
+  
+                      <span class=" form-check-sign"> </span> AC - CSA
+                    </label>
+                  </div>
+                  <div class=" form-check">
+                    <label class=" form-check-label">
+                      <input class=" form-check-input" type="checkbox" name="qualSa" formControlName="qualSa" />
+  
+                      <span class=" form-check-sign"> </span> AC - SA
+                    </label>
+                  </div>
+                  <div class=" form-check">
+                    <label class=" form-check-label">
+                      <input class=" form-check-input" type="checkbox" name="qualOther" formControlName="qualOther" />
+  
+                      <span class=" form-check-sign"> </span> Other
+                    </label>
+                  </div>
+                </div>
+              </div>
+  
+              <!-- Social Buttons -->
+              <div class=" row mt-5">
+                <!-- Facebook -->
+                <div class=" col-md-6 pr-md-1">
+                  <label> Facebook </label>
+                  <span class=" h5 text-light ml-2">
+                    <i
+                    class="fas fa-info-circle btn-tooltip"
+                    data-animation="true"
+                    data-container="body"
+                    placement="top"
+                    tooltip="Copy and paste your full Facebook address here to create a promotional button. 
+                    Be sure to test your button to check it works correctly before saving!">
+                    </i>
+                  </span>
+                  <div
+                  class=" input-group"
+                  [ngClass]="{
+                    'input-group-focus': focus6 === true,
+                    'has-danger':
+                      ((focus6Touched || savingProfile) &&
+                        profileF.facebook.errors) ||
+                      (profileF.facebook.value != '' &&
+                        profileF.facebook.errors),
+                    'has-success': profileF.facebook.value != '' && !profileF.facebook.errors
+                  }"
+                  >
+                    <div class=" input-group-prepend">
+                      <div class=" input-group-text">
+                        <i class=" fab fa-facebook-f"></i>
+                      </div>
+                    </div>
+                    <input
+                      class=" form-control"
+                      name="facebook"
+                      placeholder="Facebook address..."
+                      type="text"
+                      formControlName="facebook"
+                      (focus)="focus6 = true; focus6Touched = true"
+                      (blur)="focus6 = false"
+                    />
+                  </div>
+                  <div
+                  *ngIf="
+                  ((focus6Touched || savingProfile) &&
+                    profileF.facebook.errors) ||
+                  (profileF.facebook.value != '' &&
+                    profileF.facebook.errors)"
+                  >
+                    <label
+                    *ngFor="let error of objKeys(profileF.facebook.errors)"
+                    class="error custom-error-label"
+                    > {{ showError('facebook', error) }}
+                    </label>
+                  </div>
+                </div>
+                <!-- Twitter -->
+                <div class=" col-md-6 pl-md-1">
+                  <label> Twitter </label>
+                  <span class=" h5 text-light ml-2">
+                    <i
+                    class="fas fa-info-circle btn-tooltip"
+                    data-animation="true"
+                    data-container="body"
+                    placement="top"
+                    tooltip="Copy & paste your full Twitter address here to create a promotional button. 
+                    Be sure to test your button to check it works correctly before saving!">
+                    </i>
+                  </span>
+                  <div
+                  class=" input-group"
+                  [ngClass]="{
+                    'input-group-focus': focus7 === true,
+                    'has-danger':
+                      ((focus7Touched || savingProfile) &&
+                        profileF.twitter.errors) ||
+                      (profileF.twitter.value != '' &&
+                        profileF.twitter.errors),
+                    'has-success': profileF.twitter.value != '' && !profileF.twitter.errors
+                  }"
+                  >
+                    <div class=" input-group-prepend">
+                      <div class=" input-group-text">
+                        <i class=" fab fa-twitter"></i>
+                      </div>
+                    </div>
+                    <input
+                      class=" form-control"
+                      name="twitter"
+                      placeholder="Twitter address..."
+                      type="text"
+                      formControlName="twitter"
+                      (focus)="focus7 = true; focus7Touched = true"
+                      (blur)="focus7 = false"
+                    />
+                  </div>
+                  <div
+                  *ngIf="
+                  ((focus7Touched || savingProfile) &&
+                    profileF.twitter.errors) ||
+                  (profileF.twitter.value != '' &&
+                    profileF.twitter.errors)"
+                  >
+                    <label
+                    *ngFor="let error of objKeys(profileF.twitter.errors)"
+                    class="error custom-error-label"
+                    > {{ showError('twitter', error) }}
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class=" row mt-3">
+                <!-- LinkedIn -->
+                <div class=" col-md-6 pr-md-1">
+                  <label> LinkedIn </label>
+                  <span class=" h5 text-light ml-2">
+                    <i
+                    class="fas fa-info-circle btn-tooltip"
+                    data-animation="true"
+                    data-container="body"
+                    placement="top"
+                    tooltip="Copy & paste your full LinkedIn address here to create a promotional button. 
+                    Be sure to test your button to check it works correctly before saving!">
+                    </i>
+                  </span>
+                  <div
+                  class=" input-group"
+                  [ngClass]="{
+                    'input-group-focus': focus8 === true,
+                    'has-danger':
+                      ((focus8Touched || savingProfile) &&
+                        profileF.linkedin.errors) ||
+                      (profileF.linkedin.value != '' &&
+                        profileF.linkedin.errors),
+                    'has-success': profileF.linkedin.value != '' && !profileF.linkedin.errors
+                  }"
+                  >
+                    <div class=" input-group-prepend">
+                      <div class=" input-group-text">
+                        <i class=" fab fa-linkedin"></i>
+                      </div>
+                    </div>
+                    <input
+                      class=" form-control"
+                      name="linkedin"
+                      placeholder="LinkedIn address..."
+                      type="text"
+                      formControlName="linkedin"
+                      (focus)="focus8 = true; focus8Touched = true"
+                      (blur)="focus8 = false"
+                    />
+                  </div>
+                  <div
+                  *ngIf="
+                  ((focus8Touched || savingProfile) &&
+                    profileF.linkedin.errors) ||
+                  (profileF.linkedin.value != '' &&
+                    profileF.linkedin.errors)"
+                  >
+                    <label
+                    *ngFor="let error of objKeys(profileF.linkedin.errors)"
+                    class="error custom-error-label"
+                    > {{ showError('linkedin', error) }}
+                    </label>
+                  </div>
+                </div>
+                <!-- YouTube -->
+                <div class=" col-md-6 pl-md-1">
+                  <label> YouTube </label>
+                  <span class=" h5 text-light ml-2">
+                    <i
+                    class="fas fa-info-circle btn-tooltip"
+                    data-animation="true"
+                    data-container="body"
+                    placement="top"
+                    tooltip="Copy & paste your YouTube address here to create a promotional button. 
+                    Be sure to test your button to check it works correctly before saving!">
+                    </i>
+                  </span>
+                  <div
+                  class=" input-group"
+                  [ngClass]="{
+                    'input-group-focus': focus9 === true,
+                    'has-danger':
+                      ((focus9Touched || savingProfile) &&
+                        profileF.youtube.errors) ||
+                      (profileF.youtube.value != '' &&
+                        profileF.youtube.errors),
+                    'has-success': profileF.youtube.value != '' && !profileF.youtube.errors
+                  }"
+                  >
+                    <div class=" input-group-prepend">
+                      <div class=" input-group-text">
+                        <i class=" fab fa-youtube"></i>
+                      </div>
+                    </div>
+                    <input
+                      class=" form-control"
+                      name="youtube"
+                      placeholder="Youtube address..."
+                      type="text"
+                      formControlName="youtube"
+                      (focus)="focus9 = true; focus9Touched = true"
+                      (blur)="focus9 = false"
+                    />
+                  </div>
+                  <div
+                  *ngIf="
+                  ((focus9Touched || savingProfile) &&
+                    profileF.youtube.errors) ||
+                  (profileF.youtube.value != '' &&
+                    profileF.youtube.errors)"
+                  >
+                    <label
+                    *ngFor="let error of objKeys(profileF.youtube.errors)"
+                    class="error custom-error-label"
+                    > {{ showError('youtube', error) }}
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class=" row mt-3">
+                <!-- Instagram -->
+                <div class=" col-md-6 pr-md-1">
+                  <label> Instagram </label>
+                  <span class=" h5 text-light ml-2">
+                    <i
+                    class="fas fa-info-circle btn-tooltip"
+                    data-animation="true"
+                    data-container="body"
+                    placement="top"
+                    tooltip="Copy & paste your full Instagram address here to create a promotional button. 
+                    Be sure to test your button to check it works correctly before saving!">
+                    </i>
+                  </span>
+                  <div
+                  class=" input-group"
+                  [ngClass]="{
+                    'input-group-focus': focus11 === true,
+                    'has-danger':
+                      ((focus11Touched || savingProfile) &&
+                        profileF.instagram.errors) ||
+                      (profileF.instagram.value != '' &&
+                        profileF.instagram.errors),
+                    'has-success': profileF.instagram.value != '' && !profileF.instagram.errors
+                  }"
+                  >
+                    <div class=" input-group-prepend">
+                      <div class=" input-group-text">
+                        <i class=" fab fa-instagram"></i>
+                      </div>
+                    </div>
+                    <input
+                      class=" form-control"
+                      name="instagram"
+                      placeholder="Instagram address..."
+                      type="text"
+                      formControlName="instagram"
+                      (focus)="focus11 = true; focus11Touched = true"
+                      (blur)="focus11 = false"
+                    />
+                  </div>
+                  <div
+                  *ngIf="
+                  ((focus11Touched || savingProfile) &&
+                    profileF.instagram.errors) ||
+                  (profileF.instagram.value != '' &&
+                    profileF.instagram.errors)"
+                  >
+                    <label
+                    *ngFor="let error of objKeys(profileF.instagram.errors)"
+                    class="error custom-error-label"
+                    > {{ showError('instagram', error) }}
+                    </label>
+                  </div>
+                </div>
+                <!-- Website -->
+                <div class=" col-md-6 pl-md-1">
+                  <label> My Website </label>
+                  <span class=" h5 text-light ml-2">
+                    <i
+                    class="fas fa-info-circle btn-tooltip"
+                    data-animation="true"
+                    data-container="body"
+                    placement="top"
+                    tooltip="Copy & paste your full website address here to create a promotional button. 
+                    Be sure to test your button to check it works correctly before saving!">
+                    </i>
+                  </span>
+                  <div
+                  class=" input-group"
+                  [ngClass]="{
+                    'input-group-focus': focus12 === true,
+                    'has-danger':
+                      ((focus12Touched || savingProfile) &&
+                        profileF.website.errors) ||
+                      (profileF.website.value != '' &&
+                        profileF.website.errors),
+                    'has-success': profileF.website.value != '' && !profileF.website.errors
+                  }"
+                  >
+                    <div class=" input-group-prepend">
+                      <div class=" input-group-text">
+                        <i class=" fas fa-laptop"></i>
+                      </div>
+                    </div>
+                    <input
+                      class=" form-control"
+                      name="website"
+                      placeholder="Website address..."
+                      type="text"
+                      formControlName="website"
+                      (focus)="focus12 = true; focus12Touched = true"
+                      (blur)="focus12 = false"
+                    />
+                  </div>
+                  <div
+                  *ngIf="
+                  ((focus12Touched || savingProfile) &&
+                    profileF.website.errors) ||
+                  (profileF.website.value != '' &&
+                    profileF.website.errors)"
+                  >
+                    <label
+                    *ngFor="let error of objKeys(profileF.youtube.errors)"
+                    class="error custom-error-label"
+                    > {{ showError('website', error) }}
+                    </label>
+                  </div>
+                </div>
+              </div>
+  
+              <!-- Full Description -->
+              <div class=" row mt-5">
+                <div class=" col-md-12">
+                  <label> Full Description </label> 
+                  <span class=" h5 text-light ml-2">
+                    <i
+                    class="fas fa-info-circle btn-tooltip"
+                    data-animation="true"
+                    data-container="body"
+                    placement="top"
+                    tooltip="Expand on the information above with a full description of your unique coaching services. 
+                    This information will be shown to prospective clients when they click on your 
+                    profile card to read more about you.">
+                    </i>
+                  </span>
+                  <div *ngIf="viewLoaded" class=" form-group">
+                    <editor 
+                    apiKey="swb6l7gw85zcl8aw2dh7551jt3t5ydravtthultgf8fo3w2l" 
+                    [init]="{
+                      height: 300,
+                      menubar: false,
+                      plugins: 'link lists paste',
+                      toolbar: 'undo redo | formatselect | paste | bold italic backcolor link| alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat'
+                    }"
+                    formControlName="fullDescription"
+                    >
+                    </editor>
+                  </div>
+                </div>
+              </div>
+            </form>
+            <!-- End of form -->
+          </div>
+        </div>
+      </div>
+  
+      <!-- PROFILE PUBLIC VIEW / PREVIEW -->
+      <div class=" col-md-4">
+
+        <!-- Coach card mini -->
+        <div class=" card card-user">
+          <div class=" card-body">
+            <p class=" card-text"></p>
+            <div class=" author">
+              <div class=" block block-one"></div>
+              <div class=" block block-two"></div>
+              <div class=" block block-three"></div>
+              <div class=" block block-four"></div>
+              <a href="javascript:void(0)">
+                <img
+                  alt="..."
+                  class=" avatar"
+                  src="{{ profileF.photo.value }}"
+                />
+                <!-- Name -->
+                <p class=" description">
+                  {{ profileF.firstName.value + ' ' + profileF.lastName.value + ' ' + getCountryFlag() }}
+                </p>
+              </a>
+              <!-- Speciality Title -->
+              <h5 class=" title">
+                {{ profileF.speciality1?.itemName }}
+              </h5>
+              <!-- Tags -->
+              <span *ngFor="let item of profileF.goalTags.value?.controls" class=" badge badge-success mr-2">
+                {{ item.value }}
+              </span>
+            </div>
+            <!-- Short Summary -->
+            <div class=" card-description">
+              {{ profileF.proSummary.value }}
+            </div>
+            <!-- Location -->
+            <h6 class=" text-muted text-center mt-3">
+              <i class=" tim-icons icon-square-pin"></i> {{ profileF.city.value + ' | ' + getCountryName() }}
+            </h6>
+            <!-- Qualifications -->
+            <h6
+            class=" text-muted text-center mt-3"
+            *ngIf="profileF.qualBa.value || profileF.qualBsc.value || profileF.qualBcomm.value || profileF.qualMa.value ||
+            profileF.qualMs.value || profileF.qualMba.value || profileF.qualMapp.value || profileF.qualPhd.value ||
+            profileF.qualMba.value || profileF.qualAcc.value || profileF.qualPcc.value || profileF.qualMcc.value"
+            >
+              <i class=" tim-icons icon-paper"></i> 
+              {{ profileF.qualBa.value ? 'BA ' : '' }}
+              {{ profileF.qualBsc.value ? 'BSc ' : '' }}
+              {{ profileF.qualBcomm.value ? 'BComm ' : '' }}
+              {{ profileF.qualMa.value ? 'MA ' : '' }}
+              {{ profileF.qualMs.value ? 'MS ' : '' }}
+              {{ profileF.qualMba.value ? 'MBA ' : '' }}
+              {{ profileF.qualMapp.value ? 'MAPP ' : '' }}
+              {{ profileF.qualPhd.value ? 'PhD ' : '' }}
+              {{ profileF.qualMba.value ? 'MBA ' : '' }}
+              {{ profileF.qualAcc.value ? 'ICF-ACC ' : '' }}
+              {{ profileF.qualPcc.value ? 'ICF-PCC ' : '' }}
+              {{ profileF.qualMcc.value ? 'ICF-MCC ' : '' }}
+            </h6>
+          </div>
+          <div class=" card-footer">
+            <!-- Social Buttons -->
+            <div class=" button-container">
+              <button
+                *ngIf="profileF.facebook.value && profileF.facebook.valid"
+                class=" btn btn-icon btn-round btn-facebook mr-1"
+              >
+                <a
+                href="{{ profileF.facebook.value }}"
+                target="_blank">
+                  <i class=" fab fa-facebook"> </i>
+                </a>
+              </button>
+              <button
+                *ngIf="profileF.twitter.value && profileF.twitter.valid"
+                class=" btn btn-icon btn-round btn-twitter mr-1"
+              >
+                <a
+                href="{{ profileF.twitter.value }}"
+                target="_blank">
+                  <i class=" fab fa-twitter"> </i>
+                </a>
+              </button>
+              <button
+                *ngIf="profileF.linkedin.value && profileF.linkedin.valid"
+                class=" btn btn-icon btn-round btn-linkedin mr-1"
+              >
+                <a
+                href="{{ profileF.linkedin.value }}"
+                target="_blank">
+                  <i class=" fab fa-linkedin"> </i>
+                </a>
+              </button>
+              <button
+                *ngIf="profileF.youtube.value && profileF.youtube.valid"
+                class=" btn btn-icon btn-round btn-youtube mr-1"
+              >
+                <a
+                href="{{ profileF.youtube.value }}"
+                target="_blank">
+                  <i class=" fab fa-youtube"> </i>
+                </a>
+              </button>
+              <button
+                *ngIf="profileF.instagram.value && profileF.instagram.valid"
+                class=" btn btn-icon btn-round btn-instagram mr-1"
+              >
+                <a
+                href="{{ profileF.instagram.value }}"
+                target="_blank">
+                  <i class=" fab fa-instagram"> </i>
+                </a>
+              </button>
+              <button
+                *ngIf="profileF.website.value && profileF.website.valid"
+                class=" btn btn-icon btn-round btn-website mr-1"
+              >
+                <a
+                href="{{ profileF.website.value }}"
+                target="_blank">
+                  <i class=" fas fa-laptop"> </i>
+                </a>
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- end coach card mini -->
+
+        <!-- share profile card -->
+        <div class=" card">
+          <div class=" card-header"><h5 class=" title"> Share your profile </h5></div>
+          <div class=" card-body">
+            <form [formGroup]="shareForm">
+              <div class="">
+                <div class="form-group">
+                    <label for="referral-code"> Share your profile using this link.
+                        <a href="https://lifecoach.freshdesk.com/a/solutions/articles/47001133909" target="_blank">
+                            Learn more
+                        </a>
+                    </label>
+                    <input #shareUrl type="text" class="form-control" id="share-url" formControlName="shareUrl">
+                </div>
+              </div>
+              <button 
+              *ngIf="browser"
+              type="button"
+              class=" btn btn-primary btn-round btn-fill pull-right"
+              (click)="copyShareUrl(shareUrl)">
+                  Copy Link
+              </button>
+            </form>
+          </div>
+        </div>
+        <!-- end share profile card -->
+
+      </div>
+    </div>
+  
+    <!-- Profile Video Section -->
+    <!-- Do not place inside form due no button type on mat-video player elements (interferes with submit) -->
+    <div class=" row">
+      <div class=" col-md-8">
+        <div class=" card">
+          <div class=" card-header"><h5 class=" title"> Profile Video </h5></div>
+          <div class=" card-body">
+            <p class=" text-muted">
+              Add a more personal touch to your profile with a friendly video introduction.
+            </p>
+            <p>
+              We have seen a 5X increase in leads from profiles with a video intro!
+            </p>
+            <p class=" text-muted">
+              We recommend taking a second to view our <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001115693-guidelines-for-profile-videos" target="_blank">tips & guidelines for a better intro video</a>.
+            </p>
+            <!-- Video uploader & player -->
+            <div class=" row">
+              <div class= col-md-12>
+                <app-profile-video-uploader [uid]="userId"></app-profile-video-uploader>
+              </div>
+            </div>
+            <!-- Saved profile video selector -->
+            <div *ngIf="profileVideos">
+              <!-- Video select form -->
+              <form>
+                <table class=" table">
+                  <thead>
+                    <tr>
+                      <th class="text-center"> Select Video </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- Disable/no video -->
+                    <tr>
+                      <td class=" text-center">
+                        <div class=" form-check form-check-radio table-radio">
+                          <label class=" form-check-label">
+                            <input
+                              class=" form-check-input"
+                              type="radio"
+                              [(ngModel)]="profileF.selectedProfileVideo.value"
+                              [ngModelOptions]="{standalone: true}"
+                              [id]="'-1'"
+                              [value]="'-1'"
+                              (change)="onVideoChange($event)">
+                            <span class=" form-check-sign"></span>
+                          </label>
+                        </div>
+                      </td>
+                      <td>
+                        No video
+                      </td>
+                      <td></td>
+                    </tr>
+                      <tr *ngFor=" let vid of profileVideos; let i = index">
+                        <td class=" text-center">
+                          <div class=" form-check form-check-radio table-radio">
+                            <label class=" form-check-label">
+                              <input
+                              class=" form-check-input"
+                              type="radio"
+                              [id]="vid.downloadURL"
+                              [value]="vid.downloadURL"
+                              [(ngModel)]="profileF.selectedProfileVideo.value"
+                              [ngModelOptions]="{standalone: true}"
+                              (change)="onVideoChange($event)">
+                              <span class=" form-check-sign"></span>
+                            </label>
+                          </div>
+                        </td>
+                        <td>
+                          {{ vid.fileName }}
+                        </td>
+                        <td class="td-actions text-right">
+                          <a [href]="profileVideos[i].downloadURL" target="_blank">
+                            <button
+                            type="button"
+                            rel="tooltip"
+                            class="btn btn-default btn-icon btn-sm mr-2"
+                            data-original-title=""
+                            title="">
+                              <i class="tim-icons icon-cloud-download-93"></i>
+                            </button>
+                          </a>
+                          <button
+                            type="button"
+                            rel="tooltip"
+                            class="btn btn-danger btn-icon btn-sm"
+                            data-original-title=""
+                            title=""
+                            (click)="onVideoRemove(i)">
+                              <i class="tim-icons icon-trash-simple"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    <!-- End video select form -->
+                  </tbody>
+                </table>
+              </form>
+            </div>
+            <!-- Profile video player -->
+            <div *ngIf="profileF.selectedProfileVideo.value && profileF.selectedProfileVideo.value !== '-1'">
+              <vg-player>
+                <vg-controls>
+                    <vg-play-pause></vg-play-pause>
+                    <vg-playback-button></vg-playback-button>
+              
+                    <vg-time-display vgProperty="current" vgFormat="mm:ss"></vg-time-display>
+              
+                    <vg-scrub-bar>
+                        <vg-scrub-bar-current-time></vg-scrub-bar-current-time>
+                        <vg-scrub-bar-buffering-time></vg-scrub-bar-buffering-time>
+                    </vg-scrub-bar>
+              
+                    <vg-time-display vgProperty="total" vgFormat="mm:ss"></vg-time-display>
+              
+                    <vg-mute></vg-mute>
+                    <vg-volume></vg-volume>
+              
+                    <vg-fullscreen></vg-fullscreen>
+                </vg-controls>
+              
+                <video #media [vgMedia]="media" id="singleVideo" preload="auto" style="max-height: 80vh;">
+                    <source *ngFor="let video of videoSources" [src]="video.src" type="video/mp4">
+                </video>
+              </vg-player>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings & Save Section -->
+    <div class=" row">
+      <div class=" col-md-8">
+        <div class=" card">
+          <div class=" card-header"><h5 class=" title"> Profile Settings </h5></div>
+          <div class=" card-body">
+            <!-- Public Display -->
+            <div class=" row">
+              <div class=" col-md-12">
+                <div class=" form-group">
+                  <label> Public Display </label>
+                  <span class=" h5 text-light ml-2">
+                    <i
+                    class="fas fa-info-circle btn-tooltip"
+                    data-animation="true"
+                    data-container="body"
+                    placement="top"
+                    tooltip="Set ON to make your profile public and allow clients to contact you. Set OFF to keep your profile private.">
+                    </i>
+                  </span>
+                  <br />
+                  <bSwitch
+                    [switch-on-color]="'danger'"
+                    [switch-off-color]="'danger'"
+                    [switch-off-text]="'OFF'"
+                    [switch-on-text]="'ON'"
+                    [(ngModel)]="profileF.isPublic.value"
+                    (changeState)="onPublicSettingToggle($event)"
+                  >
+                  </bSwitch>
+                </div>
+              </div>
+            </div>
+
+            <div class=" row">
+              <div class=" col-md-12">
+                <label class=" text-muted">
+                  <span class="text-primary">Don't forget to save your changes!</span><br> 
+                  Click the 'Preview' button to view your full profile as a client.<br>
+                  Note 1: Preview will open a new tab so any changes you save can be seen.<br>
+                  Note 2: You may need to wait a moment & refresh your preview page to see all saved changes.
+                </label>
+              </div>
+              <!-- Preview Button -->
+              <div class=" col-md-6 mt-4">
+                <div class=" pull-left">
+                  <a target="_blank" [routerLink]="'/coach/' + userId">
+                    <button class=" btn btn-fill btn-round btn-default mr-2 mb-2" type="button">
+                      <span *ngIf="true">
+                        <i class="fas fa-eye"></i>
+                      </span>
+                      <span
+                      *ngIf="false"
+                      class="spinner-border spinner-border-sm"
+                      role="status"
+                      ></span> {{ false ? 'Generating...' : 'Preview'}} 
+                    </button>
+                  </a>
+                </div>
+              </div>
+              <!-- Save Button -->
+              <div class=" col-md-6 mt-4">
+                <div class=" pull-right">
+                  <button
+                  class=" btn btn-fill btn-round btn-primary mr-2 mb-2"
+                  type="button"
+                  (click)="onSubmit()"
+                  >
+                    <span *ngIf="!savingProfile">
+                      <i class="fas fa-save"></i>
+                    </span>
+                    <span
+                    *ngIf="savingProfile"
+                    class="spinner-border spinner-border-sm"
+                    role="status"
+                    ></span> {{ savingProfile ? 'Saving...' : 'Save'}} 
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+  </div>
+
+  <!-- SHOW PROFILE WIZARD INSTEAD OF EDIT PROFILE (no saved profile) -->
+  <div *ngIf="!fetchedProfile">
+    <app-profile-wizard></app-profile-wizard>
+  </div>
+
+</div>
