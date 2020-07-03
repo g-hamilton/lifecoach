@@ -94,15 +94,15 @@ import { DiscussionReplyFormComponent } from './discussion-reply-form/discussion
 import { CourseMoreComponent } from './course-more/course-more.component';
 
 // Angular calendar: https://github.com/mattlewis92/angular-calendar#getting-started
-import { CalendarModule } from 'angular-calendar';
-import { DateAdapter } from 'angular-calendar';
+import { CalendarModule, DateAdapter } from 'angular-calendar';
 import { adapterFactory } from 'angular-calendar/date-adapters/moment';
-import * as moment from 'moment';
 import { CalendarComponent } from './calendar/calendar.component';
+import { CalendarHeaderComponent } from './calendar-header/calendar-header.component';
+import * as moment from 'moment';
 
 export function momentAdapterFactory() {
   return adapterFactory(moment);
-};
+}
 
 @NgModule({
   imports: [
@@ -199,7 +199,8 @@ export function momentAdapterFactory() {
     DiscussionComponent,
     DiscussionReplyFormComponent,
     CourseMoreComponent,
-    CalendarComponent
+    CalendarComponent,
+    CalendarHeaderComponent
   ],
   exports: [
     TabsModule,
@@ -280,7 +281,8 @@ export function momentAdapterFactory() {
     DiscussionReplyFormComponent,
     CourseMoreComponent,
     CalendarModule,
-    CalendarComponent
+    CalendarComponent,
+    CalendarHeaderComponent
   ]
 })
 export class ComponentsModule {}

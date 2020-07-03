@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { CalendarEvent } from 'angular-calendar';
+import { CalendarEvent, CalendarView } from 'angular-calendar';
 import { Subject } from 'rxjs';
 
 @Component({
@@ -9,6 +9,7 @@ import { Subject } from 'rxjs';
 })
 export class CalendarComponent implements OnInit {
 
+  public view: CalendarView = CalendarView.Month;
   public viewDate: Date = new Date();
   public daysInWeek = 7;
   public refresh: Subject<any> = new Subject(); // allows us to refresh the view when data changes
