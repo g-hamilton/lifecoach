@@ -1,0 +1,44 @@
+{
+  "name": "functions",
+  "scripts": {
+    "lint": "tslint --project tsconfig.json",
+    "build": "node cp-angular && tsc",
+    "serve": "npm run build && firebase serve --only functions",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "10"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "@angular/fire": "^5.2.3",
+    "@types/algoliasearch": "^3.34.5",
+    "@types/node-fetch": "^2.5.4",
+    "@types/nodemailer": "^6.4.0",
+    "@types/nodemailer-smtp-transport": "^2.7.4",
+    "algoliasearch": "^3.35.1",
+    "cors": "^2.8.5",
+    "country-flag-emoji": "^1.0.3",
+    "firebase": "^7.6.1",
+    "firebase-admin": "^8.6.0",
+    "firebase-functions": "^3.7.0",
+    "firebase-tools": "^8.1.1",
+    "fs-extra": "^8.1.0",
+    "jsonwebtoken": "^8.5.1",
+    "mailchimp-api-v3": "^1.13.1",
+    "node-fetch": "^2.6.0",
+    "nodemailer": "^6.4.2",
+    "nodemailer-smtp-transport": "^2.7.4",
+    "stripe": "^8.19.0"
+  },
+  "devDependencies": {
+    "@types/stripe": "^7.13.21",
+    "firebase-functions-test": "^0.1.6",
+    "tslint": "^5.12.0",
+    "typescript": "^3.2.2"
+  },
+  "private": true
+}

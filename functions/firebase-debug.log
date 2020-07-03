@@ -1,0 +1,211 @@
+[debug] [2020-04-20T11:30:44.163Z] ----------------------------------------------------------------------
+[debug] [2020-04-20T11:30:44.166Z] Command:       /usr/local/Cellar/node/13.5.0/bin/node /usr/local/Cellar/node/13.5.0/bin/firebase deploy --only function --debug
+[debug] [2020-04-20T11:30:44.166Z] CLI Version:   8.1.1
+[debug] [2020-04-20T11:30:44.166Z] Platform:      darwin
+[debug] [2020-04-20T11:30:44.166Z] Node Version:  v13.5.0
+[debug] [2020-04-20T11:30:44.167Z] Time:          Mon Apr 20 2020 12:30:44 GMT+0100 (British Summer Time)
+[debug] [2020-04-20T11:30:44.167Z] ----------------------------------------------------------------------
+[debug] [2020-04-20T11:30:44.168Z] 
+[error] 
+[error] Error: Cannot understand what targets to deploy. Check that you specified valid targets if you used the --only or --except flag. Otherwise, check your firebase.json to ensure that your project is initialized for the desired features.
+[debug] [2020-04-20T11:30:49.991Z] ----------------------------------------------------------------------
+[debug] [2020-04-20T11:30:49.993Z] Command:       /usr/local/Cellar/node/13.5.0/bin/node /usr/local/Cellar/node/13.5.0/bin/firebase deploy --only functions --debug
+[debug] [2020-04-20T11:30:49.993Z] CLI Version:   8.1.1
+[debug] [2020-04-20T11:30:49.993Z] Platform:      darwin
+[debug] [2020-04-20T11:30:49.993Z] Node Version:  v13.5.0
+[debug] [2020-04-20T11:30:49.994Z] Time:          Mon Apr 20 2020 12:30:49 GMT+0100 (British Summer Time)
+[debug] [2020-04-20T11:30:49.994Z] ----------------------------------------------------------------------
+[debug] [2020-04-20T11:30:49.994Z] 
+[debug] [2020-04-20T11:30:50.001Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2020-04-20T11:30:50.003Z] > authorizing via signed-in user
+[debug] [2020-04-20T11:30:50.003Z] [iam] checking project lifecoach-6ab28 for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]
+[debug] [2020-04-20T11:30:50.006Z] > refreshing access token with scopes: ["email","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","openid"]
+[debug] [2020-04-20T11:30:50.006Z] >>> HTTP REQUEST POST https://www.googleapis.com/oauth2/v3/token  
+ <request body omitted>
+[debug] [2020-04-20T11:30:50.171Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=utf-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Mon, 20 Apr 2020 11:30:50 GMT","server":"scaffolding on HTTPServer2","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","alt-svc":"quic=\":443\"; ma=2592000; v=\"46,43\",h3-Q050=\":443\"; ma=2592000,h3-Q049=\":443\"; ma=2592000,h3-Q048=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000","accept-ranges":"none","transfer-encoding":"chunked"}
+[debug] [2020-04-20T11:30:50.186Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/lifecoach-6ab28:testIamPermissions  
+ {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2020-04-20T11:30:51.052Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Mon, 20 Apr 2020 11:30:50 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","server-timing":"gfet4t7; dur=639","alt-svc":"quic=\":443\"; ma=2592000; v=\"46,43\",h3-Q050=\":443\"; ma=2592000,h3-Q049=\":443\"; ma=2592000,h3-Q048=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000","accept-ranges":"none","transfer-encoding":"chunked"}
+[debug] [2020-04-20T11:30:51.054Z] >>> HTTP REQUEST POST https://iam.googleapis.com/v1/projects/lifecoach-6ab28/serviceAccounts/lifecoach-6ab28@appspot.gserviceaccount.com:testIamPermissions  
+ {"permissions":["iam.serviceAccounts.actAs"]}
+[debug] [2020-04-20T11:30:51.975Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Mon, 20 Apr 2020 11:30:51 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","alt-svc":"quic=\":443\"; ma=2592000; v=\"46,43\",h3-Q050=\":443\"; ma=2592000,h3-Q049=\":443\"; ma=2592000,h3-Q048=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000","accept-ranges":"none","transfer-encoding":"chunked"}
+[info] 
+[info] === Deploying to 'lifecoach-6ab28'...
+[info] 
+[info] i  deploying functions
+[info] Running command: npm --prefix "$RESOURCE_DIR" run lint
+[info] Running command: npm --prefix "$RESOURCE_DIR" run build
+[error] 
+[error] Error: functions predeploy error: Command terminated with non-zero exit code2
+[debug] [2020-04-20T11:33:13.279Z] ----------------------------------------------------------------------
+[debug] [2020-04-20T11:33:13.281Z] Command:       /usr/local/Cellar/node/13.5.0/bin/node /usr/local/Cellar/node/13.5.0/bin/firebase deploy --only functions --debug
+[debug] [2020-04-20T11:33:13.281Z] CLI Version:   8.1.1
+[debug] [2020-04-20T11:33:13.281Z] Platform:      darwin
+[debug] [2020-04-20T11:33:13.281Z] Node Version:  v13.5.0
+[debug] [2020-04-20T11:33:13.282Z] Time:          Mon Apr 20 2020 12:33:13 GMT+0100 (British Summer Time)
+[debug] [2020-04-20T11:33:13.282Z] ----------------------------------------------------------------------
+[debug] [2020-04-20T11:33:13.283Z] 
+[debug] [2020-04-20T11:33:13.292Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2020-04-20T11:33:13.294Z] > authorizing via signed-in user
+[debug] [2020-04-20T11:33:13.294Z] [iam] checking project lifecoach-6ab28 for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]
+[debug] [2020-04-20T11:33:13.297Z] >>> HTTP REQUEST POST https://cloudresourcemanager.googleapis.com/v1/projects/lifecoach-6ab28:testIamPermissions  
+ {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2020-04-20T11:33:14.062Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Mon, 20 Apr 2020 11:33:14 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","server-timing":"gfet4t7; dur=644","alt-svc":"quic=\":443\"; ma=2592000; v=\"46,43\",h3-Q050=\":443\"; ma=2592000,h3-Q049=\":443\"; ma=2592000,h3-Q048=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000","accept-ranges":"none","transfer-encoding":"chunked"}
+[debug] [2020-04-20T11:33:14.064Z] >>> HTTP REQUEST POST https://iam.googleapis.com/v1/projects/lifecoach-6ab28/serviceAccounts/lifecoach-6ab28@appspot.gserviceaccount.com:testIamPermissions  
+ {"permissions":["iam.serviceAccounts.actAs"]}
+[debug] [2020-04-20T11:33:15.130Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Mon, 20 Apr 2020 11:33:14 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","alt-svc":"quic=\":443\"; ma=2592000; v=\"46,43\",h3-Q050=\":443\"; ma=2592000,h3-Q049=\":443\"; ma=2592000,h3-Q048=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000","accept-ranges":"none","transfer-encoding":"chunked"}
+[info] 
+[info] === Deploying to 'lifecoach-6ab28'...
+[info] 
+[info] i  deploying functions
+[info] Running command: npm --prefix "$RESOURCE_DIR" run lint
+[info] Running command: npm --prefix "$RESOURCE_DIR" run build
+[info] ✔  functions: Finished running predeploy script.
+[debug] [2020-04-20T11:33:36.891Z] > [functions] package.json contents: {
+  "name": "functions",
+  "scripts": {
+    "lint": "tslint --project tsconfig.json",
+    "build": "node cp-angular && tsc",
+    "serve": "npm run build && firebase serve --only functions",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log"
+  },
+  "engines": {
+    "node": "8"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "@angular/fire": "^5.2.3",
+    "@types/algoliasearch": "^3.34.5",
+    "@types/node-fetch": "^2.5.4",
+    "@types/nodemailer": "^6.4.0",
+    "@types/nodemailer-smtp-transport": "^2.7.4",
+    "algoliasearch": "^3.35.1",
+    "cors": "^2.8.5",
+    "firebase": "^7.6.1",
+    "firebase-admin": "^8.6.0",
+    "firebase-functions": "^3.6.0",
+    "firebase-tools": "^8.1.1",
+    "fs-extra": "^8.1.0",
+    "jsonwebtoken": "^8.5.1",
+    "mailchimp-api-v3": "^1.13.1",
+    "node-fetch": "^2.6.0",
+    "nodemailer": "^6.4.2",
+    "nodemailer-smtp-transport": "^2.7.4",
+    "stripe": "^8.19.0"
+  },
+  "devDependencies": {
+    "@types/stripe": "^7.13.21",
+    "firebase-functions-test": "^0.1.6",
+    "tslint": "^5.12.0",
+    "typescript": "^3.2.2"
+  },
+  "private": true
+}
+[info] i  functions: ensuring required API cloudfunctions.googleapis.com is enabled...
+[debug] [2020-04-20T11:33:38.919Z] [functions] runtime dependency check dates: warning: 2020-05-05T00:00:00.000Z error: 2020-06-05T00:00:00.000Z
+[debug] [2020-04-20T11:33:38.919Z] >>> HTTP REQUEST GET https://serviceusage.googleapis.com/v1/projects/lifecoach-6ab28/services/cloudfunctions.googleapis.com  
+ 
+[debug] [2020-04-20T11:33:38.920Z] >>> HTTP REQUEST GET https://serviceusage.googleapis.com/v1/projects/lifecoach-6ab28/services/runtimeconfig.googleapis.com  
+ 
+[debug] [2020-04-20T11:33:40.016Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Mon, 20 Apr 2020 11:33:39 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","alt-svc":"quic=\":443\"; ma=2592000; v=\"46,43\",h3-Q050=\":443\"; ma=2592000,h3-Q049=\":443\"; ma=2592000,h3-Q048=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000","accept-ranges":"none","transfer-encoding":"chunked"}
+[debug] [2020-04-20T11:33:40.059Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Mon, 20 Apr 2020 11:33:39 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","alt-svc":"quic=\":443\"; ma=2592000; v=\"46,43\",h3-Q050=\":443\"; ma=2592000,h3-Q049=\":443\"; ma=2592000,h3-Q048=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000","accept-ranges":"none","transfer-encoding":"chunked"}
+[info] ✔  functions: required API cloudfunctions.googleapis.com is enabled
+[debug] [2020-04-20T11:33:40.060Z] >>> HTTP REQUEST GET https://firebase.googleapis.com/v1beta1/projects/lifecoach-6ab28/adminSdkConfig  
+ 
+[debug] [2020-04-20T11:33:40.323Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Mon, 20 Apr 2020 11:33:40 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","alt-svc":"quic=\":443\"; ma=2592000; v=\"46,43\",h3-Q050=\":443\"; ma=2592000,h3-Q049=\":443\"; ma=2592000,h3-Q048=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000","accept-ranges":"none","transfer-encoding":"chunked"}
+[info] i  functions: preparing functions directory for uploading...
+[debug] [2020-04-20T11:33:40.326Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/lifecoach-6ab28/configs  
+ 
+[debug] [2020-04-20T11:33:41.245Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Mon, 20 Apr 2020 11:33:41 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","alt-svc":"quic=\":443\"; ma=2592000; v=\"46,43\",h3-Q050=\":443\"; ma=2592000,h3-Q049=\":443\"; ma=2592000,h3-Q048=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000","accept-ranges":"none","transfer-encoding":"chunked"}
+[debug] [2020-04-20T11:33:41.246Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/lifecoach-6ab28/configs/fb/variables  
+ 
+[debug] [2020-04-20T11:33:41.550Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Mon, 20 Apr 2020 11:33:41 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","alt-svc":"quic=\":443\"; ma=2592000; v=\"46,43\",h3-Q050=\":443\"; ma=2592000,h3-Q049=\":443\"; ma=2592000,h3-Q048=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000","accept-ranges":"none","transfer-encoding":"chunked"}
+[debug] [2020-04-20T11:33:41.551Z] >>> HTTP REQUEST GET https://runtimeconfig.googleapis.com/v1beta1/projects/lifecoach-6ab28/configs/fb/variables/token  
+ 
+[debug] [2020-04-20T11:33:41.859Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Mon, 20 Apr 2020 11:33:41 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","alt-svc":"quic=\":443\"; ma=2592000; v=\"46,43\",h3-Q050=\":443\"; ma=2592000,h3-Q049=\":443\"; ma=2592000,h3-Q048=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000","accept-ranges":"none","transfer-encoding":"chunked"}
+[info] i  functions: packaged functions (21.07 MB) for uploading
+[debug] [2020-04-20T11:33:46.728Z] >>> HTTP REQUEST GET https://cloudfunctions.googleapis.com/v1/projects/lifecoach-6ab28/locations/-/functions  
+ 
+[debug] [2020-04-20T11:33:47.195Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Mon, 20 Apr 2020 11:33:47 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","alt-svc":"quic=\":443\"; ma=2592000; v=\"46,43\",h3-Q050=\":443\"; ma=2592000,h3-Q049=\":443\"; ma=2592000,h3-Q048=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000","accept-ranges":"none","transfer-encoding":"chunked"}
+[debug] [2020-04-20T11:33:47.200Z] >>> HTTP REQUEST POST https://cloudfunctions.googleapis.com/v1/projects/lifecoach-6ab28/locations/us-central1/functions:generateUploadUrl  
+ 
+[debug] [2020-04-20T11:33:48.004Z] <<< HTTP RESPONSE 200 {"content-type":"application/json; charset=UTF-8","vary":"X-Origin, Referer, Origin,Accept-Encoding","date":"Mon, 20 Apr 2020 11:33:47 GMT","server":"ESF","cache-control":"private","x-xss-protection":"0","x-frame-options":"SAMEORIGIN","x-content-type-options":"nosniff","alt-svc":"quic=\":443\"; ma=2592000; v=\"46,43\",h3-Q050=\":443\"; ma=2592000,h3-Q049=\":443\"; ma=2592000,h3-Q048=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000","accept-ranges":"none","transfer-encoding":"chunked"}
+[debug] [2020-04-20T11:33:48.005Z] >>> HTTP REQUEST PUT https://storage.googleapis.com/gcf-upload-us-central1-4549297d-a25c-4bbc-b736-7408fdb301f8/b89f976f-b422-494a-8b90-d4517236b013.zip?GoogleAccessId=service-765043503954@gcf-admin-robot.iam.gserviceaccount.com&Expires=1587384227&Signature=xWPactTLMx3q3xdZSjnCYtGUsK2QxFmx6%2BCspSesKN85%2BRDoGBX%2FaL%2BEOFkjVLYMqnRnwVSrhVlwS5fc%2F8zm8Va5eoL0WyOJWCX7nanXjxMWZo7KRKF2g82X3theq5XPWjoOD2uE9w0NZLzYFxx3Gx9KcLNDRTPCb9neOGmFRz%2B7hSWsQb2cPe1tXMuiaP6V7C2p1yxf2ATUP6Vxg7%2BTd8pQsozti1osYLv1UM1voZ3uaaDR4bVE5wpl%2B%2FEVHJe6FiTe%2F1FoWvflKXtX325I1E3ZIqVDrPZ%2Bg9%2BLUZq6WBv%2Bsu43zdxpVuLdf4f0euTEe3H39EMixE6gFyEr64a1sw%3D%3D  
+ <request body omitted>
+[debug] [2020-04-20T11:33:58.599Z] <<< HTTP RESPONSE 200 {"x-guploader-uploadid":"AAANsUlaxcbqoMExd30T8ggxYxNUZZ6etX6Kbm6XFCT5zOw77fPY5ZKs_pzNEohBXd9zXzoVP3s2FCNAhTtEdsWCXNY","etag":"\"3cdebeb588d5237e212e6cebb288a3cf\"","x-goog-generation":"1587382438531991","x-goog-metageneration":"1","x-goog-hash":"crc32c=dyvX1g==, md5=PN6+tYjVI34hLmzrsoijzw==","x-goog-stored-content-length":"22092497","x-goog-stored-content-encoding":"identity","vary":"Origin","content-length":"0","date":"Mon, 20 Apr 2020 11:33:58 GMT","server":"UploadServer","content-type":"text/html; charset=UTF-8","alt-svc":"quic=\":443\"; ma=2592000; v=\"46,43\",h3-Q050=\":443\"; ma=2592000,h3-Q049=\":443\"; ma=2592000,h3-Q048=\":443\"; ma=2592000,h3-Q046=\":443\"; ma=2592000,h3-Q043=\":443\"; ma=2592000,h3-T050=\":443\"; ma=2592000"}
+[info] ✔  functions: functions folder uploaded successfully
+[info] i  functions: updating Node.js 8 function ssr(us-central1)...
+[debug] [2020-04-20T11:33:58.605Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating Node.js 8 function updateMailingListUserEmail(us-central1)...
+[debug] [2020-04-20T11:33:58.606Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating Node.js 8 function updateMailingListUserName(us-central1)...
+[debug] [2020-04-20T11:33:58.607Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating Node.js 8 function createDbUserWithType(us-central1)...
+[debug] [2020-04-20T11:33:58.607Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating Node.js 8 function createAdminUser(us-central1)...
+[debug] [2020-04-20T11:33:58.608Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating Node.js 8 function recursiveDeleteUserData(us-central1)...
+[debug] [2020-04-20T11:33:58.608Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating Node.js 8 function postNewMessage(us-central1)...
+[debug] [2020-04-20T11:33:58.608Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating Node.js 8 function generateJWT(us-central1)...
+[debug] [2020-04-20T11:33:58.608Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating Node.js 8 function generateCoachProfileShortUrl(us-central1)...
+[debug] [2020-04-20T11:33:58.608Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating Node.js 8 function scheduledFunctionUpdateRates(us-central1)...
+[debug] [2020-04-20T11:33:58.609Z] Trigger is:  {"eventTrigger":{"resource":"projects/lifecoach-6ab28/topics/firebase-schedule-scheduledFunctionUpdateRates-us-central1","eventType":"google.pubsub.topic.publish","service":"pubsub.googleapis.com"}}
+[info] i  functions: updating Node.js 8 function manualUpdateRates(us-central1)...
+[debug] [2020-04-20T11:33:58.609Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating Node.js 8 function completeStripeConnect(us-central1)...
+[debug] [2020-04-20T11:33:58.609Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating Node.js 8 function stripeCreateLoginLink(us-central1)...
+[debug] [2020-04-20T11:33:58.610Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating Node.js 8 function stripeCreatePaymentIntent(us-central1)...
+[debug] [2020-04-20T11:33:58.610Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating Node.js 8 function stripeWebhookEvent(us-central1)...
+[debug] [2020-04-20T11:33:58.610Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating Node.js 8 function stripeWebhookConnectedEvent(us-central1)...
+[debug] [2020-04-20T11:33:58.610Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating Node.js 8 function requestRefund(us-central1)...
+[debug] [2020-04-20T11:33:58.610Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating Node.js 8 function approveRefund(us-central1)...
+[debug] [2020-04-20T11:33:58.611Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating Node.js 8 function adminApproveCourseReview(us-central1)...
+[debug] [2020-04-20T11:33:58.612Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating Node.js 8 function adminRejectCourseReview(us-central1)...
+[debug] [2020-04-20T11:33:58.612Z] Trigger is:  {"httpsTrigger":{}}
+[info] i  functions: updating Node.js 8 function onWriteUserProfileNode(us-central1)...
+[debug] [2020-04-20T11:33:58.612Z] Trigger is:  {"eventTrigger":{"resource":"projects/lifecoach-6ab28/databases/(default)/documents/users/{uid}/profile/{profileId}","eventType":"providers/cloud.firestore/eventTypes/document.write","service":"firestore.googleapis.com"}}
+[info] i  functions: updating Node.js 8 function onWritePublicCoachesNode(us-central1)...
+[debug] [2020-04-20T11:33:58.613Z] Trigger is:  {"eventTrigger":{"resource":"projects/lifecoach-6ab28/databases/(default)/documents/public-coaches/{docId}","eventType":"providers/cloud.firestore/eventTypes/document.write","service":"firestore.googleapis.com"}}
+[info] i  functions: updating Node.js 8 function onWriteUserAccountNode(us-central1)...
+[debug] [2020-04-20T11:33:58.613Z] Trigger is:  {"eventTrigger":{"resource":"projects/lifecoach-6ab28/databases/(default)/documents/users/{userId}/account/{docID}","eventType":"providers/cloud.firestore/eventTypes/document.write","service":"firestore.googleapis.com"}}
+[info] i  functions: updating Node.js 8 function onPostNewChatMessage(us-central1)...
+[debug] [2020-04-20T11:33:58.617Z] Trigger is:  {"eventTrigger":{"resource":"projects/lifecoach-6ab28/databases/(default)/documents/chatrooms/{roomId}/messages/{msgId}","eventType":"providers/cloud.firestore/eventTypes/document.write","service":"firestore.googleapis.com"}}
+[info] i  functions: updating Node.js 8 function onUpdateUserChatRoom(us-central1)...
+[debug] [2020-04-20T11:33:58.618Z] Trigger is:  {"eventTrigger":{"resource":"projects/lifecoach-6ab28/databases/(default)/documents/userRooms/{userId}/rooms/{roomId}","eventType":"providers/cloud.firestore/eventTypes/document.update","service":"firestore.googleapis.com"}}
+[info] i  functions: updating Node.js 8 function onPostNewLibraryVideo(us-central1)...
+[debug] [2020-04-20T11:33:58.618Z] Trigger is:  {"eventTrigger":{"resource":"projects/lifecoach-6ab28/databases/(default)/documents/users/{userId}/courseVideoLibrary/{docId}","eventType":"providers/cloud.firestore/eventTypes/document.create","service":"firestore.googleapis.com"}}
+[info] i  functions: updating Node.js 8 function onNewAdminCourseReviewRequest(us-central1)...
+[debug] [2020-04-20T11:33:58.625Z] Trigger is:  {"eventTrigger":{"resource":"projects/lifecoach-6ab28/databases/(default)/documents/admin/review-requests/courses/{courseId}","eventType":"providers/cloud.firestore/eventTypes/document.create","service":"firestore.googleapis.com"}}
+[info] i  functions: updating Node.js 8 function onDeleteAdminCourseReviewRequest(us-central1)...
+[debug] [2020-04-20T11:33:58.625Z] Trigger is:  {"eventTrigger":{"resource":"projects/lifecoach-6ab28/databases/(default)/documents/admin/review-requests/courses/{courseId}","eventType":"providers/cloud.firestore/eventTypes/document.delete","service":"firestore.googleapis.com"}}
+[info] i  functions: updating Node.js 8 function onWritePublicCourses(us-central1)...
+[debug] [2020-04-20T11:33:58.626Z] Trigger is:  {"eventTrigger":{"resource":"projects/lifecoach-6ab28/databases/(default)/documents/public-courses/{courseId}","eventType":"providers/cloud.firestore/eventTypes/document.write","service":"firestore.googleapis.com"}}
+[info] i  functions: updating Node.js 8 function onWritePrivateUserCourse(us-central1)...
+[debug] [2020-04-20T11:33:58.627Z] Trigger is:  {"eventTrigger":{"resource":"projects/lifecoach-6ab28/databases/(default)/documents/users/{userId}/courses/{courseId}","eventType":"providers/cloud.firestore/eventTypes/document.write","service":"firestore.googleapis.com"}}
+[info] i  functions: updating Node.js 8 function onWriteCourseReview(us-central1)...
+[debug] [2020-04-20T11:33:58.627Z] Trigger is:  {"eventTrigger":{"resource":"projects/lifecoach-6ab28/databases/(default)/documents/course-reviews/{reviewId}","eventType":"providers/cloud.firestore/eventTypes/document.write","service":"firestore.googleapis.com"}}
+[info] i  scheduler: ensuring required API cloudscheduler.googleapis.com is enabled...
+[info] i  pubsub: ensuring required API pubsub.googleapis.com is enabled...
+[debug] [2020-04-20T11:33:58.630Z] >>> HTTP REQUEST GET https://serviceusage.googleapis.com/v1/projects/lifecoach-6ab28/services/cloudscheduler.googleapis.com  
+ 
+[debug] [2020-04-20T11:33:58.630Z] >>> HTTP REQUEST GET https://serviceusage.googleapis.com/v1/projects/lifecoach-6ab28/services/pubsub.googleapis.com  
+ 
+[debug] [2020-04-20T11:33:58.643Z] Error: getaddrinfo ENOTFOUND serviceusage.googleapis.com
+    at GetAddrInfoReqWrap.onlookup [as oncomplete] (dns.js:64:26)
+[error] 
+[error] Error: Server Error. getaddrinfo ENOTFOUND serviceusage.googleapis.com
