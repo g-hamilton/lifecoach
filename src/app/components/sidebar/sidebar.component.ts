@@ -43,6 +43,14 @@ export const ROUTES: RouteInfo[] = [
     userTypes: ['regular', 'coach', 'admin']
   },
   {
+    path: '/calendar',
+    title: 'Calendar',
+    type: 'link',
+    icontype: 'tim-icons icon-calendar-60',
+    rtlTitle: 'لوحة القيادة',
+    userTypes: ['coach']
+  },
+  {
     path: '/messages',
     title: 'Messages',
     rtlTitle: 'التقويم',
@@ -55,7 +63,7 @@ export const ROUTES: RouteInfo[] = [
     title: 'Profile',
     rtlTitle: 'التقويم',
     type: 'link',
-    icontype: 'tim-icons icon-single-02',
+    icontype: 'tim-icons icon-badge',
     userTypes: ['regular', 'coach']
   },
   {

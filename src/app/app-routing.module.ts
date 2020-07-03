@@ -95,6 +95,10 @@ const routes: Routes = [
         loadChildren: () => import('./pages/user/user-profile.module').then(m => m.UserModule)
       },
       {
+        path: 'calendar',
+        loadChildren: () => import('./pages/calendar/calendar.page.module').then(m => m.CalendarPageModule)
+      },
+      {
         path: 'account',
         loadChildren: () => import('./pages/account/account.module').then(m => m.AccountModule)
       },

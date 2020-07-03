@@ -279,7 +279,8 @@ export function momentAdapterFactory() {
     DiscussionComponent,
     DiscussionReplyFormComponent,
     CourseMoreComponent,
-    CalendarModule
+    CalendarModule,
+    CalendarComponent
   ]
 })
 export class ComponentsModule {}
