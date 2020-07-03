@@ -93,6 +93,16 @@ import { DiscussionComponent } from './discussion/discussion.component';
 import { DiscussionReplyFormComponent } from './discussion-reply-form/discussion-reply-form.component';
 import { CourseMoreComponent } from './course-more/course-more.component';
 
+// Angular calendar: https://github.com/mattlewis92/angular-calendar#getting-started
+import { CalendarModule } from 'angular-calendar';
+import { DateAdapter } from 'angular-calendar';
+import { adapterFactory } from 'angular-calendar/date-adapters/moment';
+import * as moment from 'moment';
+
+export function momentAdapterFactory() {
+  return adapterFactory(moment);
+};
+
 @NgModule({
   imports: [
     CommonModule,
@@ -120,7 +130,8 @@ import { CourseMoreComponent } from './course-more/course-more.component';
     NgAisModule.forRoot(),
     VgCoreModule,
     VgControlsModule,
-    DragDropModule
+    DragDropModule,
+    CalendarModule.forRoot({ provide: DateAdapter, useFactory: momentAdapterFactory }),
   ],
   declarations: [
     FooterComponent,
@@ -265,7 +276,8 @@ import { CourseMoreComponent } from './course-more/course-more.component';
     DiscussionsComponent,
     DiscussionComponent,
     DiscussionReplyFormComponent,
-    CourseMoreComponent
+    CourseMoreComponent,
+    CalendarModule
   ]
 })
 export class ComponentsModule {}
