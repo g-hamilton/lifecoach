@@ -60,6 +60,10 @@ export class CalendarComponent implements OnInit {
     );
   }
 
+  get activeEventF(): any {
+    return this.activeEventForm.controls;
+  }
+
   loadActiveEventFormData() {
     this.activeEventForm.patchValue({
       id: this.activeEvent.id,

@@ -525,3 +525,8 @@ vg-player {
 select option {
     color: black !important;
 }
+
+// override bs time picker
+.bs-timepicker-field {
+    width: 58px !important;
+}

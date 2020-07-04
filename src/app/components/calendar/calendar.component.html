@@ -103,16 +103,21 @@ tabindex="-1"
     <div class="modal-content">
       <div class="modal-body">
         <div class="card card-login card-white">
-          <div class=" card-header">
-            <div class=" pull-right">
-              <i
-              class="fas fa-times text-default"
-              tooltip="Close"
-              (click)="onEditEventModalClose()">
-              </i>
-            </div>
-          </div>
+
           <div class=" card-body">
+
+            <!-- close cross -->
+            <div class=" row">
+              <div class=" col">
+                <div class=" pull-right">
+                  <i
+                  class="fas fa-times text-default"
+                  tooltip="Close"
+                  (click)="onEditEventModalClose()">
+                  </i>
+                </div>
+              </div>
+            </div>
 
             <form [formGroup]="activeEventForm">
 
@@ -127,6 +132,81 @@ tabindex="-1"
                   placeholder="eg. Check in"
                 >
               </div>
+
+              <div>
+                <label for="startdate"> Start <span class="required-star">*</span></label>
+              </div>
+
+              <div class=" row">
+                <div class=" col-md-6">
+                  <!-- start date -->
+                  <div class=" form-group">
+                    <!-- https://valor-software.com/ngx-bootstrap/#/datepicker -->
+                    <input
+                      bsDatepicker
+                      class="form-control"
+                      data-datepicker-color="primary"
+                      [bsConfig]="{ isAnimated: true, containerClass: 'theme-green' }"
+                      formControlName="start"
+                      id="startdate"
+                      type="text"
+                    />
+                  </div>
+                </div>
+
+                <div class=" col-md-6">
+                  <!-- start time -->
+                  <div class=" form-group">
+                    <!-- https://valor-software.com/ngx-bootstrap/#/timepicker -->
+                    <timepicker 
+                      formControlName="start"
+                      [showSpinners]="false"
+                      [showMeridian]="false"
+                      type="number"
+                      id="starttime"> 
+                    </timepicker>
+                  </div>
+                </div>
+
+              </div>
+
+              <div>
+                <label for="startdate"> End </label>
+              </div>
+
+              <div class=" row">
+                <div class=" col-md-6">
+                  <!-- start date -->
+                  <div class=" form-group">
+                    <!-- https://valor-software.com/ngx-bootstrap/#/datepicker -->
+                    <input
+                      bsDatepicker
+                      class="form-control"
+                      data-datepicker-color="primary"
+                      [bsConfig]="{ isAnimated: true, containerClass: 'theme-green' }"
+                      formControlName="end"
+                      id="enddate"
+                      type="text"
+                    />
+                  </div>
+                </div>
+
+                <div class=" col-md-6">
+                  <!-- start time -->
+                  <div class=" form-group">
+                    <!-- https://valor-software.com/ngx-bootstrap/#/timepicker -->
+                    <timepicker 
+                      formControlName="end"
+                      [showSpinners]="false"
+                      [showMeridian]="false"
+                      type="number"
+                      id="endtime"> 
+                    </timepicker>
+                  </div>
+                </div>
+
+              </div>
+              
 
               <!-- description -->
               <div class="form-group">
