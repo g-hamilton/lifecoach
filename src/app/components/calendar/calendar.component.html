@@ -48,18 +48,34 @@ tabindex="-1"
       <div class="modal-body">
         <div class="card card-login card-white">
           <div class=" card-header">
+            <div class=" row">
+              <div class=" col">
+                <div class=" pull-right">
+                  <i
+                  class="fas fa-times text-default"
+                  tooltip="Close"
+                  (click)="onModalClose()">
+                  </i>
+                </div>
+              </div>
+            </div>
             <h1 class=" card-title">
               {{ activeEvent?.title }}
             </h1>
           </div>
           <div class=" card-body">
 
-            <form>
-              <p>Form bits</p>
-            </form>
+            <p>
+              <i class="far fa-calendar-alt"></i>
+              {{ activeEvent?.start }}
+            </p>
 
-            <button class=" btn btn-default btn-block mt-3" (click)="onModalClose()">
-              Close
+            <button class=" btn btn-default btn-block mt-3" (click)="onEditEvent()">
+              Edit
+            </button>
+
+            <button class=" btn btn-danger btn-block mt-3" (click)="onDeleteEvent()">
+              Delete
             </button>
 
           </div>
