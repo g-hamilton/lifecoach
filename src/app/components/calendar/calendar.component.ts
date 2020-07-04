@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { CalendarView } from 'angular-calendar';
+import { CalendarView, CalendarEvent } from 'angular-calendar';
 import { Subject } from 'rxjs';
 import { ModalDirective } from 'ngx-bootstrap/modal';
 import { FormBuilder, FormGroup } from '@angular/forms';
@@ -86,6 +86,29 @@ export class CalendarComponent implements OnInit {
       });
       this.refresh.next();
     }, 5000);
+  }
+
+  onColumnClicked(event: any) {
+    console.log('clicked column:', event.isoDayNumber);
+  }
+
+  onDayClicked(event: any) {
+    // console.log('clicked day:', event.day.date);
+    this.createEvent(event.day.date);
+  }
+
+  onDayHeaderClicked(event: any) {
+    // console.log('clicked day header:', event.day.date);
+    this.createEvent(event.day.date);
+  }
+
+  onHourSegmentClicked(event: any) {
+    // console.log('clicked hour segment:', event.date);
+    this.createEvent(event.date);
+  }
+
+  createEvent(date: Date) {
+    console.log('Create event', date);
   }
 
   eventClicked({ event }: { event: CustomCalendarEvent }): void {
