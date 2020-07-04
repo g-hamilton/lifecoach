@@ -1,9 +1,11 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { CalendarView, CalendarEvent } from 'angular-calendar';
+import { CalendarView } from 'angular-calendar';
 import { Subject } from 'rxjs';
 import { ModalDirective } from 'ngx-bootstrap/modal';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { CustomCalendarEvent } from '../../interfaces/custom.calendar.event.interface';
+import { DataService } from 'app/services/data.service';
+import { AuthService } from 'app/services/auth.service';
 
 @Component({
   selector: 'app-calendar',
@@ -15,12 +17,15 @@ export class CalendarComponent implements OnInit {
   @ViewChild('eventDetailModal', { static: false }) public eventDetailModal: ModalDirective;
   @ViewChild('editEventModal', { static: false }) public editEventModal: ModalDirective;
 
+  private userId: string;
+
   public view: CalendarView = CalendarView.Month;
   public viewDate: Date = new Date();
   public daysInWeek = 7;
   public refresh: Subject<any> = new Subject(); // allows us to refresh the view when data changes
   public activeEvent: CustomCalendarEvent;
   public activeEventForm: FormGroup;
+  public savingEvent: boolean;
 
   public events: CustomCalendarEvent[] = [
     {
@@ -38,11 +43,14 @@ export class CalendarComponent implements OnInit {
   ];
 
   constructor(
-    public formBuilder: FormBuilder
+    private authService: AuthService,
+    public formBuilder: FormBuilder,
+    private dataService: DataService
   ) { }
 
   ngOnInit() {
     this.buildActiveEventForm();
+    this.loadUserData();
     this.doStuff();
   }
 
@@ -64,15 +72,23 @@ export class CalendarComponent implements OnInit {
     return this.activeEventForm.controls;
   }
 
+  loadUserData() {
+    this.authService.getAuthUser().subscribe(user => {
+      if (user) {
+        this.userId = user.uid;
+      }
+    });
+  }
+
   loadActiveEventFormData() {
     this.activeEventForm.patchValue({
-      id: this.activeEvent.id,
-      title: this.activeEvent.title,
+      id: this.activeEvent.id ? this.activeEvent.id : null,
+      title: this.activeEvent.title ? this.activeEvent.title : null,
       start: this.activeEvent.start ? this.activeEvent.start : new Date(),
-      end: this.activeEvent.end,
+      end: this.activeEvent.end ? this.activeEvent.end : null,
       draggable: this.activeEvent.draggable ? this.activeEvent.draggable : true,
-      cssClass: this.activeEvent.cssClass,
-      description: this.activeEvent.description
+      cssClass: this.activeEvent.cssClass ? this.activeEvent.cssClass : null,
+      description: this.activeEvent.description ? this.activeEvent.description : null
     });
   }
 
@@ -112,6 +128,7 @@ export class CalendarComponent implements OnInit {
 
     // prepare a new event object
     const newEvent: CustomCalendarEvent = {
+      id: Math.random().toString(36).substr(2, 9), // generate semi-random id
       title: 'New Event',
       start: date
     };
@@ -151,10 +168,30 @@ export class CalendarComponent implements OnInit {
   }
 
   onUpdateEvent() {
-    this.activeEvent = null;
-    console.log(this.activeEventForm.value);
-    this.activeEventForm.reset();
+    this.savingEvent = true;
+
+    // if the event has no id, create one id now
+    if (!this.activeEventF.id.value) {
+      this.activeEventForm.patchValue({ id: Math.random().toString(36).substr(2, 9) }); // generate semi-random id
+    }
+
+    const ev = this.activeEventForm.value;
+
+    console.log(ev);
+
+    // save the event
+    if (!this.userId) {
+      alert('No user ID');
+      return;
+    }
+    this.dataService.saveUserCalendarEvent(this.userId, ev);
+
+    // dismiss the modal
     this.editEventModal.hide();
+
+    // reset the active event
+    this.activeEvent = null;
+    this.activeEventForm.reset();
   }
 
 }

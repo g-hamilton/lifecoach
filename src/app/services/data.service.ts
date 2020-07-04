@@ -11,6 +11,7 @@ import { AdminCourseReviewRequest } from 'app/interfaces/admin.course.review';
 import { CourseBookmark } from 'app/interfaces/course.bookmark.interface';
 import { CourseQuestion, CourseQuestionReply } from 'app/interfaces/q&a.interface';
 import { AnalyticsService } from './analytics.service';
+import { CustomCalendarEvent } from 'app/interfaces/custom.calendar.event.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -527,6 +528,17 @@ export class DataService {
     // Returns all the user's refund documents along with the doc IDs.
     return this.db.collection(`users/${uid}/account/account${uid}/refunds`)
     .valueChanges({ idField: 'id' }) as Observable<any[]>;
+  }
+
+  // ================================================================================
+  // =====                          CALENDAR EVENTS                            ======
+  // ================================================================================
+
+  async saveUserCalendarEvent(uid: string, event: CustomCalendarEvent) {
+    return this.db.collection(`users/${uid}/calendar`)
+    .doc(event.id.toString())
+    .set(event)
+    .catch(err => console.error(err));
   }
 
 }
