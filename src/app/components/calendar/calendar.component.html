@@ -52,9 +52,19 @@ tabindex="-1"
               <div class=" col">
                 <div class=" pull-right">
                   <i
+                  class="far fa-edit text-default mr-2"
+                  tooltip="Edit this event"
+                  (click)="onEditEvent()">
+                  </i>
+                  <i
+                  class="far fa-trash-alt text-danger mr-2"
+                  tooltip="Delete this event"
+                  (click)="onDeleteEvent()">
+                  </i>
+                  <i
                   class="fas fa-times text-default"
                   tooltip="Close"
-                  (click)="onModalClose()">
+                  (click)="onEventDetailModalClose()">
                   </i>
                 </div>
               </div>
@@ -70,12 +80,58 @@ tabindex="-1"
               {{ activeEvent?.start }}
             </p>
 
-            <button class=" btn btn-default btn-block mt-3" (click)="onEditEvent()">
-              Edit
-            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- end event detail modal -->
+
+<!-- edit event modal -->
+<div
+aria-hidden="true"
+aria-labelledby="editEventModalLabel"
+bsModal
+class="modal fade"
+#editEventModal="bs-modal"
+id="editEventModal"
+role="dialog"
+tabindex="-1"
+>
+  <div class="modal-dialog" style="transform: translate(0,0);">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="card card-login card-white">
+          <div class=" card-header">
+            <div class=" row">
+              <div class=" col">
+                <div class=" pull-right">
+                  <i
+                  class="fas fa-times text-default"
+                  tooltip="Close"
+                  (click)="onEditEventModalClose()">
+                  </i>
+                </div>
+              </div>
+            </div>
+            <h1 class=" card-title">
+              {{ activeEvent?.title }}
+            </h1>
+          </div>
+          <div class=" card-body">
+
+            <p>
+              <i class="far fa-calendar-alt"></i>
+              {{ activeEvent?.start }}
+            </p>
 
             <button class=" btn btn-danger btn-block mt-3" (click)="onDeleteEvent()">
-              Delete
+              Cancel Event
+            </button>
+
+            <button class=" btn btn-primary btn-block mt-3" (click)="onSaveEvent()">
+              Update Event
             </button>
 
           </div>
@@ -84,4 +140,4 @@ tabindex="-1"
     </div>
   </div>
 </div>
-<!-- end event detail modal -->
+<!-- edit event modal -->

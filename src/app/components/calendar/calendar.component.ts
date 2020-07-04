@@ -11,6 +11,7 @@ import { ModalDirective } from 'ngx-bootstrap/modal';
 export class CalendarComponent implements OnInit {
 
   @ViewChild('eventDetailModal', { static: false }) public eventDetailModal: ModalDirective;
+  @ViewChild('editEventModal', { static: false }) public editEventModal: ModalDirective;
 
   public view: CalendarView = CalendarView.Month;
   public viewDate: Date = new Date();
@@ -54,16 +55,26 @@ export class CalendarComponent implements OnInit {
     this.eventDetailModal.show();
   }
 
-  onModalClose() {
+  onEventDetailModalClose() {
     this.eventDetailModal.hide();
     this.activeEvent = null;
   }
 
+  onEditEventModalClose() {
+    this.editEventModal.hide();
+    this.activeEvent = null;
+  }
+
   onEditEvent() {
-    //
+    this.eventDetailModal.hide();
+    this.editEventModal.show();
   }
 
   onDeleteEvent() {
+    //
+  }
+
+  onSaveEvent() {
     //
   }
 
