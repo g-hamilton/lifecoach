@@ -541,4 +541,9 @@ export class DataService {
     .catch(err => console.error(err));
   }
 
+  getUserCalendarEvents(uid: string) {
+    return this.db.collection(`users/${uid}/calendar`)
+    .valueChanges({ idField: 'id' }) as Observable<CustomCalendarEvent[]>;
+  }
+
 }

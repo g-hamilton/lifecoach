@@ -27,20 +27,7 @@ export class CalendarComponent implements OnInit {
   public activeEventForm: FormGroup;
   public savingEvent: boolean;
 
-  public events: CustomCalendarEvent[] = [
-    {
-      title: 'Click me',
-      start: new Date(),
-      cssClass: 'custom-event-class',
-      draggable: true
-    },
-    {
-      title: 'Or click me',
-      start: new Date(),
-      cssClass: 'custom-event-class',
-      draggable: true
-    },
-  ];
+  public events: CustomCalendarEvent[];
 
   constructor(
     private authService: AuthService,
@@ -76,6 +63,23 @@ export class CalendarComponent implements OnInit {
     this.authService.getAuthUser().subscribe(user => {
       if (user) {
         this.userId = user.uid;
+        this.dataService.getUserCalendarEvents(this.userId).subscribe(events => {
+          if (events) {
+
+            // important: update date objects as Firebase stores dates as unix string: 't {seconds: 0, nanoseconds: 0}'
+            events.forEach((ev: any) => {
+              if (ev.start) {
+                ev.start = new Date(ev.start.seconds * 1000);
+              }
+              if (ev.end) {
+                ev.end = new Date(ev.end.seconds * 1000);
+              }
+            });
+
+            this.events = events;
+            console.log(this.events);
+          }
+        });
       }
     });
   }
