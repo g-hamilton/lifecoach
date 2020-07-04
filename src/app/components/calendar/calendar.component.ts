@@ -38,7 +38,7 @@ export class CalendarComponent implements OnInit {
   ];
 
   constructor(
-    public formBuilder: FormBuilder,
+    public formBuilder: FormBuilder
   ) { }
 
   ngOnInit() {
@@ -109,6 +109,19 @@ export class CalendarComponent implements OnInit {
 
   createEvent(date: Date) {
     console.log('Create event', date);
+
+    // prepare a new event object
+    const newEvent: CustomCalendarEvent = {
+      title: 'New Event',
+      start: date
+    };
+
+    // load the new event as the active event
+    this.activeEvent = newEvent;
+    this.loadActiveEventFormData();
+
+    // pop the edit event modal
+    this.editEventModal.show();
   }
 
   eventClicked({ event }: { event: CustomCalendarEvent }): void {
