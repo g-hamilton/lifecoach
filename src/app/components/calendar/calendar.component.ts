@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CalendarEvent, CalendarView } from 'angular-calendar';
 import { Subject } from 'rxjs';
+import { ModalDirective } from 'ngx-bootstrap/modal';
 
 @Component({
   selector: 'app-calendar',
@@ -9,10 +10,13 @@ import { Subject } from 'rxjs';
 })
 export class CalendarComponent implements OnInit {
 
+  @ViewChild('eventDetailModal', { static: false }) public eventDetailModal: ModalDirective;
+
   public view: CalendarView = CalendarView.Month;
   public viewDate: Date = new Date();
   public daysInWeek = 7;
   public refresh: Subject<any> = new Subject(); // allows us to refresh the view when data changes
+  public activeEvent: CalendarEvent;
 
   public events: CalendarEvent[] = [
     {
@@ -42,6 +46,17 @@ export class CalendarComponent implements OnInit {
       });
       this.refresh.next();
     }, 5000);
+  }
+
+  eventClicked({ event }: { event: CalendarEvent }): void {
+    console.log('Event clicked', event);
+    this.activeEvent = event;
+    this.eventDetailModal.show();
+  }
+
+  onModalClose() {
+    this.eventDetailModal.hide();
+    this.activeEvent = null;
   }
 
 }

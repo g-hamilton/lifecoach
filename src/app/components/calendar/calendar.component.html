@@ -4,12 +4,14 @@
     </app-calendar-header>
 </div>
 
+<!-- calendar body -->
 <div [ngSwitch]="view">
     <mwl-calendar-month-view
       *ngSwitchCase="'month'"
       [viewDate]="viewDate"
       [events]="events"
       [refresh]="refresh"
+      (eventClicked)="eventClicked($event)"
     >
     </mwl-calendar-month-view>
     <mwl-calendar-week-view
@@ -17,6 +19,7 @@
       [viewDate]="viewDate"
       [events]="events"
       [refresh]="refresh"
+      (eventClicked)="eventClicked($event)"
     >
     </mwl-calendar-week-view>
     <mwl-calendar-day-view
@@ -24,6 +27,45 @@
       [viewDate]="viewDate"
       [events]="events"
       [refresh]="refresh"
+      (eventClicked)="eventClicked($event)"
     >
     </mwl-calendar-day-view>
 </div>
+
+<!-- event detail modal -->
+<div
+aria-hidden="true"
+aria-labelledby="eventDetailModalLabel"
+bsModal
+class="modal fade"
+#eventDetailModal="bs-modal"
+id="eventDetailModal"
+role="dialog"
+tabindex="-1"
+>
+  <div class="modal-dialog" style="transform: translate(0,0);">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="card card-login card-white">
+          <div class=" card-header">
+            <h1 class=" card-title">
+              {{ activeEvent?.title }}
+            </h1>
+          </div>
+          <div class=" card-body">
+
+            <form>
+              <p>Form bits</p>
+            </form>
+
+            <button class=" btn btn-default btn-block mt-3" (click)="onModalClose()">
+              Close
+            </button>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- end event detail modal -->
