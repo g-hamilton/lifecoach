@@ -16,6 +16,7 @@ export class CalendarComponent implements OnInit {
 
   @ViewChild('eventDetailModal', { static: false }) public eventDetailModal: ModalDirective;
   @ViewChild('editEventModal', { static: false }) public editEventModal: ModalDirective;
+  @ViewChild('cancelEventModal', { static: false }) public cancelEventModal: ModalDirective;
 
   private userId: string;
 
@@ -38,7 +39,6 @@ export class CalendarComponent implements OnInit {
   ngOnInit() {
     this.buildActiveEventForm();
     this.loadUserData();
-    this.doStuff();
   }
 
   buildActiveEventForm() {
@@ -77,6 +77,8 @@ export class CalendarComponent implements OnInit {
             });
 
             this.events = events;
+            this.refresh.next(); // refresh the view
+
             console.log(this.events);
           }
         });
@@ -94,18 +96,6 @@ export class CalendarComponent implements OnInit {
       cssClass: this.activeEvent.cssClass ? this.activeEvent.cssClass : null,
       description: this.activeEvent.description ? this.activeEvent.description : null
     });
-  }
-
-  doStuff() {
-    setTimeout(() => {
-      this.events.push({
-        title: 'Wow',
-        start: new Date(),
-        cssClass: 'custom-event-class',
-        draggable: true
-      });
-      this.refresh.next();
-    }, 5000);
   }
 
   onColumnClicked(event: any) {
@@ -167,8 +157,35 @@ export class CalendarComponent implements OnInit {
     this.editEventModal.show();
   }
 
-  onDeleteEvent() {
-    //
+  onDetailDeleteEvent() {
+    this.eventDetailModal.hide();
+    this.cancelEventModal.show();
+  }
+
+  onEditDeleteEvent() {
+    this.editEventModal.hide();
+    this.cancelEventModal.show();
+  }
+
+  onCancelEventModalClose() {
+    this.cancelEventModal.hide();
+    this.activeEvent = null;
+    this.activeEventForm.reset();
+  }
+
+  async onDeleteEvent(notifyOther: boolean) {
+    console.log('Cancel event. Notify other(s):', notifyOther);
+    // TODO could send notification emails / notifications now
+
+    // delete the event
+    await this.dataService.deleteUserCalendarEvent(this.userId, this.activeEvent.id.toString());
+
+    // dismiss the modal
+    this.cancelEventModal.hide();
+
+    // reset the active event
+    this.activeEvent = null;
+    this.activeEventForm.reset();
   }
 
   onUpdateEvent() {

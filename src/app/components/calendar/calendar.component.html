@@ -57,14 +57,14 @@ tabindex="-1"
               <div class=" col">
                 <div class=" pull-right">
                   <i
-                  class="far fa-edit text-default mr-2"
+                  class="far fa-edit text-default mr-3"
                   tooltip="Edit this event"
                   (click)="onEditEvent()">
                   </i>
                   <i
-                  class="far fa-trash-alt text-danger mr-2"
+                  class="far fa-trash-alt text-danger mr-3"
                   tooltip="Delete this event"
-                  (click)="onDeleteEvent()">
+                  (click)="onDetailDeleteEvent()">
                   </i>
                   <i
                   class="fas fa-times text-default"
@@ -234,7 +234,7 @@ tabindex="-1"
               {{ activeEvent?.start }}
             </p> -->
 
-            <button class=" btn btn-danger btn-block mt-3" (click)="onDeleteEvent()">
+            <button class=" btn btn-danger btn-block mt-3" (click)="onEditDeleteEvent()">
               Cancel Event
             </button>
 
@@ -249,3 +249,61 @@ tabindex="-1"
   </div>
 </div>
 <!-- edit event modal -->
+
+<!-- cancel event modal -->
+<div
+aria-hidden="true"
+aria-labelledby="cancelEventModalLabel"
+bsModal
+class="modal fade"
+#cancelEventModal="bs-modal"
+id="cancelEventModal"
+role="dialog"
+tabindex="-1"
+>
+  <div class="modal-dialog" style="transform: translate(0,0);">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="card card-login card-white">
+          <div class=" card-header">
+            <div class=" row">
+              <div class=" col">
+                <div class=" pull-right">
+                  <i
+                  class="fas fa-times text-default"
+                  tooltip="Close"
+                  (click)="onCancelEventModalClose()">
+                  </i>
+                </div>
+              </div>
+            </div>
+            <h1 class=" card-title">
+              Cancel Event
+            </h1>
+          </div>
+          <div class=" card-body">
+
+            <p>
+              Send an update to the other person?
+            </p>
+
+            <div class=" row">
+              <div class=" col-md-6">
+                <button class=" btn btn-default btn-block mt-3" (click)="onDeleteEvent(false)">
+                  No
+                </button>
+              </div>
+              <div class=" col-md-6">
+                <button class=" btn btn-primary btn-block mt-3" (click)="onDeleteEvent(true)">
+                  Yes
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- cancel event modal -->

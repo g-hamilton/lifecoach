@@ -546,4 +546,11 @@ export class DataService {
     .valueChanges({ idField: 'id' }) as Observable<CustomCalendarEvent[]>;
   }
 
+  async deleteUserCalendarEvent(uid: string, eventId: string) {
+    return this.db.collection(`users/${uid}/calendar`)
+    .doc(eventId)
+    .delete()
+    .catch(err => console.error(err));
+  }
+
 }
