@@ -103,6 +103,10 @@ const routes: Routes = [
         loadChildren: () => import('./pages/coach-services/coach.services.module').then(m => m.CoachServicesModule)
       },
       {
+        path: 'people',
+        loadChildren: () => import('./pages/coach-people/coach.people.module').then(m => m.CoachPeopleModule)
+      },
+      {
         path: 'account',
         loadChildren: () => import('./pages/account/account.module').then(m => m.AccountModule)
       },
