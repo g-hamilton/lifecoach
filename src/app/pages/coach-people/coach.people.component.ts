@@ -9,6 +9,7 @@ import { isPlatformBrowser } from '@angular/common';
 export class CoachPeopleComponent implements OnInit {
 
   public browser: boolean;
+  public people = [];
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
@@ -17,9 +18,14 @@ export class CoachPeopleComponent implements OnInit {
   ngOnInit() {
 
     if (isPlatformBrowser(this.platformId)) {
-        this.browser = true;
+      this.browser = true;
     }
 
+  }
+
+  timestampToDate(timestamp: number) {
+    // Convert unix timestamp (epoch) to date string
+    return new Date(timestamp * 1000).toDateString();
   }
 
 }

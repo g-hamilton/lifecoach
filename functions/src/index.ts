@@ -573,13 +573,13 @@ exports.postNewMessage = functions
       .doc(roomId)
       .set({ created: timestampNow }); // creates a real (not virtual) doc
 
-      // save the lead to the recipient's leads (create if doesn't yet exist - it might)
-      await db.collection(`users/${recipientUid}/leads`)
+      // save the person to the recipient's people (create if doesn't yet exist - it might)
+      await db.collection(`users/${recipientUid}/people`)
       .doc(senderUid)
       .create({ created: timestampNow }); // creates a real (not virtual) doc
 
-      // save the action to this lead's history
-      await db.collection(`users/${recipientUid}/leads/${senderUid}/history`)
+      // save the action to this person's history
+      await db.collection(`users/${recipientUid}/people/${senderUid}/history`)
       .doc(timestampNow.toString())
       .set({ action: 'sent_first_message' });
 
@@ -1383,13 +1383,13 @@ async function recordCourseEnrollmentForCreator(sellerUid: string, courseId: str
   .doc(obj.id)
   .create(obj);
 
-  // save the lead to the recipient's leads (create if doesn't exist yet - it might)
-  await db.collection(`users/${sellerUid}/leads`)
+  // save the person to the recipient's people (create if doesn't exist yet - it might)
+  await db.collection(`users/${sellerUid}/people`)
   .doc(clientUid)
   .create({ created: timestampNow }); // creates a real (not virtual) doc
 
   // save the action to this lead's history
-  return db.collection(`users/${sellerUid}/leads/${clientUid}/history`)
+  return db.collection(`users/${sellerUid}/people/${clientUid}/history`)
   .doc(timestampNow.toString())
   .set({ action: 'enrolled_in_self_study_course' });
 }
