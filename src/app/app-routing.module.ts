@@ -99,6 +99,10 @@ const routes: Routes = [
         loadChildren: () => import('./pages/calendar/calendar.page.module').then(m => m.CalendarPageModule)
       },
       {
+        path: 'services',
+        loadChildren: () => import('./pages/coach-services/coach.services.module').then(m => m.CoachServicesModule)
+      },
+      {
         path: 'account',
         loadChildren: () => import('./pages/account/account.module').then(m => m.AccountModule)
       },
