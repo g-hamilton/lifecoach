@@ -377,7 +377,8 @@ firstName: string | null, lastName: string | null) {
     .doc(`profile${uid}`)
     .set({ // init a regular type profile
       firstName,
-      lastName
+      lastName,
+      email
     })
     .catch(err => console.error(err));
 

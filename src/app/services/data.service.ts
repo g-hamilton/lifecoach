@@ -553,4 +553,18 @@ export class DataService {
     .catch(err => console.error(err));
   }
 
+  // ================================================================================
+  // =====                            PEOPLE (CRM)                             ======
+  // ================================================================================
+
+  getUserPeople(uid: string) {
+    return this.db.collection(`users/${uid}/people`)
+    .valueChanges({ idField: 'id' }) as Observable<any[]>;
+  }
+
+  getUserPersonHistory(uid: string, personUid: string) {
+    return this.db.collection(`users/${uid}/people/${personUid}/history`)
+    .valueChanges({ idField: 'id' }) as Observable<any[]>;
+  }
+
 }
