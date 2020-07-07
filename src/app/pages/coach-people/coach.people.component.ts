@@ -106,6 +106,11 @@ export class CoachPeopleComponent implements OnInit {
         case 'sent_first_message':
           type = 'warm lead';
           break;
+        case 'enrolled_in_self_study_course':
+          type = 'client';
+          break;
+        default:
+          type = 'lead';
       }
       resolve(type);
     });
@@ -117,15 +122,21 @@ export class CoachPeopleComponent implements OnInit {
       let status: string;
       switch (lastAction) {
         case 'sent_first_message':
+          // todo check conversation (awaiting reply / responded / user responded)
           status = 'Awaiting reply';
           break;
+        case 'enrolled_in_self_study_course':
+          status = 'Enrolled in self-study course';
+          break;
+        default:
+          status = 'Message';
       }
       resolve(status);
     });
   }
 
-  openMessageCentre() {
-    this.router.navigate(['/messages']);
+  openMessage(roomId: string) {
+    this.router.navigate(['/messages', 'rooms', roomId]);
   }
 
 }

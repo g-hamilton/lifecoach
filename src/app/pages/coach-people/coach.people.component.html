@@ -59,7 +59,7 @@
                           class=" btn btn-success btn-link btn-icon btn-sm btn-simple"
                           tooltip="Reply"
                           type="button"
-                          (click)="openMessageCentre()"
+                          (click)="openMessage(user.history[user.history.length - 1].roomId)"
                         >
                           <i class=" tim-icons icon-refresh-01"> </i>
                         </button>

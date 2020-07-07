@@ -582,7 +582,10 @@ exports.postNewMessage = functions
       // save the action to this person's history
       await db.collection(`users/${recipientUid}/people/${senderUid}/history`)
       .doc(timestampNow.toString())
-      .set({ action: 'sent_first_message' });
+      .set({
+        action: 'sent_first_message',
+        roomId
+      });
 
       // save a record of the new lead to Algolia
       const index = algolia.initIndex('prod_LEADS');
@@ -1389,7 +1392,7 @@ async function recordCourseEnrollmentForCreator(sellerUid: string, courseId: str
   .doc(clientUid)
   .create({ created: timestampNow }); // creates a real (not virtual) doc
 
-  // save the action to this lead's history
+  // save the action to this person's history
   return db.collection(`users/${sellerUid}/people/${clientUid}/history`)
   .doc(timestampNow.toString())
   .set({ action: 'enrolled_in_self_study_course' });
