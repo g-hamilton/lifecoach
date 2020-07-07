@@ -43,7 +43,15 @@
                   <tbody>
                     <tr *ngFor="let user of people">
                       <td>
-                        {{ user.type }}
+                        <div *ngIf="user.type === 'warm lead'" class=" badge badge-danger">
+                          🔥Warm Lead
+                        </div>
+                        <div *ngIf="user.type === 'lead'" class=" badge badge-success">
+                          Lead
+                        </div>
+                        <div *ngIf="user.type === 'client'" class=" badge badge-primary">
+                          Client
+                        </div>
                       </td>
                       <td>
                         <div class=" photo">
