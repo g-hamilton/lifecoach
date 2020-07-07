@@ -51,7 +51,7 @@
                         </div>
                       </td>
                       <td> {{ user.firstName + ' ' + user.lastName }} </td>
-                      <td> {{ timestampToDate(user.created) }} </td>
+                      <td> {{ user.created.toDateString() }} </td>
                       <td> {{ getPersonStatus(user) }} </td>
                       <td class=" text-right">
                         <button

@@ -3,6 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { DataService } from 'app/services/data.service';
 import { AuthService } from 'app/services/auth.service';
 import { Router } from '@angular/router';
+import { CRMPerson } from 'app/interfaces/crm.person.interface';
 
 @Component({
   selector: 'app-coach-people',
@@ -13,7 +14,7 @@ export class CoachPeopleComponent implements OnInit {
 
   public browser: boolean;
   private userId: string;
-  public people = [];
+  public people = [] as CRMPerson[];
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
@@ -48,7 +49,7 @@ export class CoachPeopleComponent implements OnInit {
         for (const p of people) {
           const person = await this.getPersonData(p.id) as any;
           if (person) {
-            person.created = p.created;
+            person.created = new Date(p.created * 1000); // convert from unix to Date
             const history = await this.getPersonHistory(this.userId, p.id);
             if (history) {
               person.history = history;
@@ -71,7 +72,7 @@ export class CoachPeopleComponent implements OnInit {
             lastName: profile.lastName,
             email: profile.email,
             photo: profile.photo ? profile.photo : `https://eu.ui-avatars.com/api/?name=${profile.firstName}+${profile.lastName}` // https://eu.ui-avatars.com/
-          };
+          } as CRMPerson;
           resolve(person);
         } else {
           resolve(null);
@@ -106,11 +107,6 @@ export class CoachPeopleComponent implements OnInit {
       case 'sent_first_message':
         return 'Awaiting reply';
     }
-  }
-
-  timestampToDate(timestamp: number) {
-    // Convert unix timestamp (epoch) to date string
-    return new Date(timestamp * 1000).toDateString();
   }
 
   openMessageCentre() {
