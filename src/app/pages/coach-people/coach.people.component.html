@@ -57,11 +57,11 @@
                         <button
                           *ngIf="user.history[user.history.length - 1].action === 'sent_first_message'"
                           class=" btn btn-success btn-link btn-icon btn-sm btn-simple"
-                          tooltip="Reply"
+                          tooltip="Message"
                           type="button"
                           (click)="openMessage(user.history[user.history.length - 1].roomId)"
                         >
-                          <i class=" tim-icons icon-refresh-01"> </i>
+                          <i class=" tim-icons icon-chat-33"> </i>
                         </button>
                         <button
                           class=" btn btn-danger btn-link btn-icon btn-sm btn-simple"

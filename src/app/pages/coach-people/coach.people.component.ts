@@ -15,6 +15,7 @@ export class CoachPeopleComponent implements OnInit {
   public browser: boolean;
   private userId: string;
   public people = [] as CRMPerson[];
+  public roomSubscriptions = {} as any;
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
@@ -117,13 +118,12 @@ export class CoachPeopleComponent implements OnInit {
   }
 
   getPersonStatus(person: CRMPerson) {
-    return new Promise(resolve => {
+    return new Promise(async resolve => {
       const lastAction = person.history[person.history.length - 1].action;
       let status: string;
       switch (lastAction) {
         case 'sent_first_message':
-          // todo check conversation (awaiting reply / responded / user responded)
-          status = 'Awaiting reply';
+          status = await this.getMsgStatus(person.history[person.history.length - 1].roomId) as any;
           break;
         case 'enrolled_in_self_study_course':
           status = 'Enrolled in self-study course';
@@ -132,6 +132,21 @@ export class CoachPeopleComponent implements OnInit {
           status = 'Message';
       }
       resolve(status);
+    });
+  }
+
+  getMsgStatus(roomId: string) {
+    return new Promise(resolve => {
+      this.dataService.getRoomFeed(roomId).subscribe(feed => {
+        const lastMsg = feed[feed.length - 1];
+        if (feed.length === 1) {
+          resolve('Awaiting reply');
+        } else if (lastMsg.from === this.userId) {
+          resolve('Responded');
+        } else {
+          resolve('Client responded');
+        }
+      });
     });
   }
 

@@ -630,8 +630,10 @@ exports.postNewMessage = functions
     .get(); // read all users in the sender's room as we may not have a recipient uid (if room already exists)
 
     const senderRoom = snap.data() as any;
-      for (const user of senderRoom.users) { // Update last active time stamp, sender & message for each user.
+      for (const user of senderRoom.users) { // for all users
         if (user) {
+
+          // Update last active time stamp, sender & message for each user.
           const updatePromise = db.collection(`userRooms/${user}/rooms`)
           .doc(roomId)
           .set({
@@ -640,6 +642,18 @@ exports.postNewMessage = functions
             lastSender: senderUid // so we can see who the last sender was
           }, {merge: true});
           promises.push(updatePromise);
+
+          // update the people node for both users if the other user was the last to respond
+          // this triggers the people subscription to update the client view as users respond to messages in real-time
+          if (user !== senderUid) {
+            const peoplePromise = db.collection(`users/${user}/people`)
+            .doc(senderUid)
+            .set({
+              lastReplyReceived: timestampNow
+            }, { merge: true }); // will update the time the other user last replied for both parties
+            promises.push(peoplePromise);
+          }
+
         }
       }
 
