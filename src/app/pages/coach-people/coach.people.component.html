@@ -60,7 +60,14 @@
                       </td>
                       <td> {{ user.firstName + ' ' + user.lastName }} </td>
                       <td> {{ user.created.toDateString() }} </td>
-                      <td> {{ user.status }} </td>
+                      <td> 
+                        <div 
+                        [ngClass]="{'text-danger': user.status === 'Awaiting reply' || user.status === 'Client responded',
+                      'text-success' : user.status === 'Responded' || user.status === 'Enrolled in self-study course'}"
+                        >
+                          {{ user.status }}
+                        </div>
+                      </td>
                       <td class=" text-right">
                         <button
                           *ngIf="user.history[user.history.length - 1].action === 'sent_first_message'"

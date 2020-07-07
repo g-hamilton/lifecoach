@@ -53,6 +53,7 @@ export class CoachPeopleComponent implements OnInit {
           const person = await this.getPersonData(p.id) as CRMPerson;
           if (person) {
             person.created = new Date(p.created * 1000); // convert from unix to Date
+            person.lastReplyReceived = p.lastReplyReceived ? p.lastReplyReceived : null;
             const history = await this.getPersonHistory(this.userId, p.id);
             if (history) {
               person.history = history;
@@ -105,7 +106,7 @@ export class CoachPeopleComponent implements OnInit {
       let type: 'warm lead' | 'lead' | 'client';
       switch (lastAction) {
         case 'sent_first_message':
-          type = 'warm lead';
+          type = this.isPersonWarm(person) ? 'warm lead' : 'lead';
           break;
         case 'enrolled_in_self_study_course':
           type = 'client';
@@ -115,6 +116,27 @@ export class CoachPeopleComponent implements OnInit {
       }
       resolve(type);
     });
+  }
+
+  isPersonWarm(person: CRMPerson) {
+    // check if a lead is warm
+    // a warm lead is less than 7 days old
+    const personCreatedUnix = Math.round(person.created.getTime() / 1000);
+    const nowUnix = Math.round(new Date().getTime() / 1000);
+    const warmLimitDays = 7;
+    const warmLimit = 60 * 60 * 1000 * 24 * warmLimitDays;
+
+    if (!person.lastReplyReceived && person.created) {
+      if (personCreatedUnix > (nowUnix - warmLimit)) {
+        return true; // the first lead was received in the last 7 days
+      }
+    }
+
+    if (Number(person.lastReplyReceived) > (nowUnix - warmLimit)) {
+      return true; // the user responded in the last 7 days
+    }
+
+    return false;
   }
 
   getPersonStatus(person: CRMPerson) {

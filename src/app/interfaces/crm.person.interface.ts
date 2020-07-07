@@ -7,4 +7,5 @@ export interface CRMPerson {
     photo: string;
     status: any;
     history?: any;
+    lastReplyReceived?: string; // should be a unix string if this person has sent a reply after sending initial chat msg
 }
