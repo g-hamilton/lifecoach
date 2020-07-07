@@ -45,18 +45,23 @@ export class CoachPeopleComponent implements OnInit {
     this.dataService.getUserPeople(this.userId).subscribe(async people => {
       if (people) {
         console.log('people:', people);
+
         const filledPeople = [];
+
         for (const p of people) {
-          const person = await this.getPersonData(p.id) as any;
+          const person = await this.getPersonData(p.id) as CRMPerson;
           if (person) {
             person.created = new Date(p.created * 1000); // convert from unix to Date
             const history = await this.getPersonHistory(this.userId, p.id);
             if (history) {
               person.history = history;
             }
+            person.type = await this.getPersonType(person) as any;
+            person.status = await this.getPersonStatus(person) as any;
             filledPeople.push(person);
           }
         }
+
         this.people = filledPeople;
         console.log('filled people:', this.people);
       }
@@ -93,20 +98,30 @@ export class CoachPeopleComponent implements OnInit {
     });
   }
 
-  getPersonState(person: any) {
-    const lastAction = person.history[person.history.length - 1].action;
-    switch (lastAction) {
-      case 'sent_first_message':
-        return '🔥 New Lead';
-    }
+  getPersonType(person: CRMPerson) {
+    return new Promise(resolve => {
+      const lastAction = person.history[person.history.length - 1].action;
+      let type: 'warm lead' | 'lead' | 'client';
+      switch (lastAction) {
+        case 'sent_first_message':
+          type = 'warm lead';
+          break;
+      }
+      resolve(type);
+    });
   }
 
-  getPersonStatus(person: any) {
-    const lastAction = person.history[person.history.length - 1].action;
-    switch (lastAction) {
-      case 'sent_first_message':
-        return 'Awaiting reply';
-    }
+  getPersonStatus(person: CRMPerson) {
+    return new Promise(resolve => {
+      const lastAction = person.history[person.history.length - 1].action;
+      let status: string;
+      switch (lastAction) {
+        case 'sent_first_message':
+          status = 'Awaiting reply';
+          break;
+      }
+      resolve(status);
+    });
   }
 
   openMessageCentre() {
