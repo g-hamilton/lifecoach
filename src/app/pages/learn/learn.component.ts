@@ -297,6 +297,12 @@ export class LearnComponent implements OnInit, OnDestroy {
                 return;
             }
 
+            // check if user has already been prompted for a review
+            if (this.course.reviewPrompted) {
+                resolve(false);
+                return;
+            }
+
             // compare lectures complete to all lectures.
             // if no recorded review, calculate if a prompt point has been reached.
             // if required, prompt the user for a review now...
@@ -311,6 +317,8 @@ export class LearnComponent implements OnInit, OnDestroy {
                 this.reviewModal.show();
                 this.reviewModal.onHide.subscribe(res => {
                     // console.log('result:', res);
+                    // whether or not review saved, mark as review prompted
+                    this.markAsReviewPrompted();
                     resolve(true);
                     return;
                 });
@@ -321,7 +329,13 @@ export class LearnComponent implements OnInit, OnDestroy {
     async onReviewSavedEvent() {
         await this.alertService.alert('success-message', 'Success!', `Thanks for leaving feedback! You can update your feedback at any time.`);
         this.reviewModal.hide();
-      }
+    }
+
+    markAsReviewPrompted() {
+        // mark that the user does not wish to leave a review now, and shouldn't be prompted again until
+        // reaching a defined point (eg end of course)
+        this.courseReviewsService.markUserCourseReviewPrompted(this.userId, this.courseId);
+    }
 
     async saveLectureComplete(lectureId: string) {
         // only save to db if not already complete
@@ -356,6 +370,7 @@ export class LearnComponent implements OnInit, OnDestroy {
                 if (this.activeSectionIndex === this.course.sections.length - 1) {
                     // yes, ???
                     console.log('Completed the final lecture in this course!');
+                    // todo - celebrate complete && then prompt to leave a rating if not already done
                     return;
                 }
                 // no, load the first lecture in the next section

@@ -41,4 +41,11 @@ export class CourseReviewsService {
     .doc(reviewPath)
     .set(review, {merge: true});
   }
+
+  async markUserCourseReviewPrompted(userId: string, courseId: string) {
+    return this.afs.collection(`users/${userId}/courses`)
+    .doc(courseId)
+    .set({ reviewPrompted: true }, { merge: true})
+    .catch(err => console.error(err));
+  }
 }
