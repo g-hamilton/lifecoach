@@ -63,7 +63,7 @@ export class LearnComponent implements OnInit, OnDestroy {
             // Check query params for viewing mode
             this.route.queryParams.subscribe(qp => {
                 if (qp.previewAsStudent) {
-                    console.log('Previewing as Student');
+                    // console.log('Previewing as Student');
                     this.previewAsStudent = true;
                 }
 
@@ -115,7 +115,7 @@ export class LearnComponent implements OnInit, OnDestroy {
         this.dataService.getPrivateCourseLecturesComplete(this.userId, this.courseId).subscribe(completedLectures => {
             if (completedLectures) {
                 this.lecturesComplete = completedLectures.map(i => i.id);
-                console.log('Lectures complete:', this.lecturesComplete);
+                // console.log('Lectures complete:', this.lecturesComplete);
             }
         });
 
@@ -127,14 +127,14 @@ export class LearnComponent implements OnInit, OnDestroy {
     fetchUserCourseReviews() {
         this.courseReviewsService.getReviewerCourseReviews(this.userId).subscribe(reviews => {
             if (reviews) {
-                console.log(reviews);
+                // console.log(reviews);
                 this.userCourseReviews = reviews;
             }
         });
     }
 
     fetchPublicCourse() {
-        console.log('Fetching public course');
+        // console.log('Fetching public course');
         const courseSub = this.dataService.getUnlockedPublicCourse(this.courseId).subscribe(fullCourse => {
             if (fullCourse) {
                 this.course = fullCourse; // course loaded successfully
@@ -147,7 +147,7 @@ export class LearnComponent implements OnInit, OnDestroy {
     }
 
     fetchPrivateCourse() {
-        console.log('Fetching private course');
+        // console.log('Fetching private course');
         const courseSub = this.dataService.getPrivateCourse(this.userId, this.courseId).subscribe(privateCourse => {
             if (privateCourse) {
                 this.course = privateCourse; // course loaded successfully
@@ -181,14 +181,14 @@ export class LearnComponent implements OnInit, OnDestroy {
 
     loadRequestedLecture() {
         // load the requested lecture
-        console.log(`Load requested lecture: ${this.lectureId}`);
+        // console.log(`Load requested lecture: ${this.lectureId}`);
         const lectureIndex = this.course.lectures.findIndex(i => i.id === this.lectureId);
         if (lectureIndex === -1) { // lecture not found!
             this.alertService.alert('warning-message', 'Oops', 'Lecture not found!');
             return;
         }
         this.lecture = this.course.lectures[lectureIndex];
-        console.log('Lecture loaded:', this.lecture);
+        // console.log('Lecture loaded:', this.lecture);
         if (this.lecture.type === 'Video') {
             this.loadVideo();
         }
@@ -202,7 +202,7 @@ export class LearnComponent implements OnInit, OnDestroy {
             return;
         }
         this.activeSectionIndex = index;
-        console.log('Active section index:', index);
+        // console.log('Active section index:', index);
     }
 
     buildBookmarkForm() {
@@ -216,7 +216,7 @@ export class LearnComponent implements OnInit, OnDestroy {
             if (bookmarks) {
                 bookmarks.sort((a, b) => b.lastUpdated - a.lastUpdated); // sort by date (desc)
                 this.bookmarks = bookmarks;
-                console.log('bookmarks', this.bookmarks);
+                // console.log('bookmarks', this.bookmarks);
             }
         });
     }
@@ -227,7 +227,7 @@ export class LearnComponent implements OnInit, OnDestroy {
 
         // listen for the data loaded event
         this.vgApi.getDefaultMedia().subscriptions.loadedData.subscribe($event => {
-            console.log('Video loaded data', $event);
+            // console.log('Video loaded data', $event);
 
             // seek to bookmark point if requested
             this.checkForBookmark();
@@ -235,7 +235,7 @@ export class LearnComponent implements OnInit, OnDestroy {
 
         // listen for the video ended event
         this.vgApi.getDefaultMedia().subscriptions.ended.subscribe(async $event => {
-            console.log('Video ended:', $event);
+            // console.log('Video ended:', $event);
 
             // save lecture complete for this user
             this.saveLectureComplete(this.lectureId);
@@ -257,7 +257,7 @@ export class LearnComponent implements OnInit, OnDestroy {
     checkForBookmark() {
         this.route.queryParams.subscribe(params => {
             const bm = params.bookmark;
-            console.log('Bookmark:', bm);
+            // console.log('Bookmark:', bm);
             if (bm) { // user has requested video at saved bookmark point
                 this.vgApi.seekTime(Math.round(bm));
             }
@@ -282,7 +282,7 @@ export class LearnComponent implements OnInit, OnDestroy {
             lastUpdated: Math.floor( new Date().getTime() / 1000 ),
             note: this.bookmarkForm.controls.note.value
         };
-        console.log('saving bookmark:', bookmark);
+        // console.log('saving bookmark:', bookmark);
         await this.dataService.savePrivateCourseBookmark(bookmark);
 
         this.alertService.alert('success-message', 'Success!', `Bookmark saved to your bookmarks tab.`);
@@ -292,7 +292,7 @@ export class LearnComponent implements OnInit, OnDestroy {
         return new Promise(resolve => {
             // check if already user reviewed
             if (this.userCourseReviews && this.userCourseReviews.findIndex(i => i.courseId === this.courseId) !== -1) {
-                console.log('Course already reviewed');
+                // console.log('Course already reviewed');
                 resolve(false);
                 return;
             }
@@ -310,7 +310,7 @@ export class LearnComponent implements OnInit, OnDestroy {
                 // pop modal with a promise that resolves on complete
                 this.reviewModal.show();
                 this.reviewModal.onHide.subscribe(res => {
-                    console.log('result:', res);
+                    // console.log('result:', res);
                     resolve(true);
                     return;
                 });
@@ -326,20 +326,20 @@ export class LearnComponent implements OnInit, OnDestroy {
     async saveLectureComplete(lectureId: string) {
         // only save to db if not already complete
         if (this.lecturesComplete.includes(lectureId)) {
-            console.log(`Lecture ${lectureId} already completed!`);
+            // console.log(`Lecture ${lectureId} already completed!`);
             return;
         }
-        console.log(`I should save lecture ${lectureId} complete now!`);
+        // console.log(`I should save lecture ${lectureId} complete now!`);
         await this.dataService.savePrivateLectureComplete(this.userId, this.courseId, lectureId);
     }
 
     async saveLectureIncomplete(lectureId: string) {
         // only save to db if already complete
         if (!this.lecturesComplete.includes(lectureId)) {
-            console.log(`Lecture ${lectureId} NOT already completed!`);
+            // console.log(`Lecture ${lectureId} NOT already completed!`);
             return;
         }
-        console.log(`I should save lecture ${lectureId} as incomplete now!`);
+        // console.log(`I should save lecture ${lectureId} as incomplete now!`);
         await this.dataService.savePrivateLectureIncomplete(this.userId, this.courseId, lectureId);
     }
 
