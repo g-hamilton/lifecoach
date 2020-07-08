@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID, OnDestroy } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, OnDestroy, ViewChild } from '@angular/core';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { VgAPI } from 'videogular2/compiled/core';
@@ -9,6 +9,9 @@ import { AlertService } from 'app/services/alert.service';
 import { AuthService } from 'app/services/auth.service';
 import { CourseBookmark } from 'app/interfaces/course.bookmark.interface';
 import { FormGroup, FormBuilder } from '@angular/forms';
+import { ModalDirective } from 'ngx-bootstrap/modal';
+import { CourseReviewsService } from 'app/services/course-reviews.service';
+import { CourseReview } from 'app/interfaces/course-review';
 
 @Component({
   selector: 'app-learn',
@@ -16,6 +19,8 @@ import { FormGroup, FormBuilder } from '@angular/forms';
   styleUrls: ['./learn.component.scss']
 })
 export class LearnComponent implements OnInit, OnDestroy {
+
+    @ViewChild('reviewModal', { static: false }) public reviewModal: ModalDirective;
 
     public previewAsStudent: boolean;
     public browser: boolean;
@@ -32,6 +37,7 @@ export class LearnComponent implements OnInit, OnDestroy {
     public bookmarkForm: FormGroup;
     public bookmarks: CourseBookmark[];
     public bookmarkToRemove: CourseBookmark;
+    private userCourseReviews: CourseReview[];
 
     constructor(
         @Inject(DOCUMENT) private document: any,
@@ -42,7 +48,8 @@ export class LearnComponent implements OnInit, OnDestroy {
         private dataService: DataService,
         private alertService: AlertService,
         private route: ActivatedRoute,
-        private router: Router
+        private router: Router,
+        private courseReviewsService: CourseReviewsService
     ) { }
 
     ngOnInit() {
@@ -74,6 +81,8 @@ export class LearnComponent implements OnInit, OnDestroy {
                                 this.userId = user.uid;
                                 // load course
                                 this.loadCourse();
+                                // fetch this user's course reviews
+                                this.fetchUserCourseReviews();
                             }
                         });
                     }
@@ -112,6 +121,16 @@ export class LearnComponent implements OnInit, OnDestroy {
 
         // fetch the user's saved bookmarks
         this.monitorSavedBookmarks();
+
+    }
+
+    fetchUserCourseReviews() {
+        this.courseReviewsService.getReviewerCourseReviews(this.userId).subscribe(reviews => {
+            if (reviews) {
+                console.log(reviews);
+                this.userCourseReviews = reviews;
+            }
+        });
     }
 
     fetchPublicCourse() {
@@ -215,11 +234,14 @@ export class LearnComponent implements OnInit, OnDestroy {
         });
 
         // listen for the video ended event
-        this.vgApi.getDefaultMedia().subscriptions.ended.subscribe($event => {
+        this.vgApi.getDefaultMedia().subscriptions.ended.subscribe(async $event => {
             console.log('Video ended:', $event);
 
             // save lecture complete for this user
             this.saveLectureComplete(this.lectureId);
+
+            // if at prompt point in the course, prompt user for a review and wait for a response before moving on
+            await this.promptUserReviewIfRequired();
 
             // redirect to the next lecture in the course
             this.redirectToNextLecture();
@@ -266,24 +288,59 @@ export class LearnComponent implements OnInit, OnDestroy {
         this.alertService.alert('success-message', 'Success!', `Bookmark saved to your bookmarks tab.`);
     }
 
-    async saveLectureComplete(lectureId: string) {
-    // only save to db if not already complete
-    if (this.lecturesComplete.includes(lectureId)) {
-        console.log(`Lecture ${lectureId} already completed!`);
-        return;
+    async promptUserReviewIfRequired() {
+        return new Promise(resolve => {
+            // check if already user reviewed
+            if (this.userCourseReviews && this.userCourseReviews.findIndex(i => i.courseId === this.courseId) !== -1) {
+                console.log('Course already reviewed');
+                resolve(false);
+                return;
+            }
+
+            // compare lectures complete to all lectures.
+            // if no recorded review, calculate if a prompt point has been reached.
+            // if required, prompt the user for a review now...
+            const totalLectures = this.course.lectures.length;
+
+            const firstPromptPoint = .2; // 20% progress
+
+            // console.log('Progress:', this.lecturesComplete.length / totalLectures);
+
+            if ((this.lecturesComplete.length / totalLectures) > firstPromptPoint) {
+                // pop modal with a promise that resolves on complete
+                this.reviewModal.show();
+                this.reviewModal.onHide.subscribe(res => {
+                    console.log('result:', res);
+                    resolve(true);
+                    return;
+                });
+            }
+        });
     }
-    console.log(`I should save lecture ${lectureId} complete now!`);
-    await this.dataService.savePrivateLectureComplete(this.userId, this.courseId, lectureId);
+
+    async onReviewSavedEvent() {
+        await this.alertService.alert('success-message', 'Success!', `Thanks for leaving feedback! You can update your feedback at any time.`);
+        this.reviewModal.hide();
+      }
+
+    async saveLectureComplete(lectureId: string) {
+        // only save to db if not already complete
+        if (this.lecturesComplete.includes(lectureId)) {
+            console.log(`Lecture ${lectureId} already completed!`);
+            return;
+        }
+        console.log(`I should save lecture ${lectureId} complete now!`);
+        await this.dataService.savePrivateLectureComplete(this.userId, this.courseId, lectureId);
     }
 
     async saveLectureIncomplete(lectureId: string) {
-    // only save to db if already complete
-    if (!this.lecturesComplete.includes(lectureId)) {
-        console.log(`Lecture ${lectureId} NOT already completed!`);
-        return;
-    }
-    console.log(`I should save lecture ${lectureId} as incomplete now!`);
-    await this.dataService.savePrivateLectureIncomplete(this.userId, this.courseId, lectureId);
+        // only save to db if already complete
+        if (!this.lecturesComplete.includes(lectureId)) {
+            console.log(`Lecture ${lectureId} NOT already completed!`);
+            return;
+        }
+        console.log(`I should save lecture ${lectureId} as incomplete now!`);
+        await this.dataService.savePrivateLectureIncomplete(this.userId, this.courseId, lectureId);
     }
 
     redirectToNextLecture() {

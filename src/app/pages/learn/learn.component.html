@@ -333,3 +333,38 @@ tabindex="-1"
 </div>
 </div>
 <!-- End remove bookmark modal -->
+
+<!-- Review modal -->
+<div
+aria-hidden="true"
+aria-labelledby="reviewModalLabel"
+bsModal
+class="modal fade"
+#reviewModal="bs-modal"
+id="reviewModal"
+role="dialog"
+tabindex="-1"
+>
+<div class="modal-dialog" style="transform: translate(0,0);">
+    <div class="modal-content">
+    <div class="modal-body">
+        <div class="card card-login card-white">
+            <div class=" card-header">
+            <h1 class=" card-title"> 😊 Enjoying the course? </h1>
+            <p>
+                Please be kind and leave a rating to help others decide if this course is right for them...
+            </p>
+            </div>
+            <div class=" card-body">
+              <app-star-review [course]="course" [userId]="userId" (savedRatingEvent)="onReviewSavedEvent()"></app-star-review>
+
+              <button class=" btn btn-default btn-block mt-3" (click)="reviewModal.hide()">
+                Ask me again later
+              </button>
+            </div>
+        </div>
+    </div>
+    </div>
+</div>
+</div>
+<!-- End of review modal -->
