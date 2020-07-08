@@ -92,6 +92,8 @@ import { DiscussionsComponent } from './discussions/discussions.component';
 import { DiscussionComponent } from './discussion/discussion.component';
 import { DiscussionReplyFormComponent } from './discussion-reply-form/discussion-reply-form.component';
 import { CourseMoreComponent } from './course-more/course-more.component';
+import { AdminVideoUploaderComponent } from './admin-video-uploader/admin-video-uploader.component';
+import { AdminVideoUploadTaskComponent } from './admin-video-upload-task/admin-video-upload-task.component';
 
 @NgModule({
   imports: [
@@ -186,7 +188,9 @@ import { CourseMoreComponent } from './course-more/course-more.component';
     DiscussionsComponent,
     DiscussionComponent,
     DiscussionReplyFormComponent,
-    CourseMoreComponent
+    CourseMoreComponent,
+    AdminVideoUploaderComponent,
+    AdminVideoUploadTaskComponent
   ],
   exports: [
     TabsModule,
@@ -265,7 +269,9 @@ import { CourseMoreComponent } from './course-more/course-more.component';
     DiscussionsComponent,
     DiscussionComponent,
     DiscussionReplyFormComponent,
-    CourseMoreComponent
+    CourseMoreComponent,
+    AdminVideoUploaderComponent,
+    AdminVideoUploadTaskComponent
   ]
 })
 export class ComponentsModule {}
