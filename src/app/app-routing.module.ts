@@ -211,8 +211,13 @@ const routes: Routes = [
         canActivate: [AdminAuthGuard]
       },
       {
-        path: 'admin-special-ops',
+        path: 'admin-more/special-ops',
         loadChildren: () => import('./pages/admin-special-ops/admin-special-ops.module').then(m => m.AdminSpecialOpsModule),
+        canActivate: [AdminAuthGuard]
+      },
+      {
+        path: 'admin-more/uploader',
+        loadChildren: () => import('./pages/admin-uploader/admin.uploader.module').then(m => m.AdminUploaderModule),
         canActivate: [AdminAuthGuard]
       }
     ],
