@@ -126,11 +126,9 @@ export class CourseSubmitComponent implements OnInit, OnChanges {
       this.alertService.alert('warning-message', 'Oops', `Course invalid: No course public coach photo`);
       return false;
     }
-    console.log('b');
     if (this.sectionsMissingLectures()) {
       return false;
     }
-    console.log('c');
     return true;
   }
 
@@ -152,7 +150,6 @@ export class CourseSubmitComponent implements OnInit, OnChanges {
       this.alertService.alert('info-message', 'Just a second!', `This course is already approved.`);
       return;
     }
-    console.log('a');
 
     // check if course valid
     if (!this.isCourseValid(this.course)) {
@@ -160,6 +157,11 @@ export class CourseSubmitComponent implements OnInit, OnChanges {
       this.requesting = false;
       return;
     }
+
+    // ***** ADMIN ONLY for testing *****
+    // mark course as test
+    // run this locally - remember to comment out before releasing!!!
+    // this.course.isTest = true;
 
     // request review
     await this.dataService.savePrivateCourse(this.course.sellerUid, this.course); // autosave the course now that we've added additional seller profile data

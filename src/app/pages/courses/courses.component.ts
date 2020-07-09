@@ -40,7 +40,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
     'Productivity & Personal Organisation'
   ];
 
-  public includeTestData = false; // option if testing. False in production.
+  public includeTestData = false; // option: true if testing. False in production.
 
   constructor(
     @Inject(DOCUMENT) private document: any,

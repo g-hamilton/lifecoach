@@ -45,9 +45,11 @@ export class MyCoursesComponent implements OnInit {
     }
 
     loadUserData() {
-        this.authService.getAuthUser().subscribe(user => {
+        this.authService.getAuthUser().subscribe(async user => {
             if (user) {
                 this.userId = user.uid;
+                const token = await user.getIdTokenResult(true);
+                console.log('Claims:', token.claims);
 
                 // Check user type
                 this.dataService.getUserAccount(this.userId).subscribe(account => {

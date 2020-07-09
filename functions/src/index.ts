@@ -1404,7 +1404,8 @@ async function recordCourseEnrollmentForCreator(sellerUid: string, courseId: str
   // save the person to the recipient's people (create if doesn't exist yet - it might)
   await db.collection(`users/${sellerUid}/people`)
   .doc(clientUid)
-  .create({ created: timestampNow }); // creates a real (not virtual) doc
+  .set({ lastUpdated: timestampNow }, { merge: true }) // creates a real (not virtual) doc
+  .catch(err => console.log(err));
 
   // save the action to this person's history
   return db.collection(`users/${sellerUid}/people/${clientUid}/history`)
@@ -2674,6 +2675,25 @@ exports.onCreateCoursePublicQuestionReplyUpvote = functions
   return db.collection(`public-course-questions/${questionId}/replies`)
   .doc(replyId)
   .set({ upVotes: incrementCount }, { merge: true })
+  .catch(err => console.error(err));
+});
+
+/*
+  Monitor newly created people.
+*/
+exports.onNewCrmPersonCreate = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.firestore
+.document(`users/{uid}/people/{personUid}`)
+.onCreate( async (snap, context) => {
+  const userId = context.params.uid;
+  const personId = context.params.personUid;
+  const timestampNow = Math.round(new Date().getTime() / 1000);
+
+  // set a created time on the new person object
+  return db.collection(`users/${userId}/people`)
+  .doc(personId)
+  .set({ created: timestampNow }, { merge: true })
   .catch(err => console.error(err));
 });
 
