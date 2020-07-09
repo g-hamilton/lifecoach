@@ -486,6 +486,26 @@ export class DataService {
     .catch(err => console.error(err));
   }
 
+  async markCourseCompleteForUser(userId: string, course: CoachingCourse) {
+    const timestampNow = Math.round(new Date().getTime() / 1000);
+
+    // mark the course as complete for this user
+    await this.db.collection(`users/${userId}/courses-complete`)
+    .doc(course.courseId)
+    .set({ completed: timestampNow })
+    .catch(err => console.error(err));
+
+    // save the action to this person's history for the course creator
+    return this.db.collection(`users/${course.sellerUid}/people/${userId}/history`)
+    .doc(timestampNow.toString())
+    .set({ action: 'completed_self_study_course' });
+  }
+
+  getUserCoursesComplete(userId: string) {
+    return this.db.collection(`users/${userId}/courses-complete`)
+    .valueChanges({ idField: 'id' }) as Observable<any[]>;
+  }
+
   // ================================================================================
   // =====                          RATES / CURRENCY                           ======
   // ================================================================================

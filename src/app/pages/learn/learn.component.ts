@@ -21,6 +21,7 @@ import { CourseReview } from 'app/interfaces/course-review';
 export class LearnComponent implements OnInit, OnDestroy {
 
     @ViewChild('reviewModal', { static: false }) public reviewModal: ModalDirective;
+    @ViewChild('courseCompleteModal', { static: false }) public courseCompleteModal: ModalDirective;
 
     public previewAsStudent: boolean;
     public browser: boolean;
@@ -38,6 +39,10 @@ export class LearnComponent implements OnInit, OnDestroy {
     public bookmarks: CourseBookmark[];
     public bookmarkToRemove: CourseBookmark;
     private userCourseReviews: CourseReview[];
+    private coursesComplete = [];
+    public courseIsComplete: boolean;
+    public courseReviewPrompts = [];
+    public reviewPrompted: boolean;
 
     constructor(
         @Inject(DOCUMENT) private document: any,
@@ -79,10 +84,10 @@ export class LearnComponent implements OnInit, OnDestroy {
                         this.authService.getAuthUser().subscribe(user => {
                             if (user) {
                                 this.userId = user.uid;
-                                // load course
                                 this.loadCourse();
-                                // fetch this user's course reviews
                                 this.fetchUserCourseReviews();
+                                this.fetchUserCoursesComplete();
+                                this.fetchReviewPrompts();
                             }
                         });
                     }
@@ -121,7 +126,6 @@ export class LearnComponent implements OnInit, OnDestroy {
 
         // fetch the user's saved bookmarks
         this.monitorSavedBookmarks();
-
     }
 
     fetchUserCourseReviews() {
@@ -129,6 +133,15 @@ export class LearnComponent implements OnInit, OnDestroy {
             if (reviews) {
                 // console.log(reviews);
                 this.userCourseReviews = reviews;
+            }
+        });
+    }
+
+    fetchUserCoursesComplete() {
+        this.dataService.getUserCoursesComplete(this.userId).subscribe(data => {
+            if (data) {
+                this.coursesComplete = data;
+                // console.log('Courses complete:', this.coursesComplete);
             }
         });
     }
@@ -158,6 +171,19 @@ export class LearnComponent implements OnInit, OnDestroy {
                 this.alertService.alert('warning-message', 'Oops', 'This course does not exist!');
             }
             courseSub.unsubscribe();
+        });
+    }
+
+    fetchReviewPrompts() {
+        this.courseReviewsService.fetchUserCourseReviewPrompts(this.userId).subscribe(data => {
+            if (data) {
+                this.courseReviewPrompts = data;
+                const promptArr = this.courseReviewPrompts.map(i => i.id);
+                // console.log('Course review prompts', promptArr);
+                if (promptArr.includes(this.courseId)) {
+                    this.reviewPrompted = true;
+                }
+            }
         });
     }
 
@@ -208,18 +234,19 @@ export class LearnComponent implements OnInit, OnDestroy {
     }
 
     checkIfCourseComplete() {
-        console.log('checking if course complete...');
-        // todo - celebrate complete && then prompt to leave a rating if not already done
-        if (this.lecturesComplete.length / this.course.lectures.length === 1) {
-            console.log('course IS complete!');
+        const completeArr = this.coursesComplete.map(i => i.id);
+        // console.log('Completed courses', completeArr);
 
-            // todo pop complete modal
+        if ((this.lecturesComplete.length / this.course.lectures.length === 1) && !completeArr.includes(this.courseId)) {
+            console.log('first time course completed!');
 
-            // todo prompt for review if not already reviewed
+            // pop complete modal
+            this.courseCompleteModal.show();
 
-            // todo what next?
+            // save as complete so that we don't keep getting popups when viewing again after completing
+            this.markCourseCompleted();
 
-            // todo save as complete so that we don't keep getting popups when viewing again after completing
+            // what next?
         }
     }
 
@@ -316,7 +343,8 @@ export class LearnComponent implements OnInit, OnDestroy {
             }
 
             // check if user has already been prompted for a review
-            if (this.course.reviewPrompted) {
+            console.log('reviewPrompted?:', this.reviewPrompted);
+            if (this.reviewPrompted) {
                 resolve(false);
                 return;
             }
@@ -346,13 +374,16 @@ export class LearnComponent implements OnInit, OnDestroy {
 
     async onReviewSavedEvent() {
         await this.alertService.alert('success-message', 'Success!', `Thanks for leaving feedback! You can update your feedback at any time.`);
-        this.reviewModal.hide();
     }
 
     markAsReviewPrompted() {
         // mark that the user does not wish to leave a review now, and shouldn't be prompted again until
         // reaching a defined point (eg end of course)
         this.courseReviewsService.markUserCourseReviewPrompted(this.userId, this.courseId);
+    }
+
+    markCourseCompleted() {
+        this.dataService.markCourseCompleteForUser(this.userId, this.course);
     }
 
     async saveLectureComplete(lectureId: string) {
@@ -397,6 +428,7 @@ export class LearnComponent implements OnInit, OnDestroy {
                 } else {
                     this.router.navigate(['/course', this.courseId, 'learn', 'lecture', nextSectionLectureId]);
                 }
+                return;
             }
 
             // no, safe to load next lecture
@@ -404,6 +436,7 @@ export class LearnComponent implements OnInit, OnDestroy {
             if (this.previewAsStudent) {
                 this.router.navigate(['/course', this.courseId, 'learn', 'lecture', nextLectureId], { queryParams: { previewAsStudent: true } });
             } else {
+                // console.log('Navigating to:', '/course', this.courseId, 'learn', 'lecture', nextLectureId);
                 this.router.navigate(['/course', this.courseId, 'learn', 'lecture', nextLectureId]);
             }
 

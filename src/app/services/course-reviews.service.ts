@@ -43,9 +43,15 @@ export class CourseReviewsService {
   }
 
   async markUserCourseReviewPrompted(userId: string, courseId: string) {
-    return this.afs.collection(`users/${userId}/courses`)
+    const timestampNow = Math.round(new Date().getTime() / 1000);
+    return this.afs.collection(`users/${userId}/course-review-prompts`)
     .doc(courseId)
-    .set({ reviewPrompted: true }, { merge: true})
+    .set({ prompted: timestampNow })
     .catch(err => console.error(err));
+  }
+
+  fetchUserCourseReviewPrompts(userId: string) {
+    return this.afs.collection(`users/${userId}/course-review-prompts`)
+    .valueChanges({ idField: 'id' }) as Observable<any[]>;
   }
 }

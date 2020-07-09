@@ -356,7 +356,7 @@ tabindex="-1"
             </p>
             </div>
             <div class=" card-body">
-              <app-star-review [course]="course" [userId]="userId" [uniqueComponentString]="'reviewModal'" (savedRatingEvent)="onReviewSavedEvent()"></app-star-review>
+              <app-star-review [course]="course" [userId]="userId" [uniqueComponentString]="'reviewModal'" (savedRatingEvent)="onReviewSavedEvent() ; reviewModal.hide()"></app-star-review>
 
               <button class=" btn btn-default btn-block mt-3" (click)="reviewModal.hide()">
                 Ask me again later
@@ -368,3 +368,46 @@ tabindex="-1"
 </div>
 </div>
 <!-- End of review modal -->
+
+<!-- Course complete modal -->
+<div
+aria-hidden="true"
+aria-labelledby="courseCompleteModalLabel"
+bsModal
+class="modal fade"
+#courseCompleteModal="bs-modal"
+id="courseCompleteModal"
+role="dialog"
+tabindex="-1"
+>
+<div class="modal-dialog" style="transform: translate(0,0);">
+    <div class="modal-content">
+        <div class="modal-body">
+            <div class="card card-login card-white">
+                <div class=" card-header">
+                    <div *ngFor="let num of [1,2,3,4,5,6,7,8,9,10]" class="confetti"></div>
+                <h1 class=" card-title"> 🎉 Congratulations! </h1>
+                <p>
+                    You've completed this course!
+                </p>
+                <p *ngIf="!reviewPrompted">
+                    Did you enjoy it? Please be kind and let your Coach know how much you enjoyed it, or what they could do to improve it for others...
+                </p>
+                <p *ngIf="reviewPrompted">
+                    We hope you enjoyed it. Now that you've finished the course, would you like to update your previous review?
+                </p>
+                </div>
+                <div class=" card-body">
+                <app-star-review [course]="course" [userId]="userId" [uniqueComponentString]="'courseCompleteModal'" (savedRatingEvent)="onReviewSavedEvent() ; courseCompleteModal.hide()"></app-star-review>
+
+                <button *ngIf="reviewPrompted" class=" btn btn-default btn-block mt-3" (click)="courseCompleteModal.hide()">
+                    Keep this review
+                </button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<!-- End of course complete modal -->

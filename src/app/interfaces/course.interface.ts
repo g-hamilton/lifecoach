@@ -48,7 +48,6 @@ export interface CoachingCourse {
     totalZeroPointFiveStarReviews?: number;
     totalZeroStarReviews?: number;
     isTest?: boolean;
-    reviewPrompted?: boolean; // may be true if user has declined to leave a review but wishes to be asked again
 }
 
 export interface CoachingCourseSection {
