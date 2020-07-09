@@ -122,10 +122,10 @@ export class MyCoursesComponent implements OnInit {
                         // Check for purchased courses. Coaches and regular users can purchase courses
                         this.dataService.getPurchasedCourses(this.userId).subscribe(courseIds => {
                             if (courseIds) {
-                                console.log('Purchased Course Ids:', courseIds);
+                                console.log('Enrolled In Course Ids:', courseIds);
                                 this.purchasedCourses = []; // reset
                                 courseIds.forEach((o: any, index) => { // fetch and monitor live / latest course info
-                                    this.dataService.getPublicCourse(o.id).subscribe(course => {
+                                    this.dataService.getUnlockedPublicCourse(o.id).subscribe(course => {
                                         if (course) {
                                             this.purchasedCourses.push(course);
                                             this.calcCourseProgress(course, index);
