@@ -356,7 +356,7 @@ tabindex="-1"
             </p>
             </div>
             <div class=" card-body">
-              <app-star-review [course]="course" [userId]="userId" (savedRatingEvent)="onReviewSavedEvent()"></app-star-review>
+              <app-star-review [course]="course" [userId]="userId" [uniqueComponentString]="'reviewModal'" (savedRatingEvent)="onReviewSavedEvent()"></app-star-review>
 
               <button class=" btn btn-default btn-block mt-3" (click)="reviewModal.hide()">
                 Ask me again later

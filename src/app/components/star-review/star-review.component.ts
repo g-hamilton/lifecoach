@@ -17,6 +17,7 @@ export class StarReviewComponent implements OnInit {
 
   @Input() userId: string;
   @Input() course: CoachingCourse;
+  @Input() uniqueComponentString: string; // allows us to use this component more than once in same parent without unique ID DOM errors
 
   @Output() savedRatingEvent = new EventEmitter<boolean>();
 

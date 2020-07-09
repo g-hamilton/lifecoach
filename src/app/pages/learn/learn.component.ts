@@ -139,6 +139,7 @@ export class LearnComponent implements OnInit, OnDestroy {
             if (fullCourse) {
                 this.course = fullCourse; // course loaded successfully
                 this.loadLecture();
+                this.checkIfCourseComplete();
             } else { // course not found!
                 this.alertService.alert('warning-message', 'Oops', 'This course does not exist!');
             }
@@ -152,6 +153,7 @@ export class LearnComponent implements OnInit, OnDestroy {
             if (privateCourse) {
                 this.course = privateCourse; // course loaded successfully
                 this.loadLecture();
+                this.checkIfCourseComplete();
             } else { // course not found!
                 this.alertService.alert('warning-message', 'Oops', 'This course does not exist!');
             }
@@ -203,6 +205,22 @@ export class LearnComponent implements OnInit, OnDestroy {
         }
         this.activeSectionIndex = index;
         // console.log('Active section index:', index);
+    }
+
+    checkIfCourseComplete() {
+        console.log('checking if course complete...');
+        // todo - celebrate complete && then prompt to leave a rating if not already done
+        if (this.lecturesComplete.length / this.course.lectures.length === 1) {
+            console.log('course IS complete!');
+
+            // todo pop complete modal
+
+            // todo prompt for review if not already reviewed
+
+            // todo what next?
+
+            // todo save as complete so that we don't keep getting popups when viewing again after completing
+        }
     }
 
     buildBookmarkForm() {
@@ -370,7 +388,6 @@ export class LearnComponent implements OnInit, OnDestroy {
                 if (this.activeSectionIndex === this.course.sections.length - 1) {
                     // yes, ???
                     console.log('Completed the final lecture in this course!');
-                    // todo - celebrate complete && then prompt to leave a rating if not already done
                     return;
                 }
                 // no, load the first lecture in the next section
