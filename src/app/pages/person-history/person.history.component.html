@@ -14,32 +14,43 @@
           </div>
 
           <!-- person loaded -->
-          <div *ngIf="person" class=" card">
-            <div class=" card-header">
-              <div class=" tools float-right">
-                <div class=" dropdown" dropdown>
-                  <button
-                    class=" btn btn-link dropdown-toggle btn-icon dropdown-toggle"
-                    data-toggle="dropdown"
-                    dropdownToggle
-                    type="button"
-                  >
-                    <i class=" tim-icons icon-settings-gear-63"> </i>
-                  </button>
-                  <div class=" dropdown-menu dropdown-menu-right" *dropdownMenu>
-                    <a class=" dropdown-item" href="#pablo"> Action </a>
-                    <a class=" dropdown-item" href="#pablo"> Another action </a>
-                    <a class=" dropdown-item" href="#pablo"> Something else </a>
-                    <a class=" dropdown-item text-danger" href="#pablo">
-                      Remove Data
-                    </a>
-                  </div>
-                </div>
-              </div>
-              <h5 class=" card-title"> History </h5>
+          <div *ngIf="person" class=" card card-testimonial">
+            <div class=" card-header card-header-avatar">
+              <a href="javascript:void(0)">
+                <img
+                  [alt]="person.firstName + ' ' + person.lastName"
+                  class=" img img-raised"
+                  [src]="person.photo"
+                />
+              </a>
             </div>
             <div class=" card-body">
-              
+                <h4 class=" card-title">{{ person.firstName + ' ' + person.lastName }}</h4>
+
+                <!-- person type -->
+                <div *ngIf="person.type === 'warm lead'" class=" badge badge-danger">
+                  🔥Warm Lead
+                </div>
+                <div *ngIf="person.type === 'lead'" class=" badge badge-success">
+                  Lead
+                </div>
+                <div *ngIf="person.type === 'client'" class=" badge badge-primary">
+                  Client
+                </div>
+
+                <!-- person status -->
+                <div 
+                  [ngClass]="{
+                  'text-danger': person.status === 'Awaiting reply' || person.status === 'Client responded',
+                  'text-success' : person.status === 'Responded',
+                  'text-primary' : person.status === 'Enrolled in self-study course'}"
+                  >
+                    {{ person.status }}
+                </div>
+
+            </div>
+            <div class=" card-footer">
+              <!--  -->
             </div>
           </div>
         </div>
