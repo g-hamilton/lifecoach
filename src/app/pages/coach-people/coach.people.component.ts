@@ -178,7 +178,7 @@ export class CoachPeopleComponent implements OnInit {
   }
 
   openHistory(person: any) {
-    console.log(person);
+    this.router.navigate(['/person-history', person.id]);
   }
 
 }
