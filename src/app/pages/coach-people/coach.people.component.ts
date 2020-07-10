@@ -52,6 +52,7 @@ export class CoachPeopleComponent implements OnInit {
         for (const p of people) {
           const person = await this.getPersonData(p.id) as CRMPerson;
           if (person) {
+            person.id = p.id;
             person.created = new Date(p.created * 1000); // convert from unix to Date
             person.lastReplyReceived = p.lastReplyReceived ? p.lastReplyReceived : null;
             const history = await this.getPersonHistory(this.userId, p.id);
@@ -174,6 +175,10 @@ export class CoachPeopleComponent implements OnInit {
 
   openMessage(roomId: string) {
     this.router.navigate(['/messages', 'rooms', roomId]);
+  }
+
+  openHistory(person: any) {
+    console.log(person);
   }
 
 }

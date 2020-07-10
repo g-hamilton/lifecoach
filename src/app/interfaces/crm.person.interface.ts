@@ -1,4 +1,5 @@
 export interface CRMPerson {
+    id: string;
     created: Date;
     type: 'warm lead' | 'lead' | 'client';
     firstName: string;
