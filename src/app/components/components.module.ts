@@ -101,6 +101,7 @@ import { adapterFactory } from 'angular-calendar/date-adapters/moment';
 import { CalendarComponent } from './calendar/calendar.component';
 import { CalendarHeaderComponent } from './calendar-header/calendar-header.component';
 import * as moment from 'moment';
+import { PersonHistoryTimelineComponent } from './person-history-timeline/person-history-timeline.component';
 
 export function momentAdapterFactory() {
   return adapterFactory(moment);
@@ -204,7 +205,8 @@ export function momentAdapterFactory() {
     DiscussionReplyFormComponent,
     CourseMoreComponent,
     CalendarComponent,
-    CalendarHeaderComponent
+    CalendarHeaderComponent,
+    PersonHistoryTimelineComponent
   ],
   exports: [
     TabsModule,
@@ -286,7 +288,8 @@ export function momentAdapterFactory() {
     CourseMoreComponent,
     CalendarModule,
     CalendarComponent,
-    CalendarHeaderComponent
+    CalendarHeaderComponent,
+    PersonHistoryTimelineComponent
   ]
 })
 export class ComponentsModule {}

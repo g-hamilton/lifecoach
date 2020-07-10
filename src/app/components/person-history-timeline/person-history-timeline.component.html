@@ -1,0 +1,11 @@
+<!-- loading person -->
+<div *ngIf="!person" class="text-center">
+    <div class="spinner-border" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+</div>
+
+<!-- person loaded -->
+<div *ngIf="person">
+    <p >person-history-timeline works!</p>
+</div>
