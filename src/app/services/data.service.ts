@@ -587,4 +587,10 @@ export class DataService {
     .valueChanges({ idField: 'id' }) as Observable<any[]>;
   }
 
+  getUserPerson(uid: string, personUid: string) {
+    return this.db.collection(`users/${uid}/people`)
+    .doc(personUid)
+    .valueChanges() as Observable<any>;
+  }
+
 }
