@@ -10,7 +10,7 @@
     <div class=" card card-timeline card-plain">
         <div class=" card-body">
           <ul class=" timeline timeline-simple">
-            <li *ngFor="let item of person.history" class=" timeline-inverted">
+            <li *ngFor="let item of person.history ; let i = index" class=" timeline-inverted">
 
                 <!-- badge -->
                 <div *ngIf="item.action === 'sent_first_message'" class=" timeline-badge success">
@@ -26,7 +26,7 @@
                     <!-- heading -->
                     <div class=" timeline-heading">
                         <span *ngIf="item.action === 'sent_first_message'" class=" badge badge-success"> New Lead </span>
-                        <span *ngIf="item.action === 'enrolled_in_self_study_course'" class=" badge badge-primary"> Enrolled In Course </span>
+                        <span *ngIf="item.action === 'enrolled_in_self_study_course'" class=" badge badge-primary"> Enrolled In Self-Study Course </span>
                     </div>
 
                     <!-- body -->
@@ -52,14 +52,12 @@
                             <i class=" tim-icons icon-bullet-list-67"> </i>
                             </button>
                             <div class=" dropdown-menu" *dropdownMenu>
-                            <a class=" dropdown-item" href="#"> Action </a>
-                            <a class=" dropdown-item" href="#"> Another action </a>
-                            <a class=" dropdown-item" href="#">
-                                Something else here
-                            </a>
+                                <a class=" dropdown-item" [routerLink]="['/messages', 'rooms', person.history[i].roomId]">
+                                    Message {{ person.firstName }}
+                                </a>
                             </div>
                         </div>
-                        <div *ngIf="item.action === 'enrolled_in_self_study_course'" class=" dropdown" dropdown>
+                        <!-- <div *ngIf="item.action === 'enrolled_in_self_study_course'" class=" dropdown" dropdown>
                             <button
                             class=" btn btn-round btn-primary dropdown-toggle dropdown-toggle"
                             data-toggle="dropdown"
@@ -69,13 +67,13 @@
                             <i class=" tim-icons icon-bullet-list-67"> </i>
                             </button>
                             <div class=" dropdown-menu" *dropdownMenu>
-                            <a class=" dropdown-item" href="#"> Action </a>
-                            <a class=" dropdown-item" href="#"> Another action </a>
-                            <a class=" dropdown-item" href="#">
-                                Something else here
-                            </a>
+                                <a class=" dropdown-item" href="#"> Action </a>
+                                <a class=" dropdown-item" href="#"> Another action </a>
+                                <a class=" dropdown-item" href="#">
+                                    Something else here
+                                </a>
                             </div>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
             </li>
