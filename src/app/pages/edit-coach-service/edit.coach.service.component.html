@@ -9,7 +9,86 @@
 
     <!-- new service -->
     <div *ngIf="isNewService">
-        is new!
+        <div class=" row">
+            <!-- left col -->
+            <div class=" col-md-4">
+                <p>
+                    Tips
+                </p>
+            </div>
+            <!-- right col -->
+            <div class=" col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                      <h4 class="card-title"> New Service </h4>
+                      <h6 class="card-subtitle mb-4 text-muted"> Add your service to the Lifecoach platform. </h6>
+                      <div class=" p-3">
+                        <div class="">
+                            <form [formGroup]="serviceForm" (submit)="onSubmit()">
+        
+                                <!-- title -->
+                                <label> Title </label>
+                                <div
+                                class="input-group no-symbol"
+                                [ngClass]="{
+                                    'has-danger':
+                                    ((focusTouched || saving) && serviceF.title.value != '' && serviceF.title.errors) ||
+                                    (serviceF.title.value != '' && serviceF.title.errors),
+                                    'has-success': !serviceF.title.errors
+                                }">
+                                    <input
+                                    type="text"
+                                    class="form-control"
+                                    formControlName="title"
+                                    placeholder="eg. 30 Minute Chat"
+                                    (focus)="focusTouched = true"
+                                    (input)="onTitleInput($event)">
+                                    <div class="input-group-append">
+                                      <span class="input-group-text">
+                                          {{ titleActualLength + '/' + titleMaxLength }}
+                                      </span>
+                                    </div>
+                                </div>
+                                <div *ngIf="((focusTouched || saving) && serviceF.title.value != '' && serviceF.title.errors) ||
+                                    (serviceF.title.value != '' && serviceF.title.errors)">
+                                    <label
+                                    *ngFor="let error of objKeys(serviceF.title.errors)"
+                                    class="error custom-error-label"
+                                    >{{ showError('title', error) }}
+                                    </label>
+                                </div>
+
+                                <!-- duration -->
+                                <label> Duration </label>
+
+                                <!-- service type -->
+                                <label> Type </label>
+
+                                <!-- price -->
+                                <label> Price </label>
+
+                                <!-- image -->
+                                <label> Image </label>
+
+                                <!-- details -->
+                                <label> Details </label>
+
+                                <!-- instructions -->
+                                <label> Instructions </label>
+        
+                                <div class=" pull-right">
+                                    <button type="submit" class=" btn btn-primary btn-round btn-fill mt-4">
+                                        Save
+                                    </button>
+                                </div>
+
+                            </form>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- edit service -->
