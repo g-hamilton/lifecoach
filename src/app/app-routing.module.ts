@@ -186,6 +186,16 @@ const routes: Routes = [
         pathMatch: 'full'
       },
       {
+        path: 'my-services/new',
+        loadChildren: () => import('./pages/edit-coach-service/edit.coach.service.module').then(m => m.EditCoachServiceModule),
+        pathMatch: 'full'
+      },
+      {
+        path: 'my-services/:id/edit',
+        loadChildren: () => import('./pages/edit-coach-service/edit.coach.service.module').then(m => m.EditCoachServiceModule),
+        pathMatch: 'full'
+      },
+      {
         path: 'admin-users',
         loadChildren: () => import('./pages/admin-users/admin.users.module').then(m => m.AdminUsersModule),
         canActivate: [AdminAuthGuard]

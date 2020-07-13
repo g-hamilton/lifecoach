@@ -1,5 +1,6 @@
 import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { CoachingService } from 'app/interfaces/coaching.service.interface';
 
 @Component({
   selector: 'app-coach-services',
@@ -9,6 +10,8 @@ import { isPlatformBrowser } from '@angular/common';
 export class CoachServicesComponent implements OnInit {
 
   public browser: boolean;
+
+  public publishedServices: CoachingService[];
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
@@ -20,6 +23,10 @@ export class CoachServicesComponent implements OnInit {
         this.browser = true;
     }
 
+  }
+
+  onAddCoachingService() {
+    //
   }
 
 }
