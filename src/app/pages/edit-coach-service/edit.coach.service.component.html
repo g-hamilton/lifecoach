@@ -11,12 +11,6 @@
     <div *ngIf="isNewService">
         <div class=" row">
             <!-- left col -->
-            <div class=" col-md-4">
-                <p>
-                    Tips
-                </p>
-            </div>
-            <!-- right col -->
             <div class=" col-md-8">
                 <div class="card">
                     <div class="card-body">
@@ -58,14 +52,117 @@
                                     </label>
                                 </div>
 
-                                <!-- duration -->
-                                <label> Duration </label>
+                                <!-- row 2 -->
+                                <div class=" row">
 
-                                <!-- service type -->
-                                <label> Type </label>
+                                    <!-- duration -->
+                                    <div class=" col-md-4">
+                                        <label> Duration (minutes) </label>
+                                        <div
+                                        class=" input-group"
+                                        [ngClass]="{
+                                            'input-group-focus': focus1 === true,
+                                            'has-danger':
+                                            (focus1Touched &&
+                                                serviceF.duration.errors) ||
+                                            (serviceF.duration.value != '' &&
+                                                serviceF.duration.errors),
+                                            'has-success': serviceF.duration.value != '' && !serviceF.duration.errors
+                                        }"
+                                        >
+                                            <div class=" input-group-prepend">
+                                                <div class=" input-group-text">
+                                                    <i class="far fa-clock"></i>
+                                                </div>
+                                            </div>
+                                            <input
+                                            class=" form-control"
+                                            name="duration"
+                                            placeholder="eg. 30"
+                                            type="number"
+                                            formControlName="duration"
+                                            (focus)="focus1 = true; focus1Touched = true"
+                                            (blur)="focus1 = false"
+                                            />
+                                        </div>
+                                    </div>
 
-                                <!-- price -->
-                                <label> Price </label>
+                                    <!-- service type -->
+                                    <div class=" col-md-4">
+                                        <div class="form-group">
+                                            <label for="service-type"> Type </label>
+                                            <select
+                                            class="form-control"
+                                            id="service-type"
+                                            name="servicetype"
+                                            formControlName="serviceType">
+                                                <option [ngValue]="null"> Select... </option>
+                                                <option value="zoom"> Zoom (Online) </option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- pricing strategy -->
+                                    <div class=" col-md-4">
+                                        <div class="form-group">
+                                            <label for="pricing-strategy"> Free / Paid </label>
+                                            <select
+                                            class="form-control"
+                                            id="strategy"
+                                            name="pricing-strategy"
+                                            formControlName="pricingStrategy">
+                                                <option [ngValue]="null"> Select... </option>
+                                                <option value="free"> Free </option>
+                                                <option value="paid"> Paid </option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class=" row" *ngIf="serviceF?.pricingStrategy.value === 'paid'">
+                                    <!-- price -->
+                                    <div class=" col-md-4">
+                                        <label for="service-type"> Price </label>
+                                        <div
+                                        class=" input-group"
+                                        [ngClass]="{
+                                            'input-group-focus': focus2 === true,
+                                            'has-danger':
+                                            (focus2Touched &&
+                                                serviceF.price.errors) ||
+                                            (serviceF.price.value != '' &&
+                                                serviceF.price.errors),
+                                            'has-success': serviceF.price.value != '' && !serviceF.price.errors
+                                        }"
+                                        >
+                                            <div class=" input-group-prepend">
+                                                <div class=" input-group-text">
+                                                    <i class="far fa-credit-card"></i>
+                                                </div>
+                                            </div>
+                                            <input
+                                            class=" form-control"
+                                            name="price"
+                                            placeholder="eg. 49.99"
+                                            type="number"
+                                            formControlName="price"
+                                            (focus)="focus2 = true; focus2Touched = true"
+                                            (blur)="focus2 = false"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <!-- currency -->
+                                    <div class=" col-md-4">
+                                        <label> Currency </label>
+                                        <app-select-currency
+                                        [currency]="serviceF?.currency?.value"
+                                        (currencyEvent)="onCurrencyEvent($event)">
+                                        </app-select-currency>
+                                    </div>
+
+                                </div>
 
                                 <!-- image -->
                                 <label> Image </label>
@@ -88,6 +185,14 @@
                     </div>
                 </div>
             </div>
+
+            <!-- right col -->
+            <div class=" col-md-4">
+                <p>
+                    Preview?
+                </p>
+            </div>
+
         </div>
     </div>
 
