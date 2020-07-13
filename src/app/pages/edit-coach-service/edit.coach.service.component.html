@@ -21,7 +21,7 @@
                             <form [formGroup]="serviceForm" (submit)="onSubmit()">
         
                                 <!-- title -->
-                                <label> Title </label>
+                                <label> Title <span class="required-star">*</span> </label>
                                 <div
                                 class="input-group no-symbol"
                                 [ngClass]="{
@@ -52,12 +52,48 @@
                                     </label>
                                 </div>
 
-                                <!-- row 2 -->
+                                <div class=" row">
+                                    <div class=" col">
+                                        <!-- subtitle -->
+                                        <label> Subtitle <span class="required-star">*</span></label>
+                                        <div
+                                        class="input-group no-symbol"
+                                        [ngClass]="{
+                                            'has-danger':
+                                            ((focus3Touched || saving) && serviceF.subtitle.value != '' && serviceF.subtitle.errors) ||
+                                            (serviceF.subtitle.value != '' && serviceF.subtitle.errors),
+                                            'has-success': !serviceF.subtitle.errors
+                                        }">
+                                            <input
+                                            type="text"
+                                            class="form-control"
+                                            formControlName="subtitle"
+                                            placeholder="eg. Ask me anything!"
+                                            (focus)="focus3 = true; focus3Touched = true"
+                                            (blur)="focus3 = false"
+                                            (input)="onSubTitleInput($event)">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text">
+                                                    {{ subTitleActualLength + '/' + subTitleMaxLength }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div *ngIf="((focus3Touched || saving) && serviceF.subtitle.value != '' && serviceF.subtitle.errors) ||
+                                            (serviceF.subtitle.value != '' && serviceF.subtitle.errors)">
+                                            <label
+                                            *ngFor="let error of objKeys(serviceF.subtitle.errors)"
+                                            class="error custom-error-label"
+                                            >{{ showError('subtitle', error) }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class=" row">
 
                                     <!-- duration -->
                                     <div class=" col-md-4">
-                                        <label> Duration (minutes) </label>
+                                        <label> Duration (minutes) <span class="required-star">*</span> </label>
                                         <div
                                         class=" input-group"
                                         [ngClass]="{
@@ -90,7 +126,7 @@
                                     <!-- service type -->
                                     <div class=" col-md-4">
                                         <div class="form-group">
-                                            <label for="service-type"> Type </label>
+                                            <label for="service-type"> Type <span class="required-star">*</span> </label>
                                             <select
                                             class="form-control"
                                             id="service-type"
@@ -105,7 +141,7 @@
                                     <!-- pricing strategy -->
                                     <div class=" col-md-4">
                                         <div class="form-group">
-                                            <label for="pricing-strategy"> Free / Paid </label>
+                                            <label for="pricing-strategy"> Free / Paid <span class="required-star">*</span> </label>
                                             <select
                                             class="form-control"
                                             id="strategy"
@@ -123,7 +159,7 @@
                                 <div class=" row" *ngIf="serviceF?.pricingStrategy.value === 'paid'">
                                     <!-- price -->
                                     <div class=" col-md-4">
-                                        <label for="service-type"> Price </label>
+                                        <label for="service-type"> Price <span class="required-star">*</span> </label>
                                         <div
                                         class=" input-group"
                                         [ngClass]="{
@@ -155,7 +191,7 @@
 
                                     <!-- currency -->
                                     <div class=" col-md-4">
-                                        <label> Currency </label>
+                                        <label> Currency <span class="required-star">*</span> </label>
                                         <app-select-currency
                                         [currency]="serviceF?.currency?.value"
                                         (currencyEvent)="onCurrencyEvent($event)">
@@ -165,10 +201,10 @@
                                 </div>
 
                                 <!-- image -->
-                                <label> Image </label>
+                                <label> Image <span class="required-star">*</span> </label>
 
                                 <!-- details -->
-                                <label> Details </label>
+                                <label> Details <span class="required-star">*</span> </label>
 
                                 <!-- instructions -->
                                 <label> Instructions </label>

@@ -23,13 +23,19 @@ export class EditCoachServiceComponent implements OnInit {
   public focus: boolean;
   public focus1: boolean;
   public focus2: boolean;
+  public focus3: boolean;
   public focusTouched: boolean;
   public focus1Touched: boolean;
   public focus2Touched: boolean;
+  public focus3Touched: boolean;
 
   public titleMinLength = 10;
   public titleMaxLength = 60;
   public titleActualLength = 0;
+
+  public subTitleMinLength = 20;
+  public subTitleMaxLength = 120;
+  public subTitleActualLength = 0;
 
   private baseMinPrice = 1;
   private baseMaxPrice = 10000;
@@ -41,6 +47,11 @@ export class EditCoachServiceComponent implements OnInit {
     title: {
       minlength: `Your title should be at least ${this.titleMinLength} characters.`,
       maxlength: `Your title should be at less than ${this.titleMaxLength} characters.`
+    },
+    subtitle: {
+      minlength: `Your sub-title should be at least ${this.subTitleMinLength} characters.`,
+      maxlength: `Your sub-title should be at less than ${this.subTitleMaxLength} characters.`,
+      required: 'Please enter a sub-title.'
     },
     price: {
       required: `Price is required for paid services.`,
@@ -91,6 +102,7 @@ export class EditCoachServiceComponent implements OnInit {
   buildServiceForm() {
     this.serviceForm = this.formBuilder.group({
       title: ['', [Validators.required, Validators.minLength(this.titleMinLength), Validators.maxLength(this.titleMaxLength)]],
+      subtitle: ['', [Validators.required, Validators.minLength(this.subTitleMinLength), Validators.maxLength(this.subTitleMaxLength)]],
       duration: ['', [Validators.required]],
       serviceType: [null, [Validators.required]],
       pricingStrategy: [null, [Validators.required]],
@@ -138,6 +150,10 @@ export class EditCoachServiceComponent implements OnInit {
 
   onTitleInput(ev: any) {
     this.titleActualLength = (ev.target.value as string).length;
+  }
+
+  onSubTitleInput(ev: any) {
+    this.subTitleActualLength = (ev.target.value as string).length;
   }
 
   onCurrencyEvent(event: string) {

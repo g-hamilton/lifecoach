@@ -63,8 +63,8 @@ export class CourseLandingPageComponent implements OnInit, OnChanges, AfterViewI
       required: 'Please enter a course title.'
     },
     subtitle: {
-      minlength: `Your course sub-title should be at least ${this.titleMinLength} characters.`,
-      maxlength: `Your course sub-title should be at less than ${this.titleMaxLength} characters.`,
+      minlength: `Your course sub-title should be at least ${this.subTitleMinLength} characters.`,
+      maxlength: `Your course sub-title should be at less than ${this.subTitleMaxLength} characters.`,
       required: 'Please enter a course sub-title.'
     },
     description: {
