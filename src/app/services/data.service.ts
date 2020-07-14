@@ -604,4 +604,9 @@ export class DataService {
     .set(service, { merge: true });
   }
 
+  getCoachServices(uid: string) {
+    return this.db.collection(`users/${uid}/services`)
+    .valueChanges({ idField: 'id' }) as Observable<CoachingService[]>;
+  }
+
 }
