@@ -1,15 +1,16 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, AfterViewInit } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { CoachingService } from 'app/interfaces/coaching.service.interface';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 import { PriceValidator } from 'app/custom-validators/price.validator';
+import { AlertService } from 'app/services/alert.service';
 
 @Component({
   selector: 'app-edit-coach-service',
   templateUrl: 'edit.coach.service.component.html'
 })
-export class EditCoachServiceComponent implements OnInit {
+export class EditCoachServiceComponent implements OnInit, AfterViewInit {
 
   public browser: boolean;
 
@@ -20,6 +21,8 @@ export class EditCoachServiceComponent implements OnInit {
 
   public objKeys = Object.keys;
 
+  public viewLoaded: boolean;
+
   public focus: boolean;
   public focus1: boolean;
   public focus2: boolean;
@@ -29,11 +32,11 @@ export class EditCoachServiceComponent implements OnInit {
   public focus2Touched: boolean;
   public focus3Touched: boolean;
 
-  public titleMinLength = 10;
+  public titleMinLength = 8;
   public titleMaxLength = 60;
   public titleActualLength = 0;
 
-  public subTitleMinLength = 20;
+  public subTitleMinLength = 10;
   public subTitleMaxLength = 120;
   public subTitleActualLength = 0;
 
@@ -67,7 +70,8 @@ export class EditCoachServiceComponent implements OnInit {
     @Inject(PLATFORM_ID) private platformId: object,
     private route: ActivatedRoute,
     private router: Router,
-    public formBuilder: FormBuilder
+    public formBuilder: FormBuilder,
+    private alertService: AlertService
   ) {}
 
   ngOnInit() {
@@ -96,7 +100,12 @@ export class EditCoachServiceComponent implements OnInit {
         });
       }
     }
+  }
 
+  ngAfterViewInit() {
+    setTimeout(() => {
+      this.viewLoaded = true;
+    }, 100);
   }
 
   buildServiceForm() {
@@ -108,6 +117,8 @@ export class EditCoachServiceComponent implements OnInit {
       pricingStrategy: [null, [Validators.required]],
       price: ['', [this.conditionallyRequiredValidator]],
       currency: ['USD', [this.conditionallyRequiredValidator]],
+      image: [null],
+      description: ['', [Validators.required]]
     }, {
       validators: [
         PriceValidator('pricingStrategy', 'price', this.minPrice, this.maxPrice)
@@ -165,8 +176,76 @@ export class EditCoachServiceComponent implements OnInit {
     }
   }
 
+  onPictureUpload(event: any) {
+    /*
+      Triggered by the 'messageEvent' listener on the component template.
+      The child 'picture-upload-component' will emit a chosen file when
+      an image is chosen. We'll listen for that change here and grab the
+      selected file for saving to storage & patching into our form control.
+    */
+    console.log(`Updating service image with: ${event}`);
+    this.serviceForm.patchValue({
+      image: event
+    });
+  }
+
   onSubmit() {
-    //
+    console.log('Form is valid?:', this.serviceForm.valid);
+    console.log('Form data:', this.serviceForm.value);
+
+    this.saving = true;
+
+    // safety checks
+    if (!this.serviceF.title.value) {
+      this.alertService.alert('warning-message', 'Oops', 'Please add a title.');
+      this.saving = false;
+      return;
+    }
+    if (!this.serviceF.subtitle.value) {
+      this.alertService.alert('warning-message', 'Oops', 'Please add a subtitle.');
+      this.saving = false;
+      return;
+    }
+    if (!this.serviceF.duration.value) {
+      this.alertService.alert('warning-message', 'Oops', 'Please add a duration.');
+      this.saving = false;
+      return;
+    }
+    if (!this.serviceF.serviceType.value) {
+      this.alertService.alert('warning-message', 'Oops', 'Please select a type.');
+      this.saving = false;
+      return;
+    }
+    if (!this.serviceF.pricingStrategy.value) {
+      this.alertService.alert('warning-message', 'Oops', 'Please select whether this service is free or paid.');
+      this.saving = false;
+      return;
+    }
+    if (this.serviceF.pricingStrategy.value === 'paid') {
+      if (!this.serviceF.price.value) {
+        this.alertService.alert('warning-message', 'Oops', 'Please add a price.');
+        this.saving = false;
+        return;
+      }
+      if (!this.serviceF.currency.value) {
+        this.alertService.alert('warning-message', 'Oops', 'Please select a currency.');
+        this.saving = false;
+        return;
+      }
+    }
+    if (!this.serviceF.image.value) {
+      this.alertService.alert('warning-message', 'Oops', 'Please add an image.');
+      this.saving = false;
+      return;
+    }
+    if (!this.serviceF.description.value) {
+      this.alertService.alert('warning-message', 'Oops', 'Please enter a description.');
+      this.saving = false;
+      return;
+    }
+
+    // safety checks all passed
+    this.saving = false;
   }
 
 }
