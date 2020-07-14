@@ -23,7 +23,7 @@
                         type="button"
                         class=" btn btn-primary btn-fill btn-round mt-4"
                         (click)="onAddCoachingService()"
-                        [routerLink]="['/my-services', 'new']"
+                        [routerLink]="['/services', 'new']"
                         [disabled]="false">
                             <i class=" tim-icons icon-simple-add"></i> Add Service
                         </button>
@@ -41,7 +41,7 @@
                 type="button"
                 class=" btn btn-primary btn-fill btn-round pull-right"
                 (click)="onAddCoachingService()"
-                [routerLink]="['/my-services', 'new']"
+                [routerLink]="['/services', 'new']"
                 [disabled]="false">
                     <i class=" tim-icons icon-simple-add"></i> Add Service
                 </button>
@@ -50,7 +50,7 @@
         <h5 class=" title"> My Services </h5>
         <div class=" row mt-3">
             <div *ngFor="let service of publishedServices ; let i = index" class=" col-md-4">
-                <a [routerLink]="['/my-services', service.id, 'edit']">
+                <a [routerLink]="['/services', service.id, 'edit']">
                     <div class=" card">
 
                         <!-- Card image -->

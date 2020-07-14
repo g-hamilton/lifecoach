@@ -2374,7 +2374,7 @@ exports.onWritePrivateUserCourse = functions
 
   try {
     // Sync with public-courses.
-    const batch = db.batch(); // prepare to execute multiple ops atomically
+    const batch = db.batch(); // prepare to execute multiple ops atomically 
     
     // copy non-paywall protected course data in public courses node (to allow browse & purchase)
     const publicData = {
@@ -2695,6 +2695,60 @@ exports.onNewCrmPersonCreate = functions
   .doc(personId)
   .set({ created: timestampNow }, { merge: true })
   .catch(err => console.error(err));
+});
+
+/*
+  Monitor private coach services.
+  Sync with public nodes & Algolia.
+*/
+exports.onWritePrivateServices = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.firestore
+.document(`/users/{userId}/services/{serviceId}`)
+.onWrite( async (change, context) => {
+
+  const userId = context.params.userId;
+  const serviceId = context.params.serviceId;
+  // const before = change.before.data() as any;
+  const after = change.after.data() as any;
+
+  // Public DB sync
+
+  const batch = db.batch(); // prepare to execute multiple ops atomically
+
+  const publicAllRef = db.collection(`public-services`).doc(serviceId);
+  batch.set(publicAllRef, after, { merge: true });
+
+  const publicByCoachRef = db.collection(`public-services-by-coach/${userId}/services`).doc(serviceId);
+  batch.set(publicByCoachRef, after, { merge: true });
+
+  await batch.commit(); // execute batch ops
+
+  // Algolia sync
+
+  const index = algolia.initIndex('prod_SERVICES');
+
+  // Record Removed.
+  if (!after) {
+    return index.deleteObject(serviceId);
+  }
+  // Record added/updated.
+  const recordToSend = {
+    objectID: serviceId,
+    id: after.id,
+    coachUid: userId,
+    title: after.title,
+    subtitle: after.subtitle,
+    duration: after.duration,
+    serviceType: after.serviceType,
+    pricingStrategy: after.pricingStrategy,
+    image: after.image,
+    description: after.description,
+    price: after.price,
+    currency: after.currency
+  };
+  // Update Algolia.
+  return index.saveObject(recordToSend);
 });
 
 // ================================================================================

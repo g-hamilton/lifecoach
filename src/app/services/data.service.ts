@@ -12,6 +12,7 @@ import { CourseBookmark } from 'app/interfaces/course.bookmark.interface';
 import { CourseQuestion, CourseQuestionReply } from 'app/interfaces/q&a.interface';
 import { AnalyticsService } from './analytics.service';
 import { CustomCalendarEvent } from 'app/interfaces/custom.calendar.event.interface';
+import { CoachingService } from 'app/interfaces/coaching.service.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -591,6 +592,16 @@ export class DataService {
     return this.db.collection(`users/${uid}/people`)
     .doc(personUid)
     .valueChanges() as Observable<any>;
+  }
+
+  // ================================================================================
+  // =====                           COACH SERVICES                            ======
+  // ================================================================================
+
+  saveCoachService(uid: string, service: CoachingService) {
+    return this.db.collection(`users/${uid}/services`)
+    .doc(service.id)
+    .set(service, { merge: true });
   }
 
 }

@@ -5,6 +5,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 import { PriceValidator } from 'app/custom-validators/price.validator';
 import { AlertService } from 'app/services/alert.service';
+import { AuthService } from 'app/services/auth.service';
+import { StorageService } from 'app/services/storage.service';
+import { DataService } from 'app/services/data.service';
+import { AnalyticsService } from 'app/services/analytics.service';
 
 @Component({
   selector: 'app-edit-coach-service',
@@ -13,6 +17,8 @@ import { AlertService } from 'app/services/alert.service';
 export class EditCoachServiceComponent implements OnInit, AfterViewInit {
 
   public browser: boolean;
+
+  private userId: string;
 
   public isNewService: boolean;
   public service: CoachingService;
@@ -71,7 +77,11 @@ export class EditCoachServiceComponent implements OnInit, AfterViewInit {
     private route: ActivatedRoute,
     private router: Router,
     public formBuilder: FormBuilder,
-    private alertService: AlertService
+    private authService: AuthService,
+    private alertService: AlertService,
+    private storageService: StorageService,
+    private dataService: DataService,
+    private analyticsService: AnalyticsService
   ) {}
 
   ngOnInit() {
@@ -99,6 +109,12 @@ export class EditCoachServiceComponent implements OnInit, AfterViewInit {
           }
         });
       }
+
+      this.authService.getAuthUser().subscribe(user => {
+        if (user) {
+          this.userId = user.uid;
+        }
+      });
     }
   }
 
@@ -110,6 +126,8 @@ export class EditCoachServiceComponent implements OnInit, AfterViewInit {
 
   buildServiceForm() {
     this.serviceForm = this.formBuilder.group({
+      id: [null],
+      coachUid: [null],
       title: ['', [Validators.required, Validators.minLength(this.titleMinLength), Validators.maxLength(this.titleMaxLength)]],
       subtitle: ['', [Validators.required, Validators.minLength(this.subTitleMinLength), Validators.maxLength(this.subTitleMaxLength)]],
       duration: ['', [Validators.required]],
@@ -189,7 +207,7 @@ export class EditCoachServiceComponent implements OnInit, AfterViewInit {
     });
   }
 
-  onSubmit() {
+  async onSubmit() {
     console.log('Form is valid?:', this.serviceForm.valid);
     console.log('Form data:', this.serviceForm.value);
 
@@ -244,8 +262,55 @@ export class EditCoachServiceComponent implements OnInit, AfterViewInit {
       return;
     }
 
+    // catch all fallback
+    if (this.serviceForm.invalid) {
+      this.alertService.alert('warning-message', 'Oops', 'Please complete all required fields before saving.');
+      this.saving = false;
+      return;
+    }
+
+    if (!this.userId) {
+      this.alertService.alert('warning-message', 'Oops', 'Error: No user ID. Cannot save data');
+      this.saving = false;
+      return;
+    }
+
     // safety checks all passed
+
+    // Handle image upload to storage if required.
+    if (this.serviceF.image.value && !this.serviceF.image.value.includes(this.storageService.getStorageDomain())) {
+      console.log(`Uploading unstored image to storage...`);
+      const url = await this.storageService.storeServiceImageUpdateDownloadUrl(this.userId, this.serviceF.image.value);
+      console.log(`Image stored successfully. Patching form data download URL: ${url}`);
+      this.serviceForm.patchValue({
+        image: url
+      });
+    }
+
+    // prepare the service object from form data
+    const service = this.serviceForm.value as CoachingService;
+
+    // if this is a new service
+    if (this.isNewService) {
+      if (!service.id) {
+        service.id = Math.random().toString(36).substr(2, 9); // generate semi-random id
+      }
+      if (!service.coachUid) {
+        service.coachUid = this.userId;
+      }
+      this.analyticsService.addNewCoachingService(service.id);
+    }
+
+    // save to DB
+    await this.dataService.saveCoachService(this.userId, service);
+
+    this.alertService.alert('auto-close', 'Success!', 'Service saved.');
+
+    this.analyticsService.updateCoachingService(service.id);
+
     this.saving = false;
+
+    this.router.navigate(['services']);
   }
 
 }
