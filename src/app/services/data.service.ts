@@ -609,4 +609,10 @@ export class DataService {
     .valueChanges({ idField: 'id' }) as Observable<CoachingService[]>;
   }
 
+  getCoachServiceById(uid: string, serviceId: string) {
+    return this.db.collection(`users/${uid}/services`)
+    .doc(serviceId)
+    .valueChanges() as Observable<CoachingService>;
+  }
+
 }

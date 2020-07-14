@@ -1,14 +1,14 @@
 <div class=" content">
 
     <!-- loading -->
-    <div *ngIf="!service && !isNewService" class="text-center">
+    <div *ngIf="(!serviceForm && !isNewService) || loading" class="text-center">
         <div class="spinner-border" role="status">
             <span class="sr-only">Loading...</span>
         </div>
     </div>
 
     <!-- new service -->
-    <div *ngIf="isNewService">
+    <div *ngIf="serviceForm">
         <div class=" row">
             <!-- left col -->
             <div class=" col-md-8">
@@ -266,11 +266,6 @@
             </div>
 
         </div>
-    </div>
-
-    <!-- edit service -->
-    <div *ngIf="service">
-        edit
     </div>
 
 </div>

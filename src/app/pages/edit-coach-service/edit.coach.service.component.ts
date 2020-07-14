@@ -17,11 +17,11 @@ import { AnalyticsService } from 'app/services/analytics.service';
 export class EditCoachServiceComponent implements OnInit, AfterViewInit {
 
   public browser: boolean;
+  public loading: boolean;
 
   private userId: string;
 
   public isNewService: boolean;
-  public service: CoachingService;
 
   public serviceForm: FormGroup;
 
@@ -100,19 +100,10 @@ export class EditCoachServiceComponent implements OnInit, AfterViewInit {
       });
       this.updateLocalPriceLimits();
 
-      if (this.router.url.includes('new')) {
-        this.isNewService = true;
-      } else {
-        this.route.params.subscribe(p => {
-          if (p.id) {
-            console.log(p.id);
-          }
-        });
-      }
-
       this.authService.getAuthUser().subscribe(user => {
         if (user) {
           this.userId = user.uid;
+          this.checkRouteData();
         }
       });
     }
@@ -164,6 +155,44 @@ export class EditCoachServiceComponent implements OnInit, AfterViewInit {
       https://stripe.com/gb/connect/pricing
       NOT USED YET
     */
+  }
+
+  checkRouteData() {
+    if (this.router.url.includes('new')) {
+      this.isNewService = true;
+    } else {
+      this.route.params.subscribe(p => {
+        if (p.id) {
+          this.importCoachingServiceData(p.id);
+        }
+      });
+    }
+  }
+
+  importCoachingServiceData(serviceId: string) {
+    this.loading = true;
+    this.dataService.getCoachServiceById(this.userId, serviceId).subscribe(service => {
+      if (service) {
+        console.log('importing service:', service);
+
+        // patch service data into form data
+        this.serviceForm.patchValue({
+          id: service.id,
+          coachUid: service.coachUid,
+          title: service.title,
+          subtitle: service.subtitle,
+          duration: service.duration,
+          serviceType: service.serviceType,
+          pricingStrategy: service.pricingStrategy,
+          price: service.price,
+          currency: service.currency,
+          image: service.image,
+          description: service.description
+        });
+      }
+
+      this.loading = false;
+    });
   }
 
   get serviceF(): any {
