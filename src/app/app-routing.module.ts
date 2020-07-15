@@ -83,6 +83,11 @@ const routes: Routes = [
     pathMatch: 'full'
   },
   {
+    path: 'coaching-service/:serviceId',
+    loadChildren: () => import('./pages/coaching-service/coaching.service.module').then(m => m.CoachingServiceModule),
+    pathMatch: 'full'
+  },
+  {
     path: '',
     component: AdminLayoutComponent,
     children: [

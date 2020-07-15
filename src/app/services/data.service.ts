@@ -615,4 +615,10 @@ export class DataService {
     .valueChanges() as Observable<CoachingService>;
   }
 
+  getPublicCoachServiceById(serviceId: string) {
+    return this.db.collection(`public-services`)
+    .doc(serviceId)
+    .valueChanges() as Observable<CoachingService>;
+  }
+
 }

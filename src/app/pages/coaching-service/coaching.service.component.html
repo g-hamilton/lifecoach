@@ -1,0 +1,21 @@
+<app-auth-navbar></app-auth-navbar>
+
+<div class=" full-page coaching-service-page">
+    <div class=" content">
+        <div class=" container">
+
+            <!-- loading -->
+            <div *ngIf="!service || loading" class="text-center">
+                <div class="spinner-border" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+
+            <!-- service loaded -->
+            <div *ngIf="service">
+                <p> works! </p>
+            </div>
+        </div>
+
+    </div>
+</div>
