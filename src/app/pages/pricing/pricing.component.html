@@ -30,18 +30,46 @@
       <div class=" content">
           <div class=" container">
               <div class="row justify-content-center text-center">
-                  <div class="col-md-10">
-                  <h2 class="display-3">
-                    Your <span class="text-info">Global</span> Coaching Platform
-                  </h2>
+                  <div class="col-md-6 pt-4 pr-5">
+                    <h2 class="display-3">
+                      Your <span class="text-info">Global</span> Coaching Platform
+                    </h2>
 
-                  <h4>
-                    We don't believe amazing Coaches should be limited by geography. <br>
-                    Lifecoach is an all-in one global coaching platform. 
-                    <a [routerLink]="['/register', 'coach']">Join free today</a> to expand your reach and connect 
-                    with new clients all over the world.
-                  </h4>
-      
+                    <h4>
+                      We don't believe amazing Coaches should be limited by geography. <br><br>
+                      Lifecoach is an all-in one global coaching platform. 
+                      <a [routerLink]="['/register', 'coach']">Join free today</a> to expand your reach and connect 
+                      with new clients all over the world.
+                    </h4>
+                  </div>
+                  <div class="col-md-6">
+                    <!-- video -->
+                    <div>
+                      <vg-player>
+                        <vg-controls>
+                            <vg-play-pause></vg-play-pause>
+                            <vg-playback-button></vg-playback-button>
+                      
+                            <vg-time-display vgProperty="current" vgFormat="mm:ss"></vg-time-display>
+                      
+                            <vg-scrub-bar>
+                                <vg-scrub-bar-current-time></vg-scrub-bar-current-time>
+                                <vg-scrub-bar-buffering-time></vg-scrub-bar-buffering-time>
+                            </vg-scrub-bar>
+                      
+                            <vg-time-display vgProperty="total" vgFormat="mm:ss"></vg-time-display>
+                      
+                            <vg-mute></vg-mute>
+                            <vg-volume></vg-volume>
+                      
+                            <vg-fullscreen></vg-fullscreen>
+                        </vg-controls>
+                      
+                        <video #media [vgMedia]="media" id="singleVideo" preload="auto">
+                            <source src="https://firebasestorage.googleapis.com/v0/b/lifecoach-6ab28.appspot.com/o/platform%2FLifecoach%203.mp4_1594235284?alt=media&token=5bd8c67c-3499-4a9e-84f1-c855dd60f053">
+                        </video>
+                      </vg-player>
+                    </div>
                   </div>
               </div>
           </div>

@@ -94,6 +94,8 @@ import { DiscussionsComponent } from './discussions/discussions.component';
 import { DiscussionComponent } from './discussion/discussion.component';
 import { DiscussionReplyFormComponent } from './discussion-reply-form/discussion-reply-form.component';
 import { CourseMoreComponent } from './course-more/course-more.component';
+import { AdminVideoUploaderComponent } from './admin-video-uploader/admin-video-uploader.component';
+import { AdminVideoUploadTaskComponent } from './admin-video-upload-task/admin-video-upload-task.component';
 
 // Angular calendar: https://github.com/mattlewis92/angular-calendar#getting-started
 import { CalendarModule, DateAdapter } from 'angular-calendar';
@@ -206,7 +208,9 @@ export function momentAdapterFactory() {
     CourseMoreComponent,
     CalendarComponent,
     CalendarHeaderComponent,
-    PersonHistoryTimelineComponent
+    PersonHistoryTimelineComponent,
+    AdminVideoUploaderComponent,
+    AdminVideoUploadTaskComponent
   ],
   exports: [
     TabsModule,
@@ -289,7 +293,9 @@ export function momentAdapterFactory() {
     CalendarModule,
     CalendarComponent,
     CalendarHeaderComponent,
-    PersonHistoryTimelineComponent
+    PersonHistoryTimelineComponent,
+    AdminVideoUploaderComponent,
+    AdminVideoUploadTaskComponent
   ]
 })
 export class ComponentsModule {}

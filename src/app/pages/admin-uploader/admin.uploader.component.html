@@ -1,0 +1,22 @@
+<div class=" content">
+    <!-- Loading spinner -->
+    <div *ngIf="!browser" class="text-center">
+        <div class="spinner-border" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+    <div *ngIf="browser">
+        <div class=" row">
+            <div class=" col">
+                <div class=" card">
+                    <div class=" card-header">
+                        <h5 class=" card-title"> Uploader </h5>
+                    </div>
+                    <div class=" card-body">
+                        <app-admin-video-uploader *ngIf="userId" [uid]="userId"></app-admin-video-uploader>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

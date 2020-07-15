@@ -131,12 +131,31 @@ export const ROUTES: RouteInfo[] = [
     userTypes: ['regular', 'coach', 'admin']
   },
   {
-    path: '/admin-special-ops',
-    title: 'Special Ops',
+    path: '/admin-more',
+    title: 'More',
     rtlTitle: 'التقويم',
-    type: 'link',
-    icontype: 'tim-icons icon-alert-circle-exc',
-    userTypes: ['admin']
+    type: 'sub',
+    icontype: 'fas fa-ellipsis-h',
+    userTypes: ['admin'],
+    isCollapsed: true,
+    children: [
+      {
+        path: 'special-ops',
+        rtlTitle: ' التسعير ',
+        rtlSmallTitle: 'ع ',
+        title: 'Special Ops',
+        type: 'link',
+        smallTitle: 'S'
+      },
+      {
+        path: 'uploader',
+        rtlTitle: 'دعم رتل ',
+        rtlSmallTitle: 'ص',
+        title: 'Uploader',
+        type: 'link',
+        smallTitle: 'U'
+      }
+    ]
   }
   /* Example of child navigation items
   {
