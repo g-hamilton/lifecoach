@@ -4,7 +4,7 @@ export interface CoachingService {
     title: string;
     subtitle: string;
     duration: number;
-    serviceType: 'zoom';
+    serviceType: 'live 1:1';
     pricingStrategy: 'free' | 'paid';
     image: string;
     description: string;
