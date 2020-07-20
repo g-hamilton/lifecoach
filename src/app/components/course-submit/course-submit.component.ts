@@ -94,6 +94,10 @@ export class CourseSubmitComponent implements OnInit, OnChanges {
       this.alertService.alert('warning-message', 'Oops', `Course invalid: No course title`);
       return false;
     }
+    if (!course.pricingStrategy) {
+      this.alertService.alert('warning-message', 'Oops', `Course invalid: Please save your pricing preferences under the Course Options tab.`);
+      return false;
+    }
     if (course.pricingStrategy === 'paid' && !course.currency) {
       this.alertService.alert('warning-message', 'Oops', `Course invalid: No course currency`);
       return false;
@@ -126,11 +130,9 @@ export class CourseSubmitComponent implements OnInit, OnChanges {
       this.alertService.alert('warning-message', 'Oops', `Course invalid: No course public coach photo`);
       return false;
     }
-    console.log('b');
     if (this.sectionsMissingLectures()) {
       return false;
     }
-    console.log('c');
     return true;
   }
 
@@ -152,7 +154,6 @@ export class CourseSubmitComponent implements OnInit, OnChanges {
       this.alertService.alert('info-message', 'Just a second!', `This course is already approved.`);
       return;
     }
-    console.log('a');
 
     // check if course valid
     if (!this.isCourseValid(this.course)) {
