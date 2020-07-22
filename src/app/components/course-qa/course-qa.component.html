@@ -131,6 +131,11 @@ tabindex="-1"
 
                 <div id="related-lecture">
                     <h5> Question on: <strong>{{ lecture?.title }}</strong> </h5>
+
+                    <p *ngIf="course?.disableInstructorSupport" class=" text-warning">
+                        Note: Your Coach is unable to provide direct support at this time but 
+                        your question is public and can still be answered by fellow students.
+                    </p>
                 </div>
 
                 <form [formGroup]="courseQuestionForm">
