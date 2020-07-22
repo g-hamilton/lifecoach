@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID, AfterViewInit } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, AfterViewInit, OnDestroy } from '@angular/core';
 import { Title, Meta, TransferState, makeStateKey } from '@angular/platform-browser';
 import { isPlatformBrowser, isPlatformServer } from '@angular/common';
 
@@ -14,7 +14,7 @@ import { DataService } from 'app/services/data.service';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
-export class HomeComponent implements OnInit, AfterViewInit {
+export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   public browser: boolean;
 
   public newestCoaches: AlgoliaCoachProfile[];
@@ -141,4 +141,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
     return res.hits; // so we can save the state
   }
 
+
+  ngOnDestroy() {
+    if (this.timer != null) {
+      clearInterval(this.timer);
+    }
+  }
 }
