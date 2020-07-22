@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, AfterViewInit } from '@angular/core';
 import { Title, Meta, TransferState, makeStateKey } from '@angular/platform-browser';
 import { isPlatformBrowser, isPlatformServer } from '@angular/common';
 
@@ -14,8 +14,7 @@ import { DataService } from 'app/services/data.service';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
-export class HomeComponent implements OnInit {
-
+export class HomeComponent implements OnInit, AfterViewInit {
   public browser: boolean;
 
   public newestCoaches: AlgoliaCoachProfile[];
@@ -27,6 +26,9 @@ export class HomeComponent implements OnInit {
   public clientCurrency: string;
   public clientCountry: string;
   public rates: any;
+  public timer: any;
+  public wordIndex = 0;
+  public words = ['life', 'Academic', 'Business', 'Career', 'Family', 'Financial', 'Fitness', 'Health', 'Holistic', 'Management', 'Mindset', 'Parenting', 'Productivity', 'Relationship', 'Relocation', 'Retirement', 'Spiritual', 'Sports', 'Transformation', 'Wellness'];
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
@@ -96,6 +98,19 @@ export class HomeComponent implements OnInit {
       this.transferState.remove(STATE_KEY_COURSES);
     }
 
+  }
+
+  ngAfterViewInit(): void {
+    if (this.browser) {
+      this.timer = setInterval(() => {
+        const tempIndex = this.wordIndex + 1;
+        if (this.words[tempIndex] != null) {
+          return this.wordIndex++;
+        } else {
+          return this.wordIndex = 0;
+        }
+      }, 2000);
+    }
   }
 
   async getClientCurrencyAndCountryFromIP() {
