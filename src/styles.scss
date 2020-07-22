@@ -2,526 +2,541 @@
 
 // Importing font-awesome again here (as well as index.html) so we can use font-family: 'FontAwesome' in pseudo elements
 @font-face {
-font-family: 'FontAwesome';
-font-style: normal;
-font-weight: normal;
-src: url("https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.eot?v=4.3.0");
-src: url("https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.eot?#iefix&v=4.3.0") format("embedded-opentype"), url("https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.woff2?v=4.3.0") format("woff2"), url("https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.woff?v=4.3.0") format("woff"), url("https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.ttf?v=4.3.0") format("truetype"), url("https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.svg?v=4.3.0#fontawesomeregular") format("svg");}
+  font-family: 'FontAwesome';
+  font-style: normal;
+  font-weight: normal;
+  src: url("https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.eot?v=4.3.0");
+  src: url("https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.eot?#iefix&v=4.3.0") format("embedded-opentype"), url("https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.woff2?v=4.3.0") format("woff2"), url("https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.woff?v=4.3.0") format("woff"), url("https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.ttf?v=4.3.0") format("truetype"), url("https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.svg?v=4.3.0#fontawesomeregular") format("svg");
+}
 
 // Importing Material core theme
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
 
 .navbar-logo {
-    height: 27px;
+  height: 27px;
 }
 
 // Jumbotrons
 .custom-jumbotron {
 
-    padding: 24px !important;
-    height: 100vh;
+  padding: 24px !important;
+  height: 100vh;
 
-    &:before {
-        position: absolute;
-        content: '';
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, .5);
-    }
+  &:before {
+    position: absolute;
+    content: '';
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, .5);
+  }
 
-    .container {
-        padding: 134px 0 0 0;
-    }
-      
-    h1, .lead {
-        color: #fff;
-    }
+  .container {
+    padding: 134px 0 0 0;
+  }
+
+  h1, .lead {
+    color: #fff;
+  }
 
 }
 
 #hero-bottom-strip {
-    background-color: #1c253b;
-    i {
-        font-size: 1.2rem;
-    }
-    h4 {
-        padding-top: 1rem;
-        text-transform: uppercase;
-        font-weight: 600;
-        color: white;
-    }
+  background-color: #1c253b;
+  width: 100%;
+  margin: auto;
+
+  i {
+    font-size: 1.2rem;
+  }
+
+  h4 {
+    padding-top: 1rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: white;
+  }
 }
 
 .bs-stepper-header {
-    // Stop click navigation on the bs-stepper header. Forces user to use buttons and progress in steps.
-    pointer-events: none !important;
+  // Stop click navigation on the bs-stepper header. Forces user to use buttons and progress in steps.
+  pointer-events: none !important;
 }
 
 .custom-error-label {
-    color: #ec250d !important;
-    display: block;
-    width: 100%;
+  color: #ec250d !important;
+  display: block;
+  width: 100%;
 }
 
 #alert-input-field1, #alert-input-field2 {
-    color: #2b3553 !important;
-    border-color: #2b3553 !important;
+  color: #2b3553 !important;
+  border-color: #2b3553 !important;
 }
 
 // Material Chip Overrides
 .mat-chip.mat-standard-chip {
-    background-color: #00bf9a;
-    color: white;
-    font-weight: 600;
-    .mat-chip-trailing-icon {
-        width: 33px;
-        height: 20px;
-    }
+  background-color: #00bf9a;
+  color: white;
+  font-weight: 600;
+
+  .mat-chip-trailing-icon {
+    width: 33px;
+    height: 20px;
+  }
 }
+
 .mat-form-field-appearance-legacy .mat-form-field-underline {
-    height: 0 !important;
+  height: 0 !important;
 }
 
 .c-btn.disabled {
-    opacity: 0.2;
+  opacity: 0.2;
 }
 
 :host {
-    ::ng-deep {
-        mat-chip {
-            button {
-                padding: 0;
-                background: none;
-                border: 0;
-                svg {
-                  fill: #fff;
-                }
-            }
+  ::ng-deep {
+    mat-chip {
+      button {
+        padding: 0;
+        background: none;
+        border: 0;
+
+        svg {
+          fill: #fff;
         }
+      }
     }
+  }
 }
 
 // Mat Stepper Overrides
 
 .mat-step-header .mat-step-icon {
-    height: 40px;
-    width: 40px;
-    color: #525f7f;
-    background-color: white;
+  height: 40px;
+  width: 40px;
+  color: #525f7f;
+  background-color: white;
 }
+
 .mat-step-header .mat-step-icon-selected {
-    color: white;
-    background-color: #e14eca;
+  color: white;
+  background-color: #e14eca;
 }
 
 .mat-step-header .mat-step-icon-state-edit {
-    background-color: #00bf9a;
+  background-color: #00bf9a;
 }
 
 .mat-step-text-label {
-    color: white;
+  color: white;
 }
 
 .mat-stepper-label-position-bottom .mat-horizontal-stepper-header:not(:first-child)::before, .mat-stepper-label-position-bottom .mat-horizontal-stepper-header:not(:last-child)::after, [dir=rtl] .mat-stepper-label-position-bottom .mat-horizontal-stepper-header:not(:first-child)::after, [dir=rtl] .mat-stepper-label-position-bottom .mat-horizontal-stepper-header:not(:last-child)::before {
-    border-top-width: 2px !important;
-    top: 42px !important;
-    border-top-color: white !important;
+  border-top-width: 2px !important;
+  top: 42px !important;
+  border-top-color: white !important;
 }
 
 .mat-stepper-label-position-bottom .mat-stepper-horizontal-line {
-    border-top-width: 2px !important;
-    top: 42px !important;
-    border-top-color: white !important;
+  border-top-width: 2px !important;
+  top: 42px !important;
+  border-top-color: white !important;
 }
 
 // Text truncate
 .truncate-parent {
-    max-width: 100%;
+  max-width: 100%;
 }
+
 .truncate {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .wizard-container .mat-horizontal-content-container {
-    padding: 0;
+  padding: 0;
 }
 
 // Small devices (landscape phones, 576px and up)
 @media (min-width: 576px) {
-    .custom-jumbotron {
-        height: 200vh;
-        &:before {
-            height: 200%;
-        }
+  .custom-jumbotron {
+    height: 200vh;
+
+    &:before {
+      height: 200%;
     }
-    .custom-jumbotron .container {
-        padding: 204px 0 0 0;
-    }
-    .wizard-container .mat-horizontal-content-container {
-        padding: 0 24px 24px 24px;
-    }
+  }
+  .custom-jumbotron .container {
+    padding: 204px 0 0 0;
+  }
+  .wizard-container .mat-horizontal-content-container {
+    padding: 0 24px 24px 24px;
+  }
 }
 
 // Medium devices (tablets, 768px and up)
-@media (min-width: 768px) { 
-    .custom-jumbotron {
-        height: 120vh;
-        &:before {
-            height: 120%;
-        }
+@media (min-width: 768px) {
+  .custom-jumbotron {
+    height: 120vh;
+
+    &:before {
+      height: 120%;
     }
-    .custom-jumbotron .container {
-        padding: 140px 0 0 0;
-    }
- }
+  }
+  .custom-jumbotron .container {
+    padding: 140px 0 0 0;
+  }
+}
 
 // Large devices (desktops, 992px and up)
 @media (min-width: 992px) {
-    .custom-jumbotron {
-        height: 92vh;
-        &:before {
-            height: 92vh;
-        }
+  .custom-jumbotron {
+    height: 92vh;
+
+    &:before {
+      height: 92vh;
     }
-    .custom-jumbotron .container {
-        padding: 274px 0 0 0;
-    }
-    #hero-bottom-strip {
-        height: 8vh;
-    }
+  }
+  .custom-jumbotron .container {
+    padding: 274px 0 0 0;
+  }
+  #hero-bottom-strip {
+    height: 8vh;
+  }
 }
 
 // Videogular overrides
 
 vg-player {
-    .icon {
-        height: 3.1rem;
-    }
+  .icon {
+    height: 3.1rem;
+  }
 }
 
 .highlight-box {
-    border: 2px solid #2b3553;
-    margin: 1rem !important;
-    padding: 1rem;
-    border-radius: 0.6rem;
+  border: 2px solid #2b3553;
+  margin: 1rem !important;
+  padding: 1rem;
+  border-radius: 0.6rem;
 }
 
 .hide {
-    visibility: hidden !important;
+  visibility: hidden !important;
 }
 
 .show {
-    visibility: visible !important;
+  visibility: visible !important;
 }
 
 .required-star {
-    padding-left: 0.2rem;
-    font-size: 1.2rem;
-    color: #E91E63;
+  padding-left: 0.2rem;
+  font-size: 1.2rem;
+  color: #E91E63;
 }
 
 // STRIPE
 
 .modal.show .modal-dialog.payment-modal-dialogue {
-    -webkit-transform: translate(0, 6%);
-    transform: translate(0, 6%);
+  -webkit-transform: translate(0, 6%);
+  transform: translate(0, 6%);
 }
 
 .modal-body.payment-modal-body {
-    padding: 0 0 16px 0;
+  padding: 0 0 16px 0;
 }
 
 .payment-modal-content {
-    border-radius: 1rem !important;
+  border-radius: 1rem !important;
 }
 
 .ElementsModal--modal {
-    all: initial;
-    box-sizing: border-box;
-    position: fixed;
-    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    opacity: 0;
-    visibility: hidden;
-    transform: scale(1.1);
-    transition: visibility 0s linear 0.25s, opacity 0.25s 0s, transform 0.25s;
-    z-index: 100001 !important;
+  all: initial;
+  box-sizing: border-box;
+  position: fixed;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(1.1);
+  transition: visibility 0s linear 0.25s, opacity 0.25s 0s, transform 0.25s;
+  z-index: 100001 !important;
 }
+
 .ElementsModal--modal-content {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    /* make media query for this :) */
-    transform: translate(-50%, -50%);
-    border-radius: 10px;
-    background: rgb(255, 255, 255);
-    overflow: hidden;
-    width: 385px;
-    border-radius: 0.5rem;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  /* make media query for this :) */
+  transform: translate(-50%, -50%);
+  border-radius: 10px;
+  background: rgb(255, 255, 255);
+  overflow: hidden;
+  width: 385px;
+  border-radius: 0.5rem;
 }
-  
+
 @media screen and (max-width: 600px) {
-    .ElementsModal--modal-content {
-      height: 100vh;
-      width: 100%;
-      border-radius: 0;
-    }
-    .ElementsModal--top {
-      padding-top: 4em;
-    }
-    .ElementsModal--close {
-      padding-top: 4em;
-    }
+  .ElementsModal--modal-content {
+    height: 100vh;
+    width: 100%;
+    border-radius: 0;
+  }
+  .ElementsModal--top {
+    padding-top: 4em;
+  }
+  .ElementsModal--close {
+    padding-top: 4em;
+  }
 }
-  
+
 .ElementsModal--top {
-    display: flex;
-    justify-content: flex-end;
-    position: relative;
+  display: flex;
+  justify-content: flex-end;
+  position: relative;
 }
-  
+
 .ElementsModal--close {
-    background: none;
-    color: inherit;
-    border: none;
-    padding: 0;
-    font: inherit;
-    outline: inherit;
-    color: rgb(255, 255, 255);
-    cursor: pointer;
-    position: absolute;
-    top: 0;
-    right: 0;
-    border: none;
+  background: none;
+  color: inherit;
+  border: none;
+  padding: 0;
+  font: inherit;
+  outline: inherit;
+  color: rgb(255, 255, 255);
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  right: 0;
+  border: none;
 }
-  
+
 .ElementsModal--show-modal {
-    opacity: 1;
-    visibility: visible;
-    transform: scale(1);
-    transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
+  opacity: 1;
+  visibility: visible;
+  transform: scale(1);
+  transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
 }
-  
+
 .ElementsModal--details {
-    margin-bottom: 2px;
+  margin-bottom: 2px;
 }
-  
+
 .ElementsModal--price {
-    color: rgb(255, 255, 255);
-    font-size: 36px;
-    font-weight: 600;
+  color: rgb(255, 255, 255);
+  font-size: 36px;
+  font-weight: 600;
 }
 
 .ElementsModal--top-banner {
-    background-color: black;
-    text-align: center;
-    background: rgb(0, 0, 0);
-    padding: 1em;
-    padding-top: 20px;
-    padding-bottom: 2em;
-    border-radius: 1rem 1rem 0 0;
-    background-position: center;
-    background-size: cover;
+  background-color: black;
+  text-align: center;
+  background: rgb(0, 0, 0);
+  padding: 1em;
+  padding-top: 20px;
+  padding-bottom: 2em;
+  border-radius: 1rem 1rem 0 0;
+  background-position: center;
+  background-size: cover;
 }
 
 .ElementsModal--top-banner-overlay {
-    position: relative;
+  position: relative;
 }
-  
+
 .ElementsModal--top-banner-overlay:after {
-    position: absolute;
-    content:"";
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    border-radius: 1rem 1rem 0 0;
-    background: rgba(0, 0, 0, 0.8);
+  position: absolute;
+  content: "";
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 1rem 1rem 0 0;
+  background: rgba(0, 0, 0, 0.8);
 }
 
 .ElementsModal--sales-info {
-    position: relative;
-    z-index: 9999;
+  position: relative;
+  z-index: 9999;
 }
 
 .ElementsModal--email {
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 16px;
-    font-weight: 500;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 16px;
+  font-weight: 500;
 }
 
 .ElementsModal--product {
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 16px;
-    font-weight: 500;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 16px;
+  font-weight: 500;
 }
 
 .ElementsModal--company {
-    color: rgb(255, 255, 255);
-    font-size: 18px;
-    font-weight: bold;
-    margin: auto;
-    margin-bottom: 32px;
+  color: rgb(255, 255, 255);
+  font-size: 18px;
+  font-weight: bold;
+  margin: auto;
+  margin-bottom: 32px;
 }
-  
+
 .ElementsModal--footer-text {
-    color: rgba(0, 0, 0, 0.4);
-    font-size: 12px;
-    font-weight: normal;
-    text-align: center;
-    line-height: 16px;
+  color: rgba(0, 0, 0, 0.4);
+  font-size: 12px;
+  font-weight: normal;
+  text-align: center;
+  line-height: 16px;
 }
-  
+
 .ElementsModal--error-message {
-    margin-top: 5px;
-    color: rgb(220, 39, 39);
-    font-size: 13px;
-    line-height: 17px;
+  margin-top: 5px;
+  color: rgb(220, 39, 39);
+  font-size: 13px;
+  line-height: 17px;
 }
-  
+
 .ElementsModal--pay-button-wrapper {
-    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-    margin: 25px;
-    width: 350px;
-    height: 40px;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  margin: 25px;
+  width: 350px;
+  height: 40px;
 }
-  
+
 .ElementsModal--pay-button {
-    cursor: pointer;
-    border: 0;
-    width: 100%;
-    text-align: center;
-    height: 40px;
-    box-shadow: inset 0 0 0 1px rgba(50, 50, 93, 0.1),
-      0 2px 5px 0 rgba(50, 50, 93, 0.1), 0 1px 1px 0 rgba(0, 0, 0, 0.07);
-    border-radius: 6px 6px 6px 6px;
-    font-size: 16px;
-    font-weight: 600;
-  
-    background-color: rgb(0, 116, 212);
-    color: rgb(255, 255, 255);
+  cursor: pointer;
+  border: 0;
+  width: 100%;
+  text-align: center;
+  height: 40px;
+  box-shadow: inset 0 0 0 1px rgba(50, 50, 93, 0.1),
+  0 2px 5px 0 rgba(50, 50, 93, 0.1), 0 1px 1px 0 rgba(0, 0, 0, 0.07);
+  border-radius: 6px 6px 6px 6px;
+  font-size: 16px;
+  font-weight: 600;
+
+  background-color: rgb(0, 116, 212);
+  color: rgb(255, 255, 255);
 }
-  
+
 .ElementsModal--pay-button:focus {
-    outline: none;
-    box-shadow: 0 0 0 1px rgba(50, 151, 211, 0.3), 0 1px 1px 0 rgba(0, 0, 0, 0.07),
-      0 0 0 4px rgba(50, 151, 211, 0.3);
+  outline: none;
+  box-shadow: 0 0 0 1px rgba(50, 151, 211, 0.3), 0 1px 1px 0 rgba(0, 0, 0, 0.07),
+  0 0 0 4px rgba(50, 151, 211, 0.3);
 }
-  
+
 .ElementsModal--dropdowns {
-    margin: 10px;
-    -webkit-appearance: none;
-    background: rgb(255, 255, 255);
-    box-shadow: 0px 0px 0px 1px rgb(224, 224, 224),
-      0px 2px 4px 0px rgba(0, 0, 0, 0.07), 0px 1px 1.5px 0px rgba(0, 0, 0, 0.05);
-    border-radius: 4px 4px 4px 4px;
+  margin: 10px;
+  -webkit-appearance: none;
+  background: rgb(255, 255, 255);
+  box-shadow: 0px 0px 0px 1px rgb(224, 224, 224),
+  0px 2px 4px 0px rgba(0, 0, 0, 0.07), 0px 1px 1.5px 0px rgba(0, 0, 0, 0.05);
+  border-radius: 4px 4px 4px 4px;
 }
-  
-  /* Form */
-  
-  .ElementsModal--payment-form {
-    margin-bottom: 0;
-  }
-  
-  .ElementsModal--label {
-    color: rgba(0, 0, 0, 0.6);
-    font-size: 14px;
-    font-weight: 500;
-  }
-  
-  .ElementsModal--forms {
-    padding: 5% 0 0 0;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  
-  .ElementsModal--form {
-    margin-bottom: 14px;
-    label {
-        display: block;
-    }
-  }
-  
-  .ElementsModal--form-label {
-    font-size: 13px;
-    margin-bottom: 4px;
+
+/* Form */
+
+.ElementsModal--payment-form {
+  margin-bottom: 0;
+}
+
+.ElementsModal--label {
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.ElementsModal--forms {
+  padding: 5% 0 0 0;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.ElementsModal--form {
+  margin-bottom: 14px;
+
+  label {
     display: block;
-    color: rgba(0, 0, 0, 0.6);
   }
-  
-  .ElementsModal--form-select select {
-    padding: 10px 12px;
-    width: 100%;
-    border: 1px solid transparent;
-    outline: none;
-    box-shadow: 0px 0px 0px 1px rgb(224, 224, 224),
-      0px 2px 4px 0px rgba(0, 0, 0, 0.07), 0px 1px 1.5px 0px rgba(0, 0, 0, 0.05);
-    -webkit-transition: box-shadow 150ms ease;
-    transition: box-shadow 150ms ease;
-    border-radius: 5px 5px 5px 5px;
-  
-    background-color: white;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10.193 3.97a.75.75 0 0 1 1.062 1.062L6.53 9.756a.75.75 0 0 1-1.06 0L.745 5.032A.75.75 0 0 1 1.807 3.97L6 8.163l4.193-4.193z' fill='%23000' fill-rule='evenodd' fill-opacity='.4'/%3E%3C/svg%3E");
-    background-size: 12px;
-    background-position: calc(100% - 16px) center;
-    background-repeat: no-repeat;
-    color: rgb(40, 40, 40);
-    font-size: 16px;
-    font-weight: normal;
-  }
-  
-  .ElementsModal--form-select select:-moz-focusring {
-    color: transparent;
-    text-shadow: 0 0 0 rgb(0, 0, 0);
-  }
-  
-  .ElementsModal--form-select select:focus {
-    box-shadow: 0 0 0 1px rgba(50, 151, 211, 0.3), 0 1px 1px 0 rgba(0, 0, 0, 0.07),
-      0 0 0 4px rgba(50, 151, 211, 0.3);
-  }
-  
-  .ElementsModal--form-select select::-ms-expand {
-    display: none; /* hide the default arrow in ie10 and ie11 */
-  }
-  
-  .StripeElement {
-    box-sizing: border-box;
-    height: 40px;
-    padding: 10px 12px;
-    border: 1px solid transparent;
-    border-radius: 5px 5px 5px 5px;
-    background-color: white;
-  
-    box-shadow: 0px 0px 0px 1px rgb(224, 224, 224),
-      0px 2px 4px 0px rgba(0, 0, 0, 0.07), 0px 1px 1.5px 0px rgba(0, 0, 0, 0.05);
-    -webkit-transition: box-shadow 150ms ease;
-    transition: box-shadow 150ms ease;
-  }
-  
-  .StripeElement--focus {
-    box-shadow: 0 1px 3px 0 rgb(207, 215, 223);
-  }
-  
-  .StripeElement--invalid {
-    border-color: rgb(239, 152, 150);
-  }
-  
-  .StripeElement--webkit-autofill {
-    background-color: rgb(254, 253, 229) !important;
-  }
+}
+
+.ElementsModal--form-label {
+  font-size: 13px;
+  margin-bottom: 4px;
+  display: block;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.ElementsModal--form-select select {
+  padding: 10px 12px;
+  width: 100%;
+  border: 1px solid transparent;
+  outline: none;
+  box-shadow: 0px 0px 0px 1px rgb(224, 224, 224),
+  0px 2px 4px 0px rgba(0, 0, 0, 0.07), 0px 1px 1.5px 0px rgba(0, 0, 0, 0.05);
+  -webkit-transition: box-shadow 150ms ease;
+  transition: box-shadow 150ms ease;
+  border-radius: 5px 5px 5px 5px;
+
+  background-color: white;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10.193 3.97a.75.75 0 0 1 1.062 1.062L6.53 9.756a.75.75 0 0 1-1.06 0L.745 5.032A.75.75 0 0 1 1.807 3.97L6 8.163l4.193-4.193z' fill='%23000' fill-rule='evenodd' fill-opacity='.4'/%3E%3C/svg%3E");
+  background-size: 12px;
+  background-position: calc(100% - 16px) center;
+  background-repeat: no-repeat;
+  color: rgb(40, 40, 40);
+  font-size: 16px;
+  font-weight: normal;
+}
+
+.ElementsModal--form-select select:-moz-focusring {
+  color: transparent;
+  text-shadow: 0 0 0 rgb(0, 0, 0);
+}
+
+.ElementsModal--form-select select:focus {
+  box-shadow: 0 0 0 1px rgba(50, 151, 211, 0.3), 0 1px 1px 0 rgba(0, 0, 0, 0.07),
+  0 0 0 4px rgba(50, 151, 211, 0.3);
+}
+
+.ElementsModal--form-select select::-ms-expand {
+  display: none; /* hide the default arrow in ie10 and ie11 */
+}
+
+.StripeElement {
+  box-sizing: border-box;
+  height: 40px;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  border-radius: 5px 5px 5px 5px;
+  background-color: white;
+
+  box-shadow: 0px 0px 0px 1px rgb(224, 224, 224),
+  0px 2px 4px 0px rgba(0, 0, 0, 0.07), 0px 1px 1.5px 0px rgba(0, 0, 0, 0.05);
+  -webkit-transition: box-shadow 150ms ease;
+  transition: box-shadow 150ms ease;
+}
+
+.StripeElement--focus {
+  box-shadow: 0 1px 3px 0 rgb(207, 215, 223);
+}
+
+.StripeElement--invalid {
+  border-color: rgb(239, 152, 150);
+}
+
+.StripeElement--webkit-autofill {
+  background-color: rgb(254, 253, 229) !important;
+}
 
 // Cross browser select options fix (when select open avoid white on white)
 select option {
-    color: black !important;
+  color: black !important;
 }
