@@ -6,7 +6,7 @@
       <div class=" row">
 
         <!-- Coach account type promo -->
-        <div *ngIf="userType === 'coach'" class=" col-md-5 ml-auto">
+        <div *ngIf="registerF?.accountType?.value === 'coach'" class=" col-md-5 ml-auto">
           <div class=" info-area info-horizontal mt-5">
             <div class=" icon icon-success">
               <i class=" tim-icons icon-triangle-right-17"> </i>
@@ -43,41 +43,115 @@
         </div>
 
         <!-- Regular account type promo -->
-        <div *ngIf="userType === 'regular'" class=" col-md-5 ml-auto">
-            <div class=" info-area info-horizontal mt-5">
-              <div class=" icon icon-success">
-                <i class=" tim-icons icon-triangle-right-17"> </i>
-              </div>
-              <div class=" description">
-                <h3 class=" info-title"> Join FREE </h3>
-                <p class=" description">
-                  Joining is 100% free and takes only seconds.
-                </p>
-              </div>
+        <div *ngIf="registerF?.accountType?.value === 'regular'" class=" col-md-5 ml-auto">
+          <div class=" info-area info-horizontal mt-5">
+            <div class=" icon icon-success">
+              <i class=" tim-icons icon-triangle-right-17"> </i>
             </div>
-            <div class=" info-area info-horizontal">
-              <div class=" icon icon-primary">
-                <i class=" tim-icons icon-single-02"> </i>
-              </div>
-              <div class=" description">
-                <h3 class=" info-title"> Access Top Coaches </h3>
-                <p class=" description">
-                  Connect with leading life coaches from around the world.
-                </p>
-              </div>
-            </div>
-            <div class=" info-area info-horizontal">
-              <div class=" icon icon-info">
-                <i class=" tim-icons icon-chart-bar-32"> </i>
-              </div>
-              <div class=" description">
-                <h3 class=" info-title"> Grow </h3>
-                <p class=" description">
-                  Get the coaching you need to reach your next life goal. Delivered in a way that suits you.
-                </p>
-              </div>
+            <div class=" description">
+              <h3 class=" info-title"> Join FREE </h3>
+              <p class=" description">
+                Joining is 100% free and takes only seconds.
+              </p>
             </div>
           </div>
+          <div class=" info-area info-horizontal">
+            <div class=" icon icon-primary">
+              <i class=" tim-icons icon-single-02"> </i>
+            </div>
+            <div class=" description">
+              <h3 class=" info-title"> Access Top Coaches </h3>
+              <p class=" description">
+                Connect with leading life coaches from around the world.
+              </p>
+            </div>
+          </div>
+          <div class=" info-area info-horizontal">
+            <div class=" icon icon-info">
+              <i class=" tim-icons icon-chart-bar-32"> </i>
+            </div>
+            <div class=" description">
+              <h3 class=" info-title"> Grow </h3>
+              <p class=" description">
+                Get the coaching you need to reach your next life goal. Delivered in a way that suits you.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Publisher account type promo -->
+        <div *ngIf="registerF?.accountType?.value === 'publisher'" class=" col-md-5 ml-auto">
+          <div class=" info-area info-horizontal mt-5">
+            <div class=" icon icon-success">
+              <i class=" tim-icons icon-triangle-right-17"> </i>
+            </div>
+            <div class=" description">
+              <h3 class=" info-title"> Join FREE </h3>
+              <p class=" description">
+                Joining is 100% free and takes only seconds.
+              </p>
+            </div>
+          </div>
+          <div class=" info-area info-horizontal">
+            <div class=" icon icon-primary">
+              <i class=" tim-icons icon-single-02"> </i>
+            </div>
+            <div class=" description">
+              <h3 class=" info-title"> Access Top Coaches </h3>
+              <p class=" description">
+                Connect with leading life coaches from around the world.
+              </p>
+            </div>
+          </div>
+          <div class=" info-area info-horizontal">
+            <div class=" icon icon-info">
+              <i class=" tim-icons icon-chart-bar-32"> </i>
+            </div>
+            <div class=" description">
+              <h3 class=" info-title"> Grow </h3>
+              <p class=" description">
+                Get the coaching you need to reach your next life goal. Delivered in a way that suits you.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Provider account type promo -->
+        <div *ngIf="registerF?.accountType?.value === 'provider'" class=" col-md-5 ml-auto">
+          <div class=" info-area info-horizontal mt-5">
+            <div class=" icon icon-success">
+              <i class=" tim-icons icon-triangle-right-17"> </i>
+            </div>
+            <div class=" description">
+              <h3 class=" info-title"> Join FREE </h3>
+              <p class=" description">
+                Joining is 100% free and takes only seconds.
+              </p>
+            </div>
+          </div>
+          <div class=" info-area info-horizontal">
+            <div class=" icon icon-primary">
+              <i class=" tim-icons icon-single-02"> </i>
+            </div>
+            <div class=" description">
+              <h3 class=" info-title"> Access Top Coaches </h3>
+              <p class=" description">
+                Connect with leading life coaches from around the world.
+              </p>
+            </div>
+          </div>
+          <div class=" info-area info-horizontal">
+            <div class=" icon icon-info">
+              <i class=" tim-icons icon-chart-bar-32"> </i>
+            </div>
+            <div class=" description">
+              <h3 class=" info-title"> Grow </h3>
+              <p class=" description">
+                Get the coaching you need to reach your next life goal. Delivered in a way that suits you.
+              </p>
+            </div>
+          </div>
+        </div>
 
         <!-- Signup Card -->
         <div class=" col-md-7 mr-auto">
@@ -174,72 +248,97 @@
                   </div>
                 </div>
 
-                <!-- Email -->
-                <div
-                  class=" input-group"
-                  [ngClass]="{
-                    'has-danger':
-                      ((focusTouched1 || register) && registerF.email.errors) ||
-                      (registerF.email.value != '' && registerF.email.errors),
-                    'has-success': registerF.email.value != '' && !registerF.email.errors
-                  }"
-                >
-                  <div class=" input-group-prepend">
-                    <div class=" input-group-text">
-                      <i class=" tim-icons icon-email-85"> </i>
+                <div class=" row">
+                  <!-- Email -->
+                  <div class=" col-sm-12 col-md-6">
+                    <div
+                    class=" input-group"
+                    [ngClass]="{
+                      'has-danger':
+                        ((focusTouched1 || register) && registerF.email.errors) ||
+                        (registerF.email.value != '' && registerF.email.errors),
+                      'has-success': registerF.email.value != '' && !registerF.email.errors
+                    }"
+                    >
+                      <div class=" input-group-prepend">
+                        <div class=" input-group-text">
+                          <i class=" tim-icons icon-email-85"> </i>
+                        </div>
+                      </div>
+                      <input
+                        class=" form-control"
+                        name="email"
+                        formControlName="email"
+                        placeholder="Email"
+                        type="email"
+                        (focus)="focusTouched1 = true"
+                        required=""
+                      />
+                      <label
+                      class="error custom-error-label"
+                      *ngIf="
+                        ((focusTouched1 || register) && registerF.email.errors) ||
+                        (registerF.email.value != '' && registerF.email.errors)
+                      "
+                      > We will never share your email address without your permission.
+                      </label>
                     </div>
                   </div>
-                  <input
-                    class=" form-control"
-                    name="email"
-                    formControlName="email"
-                    placeholder="Email"
-                    type="email"
-                    (focus)="focusTouched1 = true"
-                    required=""
-                  />
-                  <label
-                  class="error custom-error-label"
-                  *ngIf="
-                    ((focusTouched1 || register) && registerF.email.errors) ||
-                    (registerF.email.value != '' && registerF.email.errors)
-                  "
-                  > We will never share your email address without your permission.
-                  </label>
+
+                  <!-- Create Password -->
+                  <div class=" col-sm-12 col-md-6">
+                    <div
+                    class=" input-group"
+                    [ngClass]="{
+                      'has-danger':
+                        ((focusTouched2 || register) && registerF.password.errors) ||
+                        (registerF.password.value != '' && registerF.password.errors),
+                      'has-success': registerF.password.value != '' && !registerF.password.errors
+                    }"
+                    >
+                      <div class=" input-group-prepend">
+                        <div class=" input-group-text">
+                          <i class=" tim-icons icon-lock-circle"> </i>
+                        </div>
+                      </div>
+                      <input
+                        class=" form-control"
+                        name="password"
+                        formControlName="password"
+                        placeholder="Create Password"
+                        type="password"
+                        (focus)="focusTouched2 = true"
+                        required=""
+                      />
+                      <label
+                      class="error custom-error-label"
+                      *ngIf="
+                        ((focusTouched2 || register) && registerF.password.errors) ||
+                        (registerF.password.value != '' && registerF.password.errors)
+                      "
+                      > Password must be at least 6 characters.
+                      </label>
+                    </div>
+                  </div>
                 </div>
 
-                <!-- Create Password -->
-                <div
-                  class=" input-group"
-                  [ngClass]="{
-                    'has-danger':
-                      ((focusTouched2 || register) && registerF.password.errors) ||
-                      (registerF.password.value != '' && registerF.password.errors),
-                    'has-success': registerF.password.value != '' && !registerF.password.errors
-                  }"
-                >
-                  <div class=" input-group-prepend">
-                    <div class=" input-group-text">
-                      <i class=" tim-icons icon-lock-circle"> </i>
-                    </div>
-                  </div>
-                  <input
-                    class=" form-control"
-                    name="password"
-                    formControlName="password"
-                    placeholder="Create Password"
-                    type="password"
-                    (focus)="focusTouched2 = true"
-                    required=""
-                  />
-                  <label
-                  class="error custom-error-label"
-                  *ngIf="
-                    ((focusTouched2 || register) && registerF.password.errors) ||
-                    (registerF.password.value != '' && registerF.password.errors)
-                  "
-                  > Password must be at least 6 characters.
-                </label>
+                <!-- user type -->
+                <div class="form-group">
+                  <select class="form-control" formControlName="accountType">
+                    <option [ngValue]="null"> Select... </option>
+                    <option value='coach'>
+                      I am a Coach, looking to help others progress
+                    </option>
+                    <option value='regular'>
+                      I am looking for coaching to help me progress
+                    </option>
+                    <option value='publisher'>
+                      I am a Publisher, looking to promote coaching to others
+                    </option>
+                    <option value='provider'>
+                      I am a Services Provider, offering services to support Coaches
+                    </option>
+                  </select>
                 </div>
 
                 <!-- Terms & Conditions -->

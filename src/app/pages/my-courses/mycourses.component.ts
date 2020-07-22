@@ -19,7 +19,7 @@ export class MyCoursesComponent implements OnInit {
     public browser: boolean;
     private userId: string;
     public account: UserAccount;
-    public accountType: 'regular' | 'coach' | 'admin';
+    public accountType: 'regular' | 'coach' | 'publisher' | 'provider' | 'admin';
     public purchasedCourses = [] as CoachingCourse[]; // purchased courses as buyer
     public publishedCourses: CoachingCourse[]; // courses created as coach seller
     public currencies: any;
