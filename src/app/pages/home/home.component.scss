@@ -3,70 +3,73 @@
     margin-bottom: 0;
 }
 
-#coach-rotator:before {
-    content: 'Life';
-    animation: animate infinite 40s;
+.green-word {
     color: #00f2c3;
 }
-@keyframes animate {
-    5% {
-        content: 'Academic';
-    }
-    10% {
-        content: 'Business';
-    }
-    15% {
-        content: 'Career';
-    }
-    20% {
-        content: 'Family';
-    }
-    25% {
-        content: 'Financial';
-    }
-    30% {
-        content: 'Fitness';
-    }
-    35% {
-        content: 'Health';
-    }
-    40% {
-        content: 'Holistic';
-    }
-    45% {
-        content: 'Management';
-    }
-    50% {
-        content: 'Mindset';
-    }
-    55% {
-        content: 'Parenting';
-    }
-    60% {
-        content: 'Productivity';
-    }
-    65% {
-        content: 'Relationship';
-    }
-    70% {
-        content: 'Relocation';
-    }
-    75% {
-        content: 'Retirement';
-    }
-    80% {
-        content: 'Spiritual';
-    }
-    85% {
-        content: 'Sports';
-    }
-    90% {
-        content: 'Transformation';
-    }
-    95% {
-        content: 'Wellness';
-    }
-}
+//#coach-rotator:before {
+//    content: 'Life';
+//    animation: animate infinite 40s;
+//    color: #00f2c3;
+//}
+//@keyframes animate {
+//    5% {
+//        content: 'Academic';
+//    }
+//    10% {
+//        content: 'Business';
+//    }
+//    15% {
+//        content: 'Career';
+//    }
+//    20% {
+//        content: 'Family';
+//    }
+//    25% {
+//        content: 'Financial';
+//    }
+//    30% {
+//        content: 'Fitness';
+//    }
+//    35% {
+//        content: 'Health';
+//    }
+//    40% {
+//        content: 'Holistic';
+//    }
+//    45% {
+//        content: 'Management';
+//    }
+//    50% {
+//        content: 'Mindset';
+//    }
+//    55% {
+//        content: 'Parenting';
+//    }
+//    60% {
+//        content: 'Productivity';
+//    }
+//    65% {
+//        content: 'Relationship';
+//    }
+//    70% {
+//        content: 'Relocation';
+//    }
+//    75% {
+//        content: 'Retirement';
+//    }
+//    80% {
+//        content: 'Spiritual';
+//    }
+//    85% {
+//        content: 'Sports';
+//    }
+//    90% {
+//        content: 'Transformation';
+//    }
+//    95% {
+//        content: 'Wellness';
+//    }
+//}
 
 #hero-search {
     input {

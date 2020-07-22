@@ -120,6 +120,11 @@
 .btn-danger {
   @include btn-styles($danger, $danger-states);
 }
+
+.btn-remove {
+  margin-left: 0!important;
+}
+
 .btn-neutral {
   @include btn-styles($white, $white);
 }
