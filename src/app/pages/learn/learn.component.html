@@ -9,7 +9,7 @@
                 <span class="sr-only">Loading...</span>
             </div>
         </div>
-    
+
         <!-- browser -->
         <div *ngIf="browser">
             <div class=" row">
@@ -24,16 +24,16 @@
                         <vg-controls>
                             <vg-play-pause></vg-play-pause>
                             <vg-playback-button></vg-playback-button>
-                        
+
                             <vg-time-display vgProperty="current" vgFormat="mm:ss"></vg-time-display>
-                        
+
                             <vg-scrub-bar>
                                 <vg-scrub-bar-current-time></vg-scrub-bar-current-time>
                                 <vg-scrub-bar-buffering-time></vg-scrub-bar-buffering-time>
                             </vg-scrub-bar>
-                        
+
                             <vg-time-display vgProperty="total" vgFormat="mm:ss"></vg-time-display>
-                        
+
                             <vg-mute></vg-mute>
                             <vg-volume></vg-volume>
 
@@ -43,10 +43,10 @@
                                 style="margin-left: 1rem; margin-top: 1.1rem; font-size: 1rem;">
                                 </i>
                             </div>
-                        
+
                             <vg-fullscreen></vg-fullscreen>
                         </vg-controls>
-                        
+
                         <video #media [vgMedia]="media" id="courseVideo" preload="auto" autoplay="true">
                             <source *ngFor="let video of videoSources" [src]="video">
                         </video>
@@ -240,7 +240,7 @@
             </div>
         </div>
         <!-- end browser -->
-        
+
     </div>
 </div>
 
@@ -268,12 +268,12 @@ tabindex="-1"
                     Bookmark this point in the lecture for quick reference later.
                 </p>
 
-                <form [formGroup]="bookmarkForm">
+                <form *ngIf="browser" [formGroup]="bookmarkForm">
                     <div class="form-group">
                         <label for="note"> Note (optional) </label>
                         <textarea
-                            class="form-control" 
-                            id="note" rows="3" 
+                            class="form-control"
+                            id="note" rows="3"
                             formControlName="note"
                             placeholder="Save an optional note with this bookmark..."
                         ></textarea>
