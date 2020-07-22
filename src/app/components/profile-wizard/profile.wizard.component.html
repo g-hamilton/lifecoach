@@ -410,6 +410,13 @@
                             {{ group3.goalTags.value.controls[i].value.length + '/' + goalTagMaxLength }}
                         </span>
                         </div>
+                      <div class=" d-inline">
+                        <i
+                            class="far fa-trash-alt text-danger ml-3 mt-3"
+                            tooltip="Delete this specialist area"
+                            (click)="removeGoalTag(i)">
+                        </i>
+                      </div>
                     </div>
                     <div *ngIf="((group3.goalTags.value.controls[i].touched || saving) && 
                         group3.goalTags.value.controls[i].errors) ||
