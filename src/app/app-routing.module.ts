@@ -5,7 +5,7 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { AuthGuardService as AuthGuard } from './services/auth-guard.service';
 import { AdminAuthGuardService as AdminAuthGuard } from './services/admin-auth-guard.service';
-import { PaywallAuthGuardService as PaywallAuthGuard } from './services/paywall-auth-guard.service';
+// import { PaywallAuthGuardService as PaywallAuthGuard } from './services/paywall-auth-guard.service';
 
 import { AdminLayoutComponent } from './layouts/admin-layout/admin-layout.component';
 
@@ -73,13 +73,13 @@ const routes: Routes = [
   {
     path: 'course/:courseId/learn',
     loadChildren: () => import('./pages/learn/learn.module').then(m => m.LearnModule),
-    canActivate: [PaywallAuthGuard],
+    // canActivate: [PaywallAuthGuard],
     pathMatch: 'full'
   },
   {
     path: 'course/:courseId/learn/lecture/:lectureId',
     loadChildren: () => import('./pages/learn/learn.module').then(m => m.LearnModule),
-    canActivate: [PaywallAuthGuard],
+    // canActivate: [PaywallAuthGuard],
     pathMatch: 'full'
   },
   {
