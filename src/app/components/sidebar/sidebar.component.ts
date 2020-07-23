@@ -42,22 +42,22 @@ export const ROUTES: RouteInfo[] = [
     rtlTitle: 'لوحة القيادة',
     userTypes: ['regular', 'coach', 'publisher', 'provider', 'admin']
   },
-  {
-    path: '/calendar',
-    title: 'Calendar',
-    type: 'link',
-    icontype: 'tim-icons icon-calendar-60',
-    rtlTitle: 'لوحة القيادة',
-    userTypes: ['coach']
-  },
-  {
-    path: '/people',
-    title: 'People',
-    type: 'link',
-    icontype: 'tim-icons icon-single-02',
-    rtlTitle: 'لوحة القيادة',
-    userTypes: ['coach']
-  },
+  // {
+  //   path: '/calendar',
+  //   title: 'Calendar',
+  //   type: 'link',
+  //   icontype: 'tim-icons icon-calendar-60',
+  //   rtlTitle: 'لوحة القيادة',
+  //   userTypes: ['coach']
+  // },
+  // {
+  //   path: '/people',
+  //   title: 'People',
+  //   type: 'link',
+  //   icontype: 'tim-icons icon-single-02',
+  //   rtlTitle: 'لوحة القيادة',
+  //   userTypes: ['coach']
+  // },
   {
     path: '/messages',
     title: 'Messages',
@@ -74,14 +74,14 @@ export const ROUTES: RouteInfo[] = [
     icontype: 'tim-icons icon-badge',
     userTypes: ['regular', 'coach']
   },
-  {
-    path: '/services',
-    title: 'Services',
-    type: 'link',
-    icontype: 'tim-icons icon-bullet-list-67',
-    rtlTitle: 'لوحة القيادة',
-    userTypes: ['coach']
-  },
+  // {
+  //   path: '/services',
+  //   title: 'Services',
+  //   type: 'link',
+  //   icontype: 'tim-icons icon-bullet-list-67',
+  //   rtlTitle: 'لوحة القيادة',
+  //   userTypes: ['coach']
+  // },
   {
     path: '/my-courses',
     title: 'Courses',
