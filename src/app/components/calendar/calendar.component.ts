@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { CalendarView } from 'angular-calendar';
 import { Subject } from 'rxjs';
 import { ModalDirective } from 'ngx-bootstrap/modal';
@@ -7,12 +7,15 @@ import { CustomCalendarEvent } from '../../interfaces/custom.calendar.event.inte
 import { DataService } from 'app/services/data.service';
 import { AuthService } from 'app/services/auth.service';
 
+declare var JitsiMeetExternalAPI: any;
+
 @Component({
   selector: 'app-calendar',
   templateUrl: './calendar.component.html',
   styleUrls: ['./calendar.component.scss']
 })
-export class CalendarComponent implements OnInit {
+
+export class CalendarComponent implements OnInit, AfterViewInit {
 
   @ViewChild('eventDetailModal', { static: false }) public eventDetailModal: ModalDirective;
   @ViewChild('editEventModal', { static: false }) public editEventModal: ModalDirective;
@@ -30,6 +33,11 @@ export class CalendarComponent implements OnInit {
 
   public events: CustomCalendarEvent[];
 
+  // video conferencing
+  private meetingDomain = 'live.lifecoach.io';
+  private meetingOptions: any;
+  private meetingApi: any;
+
   constructor(
     private authService: AuthService,
     public formBuilder: FormBuilder,
@@ -39,6 +47,33 @@ export class CalendarComponent implements OnInit {
   ngOnInit() {
     this.buildActiveEventForm();
     this.loadUserData();
+  }
+
+  ngAfterViewInit() {
+    this.initJitsiMeet();
+  }
+
+  initJitsiMeet() {
+    // https://jitsi.github.io/handbook/docs/dev-guide/dev-guide-iframe
+
+    this.meetingOptions = {
+      roomName: 'nkbfjksbfksdbfjsbfksb',
+      width: 700,
+      height: 700,
+      parentNode: document.querySelector('#meet'),
+      // interfaceConfigOverwrite: {
+      //   APP_NAME: 'Lifecoach',
+      //   NATIVE_APP_NAME: 'Lifecoach',
+      //   SHOW_JITSI_WATERMARK: false,
+      //   SHOW_PROMOTIONAL_CLOSE_PAGE: false,
+      //   BRAND_WATERMARK_LINK: 'https://lifecoach.io',
+      //   DEFAULT_LOGO_URL: 'https://lifecoach.io/assets/img/lifecoach-logo-dark-monotone.svg',
+      //   AUDIO_LEVEL_PRIMARY_COLOR: 'rgba(255,255,255,0.4)',
+      //   AUDIO_LEVEL_SECONDARY_COLOR: 'rgba(255,255,255,0.2)',
+      //   MOBILE_APP_PROMO: false,
+      // },
+    };
+    this.meetingApi = new JitsiMeetExternalAPI(this.meetingDomain, this.meetingOptions);
   }
 
   buildActiveEventForm() {
