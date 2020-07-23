@@ -131,4 +131,27 @@ export class StorageService {
     }
   }
 
+  async storeServiceImageUpdateDownloadUrl(uid: string, img: string) {
+    /*
+    1. Stores an image at a given path in Firebase Storage with an auto assigned ID
+    2. Replaces the dataURL with the storage URL
+    3. Returns the newly assigned updated storage URL
+    4. If unable to store the image, returns the original dataURL as a fallback.
+    */
+    const original = img;
+    const imgId = this.generateRandomImgID();
+    const path = `users/${uid}/serviceImages/${imgId}`;
+    try {
+      console.log(`Attempting storage upload for user ${uid}`);
+      const destination = this.storage.ref(path);
+      const snap = await destination.putString(original, 'data_url');
+      const storagePath = await snap.ref.getDownloadURL();
+      console.log(`Img stored & download URL ${storagePath} captured successfully.`);
+      return storagePath;
+    } catch (err) {
+      console.error(err);
+      return original;
+    }
+  }
+
 }

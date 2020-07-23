@@ -11,6 +11,8 @@ import { AdminCourseReviewRequest } from 'app/interfaces/admin.course.review';
 import { CourseBookmark } from 'app/interfaces/course.bookmark.interface';
 import { CourseQuestion, CourseQuestionReply } from 'app/interfaces/q&a.interface';
 import { AnalyticsService } from './analytics.service';
+import { CustomCalendarEvent } from 'app/interfaces/custom.calendar.event.interface';
+import { CoachingService } from 'app/interfaces/coaching.service.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -485,6 +487,26 @@ export class DataService {
     .catch(err => console.error(err));
   }
 
+  async markCourseCompleteForUser(userId: string, course: CoachingCourse) {
+    const timestampNow = Math.round(new Date().getTime() / 1000);
+
+    // mark the course as complete for this user
+    await this.db.collection(`users/${userId}/courses-complete`)
+    .doc(course.courseId)
+    .set({ completed: timestampNow })
+    .catch(err => console.error(err));
+
+    // save the action to this person's history for the course creator
+    return this.db.collection(`users/${course.sellerUid}/people/${userId}/history`)
+    .doc(timestampNow.toString())
+    .set({ action: 'completed_self_study_course' });
+  }
+
+  getUserCoursesComplete(userId: string) {
+    return this.db.collection(`users/${userId}/courses-complete`)
+    .valueChanges({ idField: 'id' }) as Observable<any[]>;
+  }
+
   // ================================================================================
   // =====                          RATES / CURRENCY                           ======
   // ================================================================================
@@ -527,6 +549,76 @@ export class DataService {
     // Returns all the user's refund documents along with the doc IDs.
     return this.db.collection(`users/${uid}/account/account${uid}/refunds`)
     .valueChanges({ idField: 'id' }) as Observable<any[]>;
+  }
+
+  // ================================================================================
+  // =====                          CALENDAR EVENTS                            ======
+  // ================================================================================
+
+  async saveUserCalendarEvent(uid: string, event: CustomCalendarEvent) {
+    return this.db.collection(`users/${uid}/calendar`)
+    .doc(event.id.toString())
+    .set(event)
+    .catch(err => console.error(err));
+  }
+
+  getUserCalendarEvents(uid: string) {
+    return this.db.collection(`users/${uid}/calendar`)
+    .valueChanges({ idField: 'id' }) as Observable<CustomCalendarEvent[]>;
+  }
+
+  async deleteUserCalendarEvent(uid: string, eventId: string) {
+    return this.db.collection(`users/${uid}/calendar`)
+    .doc(eventId)
+    .delete()
+    .catch(err => console.error(err));
+  }
+
+  // ================================================================================
+  // =====                            PEOPLE (CRM)                             ======
+  // ================================================================================
+
+  getUserPeople(uid: string) {
+    return this.db.collection(`users/${uid}/people`)
+    .valueChanges({ idField: 'id' }) as Observable<any[]>;
+  }
+
+  getUserPersonHistory(uid: string, personUid: string) {
+    return this.db.collection(`users/${uid}/people/${personUid}/history`)
+    .valueChanges({ idField: 'id' }) as Observable<any[]>;
+  }
+
+  getUserPerson(uid: string, personUid: string) {
+    return this.db.collection(`users/${uid}/people`)
+    .doc(personUid)
+    .valueChanges() as Observable<any>;
+  }
+
+  // ================================================================================
+  // =====                           COACH SERVICES                            ======
+  // ================================================================================
+
+  saveCoachService(uid: string, service: CoachingService) {
+    return this.db.collection(`users/${uid}/services`)
+    .doc(service.id)
+    .set(service, { merge: true });
+  }
+
+  getCoachServices(uid: string) {
+    return this.db.collection(`users/${uid}/services`)
+    .valueChanges({ idField: 'id' }) as Observable<CoachingService[]>;
+  }
+
+  getCoachServiceById(uid: string, serviceId: string) {
+    return this.db.collection(`users/${uid}/services`)
+    .doc(serviceId)
+    .valueChanges() as Observable<CoachingService>;
+  }
+
+  getPublicCoachServiceById(serviceId: string) {
+    return this.db.collection(`public-services`)
+    .doc(serviceId)
+    .valueChanges() as Observable<CoachingService>;
   }
 
 }

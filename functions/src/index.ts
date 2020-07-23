@@ -377,7 +377,8 @@ firstName: string | null, lastName: string | null) {
     .doc(`profile${uid}`)
     .set({ // init a regular type profile
       firstName,
-      lastName
+      lastName,
+      email
     })
     .catch(err => console.error(err));
 
@@ -592,15 +593,18 @@ exports.postNewMessage = functions
       .doc(roomId)
       .set({ created: timestampNow }); // creates a real (not virtual) doc
 
-      // save the lead to the recipient's leads (create if doesn't yet exist - it might)
-      await db.collection(`users/${recipientUid}/leads`)
+      // save the person to the recipient's people (create if doesn't yet exist - it might)
+      await db.collection(`users/${recipientUid}/people`)
       .doc(senderUid)
       .create({ created: timestampNow }); // creates a real (not virtual) doc
 
-      // save the action to this lead's history
-      await db.collection(`users/${recipientUid}/leads/${senderUid}/history`)
+      // save the action to this person's history
+      await db.collection(`users/${recipientUid}/people/${senderUid}/history`)
       .doc(timestampNow.toString())
-      .set({ action: 'sent_first_message' });
+      .set({
+        action: 'sent_first_message',
+        roomId
+      });
 
       // save a record of the new lead to Algolia
       const index = algolia.initIndex('prod_LEADS');
@@ -645,8 +649,10 @@ exports.postNewMessage = functions
     .get(); // read all users in the sender's room as we may not have a recipient uid (if room already exists)
 
     const senderRoom = snap.data() as any;
-      for (const user of senderRoom.users) { // Update last active time stamp, sender & message for each user.
+      for (const user of senderRoom.users) { // for all users
         if (user) {
+
+          // Update last active time stamp, sender & message for each user.
           const updatePromise = db.collection(`userRooms/${user}/rooms`)
           .doc(roomId)
           .set({
@@ -655,6 +661,18 @@ exports.postNewMessage = functions
             lastSender: senderUid // so we can see who the last sender was
           }, {merge: true});
           promises.push(updatePromise);
+
+          // update the people node for both users if the other user was the last to respond
+          // this triggers the people subscription to update the client view as users respond to messages in real-time
+          if (user !== senderUid) {
+            const peoplePromise = db.collection(`users/${user}/people`)
+            .doc(senderUid)
+            .set({
+              lastReplyReceived: timestampNow
+            }, { merge: true }); // will update the time the other user last replied for both parties
+            promises.push(peoplePromise);
+          }
+
         }
       }
 
@@ -1402,13 +1420,14 @@ async function recordCourseEnrollmentForCreator(sellerUid: string, courseId: str
   .doc(obj.id)
   .create(obj);
 
-  // save the lead to the recipient's leads (create if doesn't exist yet - it might)
-  await db.collection(`users/${sellerUid}/leads`)
+  // save the person to the recipient's people (create if doesn't exist yet - it might)
+  await db.collection(`users/${sellerUid}/people`)
   .doc(clientUid)
-  .create({ created: timestampNow }); // creates a real (not virtual) doc
+  .set({ lastUpdated: timestampNow }, { merge: true }) // creates a real (not virtual) doc
+  .catch(err => console.log(err));
 
-  // save the action to this lead's history
-  return db.collection(`users/${sellerUid}/leads/${clientUid}/history`)
+  // save the action to this person's history
+  return db.collection(`users/${sellerUid}/people/${clientUid}/history`)
   .doc(timestampNow.toString())
   .set({ action: 'enrolled_in_self_study_course' });
 }
@@ -2374,7 +2393,7 @@ exports.onWritePrivateUserCourse = functions
 
   try {
     // Sync with public-courses.
-    const batch = db.batch(); // prepare to execute multiple ops atomically
+    const batch = db.batch(); // prepare to execute multiple ops atomically 
     
     // copy non-paywall protected course data in public courses node (to allow browse & purchase)
     const publicData = {
@@ -2676,6 +2695,79 @@ exports.onCreateCoursePublicQuestionReplyUpvote = functions
   .doc(replyId)
   .set({ upVotes: incrementCount }, { merge: true })
   .catch(err => console.error(err));
+});
+
+/*
+  Monitor newly created people.
+*/
+exports.onNewCrmPersonCreate = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.firestore
+.document(`users/{uid}/people/{personUid}`)
+.onCreate( async (snap, context) => {
+  const userId = context.params.uid;
+  const personId = context.params.personUid;
+  const timestampNow = Math.round(new Date().getTime() / 1000);
+
+  // set a created time on the new person object
+  return db.collection(`users/${userId}/people`)
+  .doc(personId)
+  .set({ created: timestampNow }, { merge: true })
+  .catch(err => console.error(err));
+});
+
+/*
+  Monitor private coach services.
+  Sync with public nodes & Algolia.
+*/
+exports.onWritePrivateServices = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.firestore
+.document(`/users/{userId}/services/{serviceId}`)
+.onWrite( async (change, context) => {
+
+  const userId = context.params.userId;
+  const serviceId = context.params.serviceId;
+  // const before = change.before.data() as any;
+  const after = change.after.data() as any;
+
+  // Public DB sync
+
+  const batch = db.batch(); // prepare to execute multiple ops atomically
+
+  const publicAllRef = db.collection(`public-services`).doc(serviceId);
+  batch.set(publicAllRef, after, { merge: true });
+
+  const publicByCoachRef = db.collection(`public-services-by-coach/${userId}/services`).doc(serviceId);
+  batch.set(publicByCoachRef, after, { merge: true });
+
+  await batch.commit(); // execute batch ops
+
+  // Algolia sync
+
+  const index = algolia.initIndex('prod_SERVICES');
+
+  // Record Removed.
+  if (!after) {
+    return index.deleteObject(serviceId);
+  }
+  // Record added/updated.
+  const recordToSend = {
+    objectID: serviceId,
+    id: after.id,
+    coachUid: userId,
+    title: after.title,
+    subtitle: after.subtitle,
+    duration: after.duration,
+    serviceType: after.serviceType,
+    pricingStrategy: after.pricingStrategy,
+    image: after.image,
+    description: after.description,
+    price: after.price,
+    currency: after.currency
+  };
+  // Update Algolia.
+  return index.saveObject(recordToSend);
 });
 
 // ================================================================================

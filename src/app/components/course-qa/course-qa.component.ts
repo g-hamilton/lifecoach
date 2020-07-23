@@ -134,7 +134,7 @@ export class CourseQaComponent implements OnInit, OnChanges, AfterViewInit {
 
   async loadInitialQuestions(page: number) {
     this.dataService.getInitialCourseQuestions(this.course.courseId, this.hitsPerPage).subscribe(items => {
-      console.log(items);
+      // console.log(items);
       if (items.length) {
         this.questions = items;
       }

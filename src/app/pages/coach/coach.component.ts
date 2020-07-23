@@ -9,10 +9,8 @@ import { DataService } from '../../services/data.service';
 import { AnalyticsService } from '../../services/analytics.service';
 
 import { CoachProfile } from '../../interfaces/coach.profile.interface';
-import { CountryService } from 'app/services/country.service';
-import { CoachingSpecialitiesService } from 'app/services/coaching.specialities.service';
-import { EmojiCountry } from 'app/interfaces/emoji.country.interface';
 import { CoachingCourse } from 'app/interfaces/course.interface';
+import { CoachingService } from 'app/interfaces/coaching.service.interface';
 
 
 @Component({
@@ -25,6 +23,7 @@ export class CoachComponent implements OnInit, OnDestroy {
   public userId: string;
   public userProfile: CoachProfile;
   public courses: CoachingCourse[];
+  public publishedServices: CoachingService[];
 
   constructor(
     @Inject(DOCUMENT) private document: any,
@@ -95,6 +94,25 @@ export class CoachComponent implements OnInit, OnDestroy {
       } else { // if courses state data exists retrieve it from the state storage
         this.courses = coursesData;
         this.transferState.remove(COURSES_KEY);
+      }
+
+      // Fetch the activated user's services
+      const SERVICES_KEY = makeStateKey<any>('services'); // create a key for saving/retrieving state
+
+      const servicesData = this.transferState.get(SERVICES_KEY, null as any); // checking if data in the storage exists
+
+      if (servicesData === null) { // if state data does not exist - retrieve it from the api
+        this.dataService.getCoachServices(this.userId).subscribe(services => {
+          if (services) { // The coach has at least one published service
+            this.publishedServices = services;
+            if (isPlatformServer(this.platformId)) {
+              this.transferState.set(SERVICES_KEY, services);
+            }
+          }
+        });
+      } else { // if state data exists retrieve it from the state storage
+        this.publishedServices = servicesData;
+        this.transferState.remove(SERVICES_KEY);
       }
 
     });

@@ -17,6 +17,7 @@ export class StarReviewComponent implements OnInit {
 
   @Input() userId: string;
   @Input() course: CoachingCourse;
+  @Input() uniqueComponentString: string; // allows us to use this component more than once in same parent without unique ID DOM errors
 
   @Output() savedRatingEvent = new EventEmitter<boolean>();
 
@@ -76,7 +77,7 @@ export class StarReviewComponent implements OnInit {
       // filter to only include reviews for this course from this user (should only ever be 1)
       const filters = { query: null, facets: { courseId: this.courseId, reviewerUid: this.userId } };
       const res = await this.searchService.searchCourseReviews(1, 1, filters);
-      console.log(res.hits);
+      // console.log(res.hits);
       const savedReview = res.hits[0];
       if (savedReview) { // there is a saved review, so load data
         this.reviewForm.patchValue({
@@ -94,6 +95,7 @@ export class StarReviewComponent implements OnInit {
 
   fetchCoachProfile() {
     const tempSub = this.dataService.getPublicCoachProfile(this.userId).subscribe(coachProfile => {
+      // console.log('coach profile:', coachProfile);
       if (coachProfile) {
         this.userProfile = coachProfile;
       } else { // user is not a coach, try regular...
@@ -105,6 +107,7 @@ export class StarReviewComponent implements OnInit {
 
   fetchRegularProfile() {
     const tempSub = this.dataService.getRegularProfile(this.userId).subscribe(regProfile => {
+      // console.log('regular profile', regProfile);
       if (regProfile) {
         this.userProfile = regProfile;
       }
@@ -126,11 +129,13 @@ export class StarReviewComponent implements OnInit {
     // save the user's name & photo (if we have it) into the reviews object so it remains with the review
     // even if the user deletes their account.
 
+    console.log('User profile:', this.userProfile);
+
     const data: CourseReview = {
       reviewerUid: this.userId,
-      reviewerFirstName: this.userProfile && this.userProfile.firstName ? this.userProfile.firstName : 'Anonymous',
-      reviewerLastName: this.userProfile && this.userProfile.lastName ? this.userProfile.lastName : 'Student',
-      reviewerPhoto: this.userProfile && this.userProfile.photo ? this.userProfile.photo : null,
+      reviewerFirstName: (this.userProfile && this.userProfile.firstName) ? this.userProfile.firstName : 'Anonymous',
+      reviewerLastName: (this.userProfile && this.userProfile.lastName) ? this.userProfile.lastName : 'Student',
+      reviewerPhoto: (this.userProfile && this.userProfile.photo) ? this.userProfile.photo : null,
       sellerUid: this.course.sellerUid,
       courseId: this.course.courseId,
       starValue: review.rating,

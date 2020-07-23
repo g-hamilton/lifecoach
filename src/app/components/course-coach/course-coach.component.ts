@@ -36,7 +36,7 @@ export class CourseCoachComponent implements OnInit, OnChanges {
 
   ngOnChanges() {
     if (this.course) {
-      console.log(this.course);
+      // console.log(this.course);
       this.fetchReviewsData();
       this.fetchSellerEnrollmentsData();
       this.fetchSellerCoursesData();

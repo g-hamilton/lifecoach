@@ -1,0 +1,83 @@
+<!-- loading person -->
+<div *ngIf="!person" class="text-center">
+    <div class="spinner-border" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+</div>
+
+<!-- person loaded -->
+<div *ngIf="person">
+    <div class=" card card-timeline card-plain">
+        <div class=" card-body">
+          <ul class=" timeline timeline-simple">
+            <li *ngFor="let item of person.history ; let i = index" class=" timeline-inverted">
+
+                <!-- badge -->
+                <div *ngIf="item.action === 'sent_first_message'" class=" timeline-badge success">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <div *ngIf="item.action === 'enrolled_in_self_study_course'" class=" timeline-badge primary">
+                    <i class="fas fa-play-circle"></i>
+                </div>
+
+                <!-- panel -->
+                <div class=" timeline-panel">
+
+                    <!-- heading -->
+                    <div class=" timeline-heading">
+                        <span *ngIf="item.action === 'sent_first_message'" class=" badge badge-success"> New Lead </span>
+                        <span *ngIf="item.action === 'enrolled_in_self_study_course'" class=" badge badge-primary"> Enrolled In Self-Study Course </span>
+                    </div>
+
+                    <!-- body -->
+                    <div class=" timeline-body">
+                        <p *ngIf="item.action === 'sent_first_message'">
+                            {{ person.firstName }} first contacted you by message.
+                        </p>
+                        <p *ngIf="item.action === 'enrolled_in_self_study_course'">
+                            {{ person.firstName }} enrolled in a self-study-course.
+                        </p>
+                        <hr />
+                    </div>
+
+                    <!-- footer -->
+                    <div class=" timeline-footer">
+                        <div *ngIf="item.action === 'sent_first_message'" class=" dropdown" dropdown>
+                            <button
+                            class=" btn btn-round btn-success dropdown-toggle dropdown-toggle"
+                            data-toggle="dropdown"
+                            dropdownToggle
+                            type="button"
+                            >
+                            <i class=" tim-icons icon-bullet-list-67"> </i>
+                            </button>
+                            <div class=" dropdown-menu" *dropdownMenu>
+                                <a class=" dropdown-item" [routerLink]="['/messages', 'rooms', person.history[i].roomId]">
+                                    Message {{ person.firstName }}
+                                </a>
+                            </div>
+                        </div>
+                        <!-- <div *ngIf="item.action === 'enrolled_in_self_study_course'" class=" dropdown" dropdown>
+                            <button
+                            class=" btn btn-round btn-primary dropdown-toggle dropdown-toggle"
+                            data-toggle="dropdown"
+                            dropdownToggle
+                            type="button"
+                            >
+                            <i class=" tim-icons icon-bullet-list-67"> </i>
+                            </button>
+                            <div class=" dropdown-menu" *dropdownMenu>
+                                <a class=" dropdown-item" href="#"> Action </a>
+                                <a class=" dropdown-item" href="#"> Another action </a>
+                                <a class=" dropdown-item" href="#">
+                                    Something else here
+                                </a>
+                            </div>
+                        </div> -->
+                    </div>
+                </div>
+            </li>
+          </ul>
+        </div>
+    </div>
+</div>

@@ -538,5 +538,10 @@ vg-player {
 
 // Cross browser select options fix (when select open avoid white on white)
 select option {
-  color: black !important;
+    color: black !important;
+}
+
+// override bs time picker
+.bs-timepicker-field {
+    width: 58px !important;
 }

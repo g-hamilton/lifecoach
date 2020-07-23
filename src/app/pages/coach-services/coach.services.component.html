@@ -1,0 +1,75 @@
+<div class=" content">
+    
+    <!-- No published services -->
+    <div *ngIf="!publishedServices || publishedServices && publishedServices.length === 0">
+        <h5 class=" title"> My Services <a href="" target="_blank">
+            <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> What are services? </span>
+        </a></h5>
+        <div class=" row">
+            <div class=" col">
+                <div class=" card">
+                    <div class=" card-body">
+                        <p>
+                            You haven't added any coaching services yet.
+                        </p>
+                        <p>
+                            Add a service now to start taking scheduled bookings directly from your profile!
+                        </p>
+                        <p>
+                            Not sure how? <a href="" target="_blank">
+                            Read the guide</a>
+                        </p>
+                        <button
+                        type="button"
+                        class=" btn btn-primary btn-fill btn-round mt-4"
+                        (click)="onAddCoachingService()"
+                        [routerLink]="['/services', 'new']"
+                        [disabled]="false">
+                            <i class=" tim-icons icon-simple-add"></i> Add Service
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Published services -->
+    <div *ngIf="publishedServices && publishedServices.length > 0">
+        <div class=" row">
+            <div class=" col-12">
+                <button
+                type="button"
+                class=" btn btn-primary btn-fill btn-round pull-right"
+                (click)="onAddCoachingService()"
+                [routerLink]="['/services', 'new']"
+                [disabled]="false">
+                    <i class=" tim-icons icon-simple-add"></i> Add Service
+                </button>
+            </div>
+        </div>
+        <h5 class=" title"> My Services </h5>
+        <div class=" row mt-3">
+            <div *ngFor="let service of publishedServices ; let i = index" class=" col-md-4">
+                <a [routerLink]="['/services', service.id, 'edit']">
+                    <div class=" card">
+
+                        <!-- Card image -->
+                        <img
+                        class="card-img-top"
+                        [src]="service.image ? service.image : 'assets/img/image_placeholder.jpg'"
+                        [alt]="service.title" />
+
+                        <!-- Card body -->
+                        <div class=" card-body">
+                            <h4 class="card-title"> {{ service?.title }} </h4>
+                            <h6 class="card-subtitle mb-2 text-muted"> {{ service?.subtitle }} </h6>
+                        </div>
+
+                    </div>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+
+</div>

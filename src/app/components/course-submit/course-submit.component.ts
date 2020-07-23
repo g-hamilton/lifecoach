@@ -162,6 +162,11 @@ export class CourseSubmitComponent implements OnInit, OnChanges {
       return;
     }
 
+    // ***** ADMIN ONLY for testing *****
+    // mark course as test
+    // run this locally - remember to comment out before releasing!!!
+    // this.course.isTest = true;
+
     // request review
     await this.dataService.savePrivateCourse(this.course.sellerUid, this.course); // autosave the course now that we've added additional seller profile data
     this.dataService.requestCourseReview(this.course);

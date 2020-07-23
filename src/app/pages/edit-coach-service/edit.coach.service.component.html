@@ -1,0 +1,271 @@
+<div class=" content">
+
+    <!-- loading -->
+    <div *ngIf="(!serviceForm && !isNewService) || loading" class="text-center">
+        <div class="spinner-border" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+
+    <!-- new service -->
+    <div *ngIf="serviceForm">
+        <div class=" row">
+            <!-- left col -->
+            <div class=" col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                      <h4 class="card-title"> New Service </h4>
+                      <h6 class="card-subtitle mb-4 text-muted"> Promote your coaching services through Lifecoach </h6>
+                      <div class=" p-3">
+                        <div class="">
+                            <form [formGroup]="serviceForm" (submit)="onSubmit()">
+        
+                                <!-- title -->
+                                <label> Title <span class="required-star">*</span> </label>
+                                <div
+                                class="input-group no-symbol"
+                                [ngClass]="{
+                                    'has-danger':
+                                    ((focusTouched || saving) && serviceF.title.value != '' && serviceF.title.errors) ||
+                                    (serviceF.title.value != '' && serviceF.title.errors),
+                                    'has-success': !serviceF.title.errors
+                                }">
+                                    <input
+                                    type="text"
+                                    class="form-control"
+                                    formControlName="title"
+                                    placeholder="eg. 30 Minute Chat"
+                                    (focus)="focusTouched = true"
+                                    (input)="onTitleInput($event)">
+                                    <div class="input-group-append">
+                                      <span class="input-group-text">
+                                          {{ titleActualLength + '/' + titleMaxLength }}
+                                      </span>
+                                    </div>
+                                </div>
+                                <div *ngIf="((focusTouched || saving) && serviceF.title.value != '' && serviceF.title.errors) ||
+                                    (serviceF.title.value != '' && serviceF.title.errors)">
+                                    <label
+                                    *ngFor="let error of objKeys(serviceF.title.errors)"
+                                    class="error custom-error-label"
+                                    >{{ showError('title', error) }}
+                                    </label>
+                                </div>
+
+                                <div class=" row">
+                                    <div class=" col">
+                                        <!-- subtitle -->
+                                        <label> Subtitle <span class="required-star">*</span></label>
+                                        <div
+                                        class="input-group no-symbol"
+                                        [ngClass]="{
+                                            'has-danger':
+                                            ((focus3Touched || saving) && serviceF.subtitle.value != '' && serviceF.subtitle.errors) ||
+                                            (serviceF.subtitle.value != '' && serviceF.subtitle.errors),
+                                            'has-success': !serviceF.subtitle.errors
+                                        }">
+                                            <input
+                                            type="text"
+                                            class="form-control"
+                                            formControlName="subtitle"
+                                            placeholder="eg. Ask me anything!"
+                                            (focus)="focus3 = true; focus3Touched = true"
+                                            (blur)="focus3 = false"
+                                            (input)="onSubTitleInput($event)">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text">
+                                                    {{ subTitleActualLength + '/' + subTitleMaxLength }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div *ngIf="((focus3Touched || saving) && serviceF.subtitle.value != '' && serviceF.subtitle.errors) ||
+                                            (serviceF.subtitle.value != '' && serviceF.subtitle.errors)">
+                                            <label
+                                            *ngFor="let error of objKeys(serviceF.subtitle.errors)"
+                                            class="error custom-error-label"
+                                            >{{ showError('subtitle', error) }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class=" row">
+
+                                    <!-- duration -->
+                                    <div class=" col-md-4">
+                                        <label> Duration (minutes) <span class="required-star">*</span> </label>
+                                        <div
+                                        class=" input-group"
+                                        [ngClass]="{
+                                            'input-group-focus': focus1 === true,
+                                            'has-danger':
+                                            (focus1Touched &&
+                                                serviceF.duration.errors) ||
+                                            (serviceF.duration.value != '' &&
+                                                serviceF.duration.errors),
+                                            'has-success': serviceF.duration.value != '' && !serviceF.duration.errors
+                                        }"
+                                        >
+                                            <div class=" input-group-prepend">
+                                                <div class=" input-group-text">
+                                                    <i class="far fa-clock"></i>
+                                                </div>
+                                            </div>
+                                            <input
+                                            class=" form-control"
+                                            name="duration"
+                                            placeholder="eg. 30"
+                                            type="number"
+                                            formControlName="duration"
+                                            (focus)="focus1 = true; focus1Touched = true"
+                                            (blur)="focus1 = false"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <!-- service type -->
+                                    <div class=" col-md-4">
+                                        <div class="form-group">
+                                            <label for="service-type"> Type <span class="required-star">*</span> </label>
+                                            <select
+                                            class="form-control"
+                                            id="service-type"
+                                            name="servicetype"
+                                            formControlName="serviceType">
+                                                <option [ngValue]="null"> Select... </option>
+                                                <option value="live 1:1"> Live 1:1 Session </option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- pricing strategy -->
+                                    <div class=" col-md-4">
+                                        <div class="form-group">
+                                            <label for="pricing-strategy"> Free / Paid <span class="required-star">*</span> </label>
+                                            <select
+                                            class="form-control"
+                                            id="strategy"
+                                            name="pricing-strategy"
+                                            formControlName="pricingStrategy">
+                                                <option [ngValue]="null"> Select... </option>
+                                                <option value="free"> Free </option>
+                                                <option value="paid"> Paid </option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class=" row" *ngIf="serviceF?.pricingStrategy.value === 'paid'">
+                                    <!-- price -->
+                                    <div class=" col-md-4">
+                                        <label for="service-type"> Price <span class="required-star">*</span> </label>
+                                        <div
+                                        class=" input-group"
+                                        [ngClass]="{
+                                            'input-group-focus': focus2 === true,
+                                            'has-danger':
+                                            (focus2Touched &&
+                                                serviceF.price.errors) ||
+                                            (serviceF.price.value != '' &&
+                                                serviceF.price.errors),
+                                            'has-success': serviceF.price.value != '' && !serviceF.price.errors
+                                        }"
+                                        >
+                                            <div class=" input-group-prepend">
+                                                <div class=" input-group-text">
+                                                    <i class="far fa-credit-card"></i>
+                                                </div>
+                                            </div>
+                                            <input
+                                            class=" form-control"
+                                            name="price"
+                                            placeholder="eg. 49.99"
+                                            type="number"
+                                            formControlName="price"
+                                            (focus)="focus2 = true; focus2Touched = true"
+                                            (blur)="focus2 = false"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <!-- currency -->
+                                    <div class=" col-md-4">
+                                        <label> Currency <span class="required-star">*</span> </label>
+                                        <app-select-currency
+                                        [currency]="serviceF?.currency?.value"
+                                        (currencyEvent)="onCurrencyEvent($event)">
+                                        </app-select-currency>
+                                    </div>
+
+                                </div>
+
+                                <div class=" row">
+                                    <div class=" col">
+                                        <!-- image -->
+                                        <label> Image <span class="required-star">*</span> </label>
+                                        <div>
+                                            <p class="lead text-muted">Make your service stand out with a great image!</p>
+
+                                            <p class="lead text-muted">Important guidelines: At least 750 x 422 pixels; .jpg, .jpeg,. gif, or .png. Avoid text on your image.</p>
+                                        </div>
+                                        <div class=" mt-3">
+                                            <app-picture-upload
+                                            [inputImg]="serviceF?.image?.value"
+                                            (messageEvent)="onPictureUpload($event)">
+                                            </app-picture-upload>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class=" row">
+                                    <div class=" col">
+                                        <!-- details -->
+                                        <label> Details <span class="required-star">*</span> </label>
+                                        <editor
+                                            *ngIf="viewLoaded"
+                                            apiKey="swb6l7gw85zcl8aw2dh7551jt3t5ydravtthultgf8fo3w2l" 
+                                            [init]="{
+                                                height: 300,
+                                                menubar: false,
+                                                plugins: 'link lists paste',
+                                                toolbar: 'undo redo | formatselect | paste | bold italic backcolor link| alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat'
+                                            }"
+                                            formControlName="description"
+                                            >
+                                            </editor>
+                                    </div>
+                                </div>
+
+        
+                                <div class=" pull-right">
+                                    <button type="submit" class=" btn btn-primary btn-round btn-fill mt-4">
+                                        <span *ngIf="!saving">
+                                            <i class="fas fa-save"></i>
+                                        </span>
+                                        <span
+                                        *ngIf="saving"
+                                        class="spinner-border spinner-border-sm"
+                                        role="status"
+                                        ></span> {{ saving ? 'Saving...' : 'Save'}}
+                                    </button>
+                                </div>
+
+                            </form>
+                        </div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- right col -->
+            <div class=" col-md-4">
+                <p>
+                    Preview?
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+</div>

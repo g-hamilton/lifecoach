@@ -5,6 +5,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { CollapseModule } from 'ngx-bootstrap/collapse';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
+import { BsDatepickerModule } from 'ngx-bootstrap';
+import { TimepickerModule } from 'ngx-bootstrap/timepicker';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { AlertModule } from 'ngx-bootstrap/alert';
 // import { DxVectorMapModule } from 'devextreme-angular';
@@ -95,6 +97,18 @@ import { CourseMoreComponent } from './course-more/course-more.component';
 import { AdminVideoUploaderComponent } from './admin-video-uploader/admin-video-uploader.component';
 import { AdminVideoUploadTaskComponent } from './admin-video-upload-task/admin-video-upload-task.component';
 
+// Angular calendar: https://github.com/mattlewis92/angular-calendar#getting-started
+import { CalendarModule, DateAdapter } from 'angular-calendar';
+import { adapterFactory } from 'angular-calendar/date-adapters/moment';
+import { CalendarComponent } from './calendar/calendar.component';
+import { CalendarHeaderComponent } from './calendar-header/calendar-header.component';
+import * as moment from 'moment';
+import { PersonHistoryTimelineComponent } from './person-history-timeline/person-history-timeline.component';
+
+export function momentAdapterFactory() {
+  return adapterFactory(moment);
+}
+
 @NgModule({
   imports: [
     CommonModule,
@@ -106,6 +120,8 @@ import { AdminVideoUploadTaskComponent } from './admin-video-upload-task/admin-v
     // DxVectorMapModule,
     CollapseModule.forRoot(),
     BsDropdownModule.forRoot(),
+    BsDatepickerModule.forRoot(),
+    TimepickerModule.forRoot(),
     ModalModule.forRoot(),
     ProgressbarModule.forRoot(),
     AngularMultiSelectModule,
@@ -122,7 +138,8 @@ import { AdminVideoUploadTaskComponent } from './admin-video-upload-task/admin-v
     NgAisModule.forRoot(),
     VgCoreModule,
     VgControlsModule,
-    DragDropModule
+    DragDropModule,
+    CalendarModule.forRoot({ provide: DateAdapter, useFactory: momentAdapterFactory }),
   ],
   declarations: [
     FooterComponent,
@@ -189,6 +206,9 @@ import { AdminVideoUploadTaskComponent } from './admin-video-upload-task/admin-v
     DiscussionComponent,
     DiscussionReplyFormComponent,
     CourseMoreComponent,
+    CalendarComponent,
+    CalendarHeaderComponent,
+    PersonHistoryTimelineComponent,
     AdminVideoUploaderComponent,
     AdminVideoUploadTaskComponent
   ],
@@ -270,6 +290,10 @@ import { AdminVideoUploadTaskComponent } from './admin-video-upload-task/admin-v
     DiscussionComponent,
     DiscussionReplyFormComponent,
     CourseMoreComponent,
+    CalendarModule,
+    CalendarComponent,
+    CalendarHeaderComponent,
+    PersonHistoryTimelineComponent,
     AdminVideoUploaderComponent,
     AdminVideoUploadTaskComponent
   ]
