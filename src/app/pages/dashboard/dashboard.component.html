@@ -284,7 +284,7 @@
                   All Users
                 </p>
                 <h3 class="card-title">
-                  {{ adminCountAllUsers ? adminCountAllUsers : 'X' }}
+                  {{ adminCountAllUsers ? adminCountAllUsers : '0' }}
                 </h3>
               </div>
             </div>
@@ -298,7 +298,7 @@
         </div>
       </div>
     </div>
-    <!-- Total Coachees -->
+    <!-- Total Regular -->
     <div class=" col-lg-3 col-md-4">
       <div class=" card card-stats">
         <div class=" card-body">
@@ -314,7 +314,7 @@
                   Students
                 </p>
                 <h3 class="card-title">
-                  {{ (adminCountRegularUsers || adminCountRegularUsers === 0) ? adminCountRegularUsers : 'X' }}
+                  {{ (adminCountRegularUsers || adminCountRegularUsers === 0) ? adminCountRegularUsers : '0' }}
                 </h3>
               </div>
             </div>
@@ -334,7 +334,7 @@
         <div class=" card-body">
           <div class=" row">
             <div class=" col-5">
-              <div class=" info-icon text-center icon-info">
+              <div class=" info-icon text-center icon-success">
                 <i class="fas fa-user"></i>
               </div>
             </div>
@@ -344,7 +344,67 @@
                   Coaches
                 </p>
                 <h3 class="card-title">
-                  {{ adminCountCoachUsers ? adminCountCoachUsers : 'X' }}
+                  {{ adminCountCoachUsers ? adminCountCoachUsers : '0' }}
+                </h3>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class=" card-footer">
+          <hr>
+          <div class=" stats">
+            <i class=" tim-icons icon-alert-circle-exc"></i> Total Coaches
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Total Publishers -->
+    <div class=" col-lg-3 col-md-4">
+      <div class=" card card-stats">
+        <div class=" card-body">
+          <div class=" row">
+            <div class=" col-5">
+              <div class=" info-icon text-center icon-success">
+                <i class="fas fa-user"></i>
+              </div>
+            </div>
+            <div class=" col-7">
+              <div class=" numbers">
+                <p class=" card-category">
+                  Publishers
+                </p>
+                <h3 class="card-title">
+                  {{ adminCountPublisherUsers ? adminCountPublisherUsers : '0' }}
+                </h3>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class=" card-footer">
+          <hr>
+          <div class=" stats">
+            <i class=" tim-icons icon-alert-circle-exc"></i> Total Publishers
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Total Providers -->
+    <div class=" col-lg-3 col-md-4">
+      <div class=" card card-stats">
+        <div class=" card-body">
+          <div class=" row">
+            <div class=" col-5">
+              <div class=" info-icon text-center icon-success">
+                <i class="fas fa-user"></i>
+              </div>
+            </div>
+            <div class=" col-7">
+              <div class=" numbers">
+                <p class=" card-category">
+                  Providers
+                </p>
+                <h3 class="card-title">
+                  {{ adminCountProviderUsers ? adminCountProviderUsers : '0' }}
                 </h3>
               </div>
             </div>
@@ -374,7 +434,7 @@
                   Admins
                 </p>
                 <h3 class="card-title">
-                  {{ adminCountAdminUsers ? adminCountAdminUsers : 'X' }}
+                  {{ adminCountAdminUsers ? adminCountAdminUsers : '0' }}
                 </h3>
               </div>
             </div>
@@ -404,7 +464,7 @@
                   Public Profiles
                 </p>
                 <h3 class="card-title">
-                  {{ adminPublicCoachesCount ? adminPublicCoachesCount : 'X' }}
+                  {{ adminPublicCoachesCount ? adminPublicCoachesCount : '0' }}
                 </h3>
               </div>
             </div>
