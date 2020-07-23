@@ -440,7 +440,9 @@ import { IsoLanguagesService } from 'app/services/iso-languages.service';
 
     get currencySymbol() {
       const c = this.currenciesService.getCurrencies();
-      return c[this.clientCurrency].symbol;
+      if (c != null) {
+        return c[this.clientCurrency].symbol;
+      }
     }
 
     get registerF(): any {

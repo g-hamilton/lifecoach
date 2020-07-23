@@ -255,6 +255,10 @@ export class ProfileWizardComponent implements OnInit {
     this.group3.goalTags.value.controls.push(control);
   }
 
+  removeGoalTag(index: number) {
+    this.group3.goalTags.value.controls.splice(index, 1);
+  }
+
   async onSubmit() {
     this.wizard = true;
 

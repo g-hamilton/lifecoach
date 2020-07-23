@@ -40,7 +40,7 @@ export const ROUTES: RouteInfo[] = [
     type: 'link',
     icontype: 'tim-icons icon-chart-pie-36',
     rtlTitle: 'لوحة القيادة',
-    userTypes: ['regular', 'coach', 'admin']
+    userTypes: ['regular', 'coach', 'publisher', 'provider', 'admin']
   },
   {
     path: '/calendar',
@@ -128,7 +128,7 @@ export const ROUTES: RouteInfo[] = [
     rtlTitle: 'التقويم',
     type: 'link',
     icontype: 'tim-icons icon-lock-circle',
-    userTypes: ['regular', 'coach', 'admin']
+    userTypes: ['regular', 'coach', 'publisher', 'provider', 'admin']
   },
   {
     path: '/admin-more',
