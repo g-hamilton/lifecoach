@@ -71,6 +71,16 @@ const routes: Routes = [
     pathMatch: 'full'
   },
   {
+    path: 'c/:courseId/l/ll/:lectureId',
+    loadChildren: () => import('./pages/learn/learn.module').then(m => m.LearnModule),
+    pathMatch: 'full'
+  },
+  {
+    path: 'test/:courseId/test/test/:lectureId',
+    loadChildren: () => import('./pages/test/test.module').then(m => m.TestModule),
+    pathMatch: 'full'
+  },
+  {
     path: 'course/:courseId/learn',
     loadChildren: () => import('./pages/learn/learn.module').then(m => m.LearnModule),
     canActivate: [PaywallAuthGuard],
