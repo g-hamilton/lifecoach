@@ -14,6 +14,7 @@ declare var JitsiMeetExternalAPI: any;
   templateUrl: './calendar.component.html',
   styleUrls: ['./calendar.component.scss']
 })
+
 export class CalendarComponent implements OnInit, AfterViewInit {
 
   @ViewChild('eventDetailModal', { static: false }) public eventDetailModal: ModalDirective;

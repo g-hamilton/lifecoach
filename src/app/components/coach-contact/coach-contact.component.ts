@@ -117,6 +117,7 @@ export class CoachContactComponent implements OnInit {
         // User is authenticated. Send message.
         const res = await this.postMsg();
         if (res.success) {
+          this.submitted = false;
           await this.alertService.alert('success-message', 'Success!', `
           Message sent successfully! Visit 'My Dashboard > Messages' to see replies.
           If this Coach takes a little while to respond, we'll send you an email as soon as they reply.`);
@@ -147,6 +148,7 @@ export class CoachContactComponent implements OnInit {
       this.submitted = true;
       const res = await this.postMsg();
       if (res.success) { // message sent successfully
+        this.submitted = false;
         await this.alertService.alert('success-message', 'Success!', `
         Message sent successfully! Visit 'My Dashboard > Messages' to see replies.
         If this Coach takes a little while to respond, we'll send you an email as soon as they reply.`);

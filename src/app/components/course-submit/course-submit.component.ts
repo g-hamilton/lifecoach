@@ -94,6 +94,10 @@ export class CourseSubmitComponent implements OnInit, OnChanges {
       this.alertService.alert('warning-message', 'Oops', `Course invalid: No course title`);
       return false;
     }
+    if (!course.pricingStrategy) {
+      this.alertService.alert('warning-message', 'Oops', `Course invalid: Please save your pricing preferences under the Course Options tab.`);
+      return false;
+    }
     if (course.pricingStrategy === 'paid' && !course.currency) {
       this.alertService.alert('warning-message', 'Oops', `Course invalid: No course currency`);
       return false;

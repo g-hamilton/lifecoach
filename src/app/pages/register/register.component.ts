@@ -17,7 +17,6 @@ import { UserAccount } from '../../interfaces/user.account.interface';
 })
 export class RegisterComponent implements OnInit, OnDestroy {
 
-  public userType: string;
   public registerForm: FormGroup;
   public register = false;
   public focusTouched = false;
@@ -48,11 +47,6 @@ export class RegisterComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.titleService.setTitle('Signup to Lifecoach');
     this.metaTagService.updateTag({name: 'description', content: 'Join the fastest growing life coaching community'});
-    // Check activated route params for user type to register
-    this.route.params.subscribe(params => {
-      console.log('Route params:', params);
-      this.userType = params.type;
-    });
 
     const body = this.document.getElementsByTagName('body')[0];
     body.classList.add('register-page');
@@ -69,9 +63,18 @@ export class RegisterComponent implements OnInit, OnDestroy {
         lastName: ['', [Validators.required]],
         email: ['', [Validators.required, Validators.pattern(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)]],
         password: ['', [Validators.required, Validators.minLength(6)]],
+        accountType: [null, [Validators.required]],
         termsAccepted: [false, Validators.pattern('true')]
       }
     );
+
+    // Check activated route params for user type to register
+    this.route.params.subscribe(params => {
+      console.log('Route params:', params);
+      this.registerForm.patchValue({
+        accountType: params.type // update the form with account type
+      });
+    });
   }
 
   ngOnDestroy() {
@@ -84,12 +87,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
   }
 
   async onRegister() {
-    // Check we have captured a user type
-    console.log('User type to register:', this.userType);
-    if (!this.userType) {
-      alert('Invalid user type');
-      return;
-    }
+
     // Check form validity
     if (this.registerForm.valid) {
       this.register = true;
@@ -97,7 +95,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
       const newUserAccount: UserAccount = {
         accountEmail: this.registerF.email.value,
         password: this.registerF.password.value,
-        accountType: this.userType as any,
+        accountType: this.registerF.accountType.value,
         firstName: this.registerF.firstName.value,
         lastName: this.registerF.lastName.value
       };

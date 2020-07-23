@@ -5,11 +5,11 @@ import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { AnalyticsService } from '../../services/analytics.service';
 
 @Component({
-  selector: 'app-pricing',
-  templateUrl: 'pricing.component.html',
-  styleUrls: ['./pricing.component.scss']
+  selector: 'app-for-publishers',
+  templateUrl: 'for.publishers.component.html',
+  styleUrls: ['./for.publishers.component.scss']
 })
-export class PricingComponent implements OnInit, OnDestroy {
+export class ForPublishersComponent implements OnInit, OnDestroy {
 
   constructor(
     private analyticsService: AnalyticsService,
@@ -20,10 +20,10 @@ export class PricingComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.titleService.setTitle('Lifecoach for Coaches');
-    this.metaTagService.updateTag({name: 'description', content: 'Join the fastest growing digital coaching community.'});
+    this.titleService.setTitle('Lifecoach for Publishers');
+    this.metaTagService.updateTag({name: 'description', content: 'Earn commission by promoting high quality coaching.'});
     const body = this.document.getElementsByTagName('body')[0];
-    body.classList.add('pricing-page');
+    body.classList.add('publishers-page');
 
     // Register a page view if we're in the browser (not SSR)
     if (isPlatformBrowser(this.platformId)) {
@@ -33,7 +33,7 @@ export class PricingComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     const body = this.document.getElementsByTagName('body')[0];
-    body.classList.remove('pricing-page');
+    body.classList.remove('publishers-page');
   }
 
 }

@@ -13,8 +13,9 @@
                         <!-- SSR -->
                         <h1 *ngIf="!browser" class="display-1"> Find Your Life Coach </h1>
                         <!-- Browser -->
-                        <h1 *ngIf="browser" class="display-1"> Find Your <span id="coach-rotator"></span> Coach </h1>
-                        
+                        <h1 *ngIf="browser" class="display-1 title-changed"> Find Your <br class="d-block d-lg-none"><span class="green-word">{{words[wordIndex]}} </span><br class="d-block d-lg-none">Coach </h1>
+<!--                        <h1 *ngIf="browser" class="display-1 title-changed"> Find Your <br class="d-block d-sm-none"><span id="coach-rotator"></span><br class="d-block d-sm-none">  Coach </h1>-->
+
 
                         <h3>
                             Connect to professional coaching for every area of life.
@@ -62,12 +63,12 @@
         </div>
 
         <!-- Hero strip -->
-        <div id="hero-bottom-strip" class=" row">
+        <div id="hero-bottom-strip" class="row">
             <div class=" col-4 text-center">
                 <h4><i class="far fa-user"></i> 500+ Coaches</h4>
             </div>
             <div class=" col-4 text-center">
-                <h4><i class="far fa-play-circle"></i> 50+ Self-Study Courses</h4>
+                <h4><i class="far fa-play-circle"></i> 60+ Self-Study Courses</h4>
             </div>
             <div class=" col-4 text-center">
                 <h4><i class="fas fa-map-marker-alt"></i> 20+ Countries</h4>
@@ -237,7 +238,7 @@
             <div class=" container">
                 <div class="row justify-content-center text-center">
                     <div class="col-md-10 col-lg-8">
-                    <h2 class="display-3"> New To Life Coaching? </h2>
+                    <h2 class="display-3"> New To Coaching? </h2>
 
                     <p>
                         <a
