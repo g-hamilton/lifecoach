@@ -31,6 +31,11 @@ const routes: Routes = [
     pathMatch: 'full'
   },
   {
+    path: 'for-publishers',
+    loadChildren: () => import('./pages/for-publishers/for.publishers.module').then(m => m.ForPublishersModule),
+    pathMatch: 'full'
+  },
+  {
     path: 'about',
     loadChildren: () => import('./pages/about/about.module').then(m => m.AboutModule),
     pathMatch: 'full'

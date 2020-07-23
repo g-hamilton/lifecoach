@@ -1,6 +1,18 @@
+/*
+    Notes:
+
+    AccountType
+
+    Regular = Users looking for coaching (coachees / students / clients of coaches)
+    Coach = Users who provide coaching products and services on the platform
+    Publisher = Users who want to promote coaching services / the platform to audiences (affiliate partners)
+    Provider = Users who want to promote their services to Coaches on the platform
+    Admin = Platform admins (be careful!)
+*/
+
 export interface UserAccount {
     accountEmail: string;
-    accountType: 'regular' | 'coach';
+    accountType: 'regular' | 'coach' | 'publisher' | 'provider' | 'admin';
     password?: string; // Only on first creation
     firstName?: string;
     lastName?: string;

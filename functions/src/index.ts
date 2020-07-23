@@ -322,7 +322,7 @@ async function addCustomUserClaims(uid: string, claims: any) {
   }
 }
   
-async function createUserNode(uid: string, email: string, type: 'regular' | 'coach' | 'admin', 
+async function createUserNode(uid: string, email: string, type: 'regular' | 'coach' | 'publisher' | 'provider' | 'admin', 
 firstName: string | null, lastName: string | null) {
 
   // Initialise account data
@@ -381,7 +381,26 @@ firstName: string | null, lastName: string | null) {
     })
     .catch(err => console.error(err));
 
+  } else if (type === 'publisher') { // publisher account
+    
+    // Default tasks for publishers
+    const ref1 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault004');
+    batch.set(ref1, {
+      id: 'taskDefault004',
+      title: '1. Enable your payout account',
+      description: 'Enable your payout account now so you can start earning commission.',
+      action: 'account'
+    });
+
+    return batch.commit() // execute batch ops
+    .catch(err => console.error(err));
+
+  } else if (type === 'provider') { // provider account
+    // any actions for providers?
+    return;
+
   } else if (type === 'admin') { // Admin account
+    // any actions for admins?
     return;
   }
 

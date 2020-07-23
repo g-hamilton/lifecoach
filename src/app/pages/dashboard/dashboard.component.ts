@@ -16,11 +16,13 @@ import { UserTask } from '../../interfaces/user.tasks.interface';
 export class DashboardComponent implements OnInit {
 
   private uid: string;
-  public userType: 'coach' | 'regular' | 'admin';
+  public userType: 'coach' | 'regular' | 'publisher' | 'provider' | 'admin';
 
   public adminCountAllUsers: number;
   public adminCountRegularUsers: number;
   public adminCountCoachUsers: number;
+  public adminCountPublisherUsers: number;
+  public adminCountProviderUsers: number;
   public adminPublicCoachesCount: number;
   public adminCountAdminUsers: number;
   public adminNewestUsers: any;
@@ -79,6 +81,11 @@ export class DashboardComponent implements OnInit {
             // this.loadClients();
           } else if (c.regular) {
             this.userType = 'regular';
+          } else if (c.publisher) {
+            this.userType = 'publisher';
+            this.loadTodos();
+          } else if (c.provider) {
+            this.userType = 'provider';
           } else {
             this.userType = null;
           }
@@ -126,6 +133,12 @@ export class DashboardComponent implements OnInit {
 
     const coachUsers = await this.searchService.searchUsers(1, 1, { params: { accountType: 'coach' }});
     this.adminCountCoachUsers = coachUsers.nbHits;
+
+    const publisherUsers = await this.searchService.searchUsers(1, 1, { params: { accountType: 'publisher' }});
+    this.adminCountPublisherUsers = publisherUsers.nbHits;
+
+    const providerUsers = await this.searchService.searchUsers(1, 1, { params: { accountType: 'provider' }});
+    this.adminCountProviderUsers = providerUsers.nbHits;
 
     const adminUsers = await this.searchService.searchUsers(1, 1, { params: { accountType: 'admin' }});
     this.adminCountAdminUsers = adminUsers.nbHits;

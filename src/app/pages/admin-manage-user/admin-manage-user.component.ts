@@ -16,7 +16,7 @@ export class AdminManageUserComponent implements OnInit {
   public browser: boolean;
   public targetUserUid: string;
   public account: UserAccount;
-  public accountType: 'regular' | 'coach' | 'admin';
+  public accountType: 'regular' | 'coach' | 'publisher' | 'provider' | 'admin';
   public purchasedCourses = [] as CoachingCourse[]; // purchased courses as buyer
   public courses: CoachingCourse[]; // courses created as coach seller
 
