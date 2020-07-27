@@ -9,10 +9,12 @@ import { AnalyticsService } from '../../services/analytics.service';
 import { DataService } from '../../services/data.service';
 
 import { CoachProfile } from '../../interfaces/coach.profile.interface';
+import { Subscription } from 'rxjs';
 
 const misc: any = {
   sidebar_mini_active: true
 };
+
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
@@ -27,6 +29,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   private toggleButton: any;
   public isCollapsed = true;
+  private subscriptions: Subscription = new Subscription();
 
   constructor(
     location: Location,
@@ -45,17 +48,19 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   monitorUserProfile() {
-    this.authService.getAuthUser()
-    .subscribe(user => {
-      if (user) {
-        this.dataService.getCoachProfile(user.uid)
-        .subscribe(profile => {
-          if (profile) {
-            this.userProfile = profile;
+    this.subscriptions.add(
+      this.authService.getAuthUser()
+        .subscribe(user => {
+          if (user) {
+            this.dataService.getCoachProfile(user.uid)
+              .subscribe(profile => {
+                if (profile) {
+                  this.userProfile = profile;
+                }
+              });
           }
-        });
-      }
-    });
+        })
+    );
   }
 
   // function that adds color white/transparent to the navbar on resize (this is for the collapse)
@@ -129,6 +134,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.subscriptions.unsubscribe();
     if (isPlatformBrowser(this.platformId)) {
       window.removeEventListener('resize', this.updateColor);
     }
@@ -151,7 +157,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   sidebarOpen() {
     const toggleButton = this.toggleButton;
-    const body =  (
+    const body = (
       this.document.getElementsByTagName('body')[0]
     ) as HTMLElement;
     const html = this.document.getElementsByTagName('html')[0];
@@ -172,17 +178,17 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
 
     if (html.getElementsByTagName('body')) {
-        this.document.getElementsByTagName('body')[0].appendChild($layer);
+      this.document.getElementsByTagName('body')[0].appendChild($layer);
     }
     const $toggle = this.document.getElementsByClassName('navbar-toggler')[0];
     // tslint:disable-next-line: only-arrow-functions
-    $layer.onclick = function() { // asign a function
+    $layer.onclick = function () { // asign a function
       html.classList.remove('nav-open');
       setTimeout(() => {
-          $layer.remove();
-          $toggle.classList.remove('toggled');
+        $layer.remove();
+        $toggle.classList.remove('toggled');
       }, 400);
-      const mainPanel =   this.document.getElementsByClassName('main-panel')[0] as HTMLElement;
+      const mainPanel = this.document.getElementsByClassName('main-panel')[0] as HTMLElement;
 
       if (isPlatformBrowser(this.platformId)) {
         if (window.innerWidth < 991) {
@@ -199,7 +205,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
   sidebarClose() {
     const html = this.document.getElementsByTagName('html')[0];
     this.toggleButton.classList.remove('toggled');
-    const body =  (
+    const body = (
       this.document.getElementsByTagName('body')[0]
     ) as HTMLElement;
 
@@ -225,5 +231,6 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.router.navigate(['/']);
     this.analyticsService.signOut();
   }
+
 
 }

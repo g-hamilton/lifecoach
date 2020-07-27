@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, PLATFORM_ID, Input, ViewChild } from '@angular/core';
+import { Component, Inject, OnInit, PLATFORM_ID, Input, ViewChild, OnDestroy } from '@angular/core';
 import { ROUTES } from '../sidebar/sidebar.component';
 import { DOCUMENT, isPlatformBrowser, Location } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
@@ -6,6 +6,7 @@ import { ModalDirective } from 'ngx-bootstrap/modal';
 import { AuthService } from '../../services/auth.service';
 import { CoachingCourse } from 'app/interfaces/course.interface';
 import { AlertService } from 'app/services/alert.service';
+import { Subscription } from 'rxjs';
 
 const misc: any = {
   sidebar_mini_active: true
@@ -16,7 +17,7 @@ const misc: any = {
   templateUrl: './auth-course-navbar.component.html',
   styleUrls: ['./auth-course-navbar.component.scss']
 })
-export class AuthCourseNavbarComponent implements OnInit {
+export class AuthCourseNavbarComponent implements OnInit, OnDestroy {
 
   @ViewChild('reviewModal', {static: false}) public reviewModal: ModalDirective;
 
@@ -28,6 +29,7 @@ export class AuthCourseNavbarComponent implements OnInit {
   private listTitles: any[];
   private location: Location;
   public userAuthorised = false;
+  private subscriptions: Subscription = new Subscription();
 
   constructor(
     location: Location,
@@ -39,16 +41,18 @@ export class AuthCourseNavbarComponent implements OnInit {
   ) {
     this.location = location;
     // Monitor the user's auth state
-    this.authService.getAuthUser().subscribe(user => {
-      if (user) {
-        // Auth state is not null. User is authorised.
-        this.userId = user.uid;
-        this.userAuthorised = true;
-      } else {
-        // User is not authorised.
-        this.userAuthorised = false;
-      }
-    });
+    this.subscriptions.add(
+      this.authService.getAuthUser().subscribe(user => {
+        if (user) {
+          // Auth state is not null. User is authorised.
+          this.userId = user.uid;
+          this.userAuthorised = true;
+        } else {
+          // User is not authorised.
+          this.userAuthorised = false;
+        }
+      })
+    );
   }
 
   minimizeSidebar() {
@@ -129,5 +133,9 @@ export class AuthCourseNavbarComponent implements OnInit {
     this.reviewModal.hide();
 
     this.alertService.alert('success-message', 'Success!', `Thanks for leaving feedback! You can update your feedback at any time.`);
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 }

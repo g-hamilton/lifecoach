@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID  } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, OnDestroy } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 
 import { DataService } from '../../services/data.service';
@@ -8,12 +8,13 @@ import { SearchService } from '../../services/search.service';
 import { SsoService } from 'app/services/sso.service';
 
 import { UserTask } from '../../interfaces/user.tasks.interface';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: 'dashboard.component.html'
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
 
   private uid: string;
   public userType: 'coach' | 'regular' | 'publisher' | 'provider' | 'admin';
@@ -38,6 +39,8 @@ export class DashboardComponent implements OnInit {
 
   public feedbackUrl = 'https://lifecoach.nolt.io';
 
+  private subscriptions: Subscription = new Subscription();
+
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
     private authService: AuthService,
@@ -58,48 +61,51 @@ export class DashboardComponent implements OnInit {
   async loadUserData() {
     // Get user ID
     const tempAuthSub = this.authService.getAuthUser()
-    .subscribe(user => {
-      if (user) {
-        // User is authorised
-        // console.log(`User ${user.uid} is authorised`);
-        this.uid = user.uid; // <-- Ensure we get an authorised uid before calling for user data
+      .subscribe(user => {
+        if (user) {
+          // User is authorised
+          // console.log(`User ${user.uid} is authorised`);
+          this.uid = user.uid; // <-- Ensure we get an authorised uid before calling for user data
 
-        // Get a SSO token for this user
-        this.getUserSSOToken();
+          // Get a SSO token for this user
+          this.getUserSSOToken();
 
-        // Check the user's custom auth claims for user type
-        user.getIdTokenResult()
-        .then(tokenRes => {
-          // console.log('Custom user claims:', tokenRes.claims);
-          const c = tokenRes.claims;
-          if (c.admin) {
-            this.userType = 'admin';
-            this.loadAdminData();
-          } else if (c.coach) {
-            this.userType = 'coach';
-            this.loadTodos();
-            // this.loadClients();
-          } else if (c.regular) {
-            this.userType = 'regular';
-          } else if (c.publisher) {
-            this.userType = 'publisher';
-            this.loadTodos();
-          } else if (c.provider) {
-            this.userType = 'provider';
-          } else {
-            this.userType = null;
-          }
-        });
-      }
-      tempAuthSub.unsubscribe();
-    });
+          // Check the user's custom auth claims for user type
+          user.getIdTokenResult()
+            .then(tokenRes => {
+              // console.log('Custom user claims:', tokenRes.claims);
+              const c = tokenRes.claims;
+              if (c.admin) {
+                this.userType = 'admin';
+                this.loadAdminData();
+              } else if (c.coach) {
+                this.userType = 'coach';
+                this.loadTodos();
+                // this.loadClients();
+              } else if (c.regular) {
+                this.userType = 'regular';
+              } else if (c.publisher) {
+                this.userType = 'publisher';
+                this.loadTodos();
+              } else if (c.provider) {
+                this.userType = 'provider';
+              } else {
+                this.userType = null;
+              }
+            });
+        }
+        tempAuthSub.unsubscribe();
+      });
+    this.subscriptions.add(tempAuthSub);
   }
 
   loadTodos() {
-    this.dataService.getUserTasksTodos(this.uid)
-    .subscribe(todos => {
-      this.todos = todos;
-    });
+    this.subscriptions.add(
+      this.dataService.getUserTasksTodos(this.uid)
+        .subscribe(todos => {
+          this.todos = todos;
+        })
+    );
   }
 
   loadClients() {
@@ -128,19 +134,19 @@ export class DashboardComponent implements OnInit {
     this.adminNewestUsers = allUsers.hits; // no filter required as index is sorted by date created (descending)
     // console.log('NEW', this.adminNewestUsers);
 
-    const regularUsers = await this.searchService.searchUsers(1, 1, { params: { accountType: 'regular' }});
+    const regularUsers = await this.searchService.searchUsers(1, 1, {params: {accountType: 'regular'}});
     this.adminCountRegularUsers = regularUsers.nbHits;
 
-    const coachUsers = await this.searchService.searchUsers(1, 1, { params: { accountType: 'coach' }});
+    const coachUsers = await this.searchService.searchUsers(1, 1, {params: {accountType: 'coach'}});
     this.adminCountCoachUsers = coachUsers.nbHits;
 
-    const publisherUsers = await this.searchService.searchUsers(1, 1, { params: { accountType: 'publisher' }});
+    const publisherUsers = await this.searchService.searchUsers(1, 1, {params: {accountType: 'publisher'}});
     this.adminCountPublisherUsers = publisherUsers.nbHits;
 
-    const providerUsers = await this.searchService.searchUsers(1, 1, { params: { accountType: 'provider' }});
+    const providerUsers = await this.searchService.searchUsers(1, 1, {params: {accountType: 'provider'}});
     this.adminCountProviderUsers = providerUsers.nbHits;
 
-    const adminUsers = await this.searchService.searchUsers(1, 1, { params: { accountType: 'admin' }});
+    const adminUsers = await this.searchService.searchUsers(1, 1, {params: {accountType: 'admin'}});
     this.adminCountAdminUsers = adminUsers.nbHits;
 
     const draftCourses = await this.searchService.searchDraftCourses(1, 1, {}, false);
@@ -149,9 +155,11 @@ export class DashboardComponent implements OnInit {
     const coursesCount = await this.searchService.searchCourses(1, 1, {}, false);
     this.adminPublishedCoursesCount = coursesCount.nbHits;
 
-    this.dataService.getTotalAdminCoursesInReview().subscribe(total => {
-      total ? this.adminCourseReviewRequests = total.totalRecords : this.adminCourseReviewRequests = 0;
-    });
+    this.subscriptions.add(
+      this.dataService.getTotalAdminCoursesInReview().subscribe(total => {
+        total ? this.adminCourseReviewRequests = total.totalRecords : this.adminCourseReviewRequests = 0;
+      })
+    );
 
     const refundRequestCount = await this.searchService.searchCourseRefundRequests(1, 1, {});
     this.adminCourseRefundRequests = refundRequestCount.nbHits;
@@ -175,6 +183,10 @@ export class DashboardComponent implements OnInit {
     if (token) {
       this.feedbackUrl = `https://lifecoach.nolt.io/sso/${token}`;
     }
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 
 }

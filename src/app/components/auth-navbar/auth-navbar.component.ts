@@ -1,23 +1,26 @@
-import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
 import { ROUTES } from '../sidebar/sidebar.component';
 import { DOCUMENT, isPlatformBrowser, Location } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
 import { AuthService } from '../../services/auth.service';
+import { Subscription } from 'rxjs';
 
 const misc: any = {
   sidebar_mini_active: true
 };
+
 @Component({
   selector: 'app-auth-navbar',
   templateUrl: './auth-navbar.component.html',
   styleUrls: ['./auth-navbar.component.scss']
 })
-export class AuthNavbarComponent implements OnInit {
+export class AuthNavbarComponent implements OnInit, OnDestroy {
 
   public isCollapsed = true;
   private listTitles: any[];
   private location: Location;
   public userAuthorised = false;
+  private subscriptions: Subscription = new Subscription();
 
   constructor(
     location: Location,
@@ -28,15 +31,17 @@ export class AuthNavbarComponent implements OnInit {
   ) {
     this.location = location;
     // Monitor the user's auth state
-    this.authService.getAuthUser().subscribe(user => {
-      if (user) {
-        // Auth state is not null. User is authorised.
-        this.userAuthorised = true;
-      } else {
-        // User is not authorised.
-        this.userAuthorised = false;
-      }
-    });
+    this.subscriptions.add(
+      this.authService.getAuthUser().subscribe(user => {
+        if (user) {
+          // Auth state is not null. User is authorised.
+          this.userAuthorised = true;
+        } else {
+          // User is not authorised.
+          this.userAuthorised = false;
+        }
+      })
+    );
   }
 
   minimizeSidebar() {
@@ -104,5 +109,9 @@ export class AuthNavbarComponent implements OnInit {
     }
 
     return 'Lifecoach';
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 }
