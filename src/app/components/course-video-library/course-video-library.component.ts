@@ -1,7 +1,8 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { DataService } from 'app/services/data.service';
 import { AlertService } from 'app/services/alert.service';
 import { CoachingCourseVideo, CoachingCourseResource } from 'app/interfaces/course.interface';
+import { Subscription } from 'rxjs';
 
 /*
   Note: Using the NGB-Bootstrap Pagination component in the UI to handle pagination.
@@ -16,7 +17,7 @@ import { CoachingCourseVideo, CoachingCourseResource } from 'app/interfaces/cour
   templateUrl: './course-video-library.component.html',
   styleUrls: ['./course-video-library.component.scss']
 })
-export class CourseVideoLibraryComponent implements OnInit {
+export class CourseVideoLibraryComponent implements OnInit, OnDestroy {
 
   @Input() userId: string;
   @Input() selectedItems: CoachingCourseVideo[] | CoachingCourseResource[];
@@ -29,10 +30,13 @@ export class CourseVideoLibraryComponent implements OnInit {
   public maxSize: number;
   public results: any[];
 
+  private subscriptions: Subscription = new Subscription();
+
   constructor(
     private dataService: DataService,
     private alertService: AlertService
-  ) { }
+  ) {
+  }
 
   ngOnInit() {
     console.log('Selected items:', this.selectedItems);
@@ -48,11 +52,13 @@ export class CourseVideoLibraryComponent implements OnInit {
       this.alertService.alert('warning-message', 'Oops', 'Error: No user ID. Cannot fetch library total items.');
       return;
     }
-    this.dataService.getUserCourseLibraryTotals(this.userId).subscribe(lib => {
-      if (lib && lib.totalItems) {
-        this.totalItems = lib.totalItems;
-      }
-    });
+    this.subscriptions.add(
+      this.dataService.getUserCourseLibraryTotals(this.userId).subscribe(lib => {
+        if (lib && lib.totalItems) {
+          this.totalItems = lib.totalItems;
+        }
+      })
+    );
   }
 
   loadInitialResults() {
@@ -60,12 +66,14 @@ export class CourseVideoLibraryComponent implements OnInit {
       this.alertService.alert('warning-message', 'Oops', 'Error: No user ID. Cannot fetch library initial results.');
       return;
     }
-    this.dataService.getInitialCourseLibraryItems(this.userId, this.itemsPerPage).subscribe(items => {
-      console.log('Initial library results:', items);
-      if (items.length) {
-        this.results = items;
-      }
-    });
+    this.subscriptions.add(
+      this.dataService.getInitialCourseLibraryItems(this.userId, this.itemsPerPage).subscribe(items => {
+        console.log('Initial library results:', items);
+        if (items.length) {
+          this.results = items;
+        }
+      })
+    );
   }
 
   loadNextResults() {
@@ -74,12 +82,14 @@ export class CourseVideoLibraryComponent implements OnInit {
       return;
     }
     const lastDoc = this.results[this.results.length - 1];
-    this.dataService.getNextCourseLibraryItems(this.userId, this.itemsPerPage, lastDoc).subscribe(items => {
-      console.log('Next library results:', items);
-      if (items.length) {
-        this.results = items;
-      }
-    });
+    this.subscriptions.add(
+      this.dataService.getNextCourseLibraryItems(this.userId, this.itemsPerPage, lastDoc).subscribe(items => {
+        console.log('Next library results:', items);
+        if (items.length) {
+          this.results = items;
+        }
+      })
+    );
   }
 
   loadPreviousResults() {
@@ -88,12 +98,14 @@ export class CourseVideoLibraryComponent implements OnInit {
       return;
     }
     const firstDoc = this.results[0];
-    this.dataService.getPreviousCourseLibraryItems(this.userId, this.itemsPerPage, firstDoc).subscribe(items => {
-      console.log('Previous library results:', items);
-      if (items.length) {
-        this.results = items;
-      }
-    });
+    this.subscriptions.add(
+      this.dataService.getPreviousCourseLibraryItems(this.userId, this.itemsPerPage, firstDoc).subscribe(items => {
+        console.log('Previous library results:', items);
+        if (items.length) {
+          this.results = items;
+        }
+      })
+    );
   }
 
   pageChanged(event: any) {
@@ -127,6 +139,10 @@ export class CourseVideoLibraryComponent implements OnInit {
       }
     });
     return selected;
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 
 }

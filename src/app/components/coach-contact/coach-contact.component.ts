@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID, Input } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, Input, OnDestroy } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -17,7 +17,7 @@ import { Subscription } from 'rxjs';
   templateUrl: './coach-contact.component.html',
   styleUrls: ['./coach-contact.component.scss']
 })
-export class CoachContactComponent implements OnInit {
+export class CoachContactComponent implements OnInit, OnDestroy {
 
   @Input() coachUid: string;
 
@@ -165,6 +165,10 @@ export class CoachContactComponent implements OnInit {
         Something went wrong. Error: ${JSON.stringify(res.error)}`);
       }
     }
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 
 }

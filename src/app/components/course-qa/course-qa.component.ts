@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, OnChanges, AfterViewInit } from '@angular/core';
+import { Component, OnInit, Input, ViewChild, OnChanges, AfterViewInit, OnDestroy } from '@angular/core';
 import { CoachingCourse, CoachingCourseLecture } from 'app/interfaces/course.interface';
 import { ModalDirective } from 'ngx-bootstrap/modal';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
@@ -7,13 +7,14 @@ import { DataService } from 'app/services/data.service';
 import { AlertService } from 'app/services/alert.service';
 import { SearchService } from 'app/services/search.service';
 import { AnalyticsService } from 'app/services/analytics.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-course-qa',
   templateUrl: './course-qa.component.html',
   styleUrls: ['./course-qa.component.scss']
 })
-export class CourseQaComponent implements OnInit, OnChanges, AfterViewInit {
+export class CourseQaComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
 
   @Input() course: CoachingCourse; // static course data
   @Input() userId: string;
@@ -59,13 +60,16 @@ export class CourseQaComponent implements OnInit, OnChanges, AfterViewInit {
 
   public viewLoaded: boolean;
 
+  private subscriptions: Subscription = new Subscription();
+
   constructor(
     public formBuilder: FormBuilder,
     private dataService: DataService,
     private alertService: AlertService,
     private searchService: SearchService,
     private analyticsService: AnalyticsService
-  ) { }
+  ) {
+  }
 
   ngOnInit() {
     this.buildCourseQuestionForm();
@@ -89,12 +93,14 @@ export class CourseQaComponent implements OnInit, OnChanges, AfterViewInit {
     if (this.course && !this.liveCourse) {
       // NB: as the parent component does not pass in an active course subscription (deliberately),
       // subscribe to the course and keep monitoring to update when question total changes in realtime.
-      this.dataService.getUnlockedPublicCourse(this.course.courseId).subscribe(course => {
-        if (course) {
-          this.liveCourse = course;
-          this.totalHits = course.questions;
-        }
-      });
+      this.subscriptions.add(
+        this.dataService.getUnlockedPublicCourse(this.course.courseId).subscribe(course => {
+          if (course) {
+            this.liveCourse = course;
+            this.totalHits = course.questions;
+          }
+        })
+      );
     }
   }
 
@@ -121,6 +127,7 @@ export class CourseQaComponent implements OnInit, OnChanges, AfterViewInit {
       }
       tempSub.unsubscribe();
     });
+    this.subscriptions.add(tempSub);
   }
 
   fetchRegularProfile() {
@@ -130,35 +137,42 @@ export class CourseQaComponent implements OnInit, OnChanges, AfterViewInit {
       }
       tempSub.unsubscribe();
     });
+    this.subscriptions.add(tempSub);
   }
 
   async loadInitialQuestions(page: number) {
-    this.dataService.getInitialCourseQuestions(this.course.courseId, this.hitsPerPage).subscribe(items => {
-      // console.log(items);
-      if (items.length) {
-        this.questions = items;
-      }
-    });
+    this.subscriptions.add(
+      this.dataService.getInitialCourseQuestions(this.course.courseId, this.hitsPerPage).subscribe(items => {
+        // console.log(items);
+        if (items.length) {
+          this.questions = items;
+        }
+      })
+    );
   }
 
   loadNextQuestions() {
     const lastDoc = this.questions[this.questions.length - 1];
-    this.dataService.getNextCourseQuestions(this.course.courseId, this.hitsPerPage, lastDoc).subscribe(items => {
-      console.log(items);
-      if (items.length) {
-        this.questions = items;
-      }
-    });
+    this.subscriptions.add(
+      this.dataService.getNextCourseQuestions(this.course.courseId, this.hitsPerPage, lastDoc).subscribe(items => {
+        console.log(items);
+        if (items.length) {
+          this.questions = items;
+        }
+      })
+    );
   }
 
   loadPreviousQuestions() {
     const firstDoc = this.questions[0];
-    this.dataService.getPreviousCourseQuestions(this.course.courseId, this.hitsPerPage, firstDoc).subscribe(items => {
-      console.log(items);
-      if (items.length) {
-        this.questions = items;
-      }
-    });
+    this.subscriptions.add(
+      this.dataService.getPreviousCourseQuestions(this.course.courseId, this.hitsPerPage, firstDoc).subscribe(items => {
+        console.log(items);
+        if (items.length) {
+          this.questions = items;
+        }
+      })
+    );
   }
 
   get cQF(): any {
@@ -291,6 +305,10 @@ export class CourseQaComponent implements OnInit, OnChanges, AfterViewInit {
     await this.dataService.saveCourseQuestion(question);
 
     this.alertService.alert('success-message', 'Success!', 'Your question has been posted.');
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 
 }

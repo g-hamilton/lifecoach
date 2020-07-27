@@ -1,9 +1,9 @@
-import { Component, OnInit, Input, Inject, PLATFORM_ID, OnChanges } from '@angular/core';
+import { Component, OnInit, Input, Inject, PLATFORM_ID, OnChanges, OnDestroy } from '@angular/core';
 import { CoachingCourse } from 'app/interfaces/course.interface';
 import { CourseReviewsService } from 'app/services/course-reviews.service';
 import { isPlatformBrowser, isPlatformServer } from '@angular/common';
 import { makeStateKey, TransferState } from '@angular/platform-browser';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { CourseReview } from 'app/interfaces/course-review';
 import { map } from 'rxjs/operators';
 import { DataService } from 'app/services/data.service';
@@ -13,7 +13,7 @@ import { DataService } from 'app/services/data.service';
   templateUrl: './course-coach.component.html',
   styleUrls: ['./course-coach.component.scss']
 })
-export class CourseCoachComponent implements OnInit, OnChanges {
+export class CourseCoachComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input() previewAsStudent: boolean;
   @Input() course: CoachingCourse;
@@ -23,13 +23,15 @@ export class CourseCoachComponent implements OnInit, OnChanges {
   public sellerEnrollments: Observable<any>;
   public sellerCourses: Observable<CoachingCourse[]>;
   public sellerImage: string;
+  private subscriptions: Subscription = new Subscription();
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
     private transferState: TransferState,
     private courseReviewsService: CourseReviewsService,
     private dataService: DataService
-  ) { }
+  ) {
+  }
 
   ngOnInit() {
   }
@@ -59,11 +61,13 @@ export class CourseCoachComponent implements OnInit, OnChanges {
       }));
 
       if (isPlatformServer(this.platformId)) { // if we're server side, store the retrieved data as a state
-        this.userReviews.subscribe(data => {
-          if (data) {
-            this.transferState.set(REVIEWS_KEY, data as any);
-          }
-        });
+        this.subscriptions.add(
+          this.userReviews.subscribe(data => {
+            if (data) {
+              this.transferState.set(REVIEWS_KEY, data as any);
+            }
+          })
+        );
       }
 
     } else { // if reviews state data exists retrieve it from the state storage
@@ -82,11 +86,13 @@ export class CourseCoachComponent implements OnInit, OnChanges {
       this.sellerEnrollments = this.dataService.getTotalPublicEnrollmentsByCourseSeller(this.course.sellerUid);
 
       if (isPlatformServer(this.platformId)) { // if we're server side, store the retrieved data as a state
-        this.sellerEnrollments.subscribe(data => {
-          if (data) {
-            this.transferState.set(ENROLLMENTS_KEY, data as any);
-          }
-        });
+        this.subscriptions.add(
+          this.sellerEnrollments.subscribe(data => {
+            if (data) {
+              this.transferState.set(ENROLLMENTS_KEY, data as any);
+            }
+          })
+        );
       }
 
     } else { // if state data exists retrieve it from the state storage
@@ -104,11 +110,13 @@ export class CourseCoachComponent implements OnInit, OnChanges {
       this.sellerCourses = this.dataService.getPublicCoursesBySeller(this.course.sellerUid);
 
       if (isPlatformServer(this.platformId)) { // if we're server side, store the retrieved data as a state
-        this.sellerCourses.subscribe(data => {
-          if (data) {
-            this.transferState.set(COURSES_KEY, data as any);
-          }
-        });
+        this.subscriptions.add(
+          this.sellerCourses.subscribe(data => {
+            if (data) {
+              this.transferState.set(COURSES_KEY, data as any);
+            }
+          })
+        );
       }
 
     } else { // if state data exists retrieve it from the state storage
@@ -127,7 +135,12 @@ export class CourseCoachComponent implements OnInit, OnChanges {
         }
         tempSub.unsubscribe();
       });
+      this.subscriptions.add(tempSub);
     }
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 
 }

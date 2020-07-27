@@ -1,14 +1,15 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy } from '@angular/core';
 import { CourseQuestion, CourseQuestionReply } from 'app/interfaces/q&a.interface';
 import { DataService } from 'app/services/data.service';
 import { ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-discussion-feed',
   templateUrl: './discussion-feed.component.html',
   styleUrls: ['./discussion-feed.component.scss']
 })
-export class DiscussionFeedComponent implements OnInit {
+export class DiscussionFeedComponent implements OnInit, OnDestroy {
 
   @Input() userId: string;
   @Input() feed: CourseQuestionReply[];
@@ -18,6 +19,8 @@ export class DiscussionFeedComponent implements OnInit {
   public selectedQuestionId: string;
   public selectedQuestion: CourseQuestion;
   public lectureTitle: string;
+
+  private subscriptions: Subscription = new Subscription();
 
   constructor(
     private route: ActivatedRoute,
@@ -41,6 +44,7 @@ export class DiscussionFeedComponent implements OnInit {
       }
       qSub.unsubscribe();
     });
+    this.subscriptions.add(qSub);
   }
 
   getLectureTitle() {
@@ -54,12 +58,17 @@ export class DiscussionFeedComponent implements OnInit {
         }
         courseSub.unsubscribe();
       });
+      this.subscriptions.add(courseSub);
     }
   }
 
   displayDate(unix: number) {
     const date = new Date(unix * 1000);
     return date.toDateString();
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 
 }
