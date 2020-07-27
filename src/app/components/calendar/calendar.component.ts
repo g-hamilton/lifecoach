@@ -1,6 +1,6 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { CalendarView } from 'angular-calendar';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { ModalDirective } from 'ngx-bootstrap/modal';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { CustomCalendarEvent } from '../../interfaces/custom.calendar.event.interface';
@@ -15,11 +15,11 @@ declare var JitsiMeetExternalAPI: any;
   styleUrls: ['./calendar.component.scss']
 })
 
-export class CalendarComponent implements OnInit, AfterViewInit {
+export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  @ViewChild('eventDetailModal', { static: false }) public eventDetailModal: ModalDirective;
-  @ViewChild('editEventModal', { static: false }) public editEventModal: ModalDirective;
-  @ViewChild('cancelEventModal', { static: false }) public cancelEventModal: ModalDirective;
+  @ViewChild('eventDetailModal', {static: false}) public eventDetailModal: ModalDirective;
+  @ViewChild('editEventModal', {static: false}) public editEventModal: ModalDirective;
+  @ViewChild('cancelEventModal', {static: false}) public cancelEventModal: ModalDirective;
 
   private userId: string;
 
@@ -38,11 +38,14 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   private meetingOptions: any;
   private meetingApi: any;
 
+  private subscriptions: Subscription = new Subscription();
+
   constructor(
     private authService: AuthService,
     public formBuilder: FormBuilder,
     private dataService: DataService
-  ) { }
+  ) {
+  }
 
   ngOnInit() {
     this.buildActiveEventForm();
@@ -95,30 +98,33 @@ export class CalendarComponent implements OnInit, AfterViewInit {
   }
 
   loadUserData() {
-    this.authService.getAuthUser().subscribe(user => {
-      if (user) {
-        this.userId = user.uid;
-        this.dataService.getUserCalendarEvents(this.userId).subscribe(events => {
-          if (events) {
+    this.subscriptions.add(
+      this.authService.getAuthUser().subscribe(user => {
+        if (user) {
+          this.userId = user.uid;
+          this.subscriptions.add(
+            this.dataService.getUserCalendarEvents(this.userId).subscribe(events => {
+              if (events) {
+                // important: update date objects as Firebase stores dates as unix string: 't {seconds: 0, nanoseconds: 0}'
+                events.forEach((ev: any) => {
+                  if (ev.start) {
+                    ev.start = new Date(ev.start.seconds * 1000);
+                  }
+                  if (ev.end) {
+                    ev.end = new Date(ev.end.seconds * 1000);
+                  }
+                });
 
-            // important: update date objects as Firebase stores dates as unix string: 't {seconds: 0, nanoseconds: 0}'
-            events.forEach((ev: any) => {
-              if (ev.start) {
-                ev.start = new Date(ev.start.seconds * 1000);
+                this.events = events;
+                this.refresh.next(); // refresh the view
+
+                console.log(this.events);
               }
-              if (ev.end) {
-                ev.end = new Date(ev.end.seconds * 1000);
-              }
-            });
-
-            this.events = events;
-            this.refresh.next(); // refresh the view
-
-            console.log(this.events);
-          }
-        });
-      }
-    });
+            })
+          );
+        }
+      })
+    );
   }
 
   loadActiveEventFormData() {
@@ -170,7 +176,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     this.editEventModal.show();
   }
 
-  eventClicked({ event }: { event: CustomCalendarEvent }): void {
+  eventClicked({event}: { event: CustomCalendarEvent }): void {
     console.log('Event clicked', event);
     this.activeEvent = event;
     this.eventDetailModal.show();
@@ -228,7 +234,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
 
     // if the event has no id, create one id now
     if (!this.activeEventF.id.value) {
-      this.activeEventForm.patchValue({ id: Math.random().toString(36).substr(2, 9) }); // generate semi-random id
+      this.activeEventForm.patchValue({id: Math.random().toString(36).substr(2, 9)}); // generate semi-random id
     }
 
     const ev = this.activeEventForm.value;
@@ -250,4 +256,7 @@ export class CalendarComponent implements OnInit, AfterViewInit {
     this.activeEventForm.reset();
   }
 
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
+  }
 }

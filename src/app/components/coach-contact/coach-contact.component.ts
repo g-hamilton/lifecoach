@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID, Input  } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, Input } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -10,6 +10,7 @@ import { ToastService } from 'app/services/toast.service';
 import { CloudFunctionsService } from 'app/services/cloud-functions.service';
 
 import { FirebaseLoginResponse } from 'app/interfaces/firebase.login.response.interface';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-coach-contact',
@@ -37,6 +38,7 @@ export class CoachContactComponent implements OnInit {
   public submitted: boolean;
   public loginRequired: boolean;
   public sendingMessage: boolean;
+  private subscriptions: Subscription = new Subscription();
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
@@ -46,7 +48,8 @@ export class CoachContactComponent implements OnInit {
     private alertService: AlertService,
     private cloudFunctionsService: CloudFunctionsService,
     private router: Router
-  ) { }
+  ) {
+  }
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
@@ -78,16 +81,18 @@ export class CoachContactComponent implements OnInit {
   }
 
   getUser() {
-    this.authService.getAuthUser()
-    .subscribe(user => {
-      if (user) {
-        this.userId = user.uid;
-        // Remove the form controls we don't need when user is authorised
-        this.contactForm.removeControl('firstName');
-        this.contactForm.removeControl('lastName');
-        this.contactForm.removeControl('email');
-      }
-    });
+    this.subscriptions.add(
+      this.authService.getAuthUser()
+        .subscribe(user => {
+          if (user) {
+            this.userId = user.uid;
+            // Remove the form controls we don't need when user is authorised
+            this.contactForm.removeControl('firstName');
+            this.contactForm.removeControl('lastName');
+            this.contactForm.removeControl('email');
+          }
+        })
+    );
   }
 
   async postMsg() {
@@ -142,7 +147,7 @@ export class CoachContactComponent implements OnInit {
   async onUserAuth(event: FirebaseLoginResponse) { // Fires if the child 'login-in-flow.component' emits a login response
     if (event.result.user.uid) { // Now user is authenticated, continue sending message
       this.userId = event.result.user.uid;
-      this.contactForm.patchValue({ recaptchaReactive: null });
+      this.contactForm.patchValue({recaptchaReactive: null});
       this.loginRequired = false;
       this.sendingMessage = true;
       this.submitted = true;
