@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID, AfterViewChecked, ChangeDetectorRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, AfterViewChecked, ChangeDetectorRef, AfterViewInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { isPlatformBrowser } from '@angular/common';
 
@@ -16,13 +16,14 @@ import { StorageService } from '../../services/storage.service';
 import { AlertService } from 'app/services/alert.service';
 import { EmojiCountry } from 'app/interfaces/emoji.country.interface';
 import { ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-user',
   templateUrl: 'user.component.html',
   styleUrls: ['./user.component.scss']
 })
-export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit {
+export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, OnDestroy {
 
   public browser = false;
 
@@ -90,7 +91,7 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit {
     website: {
       missingUrlScheme: `Address must include either 'http://' or 'https://`
     },
-    learningPoints : {
+    learningPoints: {
       maxLength: `Specialist area must be below ${this.goalTagMaxLength} characters`,
       includesComma: `Please only add one specialist area per line`
     }
@@ -106,6 +107,8 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit {
 
   public videoSources = [] as any;
 
+  private subscriptions: Subscription = new Subscription();
+
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
     private cdRef: ChangeDetectorRef,
@@ -119,7 +122,8 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit {
     private analyticsService: AnalyticsService,
     private storageService: StorageService,
     private alertService: AlertService
-  ) { }
+  ) {
+  }
 
   ngOnInit() {
     this.buildProfileForm();
@@ -143,57 +147,63 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit {
   }
 
   monitorUserData() {
-    this.authService.getAuthUser()
-    .subscribe( async user => { // subscribe to the user
-      if (user) {
-        // As this component is shared by users and admins: if admin, check for route params for user ID,
-        // otherwise get user ID from auth object
-        const tokenResult = await user.getIdTokenResult();
-        const claims = tokenResult.claims;
+    this.subscriptions.add(
+      this.authService.getAuthUser()
+        .subscribe(async user => { // subscribe to the user
+          if (user) {
+            // As this component is shared by users and admins: if admin, check for route params for user ID,
+            // otherwise get user ID from auth object
+            const tokenResult = await user.getIdTokenResult();
+            const claims = tokenResult.claims;
 
-        if (claims && claims.admin) { // admin user on behalf of user
-          console.log('User is an admin');
-          this.route.params.subscribe(params => {
-            if (params.uid) {
-              this.userId = params.uid;
+            if (claims && claims.admin) { // admin user on behalf of user
+              console.log('User is an admin');
+              this.route.params.subscribe(params => {
+                if (params.uid) {
+                  this.userId = params.uid;
+                  this.monitorUserProfile();
+                }
+              });
+            } else { // non-admin user editing own profile
+              this.userId = user.uid;
               this.monitorUserProfile();
             }
-          });
-        } else { // non-admin user editing own profile
-          this.userId = user.uid;
-          this.monitorUserProfile();
-        }
-      }
-    });
+          }
+        })
+    );
   }
 
   monitorUserProfile() {
     this.updateShareForm();
-    this.dataService.getCoachProfile(this.userId)
-    .subscribe(profile => { // subscribe to the profile
-      if (profile && profile.dateCreated) {
-        console.log('Fetched user profile:', profile);
-        this.loadUserProfileData(profile);
-      } else { // if no profile exists, load the wizard
-        this.loadWizard = true;
-      }
-    });
-    this.dataService.getProfileVideos(this.userId)
-    .subscribe(videos => { // subscribe to the profile videos
-      console.log('Profile videos:', videos);
-      if (videos && videos.length > 0) {
-        const sortedByLastUploaded = videos.sort((a, b) => a.lastUploaded - b.lastUploaded);
-        this.profileVideos = sortedByLastUploaded;
-        // Set the last uploaded video as the active video
-        this.videoSources = []; // reset
-        this.videoSources.push({ // use the array method for reloading a videoGular video as simple [src] binding does not reload on the fly
-          src: this.profileVideos[this.profileVideos.length - 1].downloadURL
-        });
-        this.userProfile.patchValue({ selectedProfileVideo: this.profileVideos[this.profileVideos.length - 1].downloadURL });
-      } else {
-        this.profileVideos = null;
-      }
-    });
+    this.subscriptions.add(
+      this.dataService.getCoachProfile(this.userId)
+        .subscribe(profile => { // subscribe to the profile
+          if (profile && profile.dateCreated) {
+            console.log('Fetched user profile:', profile);
+            this.loadUserProfileData(profile);
+          } else { // if no profile exists, load the wizard
+            this.loadWizard = true;
+          }
+        })
+    );
+    this.subscriptions.add(
+      this.dataService.getProfileVideos(this.userId)
+        .subscribe(videos => { // subscribe to the profile videos
+          console.log('Profile videos:', videos);
+          if (videos && videos.length > 0) {
+            const sortedByLastUploaded = videos.sort((a, b) => a.lastUploaded - b.lastUploaded);
+            this.profileVideos = sortedByLastUploaded;
+            // Set the last uploaded video as the active video
+            this.videoSources = []; // reset
+            this.videoSources.push({ // use the array method for reloading a videoGular video as simple [src] binding does not reload on the fly
+              src: this.profileVideos[this.profileVideos.length - 1].downloadURL
+            });
+            this.userProfile.patchValue({selectedProfileVideo: this.profileVideos[this.profileVideos.length - 1].downloadURL});
+          } else {
+            this.profileVideos = null;
+          }
+        })
+    );
   }
 
   buildProfileForm() {
@@ -275,7 +285,7 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit {
       photo: p.photo,
       city: p.city,
       country: (p.country && p.country.code) ? p.country.code : null,
-      speciality1: (p.speciality1 && p.speciality1.id) ?  p.speciality1.id : null,
+      speciality1: (p.speciality1 && p.speciality1.id) ? p.speciality1.id : null,
       qualBa: p.qualBa ? p.qualBa : null,
       qualBsc: p.qualBsc ? p.qualBsc : null,
       qualBcomm: p.qualBcomm ? p.qualBcomm : null,
@@ -299,7 +309,7 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit {
       qualCsa: p.qualCsa ? p.qualCsa : null,
       qualSa: p.qualSa ? p.qualSa : null,
       proSummary: p.proSummary,
-      profileUrl : p.profileUrl ? p.profileUrl : `https://lifecoach.io/coach/${this.userId}`,
+      profileUrl: p.profileUrl ? p.profileUrl : `https://lifecoach.io/coach/${this.userId}`,
       fullDescription: p.fullDescription ? p.fullDescription : '',
       goalTags: this.importGoalTags(p.goalTags),
       remotePractice: p.remotePractice ? p.remotePractice : true,
@@ -319,7 +329,7 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit {
       website: p.website ? p.website : '',
       selectedProfileVideo: p.selectedProfileVideo ? p.selectedProfileVideo : null,
       isPublic: p.isPublic ? p.isPublic : false,
-      dateCreated : p.dateCreated ? p.dateCreated : Math.round(new Date().getTime() / 1000) // unix timestamp if missing
+      dateCreated: p.dateCreated ? p.dateCreated : Math.round(new Date().getTime() / 1000) // unix timestamp if missing
     });
 
     if (p.selectedProfileVideo) {
@@ -417,7 +427,7 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit {
     this.videoSources.push({ // use the array method for reloading a videoGular video as simple [src] binding does not reload on the fly
       src: ev.target.id
     });
-    this.userProfile.patchValue({ selectedProfileVideo: ev.target.id });
+    this.userProfile.patchValue({selectedProfileVideo: ev.target.id});
   }
 
   onVideoRemove(i: number) {
@@ -429,7 +439,7 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit {
 
   onPublicSettingToggle(ev: any) {
     // console.log('Profile is public:', ev);
-    this.userProfile.patchValue({ isPublic: ev.currentValue });
+    this.userProfile.patchValue({isPublic: ev.currentValue});
   }
 
   async onSubmit() {
@@ -437,11 +447,11 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit {
 
       // update the form data from just country code to the full country object.
       const ct = this.countryService.getCountryByCode(this.profileF.country.value);
-      this.userProfile.patchValue({ country: ct});
+      this.userProfile.patchValue({country: ct});
 
       // update the form data from just speciality id to the full speciality object.
       const spec = this.specialitiesService.getSpecialityById(this.profileF.speciality1.value);
-      this.userProfile.patchValue({ speciality1: spec });
+      this.userProfile.patchValue({speciality1: spec});
 
       console.log('Profile is valid:', this.userProfile.value);
 
@@ -451,7 +461,7 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit {
       const objArr = [];
       this.userProfile.value.goalTags.controls.forEach(formCtrl => {
         if (formCtrl.value !== '') { // exclude empty tags
-          objArr.push({ display: formCtrl.value, value: formCtrl.value });
+          objArr.push({display: formCtrl.value, value: formCtrl.value});
         }
       });
       saveProfile.goalTags = objArr;
@@ -498,4 +508,7 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit {
     this.alertService.alert('auto-close', 'Copied!', 'Link copied to clipboard.');
   }
 
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
+  }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Inject, PLATFORM_ID, OnChanges } from '@angular/core';
+import { Component, OnInit, Input, Inject, PLATFORM_ID, OnChanges, OnDestroy } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 import { isPlatformBrowser } from '@angular/common';
 
@@ -11,13 +11,14 @@ import { PriceValidator } from 'app/custom-validators/price.validator';
 import { AuthService } from 'app/services/auth.service';
 import { UserAccount } from 'app/interfaces/user.account.interface';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-course-pricing',
   templateUrl: './course-pricing.component.html',
   styleUrls: ['./course-pricing.component.scss']
 })
-export class CoursePricingComponent implements OnInit, OnChanges {
+export class CoursePricingComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input() userId: string;
   @Input() course: CoachingCourse;
@@ -50,6 +51,8 @@ export class CoursePricingComponent implements OnInit, OnChanges {
 
   public objKeys = Object.keys;
 
+  private subscriptions: Subscription = new Subscription();
+
   constructor(
     @Inject(PLATFORM_ID) public platformId: object,
     public formBuilder: FormBuilder,
@@ -58,7 +61,8 @@ export class CoursePricingComponent implements OnInit, OnChanges {
     private alertService: AlertService,
     private analyticsService: AnalyticsService,
     private router: Router
-  ) { }
+  ) {
+  }
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
@@ -66,11 +70,13 @@ export class CoursePricingComponent implements OnInit, OnChanges {
       this.minPrice = this.baseMinPrice;
       this.maxPrice = this.baseMaxPrice;
       this.buildPricingForm();
-      this.pricingForm.get('pricingStrategy').valueChanges
-      .subscribe(value => {
-        this.pricingForm.get('price').updateValueAndValidity();
-        this.pricingForm.get('currency').updateValueAndValidity();
-      });
+      this.subscriptions.add(
+        this.pricingForm.get('pricingStrategy').valueChanges
+          .subscribe(value => {
+            this.pricingForm.get('price').updateValueAndValidity();
+            this.pricingForm.get('currency').updateValueAndValidity();
+          })
+      );
       this.updateLocalPriceLimits();
     }
   }
@@ -87,11 +93,13 @@ export class CoursePricingComponent implements OnInit, OnChanges {
   }
 
   loadUserData() {
-    this.dataService.getUserAccount(this.userId).subscribe(account => {
-      if (account) {
-        this.account = account;
-      }
-    });
+    this.subscriptions.add(
+      this.dataService.getUserAccount(this.userId).subscribe(account => {
+        if (account) {
+          this.account = account;
+        }
+      })
+    );
   }
 
   updateLocalPriceLimits() {
@@ -172,7 +180,7 @@ export class CoursePricingComponent implements OnInit, OnChanges {
       // do nothing as form will be updated to paid now
     } else {
       // reset form back to free as paid strategy is not allowed with a stripe account
-      this.pricingForm.patchValue({ pricingStrategy: 'free'});
+      this.pricingForm.patchValue({pricingStrategy: 'free'});
       // alert
       const res = await this.alertService.alert('title-and-text', 'Just a second!', `Before you can create a paid course, you need to enable payments
       so you can get paid.`, `Enable Now`) as any;
@@ -183,15 +191,15 @@ export class CoursePricingComponent implements OnInit, OnChanges {
   }
 
   onDisableInstructorSupportToggle(ev: any) {
-    this.pricingForm.patchValue({ disableInstructorSupport: ev.currentValue });
+    this.pricingForm.patchValue({disableInstructorSupport: ev.currentValue});
   }
 
   onDisableAllDiscussionToggle(ev: any) {
-    this.pricingForm.patchValue({ disableAllDiscussion: ev.currentValue });
+    this.pricingForm.patchValue({disableAllDiscussion: ev.currentValue});
   }
 
   onIncludeInCoachingForCoachesToggle(ev: any) {
-    this.pricingForm.patchValue({ includeInCoachingForCoaches: ev.currentValue });
+    this.pricingForm.patchValue({includeInCoachingForCoaches: ev.currentValue});
   }
 
   async onSubmit() {
@@ -213,7 +221,7 @@ export class CoursePricingComponent implements OnInit, OnChanges {
     }
 
     if (this.pricingF.pricingStrategy.value === 'paid' && !this.account.stripeUid) {
-      this.pricingForm.patchValue({ pricingStrategy: 'free'}); // should already be done by component but double safe!
+      this.pricingForm.patchValue({pricingStrategy: 'free'}); // should already be done by component but double safe!
       this.alertService.alert('warning-message', 'Oops', 'Before creating a paid course you must enable your payout account. Visit Account > Payout Settings to enable payouts now.');
       this.saving = false;
       return;
@@ -240,6 +248,10 @@ export class CoursePricingComponent implements OnInit, OnChanges {
     this.saving = false;
 
     this.analyticsService.editCourseOptions();
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 
 }
