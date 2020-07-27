@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID, AfterViewInit } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, AfterViewInit, OnDestroy } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { CoachingService } from 'app/interfaces/coaching.service.interface';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -9,12 +9,13 @@ import { AuthService } from 'app/services/auth.service';
 import { StorageService } from 'app/services/storage.service';
 import { DataService } from 'app/services/data.service';
 import { AnalyticsService } from 'app/services/analytics.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-edit-coach-service',
   templateUrl: 'edit.coach.service.component.html'
 })
-export class EditCoachServiceComponent implements OnInit, AfterViewInit {
+export class EditCoachServiceComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public browser: boolean;
   public loading: boolean;
@@ -71,6 +72,7 @@ export class EditCoachServiceComponent implements OnInit, AfterViewInit {
   };
 
   public saving: boolean;
+  private subscriptions: Subscription = new Subscription();
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
@@ -82,7 +84,8 @@ export class EditCoachServiceComponent implements OnInit, AfterViewInit {
     private storageService: StorageService,
     private dataService: DataService,
     private analyticsService: AnalyticsService
-  ) {}
+  ) {
+  }
 
   ngOnInit() {
 
@@ -93,19 +96,23 @@ export class EditCoachServiceComponent implements OnInit, AfterViewInit {
       this.maxPrice = this.baseMaxPrice;
 
       this.buildServiceForm();
-      this.serviceForm.get('pricingStrategy').valueChanges
-      .subscribe(value => {
-        this.serviceForm.get('price').updateValueAndValidity();
-        this.serviceForm.get('currency').updateValueAndValidity();
-      });
+      this.subscriptions.add(
+        this.serviceForm.get('pricingStrategy').valueChanges
+          .subscribe(value => {
+            this.serviceForm.get('price').updateValueAndValidity();
+            this.serviceForm.get('currency').updateValueAndValidity();
+          })
+      );
       this.updateLocalPriceLimits();
 
-      this.authService.getAuthUser().subscribe(user => {
-        if (user) {
-          this.userId = user.uid;
-          this.checkRouteData();
-        }
-      });
+      this.subscriptions.add(
+        this.authService.getAuthUser().subscribe(user => {
+          if (user) {
+            this.userId = user.uid;
+            this.checkRouteData();
+          }
+        })
+      );
     }
   }
 
@@ -171,28 +178,30 @@ export class EditCoachServiceComponent implements OnInit, AfterViewInit {
 
   importCoachingServiceData(serviceId: string) {
     this.loading = true;
-    this.dataService.getCoachServiceById(this.userId, serviceId).subscribe(service => {
-      if (service) {
-        console.log('importing service:', service);
+    this.subscriptions.add(
+      this.dataService.getCoachServiceById(this.userId, serviceId).subscribe(service => {
+        if (service) {
+          console.log('importing service:', service);
 
-        // patch service data into form data
-        this.serviceForm.patchValue({
-          id: service.id,
-          coachUid: service.coachUid,
-          title: service.title,
-          subtitle: service.subtitle,
-          duration: service.duration,
-          serviceType: service.serviceType,
-          pricingStrategy: service.pricingStrategy,
-          price: service.price,
-          currency: service.currency,
-          image: service.image,
-          description: service.description
-        });
-      }
+          // patch service data into form data
+          this.serviceForm.patchValue({
+            id: service.id,
+            coachUid: service.coachUid,
+            title: service.title,
+            subtitle: service.subtitle,
+            duration: service.duration,
+            serviceType: service.serviceType,
+            pricingStrategy: service.pricingStrategy,
+            price: service.price,
+            currency: service.currency,
+            image: service.image,
+            description: service.description
+          });
+        }
 
-      this.loading = false;
-    });
+        this.loading = false;
+      })
+    );
   }
 
   get serviceF(): any {
@@ -340,6 +349,10 @@ export class EditCoachServiceComponent implements OnInit, AfterViewInit {
     this.saving = false;
 
     this.router.navigate(['services']);
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 
 }

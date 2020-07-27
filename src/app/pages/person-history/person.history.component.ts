@@ -1,20 +1,22 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, OnDestroy } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { DataService } from 'app/services/data.service';
 import { AuthService } from 'app/services/auth.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CRMPerson } from 'app/interfaces/crm.person.interface';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-person-history',
   templateUrl: 'person.history.component.html'
 })
-export class PersonHistoryComponent implements OnInit {
+export class PersonHistoryComponent implements OnInit, OnDestroy {
 
   public browser: boolean;
   private userId: string; // the user's own id
   private personId: string; // the id of the person the user is looking at
   public person: CRMPerson;
+  private subscriptions: Subscription = new Subscription();
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
@@ -22,80 +24,89 @@ export class PersonHistoryComponent implements OnInit {
     private dataService: DataService,
     private route: ActivatedRoute,
     private router: Router
-  ) {}
+  ) {
+  }
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
-        this.browser = true;
-        this.route.params.subscribe(params => {
-            if (params.uid) {
-                this.personId = params.uid;
-                this.getUserData();
-            }
-        });
+      this.browser = true;
+      this.route.params.subscribe(params => {
+        if (params.uid) {
+          this.personId = params.uid;
+          this.getUserData();
+        }
+      });
     }
   }
 
   getUserData() {
-    this.authService.getAuthUser().subscribe(user => {
-      if (user) {
-        this.userId = user.uid;
-        this.loadPerson();
-      }
-    });
+    this.subscriptions.add(
+      this.authService.getAuthUser().subscribe(user => {
+        if (user) {
+          this.userId = user.uid;
+          this.loadPerson();
+        }
+      })
+    );
   }
 
   loadPerson() {
-    this.dataService.getUserPerson(this.userId, this.personId).subscribe(async p => {
-      if (p) {
-        // console.log('base person:', p);
+    this.subscriptions.add(
+      this.dataService.getUserPerson(this.userId, this.personId).subscribe(async p => {
+        if (p) {
+          // console.log('base person:', p);
 
-        const person = await this.getPersonData(this.personId) as CRMPerson;
-        if (person) {
-        person.id = this.personId;
-        person.created = new Date(p.created * 1000); // convert from unix to Date
-        person.lastReplyReceived = p.lastReplyReceived ? p.lastReplyReceived : null;
-        const history = await this.getPersonHistory(this.userId, this.personId);
-        if (history) {
-            person.history = history;
-        }
-        person.type = await this.getPersonType(person) as any;
-        person.status = await this.getPersonStatus(person) as any;
-        }
+          const person = await this.getPersonData(this.personId) as CRMPerson;
+          if (person) {
+            person.id = this.personId;
+            person.created = new Date(p.created * 1000); // convert from unix to Date
+            person.lastReplyReceived = p.lastReplyReceived ? p.lastReplyReceived : null;
+            const history = await this.getPersonHistory(this.userId, this.personId);
+            if (history) {
+              person.history = history;
+            }
+            person.type = await this.getPersonType(person) as any;
+            person.status = await this.getPersonStatus(person) as any;
+          }
 
-        this.person = person;
-        console.log('filled person:', this.person);
-      }
-    });
+          this.person = person;
+          console.log('filled person:', this.person);
+        }
+      })
+    );
   }
 
   async getPersonData(uid: string) {
     return new Promise(resolve => {
-      this.dataService.getRegularProfile(uid).subscribe(profile => {
-        if (profile) {
-          const person = {
-            firstName: profile.firstName,
-            lastName: profile.lastName,
-            email: profile.email,
-            photo: profile.photo ? profile.photo : `https://eu.ui-avatars.com/api/?name=${profile.firstName}+${profile.lastName}` // https://eu.ui-avatars.com/
-          } as CRMPerson;
-          resolve(person);
-        } else {
-          resolve(null);
-        }
-      });
+      this.subscriptions.add(
+        this.dataService.getRegularProfile(uid).subscribe(profile => {
+          if (profile) {
+            const person = {
+              firstName: profile.firstName,
+              lastName: profile.lastName,
+              email: profile.email,
+              photo: profile.photo ? profile.photo : `https://eu.ui-avatars.com/api/?name=${profile.firstName}+${profile.lastName}` // https://eu.ui-avatars.com/
+            } as CRMPerson;
+            resolve(person);
+          } else {
+            resolve(null);
+          }
+        })
+      );
     });
   }
 
   async getPersonHistory(uid: string, personUid: string) {
     return new Promise(resolve => {
-      this.dataService.getUserPersonHistory(uid, personUid).subscribe(history => {
-        if (history) {
-          resolve(history);
-        } else {
-          resolve(null);
-        }
-      });
+      this.subscriptions.add(
+        this.dataService.getUserPersonHistory(uid, personUid).subscribe(history => {
+          if (history) {
+            resolve(history);
+          } else {
+            resolve(null);
+          }
+        })
+      );
     });
   }
 
@@ -158,17 +169,23 @@ export class PersonHistoryComponent implements OnInit {
 
   getMsgStatus(roomId: string) {
     return new Promise(resolve => {
-      this.dataService.getRoomFeed(roomId).subscribe(feed => {
-        const lastMsg = feed[feed.length - 1];
-        if (feed.length === 1) {
-          resolve('Awaiting reply');
-        } else if (lastMsg.from === this.userId) {
-          resolve('Responded');
-        } else {
-          resolve('Client responded');
-        }
-      });
+      this.subscriptions.add(
+        this.dataService.getRoomFeed(roomId).subscribe(feed => {
+          const lastMsg = feed[feed.length - 1];
+          if (feed.length === 1) {
+            resolve('Awaiting reply');
+          } else if (lastMsg.from === this.userId) {
+            resolve('Responded');
+          } else {
+            resolve('Client responded');
+          }
+        })
+      );
     });
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 
 }
