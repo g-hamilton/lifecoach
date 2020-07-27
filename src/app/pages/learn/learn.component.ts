@@ -12,6 +12,7 @@ import { FormGroup, FormBuilder } from '@angular/forms';
 import { ModalDirective } from 'ngx-bootstrap/modal';
 import { CourseReviewsService } from 'app/services/course-reviews.service';
 import { CourseReview } from 'app/interfaces/course-review';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-learn',
@@ -43,6 +44,7 @@ export class LearnComponent implements OnInit, OnDestroy {
     public courseIsComplete: boolean;
     public courseReviewPrompts = [];
     public reviewPrompted: boolean;
+    private subscriptions: Subscription = new Subscription();
 
     constructor(
         @Inject(DOCUMENT) private document: any,
@@ -81,15 +83,17 @@ export class LearnComponent implements OnInit, OnDestroy {
 
                     if (this.courseId) {
                         // load user
-                        this.authService.getAuthUser().subscribe(user => {
-                            if (user) {
-                                this.userId = user.uid;
-                                this.loadCourse();
-                                this.fetchUserCourseReviews();
-                                this.fetchUserCoursesComplete();
-                                this.fetchReviewPrompts();
-                            }
-                        });
+                        this.subscriptions.add(
+                            this.authService.getAuthUser().subscribe(user => {
+                                if (user) {
+                                    this.userId = user.uid;
+                                    this.loadCourse();
+                                    this.fetchUserCourseReviews();
+                                    this.fetchUserCoursesComplete();
+                                    this.fetchReviewPrompts();
+                                }
+                            })
+                        );
                     }
                 });
             });
@@ -115,35 +119,42 @@ export class LearnComponent implements OnInit, OnDestroy {
             }
             enrollmentsSub.unsubscribe();
         });
+        this.subscriptions.add(enrollmentsSub);
 
         // fetch user's course progress
-        this.dataService.getPrivateCourseLecturesComplete(this.userId, this.courseId).subscribe(completedLectures => {
-            if (completedLectures) {
-                this.lecturesComplete = completedLectures.map(i => i.id);
-                // console.log('Lectures complete:', this.lecturesComplete);
-            }
-        });
+        this.subscriptions.add(
+            this.dataService.getPrivateCourseLecturesComplete(this.userId, this.courseId).subscribe(completedLectures => {
+                if (completedLectures) {
+                    this.lecturesComplete = completedLectures.map(i => i.id);
+                    // console.log('Lectures complete:', this.lecturesComplete);
+                }
+            })
+        );
 
         // fetch the user's saved bookmarks
         this.monitorSavedBookmarks();
     }
 
     fetchUserCourseReviews() {
-        this.courseReviewsService.getReviewerCourseReviews(this.userId).subscribe(reviews => {
-            if (reviews) {
-                // console.log(reviews);
-                this.userCourseReviews = reviews;
-            }
-        });
+        this.subscriptions.add(
+            this.courseReviewsService.getReviewerCourseReviews(this.userId).subscribe(reviews => {
+                if (reviews) {
+                    // console.log(reviews);
+                    this.userCourseReviews = reviews;
+                }
+            })
+        );
     }
 
     fetchUserCoursesComplete() {
-        this.dataService.getUserCoursesComplete(this.userId).subscribe(data => {
-            if (data) {
-                this.coursesComplete = data;
-                // console.log('Courses complete:', this.coursesComplete);
-            }
-        });
+        this.subscriptions.add(
+            this.dataService.getUserCoursesComplete(this.userId).subscribe(data => {
+                if (data) {
+                    this.coursesComplete = data;
+                    // console.log('Courses complete:', this.coursesComplete);
+                }
+            })
+        );
     }
 
     fetchPublicCourse() {
@@ -158,6 +169,7 @@ export class LearnComponent implements OnInit, OnDestroy {
             }
             courseSub.unsubscribe();
         });
+        this.subscriptions.add(courseSub);
     }
 
     fetchPrivateCourse() {
@@ -172,19 +184,22 @@ export class LearnComponent implements OnInit, OnDestroy {
             }
             courseSub.unsubscribe();
         });
+        this.subscriptions.add(courseSub);
     }
 
     fetchReviewPrompts() {
-        this.courseReviewsService.fetchUserCourseReviewPrompts(this.userId).subscribe(data => {
-            if (data) {
-                this.courseReviewPrompts = data;
-                const promptArr = this.courseReviewPrompts.map(i => i.id);
-                // console.log('Course review prompts', promptArr);
-                if (promptArr.includes(this.courseId)) {
-                    this.reviewPrompted = true;
+        this.subscriptions.add(
+            this.courseReviewsService.fetchUserCourseReviewPrompts(this.userId).subscribe(data => {
+                if (data) {
+                    this.courseReviewPrompts = data;
+                    const promptArr = this.courseReviewPrompts.map(i => i.id);
+                    // console.log('Course review prompts', promptArr);
+                    if (promptArr.includes(this.courseId)) {
+                        this.reviewPrompted = true;
+                    }
                 }
-            }
-        });
+            })
+        );
     }
 
     loadLecture() {
@@ -257,13 +272,15 @@ export class LearnComponent implements OnInit, OnDestroy {
     }
 
     monitorSavedBookmarks() {
-        this.dataService.getPrivateBookmarksByCourse(this.userId, this.courseId).subscribe(bookmarks => {
-            if (bookmarks) {
-                bookmarks.sort((a, b) => b.lastUpdated - a.lastUpdated); // sort by date (desc)
-                this.bookmarks = bookmarks;
-                // console.log('bookmarks', this.bookmarks);
-            }
-        });
+        this.subscriptions.add(
+            this.dataService.getPrivateBookmarksByCourse(this.userId, this.courseId).subscribe(bookmarks => {
+                if (bookmarks) {
+                    bookmarks.sort((a, b) => b.lastUpdated - a.lastUpdated); // sort by date (desc)
+                    this.bookmarks = bookmarks;
+                    // console.log('bookmarks', this.bookmarks);
+                }
+            })
+        );
     }
 
     onPlayerReady(api: VgAPI) {
@@ -271,26 +288,30 @@ export class LearnComponent implements OnInit, OnDestroy {
         this.vgApi = api;
 
         // listen for the data loaded event
-        this.vgApi.getDefaultMedia().subscriptions.loadedData.subscribe($event => {
-            // console.log('Video loaded data', $event);
+        this.subscriptions.add(
+            this.vgApi.getDefaultMedia().subscriptions.loadedData.subscribe($event => {
+                // console.log('Video loaded data', $event);
 
-            // seek to bookmark point if requested
-            this.checkForBookmark();
-        });
+                // seek to bookmark point if requested
+                this.checkForBookmark();
+            })
+        );
 
         // listen for the video ended event
-        this.vgApi.getDefaultMedia().subscriptions.ended.subscribe(async $event => {
-            // console.log('Video ended:', $event);
+        this.subscriptions.add(
+            this.vgApi.getDefaultMedia().subscriptions.ended.subscribe(async $event => {
+                // console.log('Video ended:', $event);
 
-            // save lecture complete for this user
-            this.saveLectureComplete(this.lectureId);
+                // save lecture complete for this user
+                this.saveLectureComplete(this.lectureId);
 
-            // if at prompt point in the course, prompt user for a review and wait for a response before moving on
-            await this.promptUserReviewIfRequired();
+                // if at prompt point in the course, prompt user for a review and wait for a response before moving on
+                await this.promptUserReviewIfRequired();
 
-            // redirect to the next lecture in the course
-            this.redirectToNextLecture();
-        });
+                // redirect to the next lecture in the course
+                this.redirectToNextLecture();
+            })
+        );
         // end video ended event listener
     }
 
@@ -300,13 +321,15 @@ export class LearnComponent implements OnInit, OnDestroy {
     }
 
     checkForBookmark() {
-        this.route.queryParams.subscribe(params => {
-            const bm = params.bookmark;
-            // console.log('Bookmark:', bm);
-            if (bm) { // user has requested video at saved bookmark point
-                this.vgApi.seekTime(Math.round(bm));
-            }
-        });
+        this.subscriptions.add(
+            this.route.queryParams.subscribe(params => {
+                const bm = params.bookmark;
+                // console.log('Bookmark:', bm);
+                if (bm) { // user has requested video at saved bookmark point
+                    this.vgApi.seekTime(Math.round(bm));
+                }
+            })
+        );
     }
 
     pauseVideo() {
@@ -361,13 +384,15 @@ export class LearnComponent implements OnInit, OnDestroy {
             if ((this.lecturesComplete.length / totalLectures) > firstPromptPoint) {
                 // pop modal with a promise that resolves on complete
                 this.reviewModal.show();
-                this.reviewModal.onHide.subscribe(res => {
-                    // console.log('result:', res);
-                    // whether or not review saved, mark as review prompted
-                    this.markAsReviewPrompted();
-                    resolve(true);
-                    return;
-                });
+                this.subscriptions.add(
+                    this.reviewModal.onHide.subscribe(res => {
+                        // console.log('result:', res);
+                        // whether or not review saved, mark as review prompted
+                        this.markAsReviewPrompted();
+                        resolve(true);
+                        return;
+                    })
+                );
             }
         });
     }
@@ -530,6 +555,8 @@ export class LearnComponent implements OnInit, OnDestroy {
     truncate = (input: string, max: number) => input.length > max ? `${input.substring(0, max)}...` : input;
 
     ngOnDestroy() {
+        this.subscriptions.unsubscribe();
+
         const body = this.document.getElementsByTagName('body')[0];
         body.classList.remove('learn-page');
     }
