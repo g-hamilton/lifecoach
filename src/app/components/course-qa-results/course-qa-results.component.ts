@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, AfterViewInit } from '@angular/core';
+import { Component, OnInit, Input, AfterViewInit, OnDestroy } from '@angular/core';
 import { CourseQuestion, CourseQuestionReply } from 'app/interfaces/q&a.interface';
 import { CoachingCourse } from 'app/interfaces/course.interface';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
@@ -13,7 +13,7 @@ import { Subscription } from 'rxjs';
   templateUrl: './course-qa-results.component.html',
   styleUrls: ['./course-qa-results.component.scss']
 })
-export class CourseQaResultsComponent implements OnInit, AfterViewInit {
+export class CourseQaResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @Input() userId: string;
   @Input() userProfile: any;

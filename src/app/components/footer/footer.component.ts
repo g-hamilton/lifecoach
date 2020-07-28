@@ -9,7 +9,7 @@ import { Subscription } from 'rxjs';
   templateUrl: './footer.component.html',
   styleUrls: ['./footer.component.css']
 })
-export class FooterComponent implements OnInit,OnDestroy {
+export class FooterComponent implements OnInit, OnDestroy {
 
   private uid: string;
   myDate: Date = new Date();

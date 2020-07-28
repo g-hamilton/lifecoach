@@ -182,7 +182,7 @@ export class NavbarComponent implements OnInit, OnDestroy {
     }
     const $toggle = this.document.getElementsByClassName('navbar-toggler')[0];
     // tslint:disable-next-line: only-arrow-functions
-    $layer.onclick = function () { // asign a function
+    $layer.onclick = function() { // asign a function
       html.classList.remove('nav-open');
       setTimeout(() => {
         $layer.remove();
