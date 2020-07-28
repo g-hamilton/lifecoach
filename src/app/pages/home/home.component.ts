@@ -29,7 +29,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   public rates: any;
   public timer: any;
   public wordIndex = 0;
-  public words = ['life', 'Academic', 'Business', 'Career', 'Family', 'Financial', 'Fitness', 'Health', 'Holistic', 'Management', 'Mindset', 'Parenting', 'Productivity', 'Relationship', 'Relocation', 'Retirement', 'Spiritual', 'Sports', 'Transformation', 'Wellness'];
+  public words = ['Life', 'Academic', 'Business', 'Career', 'Family', 'Financial', 'Fitness', 'Health', 'Holistic', 'Management', 'Mindset', 'Parenting', 'Productivity', 'Relationship', 'Relocation', 'Retirement', 'Spiritual', 'Sports', 'Transformation', 'Wellness'];
 
   private subscriptions: Subscription = new Subscription();
 
