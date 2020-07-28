@@ -3,6 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { CoachingService } from 'app/interfaces/coaching.service.interface';
 import { DataService } from 'app/services/data.service';
 import { ActivatedRoute } from '@angular/router';
+import { first } from 'rxjs/operators';
 
 @Component({
   selector: 'app-coach-services',
@@ -19,7 +20,8 @@ export class CoachingServiceComponent implements OnInit {
     @Inject(PLATFORM_ID) private platformId: object,
     private dataService: DataService,
     private route: ActivatedRoute
-  ) {}
+  ) {
+  }
 
   ngOnInit() {
 
@@ -33,21 +35,21 @@ export class CoachingServiceComponent implements OnInit {
 
   getRouteData() {
     this.route.params.subscribe(p => {
-        if (p.serviceId) {
-            this.serviceId = p.serviceId;
-            this.getServiceData();
-        }
+      if (p.serviceId) {
+        this.serviceId = p.serviceId;
+        this.getServiceData();
+      }
     });
   }
 
   getServiceData() {
     this.loading = true;
-    this.dataService.getPublicCoachServiceById(this.serviceId).subscribe(service => {
-        if (service) {
-            this.service = service;
-            console.log(this.service);
-        }
-        this.loading = false;
+    this.dataService.getPublicCoachServiceById(this.serviceId).pipe(first()).subscribe(service => {
+      if (service) {
+        this.service = service;
+        console.log(this.service);
+      }
+      this.loading = false;
     });
   }
 

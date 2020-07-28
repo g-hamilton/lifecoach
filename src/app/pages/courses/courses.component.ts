@@ -6,6 +6,7 @@ import { DOCUMENT, isPlatformBrowser, isPlatformServer } from '@angular/common';
 import { AnalyticsService } from '../../services/analytics.service';
 import { SearchService } from 'app/services/search.service';
 import { DataService } from 'app/services/data.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-courses',
@@ -41,6 +42,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
   ];
 
   public includeTestData = false; // option: true if testing. False in production.
+  private subscriptions: Subscription = new Subscription();
 
   constructor(
     @Inject(DOCUMENT) private document: any,
@@ -53,11 +55,12 @@ export class CoursesComponent implements OnInit, OnDestroy {
     private transferState: TransferState,
     private searchService: SearchService,
     private dataService: DataService
-  ) {}
+  ) {
+  }
 
   ngOnInit() {
     this.titleService.setTitle('Online Coaching Courses');
-    this.metaTagService.updateTag({ name: 'description', content: 'Get coached by the best with top rated online coaching courses from Lifecoach.io' });
+    this.metaTagService.updateTag({name: 'description', content: 'Get coached by the best with top rated online coaching courses from Lifecoach.io'});
     const body = this.document.getElementsByTagName('body')[0];
     body.classList.add('courses-page');
 
@@ -95,11 +98,11 @@ export class CoursesComponent implements OnInit, OnDestroy {
         const StateData = this.transferState.get(STATE_KEY, null as any); // checking if data in the storage exists
         if (StateData == null) { // if data state does not exist - retrieve it from the api
           this.getSearchResults()
-          .then((results) => {
-            if (isPlatformServer(this.platformId)) { // store the state if we're on the server
-              this.transferState.set(STATE_KEY, results as any);
-            }
-          });
+            .then((results) => {
+              if (isPlatformServer(this.platformId)) { // store the state if we're on the server
+                this.transferState.set(STATE_KEY, results as any);
+              }
+            });
         } else { // if data state exists retrieve it from the state storage
           this.hits = StateData;
           this.transferState.remove(STATE_KEY);
@@ -108,13 +111,14 @@ export class CoursesComponent implements OnInit, OnDestroy {
     });
 
     // Monitor platform rates for realtime price calculations
-    this.dataService.getPlatformRates().subscribe(rates => {
-      if (rates) {
-        // console.log('Rates:', rates);
-        this.rates = rates;
-      }
-    });
-
+    this.subscriptions.add(
+      this.dataService.getPlatformRates().subscribe(rates => {
+        if (rates) {
+          // console.log('Rates:', rates);
+          this.rates = rates;
+        }
+      })
+    );
   }
 
   async getClientCurrencyAndCountryFromIP() {
@@ -143,9 +147,9 @@ export class CoursesComponent implements OnInit, OnDestroy {
     // If category is defined do some string cleanups
     if (cat) {
       cat = cat.toLowerCase()
-      .split(' ')
-      .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
-      .join(' '); // convert to title case
+        .split(' ')
+        .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
+        .join(' '); // convert to title case
     }
     // If category is defined
     if (this.filters.params.category) {
@@ -178,6 +182,8 @@ export class CoursesComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.subscriptions.unsubscribe();
+
     const body = this.document.getElementsByTagName('body')[0];
     body.classList.remove('courses-page');
   }
