@@ -3,6 +3,7 @@ import { Router, CanActivate, ActivatedRoute, ActivatedRouteSnapshot } from '@an
 import { AuthService } from './auth.service';
 import { isPlatformBrowser } from '@angular/common';
 import { DataService } from './data.service';
+import { first } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -26,7 +27,7 @@ export class PaywallAuthGuardService implements CanActivate {
         // console.log(cId);
 
         // Check if user authorised
-        this.authService.getAuthUser()
+        this.authService.getAuthUser().pipe(first())
           .subscribe(async user => {
             if (!user && isPlatformBrowser(this.platformId)) { // user unauthorised & browser
               console.log('Route guard unauthorised!');
@@ -46,13 +47,12 @@ export class PaywallAuthGuardService implements CanActivate {
               }
 
               // check user created courses
-              const tempSub = this.dataService.getPrivateCourses(user.uid).subscribe(courses => {
+              this.dataService.getPrivateCourses(user.uid).pipe(first()).subscribe(courses => {
                 if (courses) { // user has created courses
                   const match = courses.findIndex(i => i.courseId === cId);
                   if (match === -1) { // user has not created this course
                     alert('Unauthorised!');
                     console.log('Route guard unauthorised!');
-                    tempSub.unsubscribe();
                     resolve(false);
                     return;
                   }
@@ -61,7 +61,6 @@ export class PaywallAuthGuardService implements CanActivate {
                 } else { // user has no courses
                   alert('Unauthorised!');
                   console.log('Route guard unauthorised!');
-                  tempSub.unsubscribe();
                   resolve(false);
                   return;
                 }

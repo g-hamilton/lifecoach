@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { AngularFireStorage, AngularFireUploadTask } from '@angular/fire/storage';
-import { Observable } from 'rxjs';
-import { finalize, tap } from 'rxjs/operators';
+import { AngularFireStorage } from '@angular/fire/storage';
+import { first } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -51,13 +50,12 @@ export class StorageService {
     const path = `users/${uid}/profilePics/${imgId}`;
     try {
       const $obs = this.storage.ref(path).getDownloadURL();
-      const tempSub = $obs.subscribe(data => {
+      $obs.pipe(first()).subscribe(data => {
         if (data) {
           this.storage.ref(path).delete();
         } else {
           console.log(`Profile image not found in storage.`);
         }
-        tempSub.unsubscribe();
       });
     } catch (err) {
       console.error(err);
@@ -71,13 +69,12 @@ export class StorageService {
     */
     try {
       const $obs = this.storage.ref(path).getDownloadURL();
-      const tempSub = $obs.subscribe(data => {
+      $obs.pipe(first()).subscribe(data => {
         if (data) {
           this.storage.ref(path).delete();
         } else {
           console.log(`Profile video not found in storage.`);
         }
-        tempSub.unsubscribe();
       });
     } catch (err) {
       console.error(err);
