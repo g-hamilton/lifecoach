@@ -127,8 +127,31 @@ const Mailchimp = require('mailchimp-api-v3');
 const mailchimp = new Mailchimp(functions.config().mailchimp.appid);
 const crypto = require('crypto');
 
-function addUserToMailchimp(email: string, firstName: string, lastName: string, type: string) {
-  const listID = type === 'coach' ? 'e76f517709' : '69574927c8';
+const listIdCoach = 'e76f517709';
+const listIdRegular = '69574927c8';
+const listIdPublisher = '7c802ca01f';
+const listIdProvider = '512b33c527';
+
+function getMcListId(userType: 'regular' | 'coach' | 'publisher' | 'provider') {
+  switch(userType) {
+    case 'regular':
+      return listIdRegular;
+    case 'coach':
+      return listIdCoach;
+    case 'publisher':
+      return listIdPublisher;
+    case 'provider':
+      return listIdProvider;
+    default:
+      return listIdRegular;
+  }
+}
+
+function addUserToMailchimp(email: string, firstName: string, lastName: string, type: 'regular' | 'coach' | 'publisher' | 'provider') {
+
+  // Assign the correct Mailchimp list (audience) ID
+  const listID = getMcListId(type);
+
   // Add user to Mailchimp (account type determines which list)
   mailchimp.post(`/lists/${listID}`, {
     members : [{
@@ -148,9 +171,10 @@ function addUserToMailchimp(email: string, firstName: string, lastName: string, 
   });
 }
 
-function patchMailchimpUserEmail(accountType: string, oldEmail: string, newEmail: string) {
+function patchMailchimpUserEmail(accountType: 'regular' | 'coach' | 'publisher' | 'provider', oldEmail: string, newEmail: string) {
+  
   // Which list is the member subscribed to?
-  const listId = accountType === 'coach' ? 'e76f517709' : '69574927c8';
+  const listId = getMcListId(accountType);
 
   // Generate an MD5 hash from the lowercase email address
   const subscriberHash = crypto.createHash('md5').update(oldEmail.toLowerCase()).digest("hex");
@@ -166,9 +190,9 @@ function patchMailchimpUserEmail(accountType: string, oldEmail: string, newEmail
   });
 }
 
-function patchMailchimpUserName(accountType: string, email: string, firstName: string, lastName: string) {
+function patchMailchimpUserName(accountType: 'regular' | 'coach' | 'publisher' | 'provider', email: string, firstName: string, lastName: string) {
   // Which list is the member subscribed to?
-  const listId = accountType === 'coach' ? 'e76f517709' : '69574927c8';
+  const listId = getMcListId(accountType);
 
   // Generate an MD5 hash from the lowercase email address
   const subscriberHash = crypto.createHash('md5').update(email.toLowerCase()).digest("hex");
@@ -187,9 +211,9 @@ function patchMailchimpUserName(accountType: string, email: string, firstName: s
   });
 }
 
-function archiveMailchimpUser(accountType: string, email: string) {
+function archiveMailchimpUser(accountType: 'regular' | 'coach' | 'publisher' | 'provider', email: string) {
   // Which list is the member subscribed to?
-  const listId = accountType === 'coach' ? 'e76f517709' : '69574927c8';
+  const listId = getMcListId(accountType);
 
   // Generate an MD5 hash from the lowercase email address
   const subscriberHash = crypto.createHash('md5').update(email.toLowerCase()).digest("hex");
@@ -231,7 +255,7 @@ async function logMailchimpEvent(uid: string, mailchimpEvent: any) {
     if (account.accountType && account.accountEmail) {
 
       // Which list is the member subscribed to?
-      const listId = account.accountType === 'coach' ? 'e76f517709' : '69574927c8';
+      const listId = getMcListId(account.accountType);
 
       // Generate an MD5 hash from the lowercase email address
       const subscriberHash = crypto.createHash('md5').update(account.accountEmail.toLowerCase()).digest("hex");
@@ -318,6 +342,33 @@ async function addCustomUserClaims(uid: string, claims: any) {
     return {success: true};
   } catch (err) {
     console.error('Error setting custom claims!:', err);
+    return {error: err}
+  }
+}
+
+async function removeCustomUserClaims(uid: string, claims: any) {
+  /*
+  Helper function to remove custom auth claims
+  Required as setting a custom claim object always overwrites an existing one
+  */
+  try {
+    const user = await admin.auth().getUser(uid);
+    const updatedClaims = user.customClaims
+
+    if (updatedClaims) {
+      for (const property in claims) {
+        if (updatedClaims[property]) {
+          updatedClaims[property] = null;
+        }
+      };
+      console.log('Setting custom auth claims:', JSON.stringify(updatedClaims));
+      await admin.auth().setCustomUserClaims(uid, updatedClaims);
+    }
+
+    return {success: true};
+
+  } catch (err) {
+    console.error('Error removing custom claims!:', err);
     return {error: err}
   }
 }
@@ -423,7 +474,7 @@ exports.createDbUserWithType = functions
 
   // Set custom claim on the user's auth object.
   const res = await addCustomUserClaims(data.uid, {
-      [data.type]: true
+    [data.type]: true
   });
   console.log(`Custom auth claim ${data.type} set successfully`);
 
@@ -528,6 +579,52 @@ exports.recursiveDeleteUserData = functions
   return {
     success: true // See note above on success
   };
+});
+
+exports.adminChangeUserType = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.https
+.onCall( async (data, context) => {
+
+  // Reject any non admin user immediately.
+  if (!context.auth || !context.auth.token.admin) {
+    return {error: 'Unauthorised!'}
+  }
+
+  try {
+    // Set new custom claim on the user's auth object.
+    await addCustomUserClaims(data.userId, {
+      [data.newType]: true
+    });
+
+    // remove the old claim on the user's auth object
+    await removeCustomUserClaims(data.userId, {
+      [data.oldType]: null
+    });
+
+    // update the user's account node in the db
+    await db.collection(`users/${data.userId}/account`)
+    .doc('account' + data.userId)
+    .set({
+      accountType: data.newType
+    }, { merge: true });
+
+    // read account data to get account email
+    const account = await db.collection(`users/${data.userId}/account`)
+    .doc('account' + data.userId)
+    .get();
+
+    const acc = account.data() as any;
+
+    // update mailing list
+    archiveMailchimpUser(data.oldType, acc.accountEmail); // removes from old list
+    addUserToMailchimp(acc.accountEmail, acc.firstName, acc.lastName, data.newType); // adds to new list
+
+    return {success: true};
+
+  } catch (err) {
+    return {error: err}
+  }
 });
 
 // ================================================================================

@@ -311,6 +311,22 @@ export class CloudFunctionsService {
     });
   }
 
+  adminChangeUserType(userId: string, oldType: 'regular' | 'coach' | 'publisher' | 'provider' | 'admin', newType: 'regular' | 'coach' | 'publisher' | 'provider' | 'admin') {
+    return new Promise(resolve => {
+      const changeType = this.cloudFunctions.httpsCallable('adminChangeUserType');
+      const tempSub = changeType({
+        userId,
+        oldType,
+        newType
+      })
+        .pipe(first())
+        .subscribe(res => {
+          resolve(res);
+          tempSub.unsubscribe();
+        });
+    });
+  }
+
   // *** DANGER AREA ***
   // Only call if you know what you're doing!!
   adminTriggerAllProfilesUpdateInSequence() {

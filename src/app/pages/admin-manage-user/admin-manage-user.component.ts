@@ -1,11 +1,13 @@
-import { Component, OnInit, Inject, PLATFORM_ID, OnDestroy } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, OnDestroy, ViewChild } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ModalDirective } from 'ngx-bootstrap/modal';
 import { UserAccount } from 'app/interfaces/user.account.interface';
 import { DataService } from 'app/services/data.service';
 import { CoachingCourse } from 'app/interfaces/course.interface';
 import { AlertService } from 'app/services/alert.service';
 import { Subscription } from 'rxjs';
+import { CloudFunctionsService } from 'app/services/cloud-functions.service';
 
 @Component({
   selector: 'app-admin-manage-user',
@@ -14,10 +16,13 @@ import { Subscription } from 'rxjs';
 })
 export class AdminManageUserComponent implements OnInit, OnDestroy {
 
+  @ViewChild('changeAccountTypeModal', {static: false}) public changeAccountTypeModal: ModalDirective;
+
   public browser: boolean;
   public targetUserUid: string;
   public account: UserAccount;
   public accountType: 'regular' | 'coach' | 'publisher' | 'provider' | 'admin';
+  public newAccountType: 'regular' | 'coach' | 'publisher' | 'provider' | 'admin'; // for admin update of type
   public purchasedCourses = [] as CoachingCourse[]; // purchased courses as buyer
   public courses: CoachingCourse[]; // courses created as coach seller
   private subscriptions: Subscription = new Subscription();
@@ -27,7 +32,8 @@ export class AdminManageUserComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private dataService: DataService,
-    private alertService: AlertService
+    private alertService: AlertService,
+    private cloudFunctionsService: CloudFunctionsService
   ) {
   }
 
@@ -57,6 +63,7 @@ export class AdminManageUserComponent implements OnInit, OnDestroy {
           if (account) {
             this.account = account;
             this.accountType = account.accountType;
+            this.newAccountType = account.accountType; // make a copy to allow update while preserving old data
 
             if (this.accountType === 'coach') { // because only coaches can publish courses
               // Check for created courses (as coach seller)
@@ -185,6 +192,24 @@ export class AdminManageUserComponent implements OnInit, OnDestroy {
 
   editUserCourse(courseId: string) {
     this.router.navigate(['/my-courses', courseId, 'content'], {queryParams: {targetUser: this.targetUserUid}});
+  }
+
+  async saveUpdatedAccountType() {
+    if (!this.targetUserUid) {
+      this.alertService.alert('warning-message', 'Oops', 'Missing user ID.');
+      return;
+    }
+    if (!this.accountType) {
+      this.alertService.alert('warning-message', 'Oops', 'Missing account type.');
+      return;
+    }
+    if (!this.newAccountType) {
+      this.alertService.alert('warning-message', 'Oops', 'You must select an account type.');
+      return;
+    }
+    console.log(`Updating user account type from ${this.accountType} to ${this.newAccountType}`);
+    const res = await this.cloudFunctionsService.adminChangeUserType(this.targetUserUid, this.accountType, this.newAccountType);
+    this.changeAccountTypeModal.hide();
   }
 
   ngOnDestroy() {
