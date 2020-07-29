@@ -460,8 +460,8 @@
 
                         </tab>
 
-                        <!-- Payments tab for coach accounts -->
-                        <tab *ngIf="accountF.accountType.value === 'coach'" heading="Payout Settings">
+                        <!-- Payments tab for coach & publisher accounts -->
+                        <tab *ngIf="accountF.accountType.value === 'coach' || accountF.accountType.value === 'publisher'" heading="Payout Settings">
                             <div class="">
                                 <h6 class=" mt-4 pl-4">
                                     Get Paid With Stripe
@@ -625,8 +625,8 @@
                             </div>
                         </tab>
 
-                        <!-- Purchases tab -->
-                        <tab heading="Purchases & Refunds">
+                        <!-- Purchases tab for coaches and regular accounts -->
+                        <tab *ngIf="accountF.accountType.value === 'coach' || accountF.accountType.value === 'regular'" heading="Purchases & Refunds">
                             <!-- Purchases table -->
                             <h6 class=" mt-4"> Purchases </h6>
                             <div *ngIf="successfulPayments" class=" table-responsive">

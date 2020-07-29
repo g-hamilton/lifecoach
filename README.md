@@ -34,7 +34,7 @@ $yarn
 
 Customer docs: https://lifecoach.freshdesk.com/support/solutions
 
-Developer docs: Coming Soon
+Developer docs: https://demos.creative-tim.com/black-dashboard-pro-angular/#/documentation/overview - Docs for the original Angular template that the site is built on.
 
 
 ## Browser Support
@@ -50,7 +50,7 @@ At present, we officially aim to support the last two versions of the following 
 
 ## Technical Support or Questions
 
-TBC
+Email: greg@lifecoach.io
 
 ## Licensing
 
@@ -60,3 +60,4 @@ TBC
 ## Useful Links
 
 https://lifecoach.io
+https://demos.creative-tim.com/black-dashboard-pro-angular/#/documentation/overview
