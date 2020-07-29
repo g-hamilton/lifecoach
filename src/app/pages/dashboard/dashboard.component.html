@@ -185,10 +185,60 @@
 <!-- PUBLISHER USERS -->
 <div *ngIf="userType === 'publisher'" class=" content">
   <div class=" row">
-    <div class=" col-lg-5">
-      <p>
-        Welcome to Lifecoach!
-      </p>
+    <div class=" col-lg-4">
+      <div class=" card card-tasks">
+        <div class=" card-header">
+          <h5 class=" title d-inline"> Tasks({{ todos ? todos.length : 0 }}) </h5>
+          <!-- <p class=" card-category d-inline">My Todos</p> -->
+          <div class=" dropdown" dropdown>
+            <!-- <button
+              class=" btn btn-link dropdown-toggle btn-icon dropdown-toggle"
+              data-toggle="dropdown"
+              dropdownToggle
+              type="button"
+            >
+              <i class=" tim-icons icon-settings-gear-63"> </i>
+            </button>
+            <div class=" dropdown-menu dropdown-menu-right" *dropdownMenu>
+              <a class=" dropdown-item" href="#pablo"> View completed </a>
+            </div> -->
+          </div>
+        </div>
+        <div class=" card-body">
+          <div class=" table-full-width table-responsive">
+            <table class=" table">
+              <!-- User has active tasks -->
+              <tbody *ngIf="todos && todos.length > 0">
+                <tr *ngFor="let task of todos">
+                  <td>
+                    <p class=" title">{{ task.title }}</p>
+                    <p class=" text-muted">{{ task.description }}</p>
+                  </td>
+                  <td class=" td-actions text-right">
+                    <button
+                      class=" btn btn-link"
+                      type="button"
+                      tooltip="Go"
+                      placement="left"
+                      [routerLink]="['/', task.action]"
+                    >
+                      <i class=" tim-icons icon-triangle-right-17"> </i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+              <!-- No active tasks -->
+              <tbody *ngIf="!todos || todos.length === 0">
+                <tr>
+                  <td>
+                    <p> Aces! You're up to date. </p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
