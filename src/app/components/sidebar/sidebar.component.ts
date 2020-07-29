@@ -211,10 +211,13 @@ export class SidebarComponent implements OnInit, OnChanges {
     if (this.userClaims) { // we know the type of user now
       let userType = 'regular'; // default
       if (this.userClaims.coach) {
-        userType = 'coach'; // user is a coach
-      }
-      if (this.userClaims.admin) {
-        userType = 'admin'; // user is an admin
+        userType = 'coach';
+      } else if (this.userClaims.admin) {
+        userType = 'admin';
+      } else if (this.userClaims.publisher) {
+        userType = 'publisher';
+      } else if (this.userClaims.provider) {
+        userType = 'provider';
       }
 
       // Filter menu items based on user type
