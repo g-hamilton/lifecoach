@@ -167,7 +167,7 @@ export class AccountComponent implements OnInit, OnDestroy {
                             }
                           })
                         );
-                      } else if (account.accountType === 'coach') { // user is a coach
+                      } else if (account.accountType === 'coach' ) { // user is a coach
                         if (!account.stripeUid) { // user has not yet connected Stripe
 
                           // If redirecting to this component from Stripe, complete connection
@@ -204,6 +204,29 @@ export class AccountComponent implements OnInit, OnDestroy {
                             tempProfSub.unsubscribe();
                           });
                           this.subscriptions.add(tempProfSub);
+                        }
+                        if (account.stripeUid) {
+                          this.retrieveStripeBalance(account.stripeUid);
+                        }
+                      } else if (account.accountType === 'publisher' ) { // user is a publisher
+                        if (!account.stripeUid) { // user has not yet connected Stripe
+
+                          // If redirecting to this component from Stripe, complete connection
+                          this.checkStripeOAuth();
+
+                          this.buildStripeUrl(); // create an oauth link to connect Stripe
+
+                          // If we've got the user data, append it to the Stripe url for better UX through the onboarding flow
+                          if (account.accountEmail && this.stripeConnectUrl) {
+                            this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[email]=${account.accountEmail}`);
+                          }
+                          if (account.firstName) {
+                            // tslint:disable-next-line: max-line-length
+                            this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[first_name]=${account.firstName}`);
+                          }
+                          if (account.lastName) {
+                            this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[last_name]=${account.lastName}`);
+                          }
                         }
                         if (account.stripeUid) {
                           this.retrieveStripeBalance(account.stripeUid);
