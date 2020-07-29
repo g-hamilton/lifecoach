@@ -6,7 +6,7 @@
       <div class=" row">
 
         <!-- Coach account type promo -->
-        <div *ngIf="registerF?.accountType?.value === 'coach'" class=" col-md-5 ml-auto">
+        <div *ngIf="registerF?.accountType?.value === 'coach' || registerF?.accountType?.value == null" class=" col-md-5 ml-auto">
           <div class=" info-area info-horizontal mt-5">
             <div class=" icon icon-success">
               <i class="far fa-smile"></i>
