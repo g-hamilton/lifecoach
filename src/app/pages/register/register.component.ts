@@ -110,11 +110,6 @@ export class RegisterComponent implements OnInit, OnDestroy {
         await this.alertService.alert('success-message', 'Success!', `
         Welcome to Lifecoach ${firstName}! Let's visit your new dashboard...`);
         this.router.navigate(['/dashboard'], {state: {uid: response.result.user.uid}});
-        setTimeout(() => {
-          this.toastService.showToast(`
-          <span class=" tim-icons icon-bell-55"></span> This is your Lifecoach <b>dashboard.</b>
-          Use the <b>Tasks</b> panel as a guide to get you started.`, 0, 'success', 'top', 'left');
-        }, 1500);
       } else {
         // Error
         this.register = false;
