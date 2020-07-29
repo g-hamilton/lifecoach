@@ -127,8 +127,31 @@ const Mailchimp = require('mailchimp-api-v3');
 const mailchimp = new Mailchimp(functions.config().mailchimp.appid);
 const crypto = require('crypto');
 
-function addUserToMailchimp(email: string, firstName: string, lastName: string, type: string) {
-  const listID = type === 'coach' ? 'e76f517709' : '69574927c8';
+const listIdCoach = 'e76f517709';
+const listIdRegular = '69574927c8';
+const listIdPublisher = '7c802ca01f';
+const listIdProvider = '512b33c527';
+
+function getMcListId(userType: 'regular' | 'coach' | 'publisher' | 'provider') {
+  switch(userType) {
+    case 'regular':
+      return listIdRegular;
+    case 'coach':
+      return listIdCoach;
+    case 'publisher':
+      return listIdPublisher;
+    case 'provider':
+      return listIdProvider;
+    default:
+      return listIdRegular;
+  }
+}
+
+function addUserToMailchimp(email: string, firstName: string, lastName: string, type: 'regular' | 'coach' | 'publisher' | 'provider') {
+
+  // Assign the correct Mailchimp list (audience) ID
+  const listID = getMcListId(type);
+
   // Add user to Mailchimp (account type determines which list)
   mailchimp.post(`/lists/${listID}`, {
     members : [{
@@ -148,9 +171,10 @@ function addUserToMailchimp(email: string, firstName: string, lastName: string, 
   });
 }
 
-function patchMailchimpUserEmail(accountType: string, oldEmail: string, newEmail: string) {
+function patchMailchimpUserEmail(accountType: 'regular' | 'coach' | 'publisher' | 'provider', oldEmail: string, newEmail: string) {
+  
   // Which list is the member subscribed to?
-  const listId = accountType === 'coach' ? 'e76f517709' : '69574927c8';
+  const listId = getMcListId(accountType);
 
   // Generate an MD5 hash from the lowercase email address
   const subscriberHash = crypto.createHash('md5').update(oldEmail.toLowerCase()).digest("hex");
@@ -166,9 +190,9 @@ function patchMailchimpUserEmail(accountType: string, oldEmail: string, newEmail
   });
 }
 
-function patchMailchimpUserName(accountType: string, email: string, firstName: string, lastName: string) {
+function patchMailchimpUserName(accountType: 'regular' | 'coach' | 'publisher' | 'provider', email: string, firstName: string, lastName: string) {
   // Which list is the member subscribed to?
-  const listId = accountType === 'coach' ? 'e76f517709' : '69574927c8';
+  const listId = getMcListId(accountType);
 
   // Generate an MD5 hash from the lowercase email address
   const subscriberHash = crypto.createHash('md5').update(email.toLowerCase()).digest("hex");
@@ -187,9 +211,9 @@ function patchMailchimpUserName(accountType: string, email: string, firstName: s
   });
 }
 
-function archiveMailchimpUser(accountType: string, email: string) {
+function archiveMailchimpUser(accountType: 'regular' | 'coach' | 'publisher' | 'provider', email: string) {
   // Which list is the member subscribed to?
-  const listId = accountType === 'coach' ? 'e76f517709' : '69574927c8';
+  const listId = getMcListId(accountType);
 
   // Generate an MD5 hash from the lowercase email address
   const subscriberHash = crypto.createHash('md5').update(email.toLowerCase()).digest("hex");
@@ -231,7 +255,7 @@ async function logMailchimpEvent(uid: string, mailchimpEvent: any) {
     if (account.accountType && account.accountEmail) {
 
       // Which list is the member subscribed to?
-      const listId = account.accountType === 'coach' ? 'e76f517709' : '69574927c8';
+      const listId = getMcListId(account.accountType);
 
       // Generate an MD5 hash from the lowercase email address
       const subscriberHash = crypto.createHash('md5').update(account.accountEmail.toLowerCase()).digest("hex");
@@ -321,8 +345,35 @@ async function addCustomUserClaims(uid: string, claims: any) {
     return {error: err}
   }
 }
+
+async function removeCustomUserClaims(uid: string, claims: any) {
+  /*
+  Helper function to remove custom auth claims
+  Required as setting a custom claim object always overwrites an existing one
+  */
+  try {
+    const user = await admin.auth().getUser(uid);
+    const updatedClaims = user.customClaims
+
+    if (updatedClaims) {
+      for (const property in claims) {
+        if (updatedClaims[property]) {
+          updatedClaims[property] = null;
+        }
+      };
+      console.log('Setting custom auth claims:', JSON.stringify(updatedClaims));
+      await admin.auth().setCustomUserClaims(uid, updatedClaims);
+    }
+
+    return {success: true};
+
+  } catch (err) {
+    console.error('Error removing custom claims!:', err);
+    return {error: err}
+  }
+}
   
-async function createUserNode(uid: string, email: string, type: 'regular' | 'coach' | 'admin', 
+async function createUserNode(uid: string, email: string, type: 'regular' | 'coach' | 'publisher' | 'provider' | 'admin', 
 firstName: string | null, lastName: string | null) {
 
   // Initialise account data
@@ -377,11 +428,31 @@ firstName: string | null, lastName: string | null) {
     .doc(`profile${uid}`)
     .set({ // init a regular type profile
       firstName,
-      lastName
+      lastName,
+      email
     })
     .catch(err => console.error(err));
 
+  } else if (type === 'publisher') { // publisher account
+    
+    // Default tasks for publishers
+    const ref1 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault004');
+    batch.set(ref1, {
+      id: 'taskDefault004',
+      title: '1. Enable your payout account',
+      description: 'Enable your payout account now so you can start earning commission.',
+      action: 'account'
+    });
+
+    return batch.commit() // execute batch ops
+    .catch(err => console.error(err));
+
+  } else if (type === 'provider') { // provider account
+    // any actions for providers?
+    return;
+
   } else if (type === 'admin') { // Admin account
+    // any actions for admins?
     return;
   }
 
@@ -403,7 +474,7 @@ exports.createDbUserWithType = functions
 
   // Set custom claim on the user's auth object.
   const res = await addCustomUserClaims(data.uid, {
-      [data.type]: true
+    [data.type]: true
   });
   console.log(`Custom auth claim ${data.type} set successfully`);
 
@@ -510,6 +581,52 @@ exports.recursiveDeleteUserData = functions
   };
 });
 
+exports.adminChangeUserType = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.https
+.onCall( async (data, context) => {
+
+  // Reject any non admin user immediately.
+  if (!context.auth || !context.auth.token.admin) {
+    return {error: 'Unauthorised!'}
+  }
+
+  try {
+    // Set new custom claim on the user's auth object.
+    await addCustomUserClaims(data.userId, {
+      [data.newType]: true
+    });
+
+    // remove the old claim on the user's auth object
+    await removeCustomUserClaims(data.userId, {
+      [data.oldType]: null
+    });
+
+    // update the user's account node in the db
+    await db.collection(`users/${data.userId}/account`)
+    .doc('account' + data.userId)
+    .set({
+      accountType: data.newType
+    }, { merge: true });
+
+    // read account data to get account email
+    const account = await db.collection(`users/${data.userId}/account`)
+    .doc('account' + data.userId)
+    .get();
+
+    const acc = account.data() as any;
+
+    // update mailing list
+    archiveMailchimpUser(data.oldType, acc.accountEmail); // removes from old list
+    addUserToMailchimp(acc.accountEmail, acc.firstName, acc.lastName, data.newType); // adds to new list
+
+    return {success: true};
+
+  } catch (err) {
+    return {error: err}
+  }
+});
+
 // ================================================================================
 // =====                                                                     ======
 // =====                        MESSAGING FUNCTIONS                          ======
@@ -573,15 +690,18 @@ exports.postNewMessage = functions
       .doc(roomId)
       .set({ created: timestampNow }); // creates a real (not virtual) doc
 
-      // save the lead to the recipient's leads (create if doesn't yet exist - it might)
-      await db.collection(`users/${recipientUid}/leads`)
+      // save the person to the recipient's people (create if doesn't yet exist - it might)
+      await db.collection(`users/${recipientUid}/people`)
       .doc(senderUid)
       .create({ created: timestampNow }); // creates a real (not virtual) doc
 
-      // save the action to this lead's history
-      await db.collection(`users/${recipientUid}/leads/${senderUid}/history`)
+      // save the action to this person's history
+      await db.collection(`users/${recipientUid}/people/${senderUid}/history`)
       .doc(timestampNow.toString())
-      .set({ action: 'sent_first_message' });
+      .set({
+        action: 'sent_first_message',
+        roomId
+      });
 
       // save a record of the new lead to Algolia
       const index = algolia.initIndex('prod_LEADS');
@@ -626,8 +746,10 @@ exports.postNewMessage = functions
     .get(); // read all users in the sender's room as we may not have a recipient uid (if room already exists)
 
     const senderRoom = snap.data() as any;
-      for (const user of senderRoom.users) { // Update last active time stamp, sender & message for each user.
+      for (const user of senderRoom.users) { // for all users
         if (user) {
+
+          // Update last active time stamp, sender & message for each user.
           const updatePromise = db.collection(`userRooms/${user}/rooms`)
           .doc(roomId)
           .set({
@@ -636,6 +758,18 @@ exports.postNewMessage = functions
             lastSender: senderUid // so we can see who the last sender was
           }, {merge: true});
           promises.push(updatePromise);
+
+          // update the people node for both users if the other user was the last to respond
+          // this triggers the people subscription to update the client view as users respond to messages in real-time
+          if (user !== senderUid) {
+            const peoplePromise = db.collection(`users/${user}/people`)
+            .doc(senderUid)
+            .set({
+              lastReplyReceived: timestampNow
+            }, { merge: true }); // will update the time the other user last replied for both parties
+            promises.push(peoplePromise);
+          }
+
         }
       }
 
@@ -1383,13 +1517,14 @@ async function recordCourseEnrollmentForCreator(sellerUid: string, courseId: str
   .doc(obj.id)
   .create(obj);
 
-  // save the lead to the recipient's leads (create if doesn't exist yet - it might)
-  await db.collection(`users/${sellerUid}/leads`)
+  // save the person to the recipient's people (create if doesn't exist yet - it might)
+  await db.collection(`users/${sellerUid}/people`)
   .doc(clientUid)
-  .create({ created: timestampNow }); // creates a real (not virtual) doc
+  .set({ lastUpdated: timestampNow }, { merge: true }) // creates a real (not virtual) doc
+  .catch(err => console.log(err));
 
-  // save the action to this lead's history
-  return db.collection(`users/${sellerUid}/leads/${clientUid}/history`)
+  // save the action to this person's history
+  return db.collection(`users/${sellerUid}/people/${clientUid}/history`)
   .doc(timestampNow.toString())
   .set({ action: 'enrolled_in_self_study_course' });
 }
@@ -2355,7 +2490,7 @@ exports.onWritePrivateUserCourse = functions
 
   try {
     // Sync with public-courses.
-    const batch = db.batch(); // prepare to execute multiple ops atomically
+    const batch = db.batch(); // prepare to execute multiple ops atomically 
     
     // copy non-paywall protected course data in public courses node (to allow browse & purchase)
     const publicData = {
@@ -2657,6 +2792,79 @@ exports.onCreateCoursePublicQuestionReplyUpvote = functions
   .doc(replyId)
   .set({ upVotes: incrementCount }, { merge: true })
   .catch(err => console.error(err));
+});
+
+/*
+  Monitor newly created people.
+*/
+exports.onNewCrmPersonCreate = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.firestore
+.document(`users/{uid}/people/{personUid}`)
+.onCreate( async (snap, context) => {
+  const userId = context.params.uid;
+  const personId = context.params.personUid;
+  const timestampNow = Math.round(new Date().getTime() / 1000);
+
+  // set a created time on the new person object
+  return db.collection(`users/${userId}/people`)
+  .doc(personId)
+  .set({ created: timestampNow }, { merge: true })
+  .catch(err => console.error(err));
+});
+
+/*
+  Monitor private coach services.
+  Sync with public nodes & Algolia.
+*/
+exports.onWritePrivateServices = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.firestore
+.document(`/users/{userId}/services/{serviceId}`)
+.onWrite( async (change, context) => {
+
+  const userId = context.params.userId;
+  const serviceId = context.params.serviceId;
+  // const before = change.before.data() as any;
+  const after = change.after.data() as any;
+
+  // Public DB sync
+
+  const batch = db.batch(); // prepare to execute multiple ops atomically
+
+  const publicAllRef = db.collection(`public-services`).doc(serviceId);
+  batch.set(publicAllRef, after, { merge: true });
+
+  const publicByCoachRef = db.collection(`public-services-by-coach/${userId}/services`).doc(serviceId);
+  batch.set(publicByCoachRef, after, { merge: true });
+
+  await batch.commit(); // execute batch ops
+
+  // Algolia sync
+
+  const index = algolia.initIndex('prod_SERVICES');
+
+  // Record Removed.
+  if (!after) {
+    return index.deleteObject(serviceId);
+  }
+  // Record added/updated.
+  const recordToSend = {
+    objectID: serviceId,
+    id: after.id,
+    coachUid: userId,
+    title: after.title,
+    subtitle: after.subtitle,
+    duration: after.duration,
+    serviceType: after.serviceType,
+    pricingStrategy: after.pricingStrategy,
+    image: after.image,
+    description: after.description,
+    price: after.price,
+    currency: after.currency
+  };
+  // Update Algolia.
+  return index.saveObject(recordToSend);
 });
 
 // ================================================================================

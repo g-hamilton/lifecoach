@@ -8,6 +8,7 @@ import { SearchService } from 'app/services/search.service';
 import { AlgoliaCoachProfile } from '../../interfaces/algolia.coach.profile';
 import { AlgoliaPublishedCourse } from 'app/interfaces/algolia.published.course';
 import { DataService } from 'app/services/data.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -28,7 +29,9 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   public rates: any;
   public timer: any;
   public wordIndex = 0;
-  public words = ['life', 'Academic', 'Business', 'Career', 'Family', 'Financial', 'Fitness', 'Health', 'Holistic', 'Management', 'Mindset', 'Parenting', 'Productivity', 'Relationship', 'Relocation', 'Retirement', 'Spiritual', 'Sports', 'Transformation', 'Wellness'];
+  public words = ['Life', 'Academic', 'Business', 'Career', 'Family', 'Financial', 'Fitness', 'Health', 'Holistic', 'Management', 'Mindset', 'Parenting', 'Productivity', 'Relationship', 'Relocation', 'Retirement', 'Spiritual', 'Sports', 'Transformation', 'Wellness'];
+
+  private subscriptions: Subscription = new Subscription();
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
@@ -38,7 +41,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     private transferState: TransferState,
     private searchService: SearchService,
     private dataService: DataService
-    ) { }
+  ) {
+  }
 
   ngOnInit() {
     this.titleService.setTitle('Lifecoach | Connect With Professional Coaches');
@@ -61,23 +65,25 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     // Monitor platform rates for realtime price calculations
-    this.dataService.getPlatformRates().subscribe(rates => {
-      if (rates) {
-        // console.log('Rates:', rates);
-        this.rates = rates;
-      }
-    });
+    this.subscriptions.add(
+      this.dataService.getPlatformRates().subscribe(rates => {
+        if (rates) {
+          // console.log('Rates:', rates);
+          this.rates = rates;
+        }
+      })
+    );
 
     // Fetch newest coaches data, checking state to avoid duplicate calls
     const STATE_KEY_COACHES = makeStateKey<any>('newest_coaches'); // create a key for saving/retrieving a state
     const StateDataCoaches = this.transferState.get(STATE_KEY_COACHES, null as any); // checking if data in the storage exists
     if (StateDataCoaches == null) { // if data state does not exist - retrieve it from the api
       this.getNewestCoaches()
-      .then((results) => {
-        if (isPlatformServer(this.platformId)) { // store the state if we're on the server
-          this.transferState.set(STATE_KEY_COACHES, results as any);
-        }
-      });
+        .then((results) => {
+          if (isPlatformServer(this.platformId)) { // store the state if we're on the server
+            this.transferState.set(STATE_KEY_COACHES, results as any);
+          }
+        });
     } else { // if data state exists retrieve it from the state storage
       this.newestCoaches = StateDataCoaches;
       this.transferState.remove(STATE_KEY_COACHES);
@@ -88,11 +94,11 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     const StateDataCourses = this.transferState.get(STATE_KEY_COURSES, null as any); // checking if data in the storage exists
     if (StateDataCourses == null) { // if data state does not exist - retrieve it from the api
       this.getNewestCourses()
-      .then((results) => {
-        if (isPlatformServer(this.platformId)) { // store the state if we're on the server
-          this.transferState.set(STATE_KEY_COURSES, results as any);
-        }
-      });
+        .then((results) => {
+          if (isPlatformServer(this.platformId)) { // store the state if we're on the server
+            this.transferState.set(STATE_KEY_COURSES, results as any);
+          }
+        });
     } else { // if data state exists retrieve it from the state storage
       this.newestCourses = StateDataCourses;
       this.transferState.remove(STATE_KEY_COURSES);
@@ -143,6 +149,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
   ngOnDestroy() {
+    this.subscriptions.unsubscribe();
+
     if (this.timer != null) {
       clearInterval(this.timer);
     }

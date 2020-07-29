@@ -9,6 +9,7 @@ import { SearchService } from 'app/services/search.service';
 import { AlgoliaCoachProfile } from '../../interfaces/algolia.coach.profile';
 import { AlgoliaPublishedCourse } from 'app/interfaces/algolia.published.course';
 import { DataService } from 'app/services/data.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-home-search-results',
@@ -35,6 +36,8 @@ export class HomeSearchResultsComponent implements OnInit, OnDestroy {
   public clientCountry: string;
   public rates: any;
 
+  private subscriptions: Subscription = new Subscription();
+
   constructor(
     @Inject(DOCUMENT) private document: any,
     @Inject(PLATFORM_ID) private platformId: object,
@@ -46,77 +49,80 @@ export class HomeSearchResultsComponent implements OnInit, OnDestroy {
     private transferState: TransferState,
     private searchService: SearchService,
     private dataService: DataService
-  ) {}
+  ) {
+  }
 
-    ngOnInit() {
-        this.titleService.setTitle('Search Results');
-        this.metaTagService.updateTag({name: 'description', content: 'Coaches & Self-Study Coaching Courses'});
-        const body = this.document.getElementsByTagName('body')[0];
-        body.classList.add('home-search-results-page');
+  ngOnInit() {
+    this.titleService.setTitle('Search Results');
+    this.metaTagService.updateTag({name: 'description', content: 'Coaches & Self-Study Coaching Courses'});
+    const body = this.document.getElementsByTagName('body')[0];
+    body.classList.add('home-search-results-page');
 
-        // Register a page view if we're in the browser (not SSR)
-        if (isPlatformBrowser(this.platformId)) {
-        this.analyticsService.pageView();
+    // Register a page view if we're in the browser (not SSR)
+    if (isPlatformBrowser(this.platformId)) {
+      this.analyticsService.pageView();
 
-        // Check for saved client currency & country preference
-        const savedClientCurrencyPref = localStorage.getItem('client-currency');
-        const savedClientCountryPref = localStorage.getItem('client-country');
-        if (savedClientCurrencyPref && savedClientCountryPref) {
-            this.clientCurrency = savedClientCurrencyPref;
-            this.clientCountry = savedClientCountryPref;
-        } else {
-            this.getClientCurrencyAndCountryFromIP();
-        }
-        }
-
-        // Monitor platform rates for realtime price calculations
-        this.dataService.getPlatformRates().subscribe(rates => {
-            if (rates) {
-            // console.log('Rates:', rates);
-            this.rates = rates;
-            }
-        });
-
-        // Check activated query params
-        this.route.queryParamMap.subscribe(params => {
-        if (params) {
-            this.coachFilters = {...params.keys, ...params};
-            this.courseFilters = {...params.keys, ...params};
-
-            this.fetchCoaches();
-            this.fetchCourses();
-        }
-        });
-
+      // Check for saved client currency & country preference
+      const savedClientCurrencyPref = localStorage.getItem('client-currency');
+      const savedClientCountryPref = localStorage.getItem('client-country');
+      if (savedClientCurrencyPref && savedClientCountryPref) {
+        this.clientCurrency = savedClientCurrencyPref;
+        this.clientCountry = savedClientCountryPref;
+      } else {
+        this.getClientCurrencyAndCountryFromIP();
+      }
     }
 
-    fetchCoaches() {
-      // Fetch appropriate data, checking state to avoid duplicate calls
-      const COACH_RESULTS_KEY = makeStateKey<any>('results'); // create a key for saving/retrieving a state
-      const coachStateData = this.transferState.get(COACH_RESULTS_KEY, null as any); // checking if data in the storage exists
-      if (coachStateData == null) { // if data state does not exist - retrieve it from the api
-        this.getCoachSearchResults()
+    // Monitor platform rates for realtime price calculations
+    this.subscriptions.add(
+      this.dataService.getPlatformRates().subscribe(rates => {
+        if (rates) {
+          // console.log('Rates:', rates);
+          this.rates = rates;
+        }
+      })
+    );
+
+    // Check activated query params
+    this.route.queryParamMap.subscribe(params => {
+      if (params) {
+        this.coachFilters = {...params.keys, ...params};
+        this.courseFilters = {...params.keys, ...params};
+
+        this.fetchCoaches();
+        this.fetchCourses();
+      }
+    });
+
+  }
+
+  fetchCoaches() {
+    // Fetch appropriate data, checking state to avoid duplicate calls
+    const COACH_RESULTS_KEY = makeStateKey<any>('results'); // create a key for saving/retrieving a state
+    const coachStateData = this.transferState.get(COACH_RESULTS_KEY, null as any); // checking if data in the storage exists
+    if (coachStateData == null) { // if data state does not exist - retrieve it from the api
+      this.getCoachSearchResults()
         .then((results) => {
           if (isPlatformServer(this.platformId)) { // store the state if we're on the server
             this.transferState.set(COACH_RESULTS_KEY, results as any);
           }
         });
-      } else { // if data state exists retrieve it from the state storage
-        this.coachHits = coachStateData;
-        this.transferState.remove(COACH_RESULTS_KEY);
-      }
+    } else { // if data state exists retrieve it from the state storage
+      this.coachHits = coachStateData;
+      this.transferState.remove(COACH_RESULTS_KEY);
     }
+  }
 
   fetchCourses() {
     const COURSE_RESULTS_KEY = makeStateKey<any>('course-results'); // create a key for saving/retrieving a state
     const courseStateData = this.transferState.get(COURSE_RESULTS_KEY, null as any); // checking if data in the storage exists
     if (courseStateData == null) { // if data state does not exist - retrieve it from the api
       this.getCourseSearchResults()
-      .then((results) => {
-        if (isPlatformServer(this.platformId)) { // store the state if we're on the server
-          this.transferState.set(COURSE_RESULTS_KEY, results as any);
-        }
-      });
+        .then((results) => {
+          if (isPlatformServer(this.platformId)) { // store the state if we're on the server
+            this.transferState.set(COURSE_RESULTS_KEY, results as any);
+          }
+        });
     } else { // if data state exists retrieve it from the state storage
       this.courseHits = courseStateData;
       this.transferState.remove(COURSE_RESULTS_KEY);
@@ -168,6 +174,8 @@ export class HomeSearchResultsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.subscriptions.unsubscribe();
+
     const body = this.document.getElementsByTagName('body')[0];
     body.classList.remove('home-search-results-page');
   }

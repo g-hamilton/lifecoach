@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, HostListener, Inject, PLATFORM_ID, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Title, Meta } from '@angular/platform-browser';
 import PerfectScrollbar from 'perfect-scrollbar';
@@ -6,6 +6,7 @@ import { ToastrService } from 'ngx-toastr';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 
 import { AuthService } from 'app/services/auth.service';
+import { Subscription } from 'rxjs';
 
 const misc: any = {
   sidebar_mini_active: true
@@ -16,10 +17,12 @@ const misc: any = {
   templateUrl: './admin-layout.component.html',
   styleUrls: ['./admin-layout.component.scss']
 })
-export class AdminLayoutComponent implements OnInit {
+export class AdminLayoutComponent implements OnInit, OnDestroy {
 
   public userAuthorised: boolean;
   public userClaims: any;
+
+  private subscriptions: Subscription = new Subscription();
 
   constructor(
     @Inject(DOCUMENT) private document: any,
@@ -29,7 +32,8 @@ export class AdminLayoutComponent implements OnInit {
     private titleService: Title,
     private metaTagService: Meta,
     private authService: AuthService
-  ) {}
+  ) {
+  }
 
   @HostListener('window:scroll', ['$event'])
   showNavbarButton = () => {
@@ -107,6 +111,7 @@ export class AdminLayoutComponent implements OnInit {
       }, 1000);
     }
   }
+
   showSidebarMessage(message) {
     this.toastr.show(
       '<span data-notify="icon" class="tim-icons icon-bell-55"></span>',
@@ -123,22 +128,29 @@ export class AdminLayoutComponent implements OnInit {
 
   monitorUserAuth() {
     // Monitor the user's auth state
-    this.authService.getAuthUser().subscribe(user => {
-      if (user) {
-        // console.log('User is authorised');
-        // Auth state is not null. User is authorised.
-        this.userAuthorised = true;
-        // Check the user's custom auth claims.
-        user.getIdTokenResult()
-        .then(tokenRes => {
-          // console.log('Custom user claims:', tokenRes.claims);
-          this.userClaims = tokenRes.claims;
-        });
-      } else {
-        // User is not authorised.
-        // console.log('User not authorised.');
-        this.userAuthorised = false;
-      }
-    });
+    this.subscriptions.add(
+      this.authService.getAuthUser().subscribe(user => {
+        if (user) {
+          // console.log('User is authorised');
+          // Auth state is not null. User is authorised.
+          this.userAuthorised = true;
+          // Check the user's custom auth claims.
+          user.getIdTokenResult()
+            .then(tokenRes => {
+              // console.log('Custom user claims:', tokenRes.claims);
+              this.userClaims = tokenRes.claims;
+            });
+        } else {
+          // User is not authorised.
+          // console.log('User not authorised.');
+          this.userAuthorised = false;
+        }
+      })
+    );
   }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
+  }
+
 }

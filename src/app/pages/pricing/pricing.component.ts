@@ -21,7 +21,7 @@ export class PricingComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.titleService.setTitle('Lifecoach for Coaches');
-    this.metaTagService.updateTag({name: 'description', content: 'Get the leading software for Professional Life Coaches'});
+    this.metaTagService.updateTag({name: 'description', content: 'Join the fastest growing digital coaching community.'});
     const body = this.document.getElementsByTagName('body')[0];
     body.classList.add('pricing-page');
 

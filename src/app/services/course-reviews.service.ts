@@ -41,4 +41,17 @@ export class CourseReviewsService {
     .doc(reviewPath)
     .set(review, {merge: true});
   }
+
+  async markUserCourseReviewPrompted(userId: string, courseId: string) {
+    const timestampNow = Math.round(new Date().getTime() / 1000);
+    return this.afs.collection(`users/${userId}/course-review-prompts`)
+    .doc(courseId)
+    .set({ prompted: timestampNow })
+    .catch(err => console.error(err));
+  }
+
+  fetchUserCourseReviewPrompts(userId: string) {
+    return this.afs.collection(`users/${userId}/course-review-prompts`)
+    .valueChanges({ idField: 'id' }) as Observable<any[]>;
+  }
 }

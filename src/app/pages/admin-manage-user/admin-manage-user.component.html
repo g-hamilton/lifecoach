@@ -36,6 +36,17 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class=" row">
+                                <div class=" col-md-6">
+                                    <label> Account Type </label>
+                                    <p> {{ accountType.toUpperCase() }} 
+                                        <button
+                                        type="button"
+                                        class="btn btn-default btn-sm ml-3"
+                                        (click)="changeAccountTypeModal.show()"> Change </button>
+                                    </p>
+                                </div>
+                            </div>
                         </form>
                     </div>
                 </div>
@@ -223,3 +234,60 @@
 
     </div>
 </div>
+
+<!-- Change account type modal -->
+<div
+aria-hidden="true"
+aria-labelledby="changeAccountTypeModalLabel"
+bsModal
+class="modal fade"
+#changeAccountTypeModal="bs-modal"
+id="changeAccountTypeModal"
+role="dialog"
+tabindex="-1"
+>
+<div class="modal-dialog" style="transform: translate(0,0);">
+    <div class="modal-content">
+        <div class="modal-body">
+            <div class="card card-login card-white">
+                <div class=" card-header">
+                    <h1 class=" card-title"> Change Account Type </h1>
+                </div>
+                <div class=" card-body">
+                    <p>
+                        Change this user's account type. <span class=" text-danger">Use with caution!</span>
+                    </p>
+
+                    <!-- user type -->
+                    <div class="form-group">
+                        <select class="form-control" [(ngModel)]="newAccountType">
+                        <option [ngValue]="null"> Select... </option>
+                        <option value='coach'>
+                            Coach
+                        </option>
+                        <option value='regular'>
+                            Regular
+                        </option>
+                        <option value='publisher'>
+                            Publisher
+                        </option>
+                        <option value='provider'>
+                            Provider
+                        </option>
+                        </select>
+                    </div>
+
+                    <button class=" btn btn-primary btn-block mt-3" (click)="saveUpdatedAccountType()">
+                        Save
+                    </button>
+                    
+                    <button class=" btn btn-default btn-block mt-3" (click)="changeAccountTypeModal.hide()">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<!-- End of change account type modal -->

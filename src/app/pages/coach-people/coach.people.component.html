@@ -1,0 +1,196 @@
+<div class=" content">
+
+    <!--  -->
+    <div class=" row">
+        <div class=" col-lg-12">
+          <div class=" card">
+            <div class=" card-header">
+              <div class=" tools float-right">
+                <div class=" dropdown" dropdown>
+                  <button
+                    class=" btn btn-link dropdown-toggle btn-icon dropdown-toggle"
+                    data-toggle="dropdown"
+                    dropdownToggle
+                    type="button"
+                  >
+                    <i class=" tim-icons icon-settings-gear-63"> </i>
+                  </button>
+                  <div class=" dropdown-menu dropdown-menu-right" *dropdownMenu>
+                    <a class=" dropdown-item" href="#pablo"> Action </a>
+                    <a class=" dropdown-item" href="#pablo"> Another action </a>
+                    <a class=" dropdown-item" href="#pablo"> Something else </a>
+                    <a class=" dropdown-item text-danger" href="#pablo">
+                      Remove Data
+                    </a>
+                  </div>
+                </div>
+              </div>
+              <h5 class=" card-title"> People </h5>
+            </div>
+            <div class=" card-body">
+              <div class=" table-responsive">
+                <table class=" table">
+                  <thead class=" text-primary">
+                    <tr>
+                      <th> # </th>
+                      <th> </th>
+                      <th> Name </th>
+                      <th> Connected </th>
+                      <th> Status </th>
+                      <th class=" text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let user of people">
+                      <td>
+                        <div *ngIf="user.type === 'warm lead'" class=" badge badge-danger">
+                          🔥Warm Lead
+                        </div>
+                        <div *ngIf="user.type === 'lead'" class=" badge badge-success">
+                          Lead
+                        </div>
+                        <div *ngIf="user.type === 'client'" class=" badge badge-primary">
+                          Client
+                        </div>
+                      </td>
+                      <td>
+                        <div class=" photo">
+                            <img alt="photo" [src]="user.photo" />
+                        </div>
+                      </td>
+                      <td> {{ user.firstName + ' ' + user.lastName }} </td>
+                      <td> {{ user.created.toDateString() }} </td>
+                      <td> 
+                        <div 
+                        [ngClass]="{'text-danger': user.status === 'Awaiting reply' || user.status === 'Client responded',
+                      'text-success' : user.status === 'Responded' || user.status === 'Enrolled in self-study course'}"
+                        >
+                          {{ user.status }}
+                        </div>
+                      </td>
+                      <td class=" text-right">
+                        <button
+                          *ngIf="user.history[user.history.length - 1].action === 'sent_first_message'"
+                          class=" btn btn-success btn-link btn-icon btn-sm btn-simple"
+                          tooltip="Message"
+                          type="button"
+                          (click)="openMessage(user.history[user.history.length - 1].roomId)"
+                        >
+                          <i class=" tim-icons icon-chat-33"> </i>
+                        </button>
+                        <button
+                          *ngIf="user.history?.length"
+                          class=" btn btn-primary btn-link btn-icon btn-sm btn-simple"
+                          tooltip="View History"
+                          type="button"
+                          (click)="openHistory(user)"
+                        >
+                          <i class="fas fa-history"></i>
+                        </button>
+                        <button
+                          class=" btn btn-danger btn-link btn-icon btn-sm btn-simple"
+                          tooltip="Archive Person"
+                          type="button"
+                        >
+                          <i class="fas fa-archive"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+    <!--  -->
+    
+    <!--  -->
+    <!-- <div class=" row">
+        <div class=" col-lg-12">
+            <div class=" card">
+              <div class=" card-header">
+                <h4 class=" card-title"> Clients by Location </h4>
+                <p class=" card-category">Currently Coaching</p>
+              </div>
+              <div class=" card-body">
+                <div class=" row">
+                  <div class=" col-md-6">
+                    <div class=" table-responsive">
+                      <table class=" table">
+                        <tbody>
+                          <tr>
+                            <td>
+                              <div class=" flag">
+                                <img alt="flag" src="assets/img/US.png" />
+                              </div>
+                            </td>
+                            <td>USA</td>
+                            <td class=" text-right">2.920</td>
+                            <td class=" text-right">53.23%</td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <div class=" flag">
+                                <img alt="flag" src="assets/img/DE.png" />
+                              </div>
+                            </td>
+                            <td>Germany</td>
+                            <td class=" text-right">1.300</td>
+                            <td class=" text-right">20.43%</td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <div class=" flag">
+                                <img alt="flag" src="assets/img/AU.png" />
+                              </div>
+                            </td>
+                            <td>Australia</td>
+                            <td class=" text-right">760</td>
+                            <td class=" text-right">10.35%</td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <div class=" flag">
+                                <img alt="flag" src="assets/img/GB.png" />
+                              </div>
+                            </td>
+                            <td>United Kingdom</td>
+                            <td class=" text-right">690</td>
+                            <td class=" text-right">7.87%</td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <div class=" flag">
+                                <img alt="flag" src="assets/img/RO.png" />
+                              </div>
+                            </td>
+                            <td>Romania</td>
+                            <td class=" text-right">600</td>
+                            <td class=" text-right">5.94%</td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <div class=" flag">
+                                <img alt="flag" src="assets/img/BR.png" />
+                              </div>
+                            </td>
+                            <td>Brasil</td>
+                            <td class=" text-right">550</td>
+                            <td class=" text-right">4.34%</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                  <div class=" col-md-6 ml-auto mr-auto">
+                    <app-vector-map-component></app-vector-map-component>
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
+    </div> -->
+    <!--  -->
+
+</div>

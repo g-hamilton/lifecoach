@@ -31,6 +31,11 @@ const routes: Routes = [
     pathMatch: 'full'
   },
   {
+    path: 'for-publishers',
+    loadChildren: () => import('./pages/for-publishers/for.publishers.module').then(m => m.ForPublishersModule),
+    pathMatch: 'full'
+  },
+  {
     path: 'about',
     loadChildren: () => import('./pages/about/about.module').then(m => m.AboutModule),
     pathMatch: 'full'
@@ -83,6 +88,11 @@ const routes: Routes = [
     pathMatch: 'full'
   },
   {
+    path: 'coaching-service/:serviceId',
+    loadChildren: () => import('./pages/coaching-service/coaching.service.module').then(m => m.CoachingServiceModule),
+    pathMatch: 'full'
+  },
+  {
     path: '',
     component: AdminLayoutComponent,
     children: [
@@ -93,6 +103,22 @@ const routes: Routes = [
       {
         path: 'profile',
         loadChildren: () => import('./pages/user/user-profile.module').then(m => m.UserModule)
+      },
+      {
+        path: 'calendar',
+        loadChildren: () => import('./pages/calendar/calendar.page.module').then(m => m.CalendarPageModule)
+      },
+      {
+        path: 'services',
+        loadChildren: () => import('./pages/coach-services/coach.services.module').then(m => m.CoachServicesModule)
+      },
+      {
+        path: 'people',
+        loadChildren: () => import('./pages/coach-people/coach.people.module').then(m => m.CoachPeopleModule)
+      },
+      {
+        path: 'person-history/:uid',
+        loadChildren: () => import('./pages/person-history/person.history.module').then(m => m.PersonHistoryModule)
       },
       {
         path: 'account',
@@ -167,6 +193,16 @@ const routes: Routes = [
       {
         path: 'my-courses/:courseId/content/section/:sectionId/lecture/:lectureId',
         loadChildren: () => import('./pages/edit-course-lectures/edit.course.lectures.module').then(m => m.EditCourseLecturesModule),
+        pathMatch: 'full'
+      },
+      {
+        path: 'services/new',
+        loadChildren: () => import('./pages/edit-coach-service/edit.coach.service.module').then(m => m.EditCoachServiceModule),
+        pathMatch: 'full'
+      },
+      {
+        path: 'services/:id/edit',
+        loadChildren: () => import('./pages/edit-coach-service/edit.coach.service.module').then(m => m.EditCoachServiceModule),
         pathMatch: 'full'
       },
       {

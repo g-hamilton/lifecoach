@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
@@ -14,13 +14,14 @@ import { AnalyticsService } from '../../services/analytics.service';
 import { ToastService } from '../../services/toast.service';
 
 import { UserAccount } from '../../interfaces/user.account.interface';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-profile-wizard',
   templateUrl: 'profile.wizard.component.html',
   styleUrls: ['./profile.wizard.scss']
 })
-export class ProfileWizardComponent implements OnInit {
+export class ProfileWizardComponent implements OnInit, OnDestroy {
 
   public browser = false;
 
@@ -71,10 +72,12 @@ export class ProfileWizardComponent implements OnInit {
   public goalTagsMax = 3;
 
   public ErrorMessages = {
-    learningPoints : {
+    learningPoints: {
       maxLength: `Specialist area must be below ${this.goalTagMaxLength} characters`,
     }
   };
+
+  private subscriptions: Subscription = new Subscription();
 
   constructor(
     @Inject(DOCUMENT) private document: any,
@@ -89,17 +92,16 @@ export class ProfileWizardComponent implements OnInit {
     private dataService: DataService,
     private analyticsService: AnalyticsService,
     private toastService: ToastService
-  ) { }
+  ) {
+  }
 
   ngOnInit() {
-
     if (isPlatformBrowser(this.platformId)) {
       this.browser = true;
       this.buildWizardForm();
       this.getUserAccountData();
       this.getFormData();
     }
-
   }
 
   getFormData() {
@@ -179,23 +181,28 @@ export class ProfileWizardComponent implements OnInit {
       to differ from account data as the profile is public while
       the account data is private.
     */
-    this.authService.getAuthUser()
-    .subscribe(user => {
-      if (user) {
-        this.userId = user.uid;
-        this.dataService.getUserAccount(this.userId)
-        .subscribe((account: UserAccount) => {
-          if (account) {
-            this.formWizard.patchValue({
-              firstName: account.firstName,
-              lastName: account.lastName,
-              email: account.accountEmail,
-              profileUrl: `https://lifecoach.io/coach/${user.uid}`
-            });
+    this.subscriptions.add(
+      this.authService.getAuthUser()
+        .subscribe(user => {
+          if (user) {
+            this.userId = user.uid;
+
+            this.subscriptions.add(
+              this.dataService.getUserAccount(this.userId)
+                .subscribe((account: UserAccount) => {
+                  if (account) {
+                    this.formWizard.patchValue({
+                      firstName: account.firstName,
+                      lastName: account.lastName,
+                      email: account.accountEmail,
+                      profileUrl: `https://lifecoach.io/coach/${user.uid}`
+                    });
+                  }
+                })
+            );
           }
-        });
-      }
-    });
+        })
+    );
   }
 
   get wizardF(): any {
@@ -299,7 +306,7 @@ export class ProfileWizardComponent implements OnInit {
       const objArr = [];
       (this.group3.goalTags.value.controls as any[]).forEach(control => {
         if (control.value !== '') { // exclude empty tags
-          objArr.push({ display: control.value, value: control.value });
+          objArr.push({display: control.value, value: control.value});
         }
       });
       this.group3.goalTags.patchValue(objArr);
@@ -309,7 +316,7 @@ export class ProfileWizardComponent implements OnInit {
       const b = JSON.parse(JSON.stringify(((this.formWizard.controls.formArray as FormArray).controls[1] as FormGroup).value));
       const c = JSON.parse(JSON.stringify(((this.formWizard.controls.formArray as FormArray).controls[2] as FormGroup).value));
       const d = JSON.parse(JSON.stringify(((this.formWizard.controls.formArray as FormArray).controls[3] as FormGroup).value));
-      const merged = { ...a, ...b, ...c, ...d };
+      const merged = {...a, ...b, ...c, ...d};
 
       console.log(merged);
 
@@ -331,6 +338,10 @@ export class ProfileWizardComponent implements OnInit {
       // Pop an alert
       this.toastService.showToast('Just a moment! Please check you have completed all required info above.', 5000, 'danger', 'bottom', 'center');
     }
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 
 }

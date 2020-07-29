@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CoachingCourse } from 'app/interfaces/course.interface';
 import { CourseReviewsService } from 'app/services/course-reviews.service';
@@ -7,16 +7,18 @@ import { CourseReview } from 'app/interfaces/course-review';
 import { SearchService } from 'app/services/search.service';
 import { ActivatedRoute } from '@angular/router';
 import { AlertService } from 'app/services/alert.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-star-review',
   templateUrl: './star-review.component.html',
   styleUrls: ['./star-review.component.scss']
 })
-export class StarReviewComponent implements OnInit {
+export class StarReviewComponent implements OnInit, OnDestroy {
 
   @Input() userId: string;
   @Input() course: CoachingCourse;
+  @Input() uniqueComponentString: string; // allows us to use this component more than once in same parent without unique ID DOM errors
 
   @Output() savedRatingEvent = new EventEmitter<boolean>();
 
@@ -26,6 +28,8 @@ export class StarReviewComponent implements OnInit {
 
   private previewAsStudent: boolean;
 
+  private subscriptions: Subscription = new Subscription();
+
   constructor(
     private route: ActivatedRoute,
     public formBuilder: FormBuilder,
@@ -33,7 +37,8 @@ export class StarReviewComponent implements OnInit {
     private dataService: DataService,
     private searchService: SearchService,
     private alertService: AlertService
-  ) { }
+  ) {
+  }
 
   ngOnInit() {
     this.buildReviewForm();
@@ -74,9 +79,9 @@ export class StarReviewComponent implements OnInit {
     if (this.courseId) {
       // search user review for this course to check for previous saved review data
       // filter to only include reviews for this course from this user (should only ever be 1)
-      const filters = { query: null, facets: { courseId: this.courseId, reviewerUid: this.userId } };
+      const filters = {query: null, facets: {courseId: this.courseId, reviewerUid: this.userId}};
       const res = await this.searchService.searchCourseReviews(1, 1, filters);
-      console.log(res.hits);
+      // console.log(res.hits);
       const savedReview = res.hits[0];
       if (savedReview) { // there is a saved review, so load data
         this.reviewForm.patchValue({
@@ -89,11 +94,12 @@ export class StarReviewComponent implements OnInit {
 
   onRatingChange(value: number) {
     // console.log(value);
-    this.reviewForm.patchValue({ rating: value });
+    this.reviewForm.patchValue({rating: value});
   }
 
   fetchCoachProfile() {
     const tempSub = this.dataService.getPublicCoachProfile(this.userId).subscribe(coachProfile => {
+      // console.log('coach profile:', coachProfile);
       if (coachProfile) {
         this.userProfile = coachProfile;
       } else { // user is not a coach, try regular...
@@ -101,15 +107,18 @@ export class StarReviewComponent implements OnInit {
       }
       tempSub.unsubscribe();
     });
+    this.subscriptions.add(tempSub);
   }
 
   fetchRegularProfile() {
     const tempSub = this.dataService.getRegularProfile(this.userId).subscribe(regProfile => {
+      // console.log('regular profile', regProfile);
       if (regProfile) {
         this.userProfile = regProfile;
       }
       tempSub.unsubscribe();
     });
+    this.subscriptions.add(tempSub);
   }
 
   async submit() {
@@ -126,11 +135,13 @@ export class StarReviewComponent implements OnInit {
     // save the user's name & photo (if we have it) into the reviews object so it remains with the review
     // even if the user deletes their account.
 
+    console.log('User profile:', this.userProfile);
+
     const data: CourseReview = {
       reviewerUid: this.userId,
-      reviewerFirstName: this.userProfile && this.userProfile.firstName ? this.userProfile.firstName : 'Anonymous',
-      reviewerLastName: this.userProfile && this.userProfile.lastName ? this.userProfile.lastName : 'Student',
-      reviewerPhoto: this.userProfile && this.userProfile.photo ? this.userProfile.photo : null,
+      reviewerFirstName: (this.userProfile && this.userProfile.firstName) ? this.userProfile.firstName : 'Anonymous',
+      reviewerLastName: (this.userProfile && this.userProfile.lastName) ? this.userProfile.lastName : 'Student',
+      reviewerPhoto: (this.userProfile && this.userProfile.photo) ? this.userProfile.photo : null,
       sellerUid: this.course.sellerUid,
       courseId: this.course.courseId,
       starValue: review.rating,
@@ -142,6 +153,10 @@ export class StarReviewComponent implements OnInit {
     await this.courseReviewService.setReview(data);
 
     this.savedRatingEvent.emit(true);
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 
 }

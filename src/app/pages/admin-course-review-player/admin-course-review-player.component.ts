@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, OnDestroy } from '@angular/core';
 import { CloudFunctionsService } from 'app/services/cloud-functions.service';
 import { AlertService } from 'app/services/alert.service';
 import { isPlatformBrowser } from '@angular/common';
@@ -10,12 +10,13 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { VgAPI } from 'videogular2/compiled/core';
 import { CoachingCourse, CoachingCourseLecture } from 'app/interfaces/course.interface';
 import { AnalyticsService } from 'app/services/analytics.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-admin-course-review-player',
   templateUrl: './admin-course-review-player.component.html'
 })
-export class AdminCourseReviewPlayerComponent implements OnInit {
+export class AdminCourseReviewPlayerComponent implements OnInit, OnDestroy {
 
   public browser: boolean;
   public userId: string; // admin's uid
@@ -36,6 +37,8 @@ export class AdminCourseReviewPlayerComponent implements OnInit {
   public approving: boolean;
   public rejecting: boolean;
 
+  private subscriptions: Subscription = new Subscription();
+
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
     public formBuilder: FormBuilder,
@@ -46,7 +49,8 @@ export class AdminCourseReviewPlayerComponent implements OnInit {
     private route: ActivatedRoute,
     private authService: AuthService,
     private analyticsService: AnalyticsService
-  ) { }
+  ) {
+  }
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
@@ -68,11 +72,13 @@ export class AdminCourseReviewPlayerComponent implements OnInit {
   }
 
   getUserData() {
-    this.authService.getAuthUser().subscribe(user => {
-      if (user) {
-        this.userId = user.uid;
-      }
-    });
+    this.subscriptions.add(
+      this.authService.getAuthUser().subscribe(user => {
+        if (user) {
+          this.userId = user.uid;
+        }
+      })
+    );
   }
 
   buildRejectForm() {
@@ -82,26 +88,30 @@ export class AdminCourseReviewPlayerComponent implements OnInit {
   }
 
   loadReviewRequest() {
-    this.dataService.getCourseReviewRequest(this.courseId).subscribe(data => {
-      if (data) {
-        this.reviewRequest = data;
-        if (this.reviewRequest.sellerUid) {
-          this.loadCourse();
-        } else {
-          console.error('No seller UID - cannot load course!');
+    this.subscriptions.add(
+      this.dataService.getCourseReviewRequest(this.courseId).subscribe(data => {
+        if (data) {
+          this.reviewRequest = data;
+          if (this.reviewRequest.sellerUid) {
+            this.loadCourse();
+          } else {
+            console.error('No seller UID - cannot load course!');
+          }
         }
-      }
-    });
+      })
+    );
   }
 
   loadCourse() {
-    this.dataService.getPrivateCourse(this.reviewRequest.sellerUid, this.courseId).subscribe(course => {
-      if (course) {
-        this.course = course;
-        console.log('Course loaded:', this.course);
-        this.checkLectureId();
-      }
-    });
+    this.subscriptions.add(
+      this.dataService.getPrivateCourse(this.reviewRequest.sellerUid, this.courseId).subscribe(course => {
+        if (course) {
+          this.course = course;
+          console.log('Course loaded:', this.course);
+          this.checkLectureId();
+        }
+      })
+    );
   }
 
   checkLectureId() {
@@ -152,19 +162,19 @@ export class AdminCourseReviewPlayerComponent implements OnInit {
   }
 
   checkActiveSectionIndex() {
-      // check which section the current lecture is contained in
-      const index = this.course.sections.findIndex(i => {
-        if (i.lectures) {
-          return i.lectures.includes(this.lectureId);
-        }
-        return -1;
-      });
-      if (index === -1) {
-          console.log('Unable to determine active section index!');
-          return;
+    // check which section the current lecture is contained in
+    const index = this.course.sections.findIndex(i => {
+      if (i.lectures) {
+        return i.lectures.includes(this.lectureId);
       }
-      this.activeSectionIndex = index;
-      console.log('Active section index:', index);
+      return -1;
+    });
+    if (index === -1) {
+      console.log('Unable to determine active section index!');
+      return;
+    }
+    this.activeSectionIndex = index;
+    console.log('Active section index:', index);
   }
 
   loadVideo() {
@@ -177,55 +187,60 @@ export class AdminCourseReviewPlayerComponent implements OnInit {
     this.vgApi = api;
 
     // listen for the data loaded event
-    this.vgApi.getDefaultMedia().subscriptions.loadedData.subscribe($event => {
-      console.log('Video loaded data', $event);
 
-      // seek to bookmark point if requested
-      // this.checkForBookmark();
-    });
+    this.subscriptions.add(
+      this.vgApi.getDefaultMedia().subscriptions.loadedData.subscribe($event => {
+        console.log('Video loaded data', $event);
+
+        // seek to bookmark point if requested
+        // this.checkForBookmark();
+      })
+    );
 
     // listen for the video ended event
-    this.vgApi.getDefaultMedia().subscriptions.ended.subscribe($event => {
-      console.log('Video ended:', $event);
+    this.subscriptions.add(
+      this.vgApi.getDefaultMedia().subscriptions.ended.subscribe($event => {
+        console.log('Video ended:', $event);
 
-      // save lecture complete for this user
-      // this.saveLectureComplete(this.lectureId);
+        // save lecture complete for this user
+        // this.saveLectureComplete(this.lectureId);
 
-      // redirect to the next lecture in the course
-      if (this.activeSectionIndex !== undefined) {
-        // is this the last lecture in the active section?
-        const lIndex = this.course.sections[this.activeSectionIndex].lectures.findIndex(i => i === this.lectureId);
-        if (lIndex === -1) {
-          console.log('Lecture not found in active section!');
-          return;
-        }
-        if (lIndex === this.course.sections[this.activeSectionIndex].lectures.length - 1) {
-          // yes, is this the last section in the course?
-          if (this.activeSectionIndex === this.course.sections.length - 1) {
-            // yes, ???
-            console.log('Completed the final lecture in this course!');
+        // redirect to the next lecture in the course
+        if (this.activeSectionIndex !== undefined) {
+          // is this the last lecture in the active section?
+          const lIndex = this.course.sections[this.activeSectionIndex].lectures.findIndex(i => i === this.lectureId);
+          if (lIndex === -1) {
+            console.log('Lecture not found in active section!');
             return;
           }
-          // no, load the first lecture in the next section
-          const nextSectionLectureId = this.course.sections[this.activeSectionIndex + 1].lectures[0];
-          this.router.navigate(['/admin-course-review-player', this.courseId, 'learn', 'lecture', nextSectionLectureId]);
+          if (lIndex === this.course.sections[this.activeSectionIndex].lectures.length - 1) {
+            // yes, is this the last section in the course?
+            if (this.activeSectionIndex === this.course.sections.length - 1) {
+              // yes, ???
+              console.log('Completed the final lecture in this course!');
+              return;
+            }
+            // no, load the first lecture in the next section
+            const nextSectionLectureId = this.course.sections[this.activeSectionIndex + 1].lectures[0];
+            this.router.navigate(['/admin-course-review-player', this.courseId, 'learn', 'lecture', nextSectionLectureId]);
+          }
+
+          // no, safe to load next lecture
+          const nextLectureId = this.course.sections[this.activeSectionIndex].lectures[lIndex + 1];
+          this.router.navigate(['/admin-course-review-player', this.courseId, 'learn', 'lecture', nextLectureId]);
+
+        } else {
+          console.log('Unable to redirect to next lecture. Active section index not set yet!');
         }
-
-        // no, safe to load next lecture
-        const nextLectureId = this.course.sections[this.activeSectionIndex].lectures[lIndex + 1];
-        this.router.navigate(['/admin-course-review-player', this.courseId, 'learn', 'lecture', nextLectureId]);
-
-      } else {
-        console.log('Unable to redirect to next lecture. Active section index not set yet!');
-      }
-    });
+      })
+    );
     // end video ended event listener
   }
 
   onLectureCompleteChange(event: any) {
     const ev = JSON.parse(event);
     // Do nothing deliberately
-}
+  }
 
   get rejectF(): any {
     return this.rejectForm.controls;
@@ -316,6 +331,10 @@ export class AdminCourseReviewPlayerComponent implements OnInit {
     this.analyticsService.adminRejectCourse(this.courseId);
     await this.alertService.alert('success-message', 'Success!', 'Course rejected. Feedback sent to course creator.');
     this.router.navigate(['/admin-course-review']);
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 
 }

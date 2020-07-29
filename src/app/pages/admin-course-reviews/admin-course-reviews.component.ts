@@ -1,16 +1,17 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, OnDestroy } from '@angular/core';
 import { CloudFunctionsService } from 'app/services/cloud-functions.service';
 import { AlertService } from 'app/services/alert.service';
 import { isPlatformBrowser } from '@angular/common';
 import { DataService } from 'app/services/data.service';
 import { AdminCourseReviewRequest } from 'app/interfaces/admin.course.review';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-admin-course-reviews',
   templateUrl: './admin-course-reviews.component.html',
   styleUrls: ['./admin-course-reviews.component.scss']
 })
-export class AdminCourseReviewsComponent implements OnInit {
+export class AdminCourseReviewsComponent implements OnInit, OnDestroy {
 
   public browser: boolean;
 
@@ -19,37 +20,41 @@ export class AdminCourseReviewsComponent implements OnInit {
   public itemsPerPage: number;
   public maxSize: number;
   public results: AdminCourseReviewRequest[];
+  private subscriptions: Subscription = new Subscription();
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
     private cloudFunctionsService: CloudFunctionsService,
     private dataService: DataService,
     private alertService: AlertService
-  ) { }
+  ) {
+  }
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
-        this.browser = true;
-        this.page = 1;
-        this.itemsPerPage = 10;
-        this.maxSize = 10;
-        this.monitorReviewRequests();
-        this.getInitialAdminCoursesInReview();
+      this.browser = true;
+      this.page = 1;
+      this.itemsPerPage = 10;
+      this.maxSize = 10;
+      this.monitorReviewRequests();
+      this.getInitialAdminCoursesInReview();
     }
   }
 
   timestampToDate(timestamp: number) {
-      // Convert unix timestamp (epoch) to date string
-      return new Date(timestamp * 1000).toDateString();
+    // Convert unix timestamp (epoch) to date string
+    return new Date(timestamp * 1000).toDateString();
   }
 
   monitorReviewRequests() {
     // get the total number of courses in review for pagination
-    this.dataService.getTotalAdminCoursesInReview().subscribe(total => {
-      if (total) {
-        this.totalItems = total.totalRecords;
-      }
-    });
+    this.subscriptions.add(
+      this.dataService.getTotalAdminCoursesInReview().subscribe(total => {
+        if (total) {
+          this.totalItems = total.totalRecords;
+        }
+      })
+    );
   }
 
   getInitialAdminCoursesInReview() {
@@ -60,6 +65,7 @@ export class AdminCourseReviewsComponent implements OnInit {
       }
       tempSub.unsubscribe(); // close the subscription so every new request doesn't reset the results in view
     });
+    this.subscriptions.add(tempSub);
   }
 
   loadNextResults() {
@@ -71,6 +77,7 @@ export class AdminCourseReviewsComponent implements OnInit {
       }
       tempSub.unsubscribe(); // close the subscription so every new request doesn't reset the results in view
     });
+    this.subscriptions.add(tempSub);
   }
 
   loadPreviousResults() {
@@ -82,6 +89,7 @@ export class AdminCourseReviewsComponent implements OnInit {
       }
       tempSub.unsubscribe(); // close the subscription so every new request doesn't reset the results in view
     });
+    this.subscriptions.add(tempSub);
   }
 
   pageChanged(event: any) {
@@ -94,6 +102,10 @@ export class AdminCourseReviewsComponent implements OnInit {
       this.loadPreviousResults();
       this.page = requestedPage;
     }
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 
 }

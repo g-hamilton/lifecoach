@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, AfterViewInit } from '@angular/core';
+import { Component, OnInit, Input, AfterViewInit, OnDestroy } from '@angular/core';
 import { CourseQuestion, CourseQuestionReply } from 'app/interfaces/q&a.interface';
 import { CoachingCourse } from 'app/interfaces/course.interface';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
@@ -6,13 +6,14 @@ import { DataService } from 'app/services/data.service';
 import { AlertService } from 'app/services/alert.service';
 import { SearchService } from 'app/services/search.service';
 import { AnalyticsService } from 'app/services/analytics.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-course-qa-results',
   templateUrl: './course-qa-results.component.html',
   styleUrls: ['./course-qa-results.component.scss']
 })
-export class CourseQaResultsComponent implements OnInit, AfterViewInit {
+export class CourseQaResultsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @Input() userId: string;
   @Input() userProfile: any;
@@ -29,13 +30,16 @@ export class CourseQaResultsComponent implements OnInit, AfterViewInit {
 
   public viewLoaded: boolean;
 
+  private subscriptions: Subscription = new Subscription();
+
   constructor(
     public formBuilder: FormBuilder,
     private dataService: DataService,
     private alertService: AlertService,
     private searchService: SearchService,
     private analyticsService: AnalyticsService
-  ) { }
+  ) {
+  }
 
   ngOnInit() {
     this.buildReplyForm();
@@ -82,32 +86,38 @@ export class CourseQaResultsComponent implements OnInit, AfterViewInit {
   }
 
   loadSelectedQuestionReplies() {
-    this.dataService.getInitialQuestionReplies(this.selectedQuestion.id, this.hitsPerPage).subscribe(items => {
-      console.log(items);
-      if (items.length) {
-        this.replies = items;
-      }
-    });
+    this.subscriptions.add(
+      this.dataService.getInitialQuestionReplies(this.selectedQuestion.id, this.hitsPerPage).subscribe(items => {
+        console.log(items);
+        if (items.length) {
+          this.replies = items;
+        }
+      })
+    );
   }
 
   loadNextQuestionReplies() {
     const lastDoc = this.replies[this.replies.length - 1];
-    this.dataService.getNextQuestionReplies(this.selectedQuestion.id, this.hitsPerPage, lastDoc).subscribe(items => {
-      console.log(items);
-      if (items.length) {
-        this.replies = items;
-      }
-    });
+    this.subscriptions.add(
+      this.dataService.getNextQuestionReplies(this.selectedQuestion.id, this.hitsPerPage, lastDoc).subscribe(items => {
+        console.log(items);
+        if (items.length) {
+          this.replies = items;
+        }
+      })
+    );
   }
 
   loadPreviousQuestionReplies() {
     const firstDoc = this.replies[0];
-    this.dataService.getPreviousQuestionReplies(this.selectedQuestion.id, this.hitsPerPage, firstDoc).subscribe(items => {
-      console.log(items);
-      if (items.length) {
-        this.replies = items;
-      }
-    });
+    this.subscriptions.add(
+      this.dataService.getPreviousQuestionReplies(this.selectedQuestion.id, this.hitsPerPage, firstDoc).subscribe(items => {
+        console.log(items);
+        if (items.length) {
+          this.replies = items;
+        }
+      })
+    );
   }
 
   receivePageUpdate(event: number) {
@@ -158,10 +168,14 @@ export class CourseQaResultsComponent implements OnInit, AfterViewInit {
 
     await this.dataService.saveCourseReply(reply);
 
-    this.replyForm.patchValue({ detail: null }); // reset form detail field
+    this.replyForm.patchValue({detail: null}); // reset form detail field
 
     this.alertService.alert('success-message', 'Success!', 'Your reply has been posted.');
 
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 
 }

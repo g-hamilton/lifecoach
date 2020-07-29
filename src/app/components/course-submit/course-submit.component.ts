@@ -1,17 +1,18 @@
-import { Component, OnInit, Input, Inject, PLATFORM_ID, OnChanges } from '@angular/core';
+import { Component, OnInit, Input, Inject, PLATFORM_ID, OnChanges, OnDestroy } from '@angular/core';
 import { CoachingCourse } from 'app/interfaces/course.interface';
 import { isPlatformBrowser } from '@angular/common';
 import { DataService } from 'app/services/data.service';
 import { AlertService } from 'app/services/alert.service';
 import { Router } from '@angular/router';
 import { AnalyticsService } from 'app/services/analytics.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-course-submit',
   templateUrl: './course-submit.component.html',
   styleUrls: ['./course-submit.component.scss']
 })
-export class CourseSubmitComponent implements OnInit, OnChanges {
+export class CourseSubmitComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input() userId: string;
   @Input() course: CoachingCourse;
@@ -20,13 +21,16 @@ export class CourseSubmitComponent implements OnInit, OnChanges {
   public loadingProfile: boolean;
   public requesting: boolean;
 
+  private subscriptions: Subscription = new Subscription();
+
   constructor(
     @Inject(PLATFORM_ID) public platformId: object,
     private dataService: DataService,
     private alertService: AlertService,
     private router: Router,
     private analyticsService: AnalyticsService
-  ) { }
+  ) {
+  }
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
@@ -47,14 +51,16 @@ export class CourseSubmitComponent implements OnInit, OnChanges {
     // course submission should not be allowed until a user has a public profile.
     // when the user has a public profile, add their name and photo to the course object.
     this.loadingProfile = true;
-    this.dataService.getPublicCoachProfile(this.userId).subscribe(profile => {
-      if (profile && profile.firstName && profile.lastName && profile.photo) {
-        this.course.coachName = `${profile.firstName} ${profile.lastName}`;
-        this.course.coachPhoto = profile.photo;
-        console.log('Fetched profile', profile);
-      }
-      this.loadingProfile = false;
-    });
+    this.subscriptions.add(
+      this.dataService.getPublicCoachProfile(this.userId).subscribe(profile => {
+        if (profile && profile.firstName && profile.lastName && profile.photo) {
+          this.course.coachName = `${profile.firstName} ${profile.lastName}`;
+          this.course.coachPhoto = profile.photo;
+          console.log('Fetched profile', profile);
+        }
+        this.loadingProfile = false;
+      })
+    );
   }
 
   getDisplayDate(unix: number) {
@@ -162,6 +168,11 @@ export class CourseSubmitComponent implements OnInit, OnChanges {
       return;
     }
 
+    // ***** ADMIN ONLY for testing *****
+    // mark course as test
+    // run this locally - remember to comment out before releasing!!!
+    // this.course.isTest = true;
+
     // request review
     await this.dataService.savePrivateCourse(this.course.sellerUid, this.course); // autosave the course now that we've added additional seller profile data
     this.dataService.requestCourseReview(this.course);
@@ -172,6 +183,10 @@ export class CourseSubmitComponent implements OnInit, OnChanges {
     this.requesting = false;
 
     this.analyticsService.submitCourseForReview();
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 
 }
