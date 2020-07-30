@@ -21,11 +21,11 @@
       <i class="fas fa-cloud-upload-alt"></i> Select image
     </button>
     <span *ngIf="file !== null || inputImg">
-      <button class="btn-round btn btn-primary" type="button" (click)="handleClick()">
+      <button class="btn-round btn btn-primary btn-sm" type="button" (click)="handleClick()">
         <i class="fas fa-cloud-upload-alt"></i> Change
       </button>
       <br *ngIf="avatar" />
-      <button class="btn-round btn btn-danger ml-3 btn-remove" type="button" (click)="handleRemove()">
+      <button class="btn-round btn btn-danger ml-3 btn-remove btn-sm" type="button" (click)="handleRemove()">
         <i class="fa fa-times"></i> Remove
       </button>
     </span>

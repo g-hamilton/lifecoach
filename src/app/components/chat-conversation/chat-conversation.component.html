@@ -1,4 +1,4 @@
-<div *ngIf="conversation" class=" card card-highlight-on-hover" id="chat-conversation-card">
+<div *ngIf="conversation && conversation.users != null" class=" card card-highlight-on-hover" id="chat-conversation-card">
     <div class=" card-body" (click)="onRoomClick()">
         <!-- Show chat participants -->
         <div *ngFor="let user of conversation.users">

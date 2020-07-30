@@ -42,9 +42,11 @@ export class RegisterComponent implements OnInit, OnDestroy {
     private metaTagService: Meta,
     @Inject(DOCUMENT) private document: any,
     @Inject(PLATFORM_ID) private platformId: object
-  ) {}
+  ) {
+  }
 
   ngOnInit() {
+    // console.log(this.registerF, 'register', this.registerF.accountType.value);
     this.titleService.setTitle('Signup to Lifecoach');
     this.metaTagService.updateTag({name: 'description', content: 'Join the fastest growing life coaching community'});
 

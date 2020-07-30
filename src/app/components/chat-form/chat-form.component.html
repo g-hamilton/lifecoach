@@ -23,14 +23,18 @@
                 required=""
                 />
             </div>
-            <!-- <div
+            <div
             class="error custom-error-label"
-            *ngIf="
-                ((focusTouched || sendingMessage) && chatF.message.errors) ||
-                (chatF.message.value != '' && chatF.message.errors)
-            "
-            > Invalid message.
-            </div> -->
+            *ngIf="!chatForm.valid && focus != null && !focus && invalidMessage"> Please enter your message.
+            </div>
+<!--            <div-->
+<!--            class="error custom-error-label"-->
+<!--            *ngIf="-->
+<!--                ((focusTouched || sendingMessage) && chatF.message.errors) ||-->
+<!--                (chatF.message.value != '' && chatF.message.errors)-->
+<!--            "-->
+<!--            > Invalid message.-->
+<!--            </div>-->
         </div>
         <div class=" col-md-4">
             <button class=" btn btn-primary btn-round btn-lg" type="submit">
