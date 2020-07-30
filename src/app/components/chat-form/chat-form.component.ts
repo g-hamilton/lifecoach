@@ -19,6 +19,7 @@ export class ChatFormComponent implements OnInit {
 
   public focus: boolean;
   public focusTouched: boolean;
+  public invalidMessage = false;
 
   public sendingMessage: boolean;
 
@@ -51,11 +52,15 @@ export class ChatFormComponent implements OnInit {
         this.analyticsService.sendChatMessage();
         this.sendingMessage = true;
         const res: any = await this.cloudFunctionsService.postNewMessage(this.userId, null, this.chatF.message.value, this.roomId);
+        this.invalidMessage = false;
+        console.log('sendM');
 
         if (res.success) { // send successful
           this.focusTouched = false;
           this.chatForm.patchValue({ message: '' }); // clear the message form field
           this.sendingMessage = false;
+          this.invalidMessage = false;
+          console.log('sendM-res');
 
         } else { // error sending message
           this.alertService.alert('warning-message', 'Oops', `Something went wrong! Error: ${res.error}`);
@@ -64,6 +69,7 @@ export class ChatFormComponent implements OnInit {
         console.log('Cannot post message: No participant uids!');
       }
     } else {
+      this.invalidMessage = true;
       console.log('Invalid chatform!');
     }
   }
