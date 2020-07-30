@@ -21,6 +21,9 @@
         bottom: 80px;
         max-width: 62%;
     }
+    .right-col {
+        height: calc(100% - 330px)!important;
+    }
  }
 
 // Medium devices (tablets, 768px and up)
@@ -44,6 +47,9 @@
     .left-col {
         height: calc(100% - 190px)!important;
         padding-top: 20px;
+    }
+    .right-col {
+        height: calc(100% - 280px)!important;
     }
 }
 
@@ -69,6 +75,9 @@
         height: calc(100% - 190px)!important;
         padding-top: 20px;
     }
+    .right-col {
+        height: calc(100% - 280px)!important;
+    }
 }
 
 // Extra large devices (large desktops, 1200px and up)
@@ -92,6 +101,9 @@
     .left-col {
         height: calc(100% - 190px)!important;
         padding-top: 20px;
+    }
+    .right-col {
+        height: calc(100% - 280px)!important;
     }
 }
 
