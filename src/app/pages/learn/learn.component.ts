@@ -289,30 +289,26 @@ export class LearnComponent implements OnInit, OnDestroy {
     this.vgApi = api;
 
     // listen for the data loaded event
-    this.subscriptions.add(
-      this.vgApi.getDefaultMedia().subscriptions.loadedData.subscribe($event => {
-        // console.log('Video loaded data', $event);
+    this.vgApi.getDefaultMedia().subscriptions.loadedData.subscribe($event => {
+      // console.log('Video loaded data', $event);
 
-        // seek to bookmark point if requested
-        this.checkForBookmark();
-      })
-    );
+      // seek to bookmark point if requested
+      this.checkForBookmark();
+    });
 
     // listen for the video ended event
-    this.subscriptions.add(
-      this.vgApi.getDefaultMedia().subscriptions.ended.subscribe(async $event => {
-        // console.log('Video ended:', $event);
+    this.vgApi.getDefaultMedia().subscriptions.ended.subscribe(async $event => {
+      // console.log('Video ended:', $event);
 
-        // save lecture complete for this user
-        this.saveLectureComplete(this.lectureId);
+      // save lecture complete for this user
+      this.saveLectureComplete(this.lectureId);
 
-        // if at prompt point in the course, prompt user for a review and wait for a response before moving on
-        await this.promptUserReviewIfRequired();
+      // if at prompt point in the course, prompt user for a review and wait for a response before moving on
+      await this.promptUserReviewIfRequired();
 
-        // redirect to the next lecture in the course
-        this.redirectToNextLecture();
-      })
-    );
+      // redirect to the next lecture in the course
+      this.redirectToNextLecture();
+    });
     // end video ended event listener
   }
 

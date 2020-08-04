@@ -188,52 +188,48 @@ export class AdminCourseReviewPlayerComponent implements OnInit, OnDestroy {
 
     // listen for the data loaded event
 
-    this.subscriptions.add(
-      this.vgApi.getDefaultMedia().subscriptions.loadedData.subscribe($event => {
-        console.log('Video loaded data', $event);
+    this.vgApi.getDefaultMedia().subscriptions.loadedData.subscribe($event => {
+      console.log('Video loaded data', $event);
 
-        // seek to bookmark point if requested
-        // this.checkForBookmark();
-      })
-    );
+      // seek to bookmark point if requested
+      // this.checkForBookmark();
+    });
 
     // listen for the video ended event
-    this.subscriptions.add(
-      this.vgApi.getDefaultMedia().subscriptions.ended.subscribe($event => {
-        console.log('Video ended:', $event);
+    this.vgApi.getDefaultMedia().subscriptions.ended.subscribe($event => {
+      console.log('Video ended:', $event);
 
-        // save lecture complete for this user
-        // this.saveLectureComplete(this.lectureId);
+      // save lecture complete for this user
+      // this.saveLectureComplete(this.lectureId);
 
-        // redirect to the next lecture in the course
-        if (this.activeSectionIndex !== undefined) {
-          // is this the last lecture in the active section?
-          const lIndex = this.course.sections[this.activeSectionIndex].lectures.findIndex(i => i === this.lectureId);
-          if (lIndex === -1) {
-            console.log('Lecture not found in active section!');
+      // redirect to the next lecture in the course
+      if (this.activeSectionIndex !== undefined) {
+        // is this the last lecture in the active section?
+        const lIndex = this.course.sections[this.activeSectionIndex].lectures.findIndex(i => i === this.lectureId);
+        if (lIndex === -1) {
+          console.log('Lecture not found in active section!');
+          return;
+        }
+        if (lIndex === this.course.sections[this.activeSectionIndex].lectures.length - 1) {
+          // yes, is this the last section in the course?
+          if (this.activeSectionIndex === this.course.sections.length - 1) {
+            // yes, ???
+            console.log('Completed the final lecture in this course!');
             return;
           }
-          if (lIndex === this.course.sections[this.activeSectionIndex].lectures.length - 1) {
-            // yes, is this the last section in the course?
-            if (this.activeSectionIndex === this.course.sections.length - 1) {
-              // yes, ???
-              console.log('Completed the final lecture in this course!');
-              return;
-            }
-            // no, load the first lecture in the next section
-            const nextSectionLectureId = this.course.sections[this.activeSectionIndex + 1].lectures[0];
-            this.router.navigate(['/admin-course-review-player', this.courseId, 'learn', 'lecture', nextSectionLectureId]);
-          }
-
-          // no, safe to load next lecture
-          const nextLectureId = this.course.sections[this.activeSectionIndex].lectures[lIndex + 1];
-          this.router.navigate(['/admin-course-review-player', this.courseId, 'learn', 'lecture', nextLectureId]);
-
-        } else {
-          console.log('Unable to redirect to next lecture. Active section index not set yet!');
+          // no, load the first lecture in the next section
+          const nextSectionLectureId = this.course.sections[this.activeSectionIndex + 1].lectures[0];
+          this.router.navigate(['/admin-course-review-player', this.courseId, 'learn', 'lecture', nextSectionLectureId]);
         }
-      })
-    );
+
+        // no, safe to load next lecture
+        const nextLectureId = this.course.sections[this.activeSectionIndex].lectures[lIndex + 1];
+        this.router.navigate(['/admin-course-review-player', this.courseId, 'learn', 'lecture', nextLectureId]);
+
+      } else {
+        console.log('Unable to redirect to next lecture. Active section index not set yet!');
+      }
+    });
     // end video ended event listener
   }
 
