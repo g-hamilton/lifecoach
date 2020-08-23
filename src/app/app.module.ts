@@ -17,16 +17,17 @@ import { AdminLayoutComponent } from './layouts/admin-layout/admin-layout.compon
 
 import { AppRoutingModule } from './app-routing.module';
 import { ComponentsModule } from './components/components.module';
+import { environment } from '../environments/environment';
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyAfIPLLdCHsiVhYBrSNGXivOiNNBdWywqo',
-  authDomain: 'lifecoach-6ab28.firebaseapp.com',
-  databaseURL: 'https://lifecoach-6ab28.firebaseio.com',
-  projectId: 'lifecoach-6ab28',
-  storageBucket: 'lifecoach-6ab28.appspot.com',
-  messagingSenderId: '765043503954',
-  appId: '1:765043503954:web:5e5b0b376f5a7bf349008b',
-  measurementId: 'G-S4801FLL5M'
+  apiKey: environment.apiKey,
+  authDomain: environment.authDomain,
+  databaseURL: environment.databaseURL,
+  projectId: environment.projectId,
+  storageBucket: environment.storageBucket,
+  messagingSenderId: environment.messagingSenderId,
+  appId: environment.appId,
+  measurementId: environment.measurementId
 };
 
 @NgModule({
