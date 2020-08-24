@@ -60,11 +60,8 @@ const shortUrlEndpoint = 'https://api.rebrandly.com/v1/links'
 import { Stripe } from 'stripe';
 const config: Stripe.StripeConfig = { apiVersion: '2020-03-02', typescript: true }
 const stripe = new Stripe(functions.config().stripe.prod.secretkey, config); // prod secret key
-// const stripe = new Stripe(functions.config().stripe.test.secretkey, config); // test key not for prod!
 const stripeWebhookSecret = functions.config().stripe.prod.webhooksecret; // prod secret webhook key
-// const stripeWebhookSecret = functions.config().stripe.test.webhooksecret // test secret webhook key NOT for prod!
 const stripeWebhookConnectSecret = functions.config().stripe.prod.webhookconnectsecret // prod secret webhook key
-// const stripeWebhookConnectSecret = functions.config().stripe.test.webhookconnectsecret // test secret webhook key NOT for prod!
 const appFeeDecimal = 0.5; // our std application fee percentage expressed as a decimal. eg 0.5 // 50%
 const appFeeReferralDecimal = 0.1; // our reduced app fee percentage expressed as a decimal.
 
