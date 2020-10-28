@@ -4,6 +4,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { isPlatformBrowser, DOCUMENT } from '@angular/common';
 import { ModalDirective } from 'ngx-bootstrap/modal';
 
+
 import { TabsetComponent } from 'ngx-bootstrap';
 
 import { MustMatch } from '../../custom-validators/mustmatch.validator';
@@ -81,6 +82,10 @@ export class AccountComponent implements OnInit, OnDestroy {
 
   public countryList = this.countryService.getCountryList();
 
+  public sessionDurationForm: FormGroup;
+  public sessionDurationLength: number;
+  public breakBeforeNextSessionLength: number;
+
   private subscriptions: Subscription = new Subscription();
 
   constructor(
@@ -110,6 +115,7 @@ export class AccountComponent implements OnInit, OnDestroy {
       this.buildChangePasswordForm();
       this.buildRefundForm();
 
+      this.buildSessionDurationForm();
       // Import currencies
       this.currencies = this.currenciesService.getCurrencies();
 
@@ -239,6 +245,7 @@ export class AccountComponent implements OnInit, OnDestroy {
           })
       );
     }
+    console.log(this.accountF);
   }
 
   buildAccountForm() {
@@ -251,7 +258,9 @@ export class AccountComponent implements OnInit, OnDestroy {
       stripeUid: [null],
       stripeRequirementsCurrentlyDue: [null],
       creatorDealsProgram: [false],
-      creatorExtendedPromotionsProgram: [false]
+      creatorExtendedPromotionsProgram: [false],
+      sessionDuration: [ 30 ],
+      breakDuration: [5]
     });
   }
 
@@ -278,6 +287,9 @@ export class AccountComponent implements OnInit, OnDestroy {
     });
   }
 
+  buildSessionDurationForm() {
+  }
+
   updateAccountForm(account: UserAccount) {
     this.accountForm.patchValue({
       dateCreated: account.dateCreated,
@@ -285,10 +297,12 @@ export class AccountComponent implements OnInit, OnDestroy {
       firstName: account.firstName,
       lastName: account.lastName,
       accountEmail: account.accountEmail,
-      stripeUid: account.stripeUid,
-      stripeRequirementsCurrentlyDue: account.stripeRequirementsCurrentlyDue,
+      stripeUid: account.stripeUid ? account.stripeUid : null,
+      stripeRequirementsCurrentlyDue: account.stripeRequirementsCurrentlyDue ? account.stripeRequirementsCurrentlyDue : null,
       creatorDealsProgram: account.creatorDealsProgram ? account.creatorDealsProgram : false,
-      creatorExtendedPromotionsProgram: account.creatorExtendedPromotionsProgram ? account.creatorExtendedPromotionsProgram : false
+      creatorExtendedPromotionsProgram: account.creatorExtendedPromotionsProgram ? account.creatorExtendedPromotionsProgram : false,
+      sessionDuration: account.sessionDuration ? account.sessionDuration : 30,
+      breakDuration: account.breakDuration ? account.breakDuration : 5
     });
     // console.log(this.accountForm.value);
   }
@@ -438,6 +452,16 @@ export class AccountComponent implements OnInit, OnDestroy {
 
   onCreatorExtendedPromotionsToggle(ev: any) {
     this.accountForm.patchValue({creatorExtendedPromotionsProgram: ev.currentValue});
+  }
+
+  onSessionDurationInput(ev: any) {
+    console.log(+ev.target.value);
+    this.accountForm.patchValue({sessionDuration: +ev.target.value });
+  }
+
+  onBreakDurationInput(ev: any) {
+    console.log(this.breakBeforeNextSessionLength);
+    this.accountForm.patchValue({breakDuration: +ev.target.value });
   }
 
   async onSubmit() {
@@ -634,5 +658,6 @@ export class AccountComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
   }
+
 
 }

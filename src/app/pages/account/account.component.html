@@ -1,32 +1,32 @@
 <div class=" content">
-    <!-- Server -->
-    <div *ngIf="!browser">
+  <!-- Server -->
+  <div *ngIf="!browser">
 
-    </div>
-    <!-- Browser -->
-    <div *ngIf="browser" class=" row">
-        <div class=" col">
-            <div class=" card">
-                <div class=" card-header">
-                    <h5 class=" card-category"> Account </h5>
-                    <h3 class=" card-title"> Manage Your Account </h3>
-                </div>
-                <div class=" card-body">
-                    <tabset #staticTabs class="nav-pills-primary" type="pills">
+  </div>
+  <!-- Browser -->
+  <div *ngIf="browser" class=" row">
+    <div class=" col">
+      <div class=" card">
+        <div class=" card-header">
+          <h5 class=" card-category"> Account </h5>
+          <h3 class=" card-title"> Manage Your Account </h3>
+        </div>
+        <div class=" card-body">
+          <tabset #staticTabs class="nav-pills-primary" type="pills">
 
-                        <!-- Account tab -->
-                        <tab heading="Account Settings">
-                            <form [formGroup]="accountForm" (ngSubmit)="onSubmit()">
+            <!-- Account tab -->
+            <tab heading="Account Settings">
+              <form [formGroup]="accountForm" (ngSubmit)="onSubmit()">
 
-                                <h6 class=" mt-4"> Update your account info </h6>
+                <h6 class=" mt-4"> Update your account info </h6>
 
-                                <div class=" row mt-3">
-                                    <!-- First Name -->
-                                    <div class=" col-md-6">
-                                        <label> First Name </label>
-                                        <div
-                                        class=" input-group"
-                                        [ngClass]="{
+                <div class=" row mt-3">
+                  <!-- First Name -->
+                  <div class=" col-md-6">
+                    <label> First Name </label>
+                    <div
+                      class=" input-group"
+                      [ngClass]="{
                                             'input-group-focus': focus === true,
                                             'has-danger':
                                             ((focusTouched || submitted) &&
@@ -35,40 +35,40 @@
                                                 accountF.firstName.errors),
                                             'has-success': !accountF.firstName.errors
                                         }"
-                                        >
-                                        <div class=" input-group-prepend">
-                                            <div class=" input-group-text">
-                                            <i class=" tim-icons icon-single-02"> </i>
-                                            </div>
-                                        </div>
-                                        <input
-                                            class=" form-control"
-                                            name="firstname"
-                                            placeholder="First Name..."
-                                            type="text"
-                                            formControlName="firstName"
-                                            (focus)="focus = true; focusTouched = true"
-                                            (blur)="focus = false"
-                                        />
-                                        <label
-                                            class="error"
-                                            *ngIf="
+                    >
+                      <div class=" input-group-prepend">
+                        <div class=" input-group-text">
+                          <i class=" tim-icons icon-single-02"> </i>
+                        </div>
+                      </div>
+                      <input
+                        class=" form-control"
+                        name="firstname"
+                        placeholder="First Name..."
+                        type="text"
+                        formControlName="firstName"
+                        (focus)="focus = true; focusTouched = true"
+                        (blur)="focus = false"
+                      />
+                      <label
+                        class="error"
+                        *ngIf="
                                             ((focusTouched || submitted) &&
                                                 accountF.firstName.errors) ||
                                             (accountF.firstName.value != '' &&
                                                 accountF.firstName.errors)
                                             "
-                                            >This field is required.</label
-                                        >
-                                        </div>
-                                    </div>
+                      >This field is required.</label
+                      >
+                    </div>
+                  </div>
 
-                                    <!-- Last Name -->
-                                    <div class=" col-md-6">
-                                        <label> Last Name </label>
-                                        <div
-                                        class=" input-group"
-                                        [ngClass]="{
+                  <!-- Last Name -->
+                  <div class=" col-md-6">
+                    <label> Last Name </label>
+                    <div
+                      class=" input-group"
+                      [ngClass]="{
                                             'input-group-focus': focus1 === true,
                                             'has-danger':
                                             ((focus1Touched || submitted) &&
@@ -77,96 +77,96 @@
                                                 accountF.lastName.errors),
                                             'has-success': !accountF.lastName.errors
                                         }"
-                                        >
-                                        <div class=" input-group-prepend">
-                                            <div class=" input-group-text">
-                                            <i class=" tim-icons icon-single-02"> </i>
-                                            </div>
-                                        </div>
-                                        <input
-                                            class=" form-control"
-                                            name="lastname"
-                                            placeholder="Last Name..."
-                                            type="text"
-                                            formControlName="lastName"
-                                            (focus)="focus1 = true; focus1Touched = true"
-                                            (blur)="focus1 = false"
-                                        />
-                                        <label
-                                            class="error"
-                                            *ngIf="
+                    >
+                      <div class=" input-group-prepend">
+                        <div class=" input-group-text">
+                          <i class=" tim-icons icon-single-02"> </i>
+                        </div>
+                      </div>
+                      <input
+                        class=" form-control"
+                        name="lastname"
+                        placeholder="Last Name..."
+                        type="text"
+                        formControlName="lastName"
+                        (focus)="focus1 = true; focus1Touched = true"
+                        (blur)="focus1 = false"
+                      />
+                      <label
+                        class="error"
+                        *ngIf="
                                             ((focus1Touched || submitted) &&
                                                 accountF.lastName.errors) ||
                                             (accountF.lastName.value != '' &&
                                                 accountF.lastName.errors)
                                             "
-                                            >This field is required.</label
-                                        >
-                                        </div>
-                                    </div>
-                                </div>
+                      >This field is required.</label
+                      >
+                    </div>
+                  </div>
+                </div>
 
-                                <!-- Email -->
-                                <div class=" row">
-                                    <div class=" col-md-6">
-                                        <div class=" form-group">
-                                            <label> Login Email </label>
-                                            <input
-                                                class=" form-control"
-                                                name="accountemail"
-                                                placeholder="Email..."
-                                                required=""
-                                                formControlName="accountEmail"
-                                                type="email"
-                                            />
-                                        </div>
-                                    </div>
+                <!-- Email -->
+                <div class=" row">
+                  <div class=" col-md-6">
+                    <div class=" form-group">
+                      <label> Login Email </label>
+                      <input
+                        class=" form-control"
+                        name="accountemail"
+                        placeholder="Email..."
+                        required=""
+                        formControlName="accountEmail"
+                        type="email"
+                      />
+                    </div>
+                  </div>
 
-                                    <!-- Account Type -->
-                                    <div class=" col-md-6">
-                                        <label> Account Type </label>
-                                        <p>
+                  <!-- Account Type -->
+                  <div class=" col-md-6">
+                    <label> Account Type </label>
+                    <p>
                                             <span class=" badge badge-pill badge-success">
                                                 {{ accountF.accountType.value }}
                                             </span>
-                                        </p>
-                                    </div>
-                                </div>
-                            </form>
+                    </p>
+                  </div>
+                </div>
+              </form>
 
-                            <div class=" row">
-                                <div class=" col-md-12">
-                                    <div class=" pull-left">
-                                        <button
-                                        class=" btn btn-fill btn-default btn-round btn-wd mr-2"
-                                        type="button"
-                                        (click)="onChangeEmail()"
-                                        [disabled]="changeEmail || changePassword"
-                                        >  Change Login Email
-                                        </button>
-                                        <button
-                                        class=" btn btn-fill btn-default btn-round btn-wd"
-                                        type="button"
-                                        (click)="onChangePassword()"
-                                        [disabled]="changeEmail || changePassword"
-                                        >  Change Password
-                                        </button>
-                                    </div>
-                                    <div class=" clearfix"></div>
-                                </div>
-                            </div>
+              <div class=" row">
+                <div class=" col-md-12">
+                  <div class=" pull-left">
+                    <button
+                      class=" btn btn-fill btn-default btn-round btn-wd mr-2"
+                      type="button"
+                      (click)="onChangeEmail()"
+                      [disabled]="changeEmail || changePassword"
+                    >  Change Login Email
+                    </button>
+                    <button
+                      class=" btn btn-fill btn-default btn-round btn-wd"
+                      type="button"
+                      (click)="onChangePassword()"
+                      [disabled]="changeEmail || changePassword"
+                    >  Change Password
+                    </button>
+                  </div>
+                  <div class=" clearfix"></div>
+                </div>
+              </div>
 
-                            <!-- Change Email Template -->
-                            <form [formGroup]="changeEmailForm" (ngSubmit)="saveNewEmail()">
-                                <div *ngIf="changeEmail" class=" row mt-5">
-                                    <div class=" container mb-3">
-                                        <p class=" lead">Change the email you use to login to your Lifecoach account.</p>
-                                    </div>
-                                    <div class=" col-md-6">
-                                        <!-- New Email -->
-                                        <div
-                                        class=" input-group"
-                                        [ngClass]="{
+              <!-- Change Email Template -->
+              <form [formGroup]="changeEmailForm" (ngSubmit)="saveNewEmail()">
+                <div *ngIf="changeEmail" class=" row mt-5">
+                  <div class=" container mb-3">
+                    <p class=" lead">Change the email you use to login to your Lifecoach account.</p>
+                  </div>
+                  <div class=" col-md-6">
+                    <!-- New Email -->
+                    <div
+                      class=" input-group"
+                      [ngClass]="{
                                             'input-group-focus': focus2 === true,
                                             'has-danger':
                                             ((focus2Touched || emailSubmitted) &&
@@ -175,39 +175,39 @@
                                                 emailF.newEmail.errors),
                                             'has-success': !emailF.newEmail.errors
                                         }"
-                                        >
-                                        <div class=" input-group-prepend">
-                                            <div class=" input-group-text">
-                                            <i class=" tim-icons icon-email-85"> </i>
-                                            </div>
-                                        </div>
-                                        <input
-                                            class=" form-control"
-                                            name="newemail"
-                                            placeholder="New Email..."
-                                            required=""
-                                            formControlName="newEmail"
-                                            type="email"
-                                            (focus)="focus2 = true; focus2Touched = true"
-                                            (blur)="focus2 = false"
-                                        />
-                                        </div>
-                                        <label
-                                            class="error custom-error-label"
-                                            *ngIf="
+                    >
+                      <div class=" input-group-prepend">
+                        <div class=" input-group-text">
+                          <i class=" tim-icons icon-email-85"> </i>
+                        </div>
+                      </div>
+                      <input
+                        class=" form-control"
+                        name="newemail"
+                        placeholder="New Email..."
+                        required=""
+                        formControlName="newEmail"
+                        type="email"
+                        (focus)="focus2 = true; focus2Touched = true"
+                        (blur)="focus2 = false"
+                      />
+                    </div>
+                    <label
+                      class="error custom-error-label"
+                      *ngIf="
                                             ((focus2Touched || emailSubmitted) &&
                                                 emailF.newEmail.errors) ||
                                             (emailF.newEmail.value != '' &&
                                                 emailF.newEmail.errors)
                                             "
-                                            >Please enter your new login email.</label
-                                        >
-                                    </div>
-                                    <div class=" col-md-6">
-                                        <!-- Confirm Password -->
-                                        <div
-                                        class=" input-group"
-                                        [ngClass]="{
+                    >Please enter your new login email.</label
+                    >
+                  </div>
+                  <div class=" col-md-6">
+                    <!-- Confirm Password -->
+                    <div
+                      class=" input-group"
+                      [ngClass]="{
                                             'input-group-focus': focus3 === true,
                                             'has-danger':
                                             ((focus3Touched || emailSubmitted) &&
@@ -216,69 +216,69 @@
                                                 emailF.confirmPassword.errors),
                                             'has-success': !emailF.confirmPassword.errors
                                         }"
-                                        >
-                                        <div class=" input-group-prepend">
-                                            <div class=" input-group-text">
-                                            <i class=" tim-icons icon-lock-circle"> </i>
-                                            </div>
-                                        </div>
-                                        <input
-                                            class=" form-control"
-                                            name="confirmpassword"
-                                            placeholder="Enter your password..."
-                                            required=""
-                                            formControlName="confirmPassword"
-                                            type="password"
-                                            (focus)="focus3 = true; focus3Touched = true"
-                                            (blur)="focus3 = false"
-                                        />
-                                        </div>
-                                        <label
-                                            class="error custom-error-label"
-                                            *ngIf="
+                    >
+                      <div class=" input-group-prepend">
+                        <div class=" input-group-text">
+                          <i class=" tim-icons icon-lock-circle"> </i>
+                        </div>
+                      </div>
+                      <input
+                        class=" form-control"
+                        name="confirmpassword"
+                        placeholder="Enter your password..."
+                        required=""
+                        formControlName="confirmPassword"
+                        type="password"
+                        (focus)="focus3 = true; focus3Touched = true"
+                        (blur)="focus3 = false"
+                      />
+                    </div>
+                    <label
+                      class="error custom-error-label"
+                      *ngIf="
                                             ((focus3Touched || emailSubmitted) &&
                                                 emailF.confirmPassword.errors) ||
                                             (emailF.confirmPassword.value != '' &&
                                                 emailF.confirmPassword.errors)
                                             "
-                                            >You must enter your current password.</label
-                                        >
-                                    </div>
-                                </div>
-                                <div *ngIf="changeEmail" class=" row mt-2">
-                                    <div class=" col-md-12">
-                                        <div class=" pull-right">
-                                            <button
-                                            class=" btn btn-fill btn-default btn-round btn-wd mr-2"
-                                            type="button"
-                                            (click)="cancelChangeEmail()"
-                                            >  Cancel
-                                            </button>
-                                            <button
-                                            class=" btn btn-fill btn-primary btn-round btn-wd"
-                                            type="submit"
-                                            >  <span
-                                            *ngIf="emailSubmitted"
-                                            class="spinner-border spinner-border-sm"
-                                            role="status"
-                                            ></span> {{ emailSubmitted ? 'Saving...' : 'Save' }}
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
+                    >You must enter your current password.</label
+                    >
+                  </div>
+                </div>
+                <div *ngIf="changeEmail" class=" row mt-2">
+                  <div class=" col-md-12">
+                    <div class=" pull-right">
+                      <button
+                        class=" btn btn-fill btn-default btn-round btn-wd mr-2"
+                        type="button"
+                        (click)="cancelChangeEmail()"
+                      >  Cancel
+                      </button>
+                      <button
+                        class=" btn btn-fill btn-primary btn-round btn-wd"
+                        type="submit"
+                      >  <span
+                        *ngIf="emailSubmitted"
+                        class="spinner-border spinner-border-sm"
+                        role="status"
+                      ></span> {{ emailSubmitted ? 'Saving...' : 'Save' }}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </form>
 
-                            <!-- Change Password Template -->
-                            <form [formGroup]="changePasswordForm" (ngSubmit)="saveNewPassword()">
-                                <div *ngIf="changePassword" class=" row mt-5">
-                                    <div class=" container mb-3">
-                                        <p class=" lead">Change the password you use to login to your Lifecoach account.</p>
-                                    </div>
-                                    <div class=" col-md-6">
-                                        <!-- Current Password -->
-                                        <div
-                                        class=" input-group"
-                                        [ngClass]="{
+              <!-- Change Password Template -->
+              <form [formGroup]="changePasswordForm" (ngSubmit)="saveNewPassword()">
+                <div *ngIf="changePassword" class=" row mt-5">
+                  <div class=" container mb-3">
+                    <p class=" lead">Change the password you use to login to your Lifecoach account.</p>
+                  </div>
+                  <div class=" col-md-6">
+                    <!-- Current Password -->
+                    <div
+                      class=" input-group"
+                      [ngClass]="{
                                             'input-group-focus': focus4 === true,
                                             'has-danger':
                                             ((focus4Touched || passwordSubmitted) &&
@@ -287,41 +287,41 @@
                                                 passwordF.currentPassword.errors),
                                             'has-success': !passwordF.currentPassword.errors
                                         }"
-                                        >
-                                        <div class=" input-group-prepend">
-                                            <div class=" input-group-text">
-                                            <i class=" tim-icons icon-lock-circle"> </i>
-                                            </div>
-                                        </div>
-                                        <input
-                                            class=" form-control"
-                                            name="currentpassword"
-                                            placeholder="Current password..."
-                                            required=""
-                                            formControlName="currentPassword"
-                                            type="password"
-                                            (focus)="focus4 = true; focus4Touched = true"
-                                            (blur)="focus4 = false"
-                                        />
-                                        </div>
-                                        <label
-                                            class="error custom-error-label"
-                                            *ngIf="
+                    >
+                      <div class=" input-group-prepend">
+                        <div class=" input-group-text">
+                          <i class=" tim-icons icon-lock-circle"> </i>
+                        </div>
+                      </div>
+                      <input
+                        class=" form-control"
+                        name="currentpassword"
+                        placeholder="Current password..."
+                        required=""
+                        formControlName="currentPassword"
+                        type="password"
+                        (focus)="focus4 = true; focus4Touched = true"
+                        (blur)="focus4 = false"
+                      />
+                    </div>
+                    <label
+                      class="error custom-error-label"
+                      *ngIf="
                                             ((focus4Touched || passwordSubmitted) &&
                                                 passwordF.currentPassword.errors) ||
                                             (passwordF.currentPassword.value != '' &&
                                                 passwordF.currentPassword.errors)
                                             "
-                                            >Enter your current password.</label
-                                        >
-                                    </div>
-                                </div>
-                                <div *ngIf="changePassword" class=" row">
-                                    <div class=" col-md-6">
-                                        <!-- New Password -->
-                                        <div
-                                        class=" input-group"
-                                        [ngClass]="{
+                    >Enter your current password.</label
+                    >
+                  </div>
+                </div>
+                <div *ngIf="changePassword" class=" row">
+                  <div class=" col-md-6">
+                    <!-- New Password -->
+                    <div
+                      class=" input-group"
+                      [ngClass]="{
                                             'input-group-focus': focus5 === true,
                                             'has-danger':
                                             ((focus5Touched || passwordSubmitted) &&
@@ -330,39 +330,39 @@
                                                 passwordF.newPassword.errors),
                                             'has-success': !passwordF.newPassword.errors
                                         }"
-                                        >
-                                        <div class=" input-group-prepend">
-                                            <div class=" input-group-text">
-                                            <i class=" tim-icons icon-lock-circle"> </i>
-                                            </div>
-                                        </div>
-                                        <input
-                                            class=" form-control"
-                                            name="newpassword"
-                                            placeholder="New password..."
-                                            required=""
-                                            formControlName="newPassword"
-                                            type="password"
-                                            (focus)="focus5 = true; focus5Touched = true"
-                                            (blur)="focus5 = false"
-                                        />
-                                        </div>
-                                        <label
-                                            class="error custom-error-label"
-                                            *ngIf="
+                    >
+                      <div class=" input-group-prepend">
+                        <div class=" input-group-text">
+                          <i class=" tim-icons icon-lock-circle"> </i>
+                        </div>
+                      </div>
+                      <input
+                        class=" form-control"
+                        name="newpassword"
+                        placeholder="New password..."
+                        required=""
+                        formControlName="newPassword"
+                        type="password"
+                        (focus)="focus5 = true; focus5Touched = true"
+                        (blur)="focus5 = false"
+                      />
+                    </div>
+                    <label
+                      class="error custom-error-label"
+                      *ngIf="
                                             ((focus5Touched || passwordSubmitted) &&
                                                 passwordF.newPassword.errors) ||
                                             (passwordF.newPassword.value != '' &&
                                                 passwordF.newPassword.errors)
                                             "
-                                            >Must be at least 6 characters.</label
-                                        >
-                                    </div>
-                                    <div class=" col-md-6">
-                                        <!-- Confirm New Password -->
-                                        <div
-                                        class=" input-group"
-                                        [ngClass]="{
+                    >Must be at least 6 characters.</label
+                    >
+                  </div>
+                  <div class=" col-md-6">
+                    <!-- Confirm New Password -->
+                    <div
+                      class=" input-group"
+                      [ngClass]="{
                                             'input-group-focus': focus6 === true,
                                             'has-danger':
                                             ((focus6Touched || passwordSubmitted) &&
@@ -371,356 +371,438 @@
                                                 passwordF.confirmNewPassword.errors),
                                             'has-success': !passwordF.confirmNewPassword.errors
                                         }"
-                                        >
-                                        <div class=" input-group-prepend">
-                                            <div class=" input-group-text">
-                                            <i class=" tim-icons icon-lock-circle"> </i>
-                                            </div>
-                                        </div>
-                                        <input
-                                            class=" form-control"
-                                            name="confirmnewpassword"
-                                            placeholder="Confirm new password..."
-                                            required=""
-                                            formControlName="confirmNewPassword"
-                                            type="password"
-                                            (focus)="focus6 = true; focus6Touched = true"
-                                            (blur)="focus6 = false"
-                                        />
-                                        </div>
-                                        <label
-                                            class="error custom-error-label"
-                                            *ngIf="
+                    >
+                      <div class=" input-group-prepend">
+                        <div class=" input-group-text">
+                          <i class=" tim-icons icon-lock-circle"> </i>
+                        </div>
+                      </div>
+                      <input
+                        class=" form-control"
+                        name="confirmnewpassword"
+                        placeholder="Confirm new password..."
+                        required=""
+                        formControlName="confirmNewPassword"
+                        type="password"
+                        (focus)="focus6 = true; focus6Touched = true"
+                        (blur)="focus6 = false"
+                      />
+                    </div>
+                    <label
+                      class="error custom-error-label"
+                      *ngIf="
                                             ((focus6Touched || passwordSubmitted) &&
                                                 passwordF.confirmNewPassword.errors) ||
                                             (passwordF.confirmNewPassword.value != '' &&
                                                 passwordF.confirmNewPassword.errors)
                                             "
-                                            >Passwords must match.</label
-                                        >
-                                    </div>
-                                </div>
-                                <div *ngIf="changePassword" class=" row mt-2">
-                                    <div class=" col-md-12">
-                                        <div class=" pull-right">
-                                            <button
-                                            class=" btn btn-fill btn-default btn-round btn-wd mr-2"
-                                            type="button"
-                                            (click)="cancelChangePassword()"
-                                            >  Cancel
-                                            </button>
-                                            <button
-                                            class=" btn btn-fill btn-primary btn-round btn-wd"
-                                            type="submit"
-                                            >  <span
-                                            *ngIf="passwordSubmitted"
-                                            class="spinner-border spinner-border-sm"
-                                            role="status"
-                                            ></span> {{ passwordSubmitted ? 'Saving...' : 'Save' }}
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class=" row mt-3">
-                                    <div class=" col-md-12">
-                                        <h6 class=" mt-4"> Delete your account </h6>
-                                        <button
-                                        class=" btn btn-fill btn-danger btn-round btn-wd"
-                                        name="deletebutton"
-                                        type="button"
-                                        (click)="deleteAccount()">
+                    >Passwords must match.</label
+                    >
+                  </div>
+                </div>
+                <div *ngIf="changePassword" class=" row mt-2">
+                  <div class=" col-md-12">
+                    <div class=" pull-right">
+                      <button
+                        class=" btn btn-fill btn-default btn-round btn-wd mr-2"
+                        type="button"
+                        (click)="cancelChangePassword()"
+                      >  Cancel
+                      </button>
+                      <button
+                        class=" btn btn-fill btn-primary btn-round btn-wd"
+                        type="submit"
+                      >  <span
+                        *ngIf="passwordSubmitted"
+                        class="spinner-border spinner-border-sm"
+                        role="status"
+                      ></span> {{ passwordSubmitted ? 'Saving...' : 'Save' }}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class=" row mt-3">
+                  <div class=" col-md-12">
+                    <h6 class=" mt-4"> Delete your account </h6>
+                    <button
+                      class=" btn btn-fill btn-danger btn-round btn-wd"
+                      name="deletebutton"
+                      type="button"
+                      (click)="deleteAccount()">
                                             <span
-                                            *ngIf="submitted"
-                                            class="spinner-border spinner-border-sm"
-                                            role="status"
+                                              *ngIf="submitted"
+                                              class="spinner-border spinner-border-sm"
+                                              role="status"
                                             ></span> {{ submitted ? 'Deleting...' : 'Delete Account' }}
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class=" row mt-3">
-                                    <div class=" col-md-12">
-                                        <div class=" pull-right">
-                                            <button
-                                            *ngIf="!changeEmail && !changePassword"
-                                            class=" btn btn-fill btn-primary btn-round btn-wd"
-                                            name="next"
-                                            type="button"
-                                            (click)="onSubmit()"
-                                            > <span
-                                            *ngIf="submitted"
-                                            class="spinner-border spinner-border-sm"
-                                            role="status"
-                                            ></span> {{ submitted ? 'Saving...' : 'Save' }}
-                                            </button>
-                                        </div>
-                                        <div class=" clearfix"></div>
-                                    </div>
-                                </div>
-                            </form>
+                    </button>
+                  </div>
+                </div>
+                <div class=" row mt-3">
+                  <div class=" col-md-12">
+                    <div class=" pull-right">
+                      <button
+                        *ngIf="!changeEmail && !changePassword"
+                        class=" btn btn-fill btn-primary btn-round btn-wd"
+                        name="next"
+                        type="button"
+                        (click)="onSubmit()"
+                      > <span
+                        *ngIf="submitted"
+                        class="spinner-border spinner-border-sm"
+                        role="status"
+                      ></span> {{ submitted ? 'Saving...' : 'Save' }}
+                      </button>
+                    </div>
+                    <div class=" clearfix"></div>
+                  </div>
+                </div>
+              </form>
 
-                        </tab>
+            </tab>
 
-                        <!-- Payments tab for coach & publisher accounts -->
-                        <tab *ngIf="accountF.accountType.value === 'coach' || accountF.accountType.value === 'publisher'" heading="Payout Settings">
-                            <div class="">
-                                <h6 class=" mt-4 pl-4">
-                                    Get Paid With Stripe
-                                    <a href="https://lifecoach.freshdesk.com/a/solutions/articles/47001123913" target="_blank">
-                                        <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> How payouts work</span>
-                                    </a>
-                                </h6>
-                                <div class=" row highlight-box">
-                                    <div class=" col-md-8">
-                                        <p *ngIf="!accountF.stripeUid.value">
-                                            We use Stripe to make sure you get paid on time and to keep your personal bank and details secure.
-                                            Click 'Connect Stripe' to enable payments so you can start getting paid.
-                                        </p>
-                                        <p *ngIf="accountF.stripeUid.value" class=" text-success mt-4 pl-5">
-                                            <i class=" tim-icons icon-check-2"> </i> Connected
-                                        </p>
-                                    </div>
-                                    <div class=" col-md-4">
-                                        <div style="font-size: 5rem; line-height: 0; text-align: center;">
-                                            <i class="fab fa-stripe"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div *ngIf="!accountF.stripeUid.value && stripeConnectUrl" class=" pull-right pr-3">
-                                    <a [href]="stripeConnectUrl">
-                                        <button
-                                        class=" btn btn-fill btn-info btn-round btn-wd"
-                                        name="connect-stripe"
-                                        type="button"
-                                        (click)="connectStripe()">
+            <!-- Payments tab for coach & publisher accounts -->
+            <tab *ngIf="accountF.accountType.value === 'coach' || accountF.accountType.value === 'publisher'" heading="Payout Settings">
+              <div class="">
+                <h6 class=" mt-4 pl-4">
+                  Get Paid With Stripe
+                  <a href="https://lifecoach.freshdesk.com/a/solutions/articles/47001123913" target="_blank">
+                    <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> How payouts work</span>
+                  </a>
+                </h6>
+                <div class=" row highlight-box">
+                  <div class=" col-md-8">
+                    <p *ngIf="!accountF.stripeUid.value">
+                      We use Stripe to make sure you get paid on time and to keep your personal bank and details secure.
+                      Click 'Connect Stripe' to enable payments so you can start getting paid.
+                    </p>
+                    <p *ngIf="accountF.stripeUid.value" class=" text-success mt-4 pl-5">
+                      <i class=" tim-icons icon-check-2"> </i> Connected
+                    </p>
+                  </div>
+                  <div class=" col-md-4">
+                    <div style="font-size: 5rem; line-height: 0; text-align: center;">
+                      <i class="fab fa-stripe"></i>
+                    </div>
+                  </div>
+                </div>
+                <div *ngIf="!accountF.stripeUid.value && stripeConnectUrl" class=" pull-right pr-3">
+                  <a [href]="stripeConnectUrl">
+                    <button
+                      class=" btn btn-fill btn-info btn-round btn-wd"
+                      name="connect-stripe"
+                      type="button"
+                      (click)="connectStripe()">
                                             <span
-                                            *ngIf="connectingStripe"
-                                            class="spinner-border spinner-border-sm"
-                                            role="status"
+                                              *ngIf="connectingStripe"
+                                              class="spinner-border spinner-border-sm"
+                                              role="status"
                                             ></span>
-                                            <span *ngIf="!connectingStripe">
+                      <span *ngIf="!connectingStripe">
                                                 <i class="fab fa-stripe-s"></i> | 
                                             </span>
-                                            {{ connectingStripe ? ' connecting...' : ' Connect Stripe' }}
-                                        </button>
-                                    </a>
-                                </div>
-                                <div class=" row mb-4">
-                                    <div class=" col-md-8">
-                                        <div 
-                                        *ngIf="accountF.stripeUid.value && accountF.stripeRequirementsCurrentlyDue.value && accountF.stripeRequirementsCurrentlyDue.value.length > 0" 
-                                        class=" pull-left pl-3">
-                                            <p>
+                      {{ connectingStripe ? ' connecting...' : ' Connect Stripe' }}
+                    </button>
+                  </a>
+                </div>
+                <div class=" row mb-4">
+                  <div class=" col-md-8">
+                    <div
+                      *ngIf="accountF.stripeUid.value && accountF.stripeRequirementsCurrentlyDue.value && accountF.stripeRequirementsCurrentlyDue.value.length > 0"
+                      class=" pull-left pl-3">
+                      <p>
                                                 <span class=" text-warning">
                                                     <i class=" tim-icons icon-alert-circle-exc"> </i> Needs action!
-                                                </span> - Payouts may be restricted until you complete all verification requirements for your country. 
-                                                Click 'Manage' and complete any outstanding actions to ensure you can receive payouts.
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div class=" col-md-4">
-                                        <div *ngIf="accountF.stripeUid.value" class=" pull-right pr-3">
-                                            <button
-                                            class=" btn btn-fill btn-info btn-round btn-wd"
-                                            name="manage-stripe"
-                                            type="button"
-                                            (click)="manageStripe()">
+                                                </span> - Payouts may be restricted until you complete all verification requirements for your country.
+                        Click 'Manage' and complete any outstanding actions to ensure you can receive payouts.
+                      </p>
+                    </div>
+                  </div>
+                  <div class=" col-md-4">
+                    <div *ngIf="accountF.stripeUid.value" class=" pull-right pr-3">
+                      <button
+                        class=" btn btn-fill btn-info btn-round btn-wd"
+                        name="manage-stripe"
+                        type="button"
+                        (click)="manageStripe()">
                                                 <span
-                                                *ngIf="managingStripe"
-                                                class="spinner-border spinner-border-sm"
-                                                role="status"
+                                                  *ngIf="managingStripe"
+                                                  class="spinner-border spinner-border-sm"
+                                                  role="status"
                                                 ></span>
-                                                <span *ngIf="!managingStripe">
+                        <span *ngIf="!managingStripe">
                                                     <i class="fab fa-stripe-s"></i> | 
                                                 </span>
-                                                {{ managingStripe ? ' Loading...' : ' Manage' }}
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </tab>
+                        {{ managingStripe ? ' Loading...' : ' Manage' }}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </tab>
 
-                        <!-- Course settings tab for coach accounts -->
-                        <tab *ngIf="accountF.accountType.value === 'coach'" heading="Course Settings">
-                            <div class="">
-                                <h6 class=" mt-4 pl-4">
-                                    LIFECOACH PROMOTIONS PROGRAM
-                                    <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001140481-how-promotions-work" target="_blank">
-                                        <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> How promotions work</span>
-                                    </a>
-                                </h6>
-                                <div class=" row">
-                                    <div class=" col-md-12">
-                                        <form>
-                                            <!-- Deals -->
-                                            <div class=" form-group mt-3">
-                                                <label> Opt in to the Deals Program </label>
-                                                <span class=" h5 text-light ml-2">
+            <!-- Course settings tab for coach accounts -->
+            <tab *ngIf="accountF.accountType.value === 'coach'" heading="Course Settings">
+              <div class="">
+                <h6 class=" mt-4 pl-4">
+                  LIFECOACH PROMOTIONS PROGRAM
+                  <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001140481-how-promotions-work" target="_blank">
+                    <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> How promotions work</span>
+                  </a>
+                </h6>
+                <div class=" row">
+                  <div class=" col-md-12">
+                    <form>
+                      <!-- Deals -->
+                      <div class=" form-group mt-3">
+                        <label> Opt in to the Deals Program </label>
+                        <span class=" h5 text-light ml-2">
                                                   <i
-                                                  class="fas fa-info-circle btn-tooltip"
-                                                  data-animation="true"
-                                                  data-container="body"
-                                                  placement="top"
-                                                  tooltip="Set YES to opt in. See guide above for details.">
+                                                    class="fas fa-info-circle btn-tooltip"
+                                                    data-animation="true"
+                                                    data-container="body"
+                                                    placement="top"
+                                                    tooltip="Set YES to opt in. See guide above for details.">
                                                   </i>
                                                 </span>
-                                                <br />
-                                                <bSwitch
-                                                  [switch-on-color]="'danger'"
-                                                  [switch-off-color]="'danger'"
-                                                  [switch-off-text]="'NO'"
-                                                  [switch-on-text]="'YES'"
-                                                  [(ngModel)]="accountF.creatorDealsProgram.value"
-                                                  [ngModelOptions]="{standalone: true}"
-                                                  (changeState)="onCreatorDealsToggle($event)"
-                                                >
-                                                </bSwitch>
-                                            </div>
+                        <br />
+                        <bSwitch
+                          [switch-on-color]="'danger'"
+                          [switch-off-color]="'danger'"
+                          [switch-off-text]="'NO'"
+                          [switch-on-text]="'YES'"
+                          [(ngModel)]="accountF.creatorDealsProgram.value"
+                          [ngModelOptions]="{standalone: true}"
+                          (changeState)="onCreatorDealsToggle($event)"
+                        >
+                        </bSwitch>
 
-                                              <!-- EPP -->
-                                              <div class=" form-group mt-3">
-                                                <label> Opt in to the Extended Promotions Program </label>
-                                                <span class=" h5 text-light ml-2">
+                      </div>
+
+                      <!-- EPP -->
+                      <div class=" form-group mt-3">
+                        <label> Opt in to the Extended Promotions Program </label>
+                        <span class=" h5 text-light ml-2">
                                                   <i
-                                                  class="fas fa-info-circle btn-tooltip"
-                                                  data-animation="true"
-                                                  data-container="body"
-                                                  placement="top"
-                                                  tooltip="Set YES to opt in. See guide above for details.">
+                                                    class="fas fa-info-circle btn-tooltip"
+                                                    data-animation="true"
+                                                    data-container="body"
+                                                    placement="top"
+                                                    tooltip="Set YES to opt in. See guide above for details.">
                                                   </i>
                                                 </span>
-                                                <br />
-                                                <bSwitch
-                                                  [switch-on-color]="'danger'"
-                                                  [switch-off-color]="'danger'"
-                                                  [switch-off-text]="'NO'"
-                                                  [switch-on-text]="'YES'"
-                                                  [(ngModel)]="accountF.creatorExtendedPromotionsProgram.value"
-                                                  [ngModelOptions]="{standalone: true}"
-                                                  (changeState)="onCreatorExtendedPromotionsToggle($event)"
-                                                >
-                                                </bSwitch>
-                                              </div>
-                                        </form>
-                                        <div class=" row mt-3">
-                                            <div class=" col-md-12">
-                                                <div class=" pull-right">
-                                                    <button
-                                                    class=" btn btn-fill btn-primary btn-round btn-wd"
-                                                    name="save-course-settings"
-                                                    type="button"
-                                                    (click)="onSubmit()"
-                                                    > <span
-                                                    *ngIf="submitted"
-                                                    class="spinner-border spinner-border-sm"
-                                                    role="status"
-                                                    ></span> {{ submitted ? 'Saving...' : 'Save' }}
-                                                    </button>
-                                                </div>
-                                                <div class=" clearfix"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </tab>
+                        <br />
+                        <bSwitch
+                          [switch-on-color]="'danger'"
+                          [switch-off-color]="'danger'"
+                          [switch-off-text]="'NO'"
+                          [switch-on-text]="'YES'"
+                          [(ngModel)]="accountF.creatorExtendedPromotionsProgram.value"
+                          [ngModelOptions]="{standalone: true}"
+                          (changeState)="onCreatorExtendedPromotionsToggle($event)"
+                        >
+                        </bSwitch>
+                      </div>
+                    </form>
+                    <div class=" row mt-3">
+                      <div class=" col-md-12">
+                        <div class=" pull-right">
+                          <button
+                            class=" btn btn-fill btn-primary btn-round btn-wd"
+                            name="save-course-settings"
+                            type="button"
+                            (click)="onSubmit()"
+                          > <span
+                            *ngIf="submitted"
+                            class="spinner-border spinner-border-sm"
+                            role="status"
+                          ></span> {{ submitted ? 'Saving...' : 'Save' }}
+                          </button>
+                        </div>
+                        <div class=" clearfix"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </tab>
 
-                        <!-- Purchases tab for coaches and regular accounts -->
-                        <tab *ngIf="accountF.accountType.value === 'coach' || accountF.accountType.value === 'regular'" heading="Purchases & Refunds">
-                            <!-- Purchases table -->
-                            <h6 class=" mt-4"> Purchases </h6>
-                            <div *ngIf="successfulPayments" class=" table-responsive">
-                                <table class=" table">
-                                <thead class=" text-primary">
-                                    <tr>
-                                    <th> Course </th>
-                                    <th> Price </th>
-                                    <th> Date Purchased </th>
-                                    <th> Payment Type </th>
-                                    <th class=" text-right">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr *ngFor="let payment of successfulPayments" class="">
-                                    <td> {{ payment.metadata.course_title }} </td>
-                                    <td *ngIf="currencies"> {{ currencies[(payment.currency).toUpperCase()].symbol + payment.amount / 100 }} </td>
-                                    <td> {{ timestampToDate(payment.created) }} </td>
-                                    <td> {{ payment.metadata.payment_type }} </td>
-                                    <td class=" text-right">
-                                        <!-- Receipt -->
-                                        <button
-                                        class=" btn btn-success btn-link btn-icon btn-sm btn-simple"
-                                        tooltip="View transaction receipt"
-                                        type="button"
-                                        (click)="loadReceipt(payment.id)"
-                                        >
-                                        <i class=" tim-icons icon-paper"> </i>
-                                        </button>
-                                        <!-- Refund -->
-                                        <button
-                                        class=" btn btn-danger btn-link btn-icon btn-sm btn-simple"
-                                        tooltip="Request a refund"
-                                        type="button"
-                                        (click)="popRefund(payment)"
-                                        [disabled]="refundIds && refundIds.includes(payment.id)"
-                                        >
-                                        <i class=" tim-icons icon-double-left"> </i>
-                                        </button>
-                                    </td>
-                                    </tr>
-                                </tbody>
-                                </table>
-                            </div>
-                            <div *ngIf="!successfulPayments">
-                                <p>
-                                    You have not purchased any courses yet.
-                                </p>
-                            </div>
-                            <!-- Refunds table -->
-                            <h6 *ngIf="refunds && refunds.length > 0" class=" mt-4"> Refunds </h6>
-                            <div *ngIf="refunds && refunds.length > 0" class=" table-responsive">
-                                <table class=" table">
-                                <thead class=" text-primary">
-                                    <tr>
-                                    <th> Course </th>
-                                    <th> Price </th>
-                                    <th> Date Purchased </th>
-                                    <th> Refund Requested </th>
-                                    <th> Status </th>
-                                    <!-- <th class=" text-right">Actions</th> -->
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr *ngFor="let refund of refunds" class="">
-                                    <td> {{ refund.paymentIntent.metadata.course_title }} </td>
-                                    <td> {{ currencies[(refund.paymentIntent.currency).toUpperCase()].symbol + refund.paymentIntent.amount / 100 }} </td>
-                                    <td> {{ timestampToDate(refund.paymentIntent.created) }} </td>
-                                    <td> {{ timestampToDate(refund.created) }} </td>
-                                    <td>
-                                        <p
-                                        class="text-capitalize"
-                                        [ngClass]="{
+            <!-- Purchases tab for coaches and regular accounts -->
+            <tab *ngIf="accountF.accountType.value === 'coach' || accountF.accountType.value === 'regular'" heading="Purchases & Refunds">
+              <!-- Purchases table -->
+              <h6 class=" mt-4"> Purchases </h6>
+              <div *ngIf="successfulPayments" class=" table-responsive">
+                <table class=" table">
+                  <thead class=" text-primary">
+                  <tr>
+                    <th> Course </th>
+                    <th> Price </th>
+                    <th> Date Purchased </th>
+                    <th> Payment Type </th>
+                    <th class=" text-right">Actions</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr *ngFor="let payment of successfulPayments" class="">
+                    <td> {{ payment.metadata.course_title }} </td>
+                    <td *ngIf="currencies"> {{ currencies[(payment.currency).toUpperCase()].symbol + payment.amount / 100 }} </td>
+                    <td> {{ timestampToDate(payment.created) }} </td>
+                    <td> {{ payment.metadata.payment_type }} </td>
+                    <td class=" text-right">
+                      <!-- Receipt -->
+                      <button
+                        class=" btn btn-success btn-link btn-icon btn-sm btn-simple"
+                        tooltip="View transaction receipt"
+                        type="button"
+                        (click)="loadReceipt(payment.id)"
+                      >
+                        <i class=" tim-icons icon-paper"> </i>
+                      </button>
+                      <!-- Refund -->
+                      <button
+                        class=" btn btn-danger btn-link btn-icon btn-sm btn-simple"
+                        tooltip="Request a refund"
+                        type="button"
+                        (click)="popRefund(payment)"
+                        [disabled]="refundIds && refundIds.includes(payment.id)"
+                      >
+                        <i class=" tim-icons icon-double-left"> </i>
+                      </button>
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div *ngIf="!successfulPayments">
+                <p>
+                  You have not purchased any courses yet.
+                </p>
+              </div>
+              <!-- Refunds table -->
+              <h6 *ngIf="refunds && refunds.length > 0" class=" mt-4"> Refunds </h6>
+              <div *ngIf="refunds && refunds.length > 0" class=" table-responsive">
+                <table class=" table">
+                  <thead class=" text-primary">
+                  <tr>
+                    <th> Course </th>
+                    <th> Price </th>
+                    <th> Date Purchased </th>
+                    <th> Refund Requested </th>
+                    <th> Status </th>
+                    <!-- <th class=" text-right">Actions</th> -->
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr *ngFor="let refund of refunds" class="">
+                    <td> {{ refund.paymentIntent.metadata.course_title }} </td>
+                    <td> {{ currencies[(refund.paymentIntent.currency).toUpperCase()].symbol + refund.paymentIntent.amount / 100 }} </td>
+                    <td> {{ timestampToDate(refund.paymentIntent.created) }} </td>
+                    <td> {{ timestampToDate(refund.created) }} </td>
+                    <td>
+                      <p
+                        class="text-capitalize"
+                        [ngClass]="{
                                             'text-warning': refund.status === 'requested',
                                             'text-success': refund.status === 'refunded'
                                         }"
-                                        >
-                                            {{ refund.status }} 
-                                        </p>
-                                    </td>
-                                    <!-- <td class=" text-right"></td> -->
-                                    </tr>
-                                </tbody>
-                                </table>
-                            </div>
-                        </tab>
+                      >
+                        {{ refund.status }}
+                      </p>
+                    </td>
+                    <!-- <td class=" text-right"></td> -->
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+            </tab>
 
-                    </tabset>
+            <!-- Settings of each session duration -->
+            <tab *ngIf="accountF.accountType.value === 'coach'" heading="Session settings">
+              <div class="">
+                <h6 class=" mt-4 pl-4">
+                  SELECT YOUR SESSION DURATION AND BREAKS BETWEEN EACH SESSION
+                </h6>
+                <div class=" row">
+                  <div class=" col-md-12">
+                    <form>
+                      <!-- Settings -->
+                      <div class=" form-group mt-3">
+                        <label> Please, choose Your session duration from 15 to 120 min</label>
+<!--                        <span class=" h5 text-light ml-2">-->
+<!--                                                  <i-->
+<!--                                                    class="fas fa-info-circle btn-tooltip"-->
+<!--                                                    data-animation="true"-->
+<!--                                                    data-container="body"-->
+<!--                                                    placement="top"-->
+<!--                                                    tooltip="Set YES to opt in. See guide above for details.">-->
+<!--                                                  </i>-->
+<!--                                                </span>-->
+                        <br />
+                        <input type="range"  min="15" max="120" step="5"
+                               [(ngModel)]="accountF.sessionDuration.value"
+                               [ngModelOptions]="{standalone: true}"
+                               (input)="onSessionDurationInput($event)"
+                        />
+                        {{this.accountF.sessionDuration.value || 30}} minutes
+                      </div>
+
+                      <!-- EPP -->
+                      <div class=" form-group mt-3">
+                        <label> Please, choose duration of the break before next Session start (from 5 to 30 min) </label>
+<!--                        <span class=" h5 text-light ml-2">-->
+<!--                                                  <i-->
+<!--                                                    class="fas fa-info-circle btn-tooltip"-->
+<!--                                                    data-animation="true"-->
+<!--                                                    data-container="body"-->
+<!--                                                    placement="top"-->
+<!--                                                    tooltip="Set YES to opt in. See guide above for details.">-->
+<!--                                                  </i>-->
+<!--                                                </span>-->
+                        <br />
+                        <input
+                         type="range"
+                         value="5"
+                         [valueAsNumber]="this.breakBeforeNextSessionLength"
+                         id="range"
+                         min="5"
+                         max="30"
+                         step="5"
+                         [(ngModel)]="accountF.breakDuration.value"
+                         [ngModelOptions]="{standalone: true}"
+                         (input)="onBreakDurationInput($event)"
+
+                        />
+                        {{this.accountF.breakDuration.value || 5}} minutes
+                      </div>
+                    </form>
+                    <div class=" row mt-3">
+                      <div class=" col-md-12">
+                        <div class=" pull-right">
+                          <button
+                            class=" btn btn-fill btn-primary btn-round btn-wd"
+                            name="save-session-settings"
+                            type="button"
+                            (click)="onSubmit()"
+                          > <span
+                            *ngIf="submitted"
+                            class="spinner-border spinner-border-sm"
+                            role="status"
+                          ></span> {{ submitted ? 'Saving...' : 'Save' }}
+                          </button>
+                        </div>
+                        <div class=" clearfix"></div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-            </div>
+              </div>
+            </tab>
+          </tabset>
         </div>
+      </div>
     </div>
-    <!-- Refund modal -->
-    <div
+  </div>
+  <!-- Refund modal -->
+  <div
     aria-hidden="true"
     aria-labelledby="refundModalLabel"
     bsModal
@@ -729,35 +811,35 @@
     id="refundModal"
     role="dialog"
     tabindex="-1"
-    >
+  >
     <div class="modal-dialog" style="transform: translate(0,0);">
-        <div class="modal-content">
+      <div class="modal-content">
         <div class="modal-body">
-            <div class="card card-login card-white">
-                <div class=" card-header">
-                <h1 class=" card-title"> Request Refund </h1>
-                </div>
-                <div class=" card-body">
-                    <div *ngIf="refundPaymentIntent">
-                        <p>
-                            {{ refundPaymentIntent.metadata.course_title }} <br>
-                            {{ currencies[(refundPaymentIntent.currency).toUpperCase()].symbol + refundPaymentIntent.amount / 100 }} <br>
-                            Purchase Date: {{ getDisplayDate(refundPaymentIntent.created) }}
-                        </p>
-                    </div>
-                    <hr>
-                    <p>
-                        <strong>Not 100% happy with this coaching course?</strong> Please let us know why you're not happy and request a refund.
-                    </p>
-                    <form [formGroup]="refundForm">
-                        <div class="form-group">
-                            <label for="refundReason"> Reason </label>
-                            <textarea
-                            class="form-control"
-                            id="refundReason"
-                            rows="3"
-                            formControlName="reason"
-                            [ngClass]="{
+          <div class="card card-login card-white">
+            <div class=" card-header">
+              <h1 class=" card-title"> Request Refund </h1>
+            </div>
+            <div class=" card-body">
+              <div *ngIf="refundPaymentIntent">
+                <p>
+                  {{ refundPaymentIntent.metadata.course_title }} <br>
+                  {{ currencies[(refundPaymentIntent.currency).toUpperCase()].symbol + refundPaymentIntent.amount / 100 }} <br>
+                  Purchase Date: {{ getDisplayDate(refundPaymentIntent.created) }}
+                </p>
+              </div>
+              <hr>
+              <p>
+                <strong>Not 100% happy with this coaching course?</strong> Please let us know why you're not happy and request a refund.
+              </p>
+              <form [formGroup]="refundForm">
+                <div class="form-group">
+                  <label for="refundReason"> Reason </label>
+                  <textarea
+                    class="form-control"
+                    id="refundReason"
+                    rows="3"
+                    formControlName="reason"
+                    [ngClass]="{
                                 'has-danger':
                                 ((focus7Touched || refunding) &&
                                     refundF.reason.errors) ||
@@ -766,48 +848,48 @@
                                 'has-success': !refundF.reason.errors
                             }">
                             </textarea>
-                            <label
-                            class="error custom-error-label"
-                            *ngIf="
+                  <label
+                    class="error custom-error-label"
+                    *ngIf="
                             ((focus7Touched || refunding) &&
                             refundF.reason.errors) ||
                             (refundF.reason.value != '' &&
                             refundF.reason.errors)"
-                            > Please tell us why you're not happy with this course. We need a detailed description to process
-                            your request. Failure to give a reason will result in a delay.
-                            </label>
-                          </div>
-                    </form>
-                    <!-- Submit Button -->
-                    <button
-                    class=" btn btn-primary btn-lg btn-block btn-round mt-4 mb-3"
-                    type="button"
-                    (click)="requestRefund()"
-                    >
-                        <span
-                        *ngIf="refunding"
-                        class="spinner-border spinner-border-sm"
-                        role="status"
-                        ></span> {{ refunding ? 'Processing...' : 'Request Refund' }}
-                    </button>
-
-                    <!-- Cancel Button -->
-                    <button
-                    class=" btn btn-success btn-lg btn-block btn-round mt-4 mb-3"
-                    (click)="refundModal.hide()"
-                    >
-                        Cancel
-                    </button>
-                    <div class=" text-center">
-                        <a href="https://lifecoach.freshdesk.com/a/solutions/articles/47001123378" target="_blank">
-                            Refunds: Everything you need to know
-                        </a>
-                    </div>
+                  > Please tell us why you're not happy with this course. We need a detailed description to process
+                    your request. Failure to give a reason will result in a delay.
+                  </label>
                 </div>
+              </form>
+              <!-- Submit Button -->
+              <button
+                class=" btn btn-primary btn-lg btn-block btn-round mt-4 mb-3"
+                type="button"
+                (click)="requestRefund()"
+              >
+                        <span
+                          *ngIf="refunding"
+                          class="spinner-border spinner-border-sm"
+                          role="status"
+                        ></span> {{ refunding ? 'Processing...' : 'Request Refund' }}
+              </button>
+
+              <!-- Cancel Button -->
+              <button
+                class=" btn btn-success btn-lg btn-block btn-round mt-4 mb-3"
+                (click)="refundModal.hide()"
+              >
+                Cancel
+              </button>
+              <div class=" text-center">
+                <a href="https://lifecoach.freshdesk.com/a/solutions/articles/47001123378" target="_blank">
+                  Refunds: Everything you need to know
+                </a>
+              </div>
             </div>
+          </div>
         </div>
-        </div>
+      </div>
     </div>
-    </div>
-    <!-- End of refund modal -->
+  </div>
+  <!-- End of refund modal -->
 </div>

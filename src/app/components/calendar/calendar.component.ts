@@ -6,6 +6,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { CustomCalendarEvent } from '../../interfaces/custom.calendar.event.interface';
 import { DataService } from 'app/services/data.service';
 import { AuthService } from 'app/services/auth.service';
+import * as moment from 'moment';
 
 declare var JitsiMeetExternalAPI: any;
 
@@ -23,7 +24,7 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private userId: string;
 
-  public view: CalendarView = CalendarView.Month;
+  public view: CalendarView = CalendarView.Week;
   public viewDate: Date = new Date();
   public daysInWeek = 7;
   public refresh: Subject<any> = new Subject(); // allows us to refresh the view when data changes
@@ -33,6 +34,9 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public events: CustomCalendarEvent[];
 
+  sessionDuration = 30;
+  breakDuration = 15;
+  times: Date[] | [];
   // video conferencing
   private meetingDomain = 'live.lifecoach.io';
   private meetingOptions: any;
@@ -50,10 +54,11 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit() {
     this.buildActiveEventForm();
     this.loadUserData();
+    this.times = [];
   }
 
   ngAfterViewInit() {
-    this.initJitsiMeet();
+    // this.initJitsiMeet();
   }
 
   initJitsiMeet() {
@@ -130,10 +135,10 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
   loadActiveEventFormData() {
     this.activeEventForm.patchValue({
       id: this.activeEvent.id ? this.activeEvent.id : null,
-      title: this.activeEvent.title ? this.activeEvent.title : null,
       start: this.activeEvent.start ? this.activeEvent.start : new Date(),
       end: this.activeEvent.end ? this.activeEvent.end : null,
-      draggable: this.activeEvent.draggable ? this.activeEvent.draggable : true,
+      // title: this.activeEvent.start.toLocaleTimeString() + ' - ' + (this.activeEvent.end.toLocaleTimeString() || ' '),
+      draggable: false,
       cssClass: this.activeEvent.cssClass ? this.activeEvent.cssClass : null,
       description: this.activeEvent.description ? this.activeEvent.description : null
     });
@@ -145,17 +150,25 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onDayClicked(event: any) {
     // console.log('clicked day:', event.day.date);
-    this.createEvent(event.day.date);
+    // this.createEvent(event.day.date);
   }
 
   onDayHeaderClicked(event: any) {
     // console.log('clicked day header:', event.day.date);
-    this.createEvent(event.day.date);
+    // this.createEvent(event.day.date);
   }
 
   onHourSegmentClicked(event: any) {
     // console.log('clicked hour segment:', event.date);
+    this.times = [];
     this.createEvent(event.date);
+    let newTime: Date = event.date;
+    while (newTime.getDay() === event.date.getDay()) {
+      newTime = new Date(newTime.setMinutes(newTime.getMinutes() + this.sessionDuration));
+      this.times = [...this.times, newTime];
+      newTime = new Date(newTime.setMinutes(newTime.getMinutes() + this.breakDuration));
+    }
+    console.log(this.times);
   }
 
   createEvent(date: Date) {
@@ -165,7 +178,8 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     const newEvent: CustomCalendarEvent = {
       id: Math.random().toString(36).substr(2, 9), // generate semi-random id
       title: 'New Event',
-      start: date
+      start: date,
+      end: date
     };
 
     // load the new event as the active event
@@ -238,8 +252,7 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     const ev = this.activeEventForm.value;
-
-    console.log(ev);
+    ev.title = ev.start.toLocaleTimeString() + ' - ' + ev.end.toLocaleTimeString();
 
     // save the event
     if (!this.userId) {

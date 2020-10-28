@@ -1,40 +1,41 @@
 <div>
-    <!-- calendar head -->
-    <app-calendar-header [(view)]="view" [(viewDate)]="viewDate">
-    </app-calendar-header>
+  <!-- calendar head -->
+  <app-calendar-header [(view)]="view" [(viewDate)]="viewDate">
+  </app-calendar-header>
+  <!-- calendar body -->
 </div>
 
-<!-- calendar body -->
 <div [ngSwitch]="view">
-    <mwl-calendar-month-view
-      *ngSwitchCase="'month'"
-      [viewDate]="viewDate"
-      [events]="events"
-      [refresh]="refresh"
-      (eventClicked)="eventClicked($event)"
-      (columnHeaderClicked)="onColumnClicked($event)"
-      (dayClicked)="onDayClicked($event)"
-    >
-    </mwl-calendar-month-view>
-    <mwl-calendar-week-view
-      *ngSwitchCase="'week'"
-      [viewDate]="viewDate"
-      [events]="events"
-      [refresh]="refresh"
-      (eventClicked)="eventClicked($event)"
-      (dayHeaderClicked)="onDayHeaderClicked($event)"
-      (hourSegmentClicked)="onHourSegmentClicked($event)"
-    >
-    </mwl-calendar-week-view>
-    <mwl-calendar-day-view
-      *ngSwitchCase="'day'"
-      [viewDate]="viewDate"
-      [events]="events"
-      [refresh]="refresh"
-      (eventClicked)="eventClicked($event)"
-      (hourSegmentClicked)="onHourSegmentClicked($event)"
-    >
-    </mwl-calendar-day-view>
+  <mwl-calendar-month-view
+    *ngSwitchCase="'month'"
+    [viewDate]="viewDate"
+    [events]="events"
+    [refresh]="refresh"
+    (eventClicked)="eventClicked($event)"
+    (columnHeaderClicked)="onColumnClicked($event)"
+    (dayClicked)="onDayClicked($event)"
+  >
+  </mwl-calendar-month-view>
+  <mwl-calendar-week-view
+    *ngSwitchCase="'week'"
+    [viewDate]="viewDate"
+    [events]="events"
+    [refresh]="refresh"
+    (eventClicked)="eventClicked($event)"
+    (dayHeaderClicked)="onDayHeaderClicked($event)"
+    (hourSegmentClicked)="onHourSegmentClicked($event)"
+  >
+    <!--      (eventClicked)="eventClicked($event)"-->
+  </mwl-calendar-week-view>
+  <mwl-calendar-day-view
+    *ngSwitchCase="'day'"
+    [viewDate]="viewDate"
+    [events]="events"
+    [refresh]="refresh"
+    (eventClicked)="eventClicked($event)"
+    (hourSegmentClicked)="onHourSegmentClicked($event)"
+  >
+  </mwl-calendar-day-view>
 </div>
 
 <!-- TESTING -->
@@ -42,14 +43,14 @@
 
 <!-- event detail modal -->
 <div
-aria-hidden="true"
-aria-labelledby="eventDetailModalLabel"
-bsModal
-class="modal fade"
-#eventDetailModal="bs-modal"
-id="eventDetailModal"
-role="dialog"
-tabindex="-1"
+  aria-hidden="true"
+  aria-labelledby="eventDetailModalLabel"
+  bsModal
+  class="modal fade"
+  #eventDetailModal="bs-modal"
+  id="eventDetailModal"
+  role="dialog"
+  tabindex="-1"
 >
   <div class="modal-dialog" style="transform: translate(0,0);">
     <div class="modal-content">
@@ -60,19 +61,19 @@ tabindex="-1"
               <div class=" col">
                 <div class=" pull-right">
                   <i
-                  class="far fa-edit text-default mr-3"
-                  tooltip="Edit this event"
-                  (click)="onEditEvent()">
+                    class="far fa-edit text-default mr-3"
+                    tooltip="Edit this event"
+                    (click)="onEditEvent()">
                   </i>
                   <i
-                  class="far fa-trash-alt text-danger mr-3"
-                  tooltip="Delete this event"
-                  (click)="onDetailDeleteEvent()">
+                    class="far fa-trash-alt text-danger mr-3"
+                    tooltip="Delete this event"
+                    (click)="onDetailDeleteEvent()">
                   </i>
                   <i
-                  class="fas fa-times text-default"
-                  tooltip="Close"
-                  (click)="onEventDetailModalClose()">
+                    class="fas fa-times text-default"
+                    tooltip="Close"
+                    (click)="onEventDetailModalClose()">
                   </i>
                 </div>
               </div>
@@ -98,14 +99,14 @@ tabindex="-1"
 
 <!-- edit event modal -->
 <div
-aria-hidden="true"
-aria-labelledby="editEventModalLabel"
-bsModal
-class="modal fade"
-#editEventModal="bs-modal"
-id="editEventModal"
-role="dialog"
-tabindex="-1"
+  aria-hidden="true"
+  aria-labelledby="editEventModalLabel"
+  bsModal
+  class="modal fade"
+  #editEventModal="bs-modal"
+  id="editEventModal"
+  role="dialog"
+  tabindex="-1"
 >
   <div class="modal-dialog" style="transform: translate(0,0);">
     <div class="modal-content">
@@ -119,9 +120,9 @@ tabindex="-1"
               <div class=" col">
                 <div class=" pull-right">
                   <i
-                  class="fas fa-times text-default"
-                  tooltip="Close"
-                  (click)="onEditEventModalClose()">
+                    class="fas fa-times text-default"
+                    tooltip="Close"
+                    (click)="onEditEventModalClose()">
                   </i>
                 </div>
               </div>
@@ -130,48 +131,49 @@ tabindex="-1"
             <form [formGroup]="activeEventForm">
 
               <!-- title -->
-              <div class=" form-group">
-                <label for="title"> Title <span class="required-star">*</span></label>
-                <input
-                  id="title"
-                  type="text"
-                  class="form-control"
-                  formControlName="title"
-                  placeholder="eg. Check in"
-                >
-              </div>
+<!--              <div class=" form-group">-->
+<!--                <label for="title"> Title <span class="required-star">*</span></label>-->
+<!--                <input-->
+<!--                  id="title"-->
+<!--                  type="text"-->
+<!--                  disabled-->
+<!--                  class="form-control"-->
+<!--                  formControlName="title"-->
+<!--                  placeholder="eg. Check in"-->
+<!--                >-->
+<!--              </div>-->
 
               <div>
                 <label for="startdate"> Start <span class="required-star">*</span></label>
               </div>
 
               <div class=" row">
-                <div class=" col-md-6">
-                  <!-- start date -->
-                  <div class=" form-group">
-                    <!-- https://valor-software.com/ngx-bootstrap/#/datepicker -->
-                    <input
-                      bsDatepicker
-                      class="form-control"
-                      data-datepicker-color="primary"
-                      [bsConfig]="{ isAnimated: true, containerClass: 'theme-green' }"
-                      formControlName="start"
-                      id="startdate"
-                      type="text"
-                    />
-                  </div>
-                </div>
+<!--                <div class=" col-md-6">-->
+<!--                  &lt;!&ndash; start date &ndash;&gt;-->
+<!--                  <div class=" form-group">-->
+<!--                    &lt;!&ndash; https://valor-software.com/ngx-bootstrap/#/datepicker &ndash;&gt;-->
+<!--                    <input-->
+<!--                      bsDatepicker-->
+<!--                      class="form-control"-->
+<!--                      data-datepicker-color="primary"-->
+<!--                      [bsConfig]="{ isAnimated: true, containerClass: 'theme-green' }"-->
+<!--                      formControlName="start"-->
+<!--                      id="startdate"-->
+<!--                      type="text"-->
+<!--                    />-->
+<!--                  </div>-->
+<!--                </div>-->
 
                 <div class=" col-md-6">
                   <!-- start time -->
                   <div class=" form-group">
                     <!-- https://valor-software.com/ngx-bootstrap/#/timepicker -->
-                    <timepicker 
+                    <timepicker
                       formControlName="start"
                       [showSpinners]="false"
                       [showMeridian]="false"
                       type="number"
-                      id="starttime"> 
+                      id="starttime">
                     </timepicker>
                   </div>
                 </div>
@@ -183,53 +185,56 @@ tabindex="-1"
               </div>
 
               <div class=" row">
-                <div class=" col-md-6">
-                  <!-- start date -->
-                  <div class=" form-group">
-                    <!-- https://valor-software.com/ngx-bootstrap/#/datepicker -->
-                    <input
-                      bsDatepicker
-                      class="form-control"
-                      data-datepicker-color="primary"
-                      [bsConfig]="{ isAnimated: true, containerClass: 'theme-green' }"
-                      formControlName="end"
-                      id="enddate"
-                      type="text"
-                    />
-                  </div>
-                </div>
+<!--                <div class=" col-md-6">-->
+<!--                  &lt;!&ndash; start date &ndash;&gt;-->
+<!--                  <div class=" form-group">-->
+<!--                    &lt;!&ndash; https://valor-software.com/ngx-bootstrap/#/datepicker &ndash;&gt;-->
+<!--                    <input-->
+<!--                      bsDatepicker-->
+<!--                      class="form-control"-->
+<!--                      data-datepicker-color="primary"-->
+<!--                      [bsConfig]="{ isAnimated: true, containerClass: 'theme-green' }"-->
+<!--                      formControlName="end"-->
+<!--                      id="enddate"-->
+<!--                      type="text"-->
+<!--                    />-->
+<!--                  </div>-->
+<!--                </div>-->
 
                 <div class=" col-md-6">
                   <!-- start time -->
-                  <div class=" form-group">
-                    <!-- https://valor-software.com/ngx-bootstrap/#/timepicker -->
-                    <timepicker 
-                      formControlName="end"
-                      [showSpinners]="false"
-                      [showMeridian]="false"
-                      type="number"
-                      id="endtime"> 
-                    </timepicker>
-                  </div>
+<!--                  <div class=" form-group">-->
+<!--                    &lt;!&ndash; https://valor-software.com/ngx-bootstrap/#/timepicker &ndash;&gt;-->
+<!--                    <timepicker-->
+<!--                      formControlName="end"-->
+<!--                      [showSpinners]="false"-->
+<!--                      [showMeridian]="false"-->
+<!--                      type="number"-->
+<!--                      id="endtime">-->
+<!--                    </timepicker>-->
+<!--                  </div>-->
+                  <select name="" formControlName="end"  id="endtime">
+                    <option  *ngFor=" let time of times" [ngValue]="time"> {{time.toLocaleTimeString()}}</option>
+                  </select>
                 </div>
 
               </div>
-              
+
 
               <!-- description -->
-              <div class="form-group">
-                <label for="description">
-                Description
-                </label>
-                <textarea
-                class="form-control"
-                id="description"
-                rows="3"
-                placeholder="Description..."
-                formControlName="description"
-                ></textarea>
-              </div>
-          
+<!--              <div class="form-group">-->
+<!--                <label for="description">-->
+<!--                  Description-->
+<!--                </label>-->
+<!--                <textarea-->
+<!--                  class="form-control"-->
+<!--                  id="description"-->
+<!--                  rows="3"-->
+<!--                  placeholder="Description..."-->
+<!--                  formControlName="description"-->
+<!--                ></textarea>-->
+<!--              </div>-->
+
             </form>
 
             <!-- <p>
@@ -255,14 +260,14 @@ tabindex="-1"
 
 <!-- cancel event modal -->
 <div
-aria-hidden="true"
-aria-labelledby="cancelEventModalLabel"
-bsModal
-class="modal fade"
-#cancelEventModal="bs-modal"
-id="cancelEventModal"
-role="dialog"
-tabindex="-1"
+  aria-hidden="true"
+  aria-labelledby="cancelEventModalLabel"
+  bsModal
+  class="modal fade"
+  #cancelEventModal="bs-modal"
+  id="cancelEventModal"
+  role="dialog"
+  tabindex="-1"
 >
   <div class="modal-dialog" style="transform: translate(0,0);">
     <div class="modal-content">
@@ -273,9 +278,9 @@ tabindex="-1"
               <div class=" col">
                 <div class=" pull-right">
                   <i
-                  class="fas fa-times text-default"
-                  tooltip="Close"
-                  (click)="onCancelEventModalClose()">
+                    class="fas fa-times text-default"
+                    tooltip="Close"
+                    (click)="onCancelEventModalClose()">
                   </i>
                 </div>
               </div>
