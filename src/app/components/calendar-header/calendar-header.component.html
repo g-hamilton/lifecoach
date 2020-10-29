@@ -16,7 +16,7 @@
           [(viewDate)]="viewDate"
           (viewDateChange)="viewDateChange.next(viewDate)"
         >
-          Today
+          This Week
         </div>
         <div
           class="btn btn-primary"
@@ -30,9 +30,10 @@
       </div>
     </div>
     <div class="col-md-4">
-      <h3>{{ viewDate | calendarDate: view + 'ViewTitle':locale }}</h3>
+
     </div>
     <div class="col-md-4">
+      <h3>{{ viewDate | calendarDate: view + 'ViewTitle':locale }}</h3>
 <!--      <div class="btn-group">-->
 <!--        <div-->
 <!--          class="btn btn-primary"-->

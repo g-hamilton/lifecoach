@@ -2,12 +2,12 @@ import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy } from '@angular
 import { CalendarView } from 'angular-calendar';
 import { Subject, Subscription } from 'rxjs';
 import { ModalDirective } from 'ngx-bootstrap/modal';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import {FormBuilder, FormControl, FormGroup} from '@angular/forms';
 import { CustomCalendarEvent } from '../../interfaces/custom.calendar.event.interface';
 import { DataService } from 'app/services/data.service';
 import { AuthService } from 'app/services/auth.service';
 import * as moment from 'moment';
-import {take, takeUntil} from "rxjs/operators";
+import { take } from 'rxjs/operators';
 
 declare var JitsiMeetExternalAPI: any;
 
@@ -174,12 +174,17 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     this.fillEndTimes(event);
     this.fillStartTimes(event);
   }
-  toTimeStamp(strDate: string): number {
+  toTimeStampFromStr(strDate: string): number {
     return Date.parse(strDate) / 1000;
   }
   fillEndTimes(event: any) {
-    console.log('Event',event);
-    const date = event.date === undefined ? new Date(this.toTimeStamp(event.target.value) * 1000 ) : new Date(event.date) ;
+    console.log('Event', event);
+    let date: Date;
+    if (event.date !== undefined && event.date.status === undefined) {
+      date = event.date instanceof Date ? new Date(event.date) : new Date(this.toTimeStampFromStr(event.target.value) * 1000);
+    } else {
+      date = event.date.value;
+    }
     let newTime: Date = date;
     this.endTimes = [];
     while (newTime.getDate() === date.getDate()) {
@@ -228,12 +233,13 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onEditEvent() {
-
     this.eventDetailModal.hide();
+    console.log('TESTESTEST', this.activeEventF);
+    this.startTimes = [];
+    this.endTimes = [];
     this.loadActiveEventFormData();
-    console.log(this.activeEventF);
     this.fillStartTimes({date: this.activeEventF.start});
-    this.fillEndTimes({ date: this.activeEventF.end});
+    this.fillEndTimes({ date: this.activeEventF.start});
     this.editEventModal.show();
   }
 
@@ -267,10 +273,12 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     this.activeEvent = null;
     this.activeEventForm.reset();
   }
+  isTheSameDay(a: Date, b: Date): boolean {
+    return (a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDay() === b.getDay());
+  }
 
   onUpdateEvent() {
     this.savingEvent = true;
-
     // if the event has no id, create one id now
     if (!this.activeEventF.id.value) {
       this.activeEventForm.patchValue({id: Math.random().toString(36).substr(2, 9)}); // generate semi-random id
@@ -279,7 +287,28 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     console.log(this.activeEventF);
 
     const ev = this.activeEventForm.value;
-    console.log(ev);
+    const thisDayEvents = this.events.length ?
+      this.events
+        .filter( item => this.isTheSameDay(item.start, ev.start))
+        : undefined;
+    console.log(thisDayEvents);
+    let error = false;
+    if (thisDayEvents.length) {
+      for(let i = 0; i < thisDayEvents.length; i++) {
+        if ((this.toTimeStampFromStr(ev.start) <= this.toTimeStampFromStr(thisDayEvents[i].end.toString())
+          && (this.toTimeStampFromStr(ev.start) >= this.toTimeStampFromStr(thisDayEvents[i].start.toString())))
+          || (this.toTimeStampFromStr(ev.end) >= this.toTimeStampFromStr(thisDayEvents[i].start.toString()))
+          && (this.toTimeStampFromStr(ev.end) <= this.toTimeStampFromStr(thisDayEvents[i].end.toString()))){
+          error = true;
+        }
+
+      }
+    }
+    if (error) {
+      //TODO: It will be better to do a Modal with warning;
+      alert('Choose other date!');
+      return;
+    }
     ev.title = ev.start.toLocaleTimeString()
       + ' - '
       + ev.end.toLocaleTimeString();
@@ -305,13 +334,14 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onChangeStartTimeHandler(event: any) {
-    this.fillEndTimes(event);
+    console.log(event);
+    this.fillEndTimes({date: new Date(Date.parse(event.target.value))});
 
   }
 
   fillStartTimes(event: any) {
     this.startTimes = [];
-    const oldTime: Date = event.date;
+    const oldTime: Date = event.date instanceof Date ? event.date : event.date.value ;
     let newTime = new Date(oldTime);
     this.startTimes = [...this.startTimes, oldTime];
     while ( true ) {
@@ -321,6 +351,8 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
       }
       this.startTimes =  [...this.startTimes, newTime ];
     }
-
+    this.activeEventForm.patchValue({
+      start: this.startTimes[0]
+    });
   }
 }
