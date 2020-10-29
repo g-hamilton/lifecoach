@@ -7,6 +7,7 @@ import { CustomCalendarEvent } from '../../interfaces/custom.calendar.event.inte
 import { DataService } from 'app/services/data.service';
 import { AuthService } from 'app/services/auth.service';
 import * as moment from 'moment';
+import {take, takeUntil} from "rxjs/operators";
 
 declare var JitsiMeetExternalAPI: any;
 
@@ -36,7 +37,8 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
 
   sessionDuration = 30;
   breakDuration = 15;
-  times: Date[] | [];
+  endTimes: Date[] | [];
+  startTimes: Date[] | [];
   // video conferencing
   private meetingDomain = 'live.lifecoach.io';
   private meetingOptions: any;
@@ -54,7 +56,8 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit() {
     this.buildActiveEventForm();
     this.loadUserData();
-    this.times = [];
+    this.endTimes = [];
+    this.startTimes = [];
   }
 
   ngAfterViewInit() {
@@ -106,7 +109,15 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     this.subscriptions.add(
       this.authService.getAuthUser().subscribe(user => {
         if (user) {
+          console.log('USER OBJ:', user);
           this.userId = user.uid;
+          this.subscriptions.add(
+            this.dataService.getUserAccount(this.userId).pipe(take(1)).subscribe(userAccount => {
+                this.sessionDuration = userAccount.sessionDuration ? userAccount.sessionDuration : 30;
+                this.breakDuration = userAccount.breakDuration ? userAccount.breakDuration : 15;
+              }
+            )
+          );
           this.subscriptions.add(
             this.dataService.getUserCalendarEvents(this.userId).subscribe(events => {
               if (events) {
@@ -145,7 +156,7 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onColumnClicked(event: any) {
-    console.log('clicked column:', event.isoDayNumber);
+    // console.log('clicked column:', event.isoDayNumber);
   }
 
   onDayClicked(event: any) {
@@ -157,22 +168,33 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     // console.log('clicked day header:', event.day.date);
     // this.createEvent(event.day.date);
   }
-
   onHourSegmentClicked(event: any) {
     // console.log('clicked hour segment:', event.date);
-    this.times = [];
     this.createEvent(event.date);
-    let newTime: Date = event.date;
-    while (newTime.getDay() === event.date.getDay()) {
+    this.fillEndTimes(event);
+    this.fillStartTimes(event);
+  }
+  toTimeStamp(strDate: string): number {
+    return Date.parse(strDate) / 1000;
+  }
+  fillEndTimes(event: any) {
+    console.log('Event',event);
+    const date = event.date === undefined ? new Date(this.toTimeStamp(event.target.value) * 1000 ) : new Date(event.date) ;
+    let newTime: Date = date;
+    this.endTimes = [];
+    while (newTime.getDate() === date.getDate()) {
+      console.log('Date: ', date.getDate(), 'NewTime: ', newTime.getDate());
       newTime = new Date(newTime.setMinutes(newTime.getMinutes() + this.sessionDuration));
-      this.times = [...this.times, newTime];
+      this.endTimes = [...this.endTimes, newTime];
       newTime = new Date(newTime.setMinutes(newTime.getMinutes() + this.breakDuration));
     }
-    console.log(this.times);
+    this.endTimes.pop();
+    this.activeEventForm.patchValue({
+      end: this.endTimes[0]
+    });
   }
-
   createEvent(date: Date) {
-    console.log('Create event', date);
+    // console.log('Create event', date);
 
     // prepare a new event object
     const newEvent: CustomCalendarEvent = {
@@ -191,7 +213,6 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   eventClicked({event}: { event: CustomCalendarEvent }): void {
-    console.log('Event clicked', event);
     this.activeEvent = event;
     this.eventDetailModal.show();
   }
@@ -207,8 +228,12 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onEditEvent() {
+
     this.eventDetailModal.hide();
     this.loadActiveEventFormData();
+    console.log(this.activeEventF);
+    this.fillStartTimes({date: this.activeEventF.start});
+    this.fillEndTimes({ date: this.activeEventF.end});
     this.editEventModal.show();
   }
 
@@ -251,9 +276,15 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
       this.activeEventForm.patchValue({id: Math.random().toString(36).substr(2, 9)}); // generate semi-random id
     }
 
-    const ev = this.activeEventForm.value;
-    ev.title = ev.start.toLocaleTimeString() + ' - ' + ev.end.toLocaleTimeString();
+    console.log(this.activeEventF);
 
+    const ev = this.activeEventForm.value;
+    console.log(ev);
+    ev.title = ev.start.toLocaleTimeString()
+      + ' - '
+      + ev.end.toLocaleTimeString();
+
+    console.log(ev);
     // save the event
     if (!this.userId) {
       alert('No user ID');
@@ -271,5 +302,25 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
+  }
+
+  onChangeStartTimeHandler(event: any) {
+    this.fillEndTimes(event);
+
+  }
+
+  fillStartTimes(event: any) {
+    this.startTimes = [];
+    const oldTime: Date = event.date;
+    let newTime = new Date(oldTime);
+    this.startTimes = [...this.startTimes, oldTime];
+    while ( true ) {
+      newTime = new Date(newTime.setMinutes(newTime.getMinutes() + this.sessionDuration));
+      if (newTime.getDay() !== oldTime.getDay()) {
+        break;
+      }
+      this.startTimes =  [...this.startTimes, newTime ];
+    }
+
   }
 }

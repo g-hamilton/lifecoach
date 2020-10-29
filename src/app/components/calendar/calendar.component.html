@@ -84,10 +84,10 @@
           </div>
           <div class=" card-body">
 
-            <p>
-              <i class="far fa-calendar-alt"></i>
-              {{ activeEvent?.start }}
-            </p>
+<!--            <p>-->
+<!--              <i class="far fa-calendar-alt"></i>-->
+<!--              {{ activeEvent?.start }}-->
+<!--            </p>-->
 
           </div>
         </div>
@@ -144,7 +144,7 @@
 <!--              </div>-->
 
               <div>
-                <label for="startdate"> Start <span class="required-star">*</span></label>
+                <label for="starttime"> Start <span class="required-star">*</span></label>
               </div>
 
               <div class=" row">
@@ -168,20 +168,26 @@
                   <!-- start time -->
                   <div class=" form-group">
                     <!-- https://valor-software.com/ngx-bootstrap/#/timepicker -->
-                    <timepicker
-                      formControlName="start"
-                      [showSpinners]="false"
-                      [showMeridian]="false"
-                      type="number"
-                      id="starttime">
-                    </timepicker>
+<!--                    <timepicker-->
+<!--                      formControlName="start"-->
+<!--                      [showSpinners]="false"-->
+<!--                      [showMeridian]="false"-->
+<!--                      type="number"-->
+<!--                      id="starttime">-->
+<!--                    </timepicker>-->
+                    <select name="starttime" formControlName="start" id="starttime" (change)="onChangeStartTimeHandler($event)">
+                      <option *ngFor="let time of startTimes"
+                              [value]="time"
+                              >
+                        {{time | date:'HH:mm'}}
+                      </option>
+                    </select>
                   </div>
                 </div>
-
               </div>
 
               <div>
-                <label for="startdate"> End </label>
+                <label for="endtime"> End </label>
               </div>
 
               <div class=" row">
@@ -213,8 +219,13 @@
 <!--                      id="endtime">-->
 <!--                    </timepicker>-->
 <!--                  </div>-->
-                  <select name="" formControlName="end"  id="endtime">
-                    <option  *ngFor=" let time of times" [ngValue]="time"> {{time.toLocaleTimeString()}}</option>
+                  <select name="end" formControlName="end"  id="endtime">
+                    <option  *ngFor=" let time of endTimes; let i = index"
+                             [defaultSelected]="time==endTimes[0]"
+                             [ngValue]="time"
+                            >
+                      {{time | date:'HH:mm'}}
+                    </option>
                   </select>
                 </div>
 
