@@ -659,5 +659,4 @@ export class AccountComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-
 }

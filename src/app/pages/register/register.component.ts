@@ -97,6 +97,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
       const newUserAccount: UserAccount = {
         accountEmail: this.registerF.email.value,
         password: this.registerF.password.value,
+        // accountType: 'admin', // Uncomment and comment next-line to create admin acc
         accountType: this.registerF.accountType.value,
         firstName: this.registerF.firstName.value,
         lastName: this.registerF.lastName.value

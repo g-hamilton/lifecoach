@@ -5,7 +5,7 @@ import { ToastService } from './toast.service';
 
 import { CoachProfile } from '../interfaces/coach.profile.interface';
 import { UserAccount } from '../interfaces/user.account.interface';
-import { AdminCourseReviewRequest } from 'app/interfaces/admin.course.review';
+import { AdminCourseReviewRequest } from 'app/interfaces/adminCourseReviewRequest';
 import { first } from 'rxjs/operators';
 
 @Injectable({

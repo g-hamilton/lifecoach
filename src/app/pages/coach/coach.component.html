@@ -1,288 +1,299 @@
 <app-auth-navbar></app-auth-navbar>
 
 <div class="full-page coach-page ">
-    <div class=" content">
-        <div class=" container">
-            <!-- Loading spinner -->
-            <div *ngIf="!userProfile" class="text-center">
-                <div class="spinner-border" role="status">
-                    <span class="sr-only">Loading...</span>
-                </div>
-            </div>
-            <!-- Summary Card -->
-            <div *ngIf="userProfile">
-                <div class=" card card-user">
-                    <div class=" card-body">
-                        <p class=" card-text"></p>
-                        <div class=" author">
-                        <div class=" block block-one"></div>
-                        <div class=" block block-two"></div>
-                        <div class=" block block-three"></div>
-                        <div class=" block block-four"></div>
-                        <a href="javascript:void(0)">
-                            <!-- Avatar -->
-                            <div>
-                                <img
-                                [alt]="userProfile.firstName + ' ' + userProfile.lastName + ' ' + userProfile.speciality1?.itemName + ' ' + 'Coach'"
-                                class=" avatar"
-                                src="{{ this.userProfile.photo }}"
-                                />
-                                <div
-                                *ngIf="userProfile.selectedProfileVideo"
-                                id="profile-vid-play"
-                                style="color: #e14eca;
+  <div class=" content">
+    <div class=" container">
+      <!-- Loading spinner -->
+      <div *ngIf="!userProfile" class="text-center">
+        <div class="spinner-border" role="status">
+          <span class="sr-only">Loading...</span>
+        </div>
+      </div>
+      <!-- Summary Card -->
+      <div *ngIf="userProfile">
+        <div class=" card card-user">
+          <div class=" card-body">
+            <p class=" card-text"></p>
+            <div class=" author">
+              <div class=" block block-one"></div>
+              <div class=" block block-two"></div>
+              <div class=" block block-three"></div>
+              <div class=" block block-four"></div>
+              <a href="javascript:void(0)">
+                <!-- Avatar -->
+                <div>
+                  <img
+                    [alt]="userProfile.firstName + ' ' + userProfile.lastName + ' ' + userProfile.speciality1?.itemName + ' ' + 'Coach'"
+                    class=" avatar"
+                    src="{{ this.userProfile.photo }}"
+                  />
+                  <div
+                    *ngIf="userProfile.selectedProfileVideo"
+                    id="profile-vid-play"
+                    style="color: #e14eca;
                                 font-size: 2rem;
                                 position: absolute;
                                 top: 7.8rem;
                                 left: 36.2rem;">
-                                    <i class="fab fa-youtube"></i>
-                                </div>
-                            </div>
-                            <!-- Name -->
-                            <p class=" description">
-                            {{ userProfile.firstName + ' ' + userProfile.lastName + ' ' + userProfile.country?.emoji }}
-                            </p>
-                        </a>
-                        <!-- Speciality Title -->
-                        <h5 class=" title">
-                            {{ userProfile.speciality1?.itemName + ' ' + 'Coach' }}
-                        </h5>
-                        <!-- Coach Tags -->
-                        <span *ngFor="let tag of this.userProfile.goalTags" class=" badge badge-success mr-2">
+                    <i class="fab fa-youtube"></i>
+                  </div>
+                </div>
+                <!-- Name -->
+                <p class=" description">
+                  {{ userProfile.firstName + ' ' + userProfile.lastName + ' ' + userProfile.country?.emoji }}
+                </p>
+              </a>
+              <!-- Speciality Title -->
+              <h5 class=" title">
+                {{ userProfile.speciality1?.itemName + ' ' + 'Coach' }}
+              </h5>
+              <!-- Coach Tags -->
+              <span *ngFor="let tag of this.userProfile.goalTags" class=" badge badge-success mr-2">
                             {{ tag.value }}
                         </span>
-                        </div>
-                        <!-- Qualification Tags -->
-                        <div class=" text-center">
-                            <span *ngIf="this.userProfile.qualBa" class=" badge badge-primary mr-2">BA QUALIFIED</span>
-                            <span *ngIf="this.userProfile.qualBsc" class=" badge badge-primary mr-2">BSC QUALIFIED</span>
-                            <span *ngIf="this.userProfile.qualBcomm" class=" badge badge-primary mr-2">BCOMM QUALIFIED</span>
-                            <span *ngIf="this.userProfile.qualMa" class=" badge badge-primary mr-2">MA QUALIFIED</span>
-                            <span *ngIf="this.userProfile.qualMs" class=" badge badge-primary mr-2">MS QUALIFIED</span>
-                            <span *ngIf="this.userProfile.qualMba" class=" badge badge-primary mr-2">MBA QUALIFIED</span>
-                            <span *ngIf="this.userProfile.qualMapp" class=" badge badge-primary mr-2">MAPP QUALIFIED</span>
-                            <span *ngIf="this.userProfile.qualPhd" class=" badge badge-primary mr-2">PhD QUALIFIED</span>
-                            <span *ngIf="this.userProfile.qualEia" class=" badge badge-primary mr-2">EUROPEAN MENTORING & COACHING COUNCIL - EIA ACCREDITED</span>
-                            <span *ngIf="this.userProfile.qualEqa" class=" badge badge-primary mr-2">EUROPEAN MENTORING & COACHING COUNCIL - EQA ACCREDITED</span>
-                            <span *ngIf="this.userProfile.qualEsia" class=" badge badge-primary mr-2">EUROPEAN MENTORING & COACHING COUNCIL - ESIA ACCREDITED</span>
-                            <span *ngIf="this.userProfile.qualEsqa" class=" badge badge-primary mr-2">EUROPEAN MENTORING & COACHING COUNCIL - ESQA ACCREDITED</span>
-                            <span *ngIf="this.userProfile.qualIsmcp" class=" badge badge-primary mr-2">EUROPEAN MENTORING & COACHING COUNCIL - ISMCP ACCREDITED</span>
-                            <span *ngIf="this.userProfile.qualApecs" class=" badge badge-primary mr-2">ASSOCIATION FOR PROFESSIONAL EXECUTIVE COACHING & SUPERVISION ACCREDITED</span>
-                            <span *ngIf="this.userProfile.qualEcas" class=" badge badge-primary mr-2">ASSOCIATION FOR COACHING - ECAS ACCREDITED</span>
-                            <span *ngIf="this.userProfile.qualCas" class=" badge badge-primary mr-2">ASSOCIATION FOR COACHING - CAS ACCREDITED</span>
-                            <span *ngIf="this.userProfile.qualCsa" class=" badge badge-primary mr-2">ASSOCIATION FOR COACHING - CSA ACCREDITED</span>
-                            <span *ngIf="this.userProfile.qualSa" class=" badge badge-primary mr-2">ASSOCIATION FOR COACHING - SA ACCREDITED</span>
-                            <span *ngIf="this.userProfile.qualAcc" class=" badge badge-primary mr-2">INTERNATIONAL COACHING FEDERATION - ACC ACCREDITED</span>
-                            <span *ngIf="this.userProfile.qualPcc" class=" badge badge-primary mr-2">INTERNATIONAL COACHING FEDERATION - PCC ACCREDITED</span>
-                            <span *ngIf="this.userProfile.qualMcc" class=" badge badge-primary mr-2">INTERNATIONAL COACHING FEDERATION - MCC ACCREDITED</span>
-                        </div>
-                        <!-- Short Summary -->
-                        <div class=" card-description text-center ml-5 mr-5">
-                        {{ this.userProfile.proSummary }}
-                        </div>
-                    </div>
-                </div>
             </div>
-            <!-- End of profile card -->
-
-            <!-- Profile Video Card - Browser only -->
-            <div *ngIf="browser && userProfile && userProfile.selectedProfileVideo && userProfile.selectedProfileVideo !== '-1'">
-                <div class=" col-md-12">
-                    <h4 class=" card-title"> Meet {{ userProfile.firstName }} </h4>
-                </div>
-                <div class=" card">
-                    <div class=" card-body">
-                        <vg-player>
-                            <vg-controls>
-                                <vg-play-pause></vg-play-pause>
-                                <vg-playback-button></vg-playback-button>
-                          
-                                <vg-time-display vgProperty="current" vgFormat="mm:ss"></vg-time-display>
-                          
-                                <vg-scrub-bar>
-                                    <vg-scrub-bar-current-time></vg-scrub-bar-current-time>
-                                    <vg-scrub-bar-buffering-time></vg-scrub-bar-buffering-time>
-                                </vg-scrub-bar>
-                          
-                                <vg-time-display vgProperty="total" vgFormat="mm:ss"></vg-time-display>
-                          
-                                <vg-mute></vg-mute>
-                                <vg-volume></vg-volume>
-                          
-                                <vg-fullscreen></vg-fullscreen>
-                            </vg-controls>
-                          
-                            <video #media [vgMedia]="media" id="singleVideo" preload="auto" style="max-height: 90vh;">
-                                <source [src]="userProfile.selectedProfileVideo">
-                            </video>
-                        </vg-player>
-                    </div>
-                </div>
+            <!-- Qualification Tags -->
+            <div class=" text-center">
+              <span *ngIf="this.userProfile.qualBa" class=" badge badge-primary mr-2">BA QUALIFIED</span>
+              <span *ngIf="this.userProfile.qualBsc" class=" badge badge-primary mr-2">BSC QUALIFIED</span>
+              <span *ngIf="this.userProfile.qualBcomm" class=" badge badge-primary mr-2">BCOMM QUALIFIED</span>
+              <span *ngIf="this.userProfile.qualMa" class=" badge badge-primary mr-2">MA QUALIFIED</span>
+              <span *ngIf="this.userProfile.qualMs" class=" badge badge-primary mr-2">MS QUALIFIED</span>
+              <span *ngIf="this.userProfile.qualMba" class=" badge badge-primary mr-2">MBA QUALIFIED</span>
+              <span *ngIf="this.userProfile.qualMapp" class=" badge badge-primary mr-2">MAPP QUALIFIED</span>
+              <span *ngIf="this.userProfile.qualPhd" class=" badge badge-primary mr-2">PhD QUALIFIED</span>
+              <span *ngIf="this.userProfile.qualEia" class=" badge badge-primary mr-2">EUROPEAN MENTORING & COACHING COUNCIL - EIA ACCREDITED</span>
+              <span *ngIf="this.userProfile.qualEqa" class=" badge badge-primary mr-2">EUROPEAN MENTORING & COACHING COUNCIL - EQA ACCREDITED</span>
+              <span *ngIf="this.userProfile.qualEsia" class=" badge badge-primary mr-2">EUROPEAN MENTORING & COACHING COUNCIL - ESIA ACCREDITED</span>
+              <span *ngIf="this.userProfile.qualEsqa" class=" badge badge-primary mr-2">EUROPEAN MENTORING & COACHING COUNCIL - ESQA ACCREDITED</span>
+              <span *ngIf="this.userProfile.qualIsmcp" class=" badge badge-primary mr-2">EUROPEAN MENTORING & COACHING COUNCIL - ISMCP ACCREDITED</span>
+              <span *ngIf="this.userProfile.qualApecs" class=" badge badge-primary mr-2">ASSOCIATION FOR PROFESSIONAL EXECUTIVE COACHING & SUPERVISION ACCREDITED</span>
+              <span *ngIf="this.userProfile.qualEcas" class=" badge badge-primary mr-2">ASSOCIATION FOR COACHING - ECAS ACCREDITED</span>
+              <span *ngIf="this.userProfile.qualCas" class=" badge badge-primary mr-2">ASSOCIATION FOR COACHING - CAS ACCREDITED</span>
+              <span *ngIf="this.userProfile.qualCsa" class=" badge badge-primary mr-2">ASSOCIATION FOR COACHING - CSA ACCREDITED</span>
+              <span *ngIf="this.userProfile.qualSa" class=" badge badge-primary mr-2">ASSOCIATION FOR COACHING - SA ACCREDITED</span>
+              <span *ngIf="this.userProfile.qualAcc" class=" badge badge-primary mr-2">INTERNATIONAL COACHING FEDERATION - ACC ACCREDITED</span>
+              <span *ngIf="this.userProfile.qualPcc" class=" badge badge-primary mr-2">INTERNATIONAL COACHING FEDERATION - PCC ACCREDITED</span>
+              <span *ngIf="this.userProfile.qualMcc" class=" badge badge-primary mr-2">INTERNATIONAL COACHING FEDERATION - MCC ACCREDITED</span>
             </div>
-
-            <!-- When Profile Loaded & Full Description Saved - Display Profile Detail -->
-            <div *ngIf="userProfile && userProfile.fullDescription">
-                <div class=" col-md-12">
-                    <h4 class=" card-title"> About {{ userProfile.firstName }} </h4>
-                    <div class=" card">
-                        <div class=" card-body">
-                            <!-- Full Description -->
-                            <div 
-                            class=" card-description ml-5 mr-5"
-                            [innerHTML]="userProfile.fullDescription"
-                            ></div>
-                        </div>
-                    </div>
-                </div>
+            <!-- Short Summary -->
+            <div class=" card-description text-center ml-5 mr-5">
+              {{ this.userProfile.proSummary }}
             </div>
-
-            <!-- Coach Services -->
-            <div *ngIf="publishedServices?.length">
-                <h4 class=" card-title"> {{ userProfile.firstName }}'s Services </h4>
-                <div class=" row mt-3">
-                    <div *ngFor="let service of publishedServices ; let i = index" class=" col-md-4">
-                        <a [routerLink]="['/coaching-service', service.id]">
-                            <div class=" card">
-
-                                <!-- Card image -->
-                                <img
-                                class="card-img-top"
-                                [src]="service.image ? service.image : 'assets/img/image_placeholder.jpg'"
-                                [alt]="service.title" />
-
-                                <!-- Card body -->
-                                <div class=" card-body">
-                                    <h4 class="card-title"> {{ service?.title }} </h4>
-                                    <h6 class="card-subtitle mb-2 text-muted"> {{ service?.subtitle }} </h6>
-                                </div>
-
-                            </div>
-                        </a>
-                        
-                    </div>
-                </div>
+            <div class=" col-md-12 mt-1">
+              <div class=" pull-right">
+                <button
+                  class=" btn btn-fill btn-round btn-primary mr-2 mb-2"
+                  type="button"
+                  (click)="reserveSession($event)"
+                ><i class="fas fa-phone">&nbsp;</i>
+                   <span>Get a Call</span>
+                </button>
+              </div>
             </div>
-
-            <!-- Coach Courses -->
-            <div *ngIf="userProfile && courses && courses.length">
-                <h4 class=" card-title"> {{ userProfile.firstName }}'s Courses </h4>
-                <div class=" results-container">
-                    <div class=" row">
-                        <div *ngFor="let course of courses" class=" col-md-3">
-                            <app-course-card
-                            [course]="course">
-                            </app-course-card>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Map Card -->
-            <div *ngIf="userProfile" class=" col-md-12">
-                <h4 class=" card-title"> {{ userProfile.firstName }}'s Home City </h4>
-            </div>
-            <div class=" card">
-                <div class=" card-body">
-                    <div class=" map" id="coachCityMap"></div>
-                    <div *ngIf="userProfile" class=" mt-4">
-                        <div class=" pull-left">
-                            <p class=" text-muted text-center">
-                                <i class=" tim-icons icon-square-pin"></i> {{ userProfile.city }}
-                            </p>
-                        </div>
-                        <div class=" pull-right">
-                            <p class=" text-muted text-center">
-                                <i class=" tim-icons icon-world"></i> {{ userProfile.country?.name + ' ' + userProfile.country?.emoji }}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- When Profile Loaded && Email Saved - Display Contact Coach -->
-            <div *ngIf="userProfile && userProfile.email">
-                <h4 class=" card-title"> Contact {{ userProfile.firstName }} </h4>
-                <div class=" card">
-                    <div class=" card-body">
-                        <div class=" row justify-content-center">
-                            <div class=" col-md-10">
-                                <!-- Contact component -->
-                                <app-coach-contact [coachUid]="userId"></app-coach-contact>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Social/Channels Card -->
-            <div *ngIf="userProfile" class=" card card-plain">
-                <div class=" card-body">
-                    <!-- Social Buttons -->
-                    <div class=" button-container text-center">
-                        <button
-                            *ngIf="this.userProfile.facebook"
-                            class=" btn btn-icon btn-round btn-facebook mr-1"
-                        >
-                            <a
-                            [href]="this.userProfile.facebook"
-                            target="_blank">
-                            <i class=" fab fa-facebook"> </i>
-                            </a>
-                        </button>
-                        <button
-                            *ngIf="this.userProfile.twitter"
-                            class=" btn btn-icon btn-round btn-twitter mr-1"
-                        >
-                            <a
-                            [href]="this.userProfile.twitter"
-                            target="_blank">
-                            <i class=" fab fa-twitter"> </i>
-                            </a>
-                        </button>
-                        <button
-                            *ngIf="this.userProfile.linkedin"
-                            class=" btn btn-icon btn-round btn-linkedin mr-1"
-                        >
-                            <a
-                            [href]="this.userProfile.linkedin"
-                            target="_blank">
-                            <i class=" fab fa-linkedin"> </i>
-                            </a>
-                        </button>
-                        <button
-                            *ngIf="this.userProfile.youtube"
-                            class=" btn btn-icon btn-round btn-youtube mr-1"
-                        >
-                            <a
-                            [href]="this.userProfile.youtube"
-                            target="_blank">
-                            <i class=" fab fa-youtube"> </i>
-                            </a>
-                        </button>
-                        <button
-                        *ngIf="this.userProfile.instagram"
-                        class=" btn btn-icon btn-round btn-instagram mr-1"
-                        >
-                        <a
-                        [href]="this.userProfile.instagram"
-                        target="_blank">
-                            <i class=" fab fa-instagram"> </i>
-                        </a>
-                        </button>
-                        <button
-                        *ngIf="this.userProfile.website"
-                        class=" btn btn-icon btn-round btn-website mr-1"
-                        >
-                        <a
-                        [href]="this.userProfile.website"
-                        target="_blank">
-                            <i class=" fas fa-laptop"> </i>
-                        </a>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
+          </div>
         </div>
+      </div>
+      <!-- End of profile card -->
+
+      <!-- Profile Video Card - Browser only -->
+      <div *ngIf="browser && userProfile && userProfile.selectedProfileVideo && userProfile.selectedProfileVideo !== '-1'">
+        <div class=" col-md-12">
+          <h4 class=" card-title"> Meet {{ userProfile.firstName }} </h4>
+        </div>
+        <div class=" card">
+          <div class=" card-body">
+            <vg-player>
+              <vg-controls>
+                <vg-play-pause></vg-play-pause>
+                <vg-playback-button></vg-playback-button>
+
+                <vg-time-display vgProperty="current" vgFormat="mm:ss"></vg-time-display>
+
+                <vg-scrub-bar>
+                  <vg-scrub-bar-current-time></vg-scrub-bar-current-time>
+                  <vg-scrub-bar-buffering-time></vg-scrub-bar-buffering-time>
+                </vg-scrub-bar>
+
+                <vg-time-display vgProperty="total" vgFormat="mm:ss"></vg-time-display>
+
+                <vg-mute></vg-mute>
+                <vg-volume></vg-volume>
+
+                <vg-fullscreen></vg-fullscreen>
+              </vg-controls>
+
+              <video #media [vgMedia]="media" id="singleVideo" preload="auto" style="max-height: 90vh;">
+                <source [src]="userProfile.selectedProfileVideo">
+              </video>
+            </vg-player>
+          </div>
+        </div>
+      </div>
+
+      <!-- When Profile Loaded & Full Description Saved - Display Profile Detail -->
+      <div *ngIf="userProfile && userProfile.fullDescription">
+        <div class=" col-md-12">
+          <h4 class=" card-title"> About {{ userProfile.firstName }} </h4>
+          <div class=" card">
+            <div class=" card-body">
+              <!-- Full Description -->
+              <div
+                class=" card-description ml-5 mr-5"
+                [innerHTML]="userProfile.fullDescription"
+              ></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Coach Services -->
+      <div *ngIf="publishedServices?.length">
+        <h4 class=" card-title"> {{ userProfile.firstName }}'s Services </h4>
+        <div class=" row mt-3">
+          <div *ngFor="let service of publishedServices ; let i = index" class=" col-md-4">
+            <a [routerLink]="['/coaching-service', service.id]">
+              <div class=" card">
+
+                <!-- Card image -->
+                <img
+                  class="card-img-top"
+                  [src]="service.image ? service.image : 'assets/img/image_placeholder.jpg'"
+                  [alt]="service.title" />
+
+                <!-- Card body -->
+                <div class=" card-body">
+                  <h4 class="card-title"> {{ service?.title }} </h4>
+                  <h6 class="card-subtitle mb-2 text-muted"> {{ service?.subtitle }} </h6>
+                </div>
+
+              </div>
+            </a>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Coach Courses -->
+      <div *ngIf="userProfile && courses && courses.length">
+        <h4 class=" card-title"> {{ userProfile.firstName }}'s Courses </h4>
+        <div class=" results-container">
+          <div class=" row">
+            <div *ngFor="let course of courses" class=" col-md-3">
+              <app-course-card
+                [course]="course">
+              </app-course-card>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Map Card -->
+      <div *ngIf="userProfile" class=" col-md-12">
+        <h4 class=" card-title"> {{ userProfile.firstName }}'s Home City </h4>
+      </div>
+      <div class=" card">
+        <div class=" card-body">
+          <div class=" map" id="coachCityMap"></div>
+          <div *ngIf="userProfile" class=" mt-4">
+            <div class=" pull-left">
+              <p class=" text-muted text-center">
+                <i class=" tim-icons icon-square-pin"></i> {{ userProfile.city }}
+              </p>
+            </div>
+            <div class=" pull-right">
+              <p class=" text-muted text-center">
+                <i class=" tim-icons icon-world"></i> {{ userProfile.country?.name + ' ' + userProfile.country?.emoji }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- When Profile Loaded && Email Saved - Display Contact Coach -->
+      <div *ngIf="userProfile && userProfile.email">
+        <h4 class=" card-title"> Contact {{ userProfile.firstName }} </h4>
+        <div class=" card">
+          <div class=" card-body">
+            <div class=" row justify-content-center">
+              <div class=" col-md-10">
+                <!-- Contact component -->
+                <app-coach-contact [coachUid]="userId"></app-coach-contact>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Social/Channels Card -->
+      <div *ngIf="userProfile" class=" card card-plain">
+        <div class=" card-body">
+          <!-- Social Buttons -->
+          <div class=" button-container text-center">
+            <button
+              *ngIf="this.userProfile.facebook"
+              class=" btn btn-icon btn-round btn-facebook mr-1"
+            >
+              <a
+                [href]="this.userProfile.facebook"
+                target="_blank">
+                <i class=" fab fa-facebook"> </i>
+              </a>
+            </button>
+            <button
+              *ngIf="this.userProfile.twitter"
+              class=" btn btn-icon btn-round btn-twitter mr-1"
+            >
+              <a
+                [href]="this.userProfile.twitter"
+                target="_blank">
+                <i class=" fab fa-twitter"> </i>
+              </a>
+            </button>
+            <button
+              *ngIf="this.userProfile.linkedin"
+              class=" btn btn-icon btn-round btn-linkedin mr-1"
+            >
+              <a
+                [href]="this.userProfile.linkedin"
+                target="_blank">
+                <i class=" fab fa-linkedin"> </i>
+              </a>
+            </button>
+            <button
+              *ngIf="this.userProfile.youtube"
+              class=" btn btn-icon btn-round btn-youtube mr-1"
+            >
+              <a
+                [href]="this.userProfile.youtube"
+                target="_blank">
+                <i class=" fab fa-youtube"> </i>
+              </a>
+            </button>
+            <button
+              *ngIf="this.userProfile.instagram"
+              class=" btn btn-icon btn-round btn-instagram mr-1"
+            >
+              <a
+                [href]="this.userProfile.instagram"
+                target="_blank">
+                <i class=" fab fa-instagram"> </i>
+              </a>
+            </button>
+            <button
+              *ngIf="this.userProfile.website"
+              class=" btn btn-icon btn-round btn-website mr-1"
+            >
+              <a
+                [href]="this.userProfile.website"
+                target="_blank">
+                <i class=" fas fa-laptop"> </i>
+              </a>
+            </button>
+          </div>
+        </div>
+      </div>
+
     </div>
+  </div>
 </div>

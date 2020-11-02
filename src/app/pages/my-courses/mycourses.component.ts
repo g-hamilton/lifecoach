@@ -50,6 +50,7 @@ export class MyCoursesComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.authService.getAuthUser().subscribe(async user => {
         if (user) {
+          console.log('THIS IS USER', user);
           this.userId = user.uid;
           const token = await user.getIdTokenResult(true);
           console.log('Claims:', token.claims);

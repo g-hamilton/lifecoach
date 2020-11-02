@@ -3,7 +3,7 @@ import { CloudFunctionsService } from 'app/services/cloud-functions.service';
 import { AlertService } from 'app/services/alert.service';
 import { isPlatformBrowser } from '@angular/common';
 import { DataService } from 'app/services/data.service';
-import { AdminCourseReviewRequest } from 'app/interfaces/admin.course.review';
+import { AdminCourseReviewRequest } from 'app/interfaces/adminCourseReviewRequest';
 import { Subscription } from 'rxjs';
 
 @Component({

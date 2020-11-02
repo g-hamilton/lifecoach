@@ -146,7 +146,7 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
   loadActiveEventFormData() {
     this.activeEventForm.patchValue({
       id: this.activeEvent.id ? this.activeEvent.id : null,
-      start: this.activeEvent.start ? this.activeEvent.start : new Date(),
+      start: this.activeEvent.start ? this.activeEvent.start : null,
       end: this.activeEvent.end ? this.activeEvent.end : null,
       // title: this.activeEvent.start.toLocaleTimeString() + ' - ' + (this.activeEvent.end.toLocaleTimeString() || ' '),
       draggable: false,
@@ -177,15 +177,17 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
   toTimeStampFromStr(strDate: string): number {
     return Date.parse(strDate) / 1000;
   }
-  fillEndTimes(event: any) {
-    console.log('Event', event);
+  fillEndTimes(event: any, dontPop?: boolean ) {
+    console.log('Event', event.date);
     let date: Date;
     if (event.date !== undefined && event.date.status === undefined) {
       date = event.date instanceof Date ? new Date(event.date) : new Date(this.toTimeStampFromStr(event.target.value) * 1000);
     } else {
-      date = event.date.value;
+      date = new Date(event.date.value);
     }
     let newTime: Date = date;
+    console.group('test');
+    console.log('EndTimes before cleaning', this.endTimes);
     this.endTimes = [];
     while (newTime.getDate() === date.getDate()) {
       console.log('Date: ', date.getDate(), 'NewTime: ', newTime.getDate());
@@ -194,9 +196,12 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
       newTime = new Date(newTime.setMinutes(newTime.getMinutes() + this.breakDuration));
     }
     this.endTimes.pop();
+    console.log('After Pop', this.endTimes);
     this.activeEventForm.patchValue({
       end: this.endTimes[0]
     });
+    console.log('In the End', this.endTimes);
+    console.groupEnd();
   }
   createEvent(date: Date) {
     // console.log('Create event', date);
@@ -224,23 +229,54 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onEventDetailModalClose() {
     this.eventDetailModal.hide();
+    this.activeEventForm.patchValue({
+      id: null,
+      start: null,
+      end: null,
+      // title: this.activeEvent.start.toLocaleTimeString() + ' - ' + (this.activeEvent.end.toLocaleTimeString() || ' '),
+      draggable: false,
+      cssClass:  null,
+      description: null
+    });
     this.activeEvent = null;
   }
 
   onEditEventModalClose() {
     this.editEventModal.hide();
     this.activeEvent = null;
+    this.activeEventForm.patchValue({
+      id: null,
+      start: null,
+      end: null,
+      // title: this.activeEvent.start.toLocaleTimeString() + ' - ' + (this.activeEvent.end.toLocaleTimeString() || ' '),
+      draggable: false,
+      cssClass:  null,
+      description: null
+    });
+    this.activeEvent = null;
   }
 
   onEditEvent() {
     this.eventDetailModal.hide();
-    console.log('TESTESTEST', this.activeEventF);
+
+    // this.activeEvent = null;
+    console.log('TEST, TEST, TEST', this.activeEventF);
     this.startTimes = [];
     this.endTimes = [];
     this.loadActiveEventFormData();
     this.fillStartTimes({date: this.activeEventF.start});
-    this.fillEndTimes({ date: this.activeEventF.start});
+    this.fillEndTimes({ date: this.activeEventF.start}, true);
+
     this.editEventModal.show();
+    // this.activeEventForm.patchValue({
+    //   id: null,
+    //   start: null,
+    //   end: null,
+    //   // title: this.activeEvent.start.toLocaleTimeString() + ' - ' + (this.activeEvent.end.toLocaleTimeString() || ' '),
+    //   draggable: false,
+    //   cssClass:  null,
+    //   description: null
+    // });
   }
 
   onDetailDeleteEvent() {
@@ -294,24 +330,22 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     console.log(thisDayEvents);
     let error = false;
     if (thisDayEvents.length) {
-      for(let i = 0; i < thisDayEvents.length; i++) {
+      for (let i = 0; i < thisDayEvents.length; i++) {
         if ((this.toTimeStampFromStr(ev.start) <= this.toTimeStampFromStr(thisDayEvents[i].end.toString())
           && (this.toTimeStampFromStr(ev.start) >= this.toTimeStampFromStr(thisDayEvents[i].start.toString())))
           || (this.toTimeStampFromStr(ev.end) >= this.toTimeStampFromStr(thisDayEvents[i].start.toString()))
-          && (this.toTimeStampFromStr(ev.end) <= this.toTimeStampFromStr(thisDayEvents[i].end.toString()))){
+          && (this.toTimeStampFromStr(ev.end) <= this.toTimeStampFromStr(thisDayEvents[i].end.toString()))) {
           error = true;
         }
 
       }
     }
     if (error) {
-      //TODO: It will be better to do a Modal with warning;
+      // TODO: It will be better to do a Modal with warning;
       alert('Choose other date!');
       return;
     }
-    ev.title = ev.start.toLocaleTimeString()
-      + ' - '
-      + ev.end.toLocaleTimeString();
+    ev.title = `${ev.start.toLocaleTimeString()} - ${ev.end.toLocaleTimeString()}`;
 
     console.log(ev);
     // save the event

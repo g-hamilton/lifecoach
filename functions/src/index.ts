@@ -493,7 +493,7 @@ exports.createAdminUser = functions
   // Reject any unauthorised user immediately.
   if (!context.auth) {
       return {error: 'You must be authorised!'}
-  }
+}
 
   // Reject if special admin password not correct
   if (data.adminPassword !== '*starDustSpaceSh1p*') {

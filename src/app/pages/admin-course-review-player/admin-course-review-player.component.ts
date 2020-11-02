@@ -5,7 +5,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { DataService } from 'app/services/data.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from 'app/services/auth.service';
-import { AdminCourseReviewRequest } from 'app/interfaces/admin.course.review';
+import { AdminCourseReviewRequest } from 'app/interfaces/adminCourseReviewRequest';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { VgAPI } from 'videogular2/compiled/core';
 import { CoachingCourse, CoachingCourseLecture } from 'app/interfaces/course.interface';

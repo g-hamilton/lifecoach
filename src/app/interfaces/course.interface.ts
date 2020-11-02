@@ -1,4 +1,4 @@
-import { AdminCourseReviewRequest } from './admin.course.review';
+import { AdminCourseReviewRequest } from './adminCourseReviewRequest';
 
 export interface CoachingCourse {
     courseId: string;
