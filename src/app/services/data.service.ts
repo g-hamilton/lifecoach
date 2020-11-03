@@ -558,22 +558,39 @@ export class DataService {
   // ================================================================================
   // =====                          CALENDAR EVENTS                            ======
   // ================================================================================
+  dateToKeyHelper(date: Date) {
+    const temp = new Date(date);
+    const today = temp.getDay();
+    temp.setHours(0, 0, 0, 0);
+    const startOfWeek = new Date(temp.getTime() - 86400000 * today);
+    const endOfWeek = new Date(temp.getTime() + 86400000 * (6 - today));
+    return `${startOfWeek.getFullYear()}-${startOfWeek.getMonth()}-${startOfWeek.getDate()}-${endOfWeek.getFullYear()}-${endOfWeek.getMonth()}-${endOfWeek.getDate()}`;
+  }
 
-  async saveUserCalendarEvent(uid: string, event: CustomCalendarEvent) {
-    return this.db.collection(`users/${uid}/calendar`)
-      .doc(event.id.toString())
+
+  async saveUserCalendarEvent(uid: string, date: Date, event: CustomCalendarEvent) {
+    const key = this.dateToKeyHelper(date);
+    console.log(uid, date, key);
+    return this.db.collection(`users/${uid}/calendar/${uid}/${key}`)
+      .doc(event.start.getTime().toString())
       .set(event)
       .catch(err => console.error(err));
   }
-
-  getUserCalendarEvents(uid: string) {
-    return this.db.collection(`users/${uid}/calendar`)
+  //
+  // getUserCalendarEvents(uid: string) {
+  //   return this.db.collection(`users/${uid}/calendar/${uid}/2020-10-1/`)
+  //     .valueChanges({idField: 'id'}) as Observable<CustomCalendarEvent[]>;
+  // }
+  getUserCalendarEvents(uid: string, date: Date) {
+    const key = this.dateToKeyHelper(date);
+    return this.db.collection(`users/${uid}/calendar/${uid}/${key}`)
       .valueChanges({idField: 'id'}) as Observable<CustomCalendarEvent[]>;
   }
-
-  async deleteUserCalendarEvent(uid: string, eventId: string) {
-    return this.db.collection(`users/${uid}/calendar`)
-      .doc(eventId)
+  //
+  async deleteUserCalendarEvent(uid: string, date: Date) {
+    const key = this.dateToKeyHelper(date);
+    return this.db.collection(`users/${uid}/calendar/${uid}/${key}`)
+      .doc(date.getTime().toString())
       .delete()
       .catch(err => console.error(err));
   }

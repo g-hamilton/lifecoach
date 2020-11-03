@@ -21,19 +21,8 @@
   <component name="ChangeListManager">
     <list default="true" id="7ebcc4a3-7d7e-452c-a77b-a75b7b756e4d" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/functions/src/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/functions/src/index.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app/components/calendar/calendar.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/components/calendar/calendar.component.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/interfaces/admin.course.review.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/interfaces/adminCourseReviewRequest.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/interfaces/course.interface.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/interfaces/course.interface.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/pages/account/account.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/pages/account/account.component.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/pages/account/account.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/pages/account/account.component.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/pages/admin-course-review-player/admin-course-review-player.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/pages/admin-course-review-player/admin-course-review-player.component.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/pages/admin-course-reviews/admin-course-reviews.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/pages/admin-course-reviews/admin-course-reviews.component.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/pages/coach/coach.component.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/pages/coach/coach.component.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app/pages/coach/coach.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/pages/coach/coach.component.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/pages/my-courses/mycourses.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/pages/my-courses/mycourses.component.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/pages/register/register.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/pages/register/register.component.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/services/cloud-functions.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/services/cloud-functions.service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app/services/data.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/services/data.service.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -119,7 +108,7 @@
       <workItem from="1603900337747" duration="328000" />
       <workItem from="1603900698737" duration="492000" />
       <workItem from="1604304023640" duration="5953000" />
-      <workItem from="1604312900122" duration="9716000" />
+      <workItem from="1604312900122" duration="16213000" />
     </task>
     <servers />
   </component>

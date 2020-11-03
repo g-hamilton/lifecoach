@@ -209,7 +209,7 @@ export class CoachComponent implements OnInit, OnDestroy {
     body.classList.remove('coach-page');
   }
 
-	reserveSession($event: any) {
-		console.log('alalalal');
-	}
+  reserveSession($event: any) {
+
+  }
 }

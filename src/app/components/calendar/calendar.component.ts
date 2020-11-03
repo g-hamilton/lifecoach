@@ -58,6 +58,7 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loadUserData();
     this.endTimes = [];
     this.startTimes = [];
+    console.log('View', this.viewDate);
   }
 
   ngAfterViewInit() {
@@ -119,7 +120,7 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
             )
           );
           this.subscriptions.add(
-            this.dataService.getUserCalendarEvents(this.userId).subscribe(events => {
+            this.dataService.getUserCalendarEvents(this.userId, this.viewDate).subscribe(events => {
               if (events) {
                 // important: update date objects as Firebase stores dates as unix string: 't {seconds: 0, nanoseconds: 0}'
                 events.forEach((ev: any) => {
@@ -300,7 +301,7 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     // TODO could send notification emails / notifications now
 
     // delete the event
-    await this.dataService.deleteUserCalendarEvent(this.userId, this.activeEvent.id.toString());
+    await this.dataService.deleteUserCalendarEvent(this.userId, this.activeEvent.start);
 
     // dismiss the modal
     this.cancelEventModal.hide();
@@ -313,6 +314,33 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     return (a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDay() === b.getDay());
   }
 
+  divideEventOnSessions(ob: CustomCalendarEvent): Array<CustomCalendarEvent> {
+    const result: Array<CustomCalendarEvent> = [];
+    const startTime = ob.start.getTime();
+    const endTime = ob.end.getTime();
+    console.log(ob.start, ob.end);
+    if (endTime - startTime !== this.sessionDuration * 60000 + this.breakDuration * 60000) {
+      let expireTime: number = startTime;
+      console.log('Was divided');
+      while (expireTime < endTime) {
+        const ev = {
+          ...ob,
+          title: `${new Date(expireTime).toLocaleTimeString()} - ${new Date(expireTime + this.sessionDuration * 60000).toLocaleTimeString()}`,
+          start: new Date(expireTime),
+          end: new Date(expireTime + this.sessionDuration * 60000),
+          id: Math.random().toString(36).substr(2, 9)
+        };
+        result.push(ev);
+        expireTime += this.sessionDuration * 60000 + this.breakDuration * 60000;
+      }
+    } else {
+      result.push({
+        ...ob,
+        title: `${ob.start.toLocaleTimeString()} - ${ob.end.toLocaleTimeString()}`
+      });
+    }
+    return result;
+  }
   onUpdateEvent() {
     this.savingEvent = true;
     // if the event has no id, create one id now
@@ -321,9 +349,11 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     console.log(this.activeEventF);
+    console.log('Events', this.events);
 
     const ev = this.activeEventForm.value;
-    const thisDayEvents = this.events.length ?
+
+    const thisDayEvents = this.events !== undefined ?
       this.events
         .filter( item => this.isTheSameDay(item.start, ev.start))
         : undefined;
@@ -345,15 +375,18 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
       alert('Choose other date!');
       return;
     }
-    ev.title = `${ev.start.toLocaleTimeString()} - ${ev.end.toLocaleTimeString()}`;
-
+    // Make a divider there
+    //
+    // ev.title = `${ev.start.toLocaleTimeString()} - ${ev.end.toLocaleTimeString()}`;
+    this.divideEventOnSessions(ev)
+      .forEach(i => this.dataService.saveUserCalendarEvent(this.userId, i.start, i));
     console.log(ev);
     // save the event
     if (!this.userId) {
       alert('No user ID');
       return;
     }
-    this.dataService.saveUserCalendarEvent(this.userId, ev);
+    // this.dataService.saveUserCalendarEvent(this.userId, ev.start, ev);
 
     // dismiss the modal
     this.editEventModal.hide();
