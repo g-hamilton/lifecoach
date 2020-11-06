@@ -119,9 +119,11 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
               }
             )
           );
+
           this.subscriptions.add(
             this.dataService.getUserCalendarEvents(this.userId, this.viewDate).subscribe(events => {
               if (events) {
+                console.log('events before forEach', events);
                 // important: update date objects as Firebase stores dates as unix string: 't {seconds: 0, nanoseconds: 0}'
                 events.forEach((ev: any) => {
                   if (ev.start) {
@@ -135,10 +137,11 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.events = events;
                 this.refresh.next(); // refresh the view
 
-                console.log(this.events);
+                // console.log(this.events);
               }
             })
           );
+
         }
       })
     );
@@ -152,7 +155,9 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
       // title: this.activeEvent.start.toLocaleTimeString() + ' - ' + (this.activeEvent.end.toLocaleTimeString() || ' '),
       draggable: false,
       cssClass: this.activeEvent.cssClass ? this.activeEvent.cssClass : null,
-      description: this.activeEvent.description ? this.activeEvent.description : null
+      description: this.activeEvent.description ? this.activeEvent.description : null,
+      reserved: this.activeEvent.reserved ? this.activeEvent.reserved : false,
+      reservedById: this.activeEvent.reservedById ? this.activeEvent.reservedById : null
     });
   }
 
@@ -188,7 +193,7 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     let newTime: Date = date;
     console.group('test');
-    console.log('EndTimes before cleaning', this.endTimes);
+    // console.log('EndTimes before cleaning', this.endTimes);
     this.endTimes = [];
     while (newTime.getDate() === date.getDate()) {
       console.log('Date: ', date.getDate(), 'NewTime: ', newTime.getDate());
@@ -197,11 +202,11 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
       newTime = new Date(newTime.setMinutes(newTime.getMinutes() + this.breakDuration));
     }
     this.endTimes.pop();
-    console.log('After Pop', this.endTimes);
+    // console.log('After Pop', this.endTimes);
     this.activeEventForm.patchValue({
       end: this.endTimes[0]
     });
-    console.log('In the End', this.endTimes);
+    // console.log('In the End', this.endTimes);
     console.groupEnd();
   }
   createEvent(date: Date) {
@@ -237,7 +242,9 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
       // title: this.activeEvent.start.toLocaleTimeString() + ' - ' + (this.activeEvent.end.toLocaleTimeString() || ' '),
       draggable: false,
       cssClass:  null,
-      description: null
+      description: null,
+      reservedById: null,
+      reserved: false,
     });
     this.activeEvent = null;
   }
@@ -252,7 +259,9 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
       // title: this.activeEvent.start.toLocaleTimeString() + ' - ' + (this.activeEvent.end.toLocaleTimeString() || ' '),
       draggable: false,
       cssClass:  null,
-      description: null
+      description: null,
+      reserved: false,
+      reservedById: null,
     });
     this.activeEvent = null;
   }
@@ -314,9 +323,10 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     return (a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDay() === b.getDay());
   }
 
-  divideEventOnSessions(ob: CustomCalendarEvent): Array<CustomCalendarEvent> {
+  divideEventIntoSessions(ob: CustomCalendarEvent): Array<CustomCalendarEvent> {
+    console.log('divider', ob);
     const result: Array<CustomCalendarEvent> = [];
-    const startTime = ob.start.getTime();
+    const startTime = new Date(ob.start).getTime();
     const endTime = ob.end.getTime();
     console.log(ob.start, ob.end);
     if (endTime - startTime !== this.sessionDuration * 60000 + this.breakDuration * 60000) {
@@ -325,18 +335,26 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
       while (expireTime < endTime) {
         const ev = {
           ...ob,
-          title: `${new Date(expireTime).toLocaleTimeString()} - ${new Date(expireTime + this.sessionDuration * 60000).toLocaleTimeString()}`,
+          // title: `${new Date(expireTime).toLocaleTimeString()} - ${new Date(expireTime + this.sessionDuration * 60000).toLocaleTimeString()}`,
+          title: ob.reservedById ? 'Reserved' : 'I am free',
+          cssClass: ob.reservedById ? 'reserved' : 'not', // These classes aren't exist
           start: new Date(expireTime),
           end: new Date(expireTime + this.sessionDuration * 60000),
-          id: Math.random().toString(36).substr(2, 9)
+          id: Math.random().toString(36).substr(2, 9),
+          reserved: false,
+          reservedById: null,
         };
+        console.log(ev);
         result.push(ev);
         expireTime += this.sessionDuration * 60000 + this.breakDuration * 60000;
       }
     } else {
       result.push({
         ...ob,
-        title: `${ob.start.toLocaleTimeString()} - ${ob.end.toLocaleTimeString()}`
+        title: ob.reservedById ? 'Reserved' : 'I am free',
+        cssClass: ob.reservedById ? 'reserved' : 'not', // These classes aren't exist
+        reserved: false,
+        reservedById: null,
       });
     }
     return result;
@@ -344,6 +362,7 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
   onUpdateEvent() {
     this.savingEvent = true;
     // if the event has no id, create one id now
+
     if (!this.activeEventF.id.value) {
       this.activeEventForm.patchValue({id: Math.random().toString(36).substr(2, 9)}); // generate semi-random id
     }
@@ -352,7 +371,7 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     console.log('Events', this.events);
 
     const ev = this.activeEventForm.value;
-
+    ev.start = new Date(ev.start);
     const thisDayEvents = this.events !== undefined ?
       this.events
         .filter( item => this.isTheSameDay(item.start, ev.start))
@@ -378,7 +397,7 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     // Make a divider there
     //
     // ev.title = `${ev.start.toLocaleTimeString()} - ${ev.end.toLocaleTimeString()}`;
-    this.divideEventOnSessions(ev)
+    this.divideEventIntoSessions(ev)
       .forEach(i => this.dataService.saveUserCalendarEvent(this.userId, i.start, i));
     console.log(ev);
     // save the event
@@ -401,7 +420,8 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onChangeStartTimeHandler(event: any) {
-    console.log(event);
+    console.log('Event', event,
+      'Times changed', event.target.value );
     this.fillEndTimes({date: new Date(Date.parse(event.target.value))});
 
   }

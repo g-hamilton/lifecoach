@@ -3,6 +3,9 @@ import * as algoliasearch from 'algoliasearch';
 import { isPlatformBrowser } from '@angular/common';
 
 import { AnalyticsService } from './analytics.service';
+import {environment} from '../../environments/environment';
+
+
 
 /*
   https://www.algolia.com/doc/api-reference/api-parameters/
@@ -19,7 +22,9 @@ export class SearchService {
     @Inject(PLATFORM_ID) private platformId: object,
     private analyticsService: AnalyticsService
   ) {
-    this.searchClient = algoliasearch('PXC7SZHHT9', '73c827f1b21571be69a545f2728f087c', { protocol: 'https:' });
+    console.log(environment);
+    debugger;
+    this.searchClient = algoliasearch(environment.algoliaApplicationID, environment.apiKey, { protocol: 'https:' });
   }
 
   // ================================================================================
@@ -90,7 +95,6 @@ export class SearchService {
 
       // Run the search
       const res = await index.search(params);
-      // console.log('Algolia search hit results:', res);
       return res;
 
     } catch (err) {

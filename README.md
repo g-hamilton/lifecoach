@@ -12,6 +12,7 @@ This is the Lifecoach web application.
 * [Technical Support or Questions](#technical-support-or-questions)
 * [Licensing](#licensing)
 * [Useful Links](#useful-links)
+* [How to deploy on firebase](#how-to-deploy-on-firebase)
 
 
 ## Versions
@@ -61,3 +62,14 @@ Email: greg@lifecoach.io
 
 https://lifecoach.io
 https://demos.creative-tim.com/black-dashboard-pro-angular/#/documentation/overview
+
+## How To Deploy On Firebase
+
+   (done from windows)
+ 
+1. nvm use 10
+2. yarn build
+3. cd functions -> npm install && npm build
+4. cd ../ -> yarn build:ssr
+5. 
+

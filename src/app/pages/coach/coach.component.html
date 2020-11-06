@@ -85,7 +85,7 @@
                 <button
                   class=" btn btn-fill btn-round btn-primary mr-2 mb-2"
                   type="button"
-                  (click)="reserveSession($event)"
+                  (click)="showSessions($event)"
                 ><i class="fas fa-phone">&nbsp;</i>
                    <span>Get a Call</span>
                 </button>
@@ -293,7 +293,18 @@
           </div>
         </div>
       </div>
-
+      <div *ngIf="this.showModal">
+        <div style="position:fixed; width: 100vw;height: 100vh; top:0;left: 0;right: 0; display: flex;
+         justify-content: center; align-items: center" (click)="hideModal()">
+          <div style="width:40vw; height:40vh;background-color: tomato;">
+            <div *ngFor="let event of this.availableEvents">
+              <span style="color:black">{{event.start*1000 | date: "hh:mm:ss"}} - {{event.end*1000 | date: "hh:mm:ss"}}</span>
+              <button (click)="reserveSession($event)" [value]="event.id">Reserve this</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
+

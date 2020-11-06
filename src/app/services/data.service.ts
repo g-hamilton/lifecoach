@@ -33,6 +33,7 @@ export class DataService {
   getUserTasksTodos(uid: string) {
     return this.db.collection(`users/${uid}/tasks-todo`)
       .valueChanges() as Observable<UserTask[]>;
+
   }
 
   deleteUserTaskTodo(uid: string, taskId: string) {
@@ -569,27 +570,43 @@ export class DataService {
 
 
   async saveUserCalendarEvent(uid: string, date: Date, event: CustomCalendarEvent) {
-    const key = this.dateToKeyHelper(date);
-    console.log(uid, date, key);
-    return this.db.collection(`users/${uid}/calendar/${uid}/${key}`)
+    return this.db.collection(`users/${uid}/calendar`)
       .doc(event.start.getTime().toString())
       .set(event)
       .catch(err => console.error(err));
   }
-  //
-  // getUserCalendarEvents(uid: string) {
-  //   return this.db.collection(`users/${uid}/calendar/${uid}/2020-10-1/`)
-  //     .valueChanges({idField: 'id'}) as Observable<CustomCalendarEvent[]>;
-  // }
+
   getUserCalendarEvents(uid: string, date: Date) {
-    const key = this.dateToKeyHelper(date);
-    return this.db.collection(`users/${uid}/calendar/${uid}/${key}`)
-      .valueChanges({idField: 'id'}) as Observable<CustomCalendarEvent[]>;
+    return this.db.collection(`users/${uid}/calendar`)
+      // ref => ref.where('__name__', '>', '1604359800000')
+      //         .where('__name__', '<', '1604458500000')
+        .valueChanges() as Observable<CustomCalendarEvent[]>;
   }
   //
+  async uploadOrder(uid: string, coachId: string, id: string) {
+
+    return this.db.collection(`users/${coachId}/calendar`, ref => ref.where('id', '==', id))
+      .get().toPromise()
+      .then (querySnapshot => {
+        if (!querySnapshot.empty) {
+          // We know there is one doc in the querySnapshot
+          const queryDocumentSnapshot = querySnapshot.docs[0];
+          return queryDocumentSnapshot.ref.update({reserved: true, reservedById: uid, createdOn: new Date()})
+            .then(() => console.log('Successfull'))
+            .catch(err => console.log(err));
+        } else {
+          console.log('This event is not available');
+          return null;
+        }
+      });
+  }
+  //
+  getUserNotReservedEvents(uid: string) {
+    return this.db.collection(`users/${uid}/calendar`, ref => ref.where('reserved', '==', false))
+      .valueChanges() as Observable<CustomCalendarEvent[]>;
+  }
   async deleteUserCalendarEvent(uid: string, date: Date) {
-    const key = this.dateToKeyHelper(date);
-    return this.db.collection(`users/${uid}/calendar/${uid}/${key}`)
+    return this.db.collection(`users/${uid}/calendar`)
       .doc(date.getTime().toString())
       .delete()
       .catch(err => console.error(err));

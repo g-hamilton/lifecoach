@@ -30,7 +30,7 @@ export class AuthService {
       Firebase auth promises a user credential.
       If signup successful, attempts to set a custom claim on the user object to always identify them by type,
       either regular user or coach (business) user.
-      Refreshes the user credential client side with the newly set custum claim.
+      Refreshes the user credential client side with the newly set custom claim.
       Returns the user credential (with new claim) as a login response.
       */
       const userCred = await this.afAuth.auth.createUserWithEmailAndPassword(account.accountEmail, account.password);

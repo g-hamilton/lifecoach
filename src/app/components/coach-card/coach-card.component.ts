@@ -24,6 +24,7 @@ export class CoachCardComponent implements OnInit {
   constructor(
     private countryService: CountryService,
     private specialitiesService: CoachingSpecialitiesService
+
   ) { }
 
   ngOnInit() {

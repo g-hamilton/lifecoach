@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
+import {Component, OnInit, OnDestroy, Inject, PLATFORM_ID, ViewChild} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Title, Meta, TransferState, makeStateKey } from '@angular/platform-browser';
 import { DOCUMENT, isPlatformBrowser, isPlatformServer } from '@angular/common';
@@ -12,6 +12,10 @@ import { CoachProfile } from '../../interfaces/coach.profile.interface';
 import { CoachingCourse } from 'app/interfaces/course.interface';
 import { CoachingService } from 'app/interfaces/coaching.service.interface';
 import { Subscription } from 'rxjs';
+import {CustomCalendarEvent} from '../../interfaces/custom.calendar.event.interface';
+import {AuthService} from '../../services/auth.service';
+import {first} from 'rxjs/operators';
+import {ModalDirective} from 'ngx-bootstrap/modal';
 
 
 @Component({
@@ -21,11 +25,14 @@ import { Subscription } from 'rxjs';
 export class CoachComponent implements OnInit, OnDestroy {
 
   public browser: boolean;
-  public userId: string;
+  public coachId: string;
   public userProfile: CoachProfile;
   public courses: CoachingCourse[];
   public publishedServices: CoachingService[];
+  public availableEvents: CustomCalendarEvent[] | [];
   private subscriptions: Subscription = new Subscription();
+  private userId: string;
+  public showModal = false;
 
   constructor(
     @Inject(DOCUMENT) private document: any,
@@ -35,14 +42,15 @@ export class CoachComponent implements OnInit, OnDestroy {
     private analyticsService: AnalyticsService,
     private titleService: Title,
     private metaTagService: Meta,
-    private transferState: TransferState
+    private transferState: TransferState,
+    private authService: AuthService
   ) {
   }
 
   ngOnInit() {
     const body = this.document.getElementsByTagName('body')[0];
     body.classList.add('coach-page');
-
+    console.log(PLATFORM_ID);
     if (isPlatformBrowser(this.platformId)) {
       this.browser = true;
       this.analyticsService.pageView();
@@ -50,7 +58,7 @@ export class CoachComponent implements OnInit, OnDestroy {
 
     // Check activated route params for user ID
     this.route.params.subscribe(params => {
-      this.userId = params.uid;
+      this.coachId = params.uid;
 
       // Fetch the activated user's profile
       const PROFILE_KEY = makeStateKey<any>('profile'); // create a key for saving/retrieving profile state
@@ -59,7 +67,7 @@ export class CoachComponent implements OnInit, OnDestroy {
 
       if (profileData === null) { // if profile state data does not exist - retrieve it from the api
         this.subscriptions.add(
-          this.dataService.getPublicCoachProfile(this.userId).subscribe(publicProfile => {
+          this.dataService.getPublicCoachProfile(this.coachId).subscribe(publicProfile => {
             if (publicProfile) { // The profile is public
               this.initProfile(publicProfile);
               if (isPlatformServer(this.platformId)) {
@@ -70,7 +78,7 @@ export class CoachComponent implements OnInit, OnDestroy {
               // Not needed for SSR as this data is private.
             } else if (isPlatformBrowser(this.platformId)) {
               this.subscriptions.add(
-                this.dataService.getCoachProfile(this.userId).subscribe(profile => {
+                this.dataService.getCoachProfile(this.coachId).subscribe(profile => {
                   if (profile) {
                     this.initProfile(profile);
                   }
@@ -79,6 +87,7 @@ export class CoachComponent implements OnInit, OnDestroy {
             }
           })
         );
+
       } else { // if profile state data exists retrieve it from the state storage
         this.initProfile(profileData);
         this.transferState.remove(PROFILE_KEY);
@@ -91,7 +100,7 @@ export class CoachComponent implements OnInit, OnDestroy {
 
       if (coursesData === null) { // if courses state data does not exist - retrieve it from the api
         this.subscriptions.add(
-          this.dataService.getPublicCoursesBySeller(this.userId).subscribe(publicCourses => {
+          this.dataService.getPublicCoursesBySeller(this.coachId).subscribe(publicCourses => {
             if (publicCourses) { // The coach has at least one public course
               this.courses = publicCourses;
               if (isPlatformServer(this.platformId)) {
@@ -112,7 +121,7 @@ export class CoachComponent implements OnInit, OnDestroy {
 
       if (servicesData === null) { // if state data does not exist - retrieve it from the api
         this.subscriptions.add(
-          this.dataService.getCoachServices(this.userId).subscribe(services => {
+          this.dataService.getCoachServices(this.coachId).subscribe(services => {
             if (services) { // The coach has at least one published service
               this.publishedServices = services;
               if (isPlatformServer(this.platformId)) {
@@ -132,7 +141,7 @@ export class CoachComponent implements OnInit, OnDestroy {
   initProfile(profile) {
     if (profile) {
       this.userProfile = profile;
-
+      console.log('this is user profile', profile);
       // Build dynamic meta tags
       this.titleService.setTitle(`${this.userProfile.firstName} ${this.userProfile.lastName} |
           ${this.userProfile.speciality1.itemName} Coach`);
@@ -158,6 +167,17 @@ export class CoachComponent implements OnInit, OnDestroy {
       if (isPlatformBrowser(this.platformId)) {
         this.analyticsService.viewCoach(this.userProfile);
       }
+      this.subscriptions.add(
+        this.dataService.getUserNotReservedEvents(this.coachId).subscribe(next => {
+          console.log(next);
+          if (next) {
+            this.availableEvents = next;
+          } else {
+            this.availableEvents = [];
+          }
+        })
+      );
+      this.authService.getAuthUser().pipe(first()).subscribe(value => this.userId = value.uid);
     }
   }
 
@@ -202,6 +222,10 @@ export class CoachComponent implements OnInit, OnDestroy {
     }
   }
 
+  uploadOrder(id: string) {
+    this.dataService.uploadOrder( this.userId, this.coachId, id);
+  }
+
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
 
@@ -209,7 +233,17 @@ export class CoachComponent implements OnInit, OnDestroy {
     body.classList.remove('coach-page');
   }
 
-  reserveSession($event: any) {
+  showSessions($event: any) {
+    this.showModal = true;
+    console.log('Free events', this.availableEvents);
+  }
 
+  reserveSession($event: any) {
+    console.log($event.target.value);
+    this.uploadOrder($event.target.value);
+  }
+
+  hideModal() {
+    this.showModal = false;
   }
 }
