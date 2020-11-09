@@ -20,7 +20,8 @@ import {ModalDirective} from 'ngx-bootstrap/modal';
 
 @Component({
   selector: 'app-coach',
-  templateUrl: 'coach.component.html'
+  templateUrl: 'coach.component.html',
+  styleUrls:['./coach.component.scss']
 })
 export class CoachComponent implements OnInit, OnDestroy {
 

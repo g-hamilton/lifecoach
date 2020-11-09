@@ -583,16 +583,26 @@ export class DataService {
         .valueChanges() as Observable<CustomCalendarEvent[]>;
   }
   //
-  async uploadOrder(uid: string, coachId: string, id: string) {
 
+  //
+  async uploadOrder(uid: string, coachId: string, id: string) { // Reservation from the Client Side
     return this.db.collection(`users/${coachId}/calendar`, ref => ref.where('id', '==', id))
       .get().toPromise()
       .then (querySnapshot => {
         if (!querySnapshot.empty) {
-          // We know there is one doc in the querySnapshot
+          // We know that there is one doc in the querySnapshot
           const queryDocumentSnapshot = querySnapshot.docs[0];
           return queryDocumentSnapshot.ref.update({reserved: true, reservedById: uid, createdOn: new Date()})
-            .then(() => console.log('Successfull'))
+            .then(() => {
+              console.log('Successfull');
+              // Write this task to the temporary-reserved-tasks table
+              this.db.collection(`temporary-reserved-events`).add({
+                calendarId: id,
+                coachId,
+                timeOfReserve: Date.now()
+              }).then(docRef => console.log(docRef.id))
+                .catch( err => console.log( err ));
+            })
             .catch(err => console.log(err));
         } else {
           console.log('This event is not available');

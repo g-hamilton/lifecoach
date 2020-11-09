@@ -905,6 +905,35 @@ exports.generateCoachProfileShortUrl = functions
 });
 
 // ================================================================================
+// =====                           CALENDAR FUNCTIONS                          ======
+// ================================================================================
+
+exports.scheduledBookingDeleteFunction = functions
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .pubsub.schedule('every 15 mins')
+  .timeZone('GMT')
+  .onRun( async (context) => {
+    console.log('This will be run every 15 min, starting at 00:00 AM GMT!');
+    const nowTime = Date.now();
+    try {
+      await db.collection(`temporary-reserved-events`)
+        .where('timeOfReserve', '<', nowTime - 6000)
+        .get()
+        .then(querySnapshot => querySnapshot
+          .forEach(doc => doc.ref.update({ thatWasInCloudFunction: true})));
+      return;
+    } catch (e) {
+      console.log(e);
+    }
+
+
+  });
+
+
+
+
+
+// ================================================================================
 // =====                           STRIPE FUNCTIONS                          ======
 // ================================================================================
 
@@ -1245,7 +1274,7 @@ exports.stripeCreatePaymentIntent = functions
 exports.stripeWebhookEvent = functions
 .runWith({memory: '1GB', timeoutSeconds: 300})
 .https
-.onRequest( async (request, response) => {
+.onRequest( async (request: any, response: any): Promise<any> => {
   const sig = request.headers["stripe-signature"] as string;
 
   let event;
@@ -1383,7 +1412,7 @@ exports.stripeWebhookEvent = functions
 exports.stripeWebhookConnectedEvent = functions
 .runWith({memory: '1GB', timeoutSeconds: 300})
 .https
-.onRequest( async (request, response) => {
+.onRequest( async (request: any, response: any): Promise<any> => {
   const sig = request.headers["stripe-signature"] as string;
 
   let event;
