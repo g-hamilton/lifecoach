@@ -1,20 +1,19 @@
-import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
-import { CalendarView } from 'angular-calendar';
-import { Subject, Subscription } from 'rxjs';
-import { ModalDirective } from 'ngx-bootstrap/modal';
-import {FormBuilder, FormControl, FormGroup} from '@angular/forms';
-import { CustomCalendarEvent } from '../../interfaces/custom.calendar.event.interface';
-import { DataService } from 'app/services/data.service';
-import { AuthService } from 'app/services/auth.service';
-import * as moment from 'moment';
-import { take } from 'rxjs/operators';
+import {AfterViewInit, Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
+import {CalendarView} from 'angular-calendar';
+import {Subject, Subscription} from 'rxjs';
+import {ModalDirective} from 'ngx-bootstrap/modal';
+import {FormBuilder, FormGroup} from '@angular/forms';
+import {CustomCalendarEvent} from '../../interfaces/custom.calendar.event.interface';
+import {DataService} from 'app/services/data.service';
+import {AuthService} from 'app/services/auth.service';
+import {take} from 'rxjs/operators';
 
 declare var JitsiMeetExternalAPI: any;
 
 @Component({
   selector: 'app-calendar',
+  encapsulation: ViewEncapsulation.None,
   templateUrl: './calendar.component.html',
-  styleUrls: ['./calendar.component.scss']
 })
 
 export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -132,6 +131,7 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
                   if (ev.end) {
                     ev.end = new Date(ev.end.seconds * 1000);
                   }
+                  ev.title = ev.reserved ? 'RESERVED' : 'FREE';
                 });
 
                 this.events = events;
@@ -230,7 +230,10 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
 
   eventClicked({event}: { event: CustomCalendarEvent }): void {
     this.activeEvent = event;
+    console.log(event);
+
     this.eventDetailModal.show();
+    console.log('TEST, TEST, TEST', this.activeEventF);
   }
 
   onEventDetailModalClose() {
@@ -267,8 +270,13 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onEditEvent() {
-    this.eventDetailModal.hide();
 
+    this.eventDetailModal.hide();
+    console.log('275,', this.activeEvent);
+    if (this.activeEvent.reserved) {
+      alert(`Sorry, this event was already reserved by the user: ${this.activeEvent.reservedById}`);// TODO: Modal
+      return;
+    }
     // this.activeEvent = null;
     console.log('TEST, TEST, TEST', this.activeEventF);
     this.startTimes = [];
@@ -291,6 +299,10 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onDetailDeleteEvent() {
     this.eventDetailModal.hide();
+    if (this.activeEvent.reserved) {
+      alert(`Sorry, this event was already reserved by the user: ${this.activeEvent.reservedById}`); // TODO: Modal
+      return;
+    }
     this.cancelEventModal.show();
   }
 
@@ -306,6 +318,7 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async onDeleteEvent(notifyOther: boolean) {
+
     console.log('Cancel event. Notify other(s):', notifyOther);
     // TODO could send notification emails / notifications now
 
@@ -391,7 +404,7 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     if (error) {
       // TODO: It will be better to do a Modal with warning;
-      alert('Choose other date!');
+      alert('Choose other date!'); // TODO: Modal
       return;
     }
     // Make a divider there
@@ -402,7 +415,7 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     console.log(ev);
     // save the event
     if (!this.userId) {
-      alert('No user ID');
+      alert('No user ID'); // TODO: Modal
       return;
     }
     // this.dataService.saveUserCalendarEvent(this.userId, ev.start, ev);

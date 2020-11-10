@@ -545,3 +545,16 @@ select option {
 .bs-timepicker-field {
     width: 58px !important;
 }
+
+
+//calendar reserved styles
+.reserved{
+  span{
+    color: #e14eca!important;
+  }
+  div{
+    background: #e14eca33!important;
+    border: 1px solid #e14eca!important;
+  }
+}
+

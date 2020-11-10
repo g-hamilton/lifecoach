@@ -235,6 +235,10 @@ export class CoachComponent implements OnInit, OnDestroy {
   }
 
   showSessions($event: any) {
+    if (!this.userId) {
+      alert('You should Sign in or Sign Up to do that');
+      return;
+    }
     this.showModal = true;
     console.log('Free events', this.availableEvents);
   }

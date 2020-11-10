@@ -592,7 +592,13 @@ export class DataService {
         if (!querySnapshot.empty) {
           // We know that there is one doc in the querySnapshot
           const queryDocumentSnapshot = querySnapshot.docs[0];
-          return queryDocumentSnapshot.ref.update({reserved: true, reservedById: uid, createdOn: new Date()})
+          return queryDocumentSnapshot.ref
+            .update({
+              reserved: true,
+              reservedById: uid,
+              createdOn: new Date(),
+              cssClass: 'reserved'
+            })
             .then(() => {
               console.log('Successfull');
               // Write this task to the temporary-reserved-tasks table

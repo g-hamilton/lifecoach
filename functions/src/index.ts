@@ -916,11 +916,35 @@ exports.scheduledBookingDeleteFunction = functions
     console.log('This will be run every 15 min, starting at 00:00 AM GMT!');
     const nowTime = Date.now();
     try {
+      const toFindAndUpdate: Array<{taskId:string, coachId: string}> = [];
       await db.collection(`temporary-reserved-events`)
-        .where('timeOfReserve', '<', nowTime - 6000)
+        .where('timeOfReserve', '<', nowTime - 900000)  // 6000 ms = 1 minute (for test)
         .get()
-        .then(querySnapshot => querySnapshot
-          .forEach(doc => doc.ref.update({ thatWasInCloudFunction: true})));
+        .then(querySnapshot => {
+            querySnapshot.forEach(doc => {
+              const temp = doc.data();
+              toFindAndUpdate.push({taskId: temp.calendarId, coachId: temp.coachId});
+              doc.ref
+                .delete()
+                .catch( e => console.log(e));
+            });
+          }).then(()=>{
+            toFindAndUpdate.forEach((i): void => {
+              db.collection(`users/${i.coachId}/calendar`)
+               .where('__name__.id', '==', i.taskId)
+               .get()
+               .then(snapshot => {
+                 if (!snapshot.empty) {
+                   snapshot.docs[0].ref.update({reserved: false, reservedById: '', createdOn: new Date(0)})
+                     .catch(e => console.log(e));
+                 }
+               })
+         .catch(e => console.log(e));
+     })
+      });
+
+
+
       return;
     } catch (e) {
       console.log(e);

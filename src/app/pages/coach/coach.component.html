@@ -86,6 +86,7 @@
                   class=" btn btn-fill btn-round btn-primary mr-2 mb-2"
                   type="button"
                   (click)="showSessions($event)"
+                  [disabled]="!this.userId"
                 ><i class="fas fa-phone">&nbsp;</i>
                    <span>Get a Call</span>
                 </button>
