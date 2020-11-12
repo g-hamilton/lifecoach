@@ -175,7 +175,10 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     // this.createEvent(event.day.date);
   }
   onHourSegmentClicked(event: any) {
-    // console.log('clicked hour segment:', event.date);
+    if (event.date < new Date(Date.now() + 60000 * 30) ) { // 30 minutes for planning event
+      alert('You can`t pick date, which has already been'); // TODO: Modal
+      return;
+    }
     this.createEvent(event.date);
     this.fillEndTimes(event);
     this.fillStartTimes(event);

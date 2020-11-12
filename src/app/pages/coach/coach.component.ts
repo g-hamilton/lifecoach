@@ -31,9 +31,12 @@ export class CoachComponent implements OnInit, OnDestroy {
   public courses: CoachingCourse[];
   public publishedServices: CoachingService[];
   public availableEvents: CustomCalendarEvent[] | [];
+  public todayEvents: CustomCalendarEvent[] | [];
   private subscriptions: Subscription = new Subscription();
   private userId: string;
   public showModal = false;
+  public dayToSelect: Array<Date> = [];
+  public timeToSelect: Array<Date> = [];
 
   constructor(
     @Inject(DOCUMENT) private document: any,
@@ -173,13 +176,36 @@ export class CoachComponent implements OnInit, OnDestroy {
           console.log(next);
           if (next) {
             this.availableEvents = next;
-          } else {
+            this.availableEvents.forEach( i => {
+              console.log(i.start);
+              // @ts-ignore
+              const startDate = new Date(i.start.seconds * 1000);
+              console.log('Start Date = ', startDate);
+              const day = new Date(startDate.getUTCFullYear(), startDate.getUTCMonth(), startDate.getUTCDate());
+              console.log('Day', day);
+              if (!this.dayToSelect.some( (date) => this.isSameDay(date, day))) {
+                this.dayToSelect.push(day);
+              }
+              });
+            } else {
             this.availableEvents = [];
           }
+          console.log('UNIQUE DAYS:', this.dayToSelect);
         })
       );
       this.authService.getAuthUser().pipe(first()).subscribe(value => this.userId = value.uid);
     }
+  }
+
+  daySelect(event: any) {
+    console.log(event.target.value);
+    const selectedDate = new Date(event.target.value);
+    selectedDate.setDate(selectedDate.getDate() + 1);
+    // @ts-ignore
+    this.todayEvents = this.availableEvents.filter( i => this.isSameDay( new Date(i.start.seconds * 1000), selectedDate));
+  }
+  isSameDay(a: Date, b: Date) {
+    return (a.getUTCFullYear() === b.getUTCFullYear() && a.getUTCMonth() === b.getUTCMonth() && a.getUTCDate() === b.getUTCDate());
   }
 
   buildMap() {

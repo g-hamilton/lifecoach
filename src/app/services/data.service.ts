@@ -582,7 +582,14 @@ export class DataService {
       //         .where('__name__', '<', '1604458500000')
         .valueChanges() as Observable<CustomCalendarEvent[]>;
   }
-  //
+  // This is redundant and it will be reworked in a final version of app, but now we need it to control session duration changes
+  hasUserEvents(uid: string ) {
+    return this.db.collection(`users/${uid}/calendar`)
+      .get()
+      .toPromise()
+      .then(querySnapshot => querySnapshot.size > 0);
+  }
+
 
   //
   async uploadOrder(uid: string, coachId: string, id: string) { // Reservation from the Client Side

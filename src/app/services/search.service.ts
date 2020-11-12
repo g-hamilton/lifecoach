@@ -22,8 +22,6 @@ export class SearchService {
     @Inject(PLATFORM_ID) private platformId: object,
     private analyticsService: AnalyticsService
   ) {
-    console.log(environment);
-    debugger;
     this.searchClient = algoliasearch(environment.algoliaApplicationID, environment.apiKey, { protocol: 'https:' });
   }
 

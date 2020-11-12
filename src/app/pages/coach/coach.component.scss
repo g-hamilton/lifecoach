@@ -2,19 +2,29 @@
   position: fixed;
   width: 100vw;
   height: 100vh;
-  top: 0;
-  left: 0;
-  right: 0;
+  top:0;
+  left:0;
+  right:0;
   display: flex;
   justify-content: center;
-  align-items: center
+  align-items: center;
+  overflow: hidden;
+
 }
 
 .modalContent {
-  width:40vw; height:40vh;
+  width:40vw;
+  height:40vh;
   background-color: white;
   padding:30px 20px;
   border-radius: 5px;
+
+}
+.sessions{
+  width: 100%;
+  overflow: auto;
+  overflow-scrolling: touch;
+  height:30vh;
 }
 .closeButton{
   color:rgb(0,0,0);

@@ -916,9 +916,9 @@ exports.scheduledBookingDeleteFunction = functions
     console.log('This will be run every 15 min, starting at 00:00 AM GMT!');
     const nowTime = Date.now();
     try {
-      const toFindAndUpdate: Array<{taskId:string, coachId: string}> = [];
+      const toFindAndUpdate: Array<any> = [];
       await db.collection(`temporary-reserved-events`)
-        .where('timeOfReserve', '<', nowTime - 900000)  // 6000 ms = 1 minute (for test)
+        .where('timeOfReserve', '<', nowTime - 60000*15)  // 60000 ms = 1 minute (for test)
         .get()
         .then(querySnapshot => {
             querySnapshot.forEach(doc => {
@@ -928,26 +928,30 @@ exports.scheduledBookingDeleteFunction = functions
                 .delete()
                 .catch( e => console.log(e));
             });
-          }).then(()=>{
-            toFindAndUpdate.forEach((i): void => {
+          })
+        .then(()=>{
+            toFindAndUpdate.forEach((i) => {
               db.collection(`users/${i.coachId}/calendar`)
-               .where('__name__.id', '==', i.taskId)
-               .get()
-               .then(snapshot => {
+                .where('id', '==', i.taskId)
+                .get()
+                .then( snapshot =>{
                  if (!snapshot.empty) {
-                   snapshot.docs[0].ref.update({reserved: false, reservedById: '', createdOn: new Date(0)})
+                   snapshot.docs[0].ref.update({
+                     cssClass:'not',
+                     reserved: false,
+                     reservedById: '',
+                     createdOn: new Date(0)
+                   })
                      .catch(e => console.log(e));
                  }
-               })
-         .catch(e => console.log(e));
-     })
-      });
-
-
-
-      return;
+                })
+                .catch(e => console.log(e));
+              })
+            });
+      return null;
     } catch (e) {
       console.log(e);
+      return null;
     }
 
 

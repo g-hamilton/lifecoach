@@ -35,6 +35,9 @@ export class AccountComponent implements OnInit, OnDestroy {
 
   private userId: string;
 
+  // variable for checking user`s calendar events. Could be deleting in future
+  public hasUserEvents: boolean;
+
   public accountForm: FormGroup;
   public submitted = false;
   public focus: boolean;
@@ -125,6 +128,14 @@ export class AccountComponent implements OnInit, OnDestroy {
           .subscribe(user => {
             if (user) {
               this.userId = user.uid;
+              // Checking active events
+              this.dataService.hasUserEvents(this.userId)
+                .then( val => {
+                  this.hasUserEvents = val;
+                  console.log(this.hasUserEvents);
+                })
+                .catch(e => console.log(e));
+
               this.subscriptions.add(
                 this.dataService.getUserAccount(user.uid)
                   .subscribe(account => {
@@ -246,6 +257,7 @@ export class AccountComponent implements OnInit, OnDestroy {
       );
     }
     console.log(this.accountF);
+
   }
 
   buildAccountForm() {
@@ -465,6 +477,12 @@ export class AccountComponent implements OnInit, OnDestroy {
   }
 
   async onSubmit() {
+    if (this.accountSnapshot.sessionDuration !== this.accountF.sessionDuration.value
+      || this.accountSnapshot.breakDuration !== this.accountF.breakDuration.value) {
+      alert('Changed session and breaks'); // TODO: Modal
+                                            // Alert user, if they had sessions
+      return;
+    }
     console.log(this.accountForm.value);
 
     if (this.accountForm.valid) {
