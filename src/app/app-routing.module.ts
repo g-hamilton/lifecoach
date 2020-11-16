@@ -141,6 +141,14 @@ const routes: Routes = [
         loadChildren: () => import('./pages/share/share.module').then(m => m.ShareModule)
       },
       {
+        path: 'video',
+        loadChildren: () => import('./pages/video-chatroom/videochatroom.module').then(m => m.VideochatroomModule)
+      },
+      {
+        path: 'video/rooms/:roomid',
+        loadChildren: () => import('./pages/video-chatroom/videochatroom.module').then(m => m.VideochatroomModule)
+      },
+      {
         path: 'messages',
         loadChildren: () => import('./pages/chatroom/chatroom.module').then(m => m.ChatroomModule)
       },
