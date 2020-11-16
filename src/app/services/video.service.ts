@@ -3,7 +3,7 @@ import { HttpClientModule, HttpClient, HttpHeaders } from '@angular/common/http'
 import { Observable, BehaviorSubject } from 'rxjs';
 import { Observer } from 'rxjs';
 import { connect, createLocalTracks, createLocalVideoTrack } from 'twilio-video';
-
+import * as test from 'twilio-video';
 
 @Injectable({
   providedIn: 'root'
@@ -18,8 +18,9 @@ export class TwilioService {
 
   constructor(private http: HttpClient) {}
 
-  getToken(username): Observable<any> {
-    return this.http.post('url', { uid: username });
+  getToken(username): string { //  Observable<any>
+    // return this.http.post('url', { uid: username });
+    return '';
   }
 
   connectToRoom(accessToken: string, options): void {

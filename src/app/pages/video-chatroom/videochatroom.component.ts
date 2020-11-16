@@ -72,17 +72,19 @@ export class VideochatroomComponent implements OnInit, AfterViewInit {
     if (storage.token && storage.created_at + 3600000 > date) {
       this.accessToken = storage.token;
       this.twilioService.connectToRoom(this.accessToken, { name: this.roomName, audio: true, video: { width: 240 } });
+      console.log('Key exist');
       return;
     }
-    this.twilioService.getToken(this.username).subscribe(d => {
-        this.accessToken = d.token;
-        localStorage.setItem('token', JSON.stringify({
-          token: this.accessToken,
-          created_at: date
-        }));
-        this.twilioService.connectToRoom(this.accessToken, { name: this.roomName, audio: true, video: { width: 240 } });
-      },
-      error => this.log(JSON.stringify(error)));
+    // this.twilioService.getToken(this.username).subscribe(d => {
+    //     this.accessToken = d.token;
+    //     localStorage.setItem('token', JSON.stringify({
+    //       token: this.accessToken,
+    //       created_at: date
+    //     }));
+    //     this.twilioService.connectToRoom(this.accessToken, { name: this.roomName, audio: true, video: { width: 240 } });
+    //   },
+    //   error => this.log(JSON.stringify(error)));
+    this.twilioService.connectToRoom(this.accessToken, { name: this.roomName, audio: true, video: { width: 240 }});
 
   }
 
