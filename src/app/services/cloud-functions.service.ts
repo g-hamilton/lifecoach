@@ -327,6 +327,20 @@ export class CloudFunctionsService {
     });
   }
 
+  // Twilio
+  getTwilioToken(uid: string) {
+    return new Promise( resolve => {
+          const res = this.cloudFunctions.httpsCallable('getTwilioToken');
+          const tempSub = res(uid)
+            .pipe(first())
+            .subscribe(r => {
+              resolve(r);
+              tempSub.unsubscribe();
+            });
+      }
+    );
+  }
+
   // *** DANGER AREA ***
   // Only call if you know what you're doing!!
   adminTriggerAllProfilesUpdateInSequence() {

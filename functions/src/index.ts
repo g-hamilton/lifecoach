@@ -2993,3 +2993,40 @@ function specialities() {
     {id: '012', itemName: 'Productivity & Personal Organisation'}
   ];
 }
+
+// Twilio Access Token
+
+exports.getTwilioToken = functions
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
+  .onCall( async (uid: string, context?) => {
+    // const AccessToken = require('twilio').jwt.AccessToken;
+    // const VideoGrant = AccessToken.VideoGrant;
+    //
+    // // Used when generating any kind of tokens
+    // const twilioAccountSid = 'AC7cea98ce8762206b3f5af09b63e9ebbf';
+    // const twilioApiKey = 'SKxxxxxxxxxx';
+    // const twilioApiSecret = 'xxxxxxxxxxxx';
+    //
+    // const identity = 'user';
+    //
+    // // Create Video Grant
+    // const videoGrant = new VideoGrant({
+    //   room: 'cool room',
+    // });
+    //
+    // // Create an access token which we will sign and return to the client,
+    // // containing the grant we just created
+    // const token = new AccessToken(
+    //   twilioAccountSid,
+    //   twilioApiKey,
+    //   twilioApiSecret,
+    //   {identity: identity}
+    // );
+    // token.addGrant(videoGrant);
+    //
+    //
+    // // Serialize the token to a JWT string
+    // // console.log(token.toJwt());
+    return {userToken: 'c9775bfe4f0fd11c71b935dfb45f81c7'};
+  });

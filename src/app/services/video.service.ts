@@ -3,7 +3,7 @@ import { HttpClientModule, HttpClient, HttpHeaders } from '@angular/common/http'
 import { Observable, BehaviorSubject } from 'rxjs';
 import { Observer } from 'rxjs';
 import { connect, createLocalTracks, createLocalVideoTrack } from 'twilio-video';
-import * as test from 'twilio-video';
+import {CloudFunctionsService} from './cloud-functions.service';
 
 @Injectable({
   providedIn: 'root'
@@ -16,11 +16,19 @@ export class TwilioService {
   msgSubject = new BehaviorSubject('');
   roomObj: any;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private cloudFunctions: CloudFunctionsService
+  ) {}
 
-  getToken(username): string { //  Observable<any>
+  getToken(username): any { //  Observable<any>
     // return this.http.post('url', { uid: username });
-    return '';
+
+
+    return this.cloudFunctions.getTwilioToken(username);
+
+
+
   }
 
   connectToRoom(accessToken: string, options): void {

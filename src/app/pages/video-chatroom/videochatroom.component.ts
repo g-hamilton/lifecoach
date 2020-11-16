@@ -27,8 +27,8 @@ export class VideochatroomComponent implements OnInit, AfterViewInit {
 
   message: string;
   accessToken: string;
-  roomName: string;
-  username: string;
+  roomName: string | 'test' = 'test';
+  username: string | 'test' = 'test';
 
   @ViewChild('localVideo', {static: true}) localVideo: ElementRef;
   @ViewChild('remoteVideo', {static: true}) remoteVideo: ElementRef;
@@ -37,6 +37,7 @@ export class VideochatroomComponent implements OnInit, AfterViewInit {
     this.twilioService.msgSubject.subscribe(r => {
       this.message = r;
     });
+    this.twilioService.getToken('lala').then(t => this.accessToken = t.userToken);
   }
 
 
@@ -66,6 +67,7 @@ export class VideochatroomComponent implements OnInit, AfterViewInit {
   }
 
   connect(): void {
+    console.log(this.accessToken);
     const storage = JSON.parse(localStorage.getItem('token') || '{}');
     const date = Date.now();
     if (!this.roomName || !this.username) { this.message = 'enter username and room name.'; return; }
