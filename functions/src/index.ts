@@ -2995,38 +2995,46 @@ function specialities() {
 }
 
 // Twilio Access Token
-
+// exports.stripeCreateLoginLink = functions
+//   .runWith({memory: '1GB', timeoutSeconds: 300})
+//   .https
+//   .onCall( async (data, context) => {
+//
+//     const stripeUid = data.stripeUid;
+//
+//     try {
+//
+//       const res = await stripe.accounts.createLoginLink(stripeUid);
+//
+//       console.log('Stripe login link result:', JSON.stringify(res));
+//
+//       return { stripeLoginUrl: res.url } // success
+//
+//     } catch (err) {
+//       console.error(err);
+//       return { error: err }
+//     }
+//   });
 exports.getTwilioToken = functions
   .runWith({memory: '1GB', timeoutSeconds: 300})
   .https
-  .onCall( async (uid: string, context?) => {
-    // const AccessToken = require('twilio').jwt.AccessToken;
-    // const VideoGrant = AccessToken.VideoGrant;
-    //
-    // // Used when generating any kind of tokens
-    // const twilioAccountSid = 'AC7cea98ce8762206b3f5af09b63e9ebbf';
-    // const twilioApiKey = 'SKxxxxxxxxxx';
-    // const twilioApiSecret = 'xxxxxxxxxxxx';
-    //
-    // const identity = 'user';
-    //
-    // // Create Video Grant
-    // const videoGrant = new VideoGrant({
-    //   room: 'cool room',
-    // });
-    //
-    // // Create an access token which we will sign and return to the client,
-    // // containing the grant we just created
-    // const token = new AccessToken(
-    //   twilioAccountSid,
-    //   twilioApiKey,
-    //   twilioApiSecret,
-    //   {identity: identity}
-    // );
-    // token.addGrant(videoGrant);
-    //
-    //
-    // // Serialize the token to a JWT string
-    // // console.log(token.toJwt());
-    return {userToken: 'c9775bfe4f0fd11c71b935dfb45f81c7'};
+  .onCall( async (data: string, context?) => {
+
+    // @ts-ignore
+    const uid = data.uid;
+
+    try {
+
+      const res = await fetch(`https://getvideotoken-9623.twil.io/vide-token?identity=${uid}`);
+
+      // console.log('Stripe login link result:', JSON.stringify(res));
+      const json = await res.json()
+      // @ts-ignore
+      return { json } // success
+
+    } catch (err) {
+      console.error(err);
+      return { error: err }
+    }
+
   });

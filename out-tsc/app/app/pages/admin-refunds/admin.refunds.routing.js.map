@@ -1,0 +1,1 @@
+{"version":3,"file":"admin.refunds.routing.js","sourceRoot":"","sources":["../../../../../src/app/pages/admin-refunds/admin.refunds.routing.ts"],"names":[],"mappings":"AAEA,OAAO,EAAE,qBAAqB,EAAE,MAAM,2BAA2B,CAAC;AAElE,MAAM,CAAC,MAAM,kBAAkB,GAAW;IACxC;QACE,IAAI,EAAE,EAAE;QACR,QAAQ,EAAE;YACR;gBACE,IAAI,EAAE,EAAE;gBACR,SAAS,EAAE,qBAAqB;aACjC;SACF;KACF;CACF,CAAC"}

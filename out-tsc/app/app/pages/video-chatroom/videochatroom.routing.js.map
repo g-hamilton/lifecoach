@@ -1,0 +1,1 @@
+{"version":3,"file":"videochatroom.routing.js","sourceRoot":"","sources":["../../../../../src/app/pages/video-chatroom/videochatroom.routing.ts"],"names":[],"mappings":"AAEA,OAAO,EAAE,sBAAsB,EAAE,MAAM,2BAA2B,CAAC;AAEnE,MAAM,CAAC,MAAM,mBAAmB,GAAW;IACzC;QACE,IAAI,EAAE,EAAE;QACR,QAAQ,EAAE;YACR;gBACE,IAAI,EAAE,EAAE;gBACR,SAAS,EAAE,sBAAsB;aAClC;SACF;KACF;CACF,CAAC"}

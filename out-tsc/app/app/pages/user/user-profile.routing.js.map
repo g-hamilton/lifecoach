@@ -1,0 +1,1 @@
+{"version":3,"file":"user-profile.routing.js","sourceRoot":"","sources":["../../../../../src/app/pages/user/user-profile.routing.ts"],"names":[],"mappings":"AAEA,OAAO,EAAE,aAAa,EAAE,MAAM,kBAAkB,CAAC;AAEjD,MAAM,CAAC,MAAM,UAAU,GAAW;IAChC;QACE,IAAI,EAAE,EAAE;QACR,QAAQ,EAAE;YACR;gBACE,IAAI,EAAE,EAAE;gBACR,SAAS,EAAE,aAAa;aACzB;SACF;KACF;CACF,CAAC"}

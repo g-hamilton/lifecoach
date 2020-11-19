@@ -18,6 +18,7 @@ import { Observable } from 'rxjs';
 import { TwilioService } from '../../services/video.service';
 
 import * as Video from 'twilio-video';
+import {CloudFunctionsService} from "../../services/cloud-functions.service";
 @Component({
   selector: 'app-video-chatroom',
   templateUrl: 'videochatroom.component.html',
@@ -27,17 +28,22 @@ export class VideochatroomComponent implements OnInit, AfterViewInit {
 
   message: string;
   accessToken: string;
-  roomName: string | 'test' = 'test';
+  roomName = 'DailyStandup';
   username: string | 'test' = 'test';
 
   @ViewChild('localVideo', {static: true}) localVideo: ElementRef;
   @ViewChild('remoteVideo', {static: true}) remoteVideo: ElementRef;
 
-  constructor(public twilioService: TwilioService) {
+  constructor(
+    public twilioService: TwilioService,
+    public cloudService: CloudFunctionsService
+  ) {
     this.twilioService.msgSubject.subscribe(r => {
+      console.log('MessageSubject', this.message);
       this.message = r;
     });
-    this.twilioService.getToken('lala').then(t => this.accessToken = t.userToken);
+
+    // this.twilioService.getToken('lala').then(t => this.accessToken = t.userToken);
   }
 
 
@@ -52,10 +58,15 @@ export class VideochatroomComponent implements OnInit, AfterViewInit {
   }
 
   disconnect() {
-    if (this.twilioService.roomObj) {
-      this.twilioService.roomObj.disconnect();
-      this.twilioService.roomObj = null;
-    }
+    // console.log(this.twilioService.roomObj);
+    // if (this.twilioService.roomObj) {
+    //   this.twilioService.roomObj.disconnect();
+    //   this.twilioService.roomObj = null;
+    // }
+    // this.localVideo = null;
+    //
+    // console.log(this.twilioService.roomObj.track);
+    this.twilioService.disconnect();
   }
 
   ngAfterViewInit() {
@@ -71,13 +82,16 @@ export class VideochatroomComponent implements OnInit, AfterViewInit {
     const storage = JSON.parse(localStorage.getItem('token') || '{}');
     const date = Date.now();
     if (!this.roomName || !this.username) { this.message = 'enter username and room name.'; return; }
-    if (storage.token && storage.created_at + 3600000 > date) {
-      this.accessToken = storage.token;
-      this.twilioService.connectToRoom(this.accessToken, { name: this.roomName, audio: true, video: { width: 240 } });
-      console.log('Key exist');
-      return;
-    }
-    // this.twilioService.getToken(this.username).subscribe(d => {
+    // if (storage.token && storage.created_at + 3600000 > date) {
+    //   this.accessToken = storage.token;
+    //   this.twilioService.connectToRoom(this.accessToken, { name: this.roomName, audio: true, video: { width: 240 } });
+    //   console.log('Key exist');
+    //   return;
+    // }
+    // this.twilioService.getToken(this.username)
+    //   .then( d => {
+    //   console.log(d);
+    //   debugger;
     //     this.accessToken = d.token;
     //     localStorage.setItem('token', JSON.stringify({
     //       token: this.accessToken,
@@ -86,8 +100,21 @@ export class VideochatroomComponent implements OnInit, AfterViewInit {
     //     this.twilioService.connectToRoom(this.accessToken, { name: this.roomName, audio: true, video: { width: 240 } });
     //   },
     //   error => this.log(JSON.stringify(error)));
-    this.twilioService.connectToRoom(this.accessToken, { name: this.roomName, audio: true, video: { width: 240 }});
 
+    // ------- Temporary commented -------//
+    // this.cloudService.getTwilioToken(this.username).then( e => {
+    //
+    //   console.log("Token: ", e);
+    //   // @ts-ignore
+    //   this.accessToken = e.token;
+    // })
+    // .then(() => {
+    //   this.twilioService.connectToRoom(this.accessToken, { name: this.roomName, audio: true, video: { width: 240 }});
+    // })
+    //   .catch( e => console.log(e));
+
+    this.twilioService.connectToRoom(this.accessToken,
+      {name: this.roomName, audio: true, video: { width: 240 }});
   }
 
 }

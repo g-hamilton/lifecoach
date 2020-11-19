@@ -329,12 +329,15 @@ export class CloudFunctionsService {
 
   // Twilio
   getTwilioToken(uid: string) {
+    console.log('Cloud Function Service prop', uid);
     return new Promise( resolve => {
           const res = this.cloudFunctions.httpsCallable('getTwilioToken');
+          console.log('Cloud Function Service', res);
           const tempSub = res(uid)
             .pipe(first())
             .subscribe(r => {
-              resolve(r);
+              resolve(r.json);
+              console.log('Cloud Function Service', r.json);
               tempSub.unsubscribe();
             });
       }
