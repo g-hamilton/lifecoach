@@ -40,17 +40,24 @@ export class TwilioService {
           }
 
           if (this.roomObj.participants.size > 0 ) {
+           
+           
             console.log('Tut bol`sche chem 0', this.roomObj);
-            console.log(this.roomObj.participants);
-            this.roomObj.participants.forEach(participant => {
-    
-                console.log('Finded participant: ', participant);
-                participant.videoTracks.forEach(publication => {
-                  if (publication.track) {
-                    this.remoteVideo.nativeElement.appendChild(publication.track.attach());
-                  }
-                });
+            room.participants.forEach(participant => {
+              participant.tracks.forEach(publication => {
+                if (publication.track) {
+                  // this.remoteVideo.nativeElement.appendChild(publication.track.attach());
+                }
               });
+    
+              participant.on('trackSubscribed', track => {
+                console.log(track);
+                if (this.remoteVideo.nativeElement.children.length < 4) {
+                  this.remoteVideo.nativeElement.appendChild(track.attach());
+                }
+                console.log(this.remoteVideo.nativeElement.children);
+              });
+            });
             
           }
 
@@ -71,13 +78,13 @@ export class TwilioService {
               this.remoteVideo.nativeElement.appendChild(publication.track.attach());
             }
           });
-  
+
           participant.on('trackSubscribed', track => {
             this.remoteVideo.nativeElement.appendChild(track.attach());
           });
         });
           // this.remoteVideo.nativeElement.appendChild(participant)
-  
+
           // room.participants.forEach(participant => {
           //   participant.tracks.forEach(publication => {
           //     if (publication.track) {
@@ -101,6 +108,8 @@ export class TwilioService {
   }
   disconnect(): void {
     this.roomObj.disconnect();
+    this.remoteVideo.nativeElement.innerHTML = null;
+    this.localVideo.nativeElement.innerHTML = null;
    // console.log(this.roomObj.localParticipant);
    // console.log(this.roomObj.localParticipant.tracks.values());
    //
