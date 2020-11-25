@@ -64,8 +64,8 @@
                       
                             <vg-fullscreen></vg-fullscreen>
                         </vg-controls>
-                      
-                        <video #media [vgMedia]="media" id="singleVideo" preload="auto">
+
+                        <video *ngIf="browser" #media [vgMedia]="media" id="singleVideo" preload="auto">
                             <source src="https://firebasestorage.googleapis.com/v0/b/lifecoach-6ab28.appspot.com/o/platform%2FLifecoach%203.mp4_1594235284?alt=media&token=5bd8c67c-3499-4a9e-84f1-c855dd60f053">
                         </video>
                       </vg-player>

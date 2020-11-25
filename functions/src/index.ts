@@ -1245,6 +1245,7 @@ exports.stripeCreatePaymentIntent = functions
 exports.stripeWebhookEvent = functions
 .runWith({memory: '1GB', timeoutSeconds: 300})
 .https
+  // @ts-ignore
 .onRequest( async (request, response) => {
   const sig = request.headers["stripe-signature"] as string;
 
@@ -1383,6 +1384,7 @@ exports.stripeWebhookEvent = functions
 exports.stripeWebhookConnectedEvent = functions
 .runWith({memory: '1GB', timeoutSeconds: 300})
 .https
+  // @ts-ignore
 .onRequest( async (request, response) => {
   const sig = request.headers["stripe-signature"] as string;
 
