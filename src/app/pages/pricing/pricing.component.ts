@@ -11,6 +11,7 @@ import { AnalyticsService } from '../../services/analytics.service';
 })
 export class PricingComponent implements OnInit, OnDestroy {
 
+    public browser: boolean;
   constructor(
     private analyticsService: AnalyticsService,
     private titleService: Title,
@@ -28,6 +29,7 @@ export class PricingComponent implements OnInit, OnDestroy {
     // Register a page view if we're in the browser (not SSR)
     if (isPlatformBrowser(this.platformId)) {
       this.analyticsService.pageView();
+      this.browser = true;
     }
   }
 

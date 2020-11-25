@@ -493,7 +493,7 @@ exports.createAdminUser = functions
   // Reject any unauthorised user immediately.
   if (!context.auth) {
       return {error: 'You must be authorised!'}
-}
+  }
 
   // Reject if special admin password not correct
   if (data.adminPassword !== '*starDustSpaceSh1p*') {
@@ -1302,7 +1302,8 @@ exports.stripeCreatePaymentIntent = functions
 exports.stripeWebhookEvent = functions
 .runWith({memory: '1GB', timeoutSeconds: 300})
 .https
-.onRequest( async (request: any, response: any): Promise<any> => {
+  // @ts-ignore
+.onRequest( async (request, response) => {
   const sig = request.headers["stripe-signature"] as string;
 
   let event;
@@ -1440,7 +1441,8 @@ exports.stripeWebhookEvent = functions
 exports.stripeWebhookConnectedEvent = functions
 .runWith({memory: '1GB', timeoutSeconds: 300})
 .https
-.onRequest( async (request: any, response: any): Promise<any> => {
+  // @ts-ignore
+.onRequest( async (request, response) => {
   const sig = request.headers["stripe-signature"] as string;
 
   let event;
@@ -2993,50 +2995,3 @@ function specialities() {
     {id: '012', itemName: 'Productivity & Personal Organisation'}
   ];
 }
-
-// Twilio Access Token
-// exports.stripeCreateLoginLink = functions
-//   .runWith({memory: '1GB', timeoutSeconds: 300})
-//   .https
-//   .onCall( async (data, context) => {
-//
-//     const stripeUid = data.stripeUid;
-//
-//     try {
-//
-//       const res = await stripe.accounts.createLoginLink(stripeUid);
-//
-//       console.log('Stripe login link result:', JSON.stringify(res));
-//
-//       return { stripeLoginUrl: res.url } // success
-//
-//     } catch (err) {
-//       console.error(err);
-//       return { error: err }
-//     }
-//   });
-exports.getTwilioToken = functions
-  .runWith({memory: '1GB', timeoutSeconds: 300})
-  .https
-  .onCall( async (data: any, context?) => {
-
-    const uid = data.uid;
-    const room = data.room;
-    const timeOfStart = data.timeOfStart;
-    const duration = data.duration;
-
-    try {
-
-      const res = await fetch(`https://getvideotoken-9623.twil.io/vide-token?uid=${uid}&room=${room}&timeOfStart${timeOfStart}&duration=${duration}`);
-
-      // console.log('Stripe login link result:', JSON.stringify(res));
-      const json = await res.json()
-      // @ts-ignore
-      return { json } // success
-
-    } catch (err) {
-      console.error(err);
-      return { error: err }
-    }
-
-  });
