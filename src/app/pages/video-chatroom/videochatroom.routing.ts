@@ -4,12 +4,12 @@ import { VideochatroomComponent } from './videochatroom.component';
 
 export const VideoChatroomRoutes: Routes = [
   {
-    path: '',
-    children: [
-      {
+    // path: '',
+    // children: [
+    //   {
         path: '',
         component: VideochatroomComponent
-      }
-    ]
+  //     }
+  //   ]
   }
 ];

@@ -40,8 +40,8 @@ export class TwilioService {
           }
 
           if (this.roomObj.participants.size > 0 ) {
-           
-           
+
+
             console.log('Tut bol`sche chem 0', this.roomObj);
             room.participants.forEach(participant => {
               participant.tracks.forEach(publication => {
@@ -49,7 +49,7 @@ export class TwilioService {
                   // this.remoteVideo.nativeElement.appendChild(publication.track.attach());
                 }
               });
-    
+
               participant.on('trackSubscribed', track => {
                 console.log(track);
                 if (this.remoteVideo.nativeElement.children.length < 4) {
@@ -58,7 +58,7 @@ export class TwilioService {
                 console.log(this.remoteVideo.nativeElement.children);
               });
             });
-            
+
           }
 
           // setTimeout(() => {

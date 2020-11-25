@@ -130,6 +130,32 @@ export const ROUTES: RouteInfo[] = [
     icontype: 'tim-icons icon-lock-circle',
     userTypes: ['regular', 'coach', 'publisher', 'provider', 'admin']
   },
+
+  /* LINK FOR TESTING */
+  {
+    path: '/calendar',
+    title: 'CALENDAR',
+    rtlTitle: 'التقويم',
+    type: 'link',
+    icontype: 'tim-icons icon-lock-circle',
+    userTypes: ['regular', 'coach', 'publisher', 'provider', 'admin']
+  },
+  {
+    path: '/reserved-sessions',
+    title: 'reserved-sessions',
+    rtlTitle: 'التقويم',
+    type: 'link',
+    icontype: 'tim-icons icon-lock-circle',
+    userTypes: ['regular', 'coach', 'publisher', 'provider', 'admin']
+  },
+  {
+    path: '/video',
+    title: 'VIDEO',
+    rtlTitle: 'التقويم',
+    type: 'link',
+    icontype: 'tim-icons icon-lock-circle',
+    userTypes: ['regular', 'coach', 'publisher', 'provider', 'admin']
+  },
   {
     path: '/admin-more',
     title: 'More',

@@ -3018,14 +3018,16 @@ function specialities() {
 exports.getTwilioToken = functions
   .runWith({memory: '1GB', timeoutSeconds: 300})
   .https
-  .onCall( async (data: string, context?) => {
+  .onCall( async (data: any, context?) => {
 
-    // @ts-ignore
     const uid = data.uid;
+    const room = data.room;
+    const timeOfStart = data.timeOfStart;
+    const duration = data.duration;
 
     try {
 
-      const res = await fetch(`https://getvideotoken-9623.twil.io/vide-token?identity=${uid}`);
+      const res = await fetch(`https://getvideotoken-9623.twil.io/vide-token?uid=${uid}&room=${room}&timeOfStart${timeOfStart}&duration=${duration}`);
 
       // console.log('Stripe login link result:', JSON.stringify(res));
       const json = await res.json()

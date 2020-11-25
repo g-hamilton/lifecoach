@@ -92,6 +92,7 @@ const routes: Routes = [
     loadChildren: () => import('./pages/coaching-service/coaching.service.module').then(m => m.CoachingServiceModule),
     pathMatch: 'full'
   },
+
   {
     path: '',
     component: AdminLayoutComponent,
@@ -140,14 +141,7 @@ const routes: Routes = [
         path: 'share',
         loadChildren: () => import('./pages/share/share.module').then(m => m.ShareModule)
       },
-      {
-        path: 'video',
-        loadChildren: () => import('./pages/video-chatroom/videochatroom.module').then(m => m.VideochatroomModule)
-      },
-      {
-        path: 'video/rooms/:roomid',
-        loadChildren: () => import('./pages/video-chatroom/videochatroom.module').then(m => m.VideochatroomModule)
-      },
+
       {
         path: 'messages',
         loadChildren: () => import('./pages/chatroom/chatroom.module').then(m => m.ChatroomModule)
@@ -214,6 +208,16 @@ const routes: Routes = [
         pathMatch: 'full'
       },
       {
+        path: 'video',
+        loadChildren: () => import('./pages/video/video.module').then(m => m.VideoModule),
+        pathMatch: 'full'
+      },
+      {
+        path: 'video/:userId/:sessionId',
+        loadChildren: () => import('./pages/video-chatroom/videochatroom.module').then(m => m.VideochatroomModule),
+        pathMatch: 'full'
+      },
+      {
         path: 'admin-users',
         loadChildren: () => import('./pages/admin-users/admin.users.module').then(m => m.AdminUsersModule),
         canActivate: [AdminAuthGuard]
@@ -243,6 +247,10 @@ const routes: Routes = [
       {
         path: 'receipt/:id',
         loadChildren: () => import('./pages/receipt/receipt.module').then(m => m.ReceiptModule)
+      },
+      {
+        path: 'reserved-sessions',
+        loadChildren: () => import('./pages/reserved-sessions/reserved-sessions.module').then(m => m.ReservedSessionsModule),
       },
       {
         path: 'admin-manage-user/:targetUserUid',

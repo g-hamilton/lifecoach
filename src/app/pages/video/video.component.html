@@ -1,0 +1,20 @@
+<div class="content">
+  <div *ngIf="this.orderedSessions.length; else sessions">
+    <div *ngFor="let session of orderedSessions">
+      <h2>{{session.sessionId}}</h2>
+      <p> Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+        Alias at aut cum cumque laboriosam obcaecati perferendis porro quod rem tempora!</p>
+      <a [routerLink]="[this.uid,session.sessionId]">I AM LINK</a>
+      <button type="button" (click)="redirectToSessionIdUrl(session)" class="btn btn-fill btn-round btn-primary mr-2 mb-2">
+        Go To Session Room
+      </button>
+    </div>
+    <hr>
+  </div>
+  <ng-template #sessions>
+    <div>
+      You`ve ordered 0 sessions.
+    </div>
+  </ng-template>
+
+</div>

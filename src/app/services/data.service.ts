@@ -559,7 +559,7 @@ export class DataService {
   // ================================================================================
   // =====                          CALENDAR EVENTS                            ======
   // ================================================================================
-  dateToKeyHelper(date: Date) {
+  dateToKeyHelper(date: Date) { // probably unnecessary function, could be removed
     const temp = new Date(date);
     const today = temp.getDay();
     temp.setHours(0, 0, 0, 0);
@@ -592,7 +592,7 @@ export class DataService {
 
 
   //
-  async uploadOrder(uid: string, coachId: string, id: string) { // Reservation from the Client Side
+  async reserveEvent(uid: string, coachId: string, id: string) { // Reservation from the Client Side
     return this.db.collection(`users/${coachId}/calendar`, ref => ref.where('id', '==', id))
       .get().toPromise()
       .then (querySnapshot => {
@@ -607,9 +607,19 @@ export class DataService {
               cssClass: 'reserved'
             })
             .then(() => {
-              console.log('Successfull');
+              console.log('Successful');
               // Write this task to the temporary-reserved-tasks table
               this.db.collection(`temporary-reserved-events`).add({
+                calendarId: id,
+                coachId,
+                timeOfReserve: Date.now()
+              }).then(docRef => console.log(docRef.id))
+                .catch( err => console.log( err ));
+            })
+            .then(() => {
+              console.log('Successful');
+              // Write this task to the users-reserved table
+              this.db.collection(`users/${uid}/reserved-events`).add({
                 calendarId: id,
                 coachId,
                 timeOfReserve: Date.now()
@@ -623,9 +633,91 @@ export class DataService {
         }
       });
   }
-  //
+
+  // Function responsibilities :
+  // 1. --delete event from /temporary-reserved-tasks/
+  // 2. delete event from user/reserved-sessions/ !
+  // 3. --add to user/ordered-sessions !
+  // 4. --change same event in coach calendar
+  async orderSession(coachId: string, calendarId: string, time: number, uid: string ) {
+    console.group('ORDERING SESSION');
+    return this.db.collection(`users/${coachId}/calendar`,
+        ref => ref.where('id', '==', calendarId))
+      .get().toPromise()
+      .then (querySnapshot => {
+        console.log('Получили снапшот из календаря Коача', querySnapshot);
+        if (!querySnapshot.empty) {
+          // Changing event in coach calendar
+          const queryDocumentSnapshot = querySnapshot.docs[0];
+          console.log(queryDocumentSnapshot);
+          return queryDocumentSnapshot.ref
+            .update({
+              ordered: true,
+              orderedById: uid,
+              cssClass: 'ordered',
+              sessionId: `${coachId}_${calendarId}`
+            })
+            // Delete event from the temporary-reserved-tasks table
+            .then(() => {
+              console.log('Апдейтнули событие у коача в календаре');
+              this.db.collection(`temporary-reserved-events`,
+                ref => ref.where('coachId', '==', coachId)
+                  .where('calendarId', '==', calendarId))
+                .get().toPromise()
+                .then (qSnapshot => {
+                  console.log('Получили снапшот из временно-зарезервированных задач', qSnapshot);
+                  if (qSnapshot) {
+                    qSnapshot.docs[0].ref.delete()
+                      .then(() => console.log('Успешно удалили из временно-зарезервированных задач'))
+                      .catch(e => alert('Error while deleting'));
+                  }
+                })
+                .catch( err => console.log( err ));
+            })
+            // Write this task to the ordered-sessions //TODO:
+            .then(() => {
+              console.log('Успешно удалили, дальше');
+              const test = this.db.collection(`ordered-sessions/${coachId}/sessions`).add({
+                sessionId: `${coachId}_${calendarId}`,
+                coachId,
+                timeOfReserve: Date.now(),
+                participants: [coachId, uid],
+                testField: 'testField'
+              }).then(docRef => console.log('Добавили задачу в ordered-sessions', docRef))
+                .catch( err => console.log( err, 'Не могу создать' ));
+            })
+            // Then deleting it from user/reserved-sessions
+            .then(() => {
+              this.db.collection(`users/${uid}/reserved-events`,
+                ref => ref.where('timeOfReserve', '==', time))
+                .get().toPromise()
+                .then (qSnapshot => {
+                  console.log('Получили снапшот из зарезервированных юзером задач', qSnapshot);
+                  if (qSnapshot) {
+                    qSnapshot.docs[0].ref
+                      .delete()
+                      .catch(e => alert('Error while deleting'));
+                  }
+                })
+                .catch( err => console.log( err ));
+            })
+            .catch(err => console.log(err));
+        } else {
+          console.log('This event is not available');
+          return null;
+        }
+      });
+  }
+
+
   getUserNotReservedEvents(uid: string) {
+    console.log('Data Service works');
     return this.db.collection(`users/${uid}/calendar`, ref => ref.where('reserved', '==', false))
+      .valueChanges() as Observable<CustomCalendarEvent[]>;
+  }
+  // TODO:
+  getUserReservedEvents(uid: string) {
+    return this.db.collection(`users/${uid}/reserved-events`)
       .valueChanges() as Observable<CustomCalendarEvent[]>;
   }
   async deleteUserCalendarEvent(uid: string, date: Date) {
@@ -681,5 +773,35 @@ export class DataService {
       .doc(serviceId)
       .valueChanges() as Observable<CoachingService>;
   }
+// ================================================================================
+// =====                            USER ORDERED SESSIONS                    ======
+// ================================================================================
+
+  getUserOrderedSessions(uid: string) {
+    return this.db.collection(`users/${uid}/ordered-sessions`)
+      .valueChanges() as Observable<any>;
+  }
+// ================================================================================
+// =====                            TESTING METHOD FOR DOC.REFERENCE         ======
+// ================================================================================
+
+
+  async getTestDocFromReference(uid) {
+    const snapshot = await this.db.collection(`users/${uid}/calendar`).doc('1606376100000');
+
+    console.log('SNAPSHOT', snapshot.ref.get());
+
+
+    // snapshot
+      // .delete()
+      // .then( () => console.log('Deleted'));
+    // @ts-ignore
+    return snapshot;
+  }
+
+
 
 }
+
+
+

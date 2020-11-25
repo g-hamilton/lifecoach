@@ -21,7 +21,7 @@ import {ModalDirective} from 'ngx-bootstrap/modal';
 @Component({
   selector: 'app-coach',
   templateUrl: 'coach.component.html',
-  styleUrls:['./coach.component.scss']
+  styleUrls: ['./coach.component.scss']
 })
 export class CoachComponent implements OnInit, OnDestroy {
 
@@ -250,7 +250,7 @@ export class CoachComponent implements OnInit, OnDestroy {
   }
 
   uploadOrder(id: string) {
-    this.dataService.uploadOrder( this.userId, this.coachId, id);
+    this.dataService.reserveEvent( this.userId, this.coachId, id);
   }
 
   ngOnDestroy() {
@@ -277,4 +277,5 @@ export class CoachComponent implements OnInit, OnDestroy {
   hideModal() {
     this.showModal = false;
   }
+
 }

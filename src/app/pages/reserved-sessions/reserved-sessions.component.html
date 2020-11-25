@@ -1,0 +1,16 @@
+<div class="content">
+  <!-- There should be a card for each session. It will be done further-->
+  <h1>Your reserved Events</h1>
+  <div *ngIf="this.reservedEvents.length; else noevents">
+    <div *ngFor="let event of reservedEvents; index as i">
+      <div class="event">
+        <h2>{{i+1}}. You have time to buy it until {{ event.timeOfReserve+(60000*15) | date: 'mediumTime'}}</h2>
+        <button type="button" (click)="buyEvent(event)" class="btn btn-fill btn-round btn-primary mr-2 mb-2">Buy event</button>
+
+      </div>
+    </div>
+  </div>
+  <ng-template #noevents>
+    <span>Sorry, no events here</span>
+  </ng-template>
+</div>

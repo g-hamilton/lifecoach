@@ -328,7 +328,7 @@ export class CloudFunctionsService {
   }
 
   // Twilio
-  getTwilioToken(uid: string) {
+  getTwilioToken(uid: string, room: string, timeOfStart: number, duration: number) {
     console.log('Cloud Function Service prop', uid);
     return new Promise( resolve => {
           const res = this.cloudFunctions.httpsCallable('getTwilioToken');
