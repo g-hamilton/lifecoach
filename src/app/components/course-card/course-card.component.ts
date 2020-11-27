@@ -1,13 +1,15 @@
-import { Component, OnInit, Input, OnChanges, Inject, PLATFORM_ID } from '@angular/core';
+import {Component, OnInit, Input, OnChanges, Inject, PLATFORM_ID, OnDestroy} from '@angular/core';
 import { CurrenciesService } from 'app/services/currencies.service';
 import { isPlatformBrowser } from '@angular/common';
+import { Subscription } from 'rxjs';
+import {DataService} from '../../services/data.service';
 
 @Component({
   selector: 'app-course-card',
   templateUrl: './course-card.component.html',
   styleUrls: ['./course-card.component.scss']
 })
-export class CourseCardComponent implements OnInit, OnChanges {
+export class CourseCardComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input() course: any;
   @Input() clientCurrency: string;
@@ -18,9 +20,14 @@ export class CourseCardComponent implements OnInit, OnChanges {
 
   public courseId: string;
 
+  public courseObject: any;
+
+  private subscriptions: Subscription = new Subscription();
+
   constructor(
     @Inject(PLATFORM_ID) public platformId: object,
     private currenciesService: CurrenciesService,
+    private dataService: DataService
   ) { }
 
   ngOnInit() {
@@ -30,6 +37,14 @@ export class CourseCardComponent implements OnInit, OnChanges {
     if (this.course) {
       this.course.courseId ? this.courseId = this.course.courseId : this.course.objectID ? this.courseId = this.course.objectID : this.courseId = null;
     }
+    // console.log(this.course);
+    this.subscriptions.add(
+      this.dataService.getPublicCourse(this.courseId).subscribe( course => {
+        if (course) {
+          this.courseObject = course;
+        }
+      })
+    );
   }
 
   ngOnChanges() {
@@ -64,4 +79,7 @@ export class CourseCardComponent implements OnInit, OnChanges {
     return amount;
   }
 
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
+  }
 }
