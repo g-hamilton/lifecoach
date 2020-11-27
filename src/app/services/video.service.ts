@@ -112,9 +112,6 @@ export class TwilioService {
           //
           //
           // this.remoteVideo
-        
-        
-        
       }, error => {
         alert('Unable to connect to Room: ' + error.message);
       });
