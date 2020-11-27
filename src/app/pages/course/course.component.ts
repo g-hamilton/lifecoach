@@ -279,7 +279,7 @@ export class CourseComponent implements OnInit, OnDestroy {
               });
               // set the course
               this.course = publicCourse;
-              console.log(this.course)
+              console.log(this.course);
               // update meta
               this.updateCourseMeta();
 
@@ -523,6 +523,7 @@ export class CourseComponent implements OnInit, OnDestroy {
         // Success
         this.register = false;
         console.log('Registration successful:', response.result.user);
+        this.userId = response.result.user.uid; // update the component userId to allow user to purchase
         this.analyticsService.registerUser(response.result.user.uid, 'email&password', newUserAccount);
         this.registerModal.hide();
         if (this.course.pricingStrategy === 'paid') {
@@ -560,6 +561,7 @@ export class CourseComponent implements OnInit, OnDestroy {
       const res = await this.authService.signInWithEmailAndPassword(account);
       if (!res.error) {
         // Login successful.
+        this.userId = res.result.user.uid; // update the component userId to allow user to purchase
         this.loginModal.hide();
         if (this.course.pricingStrategy === 'paid') {
           this.alertService.alert('success-message', 'Login Successful', `Click 'Buy Now' again to complete your purchase...`);
@@ -593,7 +595,7 @@ export class CourseComponent implements OnInit, OnDestroy {
 
   onTotalReviewsEvent(event: number) {
     this.totalReviews = event;
-    console.log('Total reviews event:', event);
+    // console.log('Total reviews event:', event);
   }
 
   async enrollFree() {
