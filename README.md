@@ -65,11 +65,11 @@ https://demos.creative-tim.com/black-dashboard-pro-angular/#/documentation/overv
 
 ## How To Deploy On Firebase
 
-   (done from windows)
+
+
+1. root -> yarn build:ssr
+2. functions -> npm i && npm run build
+3. firebase deploy --only hosting
+4. firebase deploy --only functions
  
-1. nvm use 10
-2. yarn build
-3. cd functions -> npm install && npm build
-4. cd ../ -> yarn build:ssr
-5. 
 

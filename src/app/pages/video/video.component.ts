@@ -10,6 +10,7 @@ import {Subscription} from 'rxjs';
 })
 export class VideoComponent implements OnInit, OnDestroy {
 
+  coachingSessions: Array<any> = [];
   orderedSessions: Array<any> = [];
   user: any;
   onLoad = true;
@@ -40,6 +41,17 @@ export class VideoComponent implements OnInit, OnDestroy {
             this.dataService.getUserOrderedSessions(this.uid).subscribe(sessions => {
               if (sessions) {
                 this.orderedSessions = sessions;
+                for (const session of this.orderedSessions) {
+                    console.log(session);
+                }
+              }
+            })
+          );
+
+          this.subscriptions.add(
+            this.dataService.getUserIsCoachSession(this.uid).subscribe( sessions => {
+              if (sessions) {
+                this.coachingSessions = sessions;
               }
             })
           );

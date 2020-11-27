@@ -333,7 +333,7 @@ export class CloudFunctionsService {
     return new Promise( resolve => {
           const res = this.cloudFunctions.httpsCallable('getTwilioToken');
           console.log('Cloud Function Service', res);
-          const tempSub = res(uid)
+          const tempSub = res({uid, room})
             .pipe(first())
             .subscribe(r => {
               resolve(r.json);

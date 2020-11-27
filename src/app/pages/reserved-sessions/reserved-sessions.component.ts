@@ -47,11 +47,9 @@ export class ReservedSessionsComponent implements OnInit, OnDestroy {
           );
 
           this.dataService.getTestDocFromReference(this.uid)
-
-            .then(value => {
-              value.ref.get().then(e => console.log(e.id));
-            })
+            .then(e => console.log(e))
             .catch(e => console.log(e));
+
         }
       })
     );

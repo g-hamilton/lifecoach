@@ -213,7 +213,7 @@ const routes: Routes = [
         pathMatch: 'full'
       },
       {
-        path: 'video/:userId/:sessionId',
+        path: 'video/:sessionId',
         loadChildren: () => import('./pages/video-chatroom/videochatroom.module').then(m => m.VideochatroomModule),
         pathMatch: 'full'
       },

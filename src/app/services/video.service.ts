@@ -43,6 +43,8 @@ export class TwilioService {
 
 
             console.log('Tut bol`sche chem 0', this.roomObj);
+
+
             room.participants.forEach(participant => {
               participant.tracks.forEach(publication => {
                 if (publication.track) {
@@ -57,6 +59,8 @@ export class TwilioService {
                 }
                 console.log(this.remoteVideo.nativeElement.children);
               });
+
+
             });
 
           }
@@ -69,6 +73,15 @@ export class TwilioService {
           //     console.log(this.roomObj);
           //   }, 5000);
 
+        });
+
+        room.on('participantDisconnected', participant => {
+          console.log(`${participant.identity} left the Room`);
+          console.log(participant);
+          participant.tracks.forEach( (publication, value) => {
+            console.log(publication, value);
+          });
+          console.log(participant);
         });
 
         room.on('participantConnected', participant => {

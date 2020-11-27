@@ -2995,3 +2995,28 @@ function specialities() {
     {id: '012', itemName: 'Productivity & Personal Organisation'}
   ];
 }
+exports.getTwilioToken = functions
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
+  .onCall( async (data: any, context?) => {
+
+    const uid = data.uid;
+    const room = data.room;
+    const timeOfStart = data.timeOfStart;
+    const duration = data.duration;
+
+    try {
+
+      const res = await fetch(`https://getvideotoken-9623.twil.io/vide-token?uid=${uid}&room=${room}&timeOfStart${timeOfStart}&duration=${duration}`);
+
+      // console.log('Stripe login link result:', JSON.stringify(res));
+      const json = await res.json()
+      // @ts-ignore
+      return { json } // success
+
+    } catch (err) {
+      console.error(err);
+      return { error: err }
+    }
+
+  });

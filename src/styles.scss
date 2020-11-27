@@ -547,7 +547,7 @@ select option {
 }
 
 
-//calendar reserved styles
+//calendar reserved and ordered styles
 .reserved{
   span{
     color: #e14eca!important;
@@ -555,6 +555,16 @@ select option {
   div{
     background: #e14eca33!important;
     border: 1px solid #e14eca!important;
+  }
+}
+
+.ordered{
+  span{
+    color: #1fc22a!important;
+  }
+  div{
+    background: #1fc22a33!important;
+    border: 1px solid #1fc22a!important;
   }
 }
 

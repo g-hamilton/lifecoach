@@ -131,7 +131,7 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
                   if (ev.end) {
                     ev.end = new Date(ev.end.seconds * 1000);
                   }
-                  ev.title = ev.reserved ? 'RESERVED' : 'FREE';
+                  ev.title = ev.reserved ? (ev.ordered ? 'ORDERED' : 'RESERVED') : 'FREE';
                 });
 
                 this.events = events;
@@ -154,10 +154,12 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
       end: this.activeEvent.end ? this.activeEvent.end : null,
       // title: this.activeEvent.start.toLocaleTimeString() + ' - ' + (this.activeEvent.end.toLocaleTimeString() || ' '),
       draggable: false,
-      cssClass: this.activeEvent.cssClass ? this.activeEvent.cssClass : null,
       description: this.activeEvent.description ? this.activeEvent.description : null,
       reserved: this.activeEvent.reserved ? this.activeEvent.reserved : false,
-      reservedById: this.activeEvent.reservedById ? this.activeEvent.reservedById : null
+      reservedById: this.activeEvent.reservedById ? this.activeEvent.reservedById : null,
+      ordered: this.activeEvent.ordered ? this.activeEvent.ordered : null,
+      orderedById: this.activeEvent.orderedById ? this.activeEvent.orderedById : null,
+      cssClass: this.activeEvent.cssClass ? this.activeEvent.cssClass : null,
     });
   }
 
@@ -251,6 +253,8 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
       description: null,
       reservedById: null,
       reserved: false,
+      ordered: false,
+      orderedById: null,
     });
     this.activeEvent = null;
   }
@@ -352,13 +356,15 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
         const ev = {
           ...ob,
           // title: `${new Date(expireTime).toLocaleTimeString()} - ${new Date(expireTime + this.sessionDuration * 60000).toLocaleTimeString()}`,
-          title: ob.reservedById ? 'Reserved' : 'I am free',
-          cssClass: ob.reservedById ? 'reserved' : 'not', // These classes aren't exist
+          title: ob.reservedById ? (ob.ordered ? 'Ordered' : 'reserved') : 'I am free',
           start: new Date(expireTime),
           end: new Date(expireTime + this.sessionDuration * 60000),
           id: Math.random().toString(36).substr(2, 9),
           reserved: false,
           reservedById: null,
+          ordered: false,
+          orderedById: null,
+          cssClass: ob.reservedById ? (ob.ordered ? 'orderedSession' : 'reserved') : 'not',
         };
         console.log(ev);
         result.push(ev);
@@ -367,10 +373,12 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     } else {
       result.push({
         ...ob,
-        title: ob.reservedById ? 'Reserved' : 'I am free',
-        cssClass: ob.reservedById ? 'reserved' : 'not', // These classes aren't exist
+        title: ob.reservedById ? (ob.ordered ? 'Ordered' : 'reserved') : 'I am free',
         reserved: false,
         reservedById: null,
+        ordered: false,
+        orderedById: null,
+        cssClass: ob.reservedById ? (ob.ordered ? 'orderedSession' : 'reserved') : 'not',
       });
     }
     return result;

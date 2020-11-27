@@ -11,7 +11,7 @@ import { AnalyticsService } from '../../services/analytics.service';
 import { CoachProfile } from '../../interfaces/coach.profile.interface';
 import { CoachingCourse } from 'app/interfaces/course.interface';
 import { CoachingService } from 'app/interfaces/coaching.service.interface';
-import { Subscription } from 'rxjs';
+import {Observable, Subscription, from} from 'rxjs';
 import {CustomCalendarEvent} from '../../interfaces/custom.calendar.event.interface';
 import {AuthService} from '../../services/auth.service';
 import {first} from 'rxjs/operators';
@@ -37,6 +37,7 @@ export class CoachComponent implements OnInit, OnDestroy {
   public showModal = false;
   public dayToSelect: Array<Date> = [];
   public timeToSelect: Array<Date> = [];
+
 
   constructor(
     @Inject(DOCUMENT) private document: any,
@@ -176,8 +177,9 @@ export class CoachComponent implements OnInit, OnDestroy {
           console.log(next);
           if (next) {
             this.availableEvents = next;
+            this.dayToSelect = [];
             this.availableEvents.forEach( i => {
-              console.log(i.start);
+              // console.log(i.start);
               // @ts-ignore
               const startDate = new Date(i.start.seconds * 1000);
               console.log('Start Date = ', startDate);
@@ -249,9 +251,6 @@ export class CoachComponent implements OnInit, OnDestroy {
     }
   }
 
-  uploadOrder(id: string) {
-    this.dataService.reserveEvent( this.userId, this.coachId, id);
-  }
 
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
@@ -270,8 +269,9 @@ export class CoachComponent implements OnInit, OnDestroy {
   }
 
   reserveSession($event: any) {
+    console.log($event.target);
     console.log($event.target.value);
-    this.uploadOrder($event.target.value);
+    this.dataService.reserveEvent( this.userId, this.coachId, $event.target.value);
   }
 
   hideModal() {

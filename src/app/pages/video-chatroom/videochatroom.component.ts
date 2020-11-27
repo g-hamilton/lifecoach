@@ -6,6 +6,8 @@ import {Subscription} from 'rxjs';
 import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {TwilioService} from '../../services/video.service';
 import {CloudFunctionsService} from '../../services/cloud-functions.service';
+import {AuthService} from '../../services/auth.service';
+import {DataService} from '../../services/data.service';
 
 @Component({
   selector: 'app-video-chatroom',
@@ -24,12 +26,17 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
   username: string;
   loading: boolean;
 
+  sessionObject: any;
+  sessionUserType: 'HOST' | 'PARTICIPANT' | undefined;
+
   private subscriptions: Subscription = new Subscription();
 
   @ViewChild('localVideo', {static: true}) localVideo: ElementRef;
   @ViewChild('remoteVideo', {static: true}) remoteVideo: ElementRef;
 
   constructor(
+    private dataService: DataService,
+    private authService: AuthService,
     public twilioService: TwilioService,
     public cloudService: CloudFunctionsService,
     private route: ActivatedRoute
@@ -50,44 +57,59 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
     this.twilioService.remoteVideo = this.remoteVideo;
     console.log('LOADED');
     // @ts-ignore
-    this.fillIdsFromRoute(this.route.params.value.sessionId, this.route.params.value.userId);
+
 
 
     this.subscriptions.add(
-      // this.authService.getAuthUser()
-      //   .subscribe(user => {
-      //     if (user) {
-      //       console.log('USER OBJ:', user);
-      //       this.uid = user.uid;
-      //       console.log('ID is ', this.uid);
-      //
-      //
-      //       this.subscriptions.add(
-      //         this.dataService.getUserOrderedSessions(this.uid).subscribe(sessions => {
-      //           if (sessions) {
-      //             this.orderedSessions = sessions;
-      //           }
-      //         })
-      //       );
-      //     }
-      //   })
+      this.authService.getAuthUser()
+        .subscribe(user => {
+          if (user) {
+            this.userId = user.uid;
+            this.username = this.userId;
+            console.log('User authenticated ', this.userId);
+            console.log(this.route.params);
+            // @ts-ignore
+            this.roomName = this.route.params.value.sessionId;
+            this.checkRoom(this.roomName);
+
+
+            //   this.dataService.getUserOrderedSessions(this.uid).subscribe(sessions => {
+            //     if (sessions) {
+            //       this.orderedSessions = sessions;
+            //     }
+            //   })
+          }
+        })
         );
 
 
   }
 
-  fillIdsFromRoute(sessionID: string, userId: string) {
-    this.roomName = sessionID;
-    this.username = userId;
-
-    const sessionFinder = /_\w+/g;
-    const coachIdFinder = /\w+_/g;
-
-    this.userId = userId;
-    this.sessionId = sessionID.match(sessionFinder)[0].substr(1);
-    this.coachId = sessionID.match(coachIdFinder)[0];
-    this.coachId = this.coachId.substr(0, this.coachId.length - 1);
-    console.log('DONE. Now: ', this.userId, this.sessionId, this.coachId);
+  checkRoom(roomName: string) {
+    this.dataService.getParticularSession(roomName)
+      .get().toPromise()
+      .then(doc => {
+        if (doc.exists) {
+          this.sessionObject = doc.data();
+          console.log(this.sessionObject);
+          console.log(this.userId);
+          if (this.sessionObject.coachId === this.userId ) {
+            this.sessionUserType = 'HOST';
+          } else if ( this.sessionObject.participants.includes(this.userId)) {
+            this.sessionUserType = 'PARTICIPANT';
+          } else {
+            this.sessionUserType = undefined;
+          }
+          console.log(this.sessionUserType);
+          if (this.sessionUserType) {
+            console.log(this.sessionUserType);
+            this.loading = false;
+          }
+        }
+      })
+      .catch(error => {
+        alert('u have no right to join this room');
+      });
   }
 
   log(message) {
@@ -115,6 +137,10 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   connect(): void {
+    if (this.loading) {
+      alert('User didn`t log in or no such session on user'); // TODO: normal modal
+      return;
+    }
     console.log(this.accessToken);
 
     // const storage = JSON.parse(localStorage.getItem('token') || '{}');
@@ -156,7 +182,14 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
     })
     .then(() => {
       console.log('Nice connection, bruh');
-      // this.twilioService.connectToRoom(this.accessToken, { name: this.roomName, audio: true, video: { width: 240 }});
+      console.group('About room');
+      console.log(this.roomName);
+      console.log(this.accessToken);
+      console.log(this.username);
+
+      console.groupEnd();
+
+      this.twilioService.connectToRoom(this.accessToken, { name: this.roomName, audio: true, video: { width: 240 }});
     })
       .catch( e => console.log(e));
 

@@ -1,19 +1,20 @@
-import { Injectable } from '@angular/core';
-import { AngularFirestore } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
+import {Injectable} from '@angular/core';
+import {AngularFirestore} from '@angular/fire/firestore';
+import {Observable} from 'rxjs';
 
-import { UserTask } from '../interfaces/user.tasks.interface';
-import { UserAccount } from '../interfaces/user.account.interface';
-import { CoachProfile } from '../interfaces/coach.profile.interface';
-import { ChatMessage } from 'app/interfaces/chat.message';
-import { CoachingCourse, CoachingCourseVideo } from 'app/interfaces/course.interface';
-import { AdminCourseReviewRequest } from 'app/interfaces/adminCourseReviewRequest';
-import { CourseBookmark } from 'app/interfaces/course.bookmark.interface';
-import { CourseQuestion, CourseQuestionReply } from 'app/interfaces/q&a.interface';
-import { AnalyticsService } from './analytics.service';
-import { CustomCalendarEvent } from 'app/interfaces/custom.calendar.event.interface';
-import { CoachingService } from 'app/interfaces/coaching.service.interface';
-import { first } from 'rxjs/operators';
+import {UserTask} from '../interfaces/user.tasks.interface';
+import {UserAccount} from '../interfaces/user.account.interface';
+import {CoachProfile} from '../interfaces/coach.profile.interface';
+import {ChatMessage} from 'app/interfaces/chat.message';
+import {CoachingCourse} from 'app/interfaces/course.interface';
+import {AdminCourseReviewRequest} from 'app/interfaces/adminCourseReviewRequest';
+import {CourseBookmark} from 'app/interfaces/course.bookmark.interface';
+import {CourseQuestion, CourseQuestionReply} from 'app/interfaces/q&a.interface';
+import {AnalyticsService} from './analytics.service';
+import {CustomCalendarEvent} from 'app/interfaces/custom.calendar.event.interface';
+import {CoachingService} from 'app/interfaces/coaching.service.interface';
+import {first} from 'rxjs/operators';
+import {rejects} from 'assert';
 
 @Injectable({
   providedIn: 'root'
@@ -641,72 +642,86 @@ export class DataService {
   // 4. --change same event in coach calendar
   async orderSession(coachId: string, calendarId: string, time: number, uid: string ) {
     console.group('ORDERING SESSION');
-    return this.db.collection(`users/${coachId}/calendar`,
-        ref => ref.where('id', '==', calendarId))
-      .get().toPromise()
-      .then (querySnapshot => {
-        console.log('Получили снапшот из календаря Коача', querySnapshot);
-        if (!querySnapshot.empty) {
-          // Changing event in coach calendar
-          const queryDocumentSnapshot = querySnapshot.docs[0];
-          console.log(queryDocumentSnapshot);
-          return queryDocumentSnapshot.ref
-            .update({
-              ordered: true,
-              orderedById: uid,
-              cssClass: 'ordered',
-              sessionId: `${coachId}_${calendarId}`
-            })
-            // Delete event from the temporary-reserved-tasks table
-            .then(() => {
-              console.log('Апдейтнули событие у коача в календаре');
-              this.db.collection(`temporary-reserved-events`,
-                ref => ref.where('coachId', '==', coachId)
-                  .where('calendarId', '==', calendarId))
-                .get().toPromise()
-                .then (qSnapshot => {
-                  console.log('Получили снапшот из временно-зарезервированных задач', qSnapshot);
-                  if (qSnapshot) {
-                    qSnapshot.docs[0].ref.delete()
-                      .then(() => console.log('Успешно удалили из временно-зарезервированных задач'))
-                      .catch(e => alert('Error while deleting'));
-                  }
-                })
-                .catch( err => console.log( err ));
-            })
-            // Write this task to the ordered-sessions //TODO:
-            .then(() => {
-              console.log('Успешно удалили, дальше');
-              const test = this.db.collection(`ordered-sessions/${coachId}/sessions`).add({
-                sessionId: `${coachId}_${calendarId}`,
-                coachId,
-                timeOfReserve: Date.now(),
-                participants: [coachId, uid],
-                testField: 'testField'
-              }).then(docRef => console.log('Добавили задачу в ordered-sessions', docRef))
-                .catch( err => console.log( err, 'Не могу создать' ));
-            })
-            // Then deleting it from user/reserved-sessions
-            .then(() => {
-              this.db.collection(`users/${uid}/reserved-events`,
-                ref => ref.where('timeOfReserve', '==', time))
-                .get().toPromise()
-                .then (qSnapshot => {
-                  console.log('Получили снапшот из зарезервированных юзером задач', qSnapshot);
-                  if (qSnapshot) {
-                    qSnapshot.docs[0].ref
-                      .delete()
-                      .catch(e => alert('Error while deleting'));
-                  }
-                })
-                .catch( err => console.log( err ));
-            })
-            .catch(err => console.log(err));
-        } else {
-          console.log('This event is not available');
-          return null;
+    let newDocId: string | undefined;
+    let newDocRef: any;
+    return this.db.collection(`temporary-reserved-events`,
+      ref => ref.where('coachId', '==', coachId)
+        .where('calendarId', '==', calendarId))
+        .get().toPromise()
+      .then (qSnapshot => {
+        console.log('1', qSnapshot);
+        if (qSnapshot) {
+          qSnapshot.docs[0].ref.delete()
+            .then(() => console.log('2'))
+            .catch(e => alert('Error 2'));
         }
-      });
+        }).catch(e => console.log('error 1'))
+      // Event deleted from the temporary-reserved-tasks table
+      .then(() => {
+        console.log('3');
+        const test = this.db.collection(`ordered-sessions/all/sessions`).add({
+          // sessionId: `${coachId}_${calendarId}`,
+          coachId,
+          timeOfReserve: Date.now(),
+          participants: [coachId, uid],
+          testField: 'testField'
+        }).then( docRef => {
+          console.log('4', docRef.id);
+          newDocId = docRef.id;
+          newDocRef = docRef;
+        }).catch( e => console.log('4'))
+          // Event ID setted, so we can move on and set refs in coach sessions/host and user/ordered-sessions
+          .then( () => {
+            this.db.collection(`users/${coachId}/calendar`,
+              ref => ref.where('id', '==', calendarId))
+              .get().toPromise()
+              .then (querySnapshot => {
+                console.log('5', querySnapshot);
+                if (!querySnapshot.empty) {
+                  // Changing event in coach calendar
+                  const queryDocumentSnapshot = querySnapshot.docs[0];
+                  console.log(queryDocumentSnapshot);
+                  return queryDocumentSnapshot.ref
+                    .update({
+                      ordered: true,
+                      orderedById: uid,
+                      cssClass: 'orderedSession',
+                      sessionId: newDocRef.id,
+                      sessionRef: newDocRef
+                    }).catch(e => console.log('error on update'));
+                }});
+          })
+          // We should delete event from user`s reserved-events
+          .then(() => {
+            this.db.collection(`users/${uid}/reserved-events`,
+              ref => ref.where('coachId', '==', coachId)
+                .where('calendarId', '==', calendarId))
+              .get().toPromise().then(querySnapshot => {
+              console.log('5', querySnapshot);
+              if (!querySnapshot.empty) {
+                // Changing event in coach calendar
+                const queryDocumentSnapshot = querySnapshot.docs[0];
+                console.log(queryDocumentSnapshot);
+                return queryDocumentSnapshot.ref.delete()
+                  .then(() => console.log('Deleted from user`s reserved-events'))
+                  .catch(e => console.log('can`t delete from user`s reserved-events'));
+              }
+            });
+          })
+          .then( () => {
+            console.log('6');
+            this.db.collection(`users/${uid}/ordered-sessions`).add({
+              sessionId: newDocRef.id,
+              sessionRef: newDocRef,
+            }).catch( e => console.log('error 6'));
+          })
+          .catch( err => console.log( err, 'Не могу создать' ));
+
+      }).catch( e => console.log('v konce'));
+
+
+
+
   }
 
 
@@ -781,22 +796,33 @@ export class DataService {
     return this.db.collection(`users/${uid}/ordered-sessions`)
       .valueChanges() as Observable<any>;
   }
+
+  getUserIsCoachSession(uid: string) {
+    return this.db.collection(`users/${uid}/calendar`, ref => ref.where('ordered', '==', 'true'))
+      .valueChanges() as Observable<any>;
+  }
+
+  getParticularSession(roomName: string) {
+    return this.db.collection(`ordered-sessions/all/sessions`).doc(roomName);
+  }
 // ================================================================================
 // =====                            TESTING METHOD FOR DOC.REFERENCE         ======
 // ================================================================================
 
 
   async getTestDocFromReference(uid) {
-    const snapshot = await this.db.collection(`users/${uid}/calendar`).doc('1606376100000');
 
-    console.log('SNAPSHOT', snapshot.ref.get());
+    return this.db.collection(`users/${uid}/calendar`).doc('1606293300000').get()
+      .toPromise()
+      .then(doc => {
+        console.log('getted', doc.data());
+        if (doc.exists) {
+          return doc.data();
+        } else {
+          return undefined;
+        }
+      });
 
-
-    // snapshot
-      // .delete()
-      // .then( () => console.log('Deleted'));
-    // @ts-ignore
-    return snapshot;
   }
 
 
