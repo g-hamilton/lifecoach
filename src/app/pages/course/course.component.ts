@@ -279,7 +279,7 @@ export class CourseComponent implements OnInit, OnDestroy {
               });
               // set the course
               this.course = publicCourse;
-
+              console.log(this.course)
               // update meta
               this.updateCourseMeta();
 
