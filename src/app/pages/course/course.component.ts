@@ -153,7 +153,7 @@ export class CourseComponent implements OnInit, OnDestroy {
         // tslint:disable-next-line: max-line-length
         const pIntentRes = await this.cloudFunctionsService.getStripePaymentIntent(this.courseId, this.clientCurrency, this.displayPrice, this.userId, this.referralCode) as any;
 
-        console.log(pIntentRes.stripePaymentIntent);
+        console.log('Payment Intent created', pIntentRes.stripePaymentIntent);
 
         if (pIntentRes && !pIntentRes.error) { // payment intent success
 
@@ -179,6 +179,7 @@ export class CourseComponent implements OnInit, OnDestroy {
           console.log(res);
 
           if (res.error) { // error confirming payment
+            console.log('Result error:', res.error);
             // Show error to your customer (e.g., insufficient funds)
             this.alertService.alert('warning-message', 'Oops', `${res.error.message}`);
             this.purchasingCourse = false;
@@ -186,6 +187,7 @@ export class CourseComponent implements OnInit, OnDestroy {
           } else { // success confirming payment
             // The payment has been processed!
             if (res.paymentIntent.status === 'succeeded') {
+              console.log('Result success');
               // Show a success message to your customer
               // There's a risk of the customer closing the window before callback
               // execution. Set up a webhook or plugin to listen for the
