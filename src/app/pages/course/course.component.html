@@ -33,10 +33,11 @@
                         <!-- rating stars *BROWSER ONLY* -->
                         <app-stars
                         *ngIf="browser"
-                        [course]="course">
+                        [course]="course"
+                        (totalReviewsEvent)="onTotalReviewsEvent($event)">
                         </app-stars>
                         <span class=" d-inline-block ml-2" style="margin-top: 0.3rem;">
-                          {{ avgRating?.toFixed(2) }} ({{ totalReviews }} {{ totalReviews === 1 ? 'review' : 'reviews'}})
+                          {{ avgRating?.toFixed(2) }} ({{ totalReviews ? totalReviews : '0' }} {{ totalReviews === 1 ? 'review' : 'reviews'}})
                         </span>
                         <!-- if zero enrollments -->
                         <span *ngIf="!courseEnrollments?.totalEnrollments" class=" ml-3 badge badge-success">

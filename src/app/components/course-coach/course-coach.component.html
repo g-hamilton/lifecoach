@@ -22,7 +22,9 @@
         <span>
           <i class="fas fa-star mr-1"></i> 
         </span>
-         Coach rating
+        <span *ngIf="(avgRating | async) != 'No reviews yet'">
+          Coach rating
+        </span>
         <span>
           <i class="fas fa-comment ml-4 mr-1"></i>
         </span> 

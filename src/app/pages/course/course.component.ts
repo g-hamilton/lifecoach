@@ -593,6 +593,7 @@ export class CourseComponent implements OnInit, OnDestroy {
 
   onTotalReviewsEvent(event: number) {
     this.totalReviews = event;
+    console.log('Total reviews event:', event);
   }
 
   async enrollFree() {
