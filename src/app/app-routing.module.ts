@@ -31,6 +31,11 @@ const routes: Routes = [
     pathMatch: 'full'
   },
   {
+    path: 'for-coaches',
+    loadChildren: () => import('./pages/pricing/pricing.module').then(m => m.PricingModule),
+    pathMatch: 'full'
+  },
+  {
     path: 'for-publishers',
     loadChildren: () => import('./pages/for-publishers/for.publishers.module').then(m => m.ForPublishersModule),
     pathMatch: 'full'
@@ -47,6 +52,11 @@ const routes: Routes = [
   },
   {
     path: 'sell-coaching-courses',
+    loadChildren: () => import('./pages/courses-landing/courses.landing.module').then(m => m.CoursesLandingModule),
+    pathMatch: 'full'
+  },
+  {
+    path: 'sell-coaching-ecourses',
     loadChildren: () => import('./pages/courses-landing/courses.landing.module').then(m => m.CoursesLandingModule),
     pathMatch: 'full'
   },
