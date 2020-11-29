@@ -74,21 +74,29 @@ export const ROUTES: RouteInfo[] = [
     icontype: 'tim-icons icon-badge',
     userTypes: ['regular', 'coach']
   },
-  // {
-  //   path: '/services',
-  //   title: 'Services',
-  //   type: 'link',
-  //   icontype: 'tim-icons icon-bullet-list-67',
-  //   rtlTitle: 'لوحة القيادة',
-  //   userTypes: ['coach']
-  // },
+  {
+    path: '/coach-products-services',
+    title: 'Products & Services',
+    type: 'link',
+    icontype: 'tim-icons icon-bullet-list-67',
+    rtlTitle: 'لوحة القيادة',
+    userTypes: ['coach'],
+  },
+  {
+    path: '/coach-journey',
+    title: 'My Journey',
+    type: 'link',
+    icontype: 'tim-icons icon-compass-05',
+    rtlTitle: 'لوحة القيادة',
+    userTypes: ['coach'],
+  },
   {
     path: '/my-courses',
     title: 'e-Courses',
     rtlTitle: 'التقويم',
     type: 'link',
     icontype: 'tim-icons icon-tv-2',
-    userTypes: ['regular', 'coach'],
+    userTypes: ['regular'],
   },
   {
     path: '/admin-users',

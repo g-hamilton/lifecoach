@@ -119,8 +119,12 @@ const routes: Routes = [
         loadChildren: () => import('./pages/calendar/calendar.page.module').then(m => m.CalendarPageModule)
       },
       {
-        path: 'services',
+        path: 'coach-products-services',
         loadChildren: () => import('./pages/coach-services/coach.services.module').then(m => m.CoachServicesModule)
+      },
+      {
+        path: 'coach-journey',
+        loadChildren: () => import('./pages/coach-as-regular-user/coach.as.regular.user.module').then(m => m.CoachAsRegularUserModule)
       },
       {
         path: 'people',

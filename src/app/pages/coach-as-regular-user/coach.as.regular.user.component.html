@@ -1,6 +1,6 @@
 <div class=" content">
 
-    <h5 class=" title"> My eCourses 
+    <h5 class=" title"> My Journey
         <a href="" target="_blank">
             <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> What's this? </span>
         </a>
@@ -11,10 +11,12 @@
             <div class=" card">
                 <div class=" card-body">
                     <p>
-                        eCourses are on-demand, self-study courses that allow you to learn on your own schedule.
+                        Did you know that as a Coach, you can enrol in coaching programs, eCourses & services, just 
+                        like any other Lifecoach user.
                     </p>
                     <p>
-                        Use the 'Browse eCourses' button to discover Coach led self-study courses for every area of Personal Transformation.
+                        Any coaching programs, eCourses or services that you have purchased or enrolled in as 
+                        part of your own journey will appear below.
                     </p>
                     <!-- <p>
                         Not sure how? <a href="" target="_blank">
@@ -25,9 +27,10 @@
         </div>
     </div>
 
+    <!-- eCourses -->
     <div>
         <div class=" row mt-5">
-            <div class=" col-12">
+            <div class=" col">
                 <button
                 type="button"
                 class=" btn btn-primary btn-fill btn-round pull-right mb-3"
@@ -38,7 +41,7 @@
             </div>
         </div>
 
-        <!-- No purchased courses -->
+        <!-- No enrolled ecourses -->
         <div class=" row" *ngIf="!purchasedCourses || purchasedCourses && purchasedCourses.length === 0">
             <div class=" col">
                 <div class=" card">

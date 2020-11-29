@@ -10,14 +10,14 @@ import { AnalyticsService } from 'app/services/analytics.service';
 import { Subscription } from 'rxjs';
 
 @Component({
-  selector: 'app-my-courses',
-  templateUrl: 'mycourses.component.html'
+  selector: 'app-coach-as-regular-user',
+  templateUrl: 'coach.as.regular.user.component.html'
 })
-export class MyCoursesComponent implements OnInit, OnDestroy {
+export class CoachAsRegularUserComponent implements OnInit, OnDestroy {
 
   public browser: boolean;
   private userId: string;
-  public purchasedCourses = [] as CoachingCourse[]; // purchased courses as buyer
+  public purchasedCourses = [] as CoachingCourse[]; // purchased ecourses as buyer/regular type user
   public objKeys = Object.keys;
   private subscriptions: Subscription = new Subscription();
 
@@ -26,7 +26,6 @@ export class MyCoursesComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private dataService: DataService,
     private router: Router,
-    private alertService: AlertService,
     private analyticsService: AnalyticsService
   ) {
   }
