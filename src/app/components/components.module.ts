@@ -54,6 +54,7 @@ import { ProfileVideoUploaderComponent } from '../components/profile-video-uploa
 import { ProfileVideoUploadTaskComponent } from '../components/profile-video-upload-task/profile-video-upload-task.component';
 import { SelectCurrencyComponent } from './select-currency/select-currency.component';
 import { NewCourseComponent } from './new-course/new-course.component';
+import { NewProgramComponent } from './new-program/new-program.component';
 import { CourseSectionComponent } from './course-section/course-section.component';
 import { CourseLecturesNavigatorComponent } from './course-lectures-navigator/course-lectures-navigator.component';
 import { CourseLectureComponent } from './course-lecture/course-lecture.component';
@@ -210,7 +211,8 @@ export function momentAdapterFactory() {
     CalendarHeaderComponent,
     PersonHistoryTimelineComponent,
     AdminVideoUploaderComponent,
-    AdminVideoUploadTaskComponent
+    AdminVideoUploadTaskComponent,
+    NewProgramComponent
   ],
   exports: [
     TabsModule,
@@ -295,7 +297,8 @@ export function momentAdapterFactory() {
     CalendarHeaderComponent,
     PersonHistoryTimelineComponent,
     AdminVideoUploaderComponent,
-    AdminVideoUploadTaskComponent
+    AdminVideoUploadTaskComponent,
+    NewProgramComponent
   ]
 })
 export class ComponentsModule {}

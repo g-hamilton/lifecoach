@@ -1,0 +1,82 @@
+<div class=" content">
+    <!-- Loading spinner if server -->
+    <div *ngIf="!browser" class="text-center">
+        <div class="spinner-border" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+
+    <!-- If browser -->
+    <div *ngIf="browser">
+
+        <!-- Creating a new program -->
+        <div *ngIf="isNewProgram">
+
+            <h4> New Program </h4>
+
+            <app-new-program [userId]="userId" [account]="account"></app-new-program>
+        </div>
+
+        <!-- Existing Program -->
+        <div *ngIf="!isNewProgram">
+
+            <!-- Title -->
+            <h4>{{ program?.title }}
+                <span
+                *ngIf="reviewRequest?.status === 'submitted' && program?.reviewRequest?.status !== 'approved'"
+                class=" badge badge-info ml-2">
+                    SUBMITTED FOR REVIEW
+                </span>
+                <span
+                *ngIf="program?.reviewRequest?.status === 'approved'"
+                class=" badge badge-success ml-2">
+                    PUBLISHED
+                </span>
+                <span
+                *ngIf="program?.reviewRequest?.status === 'rejected'"
+                class=" badge badge-danger ml-2">
+                    NEEDS ACTION
+                </span>
+                <span *ngIf="!program?.reviewRequest?.status" class=" badge badge-warning ml-2">
+                    DRAFT
+                </span>
+            </h4>
+
+            <!-- Tabs -->
+            <div class="card card-plain">
+                <div class="card-header">
+                  <tabset class="nav-tabs-primary">
+                    <tab heading="1. Program Details">
+                        <div class=" row">
+                            What goes here?
+                        </div>
+                    </tab>
+                    <!-- <tab heading="2. Program Landing Page">
+                      <app-course-landing-page [userId]="userId" [course]="course"></app-course-landing-page>
+                    </tab>
+                    <tab heading="3. Submit For Review">
+                        <ng-template *ngIf="program?.reviewRequest?.status === 'rejected'" tabHeading>
+                            <i class="tim-icons icon-alert-circle-exc text-danger ml-2"> </i>
+                        </ng-template>
+                        <app-course-submit [userId]="userId" [course]="course"></app-course-submit>
+                    </tab>
+                    <tab heading="4. Promote" [disabled]="program?.reviewRequest?.status !== 'approved'">
+                        <app-course-promote [userId]="userId" [course]="course"></app-course-promote>
+                    </tab>
+                    <tab>
+                        <ng-template tabHeading>
+                          <span class="">
+                            <i class="fas fa-ellipsis-h" tooltip="More options"></i>
+                          </span>
+                        </ng-template>
+                        <app-course-more [userId]="userId" [course]="course"></app-course-more>
+                    </tab> -->
+                  </tabset>
+                </div>
+              </div>
+            <!-- End of tabs -->
+        </div>
+
+    </div>
+    
+</div>

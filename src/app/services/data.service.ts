@@ -14,6 +14,8 @@ import { AnalyticsService } from './analytics.service';
 import { CustomCalendarEvent } from 'app/interfaces/custom.calendar.event.interface';
 import { CoachingService } from 'app/interfaces/coaching.service.interface';
 import { first } from 'rxjs/operators';
+import { CoachingProgram } from 'app/interfaces/coach.program.interface';
+import { AdminProgramReviewRequest } from 'app/interfaces/admin.program.review.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -596,6 +598,33 @@ export class DataService {
     return this.db.collection(`users/${uid}/people`)
       .doc(personUid)
       .valueChanges() as Observable<any>;
+  }
+
+  // ================================================================================
+  // =====                           COACH PROGRAMS                            ======
+  // ================================================================================
+
+  getPrivateProgram(userId: string, programId: string) {
+    // Returns a coaching program document.
+    return this.db.collection(`users/${userId}/programs`)
+      .doc(programId)
+      .valueChanges() as Observable<CoachingProgram>;
+  }
+
+  getProgramReviewRequest(programId: string) {
+    return this.db.collection(`admin/review-requests/programs`)
+      .doc(programId)
+      .valueChanges() as Observable<AdminProgramReviewRequest>;
+  }
+
+  async savePrivateProgram(uid: string, program: CoachingProgram) {
+    // track
+    this.analyticsService.saveProgram();
+    // Saves a user's program to a document with matching id
+    return this.db.collection(`users/${uid}/programs`)
+      .doc(program.programId)
+      .set(program, {merge: true})
+      .catch(err => console.error(err));
   }
 
   // ================================================================================

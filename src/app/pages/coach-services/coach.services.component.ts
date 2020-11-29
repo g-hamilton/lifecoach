@@ -1,6 +1,7 @@
 import { Component, OnInit, Inject, PLATFORM_ID, OnDestroy } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
+import { CoachingProgram } from 'app/interfaces/coach.program.interface';
 import { CoachingCourse } from 'app/interfaces/course.interface';
 import { CoachingService } from 'app/interfaces/coaching.service.interface';
 import { AuthService } from 'app/services/auth.service';
@@ -18,8 +19,9 @@ export class CoachServicesComponent implements OnInit, OnDestroy {
 
   public browser: boolean;
   private userId: string;
+  public publishedPrograms: CoachingProgram[]; // programs created as coach
   public publishedCourses: CoachingCourse[]; // ecourses created as coach
-  public publishedServices: CoachingService[];
+  public publishedServices: CoachingService[]; // TODO
   private subscriptions: Subscription = new Subscription();
   public objKeys = Object.keys;
   public currencies: any;
@@ -128,6 +130,11 @@ export class CoachServicesComponent implements OnInit, OnDestroy {
         }
       })
     );
+  }
+
+  async createProgram() {
+    this.analyticsService.clickCreateProgram();
+    this.router.navigate(['my-programs', 'new-program']); // navigate to new program page
   }
 
   async createCourse() {

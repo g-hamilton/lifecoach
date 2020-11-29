@@ -314,4 +314,12 @@ export class AnalyticsService {
     });
   }
 
+  clickCreateProgram() {
+    mixpanel.track('clicked create program');
+  }
+
+  saveProgram() {
+    mixpanel.track('saved program');
+  }
+
 }
