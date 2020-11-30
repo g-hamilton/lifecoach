@@ -7,7 +7,7 @@ import { UserAccount } from 'app/interfaces/user.account.interface';
 import { DataService } from 'app/services/data.service';
 import { AlertService } from 'app/services/alert.service';
 import { AnalyticsService } from 'app/services/analytics.service';
-import { PriceValidator } from 'app/custom-validators/price.validator';
+import { ProgramPriceValidator } from 'app/custom-validators/program.price.validator';
 import { Router } from '@angular/router';
 
 @Component({
@@ -31,6 +31,7 @@ export class ProgramOutlineComponent implements OnInit, OnChanges, OnDestroy {
   public focus1Touched: boolean;
 
   public saving: boolean;
+  public saveAttempt: boolean;
   public objKeys = Object.keys;
   private subscriptions: Subscription = new Subscription();
 
@@ -109,12 +110,12 @@ export class ProgramOutlineComponent implements OnInit, OnChanges, OnDestroy {
     this.outlineForm = this.formBuilder.group({
       programId: ['', [Validators.required]],
       pricingStrategy: ['flexible', [Validators.required]],
-      fullPrice: [0, [Validators.required]],
-      pricePerSession: [0, [this.conditionallyRequiredValidator]],
+      fullPrice: [null, [Validators.required]],
+      pricePerSession: [null, [this.conditionallyRequiredValidator]],
       currency: ['USD', [Validators.required]]
     }, {
       validators: [
-        PriceValidator('pricingStrategy', 'fullPrice', this.minPrice, this.maxPrice)
+        ProgramPriceValidator('pricingStrategy', 'fullPrice', 'pricePerSession', this.minPrice, this.maxPrice),
       ]
     });
   }
@@ -149,7 +150,8 @@ export class ProgramOutlineComponent implements OnInit, OnChanges, OnDestroy {
     this.outlineForm.patchValue({
       programId: this.program.programId,
       pricingStrategy: this.program.pricingStrategy ? this.program.pricingStrategy : 'flexible',
-      fullPrice: this.program.fullPrice ? this.program.fullPrice : 0,
+      fullPrice: this.program.fullPrice ? this.program.fullPrice : null,
+      pricePerSession: this.program.pricePerSession ? this.program.pricePerSession : null,
       currency: this.program.currency ? this.program.currency : defaultCurrency
     });
   }
@@ -175,6 +177,7 @@ export class ProgramOutlineComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async onSubmit() {
+    this.saveAttempt = true;
     this.saving = true;
 
     // safety checks
@@ -216,6 +219,7 @@ export class ProgramOutlineComponent implements OnInit, OnChanges, OnDestroy {
     this.alertService.alert('auto-close', 'Success!', 'Program saved.');
 
     this.saving = false;
+    this.saveAttempt = false;
 
     this.analyticsService.editProgramOutline();
   }
