@@ -215,6 +215,11 @@ const routes: Routes = [
         pathMatch: 'full'
       },
       {
+        path: 'my-programs/:programId/content',
+        loadChildren: () => import('./pages/edit-coach-program/edit-coach.program.module').then(m => m.EditCoachProgramModule),
+        pathMatch: 'full'
+      },
+      {
         path: 'services/new',
         loadChildren: () => import('./pages/edit-coach-service/edit.coach.service.module').then(m => m.EditCoachServiceModule),
         pathMatch: 'full'

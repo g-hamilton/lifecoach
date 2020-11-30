@@ -7,4 +7,9 @@ export interface CoachingProgram {
     image?: string;
     reviewRequest?: AdminProgramReviewRequest;
     subtitle?: string;
+    pricingStrategy?: 'flexible' | 'full';
+    fullPrice?: number;
+    pricePerSession?: number;
+    currency?: string;
+    stripeId?: string;
 }

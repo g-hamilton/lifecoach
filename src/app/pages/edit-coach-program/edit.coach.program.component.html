@@ -46,10 +46,8 @@
             <div class="card card-plain">
                 <div class="card-header">
                   <tabset class="nav-tabs-primary">
-                    <tab heading="1. Program Details">
-                        <div class=" row">
-                            What goes here?
-                        </div>
+                    <tab heading="1. Sessions & Pricing">
+                        <app-program-outline [userId]="userId" [program]="program"></app-program-outline>
                     </tab>
                     <!-- <tab heading="2. Program Landing Page">
                       <app-course-landing-page [userId]="userId" [course]="course"></app-course-landing-page>

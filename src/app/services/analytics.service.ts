@@ -322,4 +322,8 @@ export class AnalyticsService {
     mixpanel.track('saved program');
   }
 
+  editProgramOutline() {
+    mixpanel.track('Edited program outline');
+  }
+
 }

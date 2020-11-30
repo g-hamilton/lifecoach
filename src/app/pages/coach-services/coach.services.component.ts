@@ -55,7 +55,7 @@ export class CoachServicesComponent implements OnInit, OnDestroy {
             this.dataService.getPrivateCourses(this.userId).subscribe(courses => {
               if (courses) {
                 this.publishedCourses = courses;
-                console.log('Published Courses:', courses);
+                // console.log('Published Courses:', courses);
 
                 const now = new Date();
                 const month = now.getMonth() + 1; // we dont store zero based. jan === 1
@@ -68,11 +68,11 @@ export class CoachServicesComponent implements OnInit, OnDestroy {
                   this.subscriptions.add(
                     this.dataService.getCourseSalesByMonth(this.userId, month, year, courseId).subscribe(sales => {
                       if (sales) { // should be an array of custom free or paid course enrollment objects
-                        console.log(`Sales for course ${courseId}`, sales);
+                        // console.log(`Sales for course ${courseId}`, sales);
 
                         // map a new array containing unique currencies from all sales in the month
                         const uniqueCurrencies = [...new Set(sales.map(item => item.currency))];
-                        console.log('Unique currencies:', uniqueCurrencies);
+                        // console.log('Unique currencies:', uniqueCurrencies);
 
                         // build total sales for each unique currency
                         const monthEarningsByCurrency = {};
@@ -91,8 +91,8 @@ export class CoachServicesComponent implements OnInit, OnDestroy {
                           // add the total for this currency into the overall totals for all currencies
                           monthEarningsByCurrency[currencyString] = {monthTotalInThisCurrency};
                         });
-                        // tslint:disable-next-line: max-line-length
-                        console.log(`Monthly earnings totals by currencies for course ${courseId}`, monthEarningsByCurrency);
+
+                        // console.log(`Monthly earnings totals by currencies for course ${courseId}`, monthEarningsByCurrency);
 
                         // add this data into the course object
                         this.publishedCourses[i].monthlyEarnings = monthEarningsByCurrency;
@@ -103,7 +103,7 @@ export class CoachServicesComponent implements OnInit, OnDestroy {
                   // Load lifetime total sales for this course
                   this.subscriptions.add(
                     this.dataService.getLifetimeTotalCourseSales(this.userId, courseId).subscribe(ltSales => {
-                      console.log('Lifetime total course sales:', ltSales);
+                      // console.log('Lifetime total course sales:', ltSales);
                       if (ltSales) {
                         c.lifetimeTotals = ltSales;
                         let total = 0;

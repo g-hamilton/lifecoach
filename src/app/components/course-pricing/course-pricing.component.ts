@@ -8,7 +8,6 @@ import { DataService } from 'app/services/data.service';
 import { AlertService } from 'app/services/alert.service';
 import { AnalyticsService } from 'app/services/analytics.service';
 import { PriceValidator } from 'app/custom-validators/price.validator';
-import { AuthService } from 'app/services/auth.service';
 import { UserAccount } from 'app/interfaces/user.account.interface';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -35,8 +34,8 @@ export class CoursePricingComponent implements OnInit, OnChanges, OnDestroy {
   private baseMinPrice = 1;
   private baseMaxPrice = 10000;
   private baseCurrency = 'GBP';
-  private minPrice: number;
-  private maxPrice: number;
+  private minPrice = 1;
+  private maxPrice = 10000;
 
   public errorMessages = {
     price: {
@@ -56,7 +55,6 @@ export class CoursePricingComponent implements OnInit, OnChanges, OnDestroy {
   constructor(
     @Inject(PLATFORM_ID) public platformId: object,
     public formBuilder: FormBuilder,
-    private authService: AuthService,
     private dataService: DataService,
     private alertService: AlertService,
     private analyticsService: AnalyticsService,
@@ -215,7 +213,7 @@ export class CoursePricingComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     if (!this.userId) {
-      this.alertService.alert('warning-message', 'Oops', 'Error: No user ID. Cannot save landing page data.');
+      this.alertService.alert('warning-message', 'Oops', 'Error: No user ID. Cannot save data.');
       this.saving = false;
       return;
     }

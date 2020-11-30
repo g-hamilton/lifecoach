@@ -103,7 +103,7 @@ export class NewProgramComponent implements OnInit {
     await this.dataService.savePrivateProgram(this.userId, newProgram);
 
     // Navigate to continue
-    this.router.navigate(['/my-courses', programId, 'content'], { queryParams: { targetUser: this.userId }});
+    this.router.navigate(['/my-programs', programId, 'content'], { queryParams: { targetUser: this.userId }});
   }
 
 }
