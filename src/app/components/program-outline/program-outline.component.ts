@@ -26,9 +26,10 @@ export class ProgramOutlineComponent implements OnInit, OnChanges, OnDestroy {
 
   public outlineForm: FormGroup;
   public focus: boolean;
-  public focus1: boolean;
   public focusTouched: boolean;
   public focus1Touched: boolean;
+  public focus2Touched: boolean;
+  public focus3Touched: boolean;
 
   public saving: boolean;
   public saveAttempt: boolean;
@@ -55,6 +56,12 @@ export class ProgramOutlineComponent implements OnInit, OnChanges, OnDestroy {
       notNumber: `Price must be a number`,
       belowMin: `Please enter a price above ${this.minPricePerSession}.`,
       aboveMax: `Price enter a price below ${this.maxPricePerSession}`
+    },
+    numSessions: {
+      required: `Please enter a number`
+    },
+    duration: {
+      required: `Please enter a number (in weeks)`
     }
   };
 
@@ -112,7 +119,9 @@ export class ProgramOutlineComponent implements OnInit, OnChanges, OnDestroy {
       pricingStrategy: ['flexible', [Validators.required]],
       fullPrice: [null, [Validators.required]],
       pricePerSession: [null, [this.conditionallyRequiredValidator]],
-      currency: ['USD', [Validators.required]]
+      currency: ['USD', [Validators.required]],
+      numSessions: [null, [Validators.required]],
+      duration: [null, [Validators.required]],
     }, {
       validators: [
         ProgramPriceValidator('pricingStrategy', 'fullPrice', 'pricePerSession', this.minPrice, this.maxPrice),
@@ -152,7 +161,9 @@ export class ProgramOutlineComponent implements OnInit, OnChanges, OnDestroy {
       pricingStrategy: this.program.pricingStrategy ? this.program.pricingStrategy : 'flexible',
       fullPrice: this.program.fullPrice ? this.program.fullPrice : null,
       pricePerSession: this.program.pricePerSession ? this.program.pricePerSession : null,
-      currency: this.program.currency ? this.program.currency : defaultCurrency
+      currency: this.program.currency ? this.program.currency : defaultCurrency,
+      numSessions: this.program.numSessions ? this.program.numSessions : null,
+      duration: this.program.duration ? this.program.duration : null,
     });
   }
 
@@ -210,6 +221,8 @@ export class ProgramOutlineComponent implements OnInit, OnChanges, OnDestroy {
     }
     this.program.currency = this.outlineF.currency.value;
     this.program.stripeId = this.account.stripeUid; // Important! Without this the creator cannot be paid!
+    this.program.numSessions = this.outlineF.numSessions.value;
+    this.program.duration = this.outlineF.duration.value;
 
     // console.log(this.outlineForm.value);
     console.log('Saving program:', this.program);

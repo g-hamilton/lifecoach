@@ -12,4 +12,6 @@ export interface CoachingProgram {
     pricePerSession?: number;
     currency?: string;
     stripeId?: string;
+    numSessions?: number; // number of sessions in a program
+    duration?: number; // in weeks
 }

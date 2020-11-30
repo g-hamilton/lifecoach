@@ -2,7 +2,75 @@
     <div class=" card-body">
         <form *ngIf="outlineForm" [formGroup]="outlineForm" (submit)="onSubmit()">
 
-            <h5>Program Pricing
+            <h5>Program Sessions
+                <a href="" target="_blank">
+                    <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> Help with sessions </span>
+                </a>
+            </h5>
+
+            <!-- How many sessions are in this program? -->
+            <div class=" row mt-4">
+                <div class=" col-6">
+                    <div class="">
+                        <label> How many live 1-to-1 video coaching sessions are included in this program? </label>
+                    </div>
+                    <div
+                    class="form-group"
+                    [ngClass]="{
+                        'has-danger':
+                        ((focus2Touched || saveAttempt) && outlineF.numSessions.errors),
+                        'has-success': !outlineF.numSessions.errors
+                    }">
+                        <input
+                        type="number"
+                        class="form-control"
+                        formControlName="numSessions"
+                        placeholder="eg. 12"
+                        (focus)="focus2Touched = true">
+                    </div>
+                    <div *ngIf="((focus2Touched || saveAttempt) && outlineF.numSessions.errors)">
+                        <label
+                        *ngFor="let error of objKeys(outlineF.numSessions.errors)"
+                        class="error custom-error-label"
+                        >{{ showError('numSessions', error) }}
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <!-- End of row -->
+
+            <!-- How many weeks does the program generally run (duration)? -->
+            <div class=" row mt-4">
+                <div class=" col-6">
+                    <div class="">
+                        <label> Generally speaking, how many weeks does your program run for each client? </label>
+                    </div>
+                    <div
+                    class="form-group"
+                    [ngClass]="{
+                        'has-danger':
+                        ((focus3Touched || saveAttempt) && outlineF.duration.errors),
+                        'has-success': !outlineF.duration.errors
+                    }">
+                        <input
+                        type="number"
+                        class="form-control"
+                        formControlName="duration"
+                        placeholder="eg. 12"
+                        (focus)="focus3Touched = true">
+                    </div>
+                    <div *ngIf="((focus3Touched || saveAttempt) && outlineF.duration.errors)">
+                        <label
+                        *ngFor="let error of objKeys(outlineF.duration.errors)"
+                        class="error custom-error-label"
+                        >{{ showError('duration', error) }}
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <!-- End of row -->
+
+            <h5 class="mt-5">Program Pricing
                 <a href="" target="_blank">
                     <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> Help with pricing </span>
                 </a>
@@ -117,7 +185,7 @@
             <p class=" mt-4 small">
                 <span class=" text-success">Pricing Tip</span>: After publishing your program, opt into the 'Deals' & 'Extended Promotions' programs in 
                 <a [routerLink]="['/account']">'Account > Program Settings'</a> 
-                to join our platform wide promotions programs.
+                to join our platform wide promotions programs. Discover more about these programs <a href="" target="_blank">here</a>.
             </p>
 
             <!-- Form submit button -->
