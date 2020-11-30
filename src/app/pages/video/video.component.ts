@@ -68,6 +68,5 @@ export class VideoComponent implements OnInit, OnDestroy {
 
 
   redirectToSessionIdUrl(session: any) {
-    console.log('Session', session);
   }
 }

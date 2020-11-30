@@ -14,7 +14,7 @@ import { CoachingService } from 'app/interfaces/coaching.service.interface';
 import {Observable, Subscription, from} from 'rxjs';
 import {CustomCalendarEvent} from '../../interfaces/custom.calendar.event.interface';
 import {AuthService} from '../../services/auth.service';
-import {first} from 'rxjs/operators';
+import {filter, first, map} from 'rxjs/operators';
 import {ModalDirective} from 'ngx-bootstrap/modal';
 
 
@@ -38,6 +38,9 @@ export class CoachComponent implements OnInit, OnDestroy {
   public dayToSelect: Array<Date> = [];
   public timeToSelect: Array<Date> = [];
 
+  public testArr: [];
+  public test: Observable<any>;
+  public testData: any;
 
   constructor(
     @Inject(DOCUMENT) private document: any,
@@ -178,24 +181,33 @@ export class CoachComponent implements OnInit, OnDestroy {
           if (next) {
             this.availableEvents = next;
             this.dayToSelect = [];
+            // this.test = next
             this.availableEvents.forEach( i => {
               // console.log(i.start);
               // @ts-ignore
               const startDate = new Date(i.start.seconds * 1000);
-              console.log('Start Date = ', startDate);
+              // console.log('Start Date = ', startDate);
               const day = new Date(startDate.getUTCFullYear(), startDate.getUTCMonth(), startDate.getUTCDate());
-              console.log('Day', day);
+              // console.log('Day', day);
               if (!this.dayToSelect.some( (date) => this.isSameDay(date, day))) {
                 this.dayToSelect.push(day);
               }
-              });
+            });
             } else {
-            this.availableEvents = [];
-          }
+              this.availableEvents = [];
+            }
           console.log('UNIQUE DAYS:', this.dayToSelect);
         })
       );
       this.authService.getAuthUser().pipe(first()).subscribe(value => this.userId = value.uid);
+
+      // delete
+      this.test = this.dataService.getUserNotReservedEvents(this.coachId);
+
+      // this.subscriptions.add(
+      //   this.test.subscribe(next => console.log(next))
+      // );
+      // delete
     }
   }
 
@@ -204,6 +216,9 @@ export class CoachComponent implements OnInit, OnDestroy {
     const selectedDate = new Date(event.target.value);
     selectedDate.setDate(selectedDate.getDate() + 1);
     // @ts-ignore
+    // this.test = this.dataService.getUserNotReservedEvents(this.coachId).pipe(
+    //   map( item => console.log(item))
+    // );
     this.todayEvents = this.availableEvents.filter( i => this.isSameDay( new Date(i.start.seconds * 1000), selectedDate));
   }
   isSameDay(a: Date, b: Date) {
@@ -251,7 +266,6 @@ export class CoachComponent implements OnInit, OnDestroy {
     }
   }
 
-
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
 
@@ -271,7 +285,7 @@ export class CoachComponent implements OnInit, OnDestroy {
   reserveSession($event: any) {
     console.log($event.target);
     console.log($event.target.value);
-    this.dataService.reserveEvent( this.userId, this.coachId, $event.target.value);
+    this.dataService.reserveEvent(this.userId, this.coachId, $event.target.value).then(r => console.log('Reserved'));
   }
 
   hideModal() {

@@ -798,7 +798,8 @@ export class DataService {
   }
 
   getUserIsCoachSession(uid: string) {
-    return this.db.collection(`users/${uid}/calendar`, ref => ref.where('ordered', '==', 'true'))
+    // console.log(uid);
+    return this.db.collection(`users/${uid}/calendar`, ref => ref.where('ordered', '==', true))
       .valueChanges() as Observable<any>;
   }
 

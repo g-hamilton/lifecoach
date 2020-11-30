@@ -1,30 +1,21 @@
 <div class="content">
   <div *ngIf="this.orderedSessions.length; else sessions">
-    <h2>Your ordered sessions</h2>
+    <h1>Your ordered sessions</h1>
     <div *ngFor="let session of orderedSessions">
       <h2>{{session.sessionId}}</h2>
       <p> Lorem ipsum dolor sit amet, consectetur adipisicing elit.
         Alias at aut cum cumque laboriosam obcaecati perferendis porro quod rem tempora!</p>
       <a [routerLink]="[session.sessionId]">I AM LINK</a>
-      <button type="button" (click)="redirectToSessionIdUrl(session)"
-              class="btn btn-fill btn-round btn-primary mr-2 mb-2">
-        Go To Session Room
-      </button>
     </div>
     <hr>
   </div>
   <div *ngIf="this.coachingSessions.length; else coachSessions">
-    <h2>Sessions, where You are coaching</h2>
+    <h1>Sessions, where You are coaching</h1>
     <hr>
     <div *ngFor="let session of this.coachingSessions">
       <h2>{{session.sessionId}}</h2>
-      <p> Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-        Alias at aut cum cumque laboriosam obcaecati perferendis porro quod rem tempora!</p>
+      <p> Session, where u r coach</p>
       <a [routerLink]="[session.sessionId]">I AM LINK</a>
-      <button type="button" (click)="redirectToSessionIdUrl(session)"
-              class="btn btn-fill btn-round btn-primary mr-2 mb-2">
-        Go To Session Room
-      </button>
     </div>
     <br><hr>
   </div>
