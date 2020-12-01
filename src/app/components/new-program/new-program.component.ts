@@ -25,7 +25,7 @@ export class NewProgramComponent implements OnInit {
   public focusTouched: boolean;
 
   public titleMinLength = 10;
-  public titleMaxLength = 60;
+  public titleMaxLength = 40;
   public titleActualLength = 0;
 
   public errorMessages = {
@@ -36,6 +36,7 @@ export class NewProgramComponent implements OnInit {
   };
 
   public saving: boolean;
+  public saveAttempt: boolean;
 
   public objKeys = Object.keys;
 
@@ -76,17 +77,23 @@ export class NewProgramComponent implements OnInit {
   }
 
   async onSubmit() {
+    this.saveAttempt = true;
+    this.saving = true;
+
     // Safety checks
     if (this.newProgramForm.invalid) {
       this.alertService.alert('warning-message', 'Oops', 'Invalid form.');
+      this.saving = false;
       return;
     }
     if (!this.userId) {
       this.alertService.alert('warning-message', 'Oops', 'Missing UID.');
+      this.saving = false;
       return;
     }
     if (!this.account) {
       this.alertService.alert('warning-message', 'Oops', 'Missing account data.');
+      this.saving = false;
       return;
     }
 
@@ -101,6 +108,9 @@ export class NewProgramComponent implements OnInit {
 
     // Save the new program to the db
     await this.dataService.savePrivateProgram(this.userId, newProgram);
+
+    this.saving = false;
+    this.saveAttempt = false;
 
     // Navigate to continue
     this.router.navigate(['/my-programs', programId, 'content'], { queryParams: { targetUser: this.userId }});

@@ -23,7 +23,7 @@
                         class="input-group no-symbol"
                         [ngClass]="{
                             'has-danger':
-                            ((focusTouched || saving) && programF.title.value != '' && programF.title.errors) ||
+                            ((focusTouched || saveAttempt) && programF.title.errors) ||
                             (programF.title.value != '' && programF.title.errors),
                             'has-success': !programF.title.errors
                         }">
@@ -40,7 +40,7 @@
                               </span>
                             </div>
                         </div>
-                        <div *ngIf="((focusTouched || saving) && programF.title.value != '' && programF.title.errors) ||
+                        <div *ngIf="((focusTouched || saveAttempt) && programF.title.errors) ||
                             (programF.title.value != '' && programF.title.errors)">
                             <label
                             *ngFor="let error of objKeys(programF.title.errors)"
@@ -51,7 +51,14 @@
 
                         <div class=" pull-right">
                             <button type="submit" class=" btn btn-primary btn-round btn-fill mt-4">
-                                Continue
+                                <span *ngIf="!saving">
+                                    <i class="fas fa-save"></i>
+                                  </span>
+                                  <span
+                                  *ngIf="saving"
+                                  class="spinner-border spinner-border-sm"
+                                  role="status"
+                                  ></span> {{ saving ? 'Saving...' : 'Continue'}}
                             </button>
                         </div>
                     </form>
