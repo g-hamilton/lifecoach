@@ -32,7 +32,7 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
   public focus2Touched: boolean;
 
   public titleMinLength = 10;
-  public titleMaxLength = 60;
+  public titleMaxLength = 40;
   public titleActualLength = 0;
 
   public subTitleMinLength = 20;
@@ -164,6 +164,10 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
       requirements: this.program.requirements ? this.loadRequirements() : this.formBuilder.array([new FormControl('', Validators.maxLength(this.requirementsMaxLength))], Validators.maxLength(this.requirementsMax)),
       targets: this.program.targets ? this.loadTargets() : this.formBuilder.array([new FormControl('', Validators.maxLength(this.targetsMaxLength))], Validators.maxLength(this.targetsMax))
     });
+    // init the character counts (before user input detected)
+    this.titleActualLength = this.landingF.title.value.length;
+    this.subTitleActualLength = this.landingF.subtitle.value.length;
+    this.subjectActualLength = this.landingF.subject.value.length;
   }
 
   loadLpoints() {
