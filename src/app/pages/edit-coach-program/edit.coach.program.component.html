@@ -46,12 +46,15 @@
             <div class="card card-plain">
                 <div class="card-header">
                   <tabset class="nav-tabs-primary">
-                    <tab heading="1. Sessions & Pricing">
+
+                    <tab heading="1. Program Landing Page">
+                      <app-program-landing-page [userId]="userId" [program]="program"></app-program-landing-page>
+                    </tab>
+
+                    <tab heading="2. Sessions & Pricing">
                         <app-program-outline [userId]="userId" [program]="program"></app-program-outline>
                     </tab>
-                    <!-- <tab heading="2. Program Landing Page">
-                      <app-course-landing-page [userId]="userId" [course]="course"></app-course-landing-page>
-                    </tab>
+                    <!-- 
                     <tab heading="3. Submit For Review">
                         <ng-template *ngIf="program?.reviewRequest?.status === 'rejected'" tabHeading>
                             <i class="tim-icons icon-alert-circle-exc text-danger ml-2"> </i>

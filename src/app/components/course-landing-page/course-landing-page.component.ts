@@ -165,11 +165,8 @@ export class CourseLandingPageComponent implements OnInit, OnChanges, AfterViewI
       subject: this.course.subject ? this.course.subject : '',
       mainImage: this.course.image ? this.course.image : null,
       promoVideo: this.course.promoVideo ? this.course.promoVideo : null,
-      // tslint:disable-next-line: max-line-length
       learningPoints: this.course.learningPoints ? this.loadLpoints() : this.formBuilder.array([new FormControl('', Validators.maxLength(this.learningPointsMaxLength))], Validators.maxLength(this.learningPointsMax)),
-      // tslint:disable-next-line: max-line-length
       requirements: this.course.requirements ? this.loadRequirements() : this.formBuilder.array([new FormControl('', Validators.maxLength(this.requirementsMaxLength))], Validators.maxLength(this.requirementsMax)),
-      // tslint:disable-next-line: max-line-length
       targets: this.course.targets ? this.loadTargets() : this.formBuilder.array([new FormControl('', Validators.maxLength(this.targetsMaxLength))], Validators.maxLength(this.targetsMax))
     });
 

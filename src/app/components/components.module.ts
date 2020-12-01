@@ -106,6 +106,7 @@ import { CalendarHeaderComponent } from './calendar-header/calendar-header.compo
 import * as moment from 'moment';
 import { PersonHistoryTimelineComponent } from './person-history-timeline/person-history-timeline.component';
 import { ProgramOutlineComponent } from './program-outline/program-outline.component';
+import { ProgramLandingPageComponent } from './program-landing-page/program-landing-page.component';
 
 export function momentAdapterFactory() {
   return adapterFactory(moment);
@@ -214,7 +215,8 @@ export function momentAdapterFactory() {
     AdminVideoUploaderComponent,
     AdminVideoUploadTaskComponent,
     NewProgramComponent,
-    ProgramOutlineComponent
+    ProgramOutlineComponent,
+    ProgramLandingPageComponent
   ],
   exports: [
     TabsModule,
@@ -301,7 +303,8 @@ export function momentAdapterFactory() {
     AdminVideoUploaderComponent,
     AdminVideoUploadTaskComponent,
     NewProgramComponent,
-    ProgramOutlineComponent
+    ProgramOutlineComponent,
+    ProgramLandingPageComponent
   ]
 })
 export class ComponentsModule {}

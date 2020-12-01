@@ -326,4 +326,8 @@ export class AnalyticsService {
     mixpanel.track('Edited program outline');
   }
 
+  editProgramLanding() {
+    mixpanel.track('Edited program landing page');
+  }
+
 }

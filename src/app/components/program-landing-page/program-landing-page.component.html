@@ -1,0 +1,482 @@
+<div class=" card">
+    <div class=" card-body">
+        <form *ngIf="landingForm" [formGroup]="landingForm" (submit)="onSubmit()">
+
+            <div class=" mb-3">
+                <a href="" target="_blank">
+                    <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> Help with your landing page </span>
+                </a>
+            </div>
+
+            <!-- Program title -->
+            <div class="">
+                <label> Program Title </label>
+            </div>
+            <div
+            class="input-group no-symbol"
+            [ngClass]="{
+                'has-danger':
+                ((focusTouched || saveAttempt) && landingF.title.errors) ||
+                (landingF.title.value != '' && landingF.title.errors),
+                'has-success': !landingF.title.errors
+            }">
+                <input
+                type="text"
+                class="form-control"
+                formControlName="title"
+                placeholder="eg. Master Your Anxiety"
+                (focus)="focus = true; focusTouched = true"
+                (blur)="focus =false"
+                (input)="onTitleInput($event)">
+                <div class="input-group-append">
+                <span class="input-group-text">
+                    {{ titleActualLength + '/' + titleMaxLength }}
+                </span>
+                </div>
+            </div>
+            <div *ngIf="((focusTouched || saveAttempt) && landingF.title.errors) ||
+            (landingF.title.value != '' && landingF.title.errors)">
+                <label
+                *ngFor="let error of objKeys(landingF.title.errors)"
+                class="error custom-error-label"
+                >{{ showError('title', error) }}
+                </label>
+            </div>
+            <!-- End of program title -->
+
+            <!-- Program subtitle -->
+            <div class=" mt-3">
+                <label> Program Subtitle </label>
+            </div>
+            <div
+            class="input-group no-symbol"
+            [ngClass]="{
+                'has-danger':
+                ((focus1Touched || saveAttempt) && landingF.subtitle.errors) ||
+                (landingF.subtitle.value != '' && landingF.subtitle.errors),
+                'has-success': !landingF.subtitle.errors
+            }">
+                <input
+                type="text"
+                class="form-control"
+                formControlName="subtitle"
+                placeholder="eg. Overcome Your Anxiety in 90 Days"
+                (focus)="focus1 = true; focus1Touched = true"
+                (blur)="focus1 = false"
+                (input)="onSubTitleInput($event)">
+                <div class="input-group-append">
+                <span class="input-group-text">
+                    {{ subTitleActualLength + '/' + subTitleMaxLength }}
+                </span>
+                </div>
+            </div>
+            <div *ngIf="((focus1Touched || saveAttempt) && landingF.subtitle.errors) ||
+            (landingF.subtitle.value != '' && landingF.subtitle.errors)">
+                <label
+                *ngFor="let error of objKeys(landingF.subtitle.errors)"
+                class="error custom-error-label"
+                >{{ showError('subtitle', error) }}
+                </label>
+            </div>
+            <!-- End program subtitle -->
+
+            <!-- Program description -->
+            <div class=" mt-3">
+                <label> Course Description </label>
+            </div>
+            <editor
+            *ngIf="viewLoaded"
+            apiKey="swb6l7gw85zcl8aw2dh7551jt3t5ydravtthultgf8fo3w2l" 
+            [init]="{
+                height: 300,
+                menubar: false,
+                plugins: 'link lists paste',
+                toolbar: 'undo redo | formatselect | paste | bold italic backcolor link| alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat'
+            }"
+            formControlName="description"
+            >
+            </editor>
+            <div *ngIf="((saveAttempt) && landingF.description.errors) ||
+                (landingF.description.value != '' && landingF.description.errors)">
+                <label
+                *ngFor="let error of objKeys(landingF.description.errors)"
+                class="error custom-error-label"
+                >{{ showError('title', error) }}
+                </label>
+            </div>
+            <!-- End program description -->
+
+            <!-- Program language -->
+            <div class=" mt-3">
+                <label> Course Language </label>
+            </div>
+            <div class="form-group" *ngIf="languages">
+                <select class="form-control" formControlName="language">
+                    <option *ngFor="let item of objKeys(languages)" [value]="item">
+                        {{ languages[item].nativeName }}
+                    </option>
+                </select>
+            </div>
+            <div *ngIf="landingF.language.errors">
+                <label
+                *ngFor="let error of objKeys(landingF.language.errors)"
+                class="error custom-error-label"
+                >{{ showError('language', error) }}
+                </label>
+            </div>
+            <!-- End program language -->
+
+            <!-- Program category -->
+            <div class=" mt-3">
+                <label> Course Category </label>
+            </div>
+            <div class="form-group">
+                <select class="form-control" formControlName="category">
+                    <option [value]="null">Select a category</option>
+                    <option *ngFor="let item of specialities" [value]="item.itemName">
+                        {{ item.itemName }}
+                    </option>
+                </select>
+            </div>
+            <div *ngIf="saveAttempt && landingF.category.errors || landingF.category.value != null && landingF.category.errors">
+                <label
+                *ngFor="let error of objKeys(landingF.category.errors)"
+                class="error custom-error-label"
+                >{{ showError('category', error) }}
+                </label>
+            </div>
+            <!-- End program category -->
+
+            <!-- Program level -->
+            <div class=" mt-3">
+                <label> Course Level </label>
+            </div>
+            <div class="form-group">
+                <select class="form-control" formControlName="level">
+                    <option [value]="null">Select a category</option>
+                    <option value="beginner"> Beginner </option>
+                    <option value="intermediate"> Intermediate </option>
+                    <option value="advanced"> Advanced </option>
+                    <option value="all"> Suitable for all </option>
+                </select>
+            </div>
+            <div *ngIf="saveAttempt && landingF.level.errors || landingF.level.value != null && landingF.level.errors">
+                <label
+                *ngFor="let error of objKeys(landingF.level.errors)"
+                class="error custom-error-label"
+                >{{ showError('level', error) }}
+                </label>
+            </div>
+            <!-- End program level -->
+
+            <!-- Program subject -->
+            <div class=" mt-3">
+                <label> What is the <strong>Primary</strong> subject you address in this program? </label>
+            </div>
+            <div
+            class="input-group no-symbol"
+            [ngClass]="{
+                'has-danger':
+                ((focus2Touched || saveAttempt) && landingF.subject.errors) ||
+                (landingF.subject.value != '' && landingF.subject.errors),
+                'has-success': !landingF.subject.errors
+            }">
+                <input
+                type="text"
+                class="form-control"
+                formControlName="subject"
+                placeholder="eg. Dealing with anxiety"
+                (focus)="focus2 = true; focus2Touched = true"
+                (blur)="focus2 = false"
+                (input)="onSubjectInput($event)">
+                <div class="input-group-append">
+                <span class="input-group-text">
+                    {{ subjectActualLength + '/' + subjectMaxLength }}
+                </span>
+                </div>
+            </div>
+            <div *ngIf="((focus2Touched || saveAttempt) && landingF.subject.errors) ||
+                (landingF.subject.value != '' && landingF.subject.errors)">
+                <label
+                *ngFor="let error of objKeys(landingF.subject.errors)"
+                class="error custom-error-label"
+                >{{ showError('subject', error) }}
+                </label>
+            </div>
+            <!-- End of program subject -->
+
+            <!-- Program image -->
+            <div class=" mt-4">
+                <label> Program Image </label>
+            </div>
+            <div>
+                <p class="lead text-muted">Make your course stand out with a great cover image!</p>
+                <p class="lead text-muted">Images <strong>MUST</strong> meet our
+                    <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001126534-your-course-landing-page" target="_blank">
+                        image guidelines
+                    </a>
+                    to be accepted.
+                </p>
+                <p class="lead text-muted">Important guidelines: At least 750 x 422 pixels; .jpg, .jpeg,. gif, or .png. Avoid text on your image.</p>
+            </div>
+            <!-- <div class=" mt-3">
+                <app-picture-upload
+                [inputImg]="landingF.mainImage.value"
+                (messageEvent)="onPictureUpload($event)">
+                </app-picture-upload>
+            </div> -->
+            <!-- End program image -->
+
+            <!-- Program promotional video -->
+            <div class=" mt-4">
+                <label> Program Promotional Video 
+                    <i
+                    class="fas fa-info-circle btn-tooltip"
+                    data-animation="true"
+                    data-container="body"
+                    placement="top"
+                    tooltip="Optional. Coachees who watch a well-made promo video are 5X more likely to enroll in your course. 
+                    We've seen that statistic go up to 10X for exceptional videos!">
+                    </i>
+                </label>
+            </div>
+            <div>
+                <p class="lead text-muted">Learn how to
+                    <a href="https://lifecoach.freshdesk.com/a/solutions/articles/47001126534" target="_blank">
+                        make an exceptional promo video.
+                    </a>
+                </p>
+                <p class="lead text-muted mb-4">Important guidelines: Video files must be at least 720p and less than 4.0GB</p>
+            </div>
+            <!-- Video upload options -->
+            <tabset class="nav-pills-default" type="pills">
+
+                <!-- Upload from computer tab -->
+                <tab>
+                    <ng-template tabHeading>
+                        <i
+                        class="fas fa-upload mr-2" 
+                        style="display: inline-block; line-height: 30px; font-size: 20px;"> </i> Upload Video
+                    </ng-template>
+
+                    <!-- Video drop / upload -->
+                    <!-- <app-course-promo-video-uploader
+                    [uid]="userId"
+                    [course]="course"
+                    (promoVidUploadedEvent)="onPromoVideoUploadEvent($event)">
+                    </app-course-promo-video-uploader> -->
+
+                </tab>
+
+            </tabset>
+            <!-- Video player -->
+            <div *ngIf="landingF.promoVideo.value && landingF.promoVideo.value.downloadURL" class=" mt-3">
+                <vg-player>
+                <vg-controls>
+                    <vg-play-pause></vg-play-pause>
+                    <vg-playback-button></vg-playback-button>
+                
+                    <vg-time-display vgProperty="current" vgFormat="mm:ss"></vg-time-display>
+                
+                    <vg-scrub-bar>
+                        <vg-scrub-bar-current-time></vg-scrub-bar-current-time>
+                        <vg-scrub-bar-buffering-time></vg-scrub-bar-buffering-time>
+                    </vg-scrub-bar>
+                
+                    <vg-time-display vgProperty="total" vgFormat="mm:ss"></vg-time-display>
+                
+                    <vg-mute></vg-mute>
+                    <vg-volume></vg-volume>
+                
+                    <vg-fullscreen></vg-fullscreen>
+                </vg-controls>
+                
+                <video #media [vgMedia]="media" id="singleVideo" preload="auto">
+                    <source *ngFor="let video of videoSources" [src]="video.src">
+                </video>
+                </vg-player>
+            </div>
+            <!-- End video player -->
+            <!-- End program promotional video -->
+
+            <!-- Program learning points -->
+            <div class=" mt-4">
+                <label> What are the main outcomes for clients who enrol in this program? 
+                    <i
+                    class="fas fa-info-circle btn-tooltip"
+                    data-animation="true"
+                    data-container="body"
+                    placement="top"
+                    tooltip="Optional. These outcomes will be highlighted on your landing page & help 
+                    to attract the right clients to enrol in your program.">
+                    </i>
+                </label>
+            </div>
+            <div formArrayName="learningPoints" *ngFor="let item of landingF.learningPoints.value.controls ; let i = index">
+                <div
+                class="input-group no-symbol"
+                [ngClass]="{
+                    'has-danger':
+                    ((landingF.learningPoints.value.controls[i].touched || saveAttempt) &&  
+                    landingF.learningPoints.value.controls[i].errors) ||
+                    (landingF.learningPoints.value.controls[i].value != '' && 
+                    landingF.learningPoints.value.controls[i].errors),
+                    'has-success': !landingF.learningPoints.value.controls[i].errors
+                }">
+                    <input
+                    type="text"
+                    class="form-control"
+                    [formControl]="landingF.learningPoints.value.controls[i]"
+                    placeholder="eg. Self-control">
+                    <div class="input-group-append">
+                    <span class="input-group-text">
+                        {{ landingF.learningPoints.value.controls[i].value.length + '/' + learningPointsMaxLength }}
+                    </span>
+                    </div>
+                </div>
+                <div *ngIf="((landingF.learningPoints.value.controls[i].touched || saveAttempt) && 
+                    landingF.learningPoints.value.controls[i].errors) ||
+                    (landingF.learningPoints.value.controls[i].value != '' && 
+                    landingF.learningPoints.value.controls[i].errors)">
+                    <label
+                    *ngFor="let error of objKeys(landingF.learningPoints.value.controls[i].errors)"
+                    class="error custom-error-label"
+                    >{{ showError('learningPoints', error) }}
+                    </label>
+                </div>
+            </div>
+            <button
+            type="button"
+            class=" btn btn-primary btn-link"
+            (click)="addLearningPoint()"
+            [disabled]="landingF.learningPoints.value.controls.length >= learningPointsMax">
+                <i class="fas fa-plus"></i> Add an answer
+            </button>
+            <!-- End program learning points -->
+
+            <!-- Program requirements -->
+            <div class=" mt-4">
+                <label> Are there any special requirements or prerequisites to enrolling in this program?
+                    <i
+                    class="fas fa-info-circle btn-tooltip"
+                    data-animation="true"
+                    data-container="body"
+                    placement="top"
+                    tooltip="Optional. Any requirements or prerequisites will be highlighted on your landing page & help 
+                    to attract the right students to your course.">
+                    </i>
+                </label>
+            </div>
+            <div formArrayName="requirements" *ngFor="let item of landingF.requirements.value.controls ; let i = index">
+                <div
+                class="input-group no-symbol"
+                [ngClass]="{
+                    'has-danger':
+                    ((landingF.requirements.value.controls[i].touched || saveAttempt) &&  
+                    landingF.requirements.value.controls[i].errors) ||
+                    (landingF.requirements.value.controls[i].value != '' && 
+                    landingF.requirements.value.controls[i].errors),
+                    'has-success': !landingF.requirements.value.controls[i].errors
+                }">
+                    <input
+                    type="text"
+                    class="form-control"
+                    [formControl]="landingF.requirements.value.controls[i]"
+                    placeholder="eg. Completed the beginner course">
+                    <div class="input-group-append">
+                    <span class="input-group-text">
+                        {{ landingF.requirements.value.controls[i].value.length + '/' + requirementsMaxLength }}
+                    </span>
+                    </div>
+                </div>
+                <div *ngIf="((landingF.requirements.value.controls[i].touched || saveAttempt) && 
+                    landingF.requirements.value.controls[i].errors) ||
+                    (landingF.requirements.value.controls[i].value != '' && 
+                    landingF.requirements.value.controls[i].errors)">
+                    <label
+                    *ngFor="let error of objKeys(landingF.requirements.value.controls[i].errors)"
+                    class="error custom-error-label"
+                    >{{ showError('requirements', error) }}
+                    </label>
+                </div>
+            </div>
+            <button
+            type="button"
+            class=" btn btn-primary btn-link"
+            (click)="addRequirement()"
+            [disabled]="landingF.requirements.value.controls.length >= requirementsMax">
+                <i class="fas fa-plus"></i> Add an answer
+            </button>
+            <!-- End program requirements -->
+
+            <!-- Program target clients -->
+            <div class=" mt-4">
+                <label> Who are your ideal target clients? 
+                    <i
+                    class="fas fa-info-circle btn-tooltip"
+                    data-animation="true"
+                    data-container="body"
+                    placement="top"
+                    tooltip="Optional. Adding target clients will help to attract the right clients to your program.">
+                    </i>
+                </label>
+            </div>
+            <div formArrayName="targets" *ngFor="let item of landingF.targets.value.controls ; let i = index">
+                <div
+                class="input-group no-symbol"
+                [ngClass]="{
+                    'has-danger':
+                    ((landingF.targets.value.controls[i].touched || saveAttempt) &&  
+                    landingF.targets.value.controls[i].errors) ||
+                    (landingF.targets.value.controls[i].value != '' && 
+                    landingF.targets.value.controls[i].errors),
+                    'has-success': !landingF.targets.value.controls[i].errors
+                }">
+                    <input
+                    type="text"
+                    class="form-control"
+                    [formControl]="landingF.targets.value.controls[i]"
+                    placeholder="eg. Female Entreprenuers">
+                    <div class="input-group-append">
+                    <span class="input-group-text">
+                        {{ landingF.targets.value.controls[i].value.length + '/' + targetsMaxLength }}
+                    </span>
+                    </div>
+                </div>
+                <div *ngIf="((landingF.targets.value.controls[i].touched || saveAttempt) && 
+                    landingF.targets.value.controls[i].errors) ||
+                    (landingF.targets.value.controls[i].value != '' && 
+                    landingF.targets.value.controls[i].errors)">
+                    <label
+                    *ngFor="let error of objKeys(landingF.targets.value.controls[i].errors)"
+                    class="error custom-error-label"
+                    >{{ showError('targets', error) }}
+                    </label>
+                </div>
+            </div>
+            <button
+            type="button"
+            class=" btn btn-primary btn-link"
+            (click)="addTarget()"
+            [disabled]="landingF.targets.value.controls.length >= targetsMax">
+                <i class="fas fa-plus"></i> Add an answer
+            </button>
+            <!-- End program target clients -->
+
+            <!-- Form submit button -->
+            <div class=" pull-right">
+                <button type="submit" class=" btn btn-primary btn-round btn-fill mt-4">
+                    <span *ngIf="!saving">
+                        <i class="fas fa-save"></i>
+                      </span>
+                      <span
+                      *ngIf="saving"
+                      class="spinner-border spinner-border-sm"
+                      role="status"
+                      ></span> {{ saving ? 'Saving...' : 'Save'}}
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
