@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Inject, PLATFORM_ID, OnChanges, OnDestroy, AfterViewInit } from '@angular/core';
-import { FormGroup, FormBuilder, Validators, FormControl } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators, FormControl, FormArray } from '@angular/forms';
 import { isPlatformBrowser } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { CoachingProgram } from 'app/interfaces/coach.program.interface';
@@ -246,6 +246,48 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
     });
   }
 
+  buildLpArray() {
+    const arr = [];
+    (this.landingF.learningPoints.value as FormArray).controls.forEach(control => {
+      if (control.errors) {
+        return;
+      }
+      arr.push(control.value);
+    });
+    if (arr.length === 0 || (arr.length === 1 && arr[0] === '')) {
+      return null;
+    }
+    return arr;
+  }
+
+  buildReqArray() {
+    const arr = [];
+    (this.landingF.requirements.value as FormArray).controls.forEach(control => {
+      if (control.errors) {
+        return;
+      }
+      arr.push(control.value);
+    });
+    if (arr.length === 0 || (arr.length === 1 && arr[0] === '')) {
+      return null;
+    }
+    return arr;
+  }
+
+  buildTargetArray() {
+    const arr = [];
+    (this.landingF.targets.value as FormArray).controls.forEach(control => {
+      if (control.errors) {
+        return;
+      }
+      arr.push(control.value);
+    });
+    if (arr.length === 0 || (arr.length === 1 && arr[0] === '')) {
+      return null;
+    }
+    return arr;
+  }
+
   async onSubmit() {
     this.saveAttempt = true;
     this.saving = true;
@@ -268,6 +310,16 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
     // Merge landing form data into program data & save the program object
     this.program.title = this.landingF.title.value;
     this.program.subtitle = this.landingF.subtitle.value;
+    this.program.description = this.landingF.description.value;
+    this.program.language = this.landingF.language.value;
+    this.program.category = this.landingF.category.value;
+    this.program.level = this.landingF.level.value;
+    this.program.subject = this.landingF.subject.value;
+    this.program.image = this.landingF.mainImage.value;
+    this.program.promoVideo = this.landingF.promoVideo.value;
+    this.program.learningPoints = this.buildLpArray();
+    this.program.requirements = this.buildReqArray();
+    this.program.targets = this.buildTargetArray();
 
     // console.log(this.outlineForm.value);
     console.log('Saving program:', this.program);
