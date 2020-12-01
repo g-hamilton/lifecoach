@@ -268,27 +268,16 @@
                 </p>
             </div>
 
-            <!-- Video upload options -->
-            <tabset class="nav-pills-default" type="pills">
+            <!-- Video upload -->
+            <div>
+                <!-- Video drop / upload -->
+                <app-program-promo-video-uploader
+                [uid]="userId"
+                [program]="program"
+                (promoVidUploadedEvent)="onPromoVideoUploadEvent($event)">
+                </app-program-promo-video-uploader>
+            </div>
 
-                <!-- Upload from computer tab -->
-                <tab>
-                    <ng-template tabHeading>
-                        <i
-                        class="fas fa-upload mr-2" 
-                        style="display: inline-block; line-height: 30px; font-size: 20px;"> </i> Upload Video
-                    </ng-template>
-
-                    <!-- Video drop / upload -->
-                    <!-- <app-program-promo-video-uploader
-                    [uid]="userId"
-                    [program]="program"
-                    (promoVidUploadedEvent)="onPromoVideoUploadEvent($event)">
-                    </app-program-promo-video-uploader> -->
-
-                </tab>
-
-            </tabset>
             <!-- Video player -->
             <div *ngIf="landingF.promoVideo.value && landingF.promoVideo.value.downloadURL" class=" mt-3">
                 <vg-player>

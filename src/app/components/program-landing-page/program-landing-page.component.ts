@@ -234,6 +234,18 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
     this.subjectActualLength = (ev.target.value as string).length;
   }
 
+  onPromoVideoUploadEvent(event: any) {
+    // event should be a promo video object. We can now save this into the program object.
+    console.log('Promo video uploaded event:', event);
+    this.landingForm.patchValue({
+      promoVideo: event
+    });
+    this.videoSources = []; // reset
+    this.videoSources.push({ // use the array method for reloading a videoGular video as simple [src] binding does not reload on the fly
+      src: event.downloadURL
+    });
+  }
+
   async onSubmit() {
     this.saveAttempt = true;
     this.saving = true;

@@ -5,18 +5,18 @@ import { Observable } from 'rxjs';
 import { finalize, tap } from 'rxjs/operators';
 import { AlertService } from 'app/services/alert.service';
 import { AnalyticsService } from 'app/services/analytics.service';
-import { CoachingCourse } from 'app/interfaces/course.interface';
+import { CoachingProgram } from 'app/interfaces/coach.program.interface';
 
 @Component({
-  selector: 'app-course-promo-video-upload-task',
-  templateUrl: './course-promo-video-upload-task.component.html',
-  styleUrls: ['./course-promo-video-upload-task.component.scss']
+  selector: 'app-program-promo-video-upload-task',
+  templateUrl: './program-promo-video-upload-task.component.html',
+  styleUrls: ['./program-promo-video-upload-task.component.scss']
 })
-export class CoursePromoVideoUploadTaskComponent implements OnInit {
+export class ProgramPromoVideoUploadTaskComponent implements OnInit {
 
   @Input() uid: string;
   @Input() file: File;
-  @Input() course: CoachingCourse;
+  @Input() program: CoachingProgram;
 
   @Output() promoVidUploadedEvent = new EventEmitter<any>(); // <-- So we can emit the chosen data to a parent component
 
@@ -41,10 +41,10 @@ export class CoursePromoVideoUploadTaskComponent implements OnInit {
 
   startUpload() {
 
-    // We must have the course ID to associate video in storage
-    if (!this.course.courseId) {
+    // We must have the program ID to associate video in storage
+    if (!this.program.programId) {
       this.alertService.alert('warning-message', 'Oops!',
-      `Error: No course ID.`);
+      `Error: No program ID.`);
       return;
     }
 
@@ -77,12 +77,12 @@ export class CoursePromoVideoUploadTaskComponent implements OnInit {
     const uniqueFileName = this.file.name + '_' + timestamp;
 
     // The storage path
-    const path = `users/${this.uid}/coursePromoVideos/${uniqueFileName}`;
+    const path = `users/${this.uid}/programPromoVideos/${uniqueFileName}`;
 
     // Reference to storage bucket
     const ref = this.storage.ref(path);
 
-    this.analyticsService.startCoursePromoVideoUpload();
+    this.analyticsService.startProgramPromoVideoUpload();
 
     try {
     // The main task
@@ -97,7 +97,7 @@ export class CoursePromoVideoUploadTaskComponent implements OnInit {
       finalize( async () =>  {
         this.downloadURL = await ref.getDownloadURL().toPromise();
 
-        // Associate this video data to the course
+        // Associate this video data to the program
         const promoVideo = {
           downloadURL: this.downloadURL, // url (with token) to download the file from storage
           path, // path to the file in storage
@@ -106,16 +106,11 @@ export class CoursePromoVideoUploadTaskComponent implements OnInit {
           lastUploaded: Math.round(new Date().getTime() / 1000) // user local timestamp in unix
         };
 
-        // Create/update the video as a user's library asset
-        this.db.collection(`users/${this.uid}/courseLibrary`)
-        .doc(promoVideo.fileName)
-        .set(promoVideo, { merge: true });
-
-        this.analyticsService.completeCoursePromoVideoUpload();
+        this.analyticsService.completeprogramPromoVideoUpload();
 
         this.inProgress = false; // dismiss the upload progress bar when complete
 
-        // Emit the promo video object to be saved into the course
+        // Emit the promo video object to be saved into the program
         this.promoVidUploadedEvent.emit(promoVideo);
 
       }),

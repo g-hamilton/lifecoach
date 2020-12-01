@@ -330,4 +330,12 @@ export class AnalyticsService {
     mixpanel.track('Edited program landing page');
   }
 
+  startProgramPromoVideoUpload() {
+    mixpanel.track('started program promotional video upload');
+  }
+
+  completeprogramPromoVideoUpload() {
+    mixpanel.track('completed program promotional video upload');
+  }
+
 }
