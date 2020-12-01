@@ -115,6 +115,8 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
     if (isPlatformBrowser(this.platformId)) {
       this.browser = true;
       this.buildLandingForm();
+      this.specialities = this.specialitiesService.getSpecialityList();
+      this.languages = this.languagesService.getLanguagesJson();
     }
   }
 

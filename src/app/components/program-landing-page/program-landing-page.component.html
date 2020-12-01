@@ -4,13 +4,16 @@
 
             <div class=" mb-3">
                 <a href="" target="_blank">
-                    <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> Help with your landing page </span>
+                    <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> Help with your program landing page </span>
                 </a>
             </div>
 
             <!-- Program title -->
-            <div class="">
+            <div class="mt-4">
                 <label> Program Title </label>
+                <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> Keep your title goal/outcome focussed and short, so that it fits inside your program image.
+                </p>
             </div>
             <div
             class="input-group no-symbol"
@@ -47,6 +50,9 @@
             <!-- Program subtitle -->
             <div class=" mt-3">
                 <label> Program Subtitle </label>
+                <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> Expand on your title and entice prospective clients by telling them what they can achieve on this program.
+                </p>
             </div>
             <div
             class="input-group no-symbol"
@@ -83,6 +89,9 @@
             <!-- Program description -->
             <div class=" mt-3">
                 <label> Program Description </label>
+                <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> Describe what's unique about this program, what clients can expect and how you can help them to achieve their goals/desired outcomes.
+                </p>
             </div>
             <editor
             *ngIf="viewLoaded"
@@ -108,9 +117,13 @@
 
             <!-- Program language -->
             <div class=" mt-3">
-                <label> Course Language </label>
+                <label> Program Language </label>
+                <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> Marketing is more effective when targeting a single primary language. 
+                    If you coach in more than one language, consider creating duplicate programs.
+                </p>
             </div>
-            <div class="form-group" *ngIf="languages">
+            <div class="form-group">
                 <select class="form-control" formControlName="language">
                     <option *ngFor="let item of objKeys(languages)" [value]="item">
                         {{ languages[item].nativeName }}
@@ -128,7 +141,10 @@
 
             <!-- Program category -->
             <div class=" mt-3">
-                <label> Course Category </label>
+                <label> Program Category </label>
+                <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> Select the closest matching high level coaching category for this program.
+                </p>
             </div>
             <div class="form-group">
                 <select class="form-control" formControlName="category">
@@ -149,11 +165,14 @@
 
             <!-- Program level -->
             <div class=" mt-3">
-                <label> Course Level </label>
+                <label> Program Level </label>
+                <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> Who is this program suitable for? This helps you to attract the most suitable clients.
+                </p>
             </div>
             <div class="form-group">
                 <select class="form-control" formControlName="level">
-                    <option [value]="null">Select a category</option>
+                    <option [value]="null">Select a level</option>
                     <option value="beginner"> Beginner </option>
                     <option value="intermediate"> Intermediate </option>
                     <option value="advanced"> Advanced </option>
@@ -172,6 +191,9 @@
             <!-- Program subject -->
             <div class=" mt-3">
                 <label> What is the <strong>Primary</strong> subject you address in this program? </label>
+                <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> This helps you to attract the most suitable clients using search.
+                </p>
             </div>
             <div
             class="input-group no-symbol"
@@ -210,9 +232,9 @@
                 <label> Program Image </label>
             </div>
             <div>
-                <p class="lead text-muted">Make your course stand out with a great cover image!</p>
+                <p class="lead text-muted">Make your program stand out with a great cover image!</p>
                 <p class="lead text-muted">Images <strong>MUST</strong> meet our
-                    <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001126534-your-course-landing-page" target="_blank">
+                    <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001126534-your-program-landing-page" target="_blank">
                         image guidelines
                     </a>
                     to be accepted.
@@ -235,7 +257,7 @@
                     data-animation="true"
                     data-container="body"
                     placement="top"
-                    tooltip="Optional. Coachees who watch a well-made promo video are 5X more likely to enroll in your course. 
+                    tooltip="Optional. Coachees who watch a well-made promo video are 5X more likely to enroll in your program. 
                     We've seen that statistic go up to 10X for exceptional videos!">
                     </i>
                 </label>
@@ -260,11 +282,11 @@
                     </ng-template>
 
                     <!-- Video drop / upload -->
-                    <!-- <app-course-promo-video-uploader
+                    <!-- <app-program-promo-video-uploader
                     [uid]="userId"
-                    [course]="course"
+                    [program]="program"
                     (promoVidUploadedEvent)="onPromoVideoUploadEvent($event)">
-                    </app-course-promo-video-uploader> -->
+                    </app-program-promo-video-uploader> -->
 
                 </tab>
 
@@ -363,7 +385,7 @@
                     data-container="body"
                     placement="top"
                     tooltip="Optional. Any requirements or prerequisites will be highlighted on your landing page & help 
-                    to attract the right students to your course.">
+                    to attract the right students to your program.">
                     </i>
                 </label>
             </div>
@@ -382,7 +404,7 @@
                     type="text"
                     class="form-control"
                     [formControl]="landingF.requirements.value.controls[i]"
-                    placeholder="eg. Completed the beginner course">
+                    placeholder="eg. Completed the beginner program">
                     <div class="input-group-append">
                     <span class="input-group-text">
                         {{ landingF.requirements.value.controls[i].value.length + '/' + requirementsMaxLength }}
