@@ -627,6 +627,35 @@ export class DataService {
       .catch(err => console.error(err));
   }
 
+  async requestProgramReview(program: CoachingProgram) {
+    if (!program.sellerUid) {
+      console.error('Unable to request review: no seller UID');
+      return;
+    }
+    if (!program.programId) {
+      console.error('Unable to request review: no program ID');
+      return;
+    }
+
+    const requestDate = Math.round(new Date().getTime() / 1000); // set unix timestamp
+    const reviewRequest: AdminProgramReviewRequest = {
+      programId: program.programId,
+      sellerUid: program.sellerUid,
+      requested: requestDate,
+      status: 'submitted'
+    };
+
+    await this.db.collection(`admin/review-requests/programs`)
+      .doc(program.programId)
+      .set(reviewRequest, {merge: true})
+      .catch(err => console.error(err));
+
+    return this.db.collection(`users/${program.sellerUid}/programs`)
+      .doc(program.programId)
+      .set({reviewRequest}, {merge: true})
+      .catch(err => console.error(err));
+  }
+
   // ================================================================================
   // =====                           COACH SERVICES                            ======
   // ================================================================================

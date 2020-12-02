@@ -404,16 +404,16 @@ firstName: string | null, lastName: string | null) {
     batch.set(ref2, {
       id: 'taskDefault002',
       title: '2. Go public with your profile',
-      description: 'Make your profile public to tap into our powerful SEO.',
+      description: 'Make your profile public so clients can find you on Lifecoach.',
       action: 'profile'
     });
 
     const ref3 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault003');
     batch.set(ref3, {
       id: 'taskDefault003',
-      title: '3. Create your first online coaching course',
-      description: 'Help students all over the world to learn on their own schedule, and get paid!',
-      action: 'my-courses'
+      title: '3. Add your products & services',
+      description: 'Promote your coaching programs, 1-to-1 services & eCourses through the platform.',
+      action: 'coach-products-services'
     });
 
     return batch.commit() // execute batch ops

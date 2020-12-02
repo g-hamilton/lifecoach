@@ -338,4 +338,8 @@ export class AnalyticsService {
     mixpanel.track('completed program promotional video upload');
   }
 
+  submitProgramForReview() {
+    mixpanel.track('Submitted program for review');
+  }
+
 }

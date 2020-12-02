@@ -8,7 +8,6 @@ import { DataService } from 'app/services/data.service';
 import { AlertService } from 'app/services/alert.service';
 import { AnalyticsService } from 'app/services/analytics.service';
 import { ProgramPriceValidator } from 'app/custom-validators/program.price.validator';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-program-outline',
@@ -70,8 +69,7 @@ export class ProgramOutlineComponent implements OnInit, OnChanges, OnDestroy {
     public formBuilder: FormBuilder,
     private dataService: DataService,
     private alertService: AlertService,
-    private analyticsService: AnalyticsService,
-    private router: Router
+    private analyticsService: AnalyticsService
   ) { }
 
   ngOnInit() {

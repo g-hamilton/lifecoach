@@ -23,4 +23,7 @@ export interface CoachingProgram {
     learningPoints?: string[];
     requirements?: string[];
     targets?: string[];
+    coachName?: string;
+    coachPhoto?: string;
+    isTest?: boolean;
 }

@@ -54,14 +54,15 @@
                     <tab heading="2. Sessions & Pricing">
                         <app-program-outline [userId]="userId" [program]="program"></app-program-outline>
                     </tab>
-                    <!-- 
+
                     <tab heading="3. Submit For Review">
                         <ng-template *ngIf="program?.reviewRequest?.status === 'rejected'" tabHeading>
                             <i class="tim-icons icon-alert-circle-exc text-danger ml-2"> </i>
                         </ng-template>
-                        <app-course-submit [userId]="userId" [course]="course"></app-course-submit>
+                        <app-program-submit [userId]="userId" [program]="program"></app-program-submit>
                     </tab>
-                    <tab heading="4. Promote" [disabled]="program?.reviewRequest?.status !== 'approved'">
+
+                    <!-- <tab heading="4. Promote" [disabled]="program?.reviewRequest?.status !== 'approved'">
                         <app-course-promote [userId]="userId" [course]="course"></app-course-promote>
                     </tab>
                     <tab>

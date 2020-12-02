@@ -3,7 +3,6 @@ import { CoachingCourse } from 'app/interfaces/course.interface';
 import { isPlatformBrowser } from '@angular/common';
 import { DataService } from 'app/services/data.service';
 import { AlertService } from 'app/services/alert.service';
-import { Router } from '@angular/router';
 import { AnalyticsService } from 'app/services/analytics.service';
 import { Subscription } from 'rxjs';
 
@@ -27,7 +26,6 @@ export class CourseSubmitComponent implements OnInit, OnChanges, OnDestroy {
     @Inject(PLATFORM_ID) public platformId: object,
     private dataService: DataService,
     private alertService: AlertService,
-    private router: Router,
     private analyticsService: AnalyticsService
   ) {
   }
@@ -56,7 +54,7 @@ export class CourseSubmitComponent implements OnInit, OnChanges, OnDestroy {
         if (profile && profile.firstName && profile.lastName && profile.photo) {
           this.course.coachName = `${profile.firstName} ${profile.lastName}`;
           this.course.coachPhoto = profile.photo;
-          console.log('Fetched profile', profile);
+          // console.log('Fetched profile', profile);
         }
         this.loadingProfile = false;
       })
