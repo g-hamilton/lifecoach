@@ -1,21 +1,20 @@
 import { Component, OnInit, Input, Inject, PLATFORM_ID, OnChanges } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-import { CoachingCourse } from 'app/interfaces/course.interface';
 import { AlertService } from 'app/services/alert.service';
 import { isPlatformBrowser } from '@angular/common';
+import { CoachingProgram } from 'app/interfaces/coach.program.interface';
 
 @Component({
-  selector: 'app-course-promote',
-  templateUrl: './course-promote.component.html',
-  styleUrls: ['./course-promote.component.scss']
+  selector: 'app-program-promote',
+  templateUrl: './program-promote.component.html',
+  styleUrls: ['./program-promote.component.scss']
 })
-export class CoursePromoteComponent implements OnInit, OnChanges {
+export class ProgramPromoteComponent implements OnInit, OnChanges {
 
   @Input() userId: string;
-  @Input() course: CoachingCourse;
+  @Input() program: CoachingProgram;
 
   public browser: boolean;
-
   public promoteForm: FormGroup;
 
   constructor(
@@ -32,8 +31,8 @@ export class CoursePromoteComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges() {
-    if (this.userId && this.course) {
-      const baseUrl = `https://lifecoach.io/course/${this.course.courseId}/`;
+    if (this.userId && this.program) {
+      const baseUrl = `https://lifecoach.io/programs/${this.program.programId}/`;
       const queryparams = `?referralCode=${this.userId}`;
       this.promoteForm.patchValue({ referralCode: `${baseUrl}${queryparams}` });
     }

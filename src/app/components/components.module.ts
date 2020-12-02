@@ -110,6 +110,7 @@ import { ProgramLandingPageComponent } from './program-landing-page/program-land
 import { ProgramPromoVideoUploaderComponent } from './program-promo-video-uploader/program-promo-video-uploader.component';
 import { ProgramPromoVideoUploadTaskComponent } from './program-promo-video-upload-task/program-promo-video-upload-task.component';
 import { ProgramSubmitComponent } from './program-submit/program-submit.component';
+import { ProgramPromoteComponent } from './program-promote/program-promote.component';
 
 export function momentAdapterFactory() {
   return adapterFactory(moment);
@@ -222,7 +223,8 @@ export function momentAdapterFactory() {
     ProgramLandingPageComponent,
     ProgramPromoVideoUploaderComponent,
     ProgramPromoVideoUploadTaskComponent,
-    ProgramSubmitComponent
+    ProgramSubmitComponent,
+    ProgramPromoteComponent
   ],
   exports: [
     TabsModule,
@@ -313,7 +315,8 @@ export function momentAdapterFactory() {
     ProgramLandingPageComponent,
     ProgramPromoVideoUploaderComponent,
     ProgramPromoVideoUploadTaskComponent,
-    ProgramSubmitComponent
+    ProgramSubmitComponent,
+    ProgramPromoteComponent
   ]
 })
 export class ComponentsModule {}

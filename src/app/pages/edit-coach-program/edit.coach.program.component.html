@@ -62,10 +62,15 @@
                         <app-program-submit [userId]="userId" [program]="program"></app-program-submit>
                     </tab>
 
-                    <!-- <tab heading="4. Promote" [disabled]="program?.reviewRequest?.status !== 'approved'">
-                        <app-course-promote [userId]="userId" [course]="course"></app-course-promote>
+                    <tab heading="4. Promote" [disabled]="program?.reviewRequest?.status !== 'approved'">
+                        <app-program-promote [userId]="userId" [program]="program"></app-program-promote>
                     </tab>
-                    <tab>
+
+                    <tab heading="4. Promote">
+                        <app-program-promote [userId]="userId" [program]="program"></app-program-promote>
+                    </tab>
+
+                    <!-- <tab>
                         <ng-template tabHeading>
                           <span class="">
                             <i class="fas fa-ellipsis-h" tooltip="More options"></i>
