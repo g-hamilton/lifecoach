@@ -11,9 +11,11 @@
             <!-- How many sessions are in this program? -->
             <div class=" row mt-4">
                 <div class=" col-6">
-                    <div class="">
-                        <label> How many live 1-to-1 video coaching sessions are included in this program? </label>
-                    </div>
+                    <label> How many live 1-to-1 video coaching sessions are included in this program? </label>
+                    <p class=" small text-muted pl-2 mb-2">
+                        <i class="fas fa-info-circle"></i> At this time the platform only supports 1-to-1 video coaching. Support for group 
+                        coaching is coming soon.
+                    </p>
                     <div
                     class="form-group"
                     [ngClass]="{
@@ -42,9 +44,12 @@
             <!-- How many weeks does the program generally run (duration)? -->
             <div class=" row mt-4">
                 <div class=" col-6">
-                    <div class="">
-                        <label> Generally speaking, how many weeks does your program run for each client? </label>
-                    </div>
+                    <label> Generally speaking, how many weeks does your program run for each client? </label>
+                    <p class=" small text-muted pl-2 mb-2">
+                        <i class="fas fa-info-circle"></i> This is just an indicator for the client. 
+                        Note that you always retain full control & flexibility over the exact delivery 
+                        of your program for each client, as it is your responsibility to schedule client sessions.
+                    </p>
                     <div
                     class="form-group"
                     [ngClass]="{
@@ -81,9 +86,13 @@
 
                 <!-- Currency -->
                 <div class=" col-6">
-                    <div class="">
-                        <label> Your Local Currency </label>
-                    </div>
+                    <label> Your Local Currency </label>
+                    <p class=" small text-muted pl-2 mb-2">
+                        <i class="fas fa-info-circle"></i> Set your local currency here. We use this in conjunction with 
+                        your set price to show your program in local currencies using a real-time currency conversion 
+                        across all supported international territories. This makes your program available all over the world 
+                        in local prices, without you having to worry about currency conversion.
+                    </p>
                     <app-select-currency
                     [currency]="outlineF?.currency?.value"
                     (currencyEvent)="onCurrencyEvent($event)">
@@ -96,10 +105,14 @@
             <!-- Pricing strategy (Can clients pay per session?) -->
             <div class=" row mt-4">
                 <div class=" col">
-                    <div class="">
-                        <label> How can clients pay for this program? </label>
-                    </div>
-                    <div class="form-check form-check-radio">
+                    <label> Payment Options </label>
+                    <p class=" small text-muted pl-2 mb-2">
+                        <i class="fas fa-info-circle"></i> How can clients pay for this program? Clients will always have the 
+                        option to pay you in full (upfront) for the program, and you can offer 'Pay As You Go' (pay per session) if 
+                        you wish to offer flexible pricing. Tip: If you offer flexible pricing, set a lower program price  
+                        to automatically show an enticing discount on your course landing page.
+                    </p>
+                    <div class="form-check form-check-radio mt-3">
                         <label class="form-check-label">
                             <input class="form-check-input" type="radio" id="pricing-radio-full" value="full" formControlName="pricingStrategy">
                             Clients must purchase this program in full (Full payment upfront)
@@ -122,9 +135,10 @@
 
                 <!-- Full program price -->
                 <div class=" col-6">
-                    <div class="">
-                        <label> Program price </label>
-                    </div>
+                    <label> Program price </label>
+                    <p class=" small text-muted pl-2 mb-2">
+                        <i class="fas fa-info-circle"></i> The full price of your program if clients pay upfront.
+                    </p>
                     <div
                     class="form-group"
                     [ngClass]="{
@@ -158,8 +172,11 @@
                 <!-- per session price (if flexible strategy selected) -->
                 <div class=" col-6" *ngIf="outlineF?.pricingStrategy.value === 'flexible'">
                     <div class="">
-                        <label> Price Per Session (if 'Pay As You Go' is allowed) </label>
+                        <label> Price Per Session </label>
                     </div>
+                    <p class=" small text-muted pl-2 mb-2">
+                        <i class="fas fa-info-circle"></i> Because you allow flexible, 'Pay As You Go' pricing.
+                    </p>
                     <div
                     class="form-group"
                     [ngClass]="{

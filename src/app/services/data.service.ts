@@ -656,6 +656,20 @@ export class DataService {
       .catch(err => console.error(err));
   }
 
+  getPublicProgram(programId: string) {
+    // Returns a program document.
+    return this.db.collection(`public-programs`)
+      .doc(programId)
+      .valueChanges() as Observable<CoachingProgram>;
+  }
+
+  getTotalPublicEnrollmentsByProgram(programId: string) {
+    // Returns a document containing a program's total lifetime enrollments
+    return this.db.collection(`program-enrollments`)
+      .doc(programId)
+      .valueChanges() as Observable<any>;
+  }
+
   // ================================================================================
   // =====                           COACH SERVICES                            ======
   // ================================================================================

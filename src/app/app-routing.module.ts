@@ -98,6 +98,11 @@ const routes: Routes = [
     pathMatch: 'full'
   },
   {
+    path: 'program/:id',
+    loadChildren: () => import('./pages/program/program.module').then(m => m.ProgramModule),
+    pathMatch: 'full'
+  },
+  {
     path: 'coaching-service/:serviceId',
     loadChildren: () => import('./pages/coaching-service/coaching.service.module').then(m => m.CoachingServiceModule),
     pathMatch: 'full'

@@ -7,6 +7,7 @@ import { UserAccount } from '../interfaces/user.account.interface';
 import { CoachingCourseLecture, CoachingCourse } from 'app/interfaces/course.interface';
 import { CourseQuestion, CourseQuestionReply } from 'app/interfaces/q&a.interface';
 import { CoachProfile } from 'app/interfaces/coach.profile.interface';
+import { CoachingProgram } from 'app/interfaces/coach.program.interface';
 
 /*
   Using Mixpanel analytics
@@ -207,7 +208,8 @@ export class AnalyticsService {
       pricingStrategy: course.pricingStrategy,
       price: course.price ? course.price : 0,
       currency: course.currency ? course.currency : null,
-      title: course.title
+      title: course.title,
+      sellerUid: course.sellerUid
     });
   }
 
@@ -340,6 +342,17 @@ export class AnalyticsService {
 
   submitProgramForReview() {
     mixpanel.track('Submitted program for review');
+  }
+
+  enrollInProgram(program: CoachingProgram) {
+    mixpanel.track('enrolled in program', {
+      pricingStrategy: program.pricingStrategy,
+      fullPrice: program.fullPrice,
+      payPerSessionPrice: program.pricePerSession ? program.pricePerSession : null,
+      currency: program.currency ? program.currency : null,
+      title: program.title,
+      sellerUid: program.sellerUid
+    });
   }
 
 }
