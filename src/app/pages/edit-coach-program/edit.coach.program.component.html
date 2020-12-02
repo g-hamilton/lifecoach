@@ -30,7 +30,7 @@
                 <span
                 *ngIf="program?.reviewRequest?.status === 'approved'"
                 class=" badge badge-success ml-2">
-                    PUBLISHED
+                    PROGRAM PUBLISHED
                 </span>
                 <span
                 *ngIf="program?.reviewRequest?.status === 'rejected'"
@@ -38,7 +38,7 @@
                     NEEDS ACTION
                 </span>
                 <span *ngIf="!program?.reviewRequest?.status" class=" badge badge-warning ml-2">
-                    DRAFT
+                    DRAFT PROGRAM
                 </span>
             </h4>
 
@@ -47,11 +47,11 @@
                 <div class="card-header">
                   <tabset class="nav-tabs-primary">
 
-                    <tab heading="1. Program Landing Page">
+                    <tab heading="1. Design Landing Page">
                       <app-program-landing-page [userId]="userId" [program]="program"></app-program-landing-page>
                     </tab>
 
-                    <tab heading="2. Sessions & Pricing">
+                    <tab heading="2. Set Sessions & Pricing">
                         <app-program-outline [userId]="userId" [program]="program"></app-program-outline>
                     </tab>
 
@@ -62,22 +62,10 @@
                         <app-program-submit [userId]="userId" [program]="program"></app-program-submit>
                     </tab>
 
-                    <tab heading="4. Promote" [disabled]="program?.reviewRequest?.status !== 'approved'">
+                    <tab heading="4. Promote Your Program" [disabled]="program?.reviewRequest?.status !== 'approved'">
                         <app-program-promote [userId]="userId" [program]="program"></app-program-promote>
                     </tab>
 
-                    <tab heading="4. Promote">
-                        <app-program-promote [userId]="userId" [program]="program"></app-program-promote>
-                    </tab>
-
-                    <!-- <tab>
-                        <ng-template tabHeading>
-                          <span class="">
-                            <i class="fas fa-ellipsis-h" tooltip="More options"></i>
-                          </span>
-                        </ng-template>
-                        <app-course-more [userId]="userId" [course]="course"></app-course-more>
-                    </tab> -->
                   </tabset>
                 </div>
               </div>
