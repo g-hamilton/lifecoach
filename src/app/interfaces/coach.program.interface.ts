@@ -26,4 +26,5 @@ export interface CoachingProgram {
     coachName?: string;
     coachPhoto?: string;
     isTest?: boolean;
+    lastUpdated?: number; // unix timestamp
 }

@@ -259,12 +259,13 @@ export class ProgramComponent implements OnInit, OnDestroy {
       if (programData === null) { // if program state data does not exist - retrieve it from the api
 
         // Try to retrieve a public program
+        console.log('Checking for public program...');
         this.subscriptions.add(
           this.dataService.getPublicProgram(this.programId).subscribe(publicProgram => {
             if (publicProgram) { // public program exists
               // set the program
               this.program = publicProgram;
-              console.log('Program:', this.program);
+              console.log('Public program found:', this.program);
               // update meta
               this.updateProgramMeta();
 
@@ -312,10 +313,12 @@ export class ProgramComponent implements OnInit, OnDestroy {
                 this.subscriptions.add(
                   this.authService.getAuthUser().subscribe(user => { // check if user is authorised
                     if (user) { // user is authorised
+                      console.log('User is authorised...');
                       this.userId = user.uid;
                       this.subscriptions.add(
                         this.dataService.getPrivateProgram(this.userId, this.programId).subscribe(privateProgram => { // check for private program
                           if (privateProgram) { // private program exists
+                            console.log('Private program found:', privateProgram);
                             this.program = privateProgram;
 
                             // update meta
