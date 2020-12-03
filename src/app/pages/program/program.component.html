@@ -31,11 +31,11 @@
                       <!-- overall rating & enrollments -->
                       <div class=" mt-3">
                         <!-- rating stars *BROWSER ONLY* -->
-                        <!-- <app-stars
+                        <app-program-stars
                         *ngIf="browser"
                         [program]="program"
                         (totalReviewsEvent)="onTotalReviewsEvent($event)">
-                        </app-stars> -->
+                        </app-program-stars>
                         <span class=" d-inline-block ml-2" style="margin-top: 0.3rem;">
                           {{ avgRating?.toFixed(2) }} ({{ totalReviews ? totalReviews : '0' }} {{ totalReviews === 1 ? 'review' : 'reviews'}})
                         </span>

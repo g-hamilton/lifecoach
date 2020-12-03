@@ -30,4 +30,15 @@ export interface CoachingProgram {
     monthlyEarnings?: any;
     lifetimeTotals?: any;
     lifetimeTotalSales?: number;
+    totalFiveStarReviews?: number;
+    totalFourPointFiveStarReviews?: number;
+    totalFourStarReviews?: number;
+    totalThreePointFiveStarReviews?: number;
+    totalThreeStarReviews?: number;
+    totalTwoPointFiveStarReviews?: number;
+    totalTwoStarReviews?: number;
+    totalOnePointFiveStarReviews?: number;
+    totalOneStarReviews?: number;
+    totalZeroPointFiveStarReviews?: number;
+    totalZeroStarReviews?: number;
 }

@@ -1,0 +1,26 @@
+<fieldset class="rating">
+    <ng-container  *ngFor="let num of [5, 4, 3, 2, 1]">
+        <!-- full star -->
+        <input 
+        [id]="'star'+num"
+        [value]="num - 0.5"
+        name="rating" 
+        type="checkbox"
+        [checked]="num - 0.5 < avgRating"
+        [disabled]="true" />
+  
+        <label class="full" [for]="'star'+num"></label>
+  
+        <!-- half star -->
+        <input
+        [value]="num - 0.5"
+        [id]="'halfstar'+num" 
+        name="rating" 
+        type="checkbox"
+        [checked]="num - 0.51 < avgRating"
+        [disabled]="true"  />
+  
+        <label class="half" [for]="'halfstar'+num"></label>
+  
+    </ng-container>
+</fieldset>
