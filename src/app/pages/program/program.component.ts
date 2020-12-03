@@ -33,6 +33,7 @@ export class ProgramComponent implements OnInit, OnDestroy {
 
   public browser: boolean;
   public userId: string;
+  public now: number; // unix timestamp at load time
   public userClaims: any;
   public account: UserAccount;
   public clientCurrency: string;
@@ -86,6 +87,7 @@ export class ProgramComponent implements OnInit, OnDestroy {
     const body = this.document.getElementsByTagName('body')[0];
     body.classList.add('program-page');
     this.userType = 'regular'; // set the default user type to regular. We could let users select if required.
+    this.now = Math.round(new Date().getTime() / 1000); // set now as a unix timestamp
 
     if (isPlatformBrowser(this.platformId)) {
       this.browser = true;

@@ -59,12 +59,15 @@
                           Coach: {{ program.coachName }}
   
                           <!-- last updated -->
-                          <span class=" ml-3">
+                          <span *ngIf="program?.lastUpdated" class=" ml-3">
                             Last updated: {{ getDisplayDate(program.lastUpdated) }}
+                          </span>
+                          <span *ngIf="!program?.lastUpdated" class=" ml-3">
+                            Last updated: {{ getDisplayDate(now) }}
                           </span>
   
                           <!-- program language -->
-                          <span class=" ml-3">
+                          <span *ngIf="program?.language" class=" ml-3">
                             <i class="fas fa-comment"></i> {{ languages[program.language]?.nativeName }}
                           </span>
                         </p>
@@ -198,8 +201,9 @@
 
                       <div class=" text-center">
                         <!-- price -->
-                        <h3 *ngIf="program?.pricingStrategy === 'paid'"> {{ currencySymbol + '' + displayPrice }} </h3>
-                        <h3 *ngIf="program?.pricingStrategy === 'free'"> FREE </h3>
+                        <h3 *ngIf="program?.currency && program?.fullPrice"> {{ currencySymbol + '' + displayPrice }} </h3>
+                        <h4 *ngIf="program?.currency && !program?.fullPrice"> {{ currencySymbol + ' Awaiting price' }} </h4>
+                        <h4 *ngIf="!program?.currency && !program?.fullPrice"> {{ 'Awaiting currency & price' }} </h4>
                       </div>
 
                       <div *ngIf="userId === program.sellerUid">
@@ -214,44 +218,38 @@
                         </p>
                       </div>
 
-                      <div class=" text-center pl-2 pr-2">
-                        <!-- Paid pricing strategy -->
-                        <div *ngIf="program?.pricingStrategy === 'paid'">
-                          <!-- buy now button -->
-                          <!-- disabled for program seller or if already purchased -->
-                          <!-- userId === program.sellerUid || userClaims && userClaims[program.programId] -->
-                          <button
-                          class=" btn btn-primary btn-round btn-block btn-fill"
-                          id="buynow"
-                          type="button"
-                          data-target="#payModal"
-                          (click)="userId ? payModal.show() : registerModal.show()"
-                          [disabled]="userId === program.sellerUid || userClaims && userClaims[program.programId]">
-                            <span
-                            *ngIf="purchasingProgram"
-                            class="spinner-border spinner-border-sm"
-                            role="status"
-                            ></span> {{ purchasingProgram ? 'Purchasing...' : 'Buy Now'}} 
-                          </button>
-                          <!-- program owned button -->
-                          <button
-                          *ngIf="userId === program.sellerUid || userClaims && userClaims[program.programId]"
-                          class=" btn btn-success btn-round btn-block btn-fill"
-                          id="gotoprogram"
-                          type="button"
-                          [routerLink]="['/program', program.programId, 'learn']">
-                            Go to Program
-                          </button>
-                          <!-- returns -->
-                          <small>
-                            28-Day Money-Back Guarantee.
-                            <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001123378-refunds" taget="_blank">
-                              Info
-                            </a>
-                          </small>
-                        </div>
-
-                      </div>
+                      <!-- buy now button -->
+                      <!-- disabled for program seller or if already purchased -->
+                      <!-- userId === program.sellerUid || userClaims && userClaims[program.programId] -->
+                      <button
+                      class=" btn btn-primary btn-round btn-block btn-fill"
+                      id="buynow"
+                      type="button"
+                      data-target="#payModal"
+                      (click)="userId ? payModal.show() : registerModal.show()"
+                      [disabled]="userId === program.sellerUid || userClaims && userClaims[program.programId]">
+                        <span
+                        *ngIf="purchasingProgram"
+                        class="spinner-border spinner-border-sm"
+                        role="status"
+                        ></span> {{ purchasingProgram ? 'Purchasing...' : 'Buy Now'}} 
+                      </button>
+                      <!-- program owned button -->
+                      <button
+                      *ngIf="userClaims && userClaims[program.programId]"
+                      class=" btn btn-success btn-round btn-block btn-fill"
+                      id="gotoprogram"
+                      type="button"
+                      [routerLink]="['/program', program.programId, 'learn']">
+                        Go to Program
+                      </button>
+                      <!-- returns -->
+                      <small class="text-centre">
+                        28-Day Money-Back Guarantee.
+                        <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001123378-refunds" taget="_blank">
+                          Info
+                        </a>
+                      </small>
 
                       <!-- Currency picker -->
                       <div class="pt-3">
