@@ -472,18 +472,36 @@
             </button>
             <!-- End program target clients -->
 
-            <!-- Form submit button -->
-            <div class=" pull-right">
-                <button type="submit" class=" btn btn-primary btn-round btn-fill mt-4">
-                    <span *ngIf="!saving">
-                        <i class="fas fa-save"></i>
-                      </span>
-                      <span
-                      *ngIf="saving"
-                      class="spinner-border spinner-border-sm"
-                      role="status"
-                      ></span> {{ saving ? 'Saving...' : 'Save'}}
-                </button>
+            <div class=" row mt-4">
+                <div class="col-md-6">
+                    <!-- Preview program -->
+                    <div *ngIf="program?.programId">
+                        <a
+                        [routerLink]="['/program', program.programId]"
+                        target="_blank">
+                            <button
+                            type="button"
+                            class="btn btn-default btn-round">
+                                <i class="fas fa-eye"></i> Preview Landing Page
+                            </button>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <!-- Form submit button -->
+                    <div class=" pull-right">
+                        <button type="submit" class=" btn btn-primary btn-round btn-fill">
+                            <span *ngIf="!saving">
+                                <i class="fas fa-save"></i>
+                            </span>
+                            <span
+                            *ngIf="saving"
+                            class="spinner-border spinner-border-sm"
+                            role="status"
+                            ></span> {{ saving ? 'Saving...' : 'Save'}}
+                        </button>
+                    </div>
+                </div>
             </div>
 
         </form>

@@ -40,6 +40,23 @@
                 </div>
             </div>
 
+            <!-- Preview program landing page -->
+            <div>
+                <div>
+                    <div *ngIf="program?.programId">
+                        <a
+                        [routerLink]="['/program', program.programId]"
+                        target="_blank">
+                            <button
+                            type="button"
+                            class="btn btn-default btn-round">
+                                <i class="fas fa-eye"></i> Preview Link Landing Page
+                            </button>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
         </form>
         <!-- end promote form -->
     </div>
