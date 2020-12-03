@@ -15,7 +15,8 @@
                 <button
                     type="button"
                     class=" btn btn-primary btn-fill btn-round pull-right mb-3"
-                    (click)="createProgram()">
+                    (click)="createProgram()"
+                    [disabled]="!userProfile">
                     <i class=" tim-icons icon-simple-add"></i> Create Program
                 </button>
                 <h5 class=" title"> My Programs 
@@ -30,8 +31,22 @@
             </div>
         </div>
 
-        <!-- no programs created yet -->
-        <div class=" row" *ngIf="!publishedPrograms || publishedPrograms && publishedPrograms.length === 0">
+        <!-- No public coach profile -->
+        <div class=" row" *ngIf="!userProfile">
+            <div class=" col">
+                <div class=" card">
+                    <div class=" card-body">
+                        <p>
+                            Before you can create coaching programs, you must complete your public coach profile. 
+                            Click the 'Profile' link on the left hand menu to complete your profile now.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- public profile but no programs created yet -->
+        <div class=" row" *ngIf="userProfile && (!publishedPrograms || publishedPrograms && publishedPrograms.length === 0)">
             <div class=" col">
                 <div class=" card">
                     <div class=" card-body">
@@ -87,7 +102,8 @@
                 <button
                     type="button"
                     class=" btn btn-primary btn-fill btn-round pull-right mb-3"
-                    (click)="createCourse()">
+                    (click)="createCourse()"
+                    [disabled]="!userProfile">
                     <i class=" tim-icons icon-simple-add"></i> Create eCourse
                 </button>
                 <h5 class=" title"> My eCourses </h5>
@@ -98,8 +114,22 @@
             </div>
         </div>
 
-        <!-- no ecourses created yet -->
-        <div class=" row" *ngIf="!publishedCourses || publishedCourses && publishedCourses.length === 0">
+        <!-- No public coach profile -->
+        <div class=" row" *ngIf="!userProfile">
+            <div class=" col">
+                <div class=" card">
+                    <div class=" card-body">
+                        <p>
+                            Before you can create eCourses, you must complete your public coach profile. 
+                            Click the 'Profile' link on the left hand menu to complete your profile now.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- public profile but no ecourses created yet -->
+        <div class=" row" *ngIf="userProfile && (!publishedCourses || publishedCourses && publishedCourses.length === 0)">
             <div class=" col">
                 <div class=" card">
                     <div class=" card-body">
@@ -202,7 +232,7 @@
                 class=" btn btn-primary btn-fill btn-round pull-right"
                 (click)="onAddCoachingService()"
                 [routerLink]="['/services', 'new']"
-                [disabled]="false">
+                [disabled]="!userProfile">
                     <i class=" tim-icons icon-simple-add"></i> Add Service
                 </button>
             </div>

@@ -9,6 +9,7 @@ import { DataService } from 'app/services/data.service';
 import { AnalyticsService } from 'app/services/analytics.service';
 import { CurrenciesService } from 'app/services/currencies.service';
 import { Subscription } from 'rxjs';
+import { CoachProfile } from 'app/interfaces/coach.profile.interface';
 
 @Component({
   selector: 'app-coach-services',
@@ -25,6 +26,7 @@ export class CoachServicesComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription = new Subscription();
   public objKeys = Object.keys;
   public currencies: any;
+  public userProfile: CoachProfile;
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
@@ -49,6 +51,17 @@ export class CoachServicesComponent implements OnInit, OnDestroy {
       this.authService.getAuthUser().subscribe(user => {
         if (user) {
           this.userId = user.uid;
+
+          // Check for a public coach profile.
+          // Important: Profile must be completed & made public before we allow creation of products & services
+          this.subscriptions.add(
+            this.dataService.getPublicCoachProfile(this.userId).subscribe(profile => {
+              if (profile) {
+                this.userProfile = profile;
+                // console.log('Fetched profile:', profile);
+              }
+            })
+          );
 
           // Check for created ecourses
           this.subscriptions.add(
