@@ -1,9 +1,8 @@
-import { Component, OnInit, Input, Inject, PLATFORM_ID, OnChanges, OnDestroy } from '@angular/core';
+import { Component, OnInit, Input, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { DataService } from 'app/services/data.service';
 import { AlertService } from 'app/services/alert.service';
 import { AnalyticsService } from 'app/services/analytics.service';
-import { Subscription } from 'rxjs';
 import { CoachingProgram } from 'app/interfaces/coach.program.interface';
 
 @Component({
@@ -11,15 +10,13 @@ import { CoachingProgram } from 'app/interfaces/coach.program.interface';
   templateUrl: './program-submit.component.html',
   styleUrls: ['./program-submit.component.scss']
 })
-export class ProgramSubmitComponent implements OnInit, OnChanges, OnDestroy {
+export class ProgramSubmitComponent implements OnInit {
 
   @Input() userId: string;
   @Input() program: CoachingProgram;
 
   public browser: boolean;
-  public loadingProfile: boolean;
   public requesting: boolean;
-  private subscriptions: Subscription = new Subscription();
 
   constructor(
     @Inject(PLATFORM_ID) public platformId: object,
@@ -32,31 +29,6 @@ export class ProgramSubmitComponent implements OnInit, OnChanges, OnDestroy {
     if (isPlatformBrowser(this.platformId)) {
       this.browser = true;
     }
-  }
-
-  ngOnChanges() {
-    if (isPlatformBrowser(this.platformId)) {
-      if (this.userId && this.program && (!this.program.coachName || !this.program.coachPhoto)) { // if the program has no coach name or photo yet
-        this.loadUserProfile();
-      }
-    }
-  }
-
-  loadUserProfile() {
-    // perform a background load of the user's public user profile if they have one.
-    // program submission should not be allowed until a user has a public profile.
-    // when the user has a public profile, add their name and photo to the program object.
-    this.loadingProfile = true;
-    this.subscriptions.add(
-      this.dataService.getPublicCoachProfile(this.userId).subscribe(profile => {
-        if (profile && profile.firstName && profile.lastName && profile.photo) {
-          this.program.coachName = `${profile.firstName} ${profile.lastName}`;
-          this.program.coachPhoto = profile.photo;
-          // console.log('Fetched profile', profile);
-        }
-        this.loadingProfile = false;
-      })
-    );
   }
 
   getDisplayDate(unix: number) {
@@ -165,10 +137,6 @@ export class ProgramSubmitComponent implements OnInit, OnChanges, OnDestroy {
     this.alertService.alert('success-message', 'Success!', 'Your program is now in review!');
     this.requesting = false;
     this.analyticsService.submitProgramForReview();
-  }
-
-  ngOnDestroy() {
-    this.subscriptions.unsubscribe();
   }
 
 }
