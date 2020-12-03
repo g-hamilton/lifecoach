@@ -670,6 +670,25 @@ export class DataService {
       .valueChanges() as Observable<any>;
   }
 
+  getPrivatePrograms(uid: string) {
+    // Returns all the user's created program (as seller) documents.
+    return this.db.collection(`users/${uid}/programs`)
+      .valueChanges() as Observable<CoachingProgram[]>;
+  }
+
+  getProgramSalesByMonth(uid: string, month: number, year: number, programId: string) {
+    // Returns all the user's program sales documents for month and year, along with the doc IDs.
+    return this.db.collection(`users/${uid}/program-sales/${month}-${year}/${programId}`)
+      .valueChanges({idField: 'id'}) as Observable<any[]>;
+  }
+
+  getLifetimeTotalProgramSales(uid: string, programId: string) {
+    // Returns a document containing lifetime sales totals.
+    return this.db.collection(`users/${uid}/program-sales/total-lifetime-program-sales/programs`)
+      .doc(programId)
+      .valueChanges() as Observable<any>;
+  }
+
   // ================================================================================
   // =====                           COACH SERVICES                            ======
   // ================================================================================

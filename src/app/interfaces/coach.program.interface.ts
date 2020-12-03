@@ -27,4 +27,7 @@ export interface CoachingProgram {
     coachPhoto?: string;
     isTest?: boolean;
     lastUpdated?: number; // unix timestamp
+    monthlyEarnings?: any;
+    lifetimeTotals?: any;
+    lifetimeTotalSales?: number;
 }
