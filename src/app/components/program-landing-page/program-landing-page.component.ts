@@ -138,7 +138,7 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
       title: ['', [Validators.required, Validators.minLength(this.titleMinLength), Validators.maxLength(this.titleMaxLength)]],
       subtitle: ['', [Validators.required, Validators.minLength(this.subTitleMinLength), Validators.maxLength(this.subTitleMaxLength)]],
       description: ['', [Validators.required]],
-      language: ['', [Validators.required]],
+      language: [null, [Validators.required]],
       category: [null, [Validators.required]],
       level: [null, [Validators.required]],
       subject: ['', [Validators.required, Validators.minLength(this.subjectMinLength), Validators.maxLength(this.subjectMaxLength)]],

@@ -5,15 +5,10 @@
               <h4 class="card-title"> Let's give your program a title! </h4>
               <h6 class="card-subtitle mb-4 text-muted"> You can change your title at any time. </h6>
               <div class=" p-3">
-                <p>
-                    Many clients don't yet know they need coaching but are looking for a specific solution to 
+                <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> Many clients don't yet know they need coaching but are looking for a specific solution to 
                     a problem, issue, goal or challenge they are facing. Choose a short, goal or outcome focussed title 
                     that hints at what clients can expect to achieve through your program.
-                </p>
-                <p class="mt-3">
-                    <a href="" target="_blank">
-                        <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> How to choose a great program title </span>
-                    </a>
                 </p>
 
                 <div class="mt-3">
@@ -23,8 +18,7 @@
                         class="input-group no-symbol"
                         [ngClass]="{
                             'has-danger':
-                            ((focusTouched || saveAttempt) && programF.title.errors) ||
-                            (programF.title.value != '' && programF.title.errors),
+                            (( (focusTouched && programF.title.value != '') || saveAttempt) && programF.title.errors),
                             'has-success': !programF.title.errors
                         }">
                             <input
@@ -40,8 +34,7 @@
                               </span>
                             </div>
                         </div>
-                        <div *ngIf="((focusTouched || saveAttempt) && programF.title.errors) ||
-                            (programF.title.value != '' && programF.title.errors)">
+                        <div *ngIf="(( (focusTouched && programF.title.value != '') || saveAttempt) && programF.title.errors)">
                             <label
                             *ngFor="let error of objKeys(programF.title.errors)"
                             class="error custom-error-label"

@@ -105,7 +105,7 @@ export class NewProgramComponent implements OnInit, OnChanges, OnDestroy {
 
     // Safety checks
     if (this.newProgramForm.invalid) {
-      this.alertService.alert('warning-message', 'Oops', 'Invalid form. Please contact support.');
+      this.alertService.alert('warning-message', 'Oops', 'Please complete all fields to continue.');
       this.saving = false;
       return;
     }
