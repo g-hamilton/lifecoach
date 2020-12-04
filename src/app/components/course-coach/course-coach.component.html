@@ -16,28 +16,38 @@
         </a>
       </h4>
       <p>
-        <strong>
-          {{ avgRating | async }}
-        </strong>
-        <span>
-          <i class="fas fa-star mr-1"></i> 
+        <!-- Coach's avg. rating across all products & services -->
+        <span *ngIf="!avgCourseRating && !avgProgramRating" class=" ml-3 badge badge-success">
+          New Coach
         </span>
-        <span *ngIf="(avgRating | async) != 'No reviews yet'">
-          Coach rating
+        <strong *ngIf="avgCourseRating && avgProgramRating">
+          {{ (avgCourseRating + avgProgramRating) / 2 }}
+        </strong>
+        <strong *ngIf="avgCourseRating && !avgProgramRating">
+            {{ avgCourseRating }}
+        </strong>
+        <strong *ngIf="!avgCourseRating && avgProgramRating">
+            {{ avgProgramRating }}
+        </strong>
+
+        <!-- If the coach has a rating -->
+        <span *ngIf="avgCourseRating || avgProgramRating">
+            <i class="fas fa-star mr-1"></i>
+            Coach rating
         </span>
         <span>
           <i class="fas fa-comment ml-4 mr-1"></i>
         </span> 
         <strong>
-          {{ (userReviews | async)?.length }}
-        </strong> {{(userReviews | async)?.length === 1 ? 'Review' : 'Reviews'}}
+          {{ courseReviews?.length + programReviews?.length }}
+        </strong> {{ courseReviews?.length + programReviews?.length === 1 ? 'Review' : 'Reviews'}}
         <span>
           <i class="fas fa-user ml-4 mr-1"></i>
         </span> 
         <strong>
-          {{ (sellerEnrollments | async)?.totalEnrollments }} 
+          {{ ((sellerCourseEnrollments | async)?.totalEnrollments) + ((sellerProgramEnrollments | async)?.totalEnrollments) }} 
         </strong>
-        {{ (sellerEnrollments | async)?.totalEnrollments === 1 ? 'Student' : 'Students' }}
+        {{ ((sellerCourseEnrollments | async)?.totalEnrollments) + ((sellerProgramEnrollments | async)?.totalEnrollments) === 1 ? 'Coachee' : 'Coachees' }}
         <span>
           <i class="fas fa-graduation-cap ml-4 mr-1"></i>
         </span> 
@@ -45,6 +55,13 @@
           {{ (sellerCourses | async)?.length }}
         </strong>
         {{ (sellerCourses | async)?.length === 1 ? 'eCourse' : 'eCourses' }}
+        <span>
+            <i class="fas fa-graduation-cap ml-4 mr-1"></i>
+          </span> 
+        <strong>
+            {{ (sellerPrograms | async)?.length }}
+        </strong>
+        {{ (sellerPrograms | async)?.length === 1 ? 'Program' : 'Programs' }}
       </p>
     </div>
 </div>

@@ -17,9 +17,9 @@
       </h4>
       <p>
         <!-- Coach's avg. rating across all products & services -->
-        <strong *ngIf="!avgCourseRating && !avgProgramRating">
-            No reviews yet
-        </strong>
+        <span *ngIf="!avgCourseRating && !avgProgramRating" class=" ml-3 badge badge-success">
+            New Coach
+          </span>
         <strong *ngIf="avgCourseRating && avgProgramRating">
           {{ (avgCourseRating + avgProgramRating) / 2 }}
         </strong>

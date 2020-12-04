@@ -9,6 +9,7 @@ import { ProgramReview } from 'app/interfaces/program-review';
 import { CourseReview } from 'app/interfaces/course-review';
 import { map } from 'rxjs/operators';
 import { DataService } from 'app/services/data.service';
+import { CoachingProgram } from 'app/interfaces/coach.program.interface';
 
 @Component({
   selector: 'app-course-coach',
@@ -20,12 +21,17 @@ export class CourseCoachComponent implements OnInit, OnChanges, OnDestroy {
   @Input() previewAsStudent: boolean;
   @Input() course: CoachingCourse;
 
-  public userReviews: Observable<CourseReview[]>;
-  public avgRating: Observable<any>;
-  public sellerEnrollments: Observable<any>;
-  public sellerCourses: Observable<CoachingCourse[]>;
-  public sellerImage: string;
   private subscriptions: Subscription = new Subscription();
+
+  public courseReviews: CourseReview[];
+  public programReviews: ProgramReview[];
+  public avgCourseRating: number;
+  public avgProgramRating: number;
+  public sellerCourseEnrollments: Observable<any>;
+  public sellerProgramEnrollments: Observable<any>;
+  public sellerCourses: Observable<CoachingCourse[]>;
+  public sellerPrograms: Observable<CoachingProgram[]>;
+  public sellerImage: string;
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
@@ -41,56 +47,85 @@ export class CourseCoachComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnChanges() {
     if (this.course) {
-      // console.log(this.course);
-      this.fetchReviewsData();
+      this.fetchCourseReviewsData();
+      this.fetchProgramReviewsData();
       this.fetchSellerCourseEnrollmentsData();
+      this.fetchSellerProgramEnrollmentsData();
       this.fetchSellerCoursesData();
+      this.fetchSellerProgramsData();
       this.fetchCoachPhotoFromProfile();
     }
   }
 
-  fetchReviewsData() {
-    const REVIEWS_KEY = makeStateKey<any>('reviews'); // create a key for saving/retrieving state
+  fetchCourseReviewsData() {
+    const REVIEWS_KEY = makeStateKey<any>('course-reviews'); // create a key for saving/retrieving state
 
     const reviewsData = this.transferState.get(REVIEWS_KEY, null as any); // checking if data in the storage exists
 
     if (reviewsData === null) { // if state data does not exist - retrieve it from the api
-      this.userReviews = this.courseReviewsService.getSellerCourseReviews(this.course.sellerUid);
 
-      // calc avg rating for this user
-      this.avgRating = this.userReviews.pipe(map(arr => {
-        const ratings = arr.map(v => v.starValue);
-        return ratings.length ? ratings.reduce((total, val) => total + val) / arr.length : 'No reviews yet';
-      }));
+      // get this coach's course reviews
+      this.subscriptions.add(
+        this.courseReviewsService.getSellerCourseReviews(this.course.sellerUid).subscribe(data => {
+          this.courseReviews = data;
 
-      if (isPlatformServer(this.platformId)) { // if we're server side, store the retrieved data as a state
-        this.subscriptions.add(
-          this.userReviews.subscribe(data => {
-            if (data) {
-              this.transferState.set(REVIEWS_KEY, data as any);
-            }
-          })
-        );
-      }
+          // calc avg rating for this coach's courses
+          const ratings = this.courseReviews.map(v => v.starValue);
+          this.avgCourseRating = ratings.length ? ratings.reduce((total, val) => total + val) / ratings.length : null;
+
+          if (isPlatformServer(this.platformId)) { // if we're server side, store the retrieved data as a state
+            this.transferState.set(REVIEWS_KEY, this.courseReviews);
+          }
+        })
+      );
 
     } else { // if reviews state data exists retrieve it from the state storage
-      this.userReviews = reviewsData;
-      console.log('Reviews data for user:', reviewsData);
+      this.courseReviews = reviewsData;
+      // console.log('Course reviews data for user:', reviewsData);
+      this.transferState.remove(REVIEWS_KEY);
+    }
+  }
+
+  fetchProgramReviewsData() {
+    const REVIEWS_KEY = makeStateKey<any>('program-reviews'); // create a key for saving/retrieving state
+
+    const reviewsData = this.transferState.get(REVIEWS_KEY, null as any); // checking if data in the storage exists
+
+    if (reviewsData === null) { // if state data does not exist - retrieve it from the api
+
+      // get this coach's program reviews
+      this.subscriptions.add(
+        this.programReviewsService.getSellerProgramReviews(this.course.sellerUid).subscribe(data => {
+          this.programReviews = data;
+
+          // calc avg rating for this coach's programs
+          const ratings = this.programReviews.map(v => v.starValue);
+          this.avgProgramRating = ratings.length ? ratings.reduce((total, val) => total + val) / ratings.length : null;
+
+          if (isPlatformServer(this.platformId)) { // if we're server side, store the retrieved data as a state
+            this.transferState.set(REVIEWS_KEY, this.programReviews);
+          }
+        })
+      );
+
+    } else { // if reviews state data exists retrieve it from the state storage
+      this.programReviews = reviewsData;
+      // console.log('Program reviews data for user:', reviewsData);
       this.transferState.remove(REVIEWS_KEY);
     }
   }
 
   fetchSellerCourseEnrollmentsData() {
-    const ENROLLMENTS_KEY = makeStateKey<any>('enrollments'); // create a key for saving/retrieving state
+    const ENROLLMENTS_KEY = makeStateKey<any>('course-enrollments'); // create a key for saving/retrieving state
 
     const enrollmentsData = this.transferState.get(ENROLLMENTS_KEY, null as any); // checking if data in the storage exists
 
     if (enrollmentsData === null) { // if state data does not exist - retrieve it from the api
-      this.sellerEnrollments = this.dataService.getTotalPublicEnrollmentsByCourseSeller(this.course.sellerUid);
+      this.sellerCourseEnrollments = this.dataService.getTotalPublicEnrollmentsByCourseSeller(this.course.sellerUid);
 
       if (isPlatformServer(this.platformId)) { // if we're server side, store the retrieved data as a state
         this.subscriptions.add(
-          this.sellerEnrollments.subscribe(data => {
+          this.sellerCourseEnrollments.subscribe(data => {
             if (data) {
               this.transferState.set(ENROLLMENTS_KEY, data as any);
             }
@@ -99,7 +134,31 @@ export class CourseCoachComponent implements OnInit, OnChanges, OnDestroy {
       }
 
     } else { // if state data exists retrieve it from the state storage
-      this.sellerEnrollments = enrollmentsData;
+      this.sellerCourseEnrollments = enrollmentsData;
+      this.transferState.remove(ENROLLMENTS_KEY);
+    }
+  }
+
+  fetchSellerProgramEnrollmentsData() {
+    const ENROLLMENTS_KEY = makeStateKey<any>('program-enrollments'); // create a key for saving/retrieving state
+
+    const enrollmentsData = this.transferState.get(ENROLLMENTS_KEY, null as any); // checking if data in the storage exists
+
+    if (enrollmentsData === null) { // if state data does not exist - retrieve it from the api
+      this.sellerProgramEnrollments = this.dataService.getTotalPublicProgramEnrollmentsBySeller(this.course.sellerUid);
+
+      if (isPlatformServer(this.platformId)) { // if we're server side, store the retrieved data as a state
+        this.subscriptions.add(
+          this.sellerProgramEnrollments.subscribe(data => {
+            if (data) {
+              this.transferState.set(ENROLLMENTS_KEY, data as any);
+            }
+          })
+        );
+      }
+
+    } else { // if state data exists retrieve it from the state storage
+      this.sellerProgramEnrollments = enrollmentsData;
       this.transferState.remove(ENROLLMENTS_KEY);
     }
   }
@@ -125,6 +184,30 @@ export class CourseCoachComponent implements OnInit, OnChanges, OnDestroy {
     } else { // if state data exists retrieve it from the state storage
       this.sellerCourses = coursesData;
       this.transferState.remove(COURSES_KEY);
+    }
+  }
+
+  fetchSellerProgramsData() {
+    const PROGRAMS_KEY = makeStateKey<any>('programs'); // create a key for saving/retrieving state
+
+    const programsData = this.transferState.get(PROGRAMS_KEY, null as any); // checking if data in the storage exists
+
+    if (programsData === null) { // if state data does not exist - retrieve it from the api
+      this.sellerPrograms = this.dataService.getPublicProgramsBySeller(this.course.sellerUid);
+
+      if (isPlatformServer(this.platformId)) { // if we're server side, store the retrieved data as a state
+        this.subscriptions.add(
+          this.sellerPrograms.subscribe(data => {
+            if (data) {
+              this.transferState.set(PROGRAMS_KEY, data as any);
+            }
+          })
+        );
+      }
+
+    } else { // if state data exists retrieve it from the state storage
+      this.sellerPrograms = programsData;
+      this.transferState.remove(PROGRAMS_KEY);
     }
   }
 
