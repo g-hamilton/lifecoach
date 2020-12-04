@@ -112,6 +112,7 @@ import { ProgramPromoVideoUploadTaskComponent } from './program-promo-video-uplo
 import { ProgramSubmitComponent } from './program-submit/program-submit.component';
 import { ProgramPromoteComponent } from './program-promote/program-promote.component';
 import { ProgramStarsComponent } from './program-stars/program-stars.component';
+import { ProgramCoachComponent } from './program-coach/program-coach.component';
 
 export function momentAdapterFactory() {
   return adapterFactory(moment);
@@ -226,7 +227,8 @@ export function momentAdapterFactory() {
     ProgramPromoVideoUploadTaskComponent,
     ProgramSubmitComponent,
     ProgramPromoteComponent,
-    ProgramStarsComponent
+    ProgramStarsComponent,
+    ProgramCoachComponent
   ],
   exports: [
     TabsModule,
@@ -319,7 +321,8 @@ export function momentAdapterFactory() {
     ProgramPromoVideoUploadTaskComponent,
     ProgramSubmitComponent,
     ProgramPromoteComponent,
-    ProgramStarsComponent
+    ProgramStarsComponent,
+    ProgramCoachComponent
   ]
 })
 export class ComponentsModule {}

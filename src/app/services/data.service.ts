@@ -250,7 +250,7 @@ export class DataService {
   }
 
   getTotalPublicEnrollmentsByCourseSeller(sellerUid: string) {
-    // Returns a document containing a courses total lifetime enrollments
+    // Returns a document containing a coach's total lifetime course enrollments (across all courses)
     return this.db.collection(`seller-course-enrollments`)
       .doc(sellerUid)
       .valueChanges() as Observable<any>;
@@ -687,6 +687,18 @@ export class DataService {
     return this.db.collection(`users/${uid}/program-sales/total-lifetime-program-sales/programs`)
       .doc(programId)
       .valueChanges() as Observable<any>;
+  }
+
+  getTotalPublicProgramEnrollmentsBySeller(sellerUid: string) {
+    // Returns a document containing a coach's total lifetime program enrollments (across all programs)
+    return this.db.collection(`seller-program-enrollments`)
+      .doc(sellerUid)
+      .valueChanges() as Observable<any>;
+  }
+
+  getPublicProgramsBySeller(sellerUid: string) {
+    const programsRef = this.db.collection('public-programs', ref => ref.where('sellerUid', '==', sellerUid));
+    return programsRef.valueChanges() as Observable<CoachingProgram[]>;
   }
 
   // ================================================================================

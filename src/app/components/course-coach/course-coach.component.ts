@@ -1,9 +1,11 @@
 import { Component, OnInit, Input, Inject, PLATFORM_ID, OnChanges, OnDestroy } from '@angular/core';
 import { CoachingCourse } from 'app/interfaces/course.interface';
 import { CourseReviewsService } from 'app/services/course-reviews.service';
+import { ProgramReviewsService } from 'app/services/program-reviews.service';
 import { isPlatformBrowser, isPlatformServer } from '@angular/common';
 import { makeStateKey, TransferState } from '@angular/platform-browser';
 import { Observable, Subscription } from 'rxjs';
+import { ProgramReview } from 'app/interfaces/program-review';
 import { CourseReview } from 'app/interfaces/course-review';
 import { map } from 'rxjs/operators';
 import { DataService } from 'app/services/data.service';
@@ -29,6 +31,7 @@ export class CourseCoachComponent implements OnInit, OnChanges, OnDestroy {
     @Inject(PLATFORM_ID) private platformId: object,
     private transferState: TransferState,
     private courseReviewsService: CourseReviewsService,
+    private programReviewsService: ProgramReviewsService,
     private dataService: DataService
   ) {
   }
@@ -40,7 +43,7 @@ export class CourseCoachComponent implements OnInit, OnChanges, OnDestroy {
     if (this.course) {
       // console.log(this.course);
       this.fetchReviewsData();
-      this.fetchSellerEnrollmentsData();
+      this.fetchSellerCourseEnrollmentsData();
       this.fetchSellerCoursesData();
       this.fetchCoachPhotoFromProfile();
     }
@@ -77,7 +80,7 @@ export class CourseCoachComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  fetchSellerEnrollmentsData() {
+  fetchSellerCourseEnrollmentsData() {
     const ENROLLMENTS_KEY = makeStateKey<any>('enrollments'); // create a key for saving/retrieving state
 
     const enrollmentsData = this.transferState.get(ENROLLMENTS_KEY, null as any); // checking if data in the storage exists

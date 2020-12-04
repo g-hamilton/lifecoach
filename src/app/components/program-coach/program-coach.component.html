@@ -1,0 +1,67 @@
+<div *ngIf="program" class=" card card-testimonial">
+    <div class=" card-header card-header-avatar">
+      <a [routerLink]="['/coach', program.sellerUid]">
+        <img
+        style="width: 100px; height: 100px; object-fit: cover;"
+        class=" img img-raised"
+        [src]="program.coachPhoto"
+        [alt]="program.coachName">
+      </a>
+    </div>
+    <div class=" card-body">
+      <p class=" category"> Your coach: </p>
+      <h4 class=" card-title">
+        <a style="color: rgba(255, 255, 255, 0.8)" [routerLink]="['/coach', program.sellerUid]">
+          {{ program.coachName }}
+        </a>
+      </h4>
+      <p>
+        <!-- Coach's avg. rating across all products & services -->
+        <strong *ngIf="!avgCourseRating && !avgProgramRating">
+            No reviews yet
+        </strong>
+        <strong *ngIf="avgCourseRating && avgProgramRating">
+          {{ (avgCourseRating + avgProgramRating) / 2 }}
+        </strong>
+        <strong *ngIf="avgCourseRating && !avgProgramRating">
+            {{ avgCourseRating }}
+        </strong>
+        <strong *ngIf="!avgCourseRating && avgProgramRating">
+            {{ avgProgramRating }}
+        </strong>
+
+        <!-- If the coach has a rating -->
+        <span *ngIf="avgCourseRating || avgProgramRating">
+            <i class="fas fa-star mr-1"></i>
+            Coach rating
+        </span>
+        <span>
+          <i class="fas fa-comment ml-4 mr-1"></i>
+        </span> 
+        <strong>
+          {{ courseReviews?.length + programReviews?.length }}
+        </strong> {{ courseReviews?.length + programReviews?.length === 1 ? 'Review' : 'Reviews'}}
+        <span>
+          <i class="fas fa-user ml-4 mr-1"></i>
+        </span> 
+        <strong>
+          {{ ((sellerCourseEnrollments | async)?.totalEnrollments) + ((sellerProgramEnrollments | async)?.totalEnrollments) }} 
+        </strong>
+        {{ ((sellerCourseEnrollments | async)?.totalEnrollments) + ((sellerProgramEnrollments | async)?.totalEnrollments) === 1 ? 'Coachee' : 'Coachees' }}
+        <span>
+          <i class="fas fa-graduation-cap ml-4 mr-1"></i>
+        </span> 
+        <strong>
+          {{ (sellerCourses | async)?.length }}
+        </strong>
+        {{ (sellerCourses | async)?.length === 1 ? 'eCourse' : 'eCourses' }}
+        <span>
+            <i class="fas fa-graduation-cap ml-4 mr-1"></i>
+          </span> 
+        <strong>
+            {{ (sellerPrograms | async)?.length }}
+        </strong>
+        {{ (sellerPrograms | async)?.length === 1 ? 'Program' : 'Programs' }}
+      </p>
+    </div>
+</div>
