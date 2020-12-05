@@ -498,4 +498,52 @@ export class SearchService {
     }
   }
 
+  // ================================================================================
+  // =====                      SEARCHING PROGRAM REVIEWS                      ======
+  // ================================================================================
+
+  private buildAlgoliaProgramReviewFilters(facets: any) {
+    /*
+    Accepts an object containing search filters, eg.
+    { courseId: abc, starValue: 5 }
+    Builds and returns a 'filters' query string from that object using Algolia rules.
+    https://www.algolia.com/doc/api-reference/api-parameters/filters/
+    We should end up with a string like:
+    'courseId:abc AND starValue:5'
+    */
+    const andArray = [];
+    Object.keys(facets).forEach(key => {
+      andArray.push(`${key}:${facets[key]}`);
+    });
+    const builtAndString = andArray.join(' AND ');
+    // console.log('Algolia filters string constructed:', builtAndString);
+
+    return builtAndString;
+  }
+
+  async searchProgramReviews(hitsPerPage: number, page: number, filters: any) {
+    // console.log('filters:', filters);
+
+    // Init search index & default params
+    const searchIndex = 'prod_PROGRAM_REVIEWS';
+    const index = this.searchClient.initIndex(searchIndex);
+    const params: algoliasearch.QueryParameters = {
+      query: filters.query ? filters.query : '',
+      hitsPerPage,
+      page: page - 1, // because Algolia is zero indexed but we always start at 1
+      filters: filters.facets ? this.buildAlgoliaProgramReviewFilters(filters.facets) : ''
+    };
+    // console.log('Algolia query params constructed:', params);
+
+    try {
+      // Run the search
+      const res = await index.search(params);
+      // console.log('Algolia search hit results:', res);
+      return res;
+
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
 }
