@@ -41,7 +41,7 @@
                         </span>
                         <!-- if zero enrollments -->
                         <span *ngIf="!programEnrollments?.totalEnrollments" class=" ml-3 badge badge-success">
-                          New Program
+                          New Coaching Program
                         </span>
                         <!-- if 1 enrollment -->
                         <span *ngIf="programEnrollments?.totalEnrollments && programEnrollments?.totalEnrollments == 1" class=" ml-3">
@@ -215,7 +215,7 @@
                     <img
                     *ngIf="!program.promoVideo"
                     class=" card-img-top"
-                    [src]="program.image ? program.image : 'assets/img/image_placeholder.jpg'"
+                    [src]="program.image ? program.image : 'assets/img/awaiting-image.png'"
                     [alt]="program.title" />
 
                     <div class=" card-body">
