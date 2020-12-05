@@ -119,6 +119,29 @@
                         <div id="test" class=" card-description" [innerHTML]="program.description"></div>
                       </div>
 
+                      <!-- ideal clients -->
+                      <div *ngIf="program.targets" class=" mt-5">
+                        <h5 class=" card-title"> The perfect coaching program for: </h5>
+                        <div *ngIf="program.targets" class=" mt-4">
+                          <div class=" highlight-box">
+                            <table class=" table">
+                              <tbody>
+                                <tr *ngFor="let item of program.targets">
+                                  <td style="border-top: none;">
+                                    <small>
+                                      <i class="fas fa-circle text-success"></i>
+                                    </small>
+                                  </td>
+                                  <td style="border-top: none;">
+                                    {{ item }}
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+
                     </div>
                   </div>
                   <!-- end card -->
