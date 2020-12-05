@@ -1,0 +1,99 @@
+<div class=" row">
+    <div class=" col-5">
+        <div>
+            <p class=" display-1 text-center">
+                {{ avgRating === 0 ? '0.0' : avgRating?.toFixed(2) }}
+            </p>
+        </div>
+        <div id="stars" class="d-inline-block">
+            <fieldset class="rating">
+                <ng-container  *ngFor="let num of [5, 4, 3, 2, 1]">
+                    <!-- full star -->
+                    <input 
+                    [id]="'star'+num"
+                    [value]="num - 0.5"
+                    name="rating" 
+                    type="checkbox"
+                    [checked]="num - 0.5 < avgRating"
+                    [disabled]="true" />
+              
+                    <label class="full" [for]="'star'+num"></label>
+              
+                    <!-- half star -->
+                    <input
+                    [value]="num - 0.5"
+                    [id]="'halfstar'+num" 
+                    name="rating" 
+                    type="checkbox"
+                    [checked]="num - 0.51 < avgRating"
+                    [disabled]="true"  />
+              
+                    <label class="half" [for]="'halfstar'+num"></label>
+              
+                </ng-container>
+            </fieldset>
+        </div>
+        <div class=" text-center mt-2">
+            <p>
+                Program Rating
+            </p>
+        </div>
+    </div>
+    <div class=" col-7">
+        <!-- 5 stars -->
+        <div class="progress-container progress-rating">
+            <span class="progress-badge">
+                <i class="fas fa-star star-yellow mr-1"></i>
+                <i class="fas fa-star star-yellow mr-1"></i>
+                <i class="fas fa-star star-yellow mr-1"></i>
+                <i class="fas fa-star star-yellow mr-1"></i>
+                <i class="fas fa-star star-yellow"></i>
+            </span>
+            <progressbar class="progress-bar-primary mt-1" [value]="pc5">
+                <span class="progress-value"> {{ pc5 ? pc5.toFixed() : 0 }}% </span>
+            </progressbar>
+        </div>
+        <!-- 4 stars -->
+        <div class="progress-container progress-rating">
+            <span class="progress-badge">
+                <i class="fas fa-star star-yellow mr-1"></i>
+                <i class="fas fa-star star-yellow mr-1"></i>
+                <i class="fas fa-star star-yellow mr-1"></i>
+                <i class="fas fa-star star-yellow"></i>
+            </span>
+            <progressbar class="progress-bar-primary mt-1" [value]="pc4">
+                <span class="progress-value"> {{ pc4 ? pc4.toFixed(): 0 }}% </span>
+            </progressbar>
+        </div>
+        <!-- 3 stars -->
+        <div class="progress-container progress-rating">
+            <span class="progress-badge">
+                <i class="fas fa-star star-yellow mr-1"></i>
+                <i class="fas fa-star star-yellow mr-1"></i>
+                <i class="fas fa-star star-yellow"></i>
+            </span>
+            <progressbar class="progress-bar-primary mt-1" [value]="pc3">
+                <span class="progress-value"> {{ pc3 ? pc3.toFixed() : 0 }}% </span>
+            </progressbar>
+        </div>
+        <!-- 2 stars -->
+        <div class="progress-container progress-rating">
+            <span class="progress-badge">
+                <i class="fas fa-star star-yellow mr-1"></i>
+                <i class="fas fa-star star-yellow"></i>
+            </span>
+            <progressbar class="progress-bar-primary mt-1" [value]="pc2">
+                <span class="progress-value"> {{ pc2 ? pc2.toFixed() : 0 }}% </span>
+            </progressbar>
+        </div>
+        <!-- 1 star -->
+        <div class="progress-container progress-rating">
+            <span class="progress-badge">
+                <i class="fas fa-star star-yellow"></i>
+            </span>
+            <progressbar class="progress-bar-primary mt-1" [value]="pc1">
+                <span class="progress-value"> {{ pc1 ? pc1.toFixed() : 0 }}% </span>
+            </progressbar>
+        </div>
+    </div>
+</div>
