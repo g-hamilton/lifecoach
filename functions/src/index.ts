@@ -1763,7 +1763,7 @@ exports.approveRefund = functions
 });
 
 // ================================================================================
-// =====                  ADMIN COURSE REVIEW FUNCTIONS                      ======
+// =====                       ADMIN REVIEW FUNCTIONS                        ======
 // ================================================================================
 
 /*
@@ -1809,7 +1809,7 @@ exports.adminApproveCourseReview = functions
 
     // create an approved course doc to ensure only admin approved courses get updated by creators
     // Important! Do this before writing to the user's private courses node to ensure correct
-    // data gets copied to public & paywall protected areas on update of the provate node.
+    // data gets copied to public & paywall protected areas on update of the private node.
     await db.collection(`approved-courses`)
     .doc(courseId)
     .create({ 
@@ -1878,16 +1878,16 @@ exports.adminRejectCourseReview = functions
 
   // safety checks
   if (!courseId) {
-    return { error: 'Cloud function adminApproveCourseReview error: missing course ID' }
+    return { error: 'Cloud function adminRejectCourseReview error: missing course ID' }
   }
   if (!userId) {
-    return { error: 'Cloud function adminApproveCourseReview error: missing user ID' }
+    return { error: 'Cloud function adminRejectCourseReview error: missing user ID' }
   }
   if (!reviewRequest) {
-    return { error: 'Cloud function adminApproveCourseReview error: missing review request' }
+    return { error: 'Cloud function adminRejectCourseReview error: missing review request' }
   }
   if (!reviewRequest.sellerUid) {
-    return { error: 'Cloud function adminApproveCourseReview error: missing review request seller UID' }
+    return { error: 'Cloud function adminRejectCourseReview error: missing review request seller UID' }
   }
 
   // update the review request object
@@ -1920,6 +1920,173 @@ exports.adminRejectCourseReview = functions
       name: 'admin_rejected_course',
       properties: {
         course_title: course.title,
+        reject_reason: reviewRequest.rejectData.reason
+      }
+    }
+    await logMailchimpEvent(reviewRequest.sellerUid, event); // log event
+
+    return { success: true } // success
+
+  } catch (err) {
+    console.error(err);
+    return { error: err }
+  }
+});
+
+/*
+  Attempts to approve a coaching program in review.
+*/
+exports.adminApproveProgramReview = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.https
+.onCall( async (data, context) => {
+
+  const programId = data.programId;
+  const userId = data.userId; // reviewer not seller!
+  const reviewRequest = data.reviewRequest;
+  const approvedDate = Math.round(new Date().getTime() / 1000); // unix timestamp
+
+  // safety checks
+  if (!programId) {
+    return { error: 'Cloud function adminApproveProgramReview error: missing program ID' }
+  }
+  if (!userId) {
+    return { error: 'Cloud function adminApproveProgramReview error: missing user ID' }
+  }
+  if (!reviewRequest) {
+    return { error: 'Cloud function adminApproveProgramReview error: missing review request' }
+  }
+  if (!reviewRequest.sellerUid) {
+    return { error: 'Cloud function adminApproveProgramReview error: missing review request seller UID' }
+  }
+
+  try {
+
+    // attempt to read program data
+    const programSnap = await db.collection(`users/${reviewRequest.sellerUid}/programs`)
+    .doc(programId)
+    .get();
+
+    if (!programSnap.exists) {
+      console.error('Cloud function onNewProgramReviewApproved error: Unable to read program.')
+      return {error: 'Unable to read program data. Operation failed.'};
+    }
+
+    const program = programSnap.data() as any;
+
+    // create an approved program doc to ensure only admin approved programs get updated by creators
+    // Important! Do this before writing to the user's private programs node to ensure correct
+    // data gets copied to public & paywall protected areas on update of the private node.
+    await db.collection(`approved-programs`)
+    .doc(programId)
+    .create({ 
+      programId,
+      approved: approvedDate,
+      reviewerUid: userId
+    });
+
+    const batch = db.batch(); // prepare to execute multiple ops atomically
+
+    // update user's private programs node with updated program object
+    const privateProgramCopy = JSON.parse(JSON.stringify(program));
+    const privateReviewRequest = JSON.parse(JSON.stringify(reviewRequest));
+    privateReviewRequest.status = 'approved';
+    privateReviewRequest.approved = approvedDate;
+    privateReviewRequest.reviewerUid = userId;
+    privateProgramCopy.adminApproved = true;
+    privateProgramCopy.reviewRequest = privateReviewRequest;
+    privateProgramCopy.lastUpdated = approvedDate;
+    const privateProgramRef = db.collection(`users/${reviewRequest.sellerUid}/programs`).doc(programId);
+    batch.set(privateProgramRef, privateProgramCopy, { merge: true });
+
+
+    // delete review request from the admin collection
+    const adminRef = db.collection(`admin/review-requests/programs`).doc(programId);
+    batch.delete(adminRef) // triggers onDelete monitor function to update count
+
+    await batch.commit(); // execute batch ops. Any error should trigger catch.
+
+    // add the program id to the seller's custom claims so they can access the program
+    await addCustomUserClaims(program.sellerUid, { [programId]: true });
+
+    // delete the draft program record in Algolia
+    const index = algolia.initIndex('prod_DRAFT_PROGRAMS');
+    await index.deleteObject(programId);
+
+    // trigger a mailchimp event to log program going live
+    const event = {
+      name: 'admin_approved_program',
+      properties: {
+        program_title: program.title
+      }
+    }
+    await logMailchimpEvent(program.sellerUid, event); // log event
+
+    return { success: true } // success if we got this far!
+
+  } catch (err) {
+    console.error(err);
+    return { error: err }
+  }
+});
+
+/*
+  Attempts to reject a coaching program in review.
+*/
+exports.adminRejectProgramReview = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.https
+.onCall( async (data, context) => {
+
+  const programId = data.programId;
+  const userId = data.userId; // reviewer not seller!
+  const reviewRequest = data.reviewRequest;
+  const rejectedDate = Math.round(new Date().getTime() / 1000); // unix timestamp
+
+  // safety checks
+  if (!programId) {
+    return { error: 'Cloud function adminRejectProgramReview error: missing program ID' }
+  }
+  if (!userId) {
+    return { error: 'Cloud function adminRejectProgramReview error: missing user ID' }
+  }
+  if (!reviewRequest) {
+    return { error: 'Cloud function adminRejectProgramReview error: missing review request' }
+  }
+  if (!reviewRequest.sellerUid) {
+    return { error: 'Cloud function adminRejectProgramReview error: missing review request seller UID' }
+  }
+
+  // update the review request object
+  reviewRequest.status = 'rejected';
+  reviewRequest.rejected = rejectedDate;
+  reviewRequest.reviewerUid = userId;
+
+  try {
+
+    const batch = db.batch(); // prepare to execute multiple ops atomically
+
+    // update user's private program node
+    const privateRef = db.collection(`users/${reviewRequest.sellerUid}/programs`).doc(programId);
+    batch.set(privateRef, { reviewRequest }, { merge: true });
+
+    // delete review request from the admin collection (user must make alterations and re-submit for review)
+    const adminRef = db.collection(`admin/review-requests/programs`).doc(programId);
+    batch.delete(adminRef) // triggers onDelete monitor function to update count
+
+    await batch.commit(); // execute batch ops. Any error should trigger catch.
+
+    // attempt to read program data
+    const programSnap = await db.collection(`users/${reviewRequest.sellerUid}/programs`)
+    .doc(programId)
+    .get();
+
+    // log mailchimp event
+    const program = programSnap.data() as any;
+    const event = {
+      name: 'admin_rejected_program',
+      properties: {
+        program_title: program.title,
         reject_reason: reviewRequest.rejectData.reason
       }
     }
@@ -2861,6 +3028,289 @@ exports.onWritePrivateServices = functions
     description: after.description,
     price: after.price,
     currency: after.currency
+  };
+  // Update Algolia.
+  return index.saveObject(recordToSend);
+});
+
+/*
+  Monitor new admin programs in review (review requests).
+*/
+exports.onNewAdminProgramReviewRequest = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.firestore
+.document(`admin/review-requests/programs/{programId}`)
+.onCreate( async (snap, context) => {
+
+  const reviewRequest = snap.data() as any
+
+  const increment = admin.firestore.FieldValue.increment(1);
+
+  db.collection(`admin`)
+  .doc('totalProgramsInReview')
+  .set({
+    totalRecords: increment
+  }, { merge: true })
+  .catch(err => console.error(err));
+
+  // attempt to read program data
+  if (reviewRequest) {
+    const programSnap = await db.collection(`users/${reviewRequest.sellerUid}/programs`)
+    .doc(reviewRequest.programId)
+    .get();
+  
+    const program = programSnap.data() as any;
+
+    if (program) {
+      // record a mailchimp event
+      const event = {
+        name: 'program_submitted_for_review',
+        properties: {
+          program_title: program.title,
+        }
+      }
+      return logMailchimpEvent(program.sellerUid, event); // log event
+    }
+
+  }
+
+});
+
+/*
+  Monitor deleted admin programs in review (review requests).
+*/
+exports.onDeleteAdminProgramReviewRequest = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.firestore
+.document(`admin/review-requests/programs/{programId}`)
+.onDelete((snap, context) => {
+  const decrement = admin.firestore.FieldValue.increment(-1);
+  return db.collection(`admin`)
+  .doc('totalProgramsInReview')
+  .set({
+    totalRecords: decrement
+  }, { merge: true })
+  .catch(err => console.error(err));
+});
+
+/*
+  Monitor public programs node.
+  Sync with Algolia DB.
+*/
+exports.onWritePublicPrograms = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.firestore
+.document(`/public-programs/{programId}`)
+.onWrite((change, context) => {
+  const index = algolia.initIndex('prod_PROGRAMS');
+  const programId = context.params.programId;
+  const program = change.after.data() as any;
+  // Record Removed.
+  if (!program) {
+    return index.deleteObject(programId);
+  }
+  // Record added/updated.
+  const recordToSend = {
+    objectID: programId,
+    title: program.title,
+    subtitle: program.subtitle,
+    category: program.category,
+    language: program.language,
+    level: program.level,
+    subject: program.subject,
+    pricingStrategy: program.pricingStrategy,
+    fullPrice: program.fullPrice,
+    pricePerSession: program.pricePerSession,
+    currency: program.currency,
+    duration: program.duration,
+    numSessions: program.numSessions,
+    image: program.image,
+    promoVideo: program.promoVideo,
+    coachName: program.coachName,
+    coachPhoto: program.coachPhoto,
+    isTest: program.isTest, // will only be true if this program is a test (admin created)
+    approved: program.approved,
+  };
+  // Update Algolia.
+  return index.saveObject(recordToSend);
+});
+
+/*
+  Monitor users' private programs node.
+  If program is admin approved, sync with public programs.
+*/
+exports.onWritePrivateUserProgram = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.firestore
+.document(`/users/{userId}/programs/{programId}`)
+.onWrite( async (change, context) => {
+  const programId = context.params.programId;
+  const program = change.after.data() as any;
+  const programBefore = change.before.data() as any;
+
+  // Record created
+  if (program && !programBefore) {
+    // sync with Algolia draft programs index
+    const index = algolia.initIndex('prod_DRAFT_PROGRAMS');
+    const recordToSend = {
+      objectID: programId,
+      sellerUid: program.sellerUid,
+      isTest: program.isTest ? true : false
+    }
+    await index.saveObject(recordToSend);
+
+    // record a mailchimp event
+    const event = {
+      name: 'new_program_created',
+      properties: {
+        program_title: program.title,
+      }
+    }
+    await logMailchimpEvent(program.sellerUid, event); // log event
+  }
+
+  // Record Removed.
+  if (!program) {
+    // remove program from sale but leave program data behind the paywall as users have paid for it
+    // and shouldn't lose access.
+    await db.collection('public-programs')
+    .doc(programId)
+    .delete()
+    .catch(err => console.error(err));
+
+    // if review request still waiting, delete it
+    await db.collection('admin/review-requests/programs')
+    .doc(programId)
+    .delete();
+
+    // delete the draft program record in Algolia (if it exists)
+    const index = algolia.initIndex('prod_DRAFT_PROGRAMS');
+    return index.deleteObject(programId);
+  }
+
+  // Record added/updated.
+  if (!program.adminApproved) { // check if admin approved
+    return;
+  }
+
+  const adminSnap = await db.collection(`approved-programs`)
+  .doc(programId)
+  .get();
+
+  if (!adminSnap.exists) { // double check if admin approved (this doc can't be tampered with client side)
+    return;
+  }
+
+  // optional: remove any paywall protected data now. (NOT currently used)
+
+  try {
+    // Sync with public-programs.
+    const batch = db.batch(); // prepare to execute multiple ops atomically 
+    
+    // copy non-paywall protected program data in public programs node (to allow browse & purchase)
+    const publicData = {
+      programId,
+      approved: program.reviewRequest.approved ? program.reviewRequest.approved : null,
+      pricingStrategy: program.pricingStrategy,
+      currency: program.currency ? program.currency : null,
+      fullPrice: program.fullPrice ? program.fullPrice : null,
+      pricePerSession: program.pricePerSession ? program.pricePerSession : null,
+      sellerUid: program.sellerUid,
+      coachName: program.coachName,
+      coachPhoto: program.coachPhoto,
+      stripeId: program.stripeId ? program.stripeId : null,
+      title: program.title,
+      subtitle: program.subtitle,
+      description: program.description,
+      language: program.language,
+      category: program.category,
+      level: program.level,
+      subject: program.subject,
+      image: program.image,
+      promoVideo: program.promoVideo ? program.promoVideo : null,
+      lastUpdated: program.lastUpdated,
+      learningPoints: program.learningPoints ? program.learningPoints : null,
+      requirements: program.requirements ? program.requirements : null,
+      targets: program.targets ? program.targets : null,
+      isTest: program.isTest ? true : false, // will only be true if this program is a test (admin created)
+    };
+    const publicRef = db.collection(`public-programs`).doc(programId);
+    batch.set(publicRef, publicData, { merge: true });
+
+    // copy program object as is into paywall protected node (will be available when purchased!)
+    const lockedRef = db.collection(`locked-program-content`).doc(programId);
+    batch.set(lockedRef, program, { merge: true });
+
+    return batch.commit(); // execute batch ops. Any error should trigger catch.
+  } catch (err) {
+    console.error(err);
+    return;
+  }
+
+});
+
+/*
+  Monitor program user reviews.
+*/
+exports.onWriteProgramReview = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.firestore
+.document(`program-reviews/{reviewId}`)
+.onWrite( async (change, context) => {
+
+  const index = algolia.initIndex('prod_PROGRAM_REVIEWS');
+  const reviewId = context.params.reviewId;
+  const before = change.before.data() as any;
+  const review = change.after.data() as any;
+
+  // Record Removed.
+  
+  if (!review) {
+
+    // decrement total review count
+    if (before) {
+      const decrementCount = admin.firestore.FieldValue.increment(-1);
+      await db.collection(`public-programs`)
+      .doc(review.programId)
+      .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: decrementCount }, { merge: true })
+      .catch(err => console.error(err));
+    }
+
+    // sync with Algolia
+    return index.deleteObject(reviewId);
+  }
+
+  // Record added/updated
+
+  // if rating has been updated, decrement the old value before incrementing the new value
+  if (before && before.starValue && review && review.starValue && (before.starValue !== review.starValue)) {
+    const decrementCount = admin.firestore.FieldValue.increment(-1);
+    await db.collection(`public-programs`)
+    .doc(review.programId)
+    .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: decrementCount }, { merge: true })
+    .catch(err => console.error(err));
+  }
+
+  // increment total review count to allow cheaper lookups
+  const incrementCount = admin.firestore.FieldValue.increment(1);
+  await db.collection(`public-programs`)
+  .doc(review.programId)
+  .set({ [`total${getRatingAsText(review.starValue)}StarReviews`]: incrementCount }, { merge: true })
+  .catch(err => console.error(err));
+
+  // sync with Algolia
+  const recordToSend = {
+    objectID: reviewId,
+    programId: review.programId,
+    lastUpdated: review.lastUpdated,
+    reviewerUid: review.reviewerUid,
+    reviewerFirstName: review.reviewerFirstName,
+    reviewerLastName: review.reviewerLastName,
+    reviewerPhoto: review.reviewerPhoto ? review.reviewerPhoto : null,
+    sellerUid: review.sellerUid,
+    starValue: review.starValue,
+    summary: review.summary ? review.summary : null,
+    summaryExists: review.summary ? true : false,
   };
   // Update Algolia.
   return index.saveObject(recordToSend);
