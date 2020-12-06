@@ -62,8 +62,10 @@ const config: Stripe.StripeConfig = { apiVersion: '2020-03-02', typescript: true
 const stripe = new Stripe(functions.config().stripe.prod.secretkey, config); // prod secret key
 const stripeWebhookSecret = functions.config().stripe.prod.webhooksecret; // prod secret webhook key
 const stripeWebhookConnectSecret = functions.config().stripe.prod.webhookconnectsecret // prod secret webhook key
-const appFeeDecimal = 0.5; // our std application fee percentage expressed as a decimal. eg 0.5 // 50%
-const appFeeReferralDecimal = 0.1; // our reduced app fee percentage expressed as a decimal.
+const ecourseAppFeeDecimal = 0.5; // our std application fee percentage for ecourses, expressed as a decimal. eg 0.5 // 50%
+const ecourseAppFeeReferralDecimal = 0.1; // our reduced ecourse app fee percentage expressed as a decimal.
+const programAppFeeDecimal = 0.05;
+const programAppFeeReferralDecimal = 0.025;
 
 // ================================================================================
 // =====                                                                     ======
@@ -1100,20 +1102,24 @@ exports.stripeRetrieveBalance = functions
 /*
   Attempts to generate a Stripe payment intent.
   See: https://stripe.com/docs/connect/destination-charges
+  
+  This function can be used to generate a payment intent for all supported Lifecoach products & services, 
+  so be careful to pass the correct saleItemType as an argument.
 */
 exports.stripeCreatePaymentIntent = functions
 .runWith({memory: '1GB', timeoutSeconds: 300})
 .https
 .onCall( async (data, context) => {
 
-  const courseId: string = data.courseId;
-  const clientCurrency = (data.clientCurrency as string).toUpperCase();
-  const clientPrice = Number(data.clientPrice);
-  const clientUid = data.clientUid;
-  const referralCode = data.referralCode; // may be undefined
+  const saleItemId: string = data.saleItemIdId;
+  const saleItemType: 'ecourse' | 'fullProgram' = data.saleItemType;
+  const clientPrice = Number(data.salePrice);
+  const clientCurrency = (data.currency as string).toUpperCase();
+  const clientUid = data.buyerUid;
+  const referralCode = data.referralCode; // may be null
 
-  if (!courseId) { // ensure we have a valid course ID string
-    return { error: 'No course ID! Valid course ID required to proceed' }
+  if (!saleItemId) { // ensure we have a valid sale item ID string
+    return { error: 'No sale item ID! Valid sale item ID is required to proceed' }
   }
 
   if (!clientCurrency) { // ensure we have a valid client currency
@@ -1130,33 +1136,49 @@ exports.stripeCreatePaymentIntent = functions
 
   try {
 
-    // Get course data from the DB to avoid client side tampering..
-    console.log(`Preparing Stripe payment intent. Retrieving course data for: ${courseId}`);
+    console.log(`Preparing Stripe payment intent. Retrieving item data for ${saleItemType}: ${saleItemId}`);
 
-    const courseSnapshot = await db.collection(`public-courses`)
-    .doc(courseId)
-    .get();
-
-    if (!courseSnapshot.exists) { // course must exist!
-      return { error: `Course ID: ${courseId} does not exist or unable to retrieve course info!` }
+    // Get item data from the DB to avoid client side tampering..
+    
+    let lookupPath = '';
+    if (saleItemType === 'ecourse') {
+      lookupPath = `public-courses`;
+    } else if (saleItemType === 'fullProgram') {
+      lookupPath = `public-programs`;
     }
 
-    const course = courseSnapshot.data() as any;
+    const itemSnapshot = await db.collection(lookupPath)
+    .doc(saleItemId)
+    .get();
 
-    if (!course.price || !course.currency || !course.stripeId || !course.sellerUid || !course.title) { // valid course data must exist
-      return { error: `Insufficient data saved for course ${courseId}. Unable to proceed.`}
+    if (!itemSnapshot.exists) { // item must exist!
+      return { error: `${saleItemType} with ID: ${saleItemId} does not exist or unable to retrieve item info!` }
+    }
+
+    const saleItem = itemSnapshot.data() as any;
+
+    // as pricing variable data differs between ecourses and programs, make sure we get the correct server side price of the sale item
+    let saleItemPrice = -1;
+    if (saleItemType === 'ecourse') {
+      saleItemPrice = saleItem.price;
+    } else if (saleItemType === 'fullProgram') {
+      saleItemPrice = saleItem.fullPrice;
+    }
+
+    if (!saleItemPrice || !saleItem.currency || !saleItem.stripeId || !saleItem.sellerUid || !saleItem.title) { // valid item data must exist
+      return { error: `Insufficient item data saved for ${saleItemType} with ID: ${saleItemId}. Unable to proceed.`}
     }
 
     // Calculate price to charge the client
     // Should always match the client UI price, but setting server side to avoid tampering
 
     let amount: number; // this will be the actual charge amount (in client's own presentment currency)
-    const courseCurrency = (course.currency as string).toUpperCase();
+    const saleItemCurrency = (saleItem.currency as string).toUpperCase();
 
-    console.log('Client currency:', clientCurrency, 'Course currency:', courseCurrency);
+    console.log('Client currency:', clientCurrency, 'Sale item currency:', saleItemCurrency);
 
-    if (clientCurrency === courseCurrency) { // no currency conversion required
-      amount = Number(course.price);
+    if (clientCurrency === saleItemCurrency) { // no currency conversion required
+      amount = Number(saleItemPrice);
       console.log('No conversion required. Amount:', amount);
 
     } else { // currency conversion required
@@ -1166,11 +1188,11 @@ exports.stripeCreatePaymentIntent = functions
 
       const rates = ratesSnap.data() as any; // fetches a rates document
 
-      if (!rates[courseCurrency] || !rates[clientCurrency]) {
+      if (!rates[saleItemCurrency] || !rates[clientCurrency]) {
         return { error: 'Rates missing! Cannot convert price' }
       }
 
-      amount = Number((course.price / rates[courseCurrency.toUpperCase()]) * rates[clientCurrency.toUpperCase()]); // amount in client currency
+      amount = Number((saleItemPrice / rates[saleItemCurrency.toUpperCase()]) * rates[clientCurrency.toUpperCase()]); // amount in client currency
       console.log('Conversion required. Amount:', amount);
 
       if (!Number.isInteger(amount)) { // if price is not an integer
@@ -1182,9 +1204,9 @@ exports.stripeCreatePaymentIntent = functions
     }
 
     // Check that the client's presentment price is exactly the same as the charge price
-    console.log('Client price:', clientPrice, 'Course price:', amount);
+    console.log('Client price:', clientPrice, 'Sale item price:', amount);
     if (clientPrice !== amount) {
-      return { error: 'Price mismatch. The course price may have just been updated during your purchase. Please refresh the page and try again to ensure you see the most up to date price.' }
+      return { error: 'Price mismatch. The price may have just been updated during your purchase. Please refresh the page and try again to ensure you see the most up to date price.' }
     }
 
     // From this point all price calculations must occur in lowest denominator & integers only (cents / pence etc. no decimals)
@@ -1192,18 +1214,29 @@ exports.stripeCreatePaymentIntent = functions
     console.log('Amount in lowest denominator:', amount);
 
     // Calculate platform fee
-    let feeDecimal: number;
-    if (referralCode && referralCode === course.sellerUid) { // the seller referred this sale
-      feeDecimal = appFeeReferralDecimal; // use the referral (reduced) fee multiplier
-    } else { // the seller did not refer this sale
-      feeDecimal = appFeeDecimal; // use the std fee rate multiplier
+    let feeDecimal = 0;
+
+    // if the seller referred the sale...
+    if (referralCode && referralCode === saleItem.sellerUid) {
+      if (saleItemType === 'ecourse') {
+        feeDecimal = ecourseAppFeeReferralDecimal;
+      } else if (saleItemType === 'fullProgram') {
+        feeDecimal = programAppFeeReferralDecimal;
+      }
+    } else {
+      // the seller did not refer the sale
+      if (saleItemType === 'ecourse') {
+        feeDecimal = ecourseAppFeeDecimal;
+      } else if (saleItemType === 'fullProgram') {
+        feeDecimal = programAppFeeDecimal;
+      }
     }
     console.log('Platform fee calculated with multiplier:', feeDecimal);
 
     const appFee = Math.floor(amount * feeDecimal); // platform fee (always same currency as transaction) rounded DOWN to integer
     const netBalance = amount - appFee; // amount to send to connected account after platform fee (always same currency as transaction)
 
-    console.log(`Preparing payment intent.. Price: ${amount}, Currency: ${clientCurrency}, App Fee: ${appFee}, Destination: ${course.stripeId}`)
+    console.log(`Preparing payment intent.. Price: ${amount}, Currency: ${clientCurrency}, App Fee: ${appFee}, Destination: ${saleItem.stripeId}`)
 
     // Create the payment intent
     const paymentIntent = await stripe.paymentIntents.create({
@@ -1211,17 +1244,18 @@ exports.stripeCreatePaymentIntent = functions
       amount, // never set client side!
       currency: clientCurrency, // the client currency that the charge will be made in
       transfer_data: { // tells Stripe to create a 'destination' charge. See: https://stripe.com/docs/connect/destination-charges
-        destination: course.stripeId, // the connected account that should receive the funds.
+        destination: saleItem.stripeId, // the connected account that should receive the funds.
         amount: netBalance, // tells Stripe to use the 'transfer_data[amount] flow (better for multi currency ops)
         
       },
-      statement_descriptor_suffix: courseId, // max 20 chars.
+      statement_descriptor_suffix: saleItemId, // note: max 20 chars. set by Stripe
       metadata: { // any additional data to save with the payment
-        course_id: courseId,
-        course_title: course.title,
-        course_image: course.image,
+        sale_item_type: saleItemType,
+        sale_item_id: saleItemId,
+        sale_item_title: saleItem.title,
+        sale_item_image: saleItem.image,
         client_UID: clientUid,
-        seller_UID: course.sellerUid,
+        seller_UID: saleItem.sellerUid,
         payment_type: 'lifecoach.io WEB',
         seller_referred: referralCode ? 'true' : 'false' // note: string as cannot be a boolean here
       }
@@ -1269,7 +1303,8 @@ exports.stripeWebhookEvent = functions
       // console.log(`PaymentIntent was successful! ${JSON.stringify(paymentIntent)}`);
 
       const clientUid = paymentIntent.metadata.client_UID;
-      const courseId = paymentIntent.metadata.course_id;
+      const saleItemId = paymentIntent.metadata.sale_item_id;
+      const saleItemType = paymentIntent.metadata.sale_item_type;
 
       // Transform the successful payment intent to remove any sensitive data that we don't want to store ourselves
       const successfulPayment = {
@@ -1291,13 +1326,19 @@ exports.stripeWebhookEvent = functions
         .create(successfulPayment);
         promises.push(promise1);
 
-        // Add the course ID of the purchased course to the user's auth token claims
-        // so the user can access content restricted by the paywall.
-        const promise2 = addCustomUserClaims(clientUid, { [courseId]: true }) as any;
+        // Add the item ID of the purchased item to the user's auth token claims
+        // so the user can access any content restricted by paywall.
+        const promise2 = addCustomUserClaims(clientUid, { [saleItemId]: true }) as any;
         promises.push(promise2);
 
-        const promise3 = recordCourseEnrollmentForStudent(clientUid, courseId, paymentIntent.metadata.course_title, paymentIntent.metadata.course_image);
-        promises.push(promise3);
+        // Record the appropriate purchase/enrollment for the client
+        if (saleItemType === 'ecourse') {
+          const promise3 = recordCourseEnrollmentForStudent(clientUid, saleItemId, paymentIntent.metadata.sale_item_title, paymentIntent.metadata.sale_item_image);
+          promises.push(promise3);
+        } else if (saleItemType === 'fullProgram') {
+          const promise3 = recordFullProgramEnrollmentForClient(clientUid, saleItemId, paymentIntent.metadata.sale_item_title, paymentIntent.metadata.sale_item_image);
+          promises.push(promise3);
+        }
 
         return Promise.all(promises);
 
@@ -1329,39 +1370,48 @@ exports.stripeWebhookEvent = functions
           const originalCharge = await stripe.charges.retrieve(transfer.source_transaction as string);
           // console.log('Original Charge:', originalCharge);
 
-          const sellerUID = originalCharge.metadata.seller_UID;
-          const courseID = originalCharge.metadata.course_id;
-          const clientUID = originalCharge.metadata.client_UID;
-          const sellerReferred = originalCharge.metadata.seller_referred; // will be string 'true' | 'false'
+          const originalSellerUid = originalCharge.metadata.seller_UID;
+          const originalSaleItemId = originalCharge.metadata.sale_item_id;
+          const originalSaleItemType = originalCharge.metadata.sale_item_type;
+          const originalClientUid = originalCharge.metadata.client_UID;
+          const originalSellerReferred = originalCharge.metadata.seller_referred; // will be string 'true' | 'false'
 
           // Check for required metadata on the original charge
-          if (!courseID) {
-            console.error('Stripe webhook transfer.received missing charge metadata course ID');
+          if (!originalSaleItemId) {
+            console.error('Stripe webhook transfer.received missing charge metadata sale item ID');
             return;
           }
-          if (!clientUID) {
+          if (!originalClientUid) {
             console.error('Stripe webhook transfer.received missing charge metadata client UID');
             return;
           }
-          if (!sellerUID) {
+          if (!originalSellerUid) {
             console.error('Stripe webhook transfer.received missing charge metadata seller UID');
             return;
-          }
-          if (!sellerReferred) {
-            console.error('')
           }
 
           // clone the original stripe transfer object and add a new key to track whether sale was seller referred
           const customTransferObj = JSON.parse(JSON.stringify(transfer));
-          customTransferObj.seller_referred = sellerReferred === 'true' ? true : false;
+          customTransferObj.seller_referred = originalSellerReferred === 'true' ? true : false;
 
           const promises = [];
 
-          const promise1 = recordCourseEnrollmentForCreator(sellerUID, courseID, customTransferObj, clientUID);
-          promises.push(promise1);
+          // if the transfer is related to an ecourse sale
+          if (originalSaleItemType === 'ecourse') {
+            const promise1 = recordCourseEnrollmentForCreator(originalSellerUid, originalSaleItemId, customTransferObj, originalClientUid);
+            promises.push(promise1);
+  
+            const promise2 = updateCourseEnrollmentCounts(originalSellerUid, originalSaleItemId, customTransferObj);
+            promises.concat(await promise2)
 
-          const promise2 = updateCourseEnrollmentCounts(sellerUID, courseID, customTransferObj);
-          promises.concat(await promise2)
+            // if the transfer is related to a full program sale
+          } else if (originalSaleItemType === 'fullProgram') {
+            const promise1 = recordFullProgramEnrollmentForCreator(originalSellerUid, originalSaleItemId, customTransferObj, originalClientUid);
+            promises.push(promise1);
+  
+            const promise2 = updateProgramEnrollmentCounts(originalSellerUid, originalSaleItemId, customTransferObj);
+            promises.concat(await promise2)
+          }
 
           await Promise.all(promises); // run concurrent ops
 
@@ -1525,7 +1575,7 @@ async function recordCourseEnrollmentForCreator(sellerUid: string, courseId: str
   // save the action to this person's history
   return db.collection(`users/${sellerUid}/people/${clientUid}/history`)
   .doc(timestampNow.toString())
-  .set({ action: 'enrolled_in_self_study_course' });
+  .set({ action: 'enrolled_in_self_study_course', courseId });
 }
 
 async function recordCourseEnrollmentForStudent(studentUid: string, courseId: string, courseTitle: string, courseImg: string) {
@@ -1539,7 +1589,7 @@ async function recordCourseEnrollmentForStudent(studentUid: string, courseId: st
     courseId: courseId
   }, { merge: true });
 
-  // trigger a mailchimp event to log course going live
+  // trigger a mailchimp event
   const event = {
     name: 'course_enrollment',
     properties: {
@@ -1592,12 +1642,103 @@ async function updateCourseEnrollmentCounts(creatorUid: string, courseId:string,
 }
 
 // ================================================================================
+// =====                     PROGRAM ENROLLMENT FUNCTIONS                    ======
+// ================================================================================
+
+async function recordFullProgramEnrollmentForCreator(sellerUid: string, programId: string, obj: any, clientUid: string) {
+  // Save the custom transfer object to the seller account to record the enrollment
+
+  const saleDate = new Date(obj.created * 1000);
+  const saleMonth = saleDate.getMonth() + 1; // go from zero index to jan === 1
+  const saleYear = saleDate.getFullYear();
+  const timestampNow = Math.round(new Date().getTime() / 1000);
+
+  await db.collection(`users/${sellerUid}/program-sales/${saleMonth}-${saleYear}/${programId}`)
+  .doc(obj.id)
+  .create(obj);
+
+  // save the person to the recipient's people (create if doesn't exist yet - it might)
+  await db.collection(`users/${sellerUid}/people`)
+  .doc(clientUid)
+  .set({ lastUpdated: timestampNow }, { merge: true }) // creates a real (not virtual) doc
+  .catch(err => console.log(err));
+
+  // save the action to this person's history
+  return db.collection(`users/${sellerUid}/people/${clientUid}/history`)
+  .doc(timestampNow.toString())
+  .set({ action: 'enrolled_in_full_program', programId });
+}
+
+async function recordFullProgramEnrollmentForClient(studentUid: string, programId: string, programTitle: string, programImg: string) {
+  
+  // Add the program ID to the client's own purchased programs node.
+  // We can monitor this with a client side subscription to notify the user of the completed purchase.
+
+  await db.collection(`users/${studentUid}/purchased-programs`)
+  .doc(programId)
+  .set({
+    programId
+  }, { merge: true });
+
+  // trigger a mailchimp event
+  const event = {
+    name: 'program_enrollment',
+    properties: {
+      program_id: programId,
+      program_title: programTitle,
+      program_image: programImg
+    }
+  }
+  return logMailchimpEvent(studentUid, event); // log event
+}
+
+async function updateProgramEnrollmentCounts(creatorUid: string, programId:string, obj: any) {
+  // Accepts a custom transfer object
+  // Promises an array of Firebase write result promises
+
+  const incrementCount = admin.firestore.FieldValue.increment(1);
+  const incrementAmount = admin.firestore.FieldValue.increment(obj.amount);
+  const incrementCurrency = obj.currency;
+
+  const promises = [];
+
+  // Increment the total sales number & total lifetime sales amount for this program creator
+  const promise1 = db.collection(`users/${creatorUid}/program-sales/total-lifetime-program-sales/programs`)
+  .doc(programId)
+  .set({
+    [incrementCurrency]: {
+      lifetimeTotalSales: incrementCount,
+      lifetimeTotalAmount: incrementAmount
+    }
+  }, { merge: true });
+  promises.push(promise1);
+
+  // Increment public program enrollment count (counts total enrollments for a specific program)
+  const promise2 = db.collection(`program-enrollments`)
+  .doc(programId)
+  .set({
+    totalEnrollments: incrementCount
+  }, { merge: true });
+  promises.push(promise2);
+
+  // Increment public seller program enrollment count (counts enrollments across all seller programs)
+  const promise3 = db.collection(`seller-program-enrollments`)
+  .doc(creatorUid)
+  .set({
+    totalEnrollments: incrementCount
+  }, { merge: true });
+  promises.push(promise3);
+
+  return promises;
+}
+
+// ================================================================================
 // =====                              REFUNDS                                ======
 // ================================================================================
 
 /*
-  Triggered when a user requests a refund on a purchased course.
-  Request data should contain the original Stripe payment intent object.
+  Triggered when a user requests a refund on a purchased item.
+  Note: Request data should contain the original Stripe payment intent object (includes meta data).
 */
 exports.requestRefund = functions
 .runWith({memory: '1GB', timeoutSeconds: 300})
@@ -1619,7 +1760,7 @@ exports.requestRefund = functions
   try {
     const index = algolia.initIndex('prod_REFUNDS');
 
-    console.log(`Refund requested by user ${request.uid} for payment: ${JSON.stringify(pI)}`);
+    // console.log(`Refund requested by user ${request.uid} for payment: ${JSON.stringify(pI)}`);
 
     const promises = [] as any[];
 
@@ -1682,7 +1823,7 @@ exports.approveRefund = functions
       expand: ['transfer_reversal']
     });
 
-    console.log('Refund:', refund);
+    // console.log('Refund:', refund);
 
     if (refund && refund.status === 'succeeded') {
 
@@ -1703,7 +1844,7 @@ exports.approveRefund = functions
       .set(request);
       promises.push(promise2);
 
-      // Update refunded request in cleint's history
+      // Update refunded request in client's history
       const promise3 = db.collection(`users/${clientUid}/account/account${clientUid}/refunds`)
       .doc(pI.id)
       .set(request); // overwrite the original request with the newly updated request
@@ -1713,7 +1854,7 @@ exports.approveRefund = functions
       const date = new Date(refund.created * 1000);
       const month = date.getMonth() + 1;
       const year = date.getFullYear();
-      const promise4 = db.collection(`users/${sellerUid}/refunds/${month}-${year}/${pI.metadata.course_id}`)
+      const promise4 = db.collection(`users/${sellerUid}/refunds/${month}-${year}/${pI.metadata.sale_item_id}`)
       .doc(refund.id)
       .set({
         refund_id: refund.id,
@@ -1726,23 +1867,46 @@ exports.approveRefund = functions
       // Update the sellers totals
       const decrementAmount = admin.firestore.FieldValue.increment(-(refund.transfer_reversal as any).amount);
 
-      const promise5 = db.collection(`users/${sellerUid}/sales/${month}-${year}/${pI.metadata.course_id}`)
-      .doc((refund.transfer_reversal as any).transfer)
-      .set({
-        amount_reversed: (refund.transfer_reversal as any).amount // update the amount reversed on the original transfer object
-      }, { merge: true });
-      promises.push(promise5);
+      // If refunding an ecourse...
+      if (pI.metadata.sale_item_type === 'ecourse') {
+        const promise5 = db.collection(`users/${sellerUid}/sales/${month}-${year}/${pI.metadata.sale_item_id}`)
+        .doc((refund.transfer_reversal as any).transfer)
+        .set({
+          amount_reversed: (refund.transfer_reversal as any).amount // update the amount reversed on the original transfer object
+        }, { merge: true });
+        promises.push(promise5);
 
-      const promise6 = db.collection(`users/${sellerUid}/sales`)
-      .doc('totals')
-      .set({
-        [pI.metadata.course_id]: {
-          [(refund.transfer_reversal as any).currency]: {
-            lifetimeTotalAmount: decrementAmount // decrement lifetitme total sales by refunded amount
+        const promise6 = db.collection(`users/${sellerUid}/sales`)
+        .doc('totals')
+        .set({
+          [pI.metadata.sale_item_id]: {
+            [(refund.transfer_reversal as any).currency]: {
+              lifetimeTotalAmount: decrementAmount // decrement lifetitme total sales by refunded amount
+            }
           }
-        }
-      }, { merge: true });
-      promises.push(promise6);
+        }, { merge: true });
+        promises.push(promise6);
+
+      // If refunding a full program...
+      } else if (pI.metadata.sale_item_type === 'fullProgram') {
+        const promise5 = db.collection(`users/${sellerUid}/program-sales/${month}-${year}/${pI.metadata.sale_item_id}`)
+        .doc((refund.transfer_reversal as any).transfer)
+        .set({
+          amount_reversed: (refund.transfer_reversal as any).amount // update the amount reversed on the original transfer object
+        }, { merge: true });
+        promises.push(promise5);
+
+        const promise6 = db.collection(`users/${sellerUid}/program-sales`)
+        .doc('totals')
+        .set({
+          [pI.metadata.sale_item_id]: {
+            [(refund.transfer_reversal as any).currency]: {
+              lifetimeTotalAmount: decrementAmount // decrement lifetitme total sales by refunded amount
+            }
+          }
+        }, { merge: true });
+        promises.push(promise6);
+      }
 
       // Update Algolia
       request.objectID = pI.id;

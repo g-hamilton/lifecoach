@@ -16,6 +16,7 @@ import { UserAccount } from 'app/interfaces/user.account.interface';
 import { CoachingProgram } from 'app/interfaces/coach.program.interface';
 import { IsoLanguagesService } from 'app/services/iso-languages.service';
 import { Subscription } from 'rxjs';
+import { StripePaymentIntentRequest } from 'app/interfaces/stripe.payment.intent.request';
 
 declare var Stripe: any;
 
@@ -135,10 +136,22 @@ export class ProgramComponent implements OnInit, OnDestroy {
           return null;
         }
 
-        // Safe to proceed.. request payment intent object
+        // Safe to proceed..
         this.purchasingProgram = true;
         this.analyticsService.attemptStripePayment();
-        const pIntentRes = await this.cloudFunctionsService.getStripePaymentIntent(this.programId, this.clientCurrency, this.displayPrice, this.userId, this.referralCode) as any;
+
+        // prepare the request object
+        const piRequest: StripePaymentIntentRequest = {
+          saleItemId: this.programId,
+          saleItemType: 'fullProgram',
+          salePrice: this.displayPrice,
+          currency: this.clientCurrency,
+          buyerUid: this.userId,
+          referralCode: this.referralCode ? this.referralCode : null
+        };
+
+        // request the payment intent
+        const pIntentRes = await this.cloudFunctionsService.getStripePaymentIntent(piRequest) as any;
 
         console.log('Payment Intent created', pIntentRes.stripePaymentIntent);
 

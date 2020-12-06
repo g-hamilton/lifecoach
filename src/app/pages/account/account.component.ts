@@ -20,6 +20,7 @@ import { EmojiCountry } from 'app/interfaces/emoji.country.interface';
 import { CountryService } from 'app/services/country.service';
 import { CoachProfile } from 'app/interfaces/coach.profile.interface';
 import { Subscription } from 'rxjs';
+import { RefundRequest } from 'app/interfaces/refund.request.interface';
 
 @Component({
   selector: 'app-account',
@@ -606,7 +607,7 @@ export class AccountComponent implements OnInit, OnDestroy {
       this.refunding = false;
       return;
     }
-    const refundRequest = {
+    const refundRequest: RefundRequest = {
       uid: this.userId,
       paymentIntent: this.refundPaymentIntent,
       formData: this.refundForm.value
