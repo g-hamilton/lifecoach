@@ -320,7 +320,6 @@ export class AccountComponent implements OnInit, OnDestroy {
           const savedState = localStorage.getItem('stripeState');
           if (!savedState) { // oops, no saved state exists so we can't compare with the data from Stripe
             this.alertService.closeOpenAlert();
-            // tslint:disable-next-line: max-line-length
             this.alertService.alert('warning-message', 'Oops!', 'Unable To Complete Stripe Setup. Error: No saved Stripe state.');
             this.connectingStripe = false;
             return;
@@ -603,7 +602,7 @@ export class AccountComponent implements OnInit, OnDestroy {
       return;
     }
     if (this.refundIds && this.refundIds.includes(this.refundPaymentIntent.id)) {
-      this.alertService.alert('warning-message', 'Oops', 'You have already requested a refund for this course.');
+      this.alertService.alert('warning-message', 'Oops', 'You have already requested a refund for this item.');
       this.refunding = false;
       return;
     }
