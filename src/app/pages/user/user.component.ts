@@ -76,7 +76,7 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
 
   public credentialMinLength = 20;
   public credentialMaxLength = 120;
-  public credentialsMax = 3;
+  public credentialsMax = 5;
 
   public summaryMinLength = 90;
   public summaryMaxLength = 120;
