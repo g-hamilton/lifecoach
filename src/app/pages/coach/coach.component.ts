@@ -12,6 +12,7 @@ import { CoachProfile } from '../../interfaces/coach.profile.interface';
 import { CoachingCourse } from 'app/interfaces/course.interface';
 import { CoachingService } from 'app/interfaces/coaching.service.interface';
 import { Subscription } from 'rxjs';
+import { CoachingProgram } from 'app/interfaces/coach.program.interface';
 
 
 @Component({
@@ -25,6 +26,7 @@ export class CoachComponent implements OnInit, OnDestroy {
   public userProfile: CoachProfile;
   public courses: CoachingCourse[];
   public publishedServices: CoachingService[];
+  public publishedPrograms: CoachingProgram[];
   private subscriptions: Subscription = new Subscription();
 
   constructor(
@@ -103,6 +105,27 @@ export class CoachComponent implements OnInit, OnDestroy {
       } else { // if courses state data exists retrieve it from the state storage
         this.courses = coursesData;
         this.transferState.remove(COURSES_KEY);
+      }
+
+      // Fetch the activated user's programs
+      const PROGRAMS_KEY = makeStateKey<any>('programs'); // create a key for saving/retrieving state
+
+      const programsData = this.transferState.get(PROGRAMS_KEY, null as any); // checking if data in the storage exists
+
+      if (programsData === null) { // if state data does not exist - retrieve it from the api
+        this.subscriptions.add(
+          this.dataService.getPublicProgramsBySeller(this.userId).subscribe(programs => {
+            if (programs) { // The coach has at least one published program
+              this.publishedPrograms = programs;
+              if (isPlatformServer(this.platformId)) {
+                this.transferState.set(PROGRAMS_KEY, programs);
+              }
+            }
+          })
+        );
+      } else { // if state data exists retrieve it from the state storage
+        this.publishedPrograms = programsData;
+        this.transferState.remove(PROGRAMS_KEY);
       }
 
       // Fetch the activated user's services
