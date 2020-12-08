@@ -38,7 +38,7 @@
                     NEEDS ACTION
                 </span>
                 <span *ngIf="!course?.reviewRequest?.status" class=" badge badge-warning ml-2">
-                    DRAFT
+                    DRAFT eCOURSE
                 </span>
             </h4>
 
@@ -46,7 +46,7 @@
             <div class="card card-plain">
                 <div class="card-header">
                   <tabset class="nav-tabs-primary">
-                    <tab heading="1. Course Lectures">
+                    <tab heading="1. Edit Sections & Lectures">
                         <div class=" row">
                             <div class=" col-4">
                                 <app-course-lectures-navigator [course]="course"></app-course-lectures-navigator>
@@ -60,10 +60,10 @@
                             </div>
                         </div>
                     </tab>
-                    <tab heading="2. Course Landing Page">
+                    <tab heading="2. Design Landing Page">
                         <app-course-landing-page [userId]="userId" [course]="course"></app-course-landing-page>
                     </tab>
-                    <tab heading="3. Course Options">
+                    <tab heading="3. Set Pricing">
                         <app-course-pricing [userId]="userId" [course]="course"></app-course-pricing>
                     </tab>
                     <tab heading="4. Submit For Review">
@@ -72,7 +72,7 @@
                         </ng-template>
                         <app-course-submit [userId]="userId" [course]="course"></app-course-submit>
                     </tab>
-                    <tab heading="5. Promote" [disabled]="course?.reviewRequest?.status !== 'approved'">
+                    <tab heading="5. Promote eCourse" [disabled]="course?.reviewRequest?.status !== 'approved'">
                         <app-course-promote [userId]="userId" [course]="course"></app-course-promote>
                     </tab>
                     <tab>
@@ -110,7 +110,7 @@
                     NEEDS ACTION
                 </span>
                 <span *ngIf="!course?.reviewRequest?.status" class=" badge badge-warning ml-2">
-                    DRAFT
+                    DRAFT eCOURSE
                 </span>
             </h4>
 
@@ -118,7 +118,7 @@
             <div class="card card-plain">
                 <div class="card-header">
                   <tabset class="nav-tabs-primary">
-                    <tab heading="1. Course Lectures">
+                    <tab heading="1. Edit Sections & Lectures">
                         <div class=" row">
                             <div class=" col-4">
                                 <app-course-lectures-navigator [course]="course"></app-course-lectures-navigator>
@@ -134,10 +134,10 @@
                             </div>
                         </div>
                     </tab>
-                    <tab heading="2. Course Landing Page">
+                    <tab heading="2. Design Landing Page">
                         <app-course-landing-page [userId]="userId" [course]="course"></app-course-landing-page>
                     </tab>
-                    <tab heading="3. Course Options">
+                    <tab heading="3. Set Pricing">
                       <app-course-pricing [userId]="userId" [course]="course"></app-course-pricing>
                     </tab>
                     <tab heading="4. Submit For Review">
@@ -146,7 +146,7 @@
                         </ng-template>
                         <app-course-submit [userId]="userId" [course]="course"></app-course-submit>
                     </tab>
-                    <tab heading="5. Promote" [disabled]="course?.reviewRequest?.status !== 'approved'">
+                    <tab heading="5. Promote eCourse" [disabled]="course?.reviewRequest?.status !== 'approved'">
                         <app-course-promote [userId]="userId" [course]="course"></app-course-promote>
                     </tab>
                     <tab>
@@ -184,7 +184,7 @@
                     NEEDS ACTION
                 </span>
                 <span *ngIf="!course?.reviewRequest?.status" class=" badge badge-warning ml-2">
-                    DRAFT
+                    DRAFT eCOURSE
                 </span>
             </h4>
 
@@ -192,7 +192,7 @@
             <div class="card card-plain">
                 <div class="card-header">
                   <tabset class="nav-tabs-primary">
-                    <tab heading="1. Course Lectures">
+                    <tab heading="1. Edit Sections & Lectures">
                         <div class=" row">
                             <!-- Lectures navigator -->
                             <div class=" col-4">
@@ -208,10 +208,10 @@
                             </div>
                         </div>
                     </tab>
-                    <tab heading="2. Course Landing Page">
+                    <tab heading="2. Design Landing Page">
                       <app-course-landing-page [userId]="userId" [course]="course"></app-course-landing-page>
                     </tab>
-                    <tab heading="3. Course Options">
+                    <tab heading="3. Set Pricing">
                         <app-course-pricing [userId]="userId" [course]="course"></app-course-pricing>
                     </tab>
                     <tab heading="4. Submit For Review">
@@ -220,7 +220,7 @@
                         </ng-template>
                         <app-course-submit [userId]="userId" [course]="course"></app-course-submit>
                     </tab>
-                    <tab heading="5. Promote" [disabled]="course?.reviewRequest?.status !== 'approved'">
+                    <tab heading="5. Promote eCourse" [disabled]="course?.reviewRequest?.status !== 'approved'">
                         <app-course-promote [userId]="userId" [course]="course"></app-course-promote>
                     </tab>
                     <tab>

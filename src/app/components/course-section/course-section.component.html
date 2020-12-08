@@ -13,25 +13,40 @@
                   {{ isNewSection ? 'New Section' : sectionF.title.value }} 
                 </h4>
                 <h6 class="card-subtitle mb-4 text-muted"> 
-                    {{ isNewSection && course.sections.length < 1 ? 'eCourses need at least one section' : 'Editing Section' }}
+                    {{ isNewSection && course.sections.length < 1 ? "Let's give your section a title" : 'Edit your section title' }}
                 </h6>
                 <div class=" p-3">
-                    <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001124032-how-to-use-sections-in-your-course" target="_blank">
-                        <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> Help with sections </span>
-                    </a>
+                    <p *ngIf="isNewSection" class=" small text-muted pl-2 mb-2">
+                        <i class="fas fa-info-circle"></i> eCourses are made up of sections and sections contain lectures, which can 
+                        be articles or videos. All eCourses need at least 1 section. As you add sections and lectures, they will appear 
+                        on the left of the screen so you can easily navigate them. You can change your section names and re-order 
+                        your sections at any time simply by dragging them up and down. Need a little more help? 
+                        <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001124032-how-to-use-sections-in-your-course" target="_blank">
+                            Read more.
+                        </a>
+                    </p>
+                    <p *ngIf="!isNewSection" class=" small text-muted pl-2 mb-2">
+                        <i class="fas fa-info-circle"></i> Edit your section title if you need to. Don't forget you can add new 
+                        lectures into this section at any time by clicking the 'Add New Lecture' button in this section on the left. 
+                        Every section in your eCourse needs at least 1 lecture. 
+                        If you need to re-order sections in your eCourse, simply use the <i class="fas fa-bars"></i> icon on the left 
+                        to drag a section up or down in the order. 
+                        Need a little more help? 
+                        <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001124032-how-to-use-sections-in-your-course" target="_blank">
+                            Read more.
+                        </a>
+                    </p>
                     <div class="mt-3">
                         <form *ngIf="sectionForm" [formGroup]="sectionForm" (submit)="onSubmit()">
 
-                            <!-- Course title -->
+                            <!-- Section title -->
                             <div class="">
-                                <label> Title </label>
+                                <label> {{ isNewSection ? 'Section Title' : 'Edit Section Title' }} </label>
                             </div>
                             <div
                             class="input-group no-symbol"
                             [ngClass]="{
-                                'has-danger':
-                                ((focusTouched || saving) && sectionF.title.value != '' && sectionF.title.errors) ||
-                                (sectionF.title.value != '' && sectionF.title.errors),
+                                'has-danger': (((focusTouched && sectionF.title.value != '') || saveAttempt) && sectionF.title.errors),
                                 'has-success': !sectionF.title.errors
                             }">
                                 <input
@@ -48,15 +63,14 @@
                                 </span>
                                 </div>
                             </div>
-                            <div *ngIf="((focusTouched || saving) && sectionF.title.value != '' && sectionF.title.errors) ||
-                                (sectionF.title.value != '' && sectionF.title.errors)">
+                            <div *ngIf="(((focusTouched && sectionF.title.value != '') || saveAttempt) && sectionF.title.errors)">
                                 <label
                                 *ngFor="let error of objKeys(sectionF.title.errors)"
                                 class="error custom-error-label"
                                 >{{ showError('title', error) }}
                                 </label>
                             </div>
-                            <!-- End of course title -->
+                            <!-- End of section title -->
 
                             <div class=" pull-right">
                                 <button type="submit" class=" btn btn-primary btn-round btn-fill mt-4">

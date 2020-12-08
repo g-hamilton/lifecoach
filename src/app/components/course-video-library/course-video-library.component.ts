@@ -39,7 +39,7 @@ export class CourseVideoLibraryComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    console.log('Selected items:', this.selectedItems);
+    // console.log('Selected items:', this.selectedItems);
     this.page = 1;
     this.itemsPerPage = 10;
     this.maxSize = 6;
@@ -68,7 +68,7 @@ export class CourseVideoLibraryComponent implements OnInit, OnDestroy {
     }
     this.subscriptions.add(
       this.dataService.getInitialCourseLibraryItems(this.userId, this.itemsPerPage).subscribe(items => {
-        console.log('Initial library results:', items);
+        // console.log('Initial library results:', items);
         if (items.length) {
           this.results = items;
         }
@@ -84,7 +84,7 @@ export class CourseVideoLibraryComponent implements OnInit, OnDestroy {
     const lastDoc = this.results[this.results.length - 1];
     this.subscriptions.add(
       this.dataService.getNextCourseLibraryItems(this.userId, this.itemsPerPage, lastDoc).subscribe(items => {
-        console.log('Next library results:', items);
+        // console.log('Next library results:', items);
         if (items.length) {
           this.results = items;
         }
@@ -100,7 +100,7 @@ export class CourseVideoLibraryComponent implements OnInit, OnDestroy {
     const firstDoc = this.results[0];
     this.subscriptions.add(
       this.dataService.getPreviousCourseLibraryItems(this.userId, this.itemsPerPage, firstDoc).subscribe(items => {
-        console.log('Previous library results:', items);
+        // console.log('Previous library results:', items);
         if (items.length) {
           this.results = items;
         }
@@ -109,7 +109,7 @@ export class CourseVideoLibraryComponent implements OnInit, OnDestroy {
   }
 
   pageChanged(event: any) {
-    console.log(event.page);
+    // console.log(event.page);
     const requestedPage = event.page;
     if (requestedPage > this.page) { // we're going forwards
       this.loadNextResults();
