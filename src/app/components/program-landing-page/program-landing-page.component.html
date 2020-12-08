@@ -305,16 +305,11 @@
 
             <!-- Program learning points -->
             <div class=" mt-4">
-                <label> What are the main outcomes for clients who complete this program? 
-                    <i
-                    class="fas fa-info-circle btn-tooltip"
-                    data-animation="true"
-                    data-container="body"
-                    placement="top"
-                    tooltip="Optional. These outcomes will be highlighted on your landing page & help 
-                    to attract the right clients to enrol in your program.">
-                    </i>
-                </label>
+                <label> What are the main outcomes for clients who complete this program? </label>
+                <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> Optional. These outcomes will be highlighted on your landing page & help 
+                    to attract the right clients to enrol in your program.
+                </p>
             </div>
             <div formArrayName="learningPoints" *ngFor="let item of landingF.learningPoints.value.controls ; let i = index">
                 <div
@@ -350,22 +345,19 @@
             class=" btn btn-primary btn-link"
             (click)="addLearningPoint()"
             [disabled]="landingF.learningPoints.value.controls.length >= learningPointsMax">
-                <i class="fas fa-plus"></i> Add an answer
+                <i class="fas fa-plus"></i> Add an outcome
             </button>
             <!-- End program learning points -->
 
             <!-- Program requirements -->
             <div class=" mt-4">
-                <label> Are there any special requirements or prerequisites to clients enrolling in this program?
-                    <i
-                    class="fas fa-info-circle btn-tooltip"
-                    data-animation="true"
-                    data-container="body"
-                    placement="top"
-                    tooltip="Optional. Any requirements or prerequisites will be highlighted on your landing page & help 
-                    to attract the right students to your program.">
-                    </i>
-                </label>
+                <label> Are there any special requirements or prerequisites to clients enrolling in this program? </label>
+                <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> Optional. If you require any specific conditions to be met 
+                    before clients enrol in this program, mention them here. Any requirements or prerequisites will 
+                    be highlighted on your landing page & help 
+                    to attract the right students to your program.
+                </p>
             </div>
             <div formArrayName="requirements" *ngFor="let item of landingF.requirements.value.controls ; let i = index">
                 <div
@@ -401,21 +393,17 @@
             class=" btn btn-primary btn-link"
             (click)="addRequirement()"
             [disabled]="landingF.requirements.value.controls.length >= requirementsMax">
-                <i class="fas fa-plus"></i> Add an answer
+                <i class="fas fa-plus"></i> Add a requirement
             </button>
             <!-- End program requirements -->
 
             <!-- Program target clients -->
             <div class=" mt-4">
-                <label> Who are your ideal target clients for this program? 
-                    <i
-                    class="fas fa-info-circle btn-tooltip"
-                    data-animation="true"
-                    data-container="body"
-                    placement="top"
-                    tooltip="Optional. Adding target clients will help to attract the right clients to your program.">
-                    </i>
-                </label>
+                <label> Who are your ideal target clients for this program? </label>
+                <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> Optional. Adding target clients will help 
+                    to attract the right clients to your program.
+                </p>
             </div>
             <div formArrayName="targets" *ngFor="let item of landingF.targets.value.controls ; let i = index">
                 <div
@@ -451,7 +439,7 @@
             class=" btn btn-primary btn-link"
             (click)="addTarget()"
             [disabled]="landingF.targets.value.controls.length >= targetsMax">
-                <i class="fas fa-plus"></i> Add an answer
+                <i class="fas fa-plus"></i> Add a target client
             </button>
             <!-- End program target clients -->
 

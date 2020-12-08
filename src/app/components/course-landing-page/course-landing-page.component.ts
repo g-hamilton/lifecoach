@@ -96,6 +96,7 @@ export class CourseLandingPageComponent implements OnInit, OnChanges, AfterViewI
   };
 
   public saving: boolean;
+  public saveAttempt: boolean;
 
   public objKeys = Object.keys;
 
@@ -141,9 +142,9 @@ export class CourseLandingPageComponent implements OnInit, OnChanges, AfterViewI
       title: ['', [Validators.required, Validators.minLength(this.titleMinLength), Validators.maxLength(this.titleMaxLength)]],
       subtitle: ['', [Validators.required, Validators.minLength(this.subTitleMinLength), Validators.maxLength(this.subTitleMaxLength)]],
       description: ['', [Validators.required]],
-      language: ['', [Validators.required]],
-      category: ['', [Validators.required]],
-      level: ['', [Validators.required]],
+      language: [null, [Validators.required]],
+      category: [null, [Validators.required]],
+      level: [null, [Validators.required]],
       subject: ['', [Validators.required, Validators.minLength(this.subjectMinLength), Validators.maxLength(this.subjectMaxLength)]],
       mainImage: [null],
       promoVideo: [null],
@@ -160,8 +161,8 @@ export class CourseLandingPageComponent implements OnInit, OnChanges, AfterViewI
       subtitle: this.course.subtitle ? this.course.subtitle : '',
       description: this.course.description ? this.course.description : '',
       language: this.course.language ? this.course.language : 'en',
-      category: this.course.category ? this.course.category : '',
-      level: this.course.level ? this.course.level : '',
+      category: this.course.category ? this.course.category : null,
+      level: this.course.level ? this.course.level : null,
       subject: this.course.subject ? this.course.subject : '',
       mainImage: this.course.image ? this.course.image : null,
       promoVideo: this.course.promoVideo ? this.course.promoVideo : null,
