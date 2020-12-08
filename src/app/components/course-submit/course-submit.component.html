@@ -2,57 +2,122 @@
     <div class=" card-body">
         <div class=" mb-3">
 
-            <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001126535-how-to-submit-your-course-for-review" target="_blank">
-                <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> Help with course review </span>
-            </a>
+            <h5>eCourse Review
+                <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001126535-how-to-submit-your-course-for-review" target="_blank">
+                    <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> Help with the eCourse review process </span>
+                </a>
+            </h5>
 
-            <div class=" mt-5">
-                <div class=" pl-2">
-                    <label> Course Status </label>
-                    <span *ngIf="course?.reviewRequest?.status === 'submitted'" class=" text-info"> Submitted for review: {{ getDisplayDate(course.reviewRequest.requested) }} </span>
-                    <div *ngIf="course?.reviewRequest?.status === 'approved'">
-                        <span class=" text-success"> Approved: {{ getDisplayDate(course.reviewRequest.requested) }} </span>
-                        - Available for sale.
-                    </div>
-                    <div *ngIf="!course?.coachName || !course?.coachPhoto">
-                        <a [routerLink]="['/profile']">Complete your public coach profile</a> before submitting your course.
-                    </div>
-                    <div *ngIf="!course?.reviewRequest" class=" text-warning">
-                        Draft
-                    </div>
-                    <div *ngIf="course?.reviewRequest?.status === 'rejected'">
-                        <span class=" text-danger"> Needs action </span>
-                        - Our Quality Team noticed the following issue(s) with your course:
-                        <div class=" row highlight-box">
-                            <div class=" col">
-                                {{ course.reviewRequest.rejectData.reason }}
-                            </div>
+            <div *ngIf="course && courseForm">
+                <div class=" mt-4">
+                    <div class=" pl-2">
+                        <label> eCourse Status </label>
+                        <span *ngIf="course.reviewRequest?.status === 'submitted'" class=" text-info"> Submitted for review: {{ getDisplayDate(course.reviewRequest.requested) }} </span>
+                        <div *ngIf="course.reviewRequest?.status === 'approved'">
+                            <span class=" text-success"> Approved: {{ getDisplayDate(course.reviewRequest.requested) }} </span>
+                            - Published.
                         </div>
-                        <div>
-                            <strong>Important:</strong> Please only re-submit your course when you have read through the issues above carefully and actioned any
-                            recommended changes appropriately.
+                        <div *ngIf="!course.reviewRequest" class=" text-warning">
+                            In draft
+                        </div>
+                        <div *ngIf="course.reviewRequest?.status === 'rejected'">
+                            <span class=" text-danger"> Needs action </span>
+                            - Our Quality Team noticed the following issue(s) with your eCourse:
+                            <div class=" row highlight-box">
+                                <div class=" col">
+                                    {{ course.reviewRequest.rejectData.reason }}
+                                </div>
+                            </div>
+                            <div>
+                                <strong>Important:</strong> Please only re-submit your eCourse when you have read through the issues above carefully and actioned any
+                                recommended changes appropriately.
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Submit button -->
-            <div class=" pull-right">
-                <button
-                type="button"
-                class=" btn btn-primary btn-round btn-fill mt-4"
-                (click)="onSubmit()"
-                [disabled]="course?.reviewRequest?.status === 'submitted' || 
-                course?.reviewRequest?.status === 'approved' || course?.reviewRequest?.status === 'in-review'">
-                    <span *ngIf="!requesting">
-                        <i class="fas fa-flag-checkered"></i>
-                      </span>
-                      <span
-                      *ngIf="requesting"
-                      class="spinner-border spinner-border-sm"
-                      role="status"
-                      ></span> {{ requesting ? 'Submitting...' : course?.reviewRequest?.status === 'rejected' ? 'Re-submit Course' : 'Submit Course'}}
-                </button>
+    
+                <!-- Advise user of any issues that prevent submission for review -->
+                <div class=" mt-4" *ngIf="courseForm.invalid">
+                    <div class="">
+                        <label> <i class="tim-icons icon-alert-circle-exc text-danger ml-2"> </i>
+                            Please fix the following issues before you can submit this eCoursefor review: 
+                        </label>
+                        <ul class=" mt-3 small">
+                            <!-- Profile items -->
+                            <li *ngIf="!course.coachName || !course.coachPhoto">
+                                eCourses require a public coach profile. Please visit the 'Profile' tab now to 
+                                complete your coach profile.
+                            </li>
+                            <!-- landing page items -->
+                            <li *ngIf="!course.title">
+                                eCourse title is missing
+                            </li>
+                            <li *ngIf="!course.subtitle">
+                                eCourse subtitle is missing
+                            </li>
+                            <li *ngIf="!course.description">
+                                eCourse description is missing
+                            </li>
+                            <li *ngIf="!course.language">
+                                eCourse language is missing
+                            </li>
+                            <li *ngIf="!course.category">
+                                eCourse category is missing
+                            </li>
+                            <li *ngIf="!course.level">
+                                eCourse level is missing
+                            </li>
+                            <li *ngIf="!course.subject">
+                                eCourse primary subject is missing
+                            </li>
+                            <li *ngIf="!course.image">
+                                eCourse cover image is missing
+                            </li>
+                            <!-- pricing items -->
+                            <li *ngIf="!course.pricingStrategy">
+                                eCourse pricing strategy is missing
+                            </li>
+                            <li *ngIf="course.pricingStrategy === 'paid' && !course.stripeId">
+                                You have not enabled your payout account yet. You cannot submit a paid eCourse for 
+                                review until you have enabled your payout account. Visit the 'Account' tab on the left 
+                                hand menu, select 'Payout Settings' and 'Enable' your payout account now.
+                            </li>
+                            <li *ngIf="course.pricingStrategy === 'paid' && !course.currency">
+                                eCourse currency is missing
+                            </li>
+                            <li *ngIf="course.pricingStrategy === 'paid' && !course.price">
+                                eCourse price is missing
+                            </li>
+                            <!-- Sections & lectures items -->
+                            <li *ngIf="!course.sections">
+                                eCourse must have at least 1 section
+                            </li>
+                            <li *ngIf="courseF.sections.errors">
+                                Each section in your eCourse must have at least 1 lecture
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+    
+                <!-- Submit button -->
+                <div class=" pull-right">
+                    <button
+                    type="button"
+                    class=" btn btn-primary btn-round btn-fill mt-4"
+                    (click)="onSubmit()"
+                    [disabled]="courseForm.invalid || course.reviewRequest && course.reviewRequest.status === 'submitted' ||
+                    course.reviewRequest && course.reviewRequest.status === 'in-review' || 
+                    course.reviewRequest && course.reviewRequest.status === 'approved'">
+                        <span *ngIf="!requesting">
+                            <i class="fas fa-flag-checkered"></i>
+                          </span>
+                          <span
+                          *ngIf="requesting"
+                          class="spinner-border spinner-border-sm"
+                          role="status"
+                          ></span> {{ requesting ? 'Submitting...' : course?.reviewRequest?.status === 'rejected' ? 'Re-submit Course' : 'Submit Course'}}
+                    </button>
+                </div>
             </div>
 
         </div>

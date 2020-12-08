@@ -1,10 +1,12 @@
 import { Component, OnInit, Input, Inject, PLATFORM_ID, OnChanges, OnDestroy } from '@angular/core';
 import { CoachingCourse } from 'app/interfaces/course.interface';
 import { isPlatformBrowser } from '@angular/common';
+import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 import { DataService } from 'app/services/data.service';
 import { AlertService } from 'app/services/alert.service';
 import { AnalyticsService } from 'app/services/analytics.service';
 import { Subscription } from 'rxjs';
+import { CourseSectionsValidator } from 'app/custom-validators/course.sections.validator';
 
 @Component({
   selector: 'app-course-submit',
@@ -17,8 +19,8 @@ export class CourseSubmitComponent implements OnInit, OnChanges, OnDestroy {
   @Input() course: CoachingCourse;
 
   public browser: boolean;
-  public loadingProfile: boolean;
   public requesting: boolean;
+  public courseForm: FormGroup;
 
   private subscriptions: Subscription = new Subscription();
 
@@ -26,39 +28,73 @@ export class CourseSubmitComponent implements OnInit, OnChanges, OnDestroy {
     @Inject(PLATFORM_ID) public platformId: object,
     private dataService: DataService,
     private alertService: AlertService,
-    private analyticsService: AnalyticsService
+    private analyticsService: AnalyticsService,
+    public formBuilder: FormBuilder
   ) {
   }
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
       this.browser = true;
+      this.buildCourseForm(); // only building for client-side submission ready validation
     }
   }
 
   ngOnChanges() {
-    if (isPlatformBrowser(this.platformId)) {
-      if (this.userId && this.course && (!this.course.coachName || !this.course.coachPhoto)) { // if the course has no coach name or photo yet
-        this.loadUserProfile();
-      }
+    if (this.course) {
+      this.importCourseData();
     }
   }
 
-  loadUserProfile() {
-    // perform a background load of the user's public user profile if they have one.
-    // course submission should not be allowed until a user has a public profile.
-    // when the user has a public profile, add their name and photo to the course object.
-    this.loadingProfile = true;
-    this.subscriptions.add(
-      this.dataService.getPublicCoachProfile(this.userId).subscribe(profile => {
-        if (profile && profile.firstName && profile.lastName && profile.photo) {
-          this.course.coachName = `${profile.firstName} ${profile.lastName}`;
-          this.course.coachPhoto = profile.photo;
-          // console.log('Fetched profile', profile);
-        }
-        this.loadingProfile = false;
-      })
-    );
+  buildCourseForm() {
+    this.courseForm = this.formBuilder.group({
+      courseId: ['', [Validators.required]],
+      title: ['', [Validators.required]],
+      subtitle: ['', [Validators.required]],
+      description: ['', [Validators.required]],
+      language: [null, [Validators.required]],
+      category: [null, [Validators.required]],
+      level: [null, [Validators.required]],
+      subject: ['', [Validators.required]],
+      image: [null, [Validators.required]],
+      pricingStrategy: ['free', [Validators.required]],
+      price: [null, [this.conditionallyRequiredPriceAndCurrencyValidator]],
+      currency: ['USD', [this.conditionallyRequiredPriceAndCurrencyValidator]],
+      sellerUid: ['', [Validators.required]],
+      stripeId: ['', [Validators.required]],
+      coachName: ['', [Validators.required]],
+      coachPhoto: ['', [Validators.required]],
+      sections: [null, [CourseSectionsValidator]],
+      lectures: [null, [Validators.required]],
+    });
+  }
+
+  importCourseData() {
+    this.courseForm.patchValue({
+      courseId: this.course.courseId,
+      title: this.course.title,
+      subtitle: this.course.subtitle,
+      description: this.course.description,
+      language: this.course.language,
+      category: this.course.category,
+      level: this.course.level,
+      subject: this.course.subject,
+      image: this.course.image,
+      pricingStrategy: this.course.pricingStrategy,
+      price: this.course.price,
+      currency: this.course.currency,
+      sellerUid: this.course.sellerUid,
+      stripeId: this.course.stripeId,
+      coachName: this.course.coachName,
+      coachPhoto: this.course.coachPhoto,
+      sections: this.course.sections,
+      lectures: this.course.lectures,
+    });
+    // console.dir(this.courseForm.value);
+  }
+
+  get courseF(): any {
+    return this.courseForm.controls;
   }
 
   getDisplayDate(unix: number) {
@@ -68,76 +104,16 @@ export class CourseSubmitComponent implements OnInit, OnChanges, OnDestroy {
     return `${day} ${date.toLocaleDateString()}`;
   }
 
-  sectionsMissingLectures() {
-    // returns true if any sections are missing lectures, otherwise returns false
-    const emptySections = [];
-    if (this.course.sections) {
-      this.course.sections.forEach((s, index) => {
-        if (!s.lectures) {
-          emptySections.push(index);
-        }
-      });
+  // https://medium.com/ngx/3-ways-to-implement-conditional-validation-of-reactive-forms-c59ed6fc3325
+  conditionallyRequiredPriceAndCurrencyValidator(formControl: AbstractControl) {
+    if (!formControl.parent) {
+      return null;
     }
-    if (emptySections.length) {
-      this.alertService.alert('warning-message', 'Oops', `All course sections must contain at least 1 lecture and cannot be empty. The following sections are missing lectures: ${emptySections}`);
-      return true;
-    }
-    return false;
-  }
 
-  isCourseValid(course: CoachingCourse) {
-    if (!course) {
-      this.alertService.alert('warning-message', 'Oops', `Course invalid: No course`);
-      return false;
+    if (formControl.parent.get('pricingStrategy').value === 'paid') {
+      return Validators.required(formControl);
     }
-    if (!course.courseId) {
-      this.alertService.alert('warning-message', 'Oops', `Course invalid: No course ID`);
-      return false;
-    }
-    if (!course.title) {
-      this.alertService.alert('warning-message', 'Oops', `Course invalid: No course title`);
-      return false;
-    }
-    if (!course.pricingStrategy) {
-      this.alertService.alert('warning-message', 'Oops', `Course invalid: Please save your pricing preferences under the Course Options tab.`);
-      return false;
-    }
-    if (course.pricingStrategy === 'paid' && !course.currency) {
-      this.alertService.alert('warning-message', 'Oops', `Course invalid: No course currency`);
-      return false;
-    }
-    if (course.pricingStrategy === 'paid' && !course.price) {
-      this.alertService.alert('warning-message', 'Oops', `Course invalid: No course price`);
-      return false;
-    }
-    if (!course.sections) {
-      this.alertService.alert('warning-message', 'Oops', `Course invalid: No course sections`);
-      return false;
-    }
-    if (!course.lectures) {
-      this.alertService.alert('warning-message', 'Oops', `Course invalid: No course lectures`);
-      return false;
-    }
-    if (!course.sellerUid) {
-      this.alertService.alert('warning-message', 'Oops', `Course invalid: No course seller UID`);
-      return false;
-    }
-    if (course.pricingStrategy === 'paid' && !course.stripeId) {
-      this.alertService.alert('warning-message', 'Oops', `Course Invalid: Missing course Stripe ID`);
-      return false;
-    }
-    if (!course.coachName) {
-      this.alertService.alert('warning-message', 'Oops', `Course invalid: No course public coach name`);
-      return false;
-    }
-    if (!course.coachPhoto) {
-      this.alertService.alert('warning-message', 'Oops', `Course invalid: No course public coach photo`);
-      return false;
-    }
-    if (this.sectionsMissingLectures()) {
-      return false;
-    }
-    return true;
+    return null;
   }
 
   async onSubmit() {
@@ -156,13 +132,6 @@ export class CourseSubmitComponent implements OnInit, OnChanges, OnDestroy {
     if (this.course.reviewRequest && this.course.reviewRequest.status === 'approved') {
       this.requesting = false;
       this.alertService.alert('info-message', 'Just a second!', `This course is already approved.`);
-      return;
-    }
-
-    // check if course valid
-    if (!this.isCourseValid(this.course)) {
-      console.log('Course NOT valid!');
-      this.requesting = false;
       return;
     }
 

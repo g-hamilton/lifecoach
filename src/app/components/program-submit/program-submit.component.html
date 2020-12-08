@@ -22,13 +22,10 @@
                     <span *ngIf="program.reviewRequest?.status === 'submitted'" class=" text-info"> Submitted for review: {{ getDisplayDate(program.reviewRequest.requested) }} </span>
                     <div *ngIf="program.reviewRequest?.status === 'approved'">
                         <span class=" text-success"> Approved: {{ getDisplayDate(program.reviewRequest.requested) }} </span>
-                        - Available for sale.
-                    </div>
-                    <div *ngIf="!program.coachName || !program.coachPhoto">
-                        <a [routerLink]="['/profile']">Complete your public coach profile</a> before submitting your program.
+                        - Published.
                     </div>
                     <div *ngIf="!program.reviewRequest" class=" text-warning">
-                        Draft
+                        In draft
                     </div>
                     <div *ngIf="program.reviewRequest?.status === 'rejected'">
                         <span class=" text-danger"> Needs action </span>
