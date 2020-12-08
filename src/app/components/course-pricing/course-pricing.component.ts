@@ -47,6 +47,7 @@ export class CoursePricingComponent implements OnInit, OnChanges, OnDestroy {
   };
 
   public saving: boolean;
+  public saveAttempt: boolean;
 
   public objKeys = Object.keys;
 
@@ -201,12 +202,13 @@ export class CoursePricingComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async onSubmit() {
+    this.saveAttempt = true;
     this.saving = true;
 
     // safety checks
 
     if (this.pricingForm.invalid) {
-      console.log(this.pricingForm.value);
+      // console.log(this.pricingForm.value);
       this.alertService.alert('warning-message', 'Oops', 'Please complete all required fields before saving.');
       this.saving = false;
       return;
@@ -214,13 +216,6 @@ export class CoursePricingComponent implements OnInit, OnChanges, OnDestroy {
 
     if (!this.userId) {
       this.alertService.alert('warning-message', 'Oops', 'Error: No user ID. Cannot save data.');
-      this.saving = false;
-      return;
-    }
-
-    if (this.pricingF.pricingStrategy.value === 'paid' && !this.account.stripeUid) {
-      this.pricingForm.patchValue({pricingStrategy: 'free'}); // should already be done by component but double safe!
-      this.alertService.alert('warning-message', 'Oops', 'Before creating a paid course you must enable your payout account. Visit Account > Payout Settings to enable payouts now.');
       this.saving = false;
       return;
     }
@@ -237,13 +232,14 @@ export class CoursePricingComponent implements OnInit, OnChanges, OnDestroy {
     this.course.includeInCoachingForCoaches = this.pricingF.includeInCoachingForCoaches.value;
 
     // console.log(this.pricingForm.value);
-    console.log('Saving course:', this.course);
+    // console.log('Saving course:', this.course);
 
     await this.dataService.savePrivateCourse(this.userId, this.course);
 
-    this.alertService.alert('auto-close', 'Success!', 'Course saved.');
+    this.alertService.alert('auto-close', 'Success!', 'eCourse saved.');
 
     this.saving = false;
+    this.saveAttempt = false;
 
     this.analyticsService.editCourseOptions();
   }

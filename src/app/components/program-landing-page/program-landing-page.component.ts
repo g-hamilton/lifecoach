@@ -322,7 +322,7 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
     this.program.targets = this.buildTargetArray();
 
     // console.log(this.outlineForm.value);
-    console.log('Saving program:', this.program);
+    // console.log('Saving program:', this.program);
 
     await this.dataService.savePrivateProgram(this.userId, this.program);
 

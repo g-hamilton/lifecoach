@@ -327,62 +327,27 @@ export class CourseLandingPageComponent implements OnInit, OnChanges, AfterViewI
 
   async onSubmit() {
     this.saving = true;
+    this.saveAttempt = true;
 
     // safety checks
-    if (!this.landingF.title.value) {
-      this.alertService.alert('warning-message', 'Oops', 'Please add a course title.');
-      this.saving = false;
-      return;
-    }
-    if (!this.landingF.subtitle.value) {
-      this.alertService.alert('warning-message', 'Oops', 'Please add a course subtitle.');
-      this.saving = false;
-      return;
-    }
-    if (!this.landingF.description.value) {
-      this.alertService.alert('warning-message', 'Oops', 'Please add a course description.');
-      this.saving = false;
-      return;
-    }
-    if (!this.landingF.language.value) {
-      this.alertService.alert('warning-message', 'Oops', 'Please select a course language.');
-      this.saving = false;
-      return;
-    }
-    if (!this.landingF.category.value) {
-      this.alertService.alert('warning-message', 'Oops', 'Please select a course category.');
-      this.saving = false;
-      return;
-    }
-    if (!this.landingF.level.value) {
-      this.alertService.alert('warning-message', 'Oops', 'Please select a course level.');
-      this.saving = false;
-      return;
-    }
-    if (!this.landingF.subject.value) {
-      this.alertService.alert('warning-message', 'Oops', 'Please add a primary subject.');
-      this.saving = false;
-      return;
-    }
-
-    // catch all fallback
     if (this.landingForm.invalid) {
+      console.log(this.landingForm.value);
       this.alertService.alert('warning-message', 'Oops', 'Please complete all required fields before saving.');
       this.saving = false;
       return;
     }
 
     if (!this.userId) {
-      this.alertService.alert('warning-message', 'Oops', 'Error: No user ID. Cannot save landing page data');
+      this.alertService.alert('warning-message', 'Oops', 'Error: No user ID. Cannot save data.');
       this.saving = false;
       return;
     }
 
     // Handle image upload to storage if required.
     if (this.landingF.mainImage.value && !this.landingF.mainImage.value.includes(this.storageService.getStorageDomain())) {
-      console.log(`Uploading unstored course photo to storage...`);
+      // console.log(`Uploading unstored course photo to storage...`);
       const url = await this.storageService.storeCourseImageUpdateDownloadUrl(this.userId, this.landingF.mainImage.value);
-      console.log(`Photo stored successfully. Patching landing form with photo download URL: ${url}`);
+      // console.log(`Photo stored successfully. Patching landing form with photo download URL: ${url}`);
       this.landingForm.patchValue({
         mainImage: url
       });
@@ -406,9 +371,10 @@ export class CourseLandingPageComponent implements OnInit, OnChanges, AfterViewI
 
     await this.dataService.savePrivateCourse(this.userId, this.course);
 
-    this.alertService.alert('auto-close', 'Success!', 'Course saved.');
+    this.alertService.alert('auto-close', 'Success!', 'eCourse saved.');
 
     this.saving = false;
+    this.saveAttempt = false;
 
     this.analyticsService.editCourseLandingPage();
   }
