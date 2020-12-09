@@ -7,6 +7,7 @@ import { CoachProfile } from '../interfaces/coach.profile.interface';
 import { UserAccount } from '../interfaces/user.account.interface';
 import { AdminCourseReviewRequest } from 'app/interfaces/adminCourseReviewRequest';
 import { first } from 'rxjs/operators';
+import {Answer} from '../pages/video-chatroom/videochatroom.component';
 
 @Injectable({
   providedIn: 'root'
@@ -330,10 +331,26 @@ export class CloudFunctionsService {
   // Twilio
   getTwilioToken(uid: string, room: string, timeOfStart: number, duration: number) {
     console.log('Cloud Function Service prop', uid);
+    console.log(timeOfStart, duration);
+    console.group('getTwilioToken Function');
+    console.log(`timeOfStart prop: ${new Date(timeOfStart)}`);
+    console.log(`Duration prop: ${duration}`);
+    console.log(`Date.now: ${new Date(Date.now())}`);
+    console.log(`TTL: ${timeOfStart + duration - Date.now()}`);
+    console.groupEnd();
+    const nowTime = Date.now();
+    const ttl = timeOfStart + duration - nowTime;
+    if (ttl < 0) {
+      return Promise.reject('IS_OVER');
+    }
+    if ( timeOfStart - nowTime > 60000 ) {
+      return Promise.reject('NOT_TIME_YET');
+    }
+    console.log(ttl);
     return new Promise( resolve => {
           const res = this.cloudFunctions.httpsCallable('getTwilioToken');
           console.log('Cloud Function Service', res);
-          const tempSub = res({uid, room})
+          const tempSub = res({uid, room, ttl})
             .pipe(first())
             .subscribe(r => {
               resolve(r.json);
@@ -342,6 +359,36 @@ export class CloudFunctionsService {
             });
       }
     );
+  }
+
+  // Also twilio, for controlling video-session
+  getInfoAboutCurrentVideoSession(sessionId: string): Promise<Answer> {
+    return new Promise(resolve => {
+
+      const trigger = this.cloudFunctions.httpsCallable('getInfoAboutCurrentVideoSession');
+
+      const tempSub = trigger({ docId: sessionId})
+        .pipe(first())
+        .subscribe(res => {
+          resolve(res);
+          tempSub.unsubscribe();
+        });
+    });
+  }
+
+  // twilio, for aborting session
+  abortVideoSession(roomID: string) {
+    return new Promise(resolve => {
+
+      const trigger = this.cloudFunctions.httpsCallable('abortVideoSession');
+
+      const tempSub = trigger({ roomID })
+        .pipe(first())
+        .subscribe(res => {
+          resolve(res);
+          tempSub.unsubscribe();
+        });
+    });
   }
 
   // *** DANGER AREA ***

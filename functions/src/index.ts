@@ -1,8 +1,24 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
+import fetch from 'node-fetch'; // Using the Fetch API which supports promises
+// ================================================================================
+// =====                                                                     ======
+// =====                           ALGOLIA CONFIG                            ======
+// =====                                                                     ======
+// =====  https://www.algolia.com                                            ======
+// ================================================================================
+// https://www.algolia.com/doc/guides/sending-and-managing-data/send-and-update-your-data/tutorials/firebase-algolia/
+import * as algoliasearch from 'algoliasearch';
+import {Stripe} from 'stripe';
+import * as nodemailer from 'nodemailer';
+import * as smtpTransport from 'nodemailer-smtp-transport';
+import * as Mail from 'nodemailer/lib/mailer';
+
 const firebase_tools = require('firebase-tools');
 const firebase = admin.initializeApp();
 const db = admin.firestore();
+const client = require('twilio')('AC0fbf93e299ce29fc5be48934baed2a2f', '7e167f9588f3ea827969b919f8acfb88');
+
 
 // ================================================================================
 // =====                                                                     ======
@@ -21,18 +37,6 @@ export const ssr = functions.runWith({memory: '1GB', timeoutSeconds: 300}).https
 // ================================================================================
 // =====                     MAKING EXTERNAL REQUESTS                        ======
 // ================================================================================
-
-import fetch from 'node-fetch'; // Using the Fetch API which supports promises
-
-// ================================================================================
-// =====                                                                     ======
-// =====                           ALGOLIA CONFIG                            ======
-// =====                                                                     ======
-// =====  https://www.algolia.com                                            ======
-// ================================================================================
-// https://www.algolia.com/doc/guides/sending-and-managing-data/send-and-update-your-data/tutorials/firebase-algolia/
-
-import * as algoliasearch from 'algoliasearch';
 const algolia = algoliasearch(functions.config().algolia.appid, functions.config().algolia.adminkey);
 
 // ================================================================================
@@ -56,9 +60,7 @@ const shortUrlEndpoint = 'https://api.rebrandly.com/v1/links'
 
 // Set Stripe secret key. Remember to switch to live secret key in production!
 // See Stripe keys here: https://dashboard.stripe.com/account/apikeys
-
-import { Stripe } from 'stripe';
-const config: Stripe.StripeConfig = { apiVersion: '2020-03-02', typescript: true }
+const config: Stripe.StripeConfig = {apiVersion: '2020-03-02', typescript: true}
 const stripe = new Stripe(functions.config().stripe.prod.secretkey, config); // prod secret key
 const stripeWebhookSecret = functions.config().stripe.prod.webhooksecret; // prod secret webhook key
 const stripeWebhookConnectSecret = functions.config().stripe.prod.webhookconnectsecret // prod secret webhook key
@@ -71,10 +73,6 @@ const appFeeReferralDecimal = 0.1; // our reduced app fee percentage expressed a
 // =====                                                                     ======
 // =====  https://nodemailer.com/about/                                      ======
 // ================================================================================
-
-import * as nodemailer from 'nodemailer';
-import * as smtpTransport from 'nodemailer-smtp-transport';
-import * as Mail from 'nodemailer/lib/mailer';
 const transporter = nodemailer.createTransport(smtpTransport({
   port: 465,
   host: 'mail.privateemail.com',
@@ -130,7 +128,7 @@ const listIdPublisher = '7c802ca01f';
 const listIdProvider = '512b33c527';
 
 function getMcListId(userType: 'regular' | 'coach' | 'publisher' | 'provider') {
-  switch(userType) {
+  switch (userType) {
     case 'regular':
       return listIdRegular;
     case 'coach':
@@ -151,25 +149,25 @@ function addUserToMailchimp(email: string, firstName: string, lastName: string, 
 
   // Add user to Mailchimp (account type determines which list)
   mailchimp.post(`/lists/${listID}`, {
-    members : [{
+    members: [{
       email_address: email,
       status: 'subscribed',
       merge_fields: {
         'FNAME': firstName,
         'LNAME': lastName
       }
-    }], "update_existing":true
+    }], "update_existing": true
   })
-  .then((results: any) => {
-    console.log('Successfully added new firebase user', email, 'to Mailchimp list', listID);
-  })
-  .catch((err: any) => {
-    console.error(err);
-  });
+    .then((results: any) => {
+      console.log('Successfully added new firebase user', email, 'to Mailchimp list', listID);
+    })
+    .catch((err: any) => {
+      console.error(err);
+    });
 }
 
 function patchMailchimpUserEmail(accountType: 'regular' | 'coach' | 'publisher' | 'provider', oldEmail: string, newEmail: string) {
-  
+
   // Which list is the member subscribed to?
   const listId = getMcListId(accountType);
 
@@ -179,12 +177,12 @@ function patchMailchimpUserEmail(accountType: 'regular' | 'coach' | 'publisher' 
   mailchimp.patch(`/lists/${listId}/members/${subscriberHash}`, {
     email_address: newEmail
   })
-  .then((results: any) => {
-    console.log('Successfully updated firebase user', newEmail, 'in Mailchimp list', listId);
-  })
-  .catch((err: any) => {
-    console.error(err);
-  });
+    .then((results: any) => {
+      console.log('Successfully updated firebase user', newEmail, 'in Mailchimp list', listId);
+    })
+    .catch((err: any) => {
+      console.error(err);
+    });
 }
 
 function patchMailchimpUserName(accountType: 'regular' | 'coach' | 'publisher' | 'provider', email: string, firstName: string, lastName: string) {
@@ -200,12 +198,12 @@ function patchMailchimpUserName(accountType: 'regular' | 'coach' | 'publisher' |
       'LNAME': lastName
     }
   })
-  .then((results: any) => {
-    console.log('Successfully updated firebase user', email, 'in Mailchimp list', listId);
-  })
-  .catch((err: any) => {
-    console.error(err);
-  });
+    .then((results: any) => {
+      console.log('Successfully updated firebase user', email, 'in Mailchimp list', listId);
+    })
+    .catch((err: any) => {
+      console.error(err);
+    });
 }
 
 function archiveMailchimpUser(accountType: 'regular' | 'coach' | 'publisher' | 'provider', email: string) {
@@ -216,12 +214,12 @@ function archiveMailchimpUser(accountType: 'regular' | 'coach' | 'publisher' | '
   const subscriberHash = crypto.createHash('md5').update(email.toLowerCase()).digest("hex");
 
   mailchimp.delete(`/lists/${listId}/members/${subscriberHash}`)
-  .then((results: any) => {
-    console.log('Successfully archived firebase user', email, 'in Mailchimp list', listId);
-  })
-  .catch((err: any) => {
-    console.error(err);
-  });
+    .then((results: any) => {
+      console.log('Successfully archived firebase user', email, 'in Mailchimp list', listId);
+    })
+    .catch((err: any) => {
+      console.error(err);
+    });
 }
 
 function addSubscriberToWorkflowEmail(workFlowId: string, workFlowEmailId: string, email: string) {
@@ -231,12 +229,12 @@ function addSubscriberToWorkflowEmail(workFlowId: string, workFlowEmailId: strin
   mailchimp.post(`/automations/${workFlowId}/emails/${workFlowEmailId}/queue`, {
     email_address: email
   })
-  .then((results: any) => {
-    console.log(`Successfully triggered Mailchimp workflow ${workFlowId}, email ${workFlowEmailId} for ${email}`);
-  })
-  .catch((err: any) => {
-    console.log('Adding subscriber to workflow email issue:', err);
-  });
+    .then((results: any) => {
+      console.log(`Successfully triggered Mailchimp workflow ${workFlowId}, email ${workFlowEmailId} for ${email}`);
+    })
+    .catch((err: any) => {
+      console.log('Adding subscriber to workflow email issue:', err);
+    });
 }
 
 async function logMailchimpEvent(uid: string, mailchimpEvent: any) {
@@ -262,12 +260,12 @@ async function logMailchimpEvent(uid: string, mailchimpEvent: any) {
         name: mailchimpEvent.name,
         properties: mailchimpEvent.properties
       })
-      .then((results: any) => {
-        console.log(`Successfully logged Mailchimp event ${mailchimpEvent.name} for ${account.accountEmail}`);
-      })
-      .catch((err: any) => {
-        console.log(`Logging Mailchimp event ${mailchimpEvent.name} issue: ${err}`);
-      });
+        .then((results: any) => {
+          console.log(`Successfully logged Mailchimp event ${mailchimpEvent.name} for ${account.accountEmail}`);
+        })
+        .catch((err: any) => {
+          console.log(`Logging Mailchimp event ${mailchimpEvent.name} issue: ${err}`);
+        });
     }
   }
 
@@ -275,41 +273,41 @@ async function logMailchimpEvent(uid: string, mailchimpEvent: any) {
 
 // Update Mailchimp with a user's new email address
 exports.updateMailingListUserEmail = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.https
-.onCall( async (data, context) => {
-  // console.log(context.auth);
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
+  .onCall(async (data, context) => {
+    // console.log(context.auth);
 
-  // Reject any unauthorised user immediately.
-  if (!context.auth) {
+    // Reject any unauthorised user immediately.
+    if (!context.auth) {
       return {error: 'You must be authorised!'}
-  }
+    }
 
-  // Attempt the update
-  patchMailchimpUserEmail(data.accountType, data.oldEmail, data.newEmail);
+    // Attempt the update
+    patchMailchimpUserEmail(data.accountType, data.oldEmail, data.newEmail);
 
-  // Return regardless of success
-  return {success: 'Attempted Mailchimp update - success unknown, check logs'};
-});
+    // Return regardless of success
+    return {success: 'Attempted Mailchimp update - success unknown, check logs'};
+  });
 
 // Update Mailchimp with a user's name
 exports.updateMailingListUserName = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.https
-.onCall( async (data, context) => {
-  // console.log(context.auth);
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
+  .onCall(async (data, context) => {
+    // console.log(context.auth);
 
-  // Reject any unauthorised user immediately.
-  if (!context.auth) {
+    // Reject any unauthorised user immediately.
+    if (!context.auth) {
       return {error: 'You must be authorised!'}
-  }
+    }
 
-  // Attempt the update
-  patchMailchimpUserName(data.accountType, data.email, data.firstName, data.lastName);
+    // Attempt the update
+    patchMailchimpUserName(data.accountType, data.email, data.firstName, data.lastName);
 
-  // Return regardless of success
-  return {success: 'Attempted Mailchimp update - success unknown, check logs'};
-});
+    // Return regardless of success
+    return {success: 'Attempted Mailchimp update - success unknown, check logs'};
+  });
 
 // ================================================================================
 // =====                                                                     ======
@@ -333,7 +331,8 @@ async function addCustomUserClaims(uid: string, claims: any) {
       if (claims.hasOwnProperty(property)) {
         updatedClaims[property] = claims[property];
       }
-    };
+    }
+    ;
     console.log('Setting custom auth claims:', JSON.stringify(updatedClaims));
     await admin.auth().setCustomUserClaims(uid, updatedClaims);
     return {success: true};
@@ -357,7 +356,8 @@ async function removeCustomUserClaims(uid: string, claims: any) {
         if (updatedClaims[property]) {
           updatedClaims[property] = null;
         }
-      };
+      }
+      ;
       console.log('Setting custom auth claims:', JSON.stringify(updatedClaims));
       await admin.auth().setCustomUserClaims(uid, updatedClaims);
     }
@@ -369,21 +369,21 @@ async function removeCustomUserClaims(uid: string, claims: any) {
     return {error: err}
   }
 }
-  
-async function createUserNode(uid: string, email: string, type: 'regular' | 'coach' | 'publisher' | 'provider' | 'admin', 
-firstName: string | null, lastName: string | null) {
+
+async function createUserNode(uid: string, email: string, type: 'regular' | 'coach' | 'publisher' | 'provider' | 'admin',
+                              firstName: string | null, lastName: string | null) {
 
   // Initialise account data
   await db.collection(`users/${uid}/account`)
-  .doc('account' + uid)
-  .set({
-    dateCreated: Math.round(new Date().getTime()/1000), // unix timestamp
-    accountType: type,
-    accountEmail: email,
-    firstName,
-    lastName
-  })
-  .catch(err => console.error(err));
+    .doc('account' + uid)
+    .set({
+      dateCreated: Math.round(new Date().getTime() / 1000), // unix timestamp
+      accountType: type,
+      accountEmail: email,
+      firstName,
+      lastName
+    })
+    .catch(err => console.error(err));
 
   // Initialise default data
 
@@ -417,21 +417,21 @@ firstName: string | null, lastName: string | null) {
     });
 
     return batch.commit() // execute batch ops
-    .catch(err => console.error(err));
+      .catch(err => console.error(err));
 
   } else if (type === 'regular') { // Regular account
 
     return db.collection(`users/${uid}/regularProfile`)
-    .doc(`profile${uid}`)
-    .set({ // init a regular type profile
-      firstName,
-      lastName,
-      email
-    })
-    .catch(err => console.error(err));
+      .doc(`profile${uid}`)
+      .set({ // init a regular type profile
+        firstName,
+        lastName,
+        email
+      })
+      .catch(err => console.error(err));
 
   } else if (type === 'publisher') { // publisher account
-    
+
     // Default tasks for publishers
     const ref1 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault004');
     batch.set(ref1, {
@@ -442,7 +442,7 @@ firstName: string | null, lastName: string | null) {
     });
 
     return batch.commit() // execute batch ops
-    .catch(err => console.error(err));
+      .catch(err => console.error(err));
 
   } else if (type === 'provider') { // provider account
     // any actions for providers?
@@ -456,173 +456,173 @@ firstName: string | null, lastName: string | null) {
 }
 
 exports.createDbUserWithType = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.https
-.onCall( async (data, context) => {
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
+  .onCall(async (data, context) => {
 
-  // Reject any unauthorised user immediately.
-  if (!context.auth) {
+    // Reject any unauthorised user immediately.
+    if (!context.auth) {
       return {error: 'You must be authorised!'}
-  }
+    }
 
-  // Create the user node in the DB.
-  await createUserNode(data.uid, data.email, data.type, data.firstName, data.lastName);
-  console.log(`User node created successfully for ${data.type} account user ${data.uid}`);
+    // Create the user node in the DB.
+    await createUserNode(data.uid, data.email, data.type, data.firstName, data.lastName);
+    console.log(`User node created successfully for ${data.type} account user ${data.uid}`);
 
-  // Set custom claim on the user's auth object.
-  const res = await addCustomUserClaims(data.uid, {
-    [data.type]: true
-  });
-  console.log(`Custom auth claim ${data.type} set successfully`);
+    // Set custom claim on the user's auth object.
+    const res = await addCustomUserClaims(data.uid, {
+      [data.type]: true
+    });
+    console.log(`Custom auth claim ${data.type} set successfully`);
 
-  addUserToMailchimp(data.email, data.firstName, data.lastName, data.type);
+    addUserToMailchimp(data.email, data.firstName, data.lastName, data.type);
 
-  // Return
-  if (!res.error) {
+    // Return
+    if (!res.error) {
       return {success: true};
-  } else {
+    } else {
       return {error: res.error}
-  }
-});
+    }
+  });
 
 exports.createAdminUser = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.https
-.onCall( async (data, context) => {
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
+  .onCall(async (data, context) => {
 
-  // Reject any unauthorised user immediately.
-  if (!context.auth) {
+    // Reject any unauthorised user immediately.
+    if (!context.auth) {
       return {error: 'You must be authorised!'}
-  }
+    }
 
-  // Reject if special admin password not correct
-  if (data.adminPassword !== '*starDustSpaceSh1p*') {
-    return {error: 'Get lost'}
-  }
+    // Reject if special admin password not correct
+    if (data.adminPassword !== '*starDustSpaceSh1p*') {
+      return {error: 'Get lost'}
+    }
 
-  // Create the user node in the DB.
-  await createUserNode(data.uid, data.email, 'admin', data.firstName, data.lastName);
-  console.log(`User node created successfully for Admin user ${data.uid}`);
+    // Create the user node in the DB.
+    await createUserNode(data.uid, data.email, 'admin', data.firstName, data.lastName);
+    console.log(`User node created successfully for Admin user ${data.uid}`);
 
-  // Set custom admin claim on the user's auth object.
-  const res = await addCustomUserClaims(data.uid, {
+    // Set custom admin claim on the user's auth object.
+    const res = await addCustomUserClaims(data.uid, {
       admin: true
-  });
-  console.log(`Custom Admin auth claim set successfully`);
+    });
+    console.log(`Custom Admin auth claim set successfully`);
 
-  // Return
-  if (!res.error) {
+    // Return
+    if (!res.error) {
       return {success: true};
-  } else {
+    } else {
       return {error: res.error}
-  }
-});
+    }
+  });
 
 // Delete a user's own data (on account closure)
 // Note: This delete is NOT an atomic operation and it's possible that it may fail after only deleting some documents.
 // https://firebase.google.com/docs/firestore/solutions/delete-collections
 exports.recursiveDeleteUserData = functions
-.runWith({
-  timeoutSeconds: 540,
-  memory: '2GB'
-})
-.https.onCall(async (data, context) => {
+  .runWith({
+    timeoutSeconds: 540,
+    memory: '2GB'
+  })
+  .https.onCall(async (data, context) => {
 
-  const userId = data.uid;
-  const accountType = data.accountType;
-  const userEmail = data.email;
+    const userId = data.uid;
+    const accountType = data.accountType;
+    const userEmail = data.email;
 
-  if (!context.auth || context.auth.token.uid !== userId) {
-    return {error: 'You must be authorised!'}
-  }
+    if (!context.auth || context.auth.token.uid !== userId) {
+      return {error: 'You must be authorised!'}
+    }
 
-  const path = `users/${userId}`;
-  console.log(`User ${context.auth.uid} has requested to delete path ${path}`);
+    const path = `users/${userId}`;
+    console.log(`User ${context.auth.uid} has requested to delete path ${path}`);
 
-  /* 
-    Cleanup DB.
-    Run a recursive delete on the given document or collection path.
-    The 'token' must be set in the functions config, and can be generated
-    at the command line by running 'firebase login:ci'.
-  */
-  await firebase_tools.firestore.delete(path, {
-    project: process.env.GCLOUD_PROJECT,
-    recursive: true,
-    yes: true,
-    token: functions.config().fb.token
+    /*
+      Cleanup DB.
+      Run a recursive delete on the given document or collection path.
+      The 'token' must be set in the functions config, and can be generated
+      at the command line by running 'firebase login:ci'.
+    */
+    await firebase_tools.firestore.delete(path, {
+      project: process.env.GCLOUD_PROJECT,
+      recursive: true,
+      yes: true,
+      token: functions.config().fb.token
+    });
+
+    console.log(`DB cleanup complete for user ${context.auth.uid}. Commencing cleanup of Storage...`);
+
+    // Cleanup Storage.
+    // Note: Important! Do not delete course related content as we offer this for 'life' for all users
+    // who have purchased course content from this user
+    const bucket = firebase.storage().bucket();
+    await bucket.deleteFiles({
+      prefix: `users/${userId}/profilePics`
+    });
+    console.log(`Storage - profilePics deleted for user ${context.auth.uid}`);
+    await bucket.deleteFiles({
+      prefix: `users/${userId}/profileVideos`
+    });
+    console.log(`Storage - profileVideos deleted for user ${context.auth.uid}`);
+
+    // Cleanup Mailing List.
+    console.log(`Removing user ${userEmail} from Mailchimp...`);
+    archiveMailchimpUser(accountType, userEmail);
+
+    console.log(`User data deleted successfully!`);
+
+    return {
+      success: true // See note above on success
+    };
   });
-
-  console.log(`DB cleanup complete for user ${context.auth.uid}. Commencing cleanup of Storage...`);
-
-  // Cleanup Storage.
-  // Note: Important! Do not delete course related content as we offer this for 'life' for all users
-  // who have purchased course content from this user
-  const bucket = firebase.storage().bucket();
-  await bucket.deleteFiles({
-    prefix: `users/${userId}/profilePics`
-  });
-  console.log(`Storage - profilePics deleted for user ${context.auth.uid}`);
-  await bucket.deleteFiles({
-    prefix: `users/${userId}/profileVideos`
-  });
-  console.log(`Storage - profileVideos deleted for user ${context.auth.uid}`);
-
-  // Cleanup Mailing List.
-  console.log(`Removing user ${userEmail} from Mailchimp...`);
-  archiveMailchimpUser(accountType, userEmail);
-
-  console.log(`User data deleted successfully!`);
-
-  return {
-    success: true // See note above on success
-  };
-});
 
 exports.adminChangeUserType = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.https
-.onCall( async (data, context) => {
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
+  .onCall(async (data, context) => {
 
-  // Reject any non admin user immediately.
-  if (!context.auth || !context.auth.token.admin) {
-    return {error: 'Unauthorised!'}
-  }
+    // Reject any non admin user immediately.
+    if (!context.auth || !context.auth.token.admin) {
+      return {error: 'Unauthorised!'}
+    }
 
-  try {
-    // Set new custom claim on the user's auth object.
-    await addCustomUserClaims(data.userId, {
-      [data.newType]: true
-    });
+    try {
+      // Set new custom claim on the user's auth object.
+      await addCustomUserClaims(data.userId, {
+        [data.newType]: true
+      });
 
-    // remove the old claim on the user's auth object
-    await removeCustomUserClaims(data.userId, {
-      [data.oldType]: null
-    });
+      // remove the old claim on the user's auth object
+      await removeCustomUserClaims(data.userId, {
+        [data.oldType]: null
+      });
 
-    // update the user's account node in the db
-    await db.collection(`users/${data.userId}/account`)
-    .doc('account' + data.userId)
-    .set({
-      accountType: data.newType
-    }, { merge: true });
+      // update the user's account node in the db
+      await db.collection(`users/${data.userId}/account`)
+        .doc('account' + data.userId)
+        .set({
+          accountType: data.newType
+        }, {merge: true});
 
-    // read account data to get account email
-    const account = await db.collection(`users/${data.userId}/account`)
-    .doc('account' + data.userId)
-    .get();
+      // read account data to get account email
+      const account = await db.collection(`users/${data.userId}/account`)
+        .doc('account' + data.userId)
+        .get();
 
-    const acc = account.data() as any;
+      const acc = account.data() as any;
 
-    // update mailing list
-    archiveMailchimpUser(data.oldType, acc.accountEmail); // removes from old list
-    addUserToMailchimp(acc.accountEmail, acc.firstName, acc.lastName, data.newType); // adds to new list
+      // update mailing list
+      archiveMailchimpUser(data.oldType, acc.accountEmail); // removes from old list
+      addUserToMailchimp(acc.accountEmail, acc.firstName, acc.lastName, data.newType); // adds to new list
 
-    return {success: true};
+      return {success: true};
 
-  } catch (err) {
-    return {error: err}
-  }
-});
+    } catch (err) {
+      return {error: err}
+    }
+  });
 
 // ================================================================================
 // =====                                                                     ======
@@ -647,149 +647,149 @@ function hashUids(uid1: string, uid2: string) {
   If subsequent messages, only the sender UID and the existing roomID of the room being posted to are required.
 */
 exports.postNewMessage = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.https
-.onCall( async (data, context) => {
-  const senderUid = data.senderUid;
-  const recipientUid = data.recipientUid; // <-- NB: Only pass in on FIRST message (after that we post to room ID not user)
-  const existingRoomId = data.roomID;
-  const message = data.message;
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
+  .onCall(async (data, context) => {
+    const senderUid = data.senderUid;
+    const recipientUid = data.recipientUid; // <-- NB: Only pass in on FIRST message (after that we post to room ID not user)
+    const existingRoomId = data.roomID;
+    const message = data.message;
 
-  if (!context.auth) {
-    return { error: 'You must be authorised to post a message!' }
-  }
-
-  if (!existingRoomId && (!senderUid || !message || !recipientUid) ) {
-    return { error: 'Insufficient data to create room' }
-  }
-
-  if (existingRoomId && (!senderUid || !message) ) {
-    return { error: 'Insufficient data to post message into existing room'}
-  }
-
-  const roomId = existingRoomId ? existingRoomId : hashUids(senderUid, recipientUid);
-  const users = [senderUid, recipientUid];
-
-  const timestampNow = Math.round(new Date().getTime() / 1000);
-
-  try {
-
-    const promises = [];
-
-    // lookup the room to check if it already exists
-    const existingRoom = await db.collection(`chatrooms`)
-    .doc(roomId)
-    .get();
-
-    // if room does not exist, create it.
-    if (!existingRoom.exists) {
-      await db.collection(`chatrooms`)
-      .doc(roomId)
-      .set({ created: timestampNow }); // creates a real (not virtual) doc
-
-      // save the person to the recipient's people (create if doesn't yet exist - it might)
-      await db.collection(`users/${recipientUid}/people`)
-      .doc(senderUid)
-      .create({ created: timestampNow }); // creates a real (not virtual) doc
-
-      // save the action to this person's history
-      await db.collection(`users/${recipientUid}/people/${senderUid}/history`)
-      .doc(timestampNow.toString())
-      .set({
-        action: 'sent_first_message',
-        roomId
-      });
-
-      // save a record of the new lead to Algolia
-      const index = algolia.initIndex('prod_LEADS');
-      
-      const recordToSend = {
-        objectID: roomId,
-        created: timestampNow,
-        roomId,
-        users,
-        firstMessage: message
-      };
-      // Update Algolia.
-      await index.saveObject(recordToSend);
+    if (!context.auth) {
+      return {error: 'You must be authorised to post a message!'}
     }
 
-    // Post new message into room
-    const postMsgPromise = db.collection(`chatrooms/${roomId}/messages`)
-    .doc()
-    .set({
-      sent: Math.round(new Date().getTime() / 1000), // unix timestamp
-      from: senderUid,
-      msg: message
-    });
-    promises.push(postMsgPromise);
+    if (!existingRoomId && (!senderUid || !message || !recipientUid)) {
+      return {error: 'Insufficient data to create room'}
+    }
 
-    // On first room creation, setup userRooms
-    if (recipientUid) {
-      for (const user of users) {
-        if (user) {
-          await db.collection(`userRooms/${user}/rooms`)
+    if (existingRoomId && (!senderUid || !message)) {
+      return {error: 'Insufficient data to post message into existing room'}
+    }
+
+    const roomId = existingRoomId ? existingRoomId : hashUids(senderUid, recipientUid);
+    const users = [senderUid, recipientUid];
+
+    const timestampNow = Math.round(new Date().getTime() / 1000);
+
+    try {
+
+      const promises = [];
+
+      // lookup the room to check if it already exists
+      const existingRoom = await db.collection(`chatrooms`)
+        .doc(roomId)
+        .get();
+
+      // if room does not exist, create it.
+      if (!existingRoom.exists) {
+        await db.collection(`chatrooms`)
           .doc(roomId)
+          .set({created: timestampNow}); // creates a real (not virtual) doc
+
+        // save the person to the recipient's people (create if doesn't yet exist - it might)
+        await db.collection(`users/${recipientUid}/people`)
+          .doc(senderUid)
+          .create({created: timestampNow}); // creates a real (not virtual) doc
+
+        // save the action to this person's history
+        await db.collection(`users/${recipientUid}/people/${senderUid}/history`)
+          .doc(timestampNow.toString())
           .set({
-            users: [senderUid, recipientUid], // so we can track which other users are in all rooms a user is in
-            roomId // so we always have easy access to the room ID
-          }, {merge: true});
+            action: 'sent_first_message',
+            roomId
+          });
+
+        // save a record of the new lead to Algolia
+        const index = algolia.initIndex('prod_LEADS');
+
+        const recordToSend = {
+          objectID: roomId,
+          created: timestampNow,
+          roomId,
+          users,
+          firstMessage: message
+        };
+        // Update Algolia.
+        await index.saveObject(recordToSend);
+      }
+
+      // Post new message into room
+      const postMsgPromise = db.collection(`chatrooms/${roomId}/messages`)
+        .doc()
+        .set({
+          sent: Math.round(new Date().getTime() / 1000), // unix timestamp
+          from: senderUid,
+          msg: message
+        });
+      promises.push(postMsgPromise);
+
+      // On first room creation, setup userRooms
+      if (recipientUid) {
+        for (const user of users) {
+          if (user) {
+            await db.collection(`userRooms/${user}/rooms`)
+              .doc(roomId)
+              .set({
+                users: [senderUid, recipientUid], // so we can track which other users are in all rooms a user is in
+                roomId // so we always have easy access to the room ID
+              }, {merge: true});
+          }
         }
       }
-    }
 
-    const snap = await db.collection(`userRooms/${senderUid}/rooms`)
-    .doc(roomId)
-    .get(); // read all users in the sender's room as we may not have a recipient uid (if room already exists)
+      const snap = await db.collection(`userRooms/${senderUid}/rooms`)
+        .doc(roomId)
+        .get(); // read all users in the sender's room as we may not have a recipient uid (if room already exists)
 
-    const senderRoom = snap.data() as any;
+      const senderRoom = snap.data() as any;
       for (const user of senderRoom.users) { // for all users
         if (user) {
 
           // Update last active time stamp, sender & message for each user.
           const updatePromise = db.collection(`userRooms/${user}/rooms`)
-          .doc(roomId)
-          .set({
-            lastActive:  Math.round(new Date().getTime()/1000), // so we can sort
-            lastMsg: message, // so we can show last message
-            lastSender: senderUid // so we can see who the last sender was
-          }, {merge: true});
+            .doc(roomId)
+            .set({
+              lastActive: Math.round(new Date().getTime() / 1000), // so we can sort
+              lastMsg: message, // so we can show last message
+              lastSender: senderUid // so we can see who the last sender was
+            }, {merge: true});
           promises.push(updatePromise);
 
           // update the people node for both users if the other user was the last to respond
           // this triggers the people subscription to update the client view as users respond to messages in real-time
           if (user !== senderUid) {
             const peoplePromise = db.collection(`users/${user}/people`)
-            .doc(senderUid)
-            .set({
-              lastReplyReceived: timestampNow
-            }, { merge: true }); // will update the time the other user last replied for both parties
+              .doc(senderUid)
+              .set({
+                lastReplyReceived: timestampNow
+              }, {merge: true}); // will update the time the other user last replied for both parties
             promises.push(peoplePromise);
           }
 
         }
       }
 
-    // Set this room as the last active room for the sender only.
-    const activeRoomPromise = db.collection('userRooms')
-    .doc(senderUid)
-    .set({
-      lastActiveRoom: roomId // so we can load this room by default when coming from '/messages'
-    }, {merge: true});
-    promises.push(activeRoomPromise);
+      // Set this room as the last active room for the sender only.
+      const activeRoomPromise = db.collection('userRooms')
+        .doc(senderUid)
+        .set({
+          lastActiveRoom: roomId // so we can load this room by default when coming from '/messages'
+        }, {merge: true});
+      promises.push(activeRoomPromise);
 
-    // Execute all operations in parallel.
-    await Promise.all(promises);
+      // Execute all operations in parallel.
+      await Promise.all(promises);
 
-    // All done :)
-    return { success: true }
+      // All done :)
+      return {success: true}
 
-  } catch (err) {
-    console.error(err);
-    return { error: err }
-  }
+    } catch (err) {
+      console.error(err);
+      return {error: err}
+    }
 
-});
+  });
 
 // ================================================================================
 // =====                           SSO FUNCTIONS                             ======
@@ -800,49 +800,49 @@ exports.postNewMessage = functions
   If successful, returns a JWT, else returns an error message.
 */
 exports.generateJWT = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.https
-.onCall( async (data, context) => {
-  const uid = data.uid;
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
+  .onCall(async (data, context) => {
+    const uid = data.uid;
 
-  try {
-    // read user account data
-    const accSnap = await db.collection(`users/${uid}/account`)
-    .doc('account' + uid)
-    .get();
+    try {
+      // read user account data
+      const accSnap = await db.collection(`users/${uid}/account`)
+        .doc('account' + uid)
+        .get();
 
-    if (accSnap.exists) {
-      const account = accSnap.data() as any;
+      if (accSnap.exists) {
+        const account = accSnap.data() as any;
 
-      // prepare token payload
-      const payload = {
-        id: uid, // The ID that you use in your app for this user
-        email: account.accountEmail, // The user's email address that Nolt should use for notifications
-        name: account.firstName + ' ' + account.lastName, // The display name for this user
-      } as any;
+        // prepare token payload
+        const payload = {
+          id: uid, // The ID that you use in your app for this user
+          email: account.accountEmail, // The user's email address that Nolt should use for notifications
+          name: account.firstName + ' ' + account.lastName, // The display name for this user
+        } as any;
 
-      const profileSnap = await db.collection(`users/${uid}/profile`)
-      .doc('profile' + uid)
-      .get();
+        const profileSnap = await db.collection(`users/${uid}/profile`)
+          .doc('profile' + uid)
+          .get();
 
-      if (profileSnap.exists) {
-        const profile = profileSnap.data() as any;
-        payload.imageUrl = profile.photo; // Optional: The URL to the user's avatar picture
+        if (profileSnap.exists) {
+          const profile = profileSnap.data() as any;
+          payload.imageUrl = profile.photo; // Optional: The URL to the user's avatar picture
+        }
+
+        // success! return a JWT for this user
+        console.log('JWT payload generated successfully:', payload);
+        return {token: jwt.sign(payload, noltSsoSecretKey, {algorithm: 'HS256'})}
+
+      } else {
+        return {error: 'Unable to retrieve user data'}
       }
 
-      // success! return a JWT for this user
-      console.log('JWT payload generated successfully:', payload);
-      return { token: jwt.sign(payload, noltSsoSecretKey, { algorithm: 'HS256' }) }
-
-    } else {
-      return { error: 'Unable to retrieve user data' }
+    } catch (err) {
+      console.error(err);
+      return {error: err}
     }
-
-  } catch (err) {
-    console.error(err);
-    return { error: err }
-  }
-});
+  });
 
 // ================================================================================
 // =====                       SHORT URL FUNCTIONS                           ======
@@ -853,56 +853,56 @@ exports.generateJWT = functions
   If successful, returns ??, else returns an error message.
 */
 exports.generateCoachProfileShortUrl = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.https
-.onCall( async (data, context) => {
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
+  .onCall(async (data, context) => {
 
-  const uid = data.uid;
-  const destination = data.destination;
+    const uid = data.uid;
+    const destination = data.destination;
 
-  try {
+    try {
 
-    // Prepare the request
-    const linkRequest = {
-      destination,
-      domain: { fullName: 'link.lifecoach.io' }
-      //, slashtag: "A_NEW_SLASHTAG"
-      //, title: "Meet this coach"
+      // Prepare the request
+      const linkRequest = {
+        destination,
+        domain: {fullName: 'link.lifecoach.io'}
+        //, slashtag: "A_NEW_SLASHTAG"
+        //, title: "Meet this coach"
+      }
+
+      const requestHeaders = {
+        'Content-Type': 'application/json',
+        'apikey': rebrandlyApiKey
+      }
+
+      const response = await fetch(shortUrlEndpoint, {
+        headers: requestHeaders,
+        method: 'POST',
+        body: JSON.stringify(linkRequest)
+      });
+
+      if (response.status === 200) { // fetch success
+        const link = await response.json();
+        console.log(`Shortlink generated successfully! Long URL was ${link.destination}, short URL is ${link.shortUrl}`);
+
+        // Save short Url to user profile
+        await db.collection(`users/${uid}/profile`)
+          .doc(`profile${uid}`)
+          .set({
+            shortUrl: link.shortUrl
+          }, {merge: true});
+
+        return {success: true}
+
+      } else { // fetch error
+        return {error: response.status}
+      }
+
+    } catch (err) {
+      console.error(err);
+      return {error: err}
     }
-
-    const requestHeaders = {
-      'Content-Type': 'application/json',
-      'apikey': rebrandlyApiKey
-    }
-
-    const response = await fetch(shortUrlEndpoint, {
-      headers: requestHeaders,
-      method: 'POST',
-      body: JSON.stringify(linkRequest)
-    });
-
-    if (response.status === 200) { // fetch success
-      const link = await response.json();
-      console.log(`Shortlink generated successfully! Long URL was ${link.destination}, short URL is ${link.shortUrl}`);
-
-      // Save short Url to user profile
-      await db.collection(`users/${uid}/profile`)
-      .doc(`profile${uid}`)
-      .set({
-        shortUrl: link.shortUrl
-      }, {merge: true});
-
-      return { success: true }
-
-    } else { // fetch error
-      return { error: response.status }
-    }
-
-  } catch (err) {
-    console.error(err);
-    return { error: err }
-  }
-});
+  });
 
 // ================================================================================
 // =====                           CALENDAR FUNCTIONS                          ======
@@ -912,42 +912,42 @@ exports.scheduledBookingDeleteFunction = functions
   .runWith({memory: '1GB', timeoutSeconds: 300})
   .pubsub.schedule('every 15 mins')
   .timeZone('GMT')
-  .onRun( async (context) => {
+  .onRun(async (context) => {
     console.log('This will be run every 15 min, starting at 00:00 AM GMT!');
     const nowTime = Date.now();
     try {
       const toFindAndUpdate: Array<any> = [];
       await db.collection(`temporary-reserved-events`)
-        .where('timeOfReserve', '<', nowTime - 60000*15)  // 60000 ms = 1 minute (for test)
+        .where('timeOfReserve', '<', nowTime - 60000 * 15)  // 60000 ms = 1 minute (for test)
         .get()
         .then(querySnapshot => {
-            querySnapshot.forEach(doc => {
-              const temp = doc.data();
-              toFindAndUpdate.push({taskId: temp.calendarId, coachId: temp.coachId});
-              doc.ref
-                .delete()
-                .catch( e => console.log(e));
-            });
-          })
-        .then(()=>{
-            toFindAndUpdate.forEach((i) => {
-              db.collection(`users/${i.coachId}/calendar`)
-                .where('id', '==', i.taskId)
-                .get()
-                .then( snapshot =>{
-                 if (!snapshot.empty) {
-                   snapshot.docs[0].ref.update({
-                     cssClass:'not',
-                     reserved: false,
-                     reservedById: '',
-                     createdOn: new Date(0)
-                   })
-                     .catch(e => console.log(e));
-                 }
-                })
-                .catch(e => console.log(e));
+          querySnapshot.forEach(doc => {
+            const temp = doc.data();
+            toFindAndUpdate.push({taskId: temp.calendarId, coachId: temp.coachId});
+            doc.ref
+              .delete()
+              .catch(e => console.log(e));
+          });
+        })
+        .then(() => {
+          toFindAndUpdate.forEach((i) => {
+            db.collection(`users/${i.coachId}/calendar`)
+              .where('id', '==', i.taskId)
+              .get()
+              .then(snapshot => {
+                if (!snapshot.empty) {
+                  snapshot.docs[0].ref.update({
+                    cssClass: 'not',
+                    reserved: false,
+                    reservedById: '',
+                    createdOn: new Date(0)
+                  })
+                    .catch(e => console.log(e));
+                }
               })
-            });
+              .catch(e => console.log(e));
+          })
+        });
       return null;
     } catch (e) {
       console.log(e);
@@ -956,9 +956,6 @@ exports.scheduledBookingDeleteFunction = functions
 
 
   });
-
-
-
 
 
 // ================================================================================
@@ -974,36 +971,36 @@ exports.scheduledFunctionUpdateRates = functions
   .runWith({memory: '1GB', timeoutSeconds: 300})
   .pubsub.schedule('every 60 mins')
   .timeZone('GMT')
-  .onRun( async (context) => {
-  console.log('This will be run every hour, starting at 00:00 AM GMT!');
-  
-  try {
-    // request rates from Open Exchange Rates API with default USD as the base rate
-    const response = await fetch(`${openXBaseUrl}latest.json?app_id=${openXAppId}`);
+  .onRun(async (context) => {
+    console.log('This will be run every hour, starting at 00:00 AM GMT!');
 
-    if (response.status === 200) { // fetch success
-      const oXRates = await response.json();
-      console.log(`Open Exchange Rates fetched successfully!`);
+    try {
+      // request rates from Open Exchange Rates API with default USD as the base rate
+      const response = await fetch(`${openXBaseUrl}latest.json?app_id=${openXAppId}`);
 
-      const rates = oXRates.rates;
-      rates.timestamp = oXRates.timestamp;
+      if (response.status === 200) { // fetch success
+        const oXRates = await response.json();
+        console.log(`Open Exchange Rates fetched successfully!`);
 
-      // Save rates to DB
-      await db.collection(`currency`)
-      .doc(`rates`)
-      .set(rates);
+        const rates = oXRates.rates;
+        rates.timestamp = oXRates.timestamp;
 
+        // Save rates to DB
+        await db.collection(`currency`)
+          .doc(`rates`)
+          .set(rates);
+
+        return null;
+
+      } else { // fetch error
+        const res = await response.json();
+        throw new Error(`Fetch rates error! ${JSON.stringify(res)}`);
+      }
+    } catch (err) {
+      console.error(err);
       return null;
-
-    } else { // fetch error
-      const res = await response.json();
-      throw new Error(`Fetch rates error! ${JSON.stringify(res)}`);
     }
-  } catch (err) {
-    console.error(err);
-    return null;
-  }
-});
+  });
 
 /*
   Manual function to update platform currency rates.
@@ -1011,288 +1008,288 @@ exports.scheduledFunctionUpdateRates = functions
 exports.manualUpdateRates = functions
   .runWith({memory: '1GB', timeoutSeconds: 300})
   .https
-  .onCall( async (context) => {
-  
-  try {
-    // request rates from Open Exchange Rates API with default USD as the base rate
-    const response = await fetch(`${openXBaseUrl}latest.json?app_id=${openXAppId}`);
-  
-    if (response.status === 200) { // fetch success
-      const oXRates = await response.json();
-      console.log(`Open Exchange Rates fetched successfully!`);
+  .onCall(async (context) => {
 
-      const rates = oXRates.rates;
-      rates.timestamp = oXRates.timestamp;
+    try {
+      // request rates from Open Exchange Rates API with default USD as the base rate
+      const response = await fetch(`${openXBaseUrl}latest.json?app_id=${openXAppId}`);
 
-      // Save rates to DB
-      await db.collection(`currency`)
-      .doc(`rates`)
-      .set(rates);
+      if (response.status === 200) { // fetch success
+        const oXRates = await response.json();
+        console.log(`Open Exchange Rates fetched successfully!`);
 
-      return { success: true };
+        const rates = oXRates.rates;
+        rates.timestamp = oXRates.timestamp;
 
-    } else { // fetch error
-      const res = await response.json();
-      throw new Error(`Fetch rates error! ${JSON.stringify(res)}`);
+        // Save rates to DB
+        await db.collection(`currency`)
+          .doc(`rates`)
+          .set(rates);
+
+        return {success: true};
+
+      } else { // fetch error
+        const res = await response.json();
+        throw new Error(`Fetch rates error! ${JSON.stringify(res)}`);
+      }
+    } catch (err) {
+      console.error(err);
+      return {error: err};
     }
-  } catch (err) {
-    console.error(err);
-    return { error: err };
-  }
-});
+  });
 
 /*
   Attempts to complete Stripe connected account setup.
 */
 exports.completeStripeConnect = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.https
-.onCall( async (data, context) => {
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
+  .onCall(async (data, context) => {
 
-  const uid = data.uid;
-  const code = data.code;
+    const uid = data.uid;
+    const code = data.code;
 
-  try {
+    try {
 
-    // Call Stripe to convert an auth code into an access token to complete connect setup
-    const res = await stripe.oauth.token({
-      grant_type: 'authorization_code',
-      code,
-    });
+      // Call Stripe to convert an auth code into an access token to complete connect setup
+      const res = await stripe.oauth.token({
+        grant_type: 'authorization_code',
+        code,
+      });
 
-    // success. 'res' now contains the user's Stripe ID
-    console.log('Stripe OAuth token result:', JSON.stringify(res));
+      // success. 'res' now contains the user's Stripe ID
+      console.log('Stripe OAuth token result:', JSON.stringify(res));
 
-    if (res.stripe_user_id) { // success
+      if (res.stripe_user_id) { // success
 
-      const promises = [];
+        const promises = [];
 
-      // Save the user's Stripe ID to the DB
-      const promise1 = db.collection(`users/${uid}/account`)
-      .doc(`account${uid}`)
-      .set({
-        stripeUid: res.stripe_user_id
-      }, { merge: true });
-      promises.push(promise1);
+        // Save the user's Stripe ID to the DB
+        const promise1 = db.collection(`users/${uid}/account`)
+          .doc(`account${uid}`)
+          .set({
+            stripeUid: res.stripe_user_id
+          }, {merge: true});
+        promises.push(promise1);
 
-      // Immediately update the account to ensure correct data & settings
-      const promise2 = stripe.accounts.update(res.stripe_user_id, {
-        metadata: {
-          lifecoachUID: uid // associate our UID to identify user from Stripe webhooks
-        },
-        settings: {
-          payouts: {
-            schedule: { // Update the Stripe account to ensure correct payout schedule
-              delay_days: 28,
-              interval: 'monthly',
-              monthly_anchor: 31
+        // Immediately update the account to ensure correct data & settings
+        const promise2 = stripe.accounts.update(res.stripe_user_id, {
+          metadata: {
+            lifecoachUID: uid // associate our UID to identify user from Stripe webhooks
+          },
+          settings: {
+            payouts: {
+              schedule: { // Update the Stripe account to ensure correct payout schedule
+                delay_days: 28,
+                interval: 'monthly',
+                monthly_anchor: 31
+              }
             }
           }
-        }
-      });
-      promises.push(promise2);
+        });
+        promises.push(promise2);
 
-      await Promise.all(promises as any); // run concurrent ops
+        await Promise.all(promises as any); // run concurrent ops
 
-      return { stripeUid: res.stripe_user_id }
-    } else { // error should be caught by catch
-      return { error: 'No stripe user ID' }
+        return {stripeUid: res.stripe_user_id}
+      } else { // error should be caught by catch
+        return {error: 'No stripe user ID'}
+      }
+
+    } catch (err) {
+      console.error(err);
+      return {error: err}
     }
-
-  } catch (err) {
-    console.error(err);
-    return { error: err }
-  }
-});
+  });
 
 /*
   Attempts to generate a Stripe login link for a connected account.
 */
 exports.stripeCreateLoginLink = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.https
-.onCall( async (data, context) => {
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
+  .onCall(async (data, context) => {
 
-  const stripeUid = data.stripeUid;
+    const stripeUid = data.stripeUid;
 
-  try {
+    try {
 
-    const res = await stripe.accounts.createLoginLink(stripeUid);
+      const res = await stripe.accounts.createLoginLink(stripeUid);
 
-    console.log('Stripe login link result:', JSON.stringify(res));
+      console.log('Stripe login link result:', JSON.stringify(res));
 
-    return { stripeLoginUrl: res.url } // success
+      return {stripeLoginUrl: res.url} // success
 
-  } catch (err) {
-    console.error(err);
-    return { error: err }
-  }
-});
+    } catch (err) {
+      console.error(err);
+      return {error: err}
+    }
+  });
 
 /*
   Attempts to retrieve a Stripe account balance.
 */
 exports.stripeRetrieveBalance = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.https
-.onCall( async (data, context) => {
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
+  .onCall(async (data, context) => {
 
-  const stripeUid = data.stripeUid;
+    const stripeUid = data.stripeUid;
 
-  try {
+    try {
 
-    const options: Stripe.RequestOptions = {
-      stripeAccount: stripeUid
-    };
-    const res = await stripe.balance.retrieve(options);
+      const options: Stripe.RequestOptions = {
+        stripeAccount: stripeUid
+      };
+      const res = await stripe.balance.retrieve(options);
 
-    return { balance: res } // success
+      return {balance: res} // success
 
-  } catch (err) {
-    console.error(err);
-    return { error: err }
-  }
-});
+    } catch (err) {
+      console.error(err);
+      return {error: err}
+    }
+  });
 
 /*
   Attempts to generate a Stripe payment intent.
   See: https://stripe.com/docs/connect/destination-charges
 */
 exports.stripeCreatePaymentIntent = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.https
-.onCall( async (data, context) => {
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
+  .onCall(async (data, context) => {
 
-  const courseId: string = data.courseId;
-  const clientCurrency = (data.clientCurrency as string).toUpperCase();
-  const clientPrice = Number(data.clientPrice);
-  const clientUid = data.clientUid;
-  const referralCode = data.referralCode; // may be undefined
+    const courseId: string = data.courseId;
+    const clientCurrency = (data.clientCurrency as string).toUpperCase();
+    const clientPrice = Number(data.clientPrice);
+    const clientUid = data.clientUid;
+    const referralCode = data.referralCode; // may be undefined
 
-  if (!courseId) { // ensure we have a valid course ID string
-    return { error: 'No course ID! Valid course ID required to proceed' }
-  }
-
-  if (!clientCurrency) { // ensure we have a valid client currency
-    return { error: 'No client currency! Valid client currency required to proceed' }
-  }
-
-  if (!clientPrice) { // ensure we have a valid client price to ensure the client knows what they will be charged
-    return { error: 'No client price! Valid client price required to proceed' }
-  }
-
-  if (!clientUid) { // ensure we have a valid client user ID
-    return { error: 'No client UID! Valid client user ID required to proceed' }
-  }
-
-  try {
-
-    // Get course data from the DB to avoid client side tampering..
-    console.log(`Preparing Stripe payment intent. Retrieving course data for: ${courseId}`);
-
-    const courseSnapshot = await db.collection(`public-courses`)
-    .doc(courseId)
-    .get();
-
-    if (!courseSnapshot.exists) { // course must exist!
-      return { error: `Course ID: ${courseId} does not exist or unable to retrieve course info!` }
+    if (!courseId) { // ensure we have a valid course ID string
+      return {error: 'No course ID! Valid course ID required to proceed'}
     }
 
-    const course = courseSnapshot.data() as any;
-
-    if (!course.price || !course.currency || !course.stripeId || !course.sellerUid || !course.title) { // valid course data must exist
-      return { error: `Insufficient data saved for course ${courseId}. Unable to proceed.`}
+    if (!clientCurrency) { // ensure we have a valid client currency
+      return {error: 'No client currency! Valid client currency required to proceed'}
     }
 
-    // Calculate price to charge the client
-    // Should always match the client UI price, but setting server side to avoid tampering
+    if (!clientPrice) { // ensure we have a valid client price to ensure the client knows what they will be charged
+      return {error: 'No client price! Valid client price required to proceed'}
+    }
 
-    let amount: number; // this will be the actual charge amount (in client's own presentment currency)
-    const courseCurrency = (course.currency as string).toUpperCase();
+    if (!clientUid) { // ensure we have a valid client user ID
+      return {error: 'No client UID! Valid client user ID required to proceed'}
+    }
 
-    console.log('Client currency:', clientCurrency, 'Course currency:', courseCurrency);
+    try {
 
-    if (clientCurrency === courseCurrency) { // no currency conversion required
-      amount = Number(course.price);
-      console.log('No conversion required. Amount:', amount);
+      // Get course data from the DB to avoid client side tampering..
+      console.log(`Preparing Stripe payment intent. Retrieving course data for: ${courseId}`);
 
-    } else { // currency conversion required
-      const ratesSnap = await db.collection('currency')
-      .doc('rates')
-      .get();
+      const courseSnapshot = await db.collection(`public-courses`)
+        .doc(courseId)
+        .get();
 
-      const rates = ratesSnap.data() as any; // fetches a rates document
-
-      if (!rates[courseCurrency] || !rates[clientCurrency]) {
-        return { error: 'Rates missing! Cannot convert price' }
+      if (!courseSnapshot.exists) { // course must exist!
+        return {error: `Course ID: ${courseId} does not exist or unable to retrieve course info!`}
       }
 
-      amount = Number((course.price / rates[courseCurrency.toUpperCase()]) * rates[clientCurrency.toUpperCase()]); // amount in client currency
-      console.log('Conversion required. Amount:', amount);
+      const course = courseSnapshot.data() as any;
 
-      if (!Number.isInteger(amount)) { // if price is not an integer
-        const rounded = (Math.floor(amount)) + .99; // round UP to .99
-        amount = rounded;
-        console.log('Amount is not an integer. Amount after rounding:', amount);
+      if (!course.price || !course.currency || !course.stripeId || !course.sellerUid || !course.title) { // valid course data must exist
+        return {error: `Insufficient data saved for course ${courseId}. Unable to proceed.`}
       }
 
-    }
+      // Calculate price to charge the client
+      // Should always match the client UI price, but setting server side to avoid tampering
 
-    // Check that the client's presentment price is exactly the same as the charge price
-    console.log('Client price:', clientPrice, 'Course price:', amount);
-    if (clientPrice !== amount) {
-      return { error: 'Price mismatch. The course price may have just been updated during your purchase. Please refresh the page and try again to ensure you see the most up to date price.' }
-    }
+      let amount: number; // this will be the actual charge amount (in client's own presentment currency)
+      const courseCurrency = (course.currency as string).toUpperCase();
 
-    // From this point all price calculations must occur in lowest denominator & integers only (cents / pence etc. no decimals)
-    amount = amount * 100;
-    console.log('Amount in lowest denominator:', amount);
+      console.log('Client currency:', clientCurrency, 'Course currency:', courseCurrency);
 
-    // Calculate platform fee
-    let feeDecimal: number;
-    if (referralCode && referralCode === course.sellerUid) { // the seller referred this sale
-      feeDecimal = appFeeReferralDecimal; // use the referral (reduced) fee multiplier
-    } else { // the seller did not refer this sale
-      feeDecimal = appFeeDecimal; // use the std fee rate multiplier
-    }
-    console.log('Platform fee calculated with multiplier:', feeDecimal);
+      if (clientCurrency === courseCurrency) { // no currency conversion required
+        amount = Number(course.price);
+        console.log('No conversion required. Amount:', amount);
 
-    const appFee = Math.floor(amount * feeDecimal); // platform fee (always same currency as transaction) rounded DOWN to integer
-    const netBalance = amount - appFee; // amount to send to connected account after platform fee (always same currency as transaction)
+      } else { // currency conversion required
+        const ratesSnap = await db.collection('currency')
+          .doc('rates')
+          .get();
 
-    console.log(`Preparing payment intent.. Price: ${amount}, Currency: ${clientCurrency}, App Fee: ${appFee}, Destination: ${course.stripeId}`)
+        const rates = ratesSnap.data() as any; // fetches a rates document
 
-    // Create the payment intent
-    const paymentIntent = await stripe.paymentIntents.create({
-      payment_method_types: ['card'],
-      amount, // never set client side!
-      currency: clientCurrency, // the client currency that the charge will be made in
-      transfer_data: { // tells Stripe to create a 'destination' charge. See: https://stripe.com/docs/connect/destination-charges
-        destination: course.stripeId, // the connected account that should receive the funds.
-        amount: netBalance, // tells Stripe to use the 'transfer_data[amount] flow (better for multi currency ops)
-        
-      },
-      statement_descriptor_suffix: courseId, // max 20 chars.
-      metadata: { // any additional data to save with the payment
-        course_id: courseId,
-        course_title: course.title,
-        course_image: course.image,
-        client_UID: clientUid,
-        seller_UID: course.sellerUid,
-        payment_type: 'lifecoach.io WEB',
-        seller_referred: referralCode ? 'true' : 'false' // note: string as cannot be a boolean here
+        if (!rates[courseCurrency] || !rates[clientCurrency]) {
+          return {error: 'Rates missing! Cannot convert price'}
+        }
+
+        amount = Number((course.price / rates[courseCurrency.toUpperCase()]) * rates[clientCurrency.toUpperCase()]); // amount in client currency
+        console.log('Conversion required. Amount:', amount);
+
+        if (!Number.isInteger(amount)) { // if price is not an integer
+          const rounded = (Math.floor(amount)) + .99; // round UP to .99
+          amount = rounded;
+          console.log('Amount is not an integer. Amount after rounding:', amount);
+        }
+
       }
-    });
 
-    console.log('Stripe payment intent created:', JSON.stringify(paymentIntent));
+      // Check that the client's presentment price is exactly the same as the charge price
+      console.log('Client price:', clientPrice, 'Course price:', amount);
+      if (clientPrice !== amount) {
+        return {error: 'Price mismatch. The course price may have just been updated during your purchase. Please refresh the page and try again to ensure you see the most up to date price.'}
+      }
 
-    return { stripePaymentIntent: paymentIntent } // success
+      // From this point all price calculations must occur in lowest denominator & integers only (cents / pence etc. no decimals)
+      amount = amount * 100;
+      console.log('Amount in lowest denominator:', amount);
 
-  } catch (err) {
-    console.error(err);
-    return { error: `Error: ${err}` }
-  }
-});
+      // Calculate platform fee
+      let feeDecimal: number;
+      if (referralCode && referralCode === course.sellerUid) { // the seller referred this sale
+        feeDecimal = appFeeReferralDecimal; // use the referral (reduced) fee multiplier
+      } else { // the seller did not refer this sale
+        feeDecimal = appFeeDecimal; // use the std fee rate multiplier
+      }
+      console.log('Platform fee calculated with multiplier:', feeDecimal);
+
+      const appFee = Math.floor(amount * feeDecimal); // platform fee (always same currency as transaction) rounded DOWN to integer
+      const netBalance = amount - appFee; // amount to send to connected account after platform fee (always same currency as transaction)
+
+      console.log(`Preparing payment intent.. Price: ${amount}, Currency: ${clientCurrency}, App Fee: ${appFee}, Destination: ${course.stripeId}`)
+
+      // Create the payment intent
+      const paymentIntent = await stripe.paymentIntents.create({
+        payment_method_types: ['card'],
+        amount, // never set client side!
+        currency: clientCurrency, // the client currency that the charge will be made in
+        transfer_data: { // tells Stripe to create a 'destination' charge. See: https://stripe.com/docs/connect/destination-charges
+          destination: course.stripeId, // the connected account that should receive the funds.
+          amount: netBalance, // tells Stripe to use the 'transfer_data[amount] flow (better for multi currency ops)
+
+        },
+        statement_descriptor_suffix: courseId, // max 20 chars.
+        metadata: { // any additional data to save with the payment
+          course_id: courseId,
+          course_title: course.title,
+          course_image: course.image,
+          client_UID: clientUid,
+          seller_UID: course.sellerUid,
+          payment_type: 'lifecoach.io WEB',
+          seller_referred: referralCode ? 'true' : 'false' // note: string as cannot be a boolean here
+        }
+      });
+
+      console.log('Stripe payment intent created:', JSON.stringify(paymentIntent));
+
+      return {stripePaymentIntent: paymentIntent} // success
+
+    } catch (err) {
+      console.error(err);
+      return {error: `Error: ${err}`}
+    }
+  });
 
 /*
   Stripe Account Webhook - Lifecoach Account ONLY.
@@ -1300,84 +1297,84 @@ exports.stripeCreatePaymentIntent = functions
   https://stripe.com/docs/connect/webhooks
 */
 exports.stripeWebhookEvent = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.https
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
   // @ts-ignore
-.onRequest( async (request, response) => {
-  const sig = request.headers["stripe-signature"] as string;
+  .onRequest(async (request, response) => {
+    const sig = request.headers["stripe-signature"] as string;
 
-  let event;
+    let event;
 
-  // Verify the request is authentic
-  try {
-    event = stripe.webhooks.constructEvent(request.rawBody, sig, stripeWebhookSecret)
-  } catch (err) {
-    console.log(`Stripe webhook auth failed: ${err.message}`);
-    return response.status(400).send(`Webhook Error: ${err.message}`);
-  }
+    // Verify the request is authentic
+    try {
+      event = stripe.webhooks.constructEvent(request.rawBody, sig, stripeWebhookSecret)
+    } catch (err) {
+      console.log(`Stripe webhook auth failed: ${err.message}`);
+      return response.status(400).send(`Webhook Error: ${err.message}`);
+    }
 
-  console.log('Stripe webhook event:', event);
+    console.log('Stripe webhook event:', event);
 
-  // Handle the event
-  // https://stripe.com/docs/api/events/types
-  switch (event.type) {
-    case 'payment_intent.succeeded':
-      const paymentIntent = event.data.object as Stripe.PaymentIntent;
-      // console.log(`PaymentIntent was successful! ${JSON.stringify(paymentIntent)}`);
+    // Handle the event
+    // https://stripe.com/docs/api/events/types
+    switch (event.type) {
+      case 'payment_intent.succeeded':
+        const paymentIntent = event.data.object as Stripe.PaymentIntent;
+        // console.log(`PaymentIntent was successful! ${JSON.stringify(paymentIntent)}`);
 
-      const clientUid = paymentIntent.metadata.client_UID;
-      const courseId = paymentIntent.metadata.course_id;
+        const clientUid = paymentIntent.metadata.client_UID;
+        const courseId = paymentIntent.metadata.course_id;
 
-      // Transform the successful payment intent to remove any sensitive data that we don't want to store ourselves
-      const successfulPayment = {
-        id: paymentIntent.id,
-        amount: paymentIntent.amount,
-        currency: paymentIntent.currency,
-        created: paymentIntent.created,
-        metadata: paymentIntent.metadata,
-        receiptEmail: paymentIntent.receipt_email,
-        paymentMethod: paymentIntent.payment_method
-      }
+        // Transform the successful payment intent to remove any sensitive data that we don't want to store ourselves
+        const successfulPayment = {
+          id: paymentIntent.id,
+          amount: paymentIntent.amount,
+          currency: paymentIntent.currency,
+          created: paymentIntent.created,
+          metadata: paymentIntent.metadata,
+          receiptEmail: paymentIntent.receipt_email,
+          paymentMethod: paymentIntent.payment_method
+        }
 
-      try {
-        const promises = [];
+        try {
+          const promises = [];
 
-        // Save the successful payment to the purchaser's account for payment history
-        const promise1 = db.collection(`users/${clientUid}/account/account${clientUid}/successful-payments/`)
-        .doc(successfulPayment.id)
-        .create(successfulPayment);
-        promises.push(promise1);
+          // Save the successful payment to the purchaser's account for payment history
+          const promise1 = db.collection(`users/${clientUid}/account/account${clientUid}/successful-payments/`)
+            .doc(successfulPayment.id)
+            .create(successfulPayment);
+          promises.push(promise1);
 
-        // Add the course ID of the purchased course to the user's auth token claims
-        // so the user can access content restricted by the paywall.
-        const promise2 = addCustomUserClaims(clientUid, { [courseId]: true }) as any;
-        promises.push(promise2);
+          // Add the course ID of the purchased course to the user's auth token claims
+          // so the user can access content restricted by the paywall.
+          const promise2 = addCustomUserClaims(clientUid, {[courseId]: true}) as any;
+          promises.push(promise2);
 
-        const promise3 = recordCourseEnrollmentForStudent(clientUid, courseId, paymentIntent.metadata.course_title, paymentIntent.metadata.course_image);
-        promises.push(promise3);
+          const promise3 = recordCourseEnrollmentForStudent(clientUid, courseId, paymentIntent.metadata.course_title, paymentIntent.metadata.course_image);
+          promises.push(promise3);
 
-        return Promise.all(promises);
+          return Promise.all(promises);
 
-      } catch (err) {
-        console.error(err)
-      }
-      break;
-    case 'payment_intent.payment_failed':
-      const paymentIntentFailed = event.data.object as Stripe.PaymentIntent;
-      // console.log(`PaymentIntent failed! ${JSON.stringify(paymentIntentFailed)}`);
+        } catch (err) {
+          console.error(err)
+        }
+        break;
+      case 'payment_intent.payment_failed':
+        const paymentIntentFailed = event.data.object as Stripe.PaymentIntent;
+        // console.log(`PaymentIntent failed! ${JSON.stringify(paymentIntentFailed)}`);
 
-      const uidFP = paymentIntentFailed.metadata.client_UID;
+        const uidFP = paymentIntentFailed.metadata.client_UID;
 
-      try {
-        // Save the successful payment intent object to the user's account
-        await db.collection(`users/${uidFP}/account/account${uidFP}/failed-payments`)
-        .doc(paymentIntentFailed.id)
-        .create(paymentIntentFailed);
-      } catch (err) {
-        console.error(err)
-      }
-      break;
-    case 'transfer.created':
+        try {
+          // Save the successful payment intent object to the user's account
+          await db.collection(`users/${uidFP}/account/account${uidFP}/failed-payments`)
+            .doc(paymentIntentFailed.id)
+            .create(paymentIntentFailed);
+        } catch (err) {
+          console.error(err)
+        }
+        break;
+      case 'transfer.created':
         const transfer = event.data.object as Stripe.Transfer;
         // console.log(`Transfer created: ${JSON.stringify(transfer)}`);
 
@@ -1425,13 +1422,13 @@ exports.stripeWebhookEvent = functions
         } catch (err) {
           console.error(err);
         }
-      break;
-  }
+        break;
+    }
 
-  // Return a response to acknowledge receipt of the event
-  return response.status(200).send({ received: true });
+    // Return a response to acknowledge receipt of the event
+    return response.status(200).send({received: true});
 
-});
+  });
 
 /*
   Stripe Connected Accounts Webhook.
@@ -1439,46 +1436,46 @@ exports.stripeWebhookEvent = functions
   https://stripe.com/docs/connect/webhooks
 */
 exports.stripeWebhookConnectedEvent = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.https
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
   // @ts-ignore
-.onRequest( async (request, response) => {
-  const sig = request.headers["stripe-signature"] as string;
+  .onRequest(async (request, response) => {
+    const sig = request.headers["stripe-signature"] as string;
 
-  let event;
+    let event;
 
-  // Verify the request is authentic
-  try {
-    event = stripe.webhooks.constructEvent(request.rawBody, sig, stripeWebhookConnectSecret)
-  } catch (err) {
-    console.log(`Stripe webhook auth failed: ${err.message}`);
-    return response.status(400).send(`Webhook Error: ${err.message}`);
-  }
+    // Verify the request is authentic
+    try {
+      event = stripe.webhooks.constructEvent(request.rawBody, sig, stripeWebhookConnectSecret)
+    } catch (err) {
+      console.log(`Stripe webhook auth failed: ${err.message}`);
+      return response.status(400).send(`Webhook Error: ${err.message}`);
+    }
 
-  console.log('Stripe connected webhook event:', event);
+    console.log('Stripe connected webhook event:', event);
 
-  // Handle the event
-  // https://stripe.com/docs/api/events/types
-  switch (event.type) {
-    case 'account.updated':
-      const account = event.data.object as Stripe.Account;
-      if (account.requirements && account.requirements.currently_due) { // requirements are due now for this account
-        if (account.metadata && account.metadata.lifecoachUID) { // ensure the stripe account can be linked to a lifecoach account
-          await db.collection(`users/${account.metadata.lifecoachUID}/account`)
-          .doc(`account${account.metadata.lifecoachUID}`)
-          .set({ // save any verification requirements due now to the db for monitoring client side
-            stripeRequirementsCurrentlyDue: account.requirements.currently_due
-          }, { merge: true })
-          .catch(err => console.error(err));
+    // Handle the event
+    // https://stripe.com/docs/api/events/types
+    switch (event.type) {
+      case 'account.updated':
+        const account = event.data.object as Stripe.Account;
+        if (account.requirements && account.requirements.currently_due) { // requirements are due now for this account
+          if (account.metadata && account.metadata.lifecoachUID) { // ensure the stripe account can be linked to a lifecoach account
+            await db.collection(`users/${account.metadata.lifecoachUID}/account`)
+              .doc(`account${account.metadata.lifecoachUID}`)
+              .set({ // save any verification requirements due now to the db for monitoring client side
+                stripeRequirementsCurrentlyDue: account.requirements.currently_due
+              }, {merge: true})
+              .catch(err => console.error(err));
+          }
         }
-      }
-      break;
-  }
+        break;
+    }
 
-  // Return a response to acknowledge receipt of the event
-  return response.status(200).send({ received: true });
+    // Return a response to acknowledge receipt of the event
+    return response.status(200).send({received: true});
 
-});
+  });
 
 // ================================================================================
 // =====                FREE COURSE ENROLLMENT (NON STRIPE)                  ======
@@ -1490,71 +1487,71 @@ exports.stripeWebhookConnectedEvent = functions
   creating the post-payment flow normally carried out after Stripe webhook received.
 */
 exports.completeFreeCourseEnrollment = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.https
-.onCall( async (data, context) => {
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
+  .onCall(async (data, context) => {
 
-  const courseId = data.courseId;
-  const clientUid = data.clientUid;
-  const referralCode = data.referralCode;
+    const courseId = data.courseId;
+    const clientUid = data.clientUid;
+    const referralCode = data.referralCode;
 
-  try {
+    try {
 
-    console.log(`Enrolling user ${clientUid} in free course ${courseId}...`);
+      console.log(`Enrolling user ${clientUid} in free course ${courseId}...`);
 
-    // Retrieve the course
-    const courseSnapshot = await db.collection(`public-courses`)
-    .doc(courseId)
-    .get();
+      // Retrieve the course
+      const courseSnapshot = await db.collection(`public-courses`)
+        .doc(courseId)
+        .get();
 
-    if (!courseSnapshot.exists) { // course must exist!
-      return { error: `Course ID: ${courseId} does not exist or unable to retrieve course info!` }
+      if (!courseSnapshot.exists) { // course must exist!
+        return {error: `Course ID: ${courseId} does not exist or unable to retrieve course info!`}
+      }
+
+      const course = courseSnapshot.data() as any;
+
+      // Check that this course has actually been marked free by the creator to avoid client side tampering
+      if (course.pricingStrategy !== 'free') {
+        return {error: `Course ${courseId} is not free.`}
+      }
+
+      // Course exists and is marked free by seller. Complete the enrollment...
+
+      const promises = [];
+
+      // Add the course ID of the purchased course to the user's auth token claims
+      // so the user can access content normally restricted by the paywall.
+      const promise1 = addCustomUserClaims(clientUid, {[courseId]: true}) as any;
+      promises.push(promise1);
+
+      const promise2 = recordCourseEnrollmentForStudent(clientUid, courseId, course.title, course.image);
+      promises.push(promise2);
+
+      // Create a free sale object and save to the seller account to record the zero price sale (enrollment)
+      const freeEnrollmentObj = {
+        id: `free_${Math.random().toString(36).substr(2, 9)}`, // generate semi-random id
+        created: Math.round(new Date().getTime() / 1000), // inix timestamp
+        seller_referred: (referralCode && referralCode === course.sellerUid) ? true : false, // did seller refer the 'sale'
+        amount: 0, // record enrollment as a zero price sale
+        currency: 'free' // important: use string 'free' and not null or undefined as we record all sales against a currency
+      };
+
+      const promise3 = recordCourseEnrollmentForCreator(course.sellerUid, courseId, freeEnrollmentObj, clientUid);
+      promises.push(promise3);
+
+      const promise4 = updateCourseEnrollmentCounts(course.sellerUid, courseId, freeEnrollmentObj);
+      promises.concat(await promise4)
+
+      // Execute concurrent ops
+      await Promise.all(promises);
+
+      return {success: true}
+
+    } catch (err) {
+      console.error(err);
+      return {error: err}
     }
-
-    const course = courseSnapshot.data() as any;
-
-    // Check that this course has actually been marked free by the creator to avoid client side tampering
-    if (course.pricingStrategy !== 'free') {
-      return { error: `Course ${courseId} is not free.` }
-    }
-
-    // Course exists and is marked free by seller. Complete the enrollment...
-
-    const promises = [];
-
-    // Add the course ID of the purchased course to the user's auth token claims
-    // so the user can access content normally restricted by the paywall.
-    const promise1 = addCustomUserClaims(clientUid, { [courseId]: true }) as any;
-    promises.push(promise1);
-
-    const promise2 = recordCourseEnrollmentForStudent(clientUid, courseId, course.title, course.image);
-    promises.push(promise2);
-
-    // Create a free sale object and save to the seller account to record the zero price sale (enrollment)
-    const freeEnrollmentObj = {
-      id: `free_${Math.random().toString(36).substr(2, 9)}`, // generate semi-random id
-      created: Math.round(new Date().getTime() / 1000), // inix timestamp
-      seller_referred: (referralCode && referralCode === course.sellerUid) ? true : false, // did seller refer the 'sale'
-      amount: 0, // record enrollment as a zero price sale
-      currency: 'free' // important: use string 'free' and not null or undefined as we record all sales against a currency
-    };
-
-    const promise3 = recordCourseEnrollmentForCreator(course.sellerUid, courseId, freeEnrollmentObj, clientUid);
-    promises.push(promise3);
-
-    const promise4 = updateCourseEnrollmentCounts(course.sellerUid, courseId, freeEnrollmentObj);
-    promises.concat(await promise4)
-
-    // Execute concurrent ops
-    await Promise.all(promises);
-    
-    return { success: true }
-
-  } catch (err) {
-    console.error(err);
-    return { error: err }
-  }
-});
+  });
 
 // ================================================================================
 // =====                      COURSE ENROLLMENT FUNCTIONS                    ======
@@ -1570,31 +1567,31 @@ async function recordCourseEnrollmentForCreator(sellerUid: string, courseId: str
   const timestampNow = Math.round(new Date().getTime() / 1000);
 
   await db.collection(`users/${sellerUid}/sales/${saleMonth}-${saleYear}/${courseId}`)
-  .doc(obj.id)
-  .create(obj);
+    .doc(obj.id)
+    .create(obj);
 
   // save the person to the recipient's people (create if doesn't exist yet - it might)
   await db.collection(`users/${sellerUid}/people`)
-  .doc(clientUid)
-  .set({ lastUpdated: timestampNow }, { merge: true }) // creates a real (not virtual) doc
-  .catch(err => console.log(err));
+    .doc(clientUid)
+    .set({lastUpdated: timestampNow}, {merge: true}) // creates a real (not virtual) doc
+    .catch(err => console.log(err));
 
   // save the action to this person's history
   return db.collection(`users/${sellerUid}/people/${clientUid}/history`)
-  .doc(timestampNow.toString())
-  .set({ action: 'enrolled_in_self_study_course' });
+    .doc(timestampNow.toString())
+    .set({action: 'enrolled_in_self_study_course'});
 }
 
 async function recordCourseEnrollmentForStudent(studentUid: string, courseId: string, courseTitle: string, courseImg: string) {
-  
+
   // Add the course ID to the student's own purchased courses node.
   // We can monitor this with a client side subscription to notify the user of the completed purchase.
 
   await db.collection(`users/${studentUid}/purchased-courses`)
-  .doc(courseId)
-  .set({
-    courseId: courseId
-  }, { merge: true });
+    .doc(courseId)
+    .set({
+      courseId: courseId
+    }, {merge: true});
 
   // trigger a mailchimp event to log course going live
   const event = {
@@ -1608,7 +1605,7 @@ async function recordCourseEnrollmentForStudent(studentUid: string, courseId: st
   return logMailchimpEvent(studentUid, event); // log event
 }
 
-async function updateCourseEnrollmentCounts(creatorUid: string, courseId:string, obj: any) {
+async function updateCourseEnrollmentCounts(creatorUid: string, courseId: string, obj: any) {
   // Accepts either a custom transfer object (paid courses) or a free course enrollment object (free courses)
   // Promises an array of Firebase write result promises
 
@@ -1620,29 +1617,29 @@ async function updateCourseEnrollmentCounts(creatorUid: string, courseId:string,
 
   // Increment the total sales number & total lifetime sales amount for this course creator
   const promise1 = db.collection(`users/${creatorUid}/sales/total-lifetime-course-sales/courses`)
-  .doc(courseId)
-  .set({
-    [incrementCurrency]: {
-      lifetimeTotalSales: incrementCount,
-      lifetimeTotalAmount: incrementAmount
-    }
-  }, { merge: true });
+    .doc(courseId)
+    .set({
+      [incrementCurrency]: {
+        lifetimeTotalSales: incrementCount,
+        lifetimeTotalAmount: incrementAmount
+      }
+    }, {merge: true});
   promises.push(promise1);
 
   // Increment public course enrollment count (counts total enrollments for a specific course)
   const promise2 = db.collection(`course-enrollments`)
-  .doc(courseId)
-  .set({
-    totalEnrollments: incrementCount
-  }, { merge: true });
+    .doc(courseId)
+    .set({
+      totalEnrollments: incrementCount
+    }, {merge: true});
   promises.push(promise2);
 
   // Increment public seller course enrollment count (counts enrollments across all seller courses)
   const promise3 = db.collection(`seller-course-enrollments`)
-  .doc(creatorUid)
-  .set({
-    totalEnrollments: incrementCount
-  }, { merge: true });
+    .doc(creatorUid)
+    .set({
+      totalEnrollments: incrementCount
+    }, {merge: true});
   promises.push(promise3);
 
   return promises;
@@ -1657,167 +1654,167 @@ async function updateCourseEnrollmentCounts(creatorUid: string, courseId:string,
   Request data should contain the original Stripe payment intent object.
 */
 exports.requestRefund = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.https
-.onCall( async (data, context) => {
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
+  .onCall(async (data, context) => {
 
-  // Reject any unauthorised user immediately.
-  if (!context.auth) {
-    return {error: 'Unauthorised!'}
-  }
+    // Reject any unauthorised user immediately.
+    if (!context.auth) {
+      return {error: 'Unauthorised!'}
+    }
 
-  const request = data.refundRequest;
-  const uid = request.uid;
-  const pI = request.paymentIntent as Stripe.PaymentIntent;
-  const now = Math.round(new Date().getTime()/1000) // unix timestamp
-  request.created = now;
-  request.status = 'requested';
+    const request = data.refundRequest;
+    const uid = request.uid;
+    const pI = request.paymentIntent as Stripe.PaymentIntent;
+    const now = Math.round(new Date().getTime() / 1000) // unix timestamp
+    request.created = now;
+    request.status = 'requested';
 
-  try {
-    const index = algolia.initIndex('prod_REFUNDS');
+    try {
+      const index = algolia.initIndex('prod_REFUNDS');
 
-    console.log(`Refund requested by user ${request.uid} for payment: ${JSON.stringify(pI)}`);
+      console.log(`Refund requested by user ${request.uid} for payment: ${JSON.stringify(pI)}`);
 
-    const promises = [] as any[];
+      const promises = [] as any[];
 
-    // Create a refund request for admins to approve
-    const promise1 = db.collection(`admin/refunds/requested`)
-    .doc(pI.id)
-    .set(request);
-    promises.push(promise1);
+      // Create a refund request for admins to approve
+      const promise1 = db.collection(`admin/refunds/requested`)
+        .doc(pI.id)
+        .set(request);
+      promises.push(promise1);
 
-    // Create a request in the requester's history
-    const promise2 = db.collection(`users/${uid}/account/account${uid}/refunds`)
-    .doc(pI.id)
-    .set(request);
-    promises.push(promise2);
+      // Create a request in the requester's history
+      const promise2 = db.collection(`users/${uid}/account/account${uid}/refunds`)
+        .doc(pI.id)
+        .set(request);
+      promises.push(promise2);
 
-    // Send the record to Algolia.
-    request.objectID = pI.id;
-    const promise3 = index.saveObject(request);
-    promises.push(promise3);
+      // Send the record to Algolia.
+      request.objectID = pI.id;
+      const promise3 = index.saveObject(request);
+      promises.push(promise3);
 
-    await Promise.all(promises);
+      await Promise.all(promises);
 
-    return { success: true } // success
+      return {success: true} // success
 
-  } catch (err) {
-    console.error(err);
-    return { error: err }
-  }
-});
+    } catch (err) {
+      console.error(err);
+      return {error: err}
+    }
+  });
 
 /*
   Triggered when an admin user approves a refund request.
   Request data should contain the request object which contains the original Stripe payment intent object.
 */
 exports.approveRefund = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.https
-.onCall( async (data, context) => {
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
+  .onCall(async (data, context) => {
 
-  // Reject any non admin user immediately.
-  if (!context.auth || !context.auth.token.admin) {
-    return {error: 'Unauthorised!'}
-  }
-
-  const request = data.refundRequest;
-  const clientUid = request.uid;
-  const pI = request.paymentIntent as Stripe.PaymentIntent;
-  const sellerUid = pI.metadata.seller_UID;
-
-  try {
-    const index = algolia.initIndex('prod_REFUNDS');
-
-    // Attempt the refund
-    // https://stripe.com/docs/api/refunds/create
-    const refund = await stripe.refunds.create({
-      payment_intent: pI.id,
-      metadata: pI.metadata,
-      reason: 'requested_by_customer',
-      reverse_transfer: true,
-      expand: ['transfer_reversal']
-    });
-
-    console.log('Refund:', refund);
-
-    if (refund && refund.status === 'succeeded') {
-
-      const promises = [] as any[];
-
-      // Update request status
-      request.status = "refunded";
-      request.refund = refund;
-
-      // Move admin request from requested to approved in db
-      const promise1 = db.collection(`admin/refunds/requested`)
-      .doc(pI.id)
-      .delete();
-      promises.push(promise1);
-
-      const promise2 = db.collection(`admin/refunds/refunded`)
-      .doc(pI.id)
-      .set(request);
-      promises.push(promise2);
-
-      // Update refunded request in cleint's history
-      const promise3 = db.collection(`users/${clientUid}/account/account${clientUid}/refunds`)
-      .doc(pI.id)
-      .set(request); // overwrite the original request with the newly updated request
-      promises.push(promise3);
-
-      // Update the seller's refund record
-      const date = new Date(refund.created * 1000);
-      const month = date.getMonth() + 1;
-      const year = date.getFullYear();
-      const promise4 = db.collection(`users/${sellerUid}/refunds/${month}-${year}/${pI.metadata.course_id}`)
-      .doc(refund.id)
-      .set({
-        refund_id: refund.id,
-        reason: request.formData.reason,
-        payment_intent: pI.id,
-        transfer_reversal: refund.transfer_reversal
-      });
-      promises.push(promise4);
-
-      // Update the sellers totals
-      const decrementAmount = admin.firestore.FieldValue.increment(-(refund.transfer_reversal as any).amount);
-
-      const promise5 = db.collection(`users/${sellerUid}/sales/${month}-${year}/${pI.metadata.course_id}`)
-      .doc((refund.transfer_reversal as any).transfer)
-      .set({
-        amount_reversed: (refund.transfer_reversal as any).amount // update the amount reversed on the original transfer object
-      }, { merge: true });
-      promises.push(promise5);
-
-      const promise6 = db.collection(`users/${sellerUid}/sales`)
-      .doc('totals')
-      .set({
-        [pI.metadata.course_id]: {
-          [(refund.transfer_reversal as any).currency]: {
-            lifetimeTotalAmount: decrementAmount // decrement lifetitme total sales by refunded amount
-          }
-        }
-      }, { merge: true });
-      promises.push(promise6);
-
-      // Update Algolia
-      request.objectID = pI.id;
-      const promise7 = index.saveObject(request); // overwrite the original object in Algolia
-      promises.push(promise7);
-
-      await Promise.all(promises); // run concurrent ops
-
-      return { success: true } // success
+    // Reject any non admin user immediately.
+    if (!context.auth || !context.auth.token.admin) {
+      return {error: 'Unauthorised!'}
     }
 
-    return { error: 'Unable to complete refund' }
+    const request = data.refundRequest;
+    const clientUid = request.uid;
+    const pI = request.paymentIntent as Stripe.PaymentIntent;
+    const sellerUid = pI.metadata.seller_UID;
 
-  } catch(err) {
-    console.error(err);
-    return { error: err }
-  }
-});
+    try {
+      const index = algolia.initIndex('prod_REFUNDS');
+
+      // Attempt the refund
+      // https://stripe.com/docs/api/refunds/create
+      const refund = await stripe.refunds.create({
+        payment_intent: pI.id,
+        metadata: pI.metadata,
+        reason: 'requested_by_customer',
+        reverse_transfer: true,
+        expand: ['transfer_reversal']
+      });
+
+      console.log('Refund:', refund);
+
+      if (refund && refund.status === 'succeeded') {
+
+        const promises = [] as any[];
+
+        // Update request status
+        request.status = "refunded";
+        request.refund = refund;
+
+        // Move admin request from requested to approved in db
+        const promise1 = db.collection(`admin/refunds/requested`)
+          .doc(pI.id)
+          .delete();
+        promises.push(promise1);
+
+        const promise2 = db.collection(`admin/refunds/refunded`)
+          .doc(pI.id)
+          .set(request);
+        promises.push(promise2);
+
+        // Update refunded request in cleint's history
+        const promise3 = db.collection(`users/${clientUid}/account/account${clientUid}/refunds`)
+          .doc(pI.id)
+          .set(request); // overwrite the original request with the newly updated request
+        promises.push(promise3);
+
+        // Update the seller's refund record
+        const date = new Date(refund.created * 1000);
+        const month = date.getMonth() + 1;
+        const year = date.getFullYear();
+        const promise4 = db.collection(`users/${sellerUid}/refunds/${month}-${year}/${pI.metadata.course_id}`)
+          .doc(refund.id)
+          .set({
+            refund_id: refund.id,
+            reason: request.formData.reason,
+            payment_intent: pI.id,
+            transfer_reversal: refund.transfer_reversal
+          });
+        promises.push(promise4);
+
+        // Update the sellers totals
+        const decrementAmount = admin.firestore.FieldValue.increment(-(refund.transfer_reversal as any).amount);
+
+        const promise5 = db.collection(`users/${sellerUid}/sales/${month}-${year}/${pI.metadata.course_id}`)
+          .doc((refund.transfer_reversal as any).transfer)
+          .set({
+            amount_reversed: (refund.transfer_reversal as any).amount // update the amount reversed on the original transfer object
+          }, {merge: true});
+        promises.push(promise5);
+
+        const promise6 = db.collection(`users/${sellerUid}/sales`)
+          .doc('totals')
+          .set({
+            [pI.metadata.course_id]: {
+              [(refund.transfer_reversal as any).currency]: {
+                lifetimeTotalAmount: decrementAmount // decrement lifetitme total sales by refunded amount
+              }
+            }
+          }, {merge: true});
+        promises.push(promise6);
+
+        // Update Algolia
+        request.objectID = pI.id;
+        const promise7 = index.saveObject(request); // overwrite the original object in Algolia
+        promises.push(promise7);
+
+        await Promise.all(promises); // run concurrent ops
+
+        return {success: true} // success
+      }
+
+      return {error: 'Unable to complete refund'}
+
+    } catch (err) {
+      console.error(err);
+      return {error: err}
+    }
+  });
 
 // ================================================================================
 // =====                  ADMIN COURSE REVIEW FUNCTIONS                      ======
@@ -1827,168 +1824,168 @@ exports.approveRefund = functions
   Attempts to approve a course in review.
 */
 exports.adminApproveCourseReview = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.https
-.onCall( async (data, context) => {
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
+  .onCall(async (data, context) => {
 
-  const courseId = data.courseId;
-  const userId = data.userId; // reviewer not seller!
-  const reviewRequest = data.reviewRequest;
-  const approvedDate = Math.round(new Date().getTime() / 1000); // unix timestamp
+    const courseId = data.courseId;
+    const userId = data.userId; // reviewer not seller!
+    const reviewRequest = data.reviewRequest;
+    const approvedDate = Math.round(new Date().getTime() / 1000); // unix timestamp
 
-  // safety checks
-  if (!courseId) {
-    return { error: 'Cloud function adminApproveCourseReview error: missing course ID' }
-  }
-  if (!userId) {
-    return { error: 'Cloud function adminApproveCourseReview error: missing user ID' }
-  }
-  if (!reviewRequest) {
-    return { error: 'Cloud function adminApproveCourseReview error: missing review request' }
-  }
-  if (!reviewRequest.sellerUid) {
-    return { error: 'Cloud function adminApproveCourseReview error: missing review request seller UID' }
-  }
-
-  try {
-
-    // attempt to read course data
-    const courseSnap = await db.collection(`users/${reviewRequest.sellerUid}/courses`)
-    .doc(courseId)
-    .get();
-
-    if (!courseSnap.exists) {
-      console.error('Cloud function onNewCourseReviewApproved error: Unable to read course.')
-      return {error: 'Unable to read course data. Operation failed.'};
+    // safety checks
+    if (!courseId) {
+      return {error: 'Cloud function adminApproveCourseReview error: missing course ID'}
+    }
+    if (!userId) {
+      return {error: 'Cloud function adminApproveCourseReview error: missing user ID'}
+    }
+    if (!reviewRequest) {
+      return {error: 'Cloud function adminApproveCourseReview error: missing review request'}
+    }
+    if (!reviewRequest.sellerUid) {
+      return {error: 'Cloud function adminApproveCourseReview error: missing review request seller UID'}
     }
 
-    const course = courseSnap.data() as any;
+    try {
 
-    // create an approved course doc to ensure only admin approved courses get updated by creators
-    // Important! Do this before writing to the user's private courses node to ensure correct
-    // data gets copied to public & paywall protected areas on update of the provate node.
-    await db.collection(`approved-courses`)
-    .doc(courseId)
-    .create({ 
-      courseId,
-      approved: approvedDate,
-      reviewerUid: userId
-    });
+      // attempt to read course data
+      const courseSnap = await db.collection(`users/${reviewRequest.sellerUid}/courses`)
+        .doc(courseId)
+        .get();
 
-    const batch = db.batch(); // prepare to execute multiple ops atomically
-
-    // update user's private course node with updated course object
-    const privateCourseCopy = JSON.parse(JSON.stringify(course));
-    const privateReviewRequest = JSON.parse(JSON.stringify(reviewRequest));
-    privateReviewRequest.status = 'approved';
-    privateReviewRequest.approved = approvedDate;
-    privateReviewRequest.reviewerUid = userId;
-    privateCourseCopy.adminApproved = true;
-    privateCourseCopy.reviewRequest = privateReviewRequest;
-    privateCourseCopy.lastUpdated = approvedDate;
-    const privateCourseRef = db.collection(`users/${reviewRequest.sellerUid}/courses`).doc(courseId);
-    batch.set(privateCourseRef, privateCourseCopy, { merge: true });
-
-
-    // delete review request from the admin collection
-    const adminRef = db.collection(`admin/review-requests/courses`).doc(courseId);
-    batch.delete(adminRef) // triggers onDelete monitor function to update count
-
-    await batch.commit(); // execute batch ops. Any error should trigger catch.
-
-    // add the course id to the seller's custom claims so they can access the course to view it as a student
-    await addCustomUserClaims(course.sellerUid, { [courseId]: true });
-
-    // delete the draft course record in Algolia
-    const index = algolia.initIndex('prod_DRAFT_COURSES');
-    await index.deleteObject(courseId);
-
-    // trigger a mailchimp event to log course going live
-    const event = {
-      name: 'admin_approved_course',
-      properties: {
-        course_title: course.title
+      if (!courseSnap.exists) {
+        console.error('Cloud function onNewCourseReviewApproved error: Unable to read course.')
+        return {error: 'Unable to read course data. Operation failed.'};
       }
+
+      const course = courseSnap.data() as any;
+
+      // create an approved course doc to ensure only admin approved courses get updated by creators
+      // Important! Do this before writing to the user's private courses node to ensure correct
+      // data gets copied to public & paywall protected areas on update of the provate node.
+      await db.collection(`approved-courses`)
+        .doc(courseId)
+        .create({
+          courseId,
+          approved: approvedDate,
+          reviewerUid: userId
+        });
+
+      const batch = db.batch(); // prepare to execute multiple ops atomically
+
+      // update user's private course node with updated course object
+      const privateCourseCopy = JSON.parse(JSON.stringify(course));
+      const privateReviewRequest = JSON.parse(JSON.stringify(reviewRequest));
+      privateReviewRequest.status = 'approved';
+      privateReviewRequest.approved = approvedDate;
+      privateReviewRequest.reviewerUid = userId;
+      privateCourseCopy.adminApproved = true;
+      privateCourseCopy.reviewRequest = privateReviewRequest;
+      privateCourseCopy.lastUpdated = approvedDate;
+      const privateCourseRef = db.collection(`users/${reviewRequest.sellerUid}/courses`).doc(courseId);
+      batch.set(privateCourseRef, privateCourseCopy, {merge: true});
+
+
+      // delete review request from the admin collection
+      const adminRef = db.collection(`admin/review-requests/courses`).doc(courseId);
+      batch.delete(adminRef) // triggers onDelete monitor function to update count
+
+      await batch.commit(); // execute batch ops. Any error should trigger catch.
+
+      // add the course id to the seller's custom claims so they can access the course to view it as a student
+      await addCustomUserClaims(course.sellerUid, {[courseId]: true});
+
+      // delete the draft course record in Algolia
+      const index = algolia.initIndex('prod_DRAFT_COURSES');
+      await index.deleteObject(courseId);
+
+      // trigger a mailchimp event to log course going live
+      const event = {
+        name: 'admin_approved_course',
+        properties: {
+          course_title: course.title
+        }
+      }
+      await logMailchimpEvent(course.sellerUid, event); // log event
+
+      return {success: true} // success if we got this far!
+
+    } catch (err) {
+      console.error(err);
+      return {error: err}
     }
-    await logMailchimpEvent(course.sellerUid, event); // log event
-
-    return { success: true } // success if we got this far!
-
-  } catch (err) {
-    console.error(err);
-    return { error: err }
-  }
-});
+  });
 
 /*
   Attempts to reject a course in review.
 */
 exports.adminRejectCourseReview = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.https
-.onCall( async (data, context) => {
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
+  .onCall(async (data, context) => {
 
-  const courseId = data.courseId;
-  const userId = data.userId; // reviewer not seller!
-  const reviewRequest = data.reviewRequest;
-  const rejectedDate = Math.round(new Date().getTime() / 1000); // unix timestamp
+    const courseId = data.courseId;
+    const userId = data.userId; // reviewer not seller!
+    const reviewRequest = data.reviewRequest;
+    const rejectedDate = Math.round(new Date().getTime() / 1000); // unix timestamp
 
-  // safety checks
-  if (!courseId) {
-    return { error: 'Cloud function adminApproveCourseReview error: missing course ID' }
-  }
-  if (!userId) {
-    return { error: 'Cloud function adminApproveCourseReview error: missing user ID' }
-  }
-  if (!reviewRequest) {
-    return { error: 'Cloud function adminApproveCourseReview error: missing review request' }
-  }
-  if (!reviewRequest.sellerUid) {
-    return { error: 'Cloud function adminApproveCourseReview error: missing review request seller UID' }
-  }
-
-  // update the review request object
-  reviewRequest.status = 'rejected';
-  reviewRequest.rejected = rejectedDate;
-  reviewRequest.reviewerUid = userId;
-
-  try {
-
-    const batch = db.batch(); // prepare to execute multiple ops atomically
-
-    // update user's private course node
-    const privateRef = db.collection(`users/${reviewRequest.sellerUid}/courses`).doc(courseId);
-    batch.set(privateRef, { reviewRequest }, { merge: true });
-
-    // delete review request from the admin collection (user must make alterations and re-submit for review)
-    const adminRef = db.collection(`admin/review-requests/courses`).doc(courseId);
-    batch.delete(adminRef) // triggers onDelete monitor function to update count
-
-    await batch.commit(); // execute batch ops. Any error should trigger catch.
-
-    // attempt to read course data
-    const courseSnap = await db.collection(`users/${reviewRequest.sellerUid}/courses`)
-    .doc(courseId)
-    .get();
-
-    // log mailchimnp event
-    const course = courseSnap.data() as any;
-    const event = {
-      name: 'admin_rejected_course',
-      properties: {
-        course_title: course.title,
-        reject_reason: reviewRequest.rejectData.reason
-      }
+    // safety checks
+    if (!courseId) {
+      return {error: 'Cloud function adminApproveCourseReview error: missing course ID'}
     }
-    await logMailchimpEvent(reviewRequest.sellerUid, event); // log event
+    if (!userId) {
+      return {error: 'Cloud function adminApproveCourseReview error: missing user ID'}
+    }
+    if (!reviewRequest) {
+      return {error: 'Cloud function adminApproveCourseReview error: missing review request'}
+    }
+    if (!reviewRequest.sellerUid) {
+      return {error: 'Cloud function adminApproveCourseReview error: missing review request seller UID'}
+    }
 
-    return { success: true } // success
+    // update the review request object
+    reviewRequest.status = 'rejected';
+    reviewRequest.rejected = rejectedDate;
+    reviewRequest.reviewerUid = userId;
 
-  } catch (err) {
-    console.error(err);
-    return { error: err }
-  }
-});
+    try {
+
+      const batch = db.batch(); // prepare to execute multiple ops atomically
+
+      // update user's private course node
+      const privateRef = db.collection(`users/${reviewRequest.sellerUid}/courses`).doc(courseId);
+      batch.set(privateRef, {reviewRequest}, {merge: true});
+
+      // delete review request from the admin collection (user must make alterations and re-submit for review)
+      const adminRef = db.collection(`admin/review-requests/courses`).doc(courseId);
+      batch.delete(adminRef) // triggers onDelete monitor function to update count
+
+      await batch.commit(); // execute batch ops. Any error should trigger catch.
+
+      // attempt to read course data
+      const courseSnap = await db.collection(`users/${reviewRequest.sellerUid}/courses`)
+        .doc(courseId)
+        .get();
+
+      // log mailchimnp event
+      const course = courseSnap.data() as any;
+      const event = {
+        name: 'admin_rejected_course',
+        properties: {
+          course_title: course.title,
+          reject_reason: reviewRequest.rejectData.reason
+        }
+      }
+      await logMailchimpEvent(reviewRequest.sellerUid, event); // log event
+
+      return {success: true} // success
+
+    } catch (err) {
+      console.error(err);
+      return {error: err}
+    }
+  });
 
 // ================================================================================
 // =====                                                                     ======
@@ -2002,313 +1999,313 @@ exports.adminRejectCourseReview = functions
   When updated, if set to 'isPublic', sync with public profiles node.
 */
 exports.onWriteUserProfileNode = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.firestore
-.document('users/{uid}/profile/{profileId}')
-.onWrite(async (change, context) => {
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .firestore
+  .document('users/{uid}/profile/{profileId}')
+  .onWrite(async (change, context) => {
 
-  const profile = change.after.data() as any;
-  const userId = context.params.uid;
-  const profileID = context.params.profileId;
+    const profile = change.after.data() as any;
+    const userId = context.params.uid;
+    const profileID = context.params.profileId;
 
-  if (!change.before.exists) {
-    // This is a new record (first time creation)
+    if (!change.before.exists) {
+      // This is a new record (first time creation)
 
-    // only trigger email if real profile created and not just an admin mass update function.
-    // real profile will have a 'dateCreated' property. Mass update only has 'adminMassUpdated' property.
-    if (profile.dateCreated) {
-      // Trigger workflow email for created profile success
-      const p1 = db.collection(`users/${userId}/account`)
-      .doc('account' + userId)
-      .get()
-      .then(docSnapshot => {
-        if (docSnapshot.exists) {
-          const account = docSnapshot.data() as any;
-          const accountEmail = account.accountEmail;
-          addSubscriberToWorkflowEmail('bca28b1721', '16389df1ae', accountEmail);
-        }
-      })
-      .catch(err => {
-        console.error('Error reading user account data during onWriteUserProfileNode', err);
-      });
+      // only trigger email if real profile created and not just an admin mass update function.
+      // real profile will have a 'dateCreated' property. Mass update only has 'adminMassUpdated' property.
+      if (profile.dateCreated) {
+        // Trigger workflow email for created profile success
+        const p1 = db.collection(`users/${userId}/account`)
+          .doc('account' + userId)
+          .get()
+          .then(docSnapshot => {
+            if (docSnapshot.exists) {
+              const account = docSnapshot.data() as any;
+              const accountEmail = account.accountEmail;
+              addSubscriberToWorkflowEmail('bca28b1721', '16389df1ae', accountEmail);
+            }
+          })
+          .catch(err => {
+            console.error('Error reading user account data during onWriteUserProfileNode', err);
+          });
 
-      await Promise.all([p1]);
-    }
-
-  }
-  if (profile) {
-    // Record has been updated
-
-    // *** TEMP TEMP TEMP ***
-
-    const profileCopy = JSON.parse(JSON.stringify(profile));
-
-    const spec = specialities();
-
-    // check data structure and replace speciality data with object structure
-
-    // current structure (string)
-    if (typeof profile.speciality1 === 'string') {
-      const index = spec.findIndex(i => i.id === profile.speciality1);
-      if (index !== -1) {
-        profileCopy.speciality1 = spec[index]; // set as object
+        await Promise.all([p1]);
       }
+
     }
+    if (profile) {
+      // Record has been updated
 
-    // oldest structure (array)
-    if (profile.speciality1 && profile.speciality1.length && profile.speciality1.length === 1) {
-      profileCopy.speciality1 = profile.speciality1[0]; // set as object
-    }
+      // *** TEMP TEMP TEMP ***
 
-    // desired structure (object)
-    if (profile.speciality1 && profile.speciality1.itemName) {
-      // do nothing, we want this!
-    }
+      const profileCopy = JSON.parse(JSON.stringify(profile));
 
-    // check data structure and replace country data with object structure
+      const spec = specialities();
 
-    // current structure (string)
-    if (typeof profile.country === 'string') {
-      profileCopy.country = countryFlagEmoji.get(profile.country); // set as object
-    }
+      // check data structure and replace speciality data with object structure
 
-    // oldest structure (array)
-    if (profile.country && profile.country.length && profile.country.length === 1) {
-      profileCopy.country = profile.country[0]; // set as object
-    }
-
-    // desired structure (object)
-    if (profile.country && profile.country.name) {
-      // do nothing, we want this!
-    }
-
-    // save the profile copy only if both original profile speciality 1 and country are not objects
-    if ((profile.speciality1 && !profile.speciality1.itemName) || (profile.country && !profile.country.name)) {
-      console.log('updating new data types for user:', userId);
-      return db.collection(`users/${userId}/profile`)
-      .doc(profileID)
-      .set(profileCopy, {merge: true});
-    }
-
-    // ***********************
-
-    if (profile.isPublic) {
-      // Profile is set to public. Sync with public node.
-      // console.log('User profile is marked public. Syncing with public data...')
-      return db.collection(`public-coaches`)
-      .doc(userId)
-      .set(profile, {merge: true})
-      .catch(err => console.error(err));
-    } else {
-      // Profile is set to private. Remove copy from public node.
-      // console.log('User profile is marked private.')
-      const p1 = db.collection('public-coaches')
-      .doc(userId)
-      .get()
-      .then(docSnapshot => {
-        if (docSnapshot.exists) {
-          // Doc does exist. Delete it.
-          return db.collection(`public-coaches`)
-          .doc(userId)
-          .delete()
-          .catch(err => console.error(err));
+      // current structure (string)
+      if (typeof profile.speciality1 === 'string') {
+        const index = spec.findIndex(i => i.id === profile.speciality1);
+        if (index !== -1) {
+          profileCopy.speciality1 = spec[index]; // set as object
         }
-        return null;
-      })
-      .catch(err => console.error(err));
+      }
+
+      // oldest structure (array)
+      if (profile.speciality1 && profile.speciality1.length && profile.speciality1.length === 1) {
+        profileCopy.speciality1 = profile.speciality1[0]; // set as object
+      }
+
+      // desired structure (object)
+      if (profile.speciality1 && profile.speciality1.itemName) {
+        // do nothing, we want this!
+      }
+
+      // check data structure and replace country data with object structure
+
+      // current structure (string)
+      if (typeof profile.country === 'string') {
+        profileCopy.country = countryFlagEmoji.get(profile.country); // set as object
+      }
+
+      // oldest structure (array)
+      if (profile.country && profile.country.length && profile.country.length === 1) {
+        profileCopy.country = profile.country[0]; // set as object
+      }
+
+      // desired structure (object)
+      if (profile.country && profile.country.name) {
+        // do nothing, we want this!
+      }
+
+      // save the profile copy only if both original profile speciality 1 and country are not objects
+      if ((profile.speciality1 && !profile.speciality1.itemName) || (profile.country && !profile.country.name)) {
+        console.log('updating new data types for user:', userId);
+        return db.collection(`users/${userId}/profile`)
+          .doc(profileID)
+          .set(profileCopy, {merge: true});
+      }
+
+      // ***********************
+
+      if (profile.isPublic) {
+        // Profile is set to public. Sync with public node.
+        // console.log('User profile is marked public. Syncing with public data...')
+        return db.collection(`public-coaches`)
+          .doc(userId)
+          .set(profile, {merge: true})
+          .catch(err => console.error(err));
+      } else {
+        // Profile is set to private. Remove copy from public node.
+        // console.log('User profile is marked private.')
+        const p1 = db.collection('public-coaches')
+          .doc(userId)
+          .get()
+          .then(docSnapshot => {
+            if (docSnapshot.exists) {
+              // Doc does exist. Delete it.
+              return db.collection(`public-coaches`)
+                .doc(userId)
+                .delete()
+                .catch(err => console.error(err));
+            }
+            return null;
+          })
+          .catch(err => console.error(err));
+
+        return Promise.all([p1]);
+      }
+    } else {
+      // Record has been deleted. Delete copy from public node.
+      console.log('User profile has been deleted. Removing from public display...')
+      const p1 = db.collection('public-coaches')
+        .doc(userId)
+        .get()
+        .then(docSnapshot => {
+          if (docSnapshot.exists) {
+            // Doc does exist. Delete it.
+            return db.collection(`public-coaches`)
+              .doc(userId)
+              .delete()
+              .catch(err => console.error(err));
+          }
+          return;
+        })
+        .catch(err => console.error(err));
 
       return Promise.all([p1]);
     }
-  } else {
-    // Record has been deleted. Delete copy from public node.
-    console.log('User profile has been deleted. Removing from public display...')
-    const p1 = db.collection('public-coaches')
-    .doc(userId)
-    .get()
-    .then(docSnapshot => {
-      if (docSnapshot.exists) {
-        // Doc does exist. Delete it.
-        return db.collection(`public-coaches`)
-        .doc(userId)
-        .delete()
-        .catch(err => console.error(err));
-      }
-      return;
-    })
-    .catch(err => console.error(err));
-
-    return Promise.all([p1]);
-  }
-});
+  });
 
 /*
   Monitor the public coaches node.
   Sync with Algolia DB.
 */
 exports.onWritePublicCoachesNode = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.firestore
-.document(`/public-coaches/{docId}`)
-.onWrite((change, context) => {
-  const index = algolia.initIndex('prod_COACHES');
-  const docId = context.params.docId;
-  // console.log('Public coaches node changed. Updating Algolia record...');
-  const profile: any = change.after.data() as any;
-  // Record Removed.
-  if (!profile) {
-    return index.deleteObject(docId);
-  }
-  // Record added/updated.
-  const recordToSend = {
-    objectID: docId,
-    dateCreated: profile.dateCreated, // NB: Must be a unix timestamp
-    firstName: profile.firstName,
-    lastName: profile.lastName,
-    email: profile.email,
-    phone: profile.phone,
-    photo: profile.photo,
-    city: profile.city,
-    country: profile.country,
-    speciality1: profile.speciality1,
-    qualBa: profile.qualBa,
-    qualBsc: profile.qualBsc,
-    qualBcomm: profile.qualBcomm,
-    qualMa: profile.qualMa,
-    qualMs: profile.qualMs,
-    qualMba: profile.qualMba,
-    qualMapp: profile.qualMapp,
-    qualPhd: profile.qualPhd,
-    qualAcc: profile.qualAcc,
-    qualPcc: profile.qualPcc,
-    qualMcc: profile.qualMcc,
-    qualOther: profile.qualOther,
-    qualEia: profile.qualEia,
-    qualEqa: profile.qualEqa,
-    qualEsia: profile.qualEsia,
-    qualEsqa: profile.qualEsqa,
-    qualIsmcp: profile.qualIsmcp,
-    qualApecs: profile.qualApecs,
-    qualEcas: profile.qualEcas,
-    qualCas: profile.qualCas,
-    qualCsa: profile.qualCsa,
-    qualSa: profile.qualSa,
-    proSummary: profile.proSummary,
-    goalTags: profile.goalTags,
-    profileVideo: profile.selectedProfileVideo
-  };
-  // Update Algolia.
-  return index.saveObject(recordToSend);
-});
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .firestore
+  .document(`/public-coaches/{docId}`)
+  .onWrite((change, context) => {
+    const index = algolia.initIndex('prod_COACHES');
+    const docId = context.params.docId;
+    // console.log('Public coaches node changed. Updating Algolia record...');
+    const profile: any = change.after.data() as any;
+    // Record Removed.
+    if (!profile) {
+      return index.deleteObject(docId);
+    }
+    // Record added/updated.
+    const recordToSend = {
+      objectID: docId,
+      dateCreated: profile.dateCreated, // NB: Must be a unix timestamp
+      firstName: profile.firstName,
+      lastName: profile.lastName,
+      email: profile.email,
+      phone: profile.phone,
+      photo: profile.photo,
+      city: profile.city,
+      country: profile.country,
+      speciality1: profile.speciality1,
+      qualBa: profile.qualBa,
+      qualBsc: profile.qualBsc,
+      qualBcomm: profile.qualBcomm,
+      qualMa: profile.qualMa,
+      qualMs: profile.qualMs,
+      qualMba: profile.qualMba,
+      qualMapp: profile.qualMapp,
+      qualPhd: profile.qualPhd,
+      qualAcc: profile.qualAcc,
+      qualPcc: profile.qualPcc,
+      qualMcc: profile.qualMcc,
+      qualOther: profile.qualOther,
+      qualEia: profile.qualEia,
+      qualEqa: profile.qualEqa,
+      qualEsia: profile.qualEsia,
+      qualEsqa: profile.qualEsqa,
+      qualIsmcp: profile.qualIsmcp,
+      qualApecs: profile.qualApecs,
+      qualEcas: profile.qualEcas,
+      qualCas: profile.qualCas,
+      qualCsa: profile.qualCsa,
+      qualSa: profile.qualSa,
+      proSummary: profile.proSummary,
+      goalTags: profile.goalTags,
+      profileVideo: profile.selectedProfileVideo
+    };
+    // Update Algolia.
+    return index.saveObject(recordToSend);
+  });
 
 /*
   Monitor the (all) users account node.
   Sync with Algolia DB.
 */
 exports.onWriteUserAccountNode = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.firestore
-.document(`/users/{userId}/account/{docID}`)
-.onWrite((change, context) => {
-  const index = algolia.initIndex('prod_USERS');
-  const docId = context.params.userId;
-  // console.log('Users node changed. Updating Algolia record...');
-  const account: any = change.after.data() as any;
-  // Record Removed.
-  if (!account) {
-    return index.deleteObject(docId);
-  }
-  // Record added/updated.
-  const recordToSend = {
-    objectID: docId,
-    accountEmail: account.accountEmail,
-    accountType: account.accountType,
-    dateCreated: account.dateCreated,
-    firstName: account.firstName,
-    lastName: account.lastName,
-    userID: docId
-  };
-  // Update Algolia.
-  return index.saveObject(recordToSend);
-});
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .firestore
+  .document(`/users/{userId}/account/{docID}`)
+  .onWrite((change, context) => {
+    const index = algolia.initIndex('prod_USERS');
+    const docId = context.params.userId;
+    // console.log('Users node changed. Updating Algolia record...');
+    const account: any = change.after.data() as any;
+    // Record Removed.
+    if (!account) {
+      return index.deleteObject(docId);
+    }
+    // Record added/updated.
+    const recordToSend = {
+      objectID: docId,
+      accountEmail: account.accountEmail,
+      accountType: account.accountType,
+      dateCreated: account.dateCreated,
+      firstName: account.firstName,
+      lastName: account.lastName,
+      userID: docId
+    };
+    // Update Algolia.
+    return index.saveObject(recordToSend);
+  });
 
 /*
   Monitor all user to user chat messages.
   Sync with Algolia DB.
 */
 exports.onPostNewChatMessage = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.firestore
-.document(`/chatrooms/{roomId}/messages/{msgId}`)
-.onWrite((change, context) => {
-  const index = algolia.initIndex('prod_MESSAGES');
-  const roomId = context.params.roomId;
-  const msgId = context.params.msgId;
-  const msg: any = change.after.data() as any;
-  // Record Removed.
-  if (!msg) {
-    return index.deleteObject(msgId);
-  }
-  // Record added/updated.
-  const recordToSend = {
-    objectID: msgId,
-    roomId,
-    sent: msg.sent,
-    from: msg.from,
-    message: msg.msg,
-  };
-  // Update Algolia.
-  return index.saveObject(recordToSend);
-});
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .firestore
+  .document(`/chatrooms/{roomId}/messages/{msgId}`)
+  .onWrite((change, context) => {
+    const index = algolia.initIndex('prod_MESSAGES');
+    const roomId = context.params.roomId;
+    const msgId = context.params.msgId;
+    const msg: any = change.after.data() as any;
+    // Record Removed.
+    if (!msg) {
+      return index.deleteObject(msgId);
+    }
+    // Record added/updated.
+    const recordToSend = {
+      objectID: msgId,
+      roomId,
+      sent: msg.sent,
+      from: msg.from,
+      message: msg.msg,
+    };
+    // Update Algolia.
+    return index.saveObject(recordToSend);
+  });
 
 /*
   Monitor all user's own chat room nodes.
 */
 exports.onUpdateUserChatRoom = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.firestore
-.document(`userRooms/{userId}/rooms/{roomId}`)
-.onUpdate((change, context) => {
-  const userId = context.params.userId;
-  const roomId = context.params.roomId;
-  const before = change.before.data() as any;
-  const after = change.after.data() as any;
-  const wait = 10; // integer in seconds (unix)
-  
-  if (after) { // only run if room exists
-    if (before.lastActive !== after.lastActive) { // only run when new message received in room
-      /* 
-      Give the user time to read the message. If the last active message time is greater than
-      the last read time after the wait period, consider the message unread. Note: read time
-      s set when the user receives the new msg in their client view of the feed, so the wait
-      allows for the read time to be updated in the room before it is checked.
-      */
-      setTimeout( async () => {
-        // we have to read again to get the latest data after a possible lastRead update.
-        const roomSnap = await db.collection(`userRooms/${userId}/rooms`)
-        .doc(roomId)
-        .get();
-        
-        if (roomSnap.exists) {
-          const room = roomSnap.data() as any;
-          if ( !room.lastRead || (room.lastActive > room.lastRead) ) { // msg is unread
-            console.log(`Sending an unread message email notification now! User ${userId}, room ${roomId}`);
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .firestore
+  .document(`userRooms/{userId}/rooms/{roomId}`)
+  .onUpdate((change, context) => {
+    const userId = context.params.userId;
+    const roomId = context.params.roomId;
+    const before = change.before.data() as any;
+    const after = change.after.data() as any;
+    const wait = 10; // integer in seconds (unix)
 
-            // Read the user's account email
-            const accountSnap = await db.collection(`users/${userId}/account`)
-            .doc(`account${userId}`)
+    if (after) { // only run if room exists
+      if (before.lastActive !== after.lastActive) { // only run when new message received in room
+        /*
+        Give the user time to read the message. If the last active message time is greater than
+        the last read time after the wait period, consider the message unread. Note: read time
+        s set when the user receives the new msg in their client view of the feed, so the wait
+        allows for the read time to be updated in the room before it is checked.
+        */
+        setTimeout(async () => {
+          // we have to read again to get the latest data after a possible lastRead update.
+          const roomSnap = await db.collection(`userRooms/${userId}/rooms`)
+            .doc(roomId)
             .get();
 
-            if (accountSnap.exists) {
-              const account = accountSnap.data() as any;
+          if (roomSnap.exists) {
+            const room = roomSnap.data() as any;
+            if (!room.lastRead || (room.lastActive > room.lastRead)) { // msg is unread
+              console.log(`Sending an unread message email notification now! User ${userId}, room ${roomId}`);
 
-              // Prepare the email options
-              const emailOptions: Mail.Options = {
-                from: 'donotreply@lifecoach.io',
-                to: account.accountEmail,
-                subject: 'You have a new message',
-                text: `You have a new message: ${room.lastMsg}.
+              // Read the user's account email
+              const accountSnap = await db.collection(`users/${userId}/account`)
+                .doc(`account${userId}`)
+                .get();
+
+              if (accountSnap.exists) {
+                const account = accountSnap.data() as any;
+
+                // Prepare the email options
+                const emailOptions: Mail.Options = {
+                  from: 'donotreply@lifecoach.io',
+                  to: account.accountEmail,
+                  subject: 'You have a new message',
+                  text: `You have a new message: ${room.lastMsg}.
                 Please visit your Lifecoach message centre to reply.`,
-                html: `
+                  html: `
                 <body>
                   <p>
                     You have a new message:
@@ -2326,337 +2323,337 @@ exports.onUpdateUserChatRoom = functions
                   </p>
                 </body>
                 `
-              }
+                }
 
-              // Send the email
-              sendEmail(emailOptions);
+                // Send the email
+                sendEmail(emailOptions);
+              }
             }
           }
-        }
-      }, wait);
+        }, wait);
 
+      }
     }
-  }
-  return null;
-});
+    return null;
+  });
 
 /*
   Monitor new user's library videos & increment count when new assets added.
 */
 exports.onPostNewCourseLibraryItem = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.firestore
-.document(`users/{userId}/courseLibrary/{docId}`)
-.onCreate((snap, context) => {
-  const uid = context.params.userId;
-  const increment = admin.firestore.FieldValue.increment(1);
-  return db.collection(`users/${uid}/courseLibrary/totals/items`)
-  .doc('itemTotals')
-  .set({
-    totalItems: increment
-  }, { merge: true })
-  .catch(err => console.error(err));
-});
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .firestore
+  .document(`users/{userId}/courseLibrary/{docId}`)
+  .onCreate((snap, context) => {
+    const uid = context.params.userId;
+    const increment = admin.firestore.FieldValue.increment(1);
+    return db.collection(`users/${uid}/courseLibrary/totals/items`)
+      .doc('itemTotals')
+      .set({
+        totalItems: increment
+      }, {merge: true})
+      .catch(err => console.error(err));
+  });
 
 /*
   Monitor new admin courses in review (review requests).
 */
 exports.onNewAdminCourseReviewRequest = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.firestore
-.document(`admin/review-requests/courses/{courseId}`)
-.onCreate( async (snap, context) => {
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .firestore
+  .document(`admin/review-requests/courses/{courseId}`)
+  .onCreate(async (snap, context) => {
 
-  const reviewRequest = snap.data() as any
+    const reviewRequest = snap.data() as any
 
-  const increment = admin.firestore.FieldValue.increment(1);
+    const increment = admin.firestore.FieldValue.increment(1);
 
-  db.collection(`admin`)
-  .doc('totalCoursesInReview')
-  .set({
-    totalRecords: increment
-  }, { merge: true })
-  .catch(err => console.error(err));
+    db.collection(`admin`)
+      .doc('totalCoursesInReview')
+      .set({
+        totalRecords: increment
+      }, {merge: true})
+      .catch(err => console.error(err));
 
-  // attempt to read course data
-  if (reviewRequest) {
-    const courseSnap = await db.collection(`users/${reviewRequest.sellerUid}/courses`)
-    .doc(reviewRequest.courseId)
-    .get();
-  
-    const course = courseSnap.data() as any;
+    // attempt to read course data
+    if (reviewRequest) {
+      const courseSnap = await db.collection(`users/${reviewRequest.sellerUid}/courses`)
+        .doc(reviewRequest.courseId)
+        .get();
 
-    if (course) {
-      // record a mailchimp event
-      const event = {
-        name: 'course_submitted_for_review',
-        properties: {
-          course_title: course.title,
+      const course = courseSnap.data() as any;
+
+      if (course) {
+        // record a mailchimp event
+        const event = {
+          name: 'course_submitted_for_review',
+          properties: {
+            course_title: course.title,
+          }
         }
+        return logMailchimpEvent(course.sellerUid, event); // log event
       }
-      return logMailchimpEvent(course.sellerUid, event); // log event
+
     }
 
-  }
-
-});
+  });
 
 /*
   Monitor deleted admin courses in review (review requests).
 */
 exports.onDeleteAdminCourseReviewRequest = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.firestore
-.document(`admin/review-requests/courses/{courseId}`)
-.onDelete((snap, context) => {
-  const decrement = admin.firestore.FieldValue.increment(-1);
-  return db.collection(`admin`)
-  .doc('totalCoursesInReview')
-  .set({
-    totalRecords: decrement
-  }, { merge: true })
-  .catch(err => console.error(err));
-});
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .firestore
+  .document(`admin/review-requests/courses/{courseId}`)
+  .onDelete((snap, context) => {
+    const decrement = admin.firestore.FieldValue.increment(-1);
+    return db.collection(`admin`)
+      .doc('totalCoursesInReview')
+      .set({
+        totalRecords: decrement
+      }, {merge: true})
+      .catch(err => console.error(err));
+  });
 
 /*
   Monitor public courses node.
   Sync with Algolia DB.
 */
 exports.onWritePublicCourses = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.firestore
-.document(`/public-courses/{courseId}`)
-.onWrite((change, context) => {
-  const index = algolia.initIndex('prod_COURSES');
-  const courseId = context.params.courseId;
-  const course = change.after.data() as any;
-  // Record Removed.
-  if (!course) {
-    return index.deleteObject(courseId);
-  }
-  // Record added/updated.
-  const recordToSend = {
-    objectID: courseId,
-    title: course.title,
-    subtitle: course.subtitle,
-    category: course.category,
-    language: course.language,
-    level: course.level,
-    subject: course.subject,
-    pricingStrategy: course.pricingStrategy,
-    price: course.price,
-    currency: course.currency,
-    image: course.image,
-    promoVideo: course.promoVideo,
-    coachName: course.coachName,
-    coachPhoto: course.coachPhoto,
-    isTest: course.isTest, // will only be true if this course is a test (admin created)
-    approved: course.approved,
-    includeInCoachingForCoaches: course.includeInCoachingForCoaches
-  };
-  // Update Algolia.
-  return index.saveObject(recordToSend);
-});
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .firestore
+  .document(`/public-courses/{courseId}`)
+  .onWrite((change, context) => {
+    const index = algolia.initIndex('prod_COURSES');
+    const courseId = context.params.courseId;
+    const course = change.after.data() as any;
+    // Record Removed.
+    if (!course) {
+      return index.deleteObject(courseId);
+    }
+    // Record added/updated.
+    const recordToSend = {
+      objectID: courseId,
+      title: course.title,
+      subtitle: course.subtitle,
+      category: course.category,
+      language: course.language,
+      level: course.level,
+      subject: course.subject,
+      pricingStrategy: course.pricingStrategy,
+      price: course.price,
+      currency: course.currency,
+      image: course.image,
+      promoVideo: course.promoVideo,
+      coachName: course.coachName,
+      coachPhoto: course.coachPhoto,
+      isTest: course.isTest, // will only be true if this course is a test (admin created)
+      approved: course.approved,
+      includeInCoachingForCoaches: course.includeInCoachingForCoaches
+    };
+    // Update Algolia.
+    return index.saveObject(recordToSend);
+  });
 
 /*
   Monitor users' private courses node.
   If course is admin approved, sync with public courses.
 */
 exports.onWritePrivateUserCourse = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.firestore
-.document(`/users/{userId}/courses/{courseId}`)
-.onWrite( async (change, context) => {
-  const courseId = context.params.courseId;
-  const course = change.after.data() as any;
-  const courseBefore = change.before.data() as any;
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .firestore
+  .document(`/users/{userId}/courses/{courseId}`)
+  .onWrite(async (change, context) => {
+    const courseId = context.params.courseId;
+    const course = change.after.data() as any;
+    const courseBefore = change.before.data() as any;
 
-  // Record created
-  if (course && !courseBefore) {
-    // sync with Algolia draft course index
-    const index = algolia.initIndex('prod_DRAFT_COURSES');
-    const recordToSend = {
-      objectID: courseId,
-      sellerUid: course.sellerUid,
-      isTest: course.isTest ? true : false
-    }
-    await index.saveObject(recordToSend);
-
-    // record a mailchimp event
-    const event = {
-      name: 'new_course_created',
-      properties: {
-        course_title: course.title,
+    // Record created
+    if (course && !courseBefore) {
+      // sync with Algolia draft course index
+      const index = algolia.initIndex('prod_DRAFT_COURSES');
+      const recordToSend = {
+        objectID: courseId,
+        sellerUid: course.sellerUid,
+        isTest: course.isTest ? true : false
       }
-    }
-    await logMailchimpEvent(course.sellerUid, event); // log event
-  }
+      await index.saveObject(recordToSend);
 
-  // Record Removed.
-  if (!course) {
-    // remove course from sale but leave course data behind the paywall as users have paid for it
-    // and shouldn't lose access.
-    await db.collection('public-courses')
-    .doc(courseId)
-    .delete()
-    .catch(err => console.error(err));
-
-    // if review request still waiting, delete it
-    await db.collection('admin/review-requests/courses')
-    .doc(courseId)
-    .delete();
-
-    // delete the draft course record in Algolia (if it exists)
-    const index = algolia.initIndex('prod_DRAFT_COURSES');
-    return index.deleteObject(courseId);
-  }
-
-  // Record added/updated.
-  if (!course.adminApproved) { // check if admin approved
-    return;
-  }
-
-  const adminSnap = await db.collection(`approved-courses`)
-  .doc(courseId)
-  .get();
-
-  if (!adminSnap.exists) { // double check if admin approved (this doc can't be tampered with client side)
-    return;
-  }
-
-  // map course lectures into public lectures by removing paywall protected data
-  const publicLectures = course.lectures.map((item: any) => {
-    const container = {} as any;
-
-    container.id = item.id;
-    container.title = item.title;
-    container.type = item.type;
-    if (item.preview) {
-      container.preview = item.preview;
-    }
-    if (item.video) {
-      container.video = {
-        duration: item.video.duration ? item.video.duration : 0,
-        downloadURL: item.preview ? item.video.downloadURL : null // important! Only add the download URL if preview is true
+      // record a mailchimp event
+      const event = {
+        name: 'new_course_created',
+        properties: {
+          course_title: course.title,
+        }
       }
+      await logMailchimpEvent(course.sellerUid, event); // log event
     }
 
-    return container;
-  })
+    // Record Removed.
+    if (!course) {
+      // remove course from sale but leave course data behind the paywall as users have paid for it
+      // and shouldn't lose access.
+      await db.collection('public-courses')
+        .doc(courseId)
+        .delete()
+        .catch(err => console.error(err));
 
-  try {
-    // Sync with public-courses.
-    const batch = db.batch(); // prepare to execute multiple ops atomically 
-    
-    // copy non-paywall protected course data in public courses node (to allow browse & purchase)
-    const publicData = {
-      courseId,
-      approved: course.reviewRequest.approved ? course.reviewRequest.approved : null,
-      pricingStrategy: course.pricingStrategy,
-      currency: course.currency ? course.currency : null,
-      price: course.price ? course.price : null,
-      sellerUid: course.sellerUid,
-      coachName: course.coachName,
-      coachPhoto: course.coachPhoto,
-      stripeId: course.stripeId ? course.stripeId : null,
-      title: course.title,
-      subtitle: course.subtitle,
-      description: course.description,
-      language: course.language,
-      category: course.category,
-      level: course.level,
-      subject: course.subject,
-      image: course.image,
-      promoVideo: course.promoVideo,
-      lastUpdated: course.lastUpdated,
-      learningPoints: course.learningPoints,
-      requirements: course.requirements,
-      sections: course.sections,
-      lectures: publicLectures, // Caution! Don't add lecture data here without removing paywall protected content!
-      includeInCoachingForCoaches: course.includeInCoachingForCoaches ? course.includeInCoachingForCoaches : null,
-      isTest: course.isTest ? true : false, // will only be true if this course is a test (admin created)
-    };
-    const publicRef = db.collection(`public-courses`).doc(courseId);
-    batch.set(publicRef, publicData, { merge: true });
+      // if review request still waiting, delete it
+      await db.collection('admin/review-requests/courses')
+        .doc(courseId)
+        .delete();
 
-    // copy course object as is into paywall protected node (will be available when purchased!)
-    const lockedRef = db.collection(`locked-course-content`).doc(courseId);
-    batch.set(lockedRef, course, { merge: true });
+      // delete the draft course record in Algolia (if it exists)
+      const index = algolia.initIndex('prod_DRAFT_COURSES');
+      return index.deleteObject(courseId);
+    }
 
-    return batch.commit(); // execute batch ops. Any error should trigger catch.
-  } catch (err) {
-    console.error(err);
-    return;
-  }
+    // Record added/updated.
+    if (!course.adminApproved) { // check if admin approved
+      return;
+    }
 
-});
+    const adminSnap = await db.collection(`approved-courses`)
+      .doc(courseId)
+      .get();
+
+    if (!adminSnap.exists) { // double check if admin approved (this doc can't be tampered with client side)
+      return;
+    }
+
+    // map course lectures into public lectures by removing paywall protected data
+    const publicLectures = course.lectures.map((item: any) => {
+      const container = {} as any;
+
+      container.id = item.id;
+      container.title = item.title;
+      container.type = item.type;
+      if (item.preview) {
+        container.preview = item.preview;
+      }
+      if (item.video) {
+        container.video = {
+          duration: item.video.duration ? item.video.duration : 0,
+          downloadURL: item.preview ? item.video.downloadURL : null // important! Only add the download URL if preview is true
+        }
+      }
+
+      return container;
+    })
+
+    try {
+      // Sync with public-courses.
+      const batch = db.batch(); // prepare to execute multiple ops atomically
+
+      // copy non-paywall protected course data in public courses node (to allow browse & purchase)
+      const publicData = {
+        courseId,
+        approved: course.reviewRequest.approved ? course.reviewRequest.approved : null,
+        pricingStrategy: course.pricingStrategy,
+        currency: course.currency ? course.currency : null,
+        price: course.price ? course.price : null,
+        sellerUid: course.sellerUid,
+        coachName: course.coachName,
+        coachPhoto: course.coachPhoto,
+        stripeId: course.stripeId ? course.stripeId : null,
+        title: course.title,
+        subtitle: course.subtitle,
+        description: course.description,
+        language: course.language,
+        category: course.category,
+        level: course.level,
+        subject: course.subject,
+        image: course.image,
+        promoVideo: course.promoVideo,
+        lastUpdated: course.lastUpdated,
+        learningPoints: course.learningPoints,
+        requirements: course.requirements,
+        sections: course.sections,
+        lectures: publicLectures, // Caution! Don't add lecture data here without removing paywall protected content!
+        includeInCoachingForCoaches: course.includeInCoachingForCoaches ? course.includeInCoachingForCoaches : null,
+        isTest: course.isTest ? true : false, // will only be true if this course is a test (admin created)
+      };
+      const publicRef = db.collection(`public-courses`).doc(courseId);
+      batch.set(publicRef, publicData, {merge: true});
+
+      // copy course object as is into paywall protected node (will be available when purchased!)
+      const lockedRef = db.collection(`locked-course-content`).doc(courseId);
+      batch.set(lockedRef, course, {merge: true});
+
+      return batch.commit(); // execute batch ops. Any error should trigger catch.
+    } catch (err) {
+      console.error(err);
+      return;
+    }
+
+  });
 
 /*
   Monitor course user reviews.
 */
 exports.onWriteCourseReview = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.firestore
-.document(`course-reviews/{reviewId}`)
-.onWrite( async (change, context) => {
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .firestore
+  .document(`course-reviews/{reviewId}`)
+  .onWrite(async (change, context) => {
 
-  const index = algolia.initIndex('prod_COURSE_REVIEWS');
-  const reviewId = context.params.reviewId;
-  const before = change.before.data() as any;
-  const review = change.after.data() as any;
+    const index = algolia.initIndex('prod_COURSE_REVIEWS');
+    const reviewId = context.params.reviewId;
+    const before = change.before.data() as any;
+    const review = change.after.data() as any;
 
-  // Record Removed.
-  
-  if (!review) {
+    // Record Removed.
 
-    // decrement total review count
-    if (before) {
-      const decrementCount = admin.firestore.FieldValue.increment(-1);
-      await db.collection(`public-courses`)
-      .doc(review.courseId)
-      .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: decrementCount }, { merge: true })
-      .catch(err => console.error(err));
+    if (!review) {
+
+      // decrement total review count
+      if (before) {
+        const decrementCount = admin.firestore.FieldValue.increment(-1);
+        await db.collection(`public-courses`)
+          .doc(review.courseId)
+          .set({[`total${getRatingAsText(before.starValue)}StarReviews`]: decrementCount}, {merge: true})
+          .catch(err => console.error(err));
+      }
+
+      // sync with Algolia
+      return index.deleteObject(reviewId);
     }
 
-    // sync with Algolia
-    return index.deleteObject(reviewId);
-  }
+    // Record added/updated
 
-  // Record added/updated
+    // if rating has been updated, decrement the old value before incrementing the new value
+    if (before && before.starValue && review && review.starValue && (before.starValue !== review.starValue)) {
+      const decrementCount = admin.firestore.FieldValue.increment(-1);
+      await db.collection(`public-courses`)
+        .doc(review.courseId)
+        .set({[`total${getRatingAsText(before.starValue)}StarReviews`]: decrementCount}, {merge: true})
+        .catch(err => console.error(err));
+    }
 
-  // if rating has been updated, decrement the old value before incrementing the new value
-  if (before && before.starValue && review && review.starValue && (before.starValue !== review.starValue)) {
-    const decrementCount = admin.firestore.FieldValue.increment(-1);
+    // increment total review count to allow cheaper lookups
+    const incrementCount = admin.firestore.FieldValue.increment(1);
     await db.collection(`public-courses`)
-    .doc(review.courseId)
-    .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: decrementCount }, { merge: true })
-    .catch(err => console.error(err));
-  }
+      .doc(review.courseId)
+      .set({[`total${getRatingAsText(review.starValue)}StarReviews`]: incrementCount}, {merge: true})
+      .catch(err => console.error(err));
 
-  // increment total review count to allow cheaper lookups
-  const incrementCount = admin.firestore.FieldValue.increment(1);
-  await db.collection(`public-courses`)
-  .doc(review.courseId)
-  .set({ [`total${getRatingAsText(review.starValue)}StarReviews`]: incrementCount }, { merge: true })
-  .catch(err => console.error(err));
-
-  // sync with Algolia
-  const recordToSend = {
-    objectID: reviewId,
-    courseId: review.courseId,
-    lastUpdated: review.lastUpdated,
-    reviewerUid: review.reviewerUid,
-    reviewerFirstName: review.reviewerFirstName,
-    reviewerLastName: review.reviewerLastName,
-    reviewerPhoto: review.reviewerPhoto ? review.reviewerPhoto : null,
-    sellerUid: review.sellerUid,
-    starValue: review.starValue,
-    summary: review.summary ? review.summary : null,
-    summaryExists: review.summary ? true : false,
-  };
-  // Update Algolia.
-  return index.saveObject(recordToSend);
-});
+    // sync with Algolia
+    const recordToSend = {
+      objectID: reviewId,
+      courseId: review.courseId,
+      lastUpdated: review.lastUpdated,
+      reviewerUid: review.reviewerUid,
+      reviewerFirstName: review.reviewerFirstName,
+      reviewerLastName: review.reviewerLastName,
+      reviewerPhoto: review.reviewerPhoto ? review.reviewerPhoto : null,
+      sellerUid: review.sellerUid,
+      starValue: review.starValue,
+      summary: review.summary ? review.summary : null,
+      summaryExists: review.summary ? true : false,
+    };
+    // Update Algolia.
+    return index.saveObject(recordToSend);
+  });
 
 function getRatingAsText(rating: number) {
   switch (rating) {
@@ -2690,238 +2687,238 @@ function getRatingAsText(rating: number) {
   Sync with Algolia.
 */
 exports.onCreateCoursePublicQuestion = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.firestore
-.document(`public-course-questions/{questionId}`)
-.onCreate( async (snap, context) => {
-  const index = algolia.initIndex('prod_COURSE_QUESTIONS');
-  const questionId = context.params.questionId;
-  const question = snap.data() as any;
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .firestore
+  .document(`public-course-questions/{questionId}`)
+  .onCreate(async (snap, context) => {
+    const index = algolia.initIndex('prod_COURSE_QUESTIONS');
+    const questionId = context.params.questionId;
+    const question = snap.data() as any;
 
-  // Record added/updated.
-  const recordToSend = {
-    objectID: questionId,
-    type: question.type,
-    title: question.title,
-    askerUid: question.askerUid,
-    askerFirstName: question.askerFirstName,
-    askerLastName: question.askerLastName,
-    courseId: question.courseId,
-    courseSellerId: question.courseSellerId,
-    lectureId: question.lectureId,
-    created: question.created,
-    askerPhoto: question.askerPhoto,
-    detail: question.detail,
-    replies: question.replies ? question.replies : null
-  };
+    // Record added/updated.
+    const recordToSend = {
+      objectID: questionId,
+      type: question.type,
+      title: question.title,
+      askerUid: question.askerUid,
+      askerFirstName: question.askerFirstName,
+      askerLastName: question.askerLastName,
+      courseId: question.courseId,
+      courseSellerId: question.courseSellerId,
+      lectureId: question.lectureId,
+      created: question.created,
+      askerPhoto: question.askerPhoto,
+      detail: question.detail,
+      replies: question.replies ? question.replies : null
+    };
 
-  // Update Algolia.
-  await index.saveObject(recordToSend);
+    // Update Algolia.
+    await index.saveObject(recordToSend);
 
-  // Increment question count on course
-  const incrementCount = admin.firestore.FieldValue.increment(1);
-  return db.collection(`locked-course-content`)
-  .doc(question.courseId)
-  .set({ questions: incrementCount }, { merge: true })
-  .catch(err => console.error(err));
-});
+    // Increment question count on course
+    const incrementCount = admin.firestore.FieldValue.increment(1);
+    return db.collection(`locked-course-content`)
+      .doc(question.courseId)
+      .set({questions: incrementCount}, {merge: true})
+      .catch(err => console.error(err));
+  });
 
 /*
   Monitor newly deleted public course questions.
   Sync with Algolia.
 */
 exports.onDeleteCoursePublicQuestion = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.firestore
-.document(`public-course-questions/{questionId}`)
-.onDelete( async (snap, context) => {
-  const index = algolia.initIndex('prod_COURSE_QUESTIONS');
-  const questionId = context.params.questionId;
-  const question = snap.data() as any;
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .firestore
+  .document(`public-course-questions/{questionId}`)
+  .onDelete(async (snap, context) => {
+    const index = algolia.initIndex('prod_COURSE_QUESTIONS');
+    const questionId = context.params.questionId;
+    const question = snap.data() as any;
 
-  // Update Algolia
-  await index.deleteObject(questionId);
+    // Update Algolia
+    await index.deleteObject(questionId);
 
-  // Deccrement question count on course
-  const decrement = admin.firestore.FieldValue.increment(-1);
-  return db.collection(`locked-course-content`)
-  .doc(question.courseId)
-  .set({ questions: decrement }, { merge: true })
-  .catch(err => console.error(err));
-});
+    // Deccrement question count on course
+    const decrement = admin.firestore.FieldValue.increment(-1);
+    return db.collection(`locked-course-content`)
+      .doc(question.courseId)
+      .set({questions: decrement}, {merge: true})
+      .catch(err => console.error(err));
+  });
 
 /*
   Monitor newly created course question replies.
   Sync with Algolia.
 */
 exports.onCreateCoursePublicQuestionReply = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.firestore
-.document(`public-course-questions/{questionId}/replies/{replyId}`)
-.onCreate( async (snap, context) => {
-  const index = algolia.initIndex('prod_COURSE_REPLIES');
-  const questionId = context.params.questionId;
-  const replyId = context.params.replyId;
-  const reply = snap.data() as any;
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .firestore
+  .document(`public-course-questions/{questionId}/replies/{replyId}`)
+  .onCreate(async (snap, context) => {
+    const index = algolia.initIndex('prod_COURSE_REPLIES');
+    const questionId = context.params.questionId;
+    const replyId = context.params.replyId;
+    const reply = snap.data() as any;
 
-  // Record added/updated.
-  const recordToSend = {
-    objectID: replyId,
-    replierUid: reply.replierUid,
-    replierFirstName: reply.replierFirstName,
-    replierLastName: reply.replierLastName,
-    questionId,
-    created: reply.created,
-    replierPhoto: reply.replierPhoto,
-    detail: reply.detail
-  };
+    // Record added/updated.
+    const recordToSend = {
+      objectID: replyId,
+      replierUid: reply.replierUid,
+      replierFirstName: reply.replierFirstName,
+      replierLastName: reply.replierLastName,
+      questionId,
+      created: reply.created,
+      replierPhoto: reply.replierPhoto,
+      detail: reply.detail
+    };
 
-  // Update Algolia.
-  await index.saveObject(recordToSend);
+    // Update Algolia.
+    await index.saveObject(recordToSend);
 
-  // Increment replies count on original question
-  const incrementCount = admin.firestore.FieldValue.increment(1);
-  return db.collection(`public-course-questions`)
-  .doc(questionId)
-  .set({ replies: incrementCount }, { merge: true })
-  .catch(err => console.error(err));
-});
+    // Increment replies count on original question
+    const incrementCount = admin.firestore.FieldValue.increment(1);
+    return db.collection(`public-course-questions`)
+      .doc(questionId)
+      .set({replies: incrementCount}, {merge: true})
+      .catch(err => console.error(err));
+  });
 
 /*
   Monitor deleted course question replies.
   Sync with Algolia.
 */
 exports.onDeleteCoursePublicQuestionReply = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.firestore
-.document(`public-course-questions/{questionId}/replies/{replyId}`)
-.onDelete( async (snap, context) => {
-  const index = algolia.initIndex('prod_COURSE_REPLIES');
-  const questionId = context.params.questionId;
-  const replyId = context.params.replyId;
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .firestore
+  .document(`public-course-questions/{questionId}/replies/{replyId}`)
+  .onDelete(async (snap, context) => {
+    const index = algolia.initIndex('prod_COURSE_REPLIES');
+    const questionId = context.params.questionId;
+    const replyId = context.params.replyId;
 
-  // Update Algolia.
-  await index.deleteObject(replyId);
+    // Update Algolia.
+    await index.deleteObject(replyId);
 
-  // Deccrement replies count on original question
-  const decrement = admin.firestore.FieldValue.increment(-1);
-  return db.collection(`public-course-questions`)
-  .doc(questionId)
-  .set({ replies: decrement }, { merge: true })
-  .catch(err => console.error(err));
-});
+    // Deccrement replies count on original question
+    const decrement = admin.firestore.FieldValue.increment(-1);
+    return db.collection(`public-course-questions`)
+      .doc(questionId)
+      .set({replies: decrement}, {merge: true})
+      .catch(err => console.error(err));
+  });
 
 /*
   Monitor newly created course question upvotes.
   Update count on course.
 */
 exports.onCreateCoursePublicQuestionUpvote = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.firestore
-.document(`public-course-questions/{questionId}/upvotes/{userId}`)
-.onCreate( async (snap, context) => {
-  const questionId = context.params.questionId;
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .firestore
+  .document(`public-course-questions/{questionId}/upvotes/{userId}`)
+  .onCreate(async (snap, context) => {
+    const questionId = context.params.questionId;
 
-  // Increment upvotes count on original question
-  const incrementCount = admin.firestore.FieldValue.increment(1);
-  return db.collection(`public-course-questions`)
-  .doc(questionId)
-  .set({ upVotes: incrementCount }, { merge: true })
-  .catch(err => console.error(err));
-});
+    // Increment upvotes count on original question
+    const incrementCount = admin.firestore.FieldValue.increment(1);
+    return db.collection(`public-course-questions`)
+      .doc(questionId)
+      .set({upVotes: incrementCount}, {merge: true})
+      .catch(err => console.error(err));
+  });
 
 /*
   Monitor newly created course question reply upvotes.
   Update count on course question reply.
 */
 exports.onCreateCoursePublicQuestionReplyUpvote = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.firestore
-.document(`public-course-questions/{questionId}/replies/{replyId}/upvotes/{userId}`)
-.onCreate( async (snap, context) => {
-  const questionId = context.params.questionId;
-  const replyId = context.params.replyId;
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .firestore
+  .document(`public-course-questions/{questionId}/replies/{replyId}/upvotes/{userId}`)
+  .onCreate(async (snap, context) => {
+    const questionId = context.params.questionId;
+    const replyId = context.params.replyId;
 
-  // Increment upvotes count on question reply
-  const incrementCount = admin.firestore.FieldValue.increment(1);
-  return db.collection(`public-course-questions/${questionId}/replies`)
-  .doc(replyId)
-  .set({ upVotes: incrementCount }, { merge: true })
-  .catch(err => console.error(err));
-});
+    // Increment upvotes count on question reply
+    const incrementCount = admin.firestore.FieldValue.increment(1);
+    return db.collection(`public-course-questions/${questionId}/replies`)
+      .doc(replyId)
+      .set({upVotes: incrementCount}, {merge: true})
+      .catch(err => console.error(err));
+  });
 
 /*
   Monitor newly created people.
 */
 exports.onNewCrmPersonCreate = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.firestore
-.document(`users/{uid}/people/{personUid}`)
-.onCreate( async (snap, context) => {
-  const userId = context.params.uid;
-  const personId = context.params.personUid;
-  const timestampNow = Math.round(new Date().getTime() / 1000);
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .firestore
+  .document(`users/{uid}/people/{personUid}`)
+  .onCreate(async (snap, context) => {
+    const userId = context.params.uid;
+    const personId = context.params.personUid;
+    const timestampNow = Math.round(new Date().getTime() / 1000);
 
-  // set a created time on the new person object
-  return db.collection(`users/${userId}/people`)
-  .doc(personId)
-  .set({ created: timestampNow }, { merge: true })
-  .catch(err => console.error(err));
-});
+    // set a created time on the new person object
+    return db.collection(`users/${userId}/people`)
+      .doc(personId)
+      .set({created: timestampNow}, {merge: true})
+      .catch(err => console.error(err));
+  });
 
 /*
   Monitor private coach services.
   Sync with public nodes & Algolia.
 */
 exports.onWritePrivateServices = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.firestore
-.document(`/users/{userId}/services/{serviceId}`)
-.onWrite( async (change, context) => {
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .firestore
+  .document(`/users/{userId}/services/{serviceId}`)
+  .onWrite(async (change, context) => {
 
-  const userId = context.params.userId;
-  const serviceId = context.params.serviceId;
-  // const before = change.before.data() as any;
-  const after = change.after.data() as any;
+    const userId = context.params.userId;
+    const serviceId = context.params.serviceId;
+    // const before = change.before.data() as any;
+    const after = change.after.data() as any;
 
-  // Public DB sync
+    // Public DB sync
 
-  const batch = db.batch(); // prepare to execute multiple ops atomically
+    const batch = db.batch(); // prepare to execute multiple ops atomically
 
-  const publicAllRef = db.collection(`public-services`).doc(serviceId);
-  batch.set(publicAllRef, after, { merge: true });
+    const publicAllRef = db.collection(`public-services`).doc(serviceId);
+    batch.set(publicAllRef, after, {merge: true});
 
-  const publicByCoachRef = db.collection(`public-services-by-coach/${userId}/services`).doc(serviceId);
-  batch.set(publicByCoachRef, after, { merge: true });
+    const publicByCoachRef = db.collection(`public-services-by-coach/${userId}/services`).doc(serviceId);
+    batch.set(publicByCoachRef, after, {merge: true});
 
-  await batch.commit(); // execute batch ops
+    await batch.commit(); // execute batch ops
 
-  // Algolia sync
+    // Algolia sync
 
-  const index = algolia.initIndex('prod_SERVICES');
+    const index = algolia.initIndex('prod_SERVICES');
 
-  // Record Removed.
-  if (!after) {
-    return index.deleteObject(serviceId);
-  }
-  // Record added/updated.
-  const recordToSend = {
-    objectID: serviceId,
-    id: after.id,
-    coachUid: userId,
-    title: after.title,
-    subtitle: after.subtitle,
-    duration: after.duration,
-    serviceType: after.serviceType,
-    pricingStrategy: after.pricingStrategy,
-    image: after.image,
-    description: after.description,
-    price: after.price,
-    currency: after.currency
-  };
-  // Update Algolia.
-  return index.saveObject(recordToSend);
-});
+    // Record Removed.
+    if (!after) {
+      return index.deleteObject(serviceId);
+    }
+    // Record added/updated.
+    const recordToSend = {
+      objectID: serviceId,
+      id: after.id,
+      coachUid: userId,
+      title: after.title,
+      subtitle: after.subtitle,
+      duration: after.duration,
+      serviceType: after.serviceType,
+      pricingStrategy: after.pricingStrategy,
+      image: after.image,
+      description: after.description,
+      price: after.price,
+      currency: after.currency
+    };
+    // Update Algolia.
+    return index.saveObject(recordToSend);
+  });
 
 // ================================================================================
 // =====                                                                     ======
@@ -2931,52 +2928,126 @@ exports.onWritePrivateServices = functions
 // ================================================================================
 
 exports.updateAllProfilesInSequence = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.https
-.onCall( async (data, context) => {
-  try {
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
+  .onCall(async (data, context) => {
+    try {
 
-    // If user is not an authorised admin reject immediately.
-    if (!context.auth || context.auth.token.admin !== true) {
-      return {error: 'Unauthorised!'}
+      // If user is not an authorised admin reject immediately.
+      if (!context.auth || context.auth.token.admin !== true) {
+        return {error: 'Unauthorised!'}
+      }
+
+      const now = Math.round(new Date().getTime() / 1000);
+
+      // we have to query algolia as our users collection are all VIRTUAL docs and invisilbe to snapshots!
+      const searchIndex = 'prod_USERS';
+      const index = algolia.initIndex(searchIndex);
+      const algoliaRes = await index.browse(''); // use browse not search to get all records
+      console.log(`Updating ${algoliaRes.hits.length} user profiles...`);
+      //console.log('Example profile sanity check:', algoliaRes.hits[400]);
+
+      const promises = [] as any;
+
+      algoliaRes.hits.forEach((hit, i) => {
+        const record = hit as any;
+        const userId = record.objectID;
+        console.log(`Admin mass profile update. Processing record: ${i} for user: ${userId}`);
+        const prom = db.collection(`users/${userId}/profile`)
+          .doc(`profile${userId}`)
+          .set({adminMassUpdated: now}, {merge: true});
+
+        promises.push(prom);
+      });
+
+      console.log(promises.length);
+
+      await Promise.all(promises);
+
+      return {
+        success: true,
+        message: `Success! All updates in progress...`
+      }
+    } catch (err) {
+      console.error(err);
+      return {error: err};
+    }
+  });
+
+exports.getTwilioToken = functions
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
+  .onCall(async (data: any, context?) => {
+
+    const timeOfStart = data.timeOfStart;
+    const currentTime = Date.now();
+    const uid = data.uid;
+    const room = data.room;
+    const duration = data.duration;
+    if ( (currentTime - timeOfStart > 60000 )|| ((timeOfStart + duration) < currentTime) ) {
+      return {error: 'session can`t be started or it has already been ended'}
     }
 
-    const now = Math.round(new Date().getTime() / 1000);
+    try {
 
-    // we have to query algolia as our users collection are all VIRTUAL docs and invisilbe to snapshots!
-    const searchIndex = 'prod_USERS';
-    const index = algolia.initIndex(searchIndex);
-    const algoliaRes = await index.browse(''); // use browse not search to get all records
-    console.log(`Updating ${algoliaRes.hits.length} user profiles...`);
-    //console.log('Example profile sanity check:', algoliaRes.hits[400]);
+      const res = await fetch(`https://getvideotoken-9623.twil.io/vide-token?uid=${uid}&room=${room}&timeOfStart${timeOfStart}&duration=${duration}`);
 
-    const promises = [] as any;
+      const json = await res.json()
+      // @ts-ignore
+      return {json} // success
 
-    algoliaRes.hits.forEach((hit, i) => {
-      const record = hit as any;
-      const userId = record.objectID;
-      console.log(`Admin mass profile update. Processing record: ${i} for user: ${userId}`);
-      const prom = db.collection(`users/${userId}/profile`)
-      .doc(`profile${userId}`)
-      .set({ adminMassUpdated: now }, { merge: true });
-
-      promises.push(prom);
-    });
-
-    console.log(promises.length);
-
-    await Promise.all(promises);
-
-    return {
-      success: true,
-      message: `Success! All updates in progress...`
+    } catch (err) {
+      console.error(err);
+      return {error: err}
     }
-  }
-  catch(err) {
-    console.error(err);
-    return {error: err};
-  }
-});
+
+  });
+
+exports.getInfoAboutCurrentVideoSession = functions
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
+  .onCall(async (data: any, context?) => {
+
+    try {
+      const docSnapshot = await db.collection(`/ordered-sessions/all/sessions`)
+        .doc(data.docId)
+        .get();
+
+      const sessionObject = docSnapshot.exists ? docSnapshot.data() : undefined;
+
+      if (sessionObject) {
+
+        if (sessionObject.start.seconds * 1000 > Date.now()) {
+          return {sessionStatus: 'NOT_STARTED_YET'};
+        }
+        if (sessionObject.end.seconds * 1000 < Date.now()) {
+          return {sessionStatus: 'IS_OVER'};
+        }
+        return {sessionStatus: 'IN_PROGRESS', timeLeft: sessionObject.end.seconds * 1000 - Date.now()};
+      } else {
+        return {sessionStatus: 'SESSION_NOT_FOUND'};
+      }
+    } catch (err) {
+      console.error(err);
+      return {error: err}
+    }
+
+  });
+
+exports.abortVideoSession = functions
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
+  .onCall(async (data: any, context?) => {
+    try {
+      await client.video.rooms(data.roomID)
+        .update({status: 'completed'})
+      return {success: true};
+    } catch (err) {
+      console.error(err);
+      return {error: err}
+    }
+  });
+
 
 // *** TEMP TEMP TEMP ***
 function specialities() {
@@ -2995,28 +3066,3 @@ function specialities() {
     {id: '012', itemName: 'Productivity & Personal Organisation'}
   ];
 }
-exports.getTwilioToken = functions
-  .runWith({memory: '1GB', timeoutSeconds: 300})
-  .https
-  .onCall( async (data: any, context?) => {
-
-    const uid = data.uid;
-    const room = data.room;
-    const timeOfStart = data.timeOfStart;
-    const duration = data.duration;
-
-    try {
-
-      const res = await fetch(`https://getvideotoken-9623.twil.io/vide-token?uid=${uid}&room=${room}&timeOfStart${timeOfStart}&duration=${duration}`);
-
-      // console.log('Stripe login link result:', JSON.stringify(res));
-      const json = await res.json()
-      // @ts-ignore
-      return { json } // success
-
-    } catch (err) {
-      console.error(err);
-      return { error: err }
-    }
-
-  });

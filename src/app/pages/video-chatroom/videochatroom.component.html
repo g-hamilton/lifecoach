@@ -2,23 +2,38 @@
   {{ message }}
 </p>
 
-<div id="video-container">
-
-  <div id="local" #localVideo>
-    <p>local video</p>
+<div class="video-container content">
+  <div class="countdown"></div>
+  <div class="remoteVideo col-md-9 mb-2" #remoteVideo>
+    <h2 class="my-1">Your interlocutor`s video</h2>
   </div>
-
-  <div id="remote" #remoteVideo>
-    <p>remote video</p>
+  <div *ngIf="this.timeBeforeSession && !(this.sessionHasStarted); else loading"
+       class="row my-2 justify-content-center">{{this.timeBeforeSession}} </div>
+  <ng-template #loading>
+    <div *ngIf='!(this.sessionHasStarted); else loaded ' class="row my-2 justify-content-center">Loading ...</div>
+    <ng-template #loaded class="row my-2 justify-content-center"> ' '</ng-template>
+  </ng-template>
+  <div class="row">
+    <div class="col-md-2"></div>
+    <div class="controls col-md-4">
+      <button type="button"
+              [disabled]="(!username || !roomName)"
+              (click)="this.sessionHasStarted ? this.disconnect(): this.connect()"
+              class="mx-2">
+        <i  [ngClass]="this.sessionHasStarted ? 'fas fa-phone stop' : 'fas fa-phone play'" ></i>
+      </button>
+      <button type="button" [disabled]="!this.sessionHasStarted" (click)="toggleMic()" class="mx-2">
+        <i [ngClass]="!this.isMicActive ? 'fas fa-microphone micro' : 'fas fa-microphone-slash micro_off' "></i>
+      </button>
+      <button type="button" [disabled]="!this.sessionHasStarted" (click)="toggleVideo()" class="mx-2">
+        <i [ngClass]="this.isVideoActive ? 'fas fa-video-slash stop' : 'fas fa-video play' "></i>
+      </button>
+    </div>
+    <div class="col-md-1"></div>
+    <div class="localVideo col-md-3" #localVideo>
+      <h2 class="my-1">Your video</h2>
+    </div>
+    <div class="col-md-2"></div>
   </div>
-  <input type="text" [(ngModel)]="userId" placeholder="username">
-
-  <input type="text" [(ngModel)]="roomName" placeholder="room name">
-
-  <input type="text" [(ngModel)]="accessToken" placeholder="room name">
-
-  <input type="button" [disabled]="!username || !roomName" value="connect" (click)="connect()">
-
-  <input type="button"  value="disconnect" (click)="disconnect()">
 
 </div>

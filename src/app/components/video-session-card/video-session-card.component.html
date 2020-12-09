@@ -1,0 +1,18 @@
+<div class="session-card" *ngIf="this.coachProfile; else nosessions">
+  <h2 *ngIf="!this.isSamePerson">Coach: {{this.coachProfile.firstName + ' ' + this.coachProfile.lastName}}</h2>
+  <span *ngIf="this.isGoingNow" class="session-card_now">GOING NOW<br></span>
+  <span *ngIf="this.isNew" class="session-card_new">NEW</span>
+  <div><br><span class="time">{{this.sessionStartTime | date: 'medium'}}</span></div>
+  <br>
+  <p *ngIf="!this.isSamePerson; else forCoach"> You have 1-to-1 session with {{this.coachProfile.firstName}}. When You will be ready - just click on link below to
+    start.</p>
+  <ng-template #forCoach>
+    <p>Looks like one of the LifeCoach users bought a video-session with You. When You will be ready - click below to start session.</p>
+  </ng-template>
+  <a [routerLink]="[this.sessionId]">START SESSION</a>
+</div>
+<ng-template #nosessions>
+  <div class="test">
+
+  </div>
+</ng-template>

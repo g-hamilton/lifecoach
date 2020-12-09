@@ -1,12 +1,8 @@
-import { Injectable, EventEmitter, ElementRef } from '@angular/core';
-import { HttpClientModule, HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
-import { Observer } from 'rxjs';
-import { connect, createLocalTracks, createLocalVideoTrack, Room } from 'twilio-video';
-import * as test from 'twilio-video';
+import {ElementRef, Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {BehaviorSubject} from 'rxjs';
+import {connect, Room} from 'twilio-video';
 import {CloudFunctionsService} from './cloud-functions.service';
-import DevExpress from 'devextreme/bundles/dx.all';
-import dxColorBox = DevExpress.ui.dxColorBox;
 
 @Injectable({
   providedIn: 'root'
@@ -20,26 +16,34 @@ export class TwilioService {
   roomObj: Room;
   localTracks: any;
   localVideoTrackToRemove: any;
+  isVideoEnabled = true;
+  isAudioEnabled = true;
 
   constructor(
     private http: HttpClient,
     private cloudFunctions: CloudFunctionsService
-  ) {}
+  ) {
+  }
 
-  connectToRoom(accessToken: string, options): void {
+  connectToRoom(userLoaded: any, accessToken: string, options): void {
     connect(accessToken, {...options})
       .then(room => {
         this.roomObj = room;
-        console.log('Successfully joined a Room: ', room);
+        console.log('Successfully joined a Room: ', this.roomObj);
+        this.localVideo.nativeElement.innerHTML = null;
         this.roomObj.localParticipant.tracks.forEach((track) => {
           // hide camera after 5 seconds
           console.log(track);
           // this.roomObj.localParticiant.publish(track);
           if (track.kind === 'video') {
-            this.localVideo.nativeElement.appendChild(track.track.attach());
+            const attachedElement = track.track.attach();
+            if (attachedElement.tagName === 'VIDEO') {
+              attachedElement.classList.add('col');
+            }
+            this.localVideo.nativeElement.appendChild(attachedElement);
           }
 
-          if (this.roomObj.participants.size > 0 ) {
+          if (this.roomObj.participants.size > 0) {
 
 
             console.log('Tut bol`sche chem 0', this.roomObj);
@@ -51,115 +55,168 @@ export class TwilioService {
                   // this.remoteVideo.nativeElement.appendChild(publication.track.attach());
                 }
               });
-
+              this.remoteVideo.nativeElement.innerHTML = null;
               participant.on('trackSubscribed', track => {
                 console.log(track);
-                if (this.remoteVideo.nativeElement.children.length < 4) {
-                  this.remoteVideo.nativeElement.appendChild(track.attach());
+                if (this.remoteVideo.nativeElement.children.length < 3) {
+                  const attachedElement = track.attach();
+                  attachedElement.classList.add('col-md-8');
+                  this.remoteVideo.nativeElement.appendChild(attachedElement);
                 }
                 console.log(this.remoteVideo.nativeElement.children);
               });
 
-
+              // room.on('tokenAboutToExpire', () => {
+              //   // Implement fetchToken() to make a secure request to your backend to retrieve a refreshed access token.
+              //   // Use an authentication mechanism to prevent token exposure to 3rd parties.
+              //   console.log('Token is about to expire in 3 minutes');
+              //   alert('Token is about to expire in 3 minutes');
+              // });
+              // participant.on('tokenAboutToExpire', () => {
+              //   // Implement fetchToken() to make a secure request to your backend to retrieve a refreshed access token.
+              //   // Use an authentication mechanism to prevent token exposure to 3rd parties.
+              //   console.log('Token is about to expire in 3 minutes');
+              //   alert('Token is about to expire in 3 minutes');
+              // });
             });
-
           }
-
-          // setTimeout(() => {
-          //
-          //     console.log('ended');
-          //     track.track.disable();
-          //     track.track.stop();
-          //     console.log(this.roomObj);
-          //   }, 5000);
-
         });
 
         room.on('participantDisconnected', participant => {
           console.log(`${participant.identity} left the Room`);
           console.log(participant);
-          participant.tracks.forEach( (publication, value) => {
+          participant.tracks.forEach((publication, value) => {
             console.log(publication, value);
           });
           console.log(participant);
+          this.remoteVideo.nativeElement.innerHTML = null;
         });
 
         room.on('participantConnected', participant => {
           console.log('A remote Participant connected: ', participant);
-          participant.videoTracks.forEach( publication => {
+
+          participant.videoTracks.forEach(publication => {
             if (publication.track) {
-              this.remoteVideo.nativeElement.appendChild(publication.track.attach());
+              const attachedElement = publication.track.attach();
+              if (this.remoteVideo.nativeElement.children.length < 4) {
+                console.log(attachedElement.classList)
+                this.remoteVideo.nativeElement.appendChild(attachedElement);
+              }
             }
           });
-
+          this.remoteVideo.nativeElement.innerHTML = null;
           participant.on('trackSubscribed', track => {
-            this.remoteVideo.nativeElement.appendChild(track.attach());
+
+            const attachedElement = track.attach();
+
+            console.log(attachedElement.tagName);
+            if (attachedElement.tagName === 'VIDEO') {
+              attachedElement.classList.add('col-md-8');
+            }
+            this.remoteVideo.nativeElement.appendChild(attachedElement);
           });
         });
-          // this.remoteVideo.nativeElement.appendChild(participant)
+        // this.remoteVideo.nativeElement.appendChild(participant)
 
-          // room.participants.forEach(participant => {
-          //   participant.tracks.forEach(publication => {
-          //     if (publication.track) {
-          //       document.getElementById('remote-media-div').appendChild(publication.track.attach());
-          //     }
-          //   });
-          //
-          //   participant.on('trackSubscribed', track => {
-          //     document.getElementById('remote-media-div').appendChild(track.attach());
-          //   });
-          // });
-          //
-          //
-          // this.remoteVideo
+        // room.participants.forEach(participant => {
+        //   participant.tracks.forEach(publication => {
+        //     if (publication.track) {
+        //       document.getElementById('remote-media-div').appendChild(publication.track.attach());
+        //     }
+        //   });
+        //
+        //   participant.on('trackSubscribed', track => {
+        //     document.getElementById('remote-media-div').appendChild(track.attach());
+        //   });
+        // });
+        //
+        //
+        // this.remoteVideo
+        userLoaded();
       }, error => {
         alert('Unable to connect to Room: ' + error.message);
       });
   }
-  disconnect(): void {
-    this.roomObj.disconnect();
-    this.remoteVideo.nativeElement.innerHTML = null;
-    this.localVideo.nativeElement.innerHTML = null;
-   // console.log(this.roomObj.localParticipant);
-   // console.log(this.roomObj.localParticipant.tracks.values());
-   //
-   //  this.roomObj.disconnect();
-   // const tracks = this.roomObj.localParticipant.tracks.values();
-   //  for (const track of tracks) {
-   //    console.log(track);
-   //    if (track.kind === 'video') {
-   //      track.track.stop();
-   //    }
-   //    track.track.detach().forEach(mediaElement => mediaElement.remove());
-   //    this.roomObj.localParticipant.unpublishTrack(track.track);
-   //
-   //  }
-   //  // this.localVideo.nativeElement.innerHTML = null;
-   //  console.log(this.localTracks);
-   //  this.localTracks.forEach(track => {
-   //    console.log(track.mediaStreamTrack.stop());
-   //    // track.remove();
-   //  });
-   //  this.localVideoTrackToRemove.detach();
-   //  // this.localVideo.nativeElement = ();
+
+  abort() {
+    // console.log('trying to abort');
+    if (this.roomObj) {
+      this.cloudFunctions.abortVideoSession(this.roomObj.sid).then(answer => console.log(answer));
+    } else {
+      console.log('Комната и так отключена');
+    }
+    this.isVideoEnabled = true;
+    this.isAudioEnabled = true;
   }
 
-  // getToken(username): any { //  Observable<any>
-  //   // return fetch(`https://getvideotoken-9623.twil.io/vide-token?identity=${username}`, {
-  //   //   method: 'GET',
-  //   //   mode: 'no-cors',
-  //   //   credentials: 'same-origin',
-  //   //   headers: {
-  //   //     'Content-type': 'application/json',
-  //   //   },
-  //   // });
-  //   console.log('Video Service prop', username);
-  //   return
-  //
-  //
-  //
-  // }
+  toggleMicro() {
+    console.log(this.roomObj);
+    if (this.isAudioEnabled) {
+      this.roomObj.localParticipant.audioTracks.forEach((publication) => {
+        publication.track.disable();
+      });
+      this.isAudioEnabled = !this.isAudioEnabled;
+      return;
+    }
+    this.roomObj.localParticipant.audioTracks.forEach((publication) => {
+      publication.track.enable();
+    });
+    this.isAudioEnabled = !this.isAudioEnabled;
 
+    // for (const track of this.roomObj.localParticipant.audioTracks) {
+    //   if (typeof track !== 'string') {
+    //     track.track.isEnabled ? track.track.disable() : track.track.enable();
+    //     console.log('toggled', track.track.isEnabled );
+    //   }
+    // }
+  }
+  toggleVideo() {
+    console.log(this.isVideoEnabled);
+    if (this.isVideoEnabled) {
+      this.roomObj.localParticipant.videoTracks.forEach((publication) => {
+        publication.track.disable();
+      });
+      this.isVideoEnabled = !this.isVideoEnabled;
+      return;
+    }
+    this.roomObj.localParticipant.videoTracks.forEach((publication) => {
+      publication.track.enable();
+    });
+    this.isVideoEnabled = !this.isVideoEnabled;
+  }
+
+  disconnect(): void {
+    if (this.roomObj) {
+      this.roomObj.disconnect();
+    }
+    this.remoteVideo.nativeElement.innerHTML = null;
+    this.localVideo.nativeElement.innerHTML = null;
+    this.isVideoEnabled = true;
+    this.isAudioEnabled = true;
+    // console.log(this.roomObj.localParticipant);
+    // console.log(this.roomObj.localParticipant.tracks.values());
+    //
+    //  this.roomObj.disconnect();
+    // const tracks = this.roomObj.localParticipant.tracks.values();
+    //  for (const track of tracks) {
+    //    console.log(track);
+    //    if (track.kind === 'video') {
+    //      track.track.stop();
+    //    }
+    //    track.track.detach().forEach(mediaElement => mediaElement.remove());
+    //    this.roomObj.localParticipant.unpublishTrack(track.track);
+    //
+    //  }
+    //  // this.localVideo.nativeElement.innerHTML = null;
+    //  console.log(this.localTracks);
+    //  this.localTracks.forEach(track => {
+    //    console.log(track.mediaStreamTrack.stop());
+    //    // track.remove();
+    //  });
+    //  this.localVideoTrackToRemove.detach();
+    //  // this.localVideo.nativeElement = ();
+
+  }
 
 
   //

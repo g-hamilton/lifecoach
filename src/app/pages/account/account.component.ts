@@ -481,7 +481,7 @@ export class AccountComponent implements OnInit, OnDestroy {
       || this.accountSnapshot.breakDuration !== this.accountF.breakDuration.value) {
       alert('Changed session and breaks'); // TODO: Modal
                                             // Alert user, if they had sessions
-      return;
+      // return;
     }
     console.log(this.accountForm.value);
 

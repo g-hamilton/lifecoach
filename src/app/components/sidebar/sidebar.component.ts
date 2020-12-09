@@ -137,15 +137,15 @@ export const ROUTES: RouteInfo[] = [
     title: 'CALENDAR',
     rtlTitle: 'التقويم',
     type: 'link',
-    icontype: 'tim-icons icon-lock-circle',
-    userTypes: ['regular', 'coach', 'publisher', 'provider', 'admin']
+    icontype: 'tim-icons icon-calendar-60',
+    userTypes: ['coach', 'publisher', 'provider', 'admin']
   },
   {
     path: '/reserved-sessions',
     title: 'reserved-sessions',
     rtlTitle: 'التقويم',
     type: 'link',
-    icontype: 'tim-icons icon-lock-circle',
+    icontype: 'tim-icons icon-bag-16',
     userTypes: ['regular', 'coach', 'publisher', 'provider', 'admin']
   },
   {
@@ -153,7 +153,7 @@ export const ROUTES: RouteInfo[] = [
     title: 'VIDEO',
     rtlTitle: 'التقويم',
     type: 'link',
-    icontype: 'tim-icons icon-lock-circle',
+    icontype: 'tim-icons icon-video-66',
     userTypes: ['regular', 'coach', 'publisher', 'provider', 'admin']
   },
   {

@@ -18,7 +18,7 @@ export class AlertService {
 
   alert(type: 'basic' | 'title-and-text' | 'success-message' | 'warning-message-and-confirmation' |
   'warning-message-and-cancel' | 'custom-html' | 'auto-close' | 'input-field' | 'warning-message' |
-  'question-and-confirmation' | 'special-delete-account' | 'info-message',
+  'question-and-confirmation' | 'special-delete-account' | 'info-message' | 'loader',
   // tslint:disable-next-line: align
   title?: string, text?: string, confirmText?: string, cancelText?: string, successTitle?: string, successText?: string,
   // tslint:disable-next-line: align
@@ -267,7 +267,6 @@ export class AlertService {
         })
         .catch(err => console.error(err));
       }
-
     });
 
   }

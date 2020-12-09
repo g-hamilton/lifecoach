@@ -80,7 +80,7 @@
             <div class=" card-description text-center ml-5 mr-5">
               {{ this.userProfile.proSummary }}
             </div>
-            <div class=" col-md-12 mt-1">
+            <div *ngIf='this.userId !== undefined && this.userId!== this.coachId' class=" col-md-12 mt-1">
               <div class=" pull-right">
                 <button
                   class=" btn btn-fill btn-round btn-primary mr-2 mb-2"
@@ -297,17 +297,18 @@
       <div *ngIf="this.showModal">
         <div class="modalContainer" >
           <div class="modalContent">
-            <span>Please, choose available date</span>
             <button type="button" class="closeButton" (click)="hideModal()"><i class="fas fa-times"></i></button>
+            <span>Check free dates</span><br>
             <br/>
             <!-- Select for date -->
             <select name="" id="" (change)="daySelect($event)">
-              <option *ngIf="!this.dayToSelect.length">No Available Sessions for You</option>
-              <option *ngFor="let day of this.dayToSelect" [defaultSelected]="day" [ngValue]="day">
+              <option value='NULL' [defaultSelected]="true">Please, choose available Date</option>
+              <option *ngFor="let day of this.dayToSelect" [ngValue]="day">
                 {{day | date: 'yyyy, MMM, dd'}}
               </option>
             </select>
             <div class="sessions">
+
             <div *ngFor="let event of this.todayEvents" class="session">
               <span  class="sessionTitle">{{event.start*1000 | date: "HH:mm"}} - {{event.end*1000 | date: "HH:mm"}}</span>
               <button
@@ -316,6 +317,7 @@
                 (click)="reserveSession($event)"
                 [value]="event.id"
               >Reserve </button>
+
             </div>
             </div>
           </div>

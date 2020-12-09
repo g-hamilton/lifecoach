@@ -7,6 +7,8 @@ import {CustomCalendarEvent} from '../../interfaces/custom.calendar.event.interf
 import {DataService} from 'app/services/data.service';
 import {AuthService} from 'app/services/auth.service';
 import {take} from 'rxjs/operators';
+import {ToastrService} from "ngx-toastr";
+import {AlertService} from "../../services/alert.service";
 
 declare var JitsiMeetExternalAPI: any;
 
@@ -48,7 +50,9 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private authService: AuthService,
     public formBuilder: FormBuilder,
-    private dataService: DataService
+    private dataService: DataService,
+    private toastService: ToastrService,
+    public alertService: AlertService
   ) {
   }
 
@@ -132,6 +136,7 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
                     ev.end = new Date(ev.end.seconds * 1000);
                   }
                   ev.title = ev.reserved ? (ev.ordered ? 'ORDERED' : 'RESERVED') : 'FREE';
+                  ev.cssClass = ev.reserved ? (ev.ordered ? 'ordered' : 'reserved') : 'free' ;
                 });
 
                 this.events = events;
@@ -177,10 +182,10 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     // this.createEvent(event.day.date);
   }
   onHourSegmentClicked(event: any) {
-    if (event.date < new Date(Date.now() + 60000 * 30) ) { // 30 minutes for planning event
-      alert('You can`t pick date, which has already been'); // TODO: Modal
-      return;
-    }
+    // if (event.date < new Date(Date.now() + 60000 * 30) ) { // 30 minutes for planning event
+    //   alert('You can`t pick date, which has already been'); // TODO: Modal
+    //   return;
+    // }
     this.createEvent(event.date);
     this.fillEndTimes(event);
     this.fillStartTimes(event);
@@ -415,14 +420,24 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     if (error) {
       // TODO: It will be better to do a Modal with warning;
-      alert('Choose other date!'); // TODO: Modal
+      // alert('Choose other date!'); // TODO: Modal
+      this.alertService.alert(
+          'warning-message',
+        'Choose other time!',
+          'Our apologize. System is working in test-mode. Please, choose time which will not across Your other free time events',
+        'ok',
+        'btn btn-round btn-success',
+      ).then(()=>console.log('ended'));
       return;
     }
     // Make a divider there
     //
     // ev.title = `${ev.start.toLocaleTimeString()} - ${ev.end.toLocaleTimeString()}`;
     this.divideEventIntoSessions(ev)
-      .forEach(i => this.dataService.saveUserCalendarEvent(this.userId, i.start, i));
+      .forEach(i => {
+        this.dataService.saveUserCalendarEvent(this.userId, i.start, i);
+        this.eventNotification(ev);
+      });
     console.log(ev);
     // save the event
     if (!this.userId) {
@@ -437,6 +452,20 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     // reset the active event
     this.activeEvent = null;
     this.activeEventForm.reset();
+  }
+
+  eventNotification( ev: any ) {
+    console.log(ev);
+    this.toastService.show( '<span data-notify="icon" class="tim-icons icon-bell-55"></span>',
+      `Your Calendar successfully updated.
+      Added free time from ${ev.start.toLocaleString()} till ${ev.end.toLocaleString()}`,
+      {
+        timeOut: 4000,
+        closeButton: true,
+        enableHtml: true,
+        toastClass: 'alert alert-danger alert-with-icon',
+        positionClass: 'toast-top-right'
+      });
   }
 
   ngOnDestroy() {

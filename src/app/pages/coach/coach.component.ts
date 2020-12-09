@@ -1,5 +1,5 @@
-import {Component, OnInit, OnDestroy, Inject, PLATFORM_ID, ViewChild} from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import {Component, OnInit, OnDestroy, Inject, PLATFORM_ID, ViewChild, ViewEncapsulation} from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Title, Meta, TransferState, makeStateKey } from '@angular/platform-browser';
 import { DOCUMENT, isPlatformBrowser, isPlatformServer } from '@angular/common';
 
@@ -7,20 +7,21 @@ declare var google: any; // Silence Typescript 'google' warning
 
 import { DataService } from '../../services/data.service';
 import { AnalyticsService } from '../../services/analytics.service';
-
 import { CoachProfile } from '../../interfaces/coach.profile.interface';
 import { CoachingCourse } from 'app/interfaces/course.interface';
 import { CoachingService } from 'app/interfaces/coaching.service.interface';
-import {Observable, Subscription, from} from 'rxjs';
+import { Subscription } from 'rxjs';
 import {CustomCalendarEvent} from '../../interfaces/custom.calendar.event.interface';
 import {AuthService} from '../../services/auth.service';
-import {filter, first, map} from 'rxjs/operators';
+import {first, take} from 'rxjs/operators';
 import {ModalDirective} from 'ngx-bootstrap/modal';
+import {ToastrService} from 'ngx-toastr';
 
 
 @Component({
   selector: 'app-coach',
   templateUrl: 'coach.component.html',
+  encapsulation: ViewEncapsulation.None,
   styleUrls: ['./coach.component.scss']
 })
 export class CoachComponent implements OnInit, OnDestroy {
@@ -31,27 +32,31 @@ export class CoachComponent implements OnInit, OnDestroy {
   public courses: CoachingCourse[];
   public publishedServices: CoachingService[];
   public availableEvents: CustomCalendarEvent[] | [];
-  public todayEvents: CustomCalendarEvent[] | [];
+  public todayEvents: Array<any>;
   private subscriptions: Subscription = new Subscription();
   private userId: string;
+
   public showModal = false;
   public dayToSelect: Array<Date> = [];
   public timeToSelect: Array<Date> = [];
 
   public testArr: [];
-  public test: Observable<any>;
+  public test$;
   public testData: any;
+  private selectedDate: Date;
 
   constructor(
     @Inject(DOCUMENT) private document: any,
     @Inject(PLATFORM_ID) private platformId: object,
     private route: ActivatedRoute,
+    private router: Router,
     private dataService: DataService,
     private analyticsService: AnalyticsService,
     private titleService: Title,
     private metaTagService: Meta,
     private transferState: TransferState,
-    private authService: AuthService
+    private authService: AuthService,
+    private toastrService: ToastrService
   ) {
   }
 
@@ -149,7 +154,7 @@ export class CoachComponent implements OnInit, OnDestroy {
   initProfile(profile) {
     if (profile) {
       this.userProfile = profile;
-      console.log('this is user profile', profile);
+      console.log('Init profile', profile, );
       // Build dynamic meta tags
       this.titleService.setTitle(`${this.userProfile.firstName} ${this.userProfile.lastName} |
           ${this.userProfile.speciality1.itemName} Coach`);
@@ -180,46 +185,35 @@ export class CoachComponent implements OnInit, OnDestroy {
           console.log(next);
           if (next) {
             this.availableEvents = next;
+            console.log(next);
             this.dayToSelect = [];
-            // this.test = next
             this.availableEvents.forEach( i => {
-              // console.log(i.start);
               // @ts-ignore
               const startDate = new Date(i.start.seconds * 1000);
-              // console.log('Start Date = ', startDate);
               const day = new Date(startDate.getUTCFullYear(), startDate.getUTCMonth(), startDate.getUTCDate());
-              // console.log('Day', day);
               if (!this.dayToSelect.some( (date) => this.isSameDay(date, day))) {
                 this.dayToSelect.push(day);
               }
             });
-            } else {
-              this.availableEvents = [];
             }
           console.log('UNIQUE DAYS:', this.dayToSelect);
         })
       );
       this.authService.getAuthUser().pipe(first()).subscribe(value => this.userId = value.uid);
-
-      // delete
-      this.test = this.dataService.getUserNotReservedEvents(this.coachId);
-
-      // this.subscriptions.add(
-      //   this.test.subscribe(next => console.log(next))
-      // );
-      // delete
     }
   }
 
   daySelect(event: any) {
-    console.log(event.target.value);
-    const selectedDate = new Date(event.target.value);
-    selectedDate.setDate(selectedDate.getDate() + 1);
-    // @ts-ignore
-    // this.test = this.dataService.getUserNotReservedEvents(this.coachId).pipe(
-    //   map( item => console.log(item))
-    // );
-    this.todayEvents = this.availableEvents.filter( i => this.isSameDay( new Date(i.start.seconds * 1000), selectedDate));
+    if (event.target.value !== 'NULL') {
+      console.log(event.target.value);
+      this.subscriptions.add(
+        this.dataService.getUserNotReservedEvents(this.coachId, new Date(event.target.value))
+          .subscribe(next => {
+          this.todayEvents = next;
+        })
+      );
+    } else {
+    }
   }
   isSameDay(a: Date, b: Date) {
     return (a.getUTCFullYear() === b.getUTCFullYear() && a.getUTCMonth() === b.getUTCMonth() && a.getUTCDate() === b.getUTCDate());
@@ -283,9 +277,22 @@ export class CoachComponent implements OnInit, OnDestroy {
   }
 
   reserveSession($event: any) {
-    console.log($event.target);
-    console.log($event.target.value);
-    this.dataService.reserveEvent(this.userId, this.coachId, $event.target.value).then(r => console.log('Reserved'));
+    this.dataService.reserveEvent(this.userId, this.coachId, $event.target.value).then( r => console.log('Reserved'));
+    this.showNotification();
+  }
+  showNotification() {
+    this.toastrService.success('<span data-notify="icon" class="tim-icons icon-bell-55"></span>You have 15 minutes for confirm Your reservation. Click here to redirect lifecoach.io/reserved.sessions',
+      `You have successfully reserved event`,
+      {
+        timeOut: 8000,
+        closeButton: true,
+        enableHtml: true,
+        toastClass: 'alert alert-danger alert-with-icon',
+        positionClass: 'toast-top-right'
+      }, )
+      .onTap
+      .pipe(take(1))
+      .subscribe(() => this.router.navigate(['/reserved-sessions']));
   }
 
   hideModal() {
