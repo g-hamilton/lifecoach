@@ -66,6 +66,15 @@
                         <app-program-promote [userId]="userId" [program]="program"></app-program-promote>
                     </tab>
 
+                    <tab>
+                        <ng-template tabHeading>
+                          <span class="">
+                            <i class="fas fa-ellipsis-h" tooltip="More options"></i>
+                          </span>
+                        </ng-template>
+                        <app-program-more [userId]="userId" [program]="program"></app-program-more>
+                    </tab>
+
                   </tabset>
                 </div>
               </div>

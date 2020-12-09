@@ -116,6 +116,7 @@ import { ProgramCoachComponent } from './program-coach/program-coach.component';
 import { ProgramFeedbackComponent } from './program-feedback/program-feedback.component';
 import { ProgramBrowseReviewsComponent } from './program-browse-reviews/program-browse-reviews.component';
 import { ProgramContentComponent } from './program-content/program-content.component';
+import { ProgramMoreComponent } from './program-more/program-more.component';
 
 export function momentAdapterFactory() {
   return adapterFactory(moment);
@@ -234,7 +235,8 @@ export function momentAdapterFactory() {
     ProgramCoachComponent,
     ProgramFeedbackComponent,
     ProgramBrowseReviewsComponent,
-    ProgramContentComponent
+    ProgramContentComponent,
+    ProgramMoreComponent
   ],
   exports: [
     TabsModule,
@@ -331,7 +333,8 @@ export function momentAdapterFactory() {
     ProgramCoachComponent,
     ProgramFeedbackComponent,
     ProgramBrowseReviewsComponent,
-    ProgramContentComponent
+    ProgramContentComponent,
+    ProgramMoreComponent
   ]
 })
 export class ComponentsModule {}

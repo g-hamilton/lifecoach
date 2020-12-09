@@ -701,6 +701,13 @@ export class DataService {
     return programsRef.valueChanges() as Observable<CoachingProgram[]>;
   }
 
+  async deletePrivateProgram(userId: string, programId: string) {
+    return this.db.collection(`users/${userId}/programs`)
+      .doc(programId)
+      .delete()
+      .catch(err => console.error(err));
+  }
+
   // ================================================================================
   // =====                           COACH SERVICES                            ======
   // ================================================================================

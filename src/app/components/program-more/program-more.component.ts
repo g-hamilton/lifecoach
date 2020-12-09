@@ -1,18 +1,18 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { CoachingCourse } from 'app/interfaces/course.interface';
+import { CoachingProgram } from 'app/interfaces/coach.program.interface';
 import { AlertService } from 'app/services/alert.service';
 import { DataService } from 'app/services/data.service';
 import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
-  selector: 'app-course-more',
-  templateUrl: './course-more.component.html',
-  styleUrls: ['./course-more.component.scss']
+  selector: 'app-program-more',
+  templateUrl: './program-more.component.html',
+  styleUrls: ['./program-more.component.scss']
 })
-export class CourseMoreComponent implements OnInit {
+export class ProgramMoreComponent implements OnInit {
 
   @Input() userId: string;
-  @Input() course: CoachingCourse;
+  @Input() program: CoachingProgram;
 
   private editingAsAdmin: boolean;
 
@@ -31,12 +31,12 @@ export class CourseMoreComponent implements OnInit {
     });
   }
 
-  async onDeleteCourse() {
-    const res = await this.alertService.alert('warning-message-and-confirmation', 'Are you sure?', 'Deleting your course is final. It CANNOT BE UNDONE! Note: Any students who have already purchased/enrolled in this course will still have access.', 'Yes - Delete') as any;
+  async onDeleteProgram() {
+    const res = await this.alertService.alert('warning-message-and-confirmation', 'Are you sure?', 'Deleting your program is final. It CANNOT BE UNDONE! Note: Any clients who have already purchased/enrolled in this program will still have access.', 'Yes - Delete') as any;
     if (res && res.action) { // user confirms
       // console.log('User confirms delete');
-      this.dataService.deletePrivateCourse(this.userId, this.course.courseId);
-      this.alertService.alert('success-message', 'Success!', 'Your eCourse has been deleted.');
+      this.dataService.deletePrivateProgram(this.userId, this.program.programId);
+      this.alertService.alert('success-message', 'Success!', 'Your program has been deleted.');
       if (this.editingAsAdmin) {
         this.router.navigate(['/admin-manage-user', this.userId]);
       } else {
