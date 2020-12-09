@@ -3,22 +3,29 @@
         <!-- Promote form -->
         <form *ngIf="promoteForm" [formGroup]="promoteForm">
 
-            <div class=" mb-3">
-                <a href="https://lifecoach.freshdesk.com/a/solutions/articles/47001127721" target="_blank">
-                    <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> Help with promoting your course </span>
+            <h5 class=" mb-3">
+                <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001127721-how-to-promote-your-newly-published-course" target="_blank">
+                    <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> Help with promoting your eCourse </span>
                 </a>
-            </div>
+            </h5>
+
+            <p class=" small text-muted pl-2 mb-2">
+                <i class="fas fa-info-circle"></i> Promote your eCourse as widely as you can using this unique link. 
+                This link will take clients to your course landing page where they will be able to enroll in this eCourse. 
+                You also pay a lower commission (earn a higher % per sale) on all enrollments when you use this link.
+                    Learn more about <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001127721-how-to-promote-your-newly-published-course" target="_blank">
+                        promoting your eCourse
+                    </a> and the <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001135033-how-does-the-shared-payment-model-work-" target="_blank">
+                        shared payment model.
+                    </a>
+            </p>
 
             <!-- Referral code -->
             <div class=" row">
                 <div class=" col">
-                    <h4> Refer Students </h4>
-                    <div class="">
+                    <div class=" mt-4">
                         <div class="form-group">
-                            <label for="referral-code"> Any time a student uses this link, we will credit you with the sale.
-                                <a href="https://lifecoach.freshdesk.com/a/solutions/articles/47001127721" target="_blank">
-                                    Learn more
-                                </a>
+                            <label for="referral-code"> Use this link to promote your eCourse:
                             </label>
                             <input #referralCode type="text" class="form-control" id="referral-code" formControlName="referralCode">
                         </div>
