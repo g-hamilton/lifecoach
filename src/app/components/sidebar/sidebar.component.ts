@@ -123,12 +123,31 @@ export const ROUTES: RouteInfo[] = [
     userTypes: ['admin']
   },
   {
-    path: '/admin-course-review',
-    title: 'Course Review',
+    path: '/',
+    title: 'Review',
     rtlTitle: 'التقويم',
-    type: 'link',
+    type: 'sub',
     icontype: 'tim-icons icon-zoom-split',
-    userTypes: ['admin']
+    userTypes: ['admin'],
+    isCollapsed: true,
+    children: [
+      {
+        path: 'admin-course-review',
+        rtlTitle: ' التسعير ',
+        rtlSmallTitle: 'ع ',
+        title: 'eCourse Review',
+        type: 'link',
+        smallTitle: 'eCR'
+      },
+      {
+        path: 'admin-program-review',
+        rtlTitle: 'دعم رتل ',
+        rtlSmallTitle: 'ص',
+        title: 'Program Review',
+        type: 'link',
+        smallTitle: 'PR'
+      }
+    ]
   },
   {
     path: '/account',
@@ -165,35 +184,6 @@ export const ROUTES: RouteInfo[] = [
       }
     ]
   }
-  /* Example of child navigation items
-  {
-    path: '/pages',
-    title: 'Pages',
-    type: 'sub',
-    icontype: 'tim-icons icon-image-02',
-    collapse: 'pages',
-    rtlTitle: 'صفحات',
-    isCollapsed: true,
-    children: [
-      {
-        path: 'pricing',
-        rtlTitle: ' التسعير ',
-        rtlSmallTitle: 'ع ',
-        title: 'Pricing',
-        type: 'link',
-        smallTitle: 'P'
-      },
-      {
-        path: 'rtl',
-        rtlTitle: 'دعم رتل ',
-        rtlSmallTitle: 'ص',
-        title: 'RTL Support',
-        type: 'link',
-        smallTitle: 'RS'
-      }
-    ]
-  },
-  */
 ];
 
 @Component({

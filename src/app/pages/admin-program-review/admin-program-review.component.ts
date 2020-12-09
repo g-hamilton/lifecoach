@@ -1,15 +1,15 @@
 import { Component, OnInit, Inject, PLATFORM_ID, OnDestroy } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { DataService } from 'app/services/data.service';
-import { AdminCourseReviewRequest } from 'app/interfaces/admin.course.review';
+import { AdminProgramReviewRequest } from 'app/interfaces/admin.program.review.interface';
 import { Subscription } from 'rxjs';
 
 @Component({
-  selector: 'app-admin-course-reviews',
-  templateUrl: './admin-course-reviews.component.html',
-  styleUrls: ['./admin-course-reviews.component.scss']
+  selector: 'app-admin-program-review',
+  templateUrl: './admin-program-review.component.html',
+  styleUrls: ['./admin-program-review.component.scss']
 })
-export class AdminCourseReviewsComponent implements OnInit, OnDestroy {
+export class AdminProgramReviewComponent implements OnInit, OnDestroy {
 
   public browser: boolean;
 
@@ -17,7 +17,7 @@ export class AdminCourseReviewsComponent implements OnInit, OnDestroy {
   public page: number;
   public itemsPerPage: number;
   public maxSize: number;
-  public results: AdminCourseReviewRequest[];
+  public results: AdminProgramReviewRequest[];
   private subscriptions: Subscription = new Subscription();
 
   constructor(
@@ -33,7 +33,7 @@ export class AdminCourseReviewsComponent implements OnInit, OnDestroy {
       this.itemsPerPage = 10;
       this.maxSize = 10;
       this.monitorReviewRequests();
-      this.getInitialAdminCoursesInReview();
+      this.getInitialAdminProgramsInReview();
     }
   }
 
@@ -43,9 +43,9 @@ export class AdminCourseReviewsComponent implements OnInit, OnDestroy {
   }
 
   monitorReviewRequests() {
-    // get the total number of courses in review for pagination
+    // get the total number of programs in review for pagination
     this.subscriptions.add(
-      this.dataService.getTotalAdminCoursesInReview().subscribe(total => {
+      this.dataService.getTotalAdminProgramsInReview().subscribe(total => {
         if (total) {
           this.totalItems = total.totalRecords;
         }
@@ -53,10 +53,10 @@ export class AdminCourseReviewsComponent implements OnInit, OnDestroy {
     );
   }
 
-  getInitialAdminCoursesInReview() {
-    const tempSub = this.dataService.getInitialAdminCoursesInReview(this.itemsPerPage).subscribe(data => {
+  getInitialAdminProgramsInReview() {
+    const tempSub = this.dataService.getInitialAdminProgramsInReview(this.itemsPerPage).subscribe(data => {
       if (data) {
-        console.log('Courses in review initial results:', data);
+        // console.log('Programs in review initial results:', data);
         this.results = data;
       }
       tempSub.unsubscribe(); // close the subscription so every new request doesn't reset the results in view
@@ -66,8 +66,8 @@ export class AdminCourseReviewsComponent implements OnInit, OnDestroy {
 
   loadNextResults() {
     const lastDoc = this.results[this.results.length - 1];
-    const tempSub = this.dataService.getNextAdminCoursesInReview(this.itemsPerPage, lastDoc).subscribe(data => {
-      console.log('Courses in review next results:', data);
+    const tempSub = this.dataService.getNextAdminProgramsInReview(this.itemsPerPage, lastDoc).subscribe(data => {
+      // console.log('Programs in review next results:', data);
       if (data.length) {
         this.results = data;
       }
@@ -78,10 +78,10 @@ export class AdminCourseReviewsComponent implements OnInit, OnDestroy {
 
   loadPreviousResults() {
     const firstDoc = this.results[0];
-    const tempSub = this.dataService.getPreviousAdminCoursesInReview(this.itemsPerPage, firstDoc).subscribe(data => {
+    const tempSub = this.dataService.getPreviousAdminProgramsInReview(this.itemsPerPage, firstDoc).subscribe(data => {
       this.results = data;
       if (data.length) {
-        console.log('Courses in review previous results:', data);
+        // console.log('Programs in review previous results:', data);
       }
       tempSub.unsubscribe(); // close the subscription so every new request doesn't reset the results in view
     });
@@ -89,7 +89,7 @@ export class AdminCourseReviewsComponent implements OnInit, OnDestroy {
   }
 
   pageChanged(event: any) {
-    console.log(event.page);
+    // console.log(event.page);
     const requestedPage = event.page;
     if (requestedPage > this.page) { // we're going forwards
       this.loadNextResults();

@@ -708,6 +708,35 @@ export class DataService {
       .catch(err => console.error(err));
   }
 
+  getTotalAdminProgramsInReview() {
+    return this.db.collection(`admin`)
+      .doc('totalProgramsInReview')
+      .valueChanges() as Observable<any>;
+  }
+
+  getInitialAdminProgramsInReview(limitTo: number) {
+    return this.db.collection(`admin/review-requests/programs`, ref => ref
+      .orderBy('requested', 'asc')
+      .limit(limitTo))
+      .valueChanges({idField: 'id'}) as Observable<AdminProgramReviewRequest[]>;
+  }
+
+  getNextAdminProgramsInReview(limitTo: number, lastDoc: any) {
+    return this.db.collection(`admin/review-requests/programs`, ref => ref
+      .orderBy('requested', 'asc')
+      .startAfter(lastDoc.requested) // must match the .orderBy field!
+      .limit(limitTo))
+      .valueChanges({idField: 'id'}) as Observable<AdminProgramReviewRequest[]>;
+  }
+
+  getPreviousAdminProgramsInReview(limitTo: number, firstDoc: any) {
+    return this.db.collection(`admin/review-requests/programs`, ref => ref
+      .orderBy('requested', 'asc')
+      .endBefore(firstDoc.requested) // must match the .orderBy field!
+      .limitToLast(limitTo))
+      .valueChanges({idField: 'id'}) as Observable<AdminProgramReviewRequest[]>;
+  }
+
   // ================================================================================
   // =====                           COACH SERVICES                            ======
   // ================================================================================
