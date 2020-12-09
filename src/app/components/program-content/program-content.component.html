@@ -22,12 +22,12 @@
                     />
       
                     <ul class=" list-group">
-                      <li class=" list-group-item">Typical Duration</li>
+                      <li class=" list-group-item">Program Duration</li>
                     </ul>
-                    <div class=" card-prices">
+                    <div class=" card-prices pl-3 pr-3">
                       <h3 class=" text-on-front">{{ program.duration }}</h3>
                       <h5 class=" text-on-back">{{ program.duration }}</h5>
-                      <p class=" plan">Week coaching program</p>
+                      <p class=" plan">This is a {{ program.duration }} week private coaching program</p>
                     </div>
                   </div>
                 </div>
@@ -44,12 +44,12 @@
                     />
       
                     <ul class=" list-group">
-                      <li class=" list-group-item">You Get</li>
+                      <li class=" list-group-item">Coaching Sessions</li>
                     </ul>
-                    <div class=" card-prices">
+                    <div class=" card-prices pl-3 pr-3">
                       <h3 class=" text-on-front">{{ program.numSessions }}</h3>
                       <h5 class=" text-on-back">{{ program.numSessions }}</h5>
-                      <p class=" plan">Private 1-to-1 video coaching sessions</p>
+                      <p class=" plan">Over the duration of this program, you will receive {{ program.numSessions }} private 1-to-1 video coaching sessions with this coach</p>
                     </div>
                   </div>
                 </div>

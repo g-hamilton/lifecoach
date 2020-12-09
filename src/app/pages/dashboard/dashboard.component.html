@@ -508,7 +508,7 @@
             <div class=" col-7">
               <div class=" numbers">
                 <p class=" card-category">
-                  Draft Courses
+                  Draft eCourses
                 </p>
                 <h3 class="card-title">
                   {{ adminDraftCoursesCount ? adminDraftCoursesCount : '0' }}
@@ -520,7 +520,7 @@
         <div class=" card-footer">
           <hr>
           <div class=" stats">
-            <i class=" tim-icons icon-alert-circle-exc"></i> Total Courses In Draft
+            <i class=" tim-icons icon-alert-circle-exc"></i> Total eCourses In Draft
           </div>
         </div>
       </div>
@@ -538,7 +538,7 @@
             <div class=" col-7">
               <div class=" numbers">
                 <p class=" card-category">
-                  Published Courses
+                  Published eCourses
                 </p>
                 <h3 class="card-title">
                   {{ adminPublishedCoursesCount ? adminPublishedCoursesCount : '0' }}
@@ -550,7 +550,7 @@
         <div class=" card-footer">
           <hr>
           <div class=" stats">
-            <i class=" tim-icons icon-alert-circle-exc"></i> Total Courses Published
+            <i class=" tim-icons icon-alert-circle-exc"></i> Total eCourses Published
           </div>
         </div>
       </div>
@@ -568,7 +568,7 @@
             <div class=" col-7">
               <div class=" numbers">
                 <p class=" card-category">
-                  Review Requests
+                  eCourse Review Requests
                 </p>
                 <h3 class="card-title">
                   {{ adminCourseReviewRequests ? adminCourseReviewRequests : '0' }}
@@ -580,12 +580,102 @@
         <div class=" card-footer">
           <hr>
           <div class=" stats">
-            <i class=" tim-icons icon-alert-circle-exc"></i> Courses Awaiting Review
+            <i class=" tim-icons icon-alert-circle-exc"></i> eCourses Awaiting Review
           </div>
         </div>
       </div>
     </div>
-    <!-- Total Courses Refund Requests -->
+    <!-- Total Draft Programs -->
+    <div class=" col-lg-3 col-md-4">
+      <div class=" card card-stats">
+        <div class=" card-body">
+          <div class=" row">
+            <div class=" col-5">
+              <div class=" info-icon text-center icon-warning">
+                <i class="fas fa-video"></i>
+              </div>
+            </div>
+            <div class=" col-7">
+              <div class=" numbers">
+                <p class=" card-category">
+                  Draft Programs
+                </p>
+                <h3 class="card-title">
+                  {{ adminDraftProgramsCount ? adminDraftProgramsCount : '0' }}
+                </h3>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class=" card-footer">
+          <hr>
+          <div class=" stats">
+            <i class=" tim-icons icon-alert-circle-exc"></i> Total Programs In Draft
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Total Published Programs -->
+    <div class=" col-lg-3 col-md-4">
+      <div class=" card card-stats">
+        <div class=" card-body">
+          <div class=" row">
+            <div class=" col-5">
+              <div class=" info-icon text-center icon-success">
+                <i class="fas fa-video"></i>
+              </div>
+            </div>
+            <div class=" col-7">
+              <div class=" numbers">
+                <p class=" card-category">
+                  Published Programs
+                </p>
+                <h3 class="card-title">
+                  {{ adminPublishedProgramsCount ? adminPublishedProgramsCount : '0' }}
+                </h3>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class=" card-footer">
+          <hr>
+          <div class=" stats">
+            <i class=" tim-icons icon-alert-circle-exc"></i> Total Programs Published
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Total Program Review Requests -->
+    <div class=" col-lg-3 col-md-4">
+      <div class=" card card-stats">
+        <div class=" card-body">
+          <div class=" row">
+            <div class=" col-5">
+              <div class=" info-icon text-center icon-info">
+                <i class="fas fa-check-square"></i>
+              </div>
+            </div>
+            <div class=" col-7">
+              <div class=" numbers">
+                <p class=" card-category">
+                  Program Review Requests
+                </p>
+                <h3 class="card-title">
+                  {{ adminProgramReviewRequests ? adminProgramReviewRequests : '0' }}
+                </h3>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class=" card-footer">
+          <hr>
+          <div class=" stats">
+            <i class=" tim-icons icon-alert-circle-exc"></i> Programs Awaiting Review
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Total Refund Requests -->
     <div class=" col-lg-3 col-md-4">
       <div class=" card card-stats">
         <div class=" card-body">
@@ -600,8 +690,17 @@
                 <p class=" card-category">
                   Refund Requests
                 </p>
-                <h3 class="card-title">
-                  {{ adminCourseRefundRequests ? adminCourseRefundRequests : '0' }}
+                <h3 *ngIf="adminCourseRefundRequests && adminProgramRefundRequests" class="card-title">
+                  {{ adminCourseRefundRequests + adminProgramRefundRequests }}
+                </h3>
+                <h3 *ngIf="adminCourseRefundRequests && !adminProgramRefundRequests" class="card-title">
+                  {{ adminCourseRefundRequests }}
+                </h3>
+                <h3 *ngIf="!adminCourseRefundRequests && adminProgramRefundRequests" class="card-title">
+                  {{ adminProgramRefundRequests }}
+                </h3>
+                <h3 *ngIf="!adminCourseRefundRequests && !adminProgramRefundRequests" class="card-title">
+                  0
                 </h3>
               </div>
             </div>

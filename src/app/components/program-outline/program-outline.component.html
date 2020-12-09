@@ -20,7 +20,7 @@
                     class="form-group"
                     [ngClass]="{
                         'has-danger':
-                        ((focus2Touched || saveAttempt) && outlineF.numSessions.errors),
+                        (((focus2Touched && outlineF.numSessions.value !== null) || saveAttempt) && outlineF.numSessions.errors),
                         'has-success': !outlineF.numSessions.errors
                     }">
                         <input
@@ -30,7 +30,7 @@
                         placeholder="eg. 12"
                         (focus)="focus2Touched = true">
                     </div>
-                    <div *ngIf="((focus2Touched || saveAttempt) && outlineF.numSessions.errors)">
+                    <div *ngIf="(((focus2Touched && outlineF.numSessions.value !== null) || saveAttempt) && outlineF.numSessions.errors)">
                         <label
                         *ngFor="let error of objKeys(outlineF.numSessions.errors)"
                         class="error custom-error-label"
@@ -54,7 +54,7 @@
                     class="form-group"
                     [ngClass]="{
                         'has-danger':
-                        ((focus3Touched || saveAttempt) && outlineF.duration.errors),
+                        (((focus3Touched && outlineF.duration.value !== null) || saveAttempt) && outlineF.duration.errors),
                         'has-success': !outlineF.duration.errors
                     }">
                         <input
@@ -64,7 +64,7 @@
                         placeholder="eg. 12"
                         (focus)="focus3Touched = true">
                     </div>
-                    <div *ngIf="((focus3Touched || saveAttempt) && outlineF.duration.errors)">
+                    <div *ngIf="(((focus3Touched && outlineF.duration.value !== null) || saveAttempt) && outlineF.duration.errors)">
                         <label
                         *ngFor="let error of objKeys(outlineF.duration.errors)"
                         class="error custom-error-label"
@@ -143,7 +143,7 @@
                     class="form-group"
                     [ngClass]="{
                         'has-danger':
-                        ((focusTouched || saveAttempt) && outlineF.fullPrice.errors),
+                        (((focusTouched && outlineF.fullPrice.value !== null) || saveAttempt) && outlineF.fullPrice.errors),
                         'has-success': !outlineF.fullPrice.errors
                     }">
                         <input
@@ -153,7 +153,7 @@
                         placeholder="eg. 199.99"
                         (focus)="focusTouched = true">
                     </div>
-                    <div *ngIf="((focusTouched || saveAttempt) && outlineF.fullPrice.errors)">
+                    <div *ngIf="(((focusTouched && outlineF.fullPrice.value !== null) || saveAttempt) && outlineF.fullPrice.errors)">
                         <label
                         *ngFor="let error of objKeys(outlineF.fullPrice.errors)"
                         class="error custom-error-label"
@@ -181,7 +181,7 @@
                     class="form-group"
                     [ngClass]="{
                         'has-danger':
-                        ((focus1Touched || saveAttempt) && outlineF.pricePerSession.errors),
+                        (((focus1Touched && outlineF.pricePerSession.value !== null) || saveAttempt) && outlineF.pricePerSession.errors),
                         'has-success': !outlineF.pricePerSession.errors
                     }">
                         <input
@@ -191,7 +191,7 @@
                         placeholder="eg. 39.99"
                         (focus)="focus1Touched = true">
                     </div>
-                    <div *ngIf="((focus1Touched || saveAttempt) && outlineF.pricePerSession.errors)">
+                    <div *ngIf="(((focus1Touched && outlineF.pricePerSession.value !== null) || saveAttempt) && outlineF.pricePerSession.errors)">
                         <label
                         *ngFor="let error of objKeys(outlineF.pricePerSession.errors)"
                         class="error custom-error-label"

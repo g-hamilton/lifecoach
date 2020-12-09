@@ -42,15 +42,15 @@
                                         'text-warning': hit.status === 'submitted'
                                     }"
                                     >
-                                        {{ hit.status }} 
+                                        {{ hit.status }}
                                     </p>
                                 </td>
                                 <td class=" text-right">
                                     <!-- Action buttons -->
-                                    <!-- <button
+                                    <button
                                     class="btn btn-primary btn-sm"
-                                    [routerLink]="['/admin-???', hit.programId]"
-                                    > Review </button> -->
+                                    [routerLink]="['/program', hit.programId]"
+                                    > Review </button>
                                 </td>
                                 </tr>
                             </tbody>

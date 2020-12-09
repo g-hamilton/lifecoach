@@ -138,7 +138,7 @@ export class ProgramSubmitComponent implements OnInit, OnChanges {
     this.dataService.completeUserTask(this.program.sellerUid, 'taskDefault003');
 
     // Done
-    this.alertService.alert('success-message', 'Success!', 'Your program is now in review!');
+    this.alertService.alert('success-message', 'Success!', 'Great job! Your program is now in review. Keep an eye on your inbox for email updates from our Quality Team. Take the rest of the day off, you deserve it ;)');
     this.requesting = false;
     this.analyticsService.submitProgramForReview();
   }

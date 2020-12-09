@@ -145,7 +145,7 @@ export class CourseSubmitComponent implements OnInit, OnChanges, OnDestroy {
     this.dataService.requestCourseReview(this.course);
     this.dataService.completeUserTask(this.course.sellerUid, 'taskDefault003');
 
-    this.alertService.alert('success-message', 'Success!', 'Your course is now in review!');
+    this.alertService.alert('success-message', 'Success!', 'Great job! Your eCourse is now in review. Keep an eye on your inbox for email updates from our Quality Team. Take the rest of the day off, you deserve it ;)');
 
     this.requesting = false;
 

@@ -355,4 +355,11 @@ export class AnalyticsService {
     });
   }
 
+  searchPrograms(filters: any, query?: string, ) {
+    mixpanel.track('searched programs', {
+      searchTerm: query ? query : '',
+      searchFilters: filters
+    });
+  }
+
 }

@@ -24,8 +24,11 @@
                         <span class=" text-success"> Approved: {{ getDisplayDate(program.reviewRequest.requested) }} </span>
                         - Published.
                     </div>
-                    <div *ngIf="!program.reviewRequest" class=" text-warning">
+                    <div *ngIf="!program.reviewRequest && programForm.invalid" class=" text-warning">
                         In draft
+                    </div>
+                    <div *ngIf="!program.reviewRequest && programForm.valid" class=" text-warning">
+                        In draft - Ready to submit for review
                     </div>
                     <div *ngIf="program.reviewRequest?.status === 'rejected'">
                         <span class=" text-danger"> Needs action </span>

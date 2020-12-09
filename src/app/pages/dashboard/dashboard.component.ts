@@ -31,6 +31,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   public adminDraftCoursesCount: number;
   public adminCourseReviewRequests: number;
   public adminCourseRefundRequests: number;
+  public adminPublishedProgramsCount: number;
+  public adminDraftProgramsCount: number;
+  public adminProgramReviewRequests: number;
+  public adminProgramRefundRequests: number;
   public adminNewestLeads: any;
   public adminTotalLeads: number;
 
@@ -161,8 +165,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
       })
     );
 
-    const refundRequestCount = await this.searchService.searchCourseRefundRequests(1, 1, {});
-    this.adminCourseRefundRequests = refundRequestCount.nbHits;
+    const courseRefundRequestCount = await this.searchService.searchCourseRefundRequests(1, 1, {});
+    this.adminCourseRefundRequests = courseRefundRequestCount.nbHits;
+
+    const draftPrograms = await this.searchService.searchDraftPrograms(1, 1, {}, false);
+    this.adminDraftProgramsCount = draftPrograms.nbHits;
+
+    const programsCount = await this.searchService.searchPrograms(1, 1, {}, false);
+    this.adminPublishedProgramsCount = programsCount.nbHits;
+
+    this.subscriptions.add(
+      this.dataService.getTotalAdminProgramsInReview().subscribe(total => {
+        total ? this.adminProgramReviewRequests = total.totalRecords : this.adminProgramReviewRequests = 0;
+      })
+    );
+
+    const programRefundRequestCount = await this.searchService.searchProgramRefundRequests(1, 1, {});
+    this.adminProgramRefundRequests = programRefundRequestCount.nbHits;
 
     const leads = await this.searchService.searchCoachLeads(10, 1, {});
     this.adminTotalLeads = leads.nbHits;
