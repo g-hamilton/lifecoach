@@ -34,6 +34,7 @@ export class CourseComponent implements OnInit, OnDestroy {
   @ViewChild('payModal', {static: false}) public payModal: ModalDirective;
 
   public browser: boolean;
+  public now: number; // unix timestamp at load time
 
   public userId: string;
   public userClaims: any;
@@ -94,6 +95,7 @@ export class CourseComponent implements OnInit, OnDestroy {
     const body = this.document.getElementsByTagName('body')[0];
     body.classList.add('course-page');
     this.userType = 'regular'; // set the default user type to regular. We could let users select if required.
+    this.now = Math.round(new Date().getTime() / 1000); // set now as a unix timestamp
 
     if (isPlatformBrowser(this.platformId)) {
 

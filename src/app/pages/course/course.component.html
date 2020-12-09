@@ -59,12 +59,15 @@
                           Coach: {{ course.coachName }}
   
                           <!-- last updated -->
-                          <span class=" ml-3">
+                          <span *ngIf="course?.lastUpdated" class=" ml-3">
                             Last updated: {{ getDisplayDate(course.lastUpdated) }}
+                          </span>
+                          <span *ngIf="!course?.lastUpdated" class=" ml-3">
+                            Last updated: {{ getDisplayDate(now) }}
                           </span>
   
                           <!-- course language -->
-                          <span class=" ml-3">
+                          <span *ngIf="course?.language" class=" ml-3">
                             <i class="fas fa-comment"></i> {{ languages[course.language].nativeName }}
                           </span>
                         </p>
@@ -198,8 +201,11 @@
 
                       <div class=" text-center">
                         <!-- price -->
-                        <h3 *ngIf="course?.pricingStrategy === 'paid'"> {{ currencySymbol + '' + displayPrice }} </h3>
-                        <h3 *ngIf="course?.pricingStrategy === 'free'"> FREE </h3>
+                        <h3 *ngIf="course?.pricingStrategy && course?.pricingStrategy === 'paid' 
+                        && course?.price && course?.currency"> {{ currencySymbol + '' + displayPrice }} </h3>
+                        <h3 *ngIf="course?.pricingStrategy && course?.pricingStrategy === 'free'"> FREE </h3>
+                        <h4 *ngIf="!course?.pricingStrategy || (course?.pricingStrategy === 'paid' && !course?.currency) || 
+                        (course?.pricingStrategy === 'paid' && !course?.price)">{{ 'Awaiting currency & price' }}</h4>
                       </div>
 
                       <div *ngIf="userId === course.sellerUid">
@@ -216,7 +222,7 @@
 
                       <div class=" text-center pl-2 pr-2">
                         <!-- Paid pricing strategy -->
-                        <div *ngIf="course?.pricingStrategy === 'paid'">
+                        <div *ngIf="course?.pricingStrategy && course?.pricingStrategy === 'paid'">
                           <!-- buy now button -->
                           <!-- disabled for course seller or if already purchased -->
                           <!-- userId === course.sellerUid || userClaims && userClaims[course.courseId] -->
@@ -252,7 +258,7 @@
                         </div>
 
                         <!-- Free pricing strategy -->
-                        <div *ngIf="course?.pricingStrategy === 'free'">
+                        <div *ngIf="course?.pricingStrategy && course?.pricingStrategy === 'free'">
                           <button
                           class=" btn btn-primary btn-round btn-block btn-fill"
                           id="enrollnow"
@@ -286,13 +292,13 @@
                       </div>
 
                       <!-- Currency picker -->
-                      <div class="pt-3">
+                      <div *ngIf="course?.pricingStrategy && course?.pricingStrategy === 'paid'" class="pt-3">
                         <label> Show price in </label>
+                        <app-select-currency
+                        [currency]="clientCurrency"
+                        (currencyEvent)="onManualCurrencyChange($event)">
+                        </app-select-currency>
                       </div>
-                      <app-select-currency
-                      [currency]="clientCurrency"
-                      (currencyEvent)="onManualCurrencyChange($event)">
-                      </app-select-currency>
 
                     </div>
 
