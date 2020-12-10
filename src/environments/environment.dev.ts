@@ -1,5 +1,5 @@
 export const environment = {
-  production: true,
+  production: false,
   apiKey: 'AIzaSyADUNrRkAQSclYoRhi_9y-sb1FDEHCmuE8',
   authDomain: 'livecoach-dev.firebaseapp.com',
   databaseURL: 'https://livecoach-dev.firebaseio.com',

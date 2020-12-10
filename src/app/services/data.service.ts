@@ -7,7 +7,7 @@ import { UserAccount } from '../interfaces/user.account.interface';
 import { CoachProfile } from '../interfaces/coach.profile.interface';
 import { ChatMessage } from 'app/interfaces/chat.message';
 import { CoachingCourse, CoachingCourseVideo } from 'app/interfaces/course.interface';
-import { AdminCourseReviewRequest } from 'app/interfaces/admin.course.review';
+import { AdminCourseReviewRequest } from 'app/interfaces/admin.course.review.interface';
 import { CourseBookmark } from 'app/interfaces/course.bookmark.interface';
 import { CourseQuestion, CourseQuestionReply } from 'app/interfaces/q&a.interface';
 import { AnalyticsService } from './analytics.service';
