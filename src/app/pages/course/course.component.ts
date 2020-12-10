@@ -101,7 +101,8 @@ export class CourseComponent implements OnInit, OnDestroy {
       this.analyticsService.pageView();
 
       // Init Stripe.js
-      const stripe = Stripe('pk_test_HtSpdTqwGC86g7APo4XLBgms00TVXJLOf8'); // test key, NOT for prod!
+      const stripe = Stripe('pk_live_GFTeJnPVGhgVifaASOsjEvXf00faFIpXu2'); // production key, NOT for testing!
+      // const stripe = Stripe('pk_test_HtSpdTqwGC86g7APo4XLBgms00TVXJLOf8'); // test key, NOT for prod!
 
       // Init Stripe Elements
       const elements = stripe.elements();
@@ -153,7 +154,7 @@ export class CourseComponent implements OnInit, OnDestroy {
         // tslint:disable-next-line: max-line-length
         const pIntentRes = await this.cloudFunctionsService.getStripePaymentIntent(this.courseId, this.clientCurrency, this.displayPrice, this.userId, this.referralCode) as any;
 
-        console.log(pIntentRes.stripePaymentIntent);
+        console.log('Payment Intent created', pIntentRes.stripePaymentIntent);
 
         if (pIntentRes && !pIntentRes.error) { // payment intent success
 
@@ -179,6 +180,7 @@ export class CourseComponent implements OnInit, OnDestroy {
           console.log(res);
 
           if (res.error) { // error confirming payment
+            console.log('Result error:', res.error);
             // Show error to your customer (e.g., insufficient funds)
             this.alertService.alert('warning-message', 'Oops', `${res.error.message}`);
             this.purchasingCourse = false;
@@ -186,6 +188,7 @@ export class CourseComponent implements OnInit, OnDestroy {
           } else { // success confirming payment
             // The payment has been processed!
             if (res.paymentIntent.status === 'succeeded') {
+              console.log('Result success');
               // Show a success message to your customer
               // There's a risk of the customer closing the window before callback
               // execution. Set up a webhook or plugin to listen for the
@@ -279,7 +282,7 @@ export class CourseComponent implements OnInit, OnDestroy {
               });
               // set the course
               this.course = publicCourse;
-              console.log(this.course)
+              console.log(this.course);
               // update meta
               this.updateCourseMeta();
 
@@ -523,6 +526,7 @@ export class CourseComponent implements OnInit, OnDestroy {
         // Success
         this.register = false;
         console.log('Registration successful:', response.result.user);
+        this.userId = response.result.user.uid; // update the component userId to allow user to purchase
         this.analyticsService.registerUser(response.result.user.uid, 'email&password', newUserAccount);
         this.registerModal.hide();
         if (this.course.pricingStrategy === 'paid') {
@@ -560,6 +564,7 @@ export class CourseComponent implements OnInit, OnDestroy {
       const res = await this.authService.signInWithEmailAndPassword(account);
       if (!res.error) {
         // Login successful.
+        this.userId = res.result.user.uid; // update the component userId to allow user to purchase
         this.loginModal.hide();
         if (this.course.pricingStrategy === 'paid') {
           this.alertService.alert('success-message', 'Login Successful', `Click 'Buy Now' again to complete your purchase...`);
@@ -593,6 +598,7 @@ export class CourseComponent implements OnInit, OnDestroy {
 
   onTotalReviewsEvent(event: number) {
     this.totalReviews = event;
+    // console.log('Total reviews event:', event);
   }
 
   async enrollFree() {

@@ -33,13 +33,23 @@
                         <!-- rating stars *BROWSER ONLY* -->
                         <app-stars
                         *ngIf="browser"
-                        [course]="course">
+                        [course]="course"
+                        (totalReviewsEvent)="onTotalReviewsEvent($event)">
                         </app-stars>
                         <span class=" d-inline-block ml-2" style="margin-top: 0.3rem;">
-                          {{ avgRating?.toFixed(2) }} ({{ totalReviews }} {{ totalReviews === 1 ? 'review' : 'reviews'}})
+                          {{ avgRating?.toFixed(2) }} ({{ totalReviews ? totalReviews : '0' }} {{ totalReviews === 1 ? 'review' : 'reviews'}})
                         </span>
-                        <span class=" ml-3">
-                          {{ courseEnrollments?.totalEnrollments ? courseEnrollments?.totalEnrollments : '0' }} students enrolled
+                        <!-- if zero enrollments -->
+                        <span *ngIf="!courseEnrollments?.totalEnrollments" class=" ml-3 badge badge-success">
+                          New
+                        </span>
+                        <!-- if 1 enrollment -->
+                        <span *ngIf="courseEnrollments?.totalEnrollments && courseEnrollments?.totalEnrollments == 1" class=" ml-3">
+                          1 student enrolled
+                        </span>
+                        <!-- if more than 1 enrollment -->
+                        <span *ngIf="courseEnrollments?.totalEnrollments && courseEnrollments?.totalEnrollments > 1" class=" ml-3">
+                          {{ courseEnrollments.totalEnrollments }} students enrolled
                         </span>
                       </div>
 
@@ -117,7 +127,7 @@
                   <!-- course content card -->
                   <div class=" card">
                     <div class=" card-body">
-                      <h4 class=" card-title d-inline-block"> Course Content </h4>
+                      <h4 class=" card-title d-inline-block"> eCourse Content </h4>
                       <app-course-contents [course]="course"></app-course-contents>
                     </div>
                   </div>
@@ -126,7 +136,7 @@
                   <!-- course feedback card *BROWSER ONLY* -->
                   <div *ngIf="browser" class=" card">
                     <div class=" card-body mr-3">
-                      <h4 class=" card-title d-inline-block"> Course Feedback </h4>
+                      <h4 class=" card-title d-inline-block"> eCourse Feedback </h4>
                       <div>
                         <app-course-feedback
                         [course]="course"

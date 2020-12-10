@@ -16,12 +16,15 @@
         </a>
       </h4>
       <p>
+        <strong>
+          {{ avgRating | async }}
+        </strong>
         <span>
           <i class="fas fa-star mr-1"></i> 
         </span>
-        <strong>
-          {{ avgRating | async }}
-        </strong> Coach rating
+        <span *ngIf="(avgRating | async) != 'No reviews yet'">
+          Coach rating
+        </span>
         <span>
           <i class="fas fa-comment ml-4 mr-1"></i>
         </span> 
@@ -41,7 +44,7 @@
         <strong>
           {{ (sellerCourses | async)?.length }}
         </strong>
-        {{ (sellerCourses | async)?.length === 1 ? 'Course' : 'Courses' }}
+        {{ (sellerCourses | async)?.length === 1 ? 'eCourse' : 'eCourses' }}
       </p>
     </div>
 </div>

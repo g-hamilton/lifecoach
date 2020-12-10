@@ -20,8 +20,8 @@ export class CoursesLandingComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.titleService.setTitle('Sell Online, On-Demand Video Coaching Courses');
-    this.metaTagService.updateTag({name: 'description', content: 'Create & Sell Coaching Courses With Lifecoach'});
+    this.titleService.setTitle('Publish Coaching eCourses');
+    this.metaTagService.updateTag({name: 'description', content: 'Create & Sell Coaching eCourses With Lifecoach'});
     const body = this.document.getElementsByTagName('body')[0];
     body.classList.add('courses-landing-page');
 

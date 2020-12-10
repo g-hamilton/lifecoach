@@ -3,15 +3,15 @@
 
         <!-- No published courses -->
         <div *ngIf="!publishedCourses || publishedCourses && publishedCourses.length === 0">
-            <h5 class=" title"> Published Courses <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001135032-what-are-courses-" target="_blank">
-                <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> What are courses? </span>
+            <h5 class=" title"> Published eCourses <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001135032-what-are-courses-" target="_blank">
+                <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> What are eCourses? </span>
             </a></h5>
             <div class=" row">
                 <div class=" col">
                     <div class=" card">
                         <div class=" card-body">
                             <p>
-                                You haven't published any coaching courses yet.
+                                You haven't published any coaching eCourses yet.
                             </p>
                             <p>
                                 Create one now!
@@ -25,7 +25,7 @@
                             class=" btn btn-primary btn-fill btn-round mt-4"
                             (click)="createCourse()"
                             [disabled]="!account">
-                                <i class=" tim-icons icon-simple-add"></i> Create Course
+                                <i class=" tim-icons icon-simple-add"></i> Create eCourse
                             </button>
                         </div>
                     </div>
@@ -33,7 +33,7 @@
             </div>
         </div>
 
-        <!-- Published courses -->
+        <!-- Published ecourses -->
         <div *ngIf="publishedCourses && publishedCourses.length > 0">
             <div class=" row">
                 <div class=" col-12">
@@ -42,11 +42,11 @@
                     class=" btn btn-primary btn-fill btn-round pull-right"
                     (click)="createCourse()"
                     [disabled]="!account">
-                        <i class=" tim-icons icon-simple-add"></i> Create Course
+                        <i class=" tim-icons icon-simple-add"></i> Create eCourse
                     </button>
                 </div>
             </div>
-            <h5 class=" title"> Created Courses </h5>
+            <h5 class=" title"> Created eCourses </h5>
             <div class=" row mt-3">
                 <div *ngFor="let course of publishedCourses ; let i = index" class=" col-md-4">
                     <a [routerLink]="['/my-courses', course.courseId, 'content']">
@@ -138,11 +138,11 @@
                 class=" btn btn-primary btn-fill btn-round pull-right"
                 (click)="browseCourses()"
                 [disabled]="!account">
-                    <i class=" tim-icons icon-tv-2"></i> Browse Courses
+                    <i class=" tim-icons icon-tv-2"></i> Browse eCourses
                 </button>
             </div>
         </div>
-        <h5 class=" title"> Courses I'm Enrolled In </h5>
+        <h5 class=" title"> eCourses I'm Enrolled In </h5>
         <!-- No purchased courses -->
         <div class=" row" *ngIf="!purchasedCourses || purchasedCourses && purchasedCourses.length === 0">
             <div class=" col">
@@ -150,10 +150,10 @@
                     <div class=" card-body">
                         <div>
                             <p>
-                                You haven't enrolled in any coaching courses yet.
+                                You haven't enrolled in any coaching eCourses yet.
                             </p>
                             <p>
-                                Browse courses now to discover what you can learn next!
+                                Browse eCourses now to discover what you can learn next!
                             </p>
                         </div>
                     </div>

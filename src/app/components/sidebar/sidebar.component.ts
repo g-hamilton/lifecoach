@@ -84,7 +84,7 @@ export const ROUTES: RouteInfo[] = [
   // },
   {
     path: '/my-courses',
-    title: 'Courses',
+    title: 'e-Courses',
     rtlTitle: 'التقويم',
     type: 'link',
     icontype: 'tim-icons icon-tv-2',
