@@ -302,19 +302,19 @@ export class ProfileWizardComponent implements OnInit, OnDestroy {
     if (!currentImg.includes(this.storageService.getStorageDomain())) {
       const downloadUrl = await this.storageService.storePhotoUpdateDownloadUrl(this.userId, currentImg);
       ((this.formWizard.controls.formArray as FormArray).controls[1] as FormGroup).patchValue({photo: downloadUrl});
-      console.log('Form updated with photo storage download URL:', this.group1.photo.value);
+      // console.log('Form updated with photo storage download URL:', this.group1.photo.value);
     }
 
     // Ask user if they want to make their profile public at this point
-    const qResult: any = await this.alertService.alert('question-and-confirmation', 'Go Public?', `Would you like to make your profile
-    public now so potential clients can see it?`, 'Yes please!', 'Not now', 'Done!', `Your profile will be
-    avalable for clients to see.`, 'OK', `Got it! You can always go public later on when you're ready.`);
-    if (qResult.action) { // user wants to go public now
-      ((this.formWizard.controls.formArray as FormArray).controls[3] as FormGroup).patchValue({
-        isPublic: true
-      });
-      this.dataService.completeUserTask(this.userId, 'taskDefault002'); // mark the 'go public' todo as done
-    }
+    // const qResult: any = await this.alertService.alert('question-and-confirmation', 'Go Public?', `Would you like to make your profile
+    // public now so potential clients can see it?`, 'Yes please!', 'Not now', 'Done!', `Your profile will be
+    // avalable for clients to see.`, 'OK', `Got it! You can always go public later on when you're ready.`);
+    // if (qResult.action) { // user wants to go public now
+    //   ((this.formWizard.controls.formArray as FormArray).controls[3] as FormGroup).patchValue({
+    //     isPublic: true
+    //   });
+    //   this.dataService.completeUserTask(this.userId, 'taskDefault002'); // mark the 'go public' todo as done
+    // }
 
     // update the form data from just country code to the full country object.
     const ct = this.countryService.getCountryByCode(this.group2.country.value);
@@ -341,6 +341,10 @@ export class ProfileWizardComponent implements OnInit, OnDestroy {
     const merged = {...a, ...b, ...c, ...d};
 
     // console.log(merged);
+
+    // alert
+    await this.alertService.alert('success-message', 'Nice Work!', `Your basic profile is ready. Feel free to keep building on it and 
+    don't forget to make it public when you're ready to start generating leads.`)
 
     // Save the profile
     await this.dataService.saveCoachProfile(this.userId, merged);
