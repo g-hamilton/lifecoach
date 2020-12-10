@@ -8,6 +8,7 @@ import { AlertService } from 'app/services/alert.service';
 import { CoachingCourse } from 'app/interfaces/course.interface';
 import { AnalyticsService } from 'app/services/analytics.service';
 import { Subscription } from 'rxjs';
+import { CoachingProgram } from 'app/interfaces/coach.program.interface';
 
 @Component({
   selector: 'app-coach-as-regular-user',
@@ -18,6 +19,7 @@ export class CoachAsRegularUserComponent implements OnInit, OnDestroy {
   public browser: boolean;
   private userId: string;
   public purchasedCourses = [] as CoachingCourse[]; // purchased ecourses as buyer/regular type user
+  public purchasedPrograms = [] as CoachingProgram[]; // purchased programs as buyer/regular type user
   public objKeys = Object.keys;
   private subscriptions: Subscription = new Subscription();
 
@@ -64,6 +66,27 @@ export class CoachAsRegularUserComponent implements OnInit, OnDestroy {
               }
             })
           );
+
+          // Check for purchased programs. Coaches and regular users can purchase programs
+          this.subscriptions.add(
+            this.dataService.getPurchasedPrograms(this.userId).subscribe(programIds => {
+              if (programIds) {
+                console.log('Enrolled In Program Ids:', programIds);
+                this.purchasedPrograms = []; // reset
+                programIds.forEach((o: any, index) => { // fetch and monitor live / latest program info
+                  this.subscriptions.add(
+                    this.dataService.getUnlockedPublicProgram(o.id).subscribe(program => {
+                      if (program) {
+                        this.purchasedPrograms.push(program);
+                        // this.calcProgramProgress(program, index); TODO
+                      }
+                    })
+                  );
+                });
+              }
+            })
+          );
+
         }
       })
     );

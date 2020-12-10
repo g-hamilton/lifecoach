@@ -43,4 +43,5 @@ export interface CoachingProgram {
     totalZeroStarReviews?: number;
     adminApproved?: boolean;
     approved?: number; // unix timestamp
+    progress?: number;
 }
