@@ -56,7 +56,7 @@ export class ProfileWizardComponent implements OnInit, OnDestroy {
   public focus12Touched: boolean;
 
   public formWizard: FormGroup;
-  public wizard: boolean;
+  public saveAttempt: boolean;
   public saving: boolean;
 
   public countryList: any;
@@ -67,11 +67,18 @@ export class ProfileWizardComponent implements OnInit, OnDestroy {
 
   public objKeys = Object.keys;
 
-  public maxSummaryLength = 210;
+  public summaryMinLength = 90;
+  public summaryMaxLength = 120;
+
   public goalTagMaxLength = 40;
   public goalTagsMax = 3;
 
   public ErrorMessages = {
+    proSummary: {
+      required: `Please enter a short summary`,
+      minlength: `This summary should be at least ${this.summaryMinLength} characters.`,
+      maxlength: `This summary should be at less than ${this.summaryMaxLength} characters.`
+    },
     learningPoints: {
       maxLength: `Specialist area must be below ${this.goalTagMaxLength} characters`,
     }
@@ -162,7 +169,7 @@ export class ProfileWizardComponent implements OnInit, OnDestroy {
           qualCas: [false],
           qualCsa: [false],
           qualSa: [false],
-          proSummary: ['', [Validators.required, Validators.minLength(90), Validators.maxLength(this.maxSummaryLength)]],
+          proSummary: ['', [Validators.required, Validators.minLength(90),Validators.minLength(this.summaryMinLength), Validators.maxLength(this.summaryMaxLength)]],
           goalTags: [this.formBuilder.array([new FormControl('', Validators.maxLength(this.goalTagMaxLength))]), Validators.compose([Validators.required, Validators.maxLength(this.goalTagsMax)])],
           isPublic: [false],
           profileUrl: [''],
@@ -230,13 +237,13 @@ export class ProfileWizardComponent implements OnInit, OnDestroy {
   }
 
   onNextClick() {
-    this.wizard = true;
+    this.saveAttempt = true;
   }
 
   onStepChange(event: any) {
     // console.log('STEP CHANGED!', event);
     setTimeout(() => {
-      this.wizard = false;
+      this.saveAttempt = false;
     }, 10);
   }
 
@@ -267,77 +274,80 @@ export class ProfileWizardComponent implements OnInit, OnDestroy {
   }
 
   async onSubmit() {
-    this.wizard = true;
+    this.saveAttempt = true;
+    this.saving = true;
 
-    if (this.formWizard.valid) {
-      this.saving = true;
-      /*
-        Handle image upload to storage in the background.
-        If the img in the form has not already been stored remotely, store it now.
-        Will update the form with the new remote URL or fall back to the dataUrl if unsuccessful.
-      */
-      const currentImg: string = this.group1.photo.value;
-      if (!currentImg.includes(this.storageService.getStorageDomain())) {
-        const downloadUrl = await this.storageService.storePhotoUpdateDownloadUrl(this.userId, currentImg);
-        ((this.formWizard.controls.formArray as FormArray).controls[1] as FormGroup).patchValue({photo: downloadUrl});
-        console.log('Form updated with photo storage download URL:', this.group1.photo.value);
-      }
+    // safety checks
 
-      // Ask user if they want to make their profile public at this point
-      const qResult: any = await this.alertService.alert('question-and-confirmation', 'Go Public?', `Would you like to make your profile
-      public now so potential clients can see it?`, 'Yes please!', 'Not now', 'Done!', `Your profile will be
-      avalable for clients to see.`, 'OK', `Got it! You can always go public later on when you're ready.`);
-      if (qResult.action) { // user wants to go public now
-        ((this.formWizard.controls.formArray as FormArray).controls[3] as FormGroup).patchValue({
-          isPublic: true
-        });
-        this.dataService.completeUserTask(this.userId, 'taskDefault002'); // mark the 'go public' todo as done
-      }
-
-      // update the form data from just country code to the full country object.
-      const ct = this.countryService.getCountryByCode(this.group2.country.value);
-      this.group2.country.patchValue(ct);
-
-      // update the form data from just speciality id to the full speciality object.
-      const spec = this.specialitiesService.getSpecialityById(this.group3.speciality1.value);
-      this.group3.speciality1.patchValue(spec);
-
-      // Restructure the goalTags from string formArray into the object array structure required
-      const objArr = [];
-      (this.group3.goalTags.value.controls as any[]).forEach(control => {
-        if (control.value !== '') { // exclude empty tags
-          objArr.push({display: control.value, value: control.value});
-        }
-      });
-      this.group3.goalTags.patchValue(objArr);
-
-      // Restructure the form data as a flat object for sending to the DB
-      const a = JSON.parse(JSON.stringify(((this.formWizard.controls.formArray as FormArray).controls[0] as FormGroup).value));
-      const b = JSON.parse(JSON.stringify(((this.formWizard.controls.formArray as FormArray).controls[1] as FormGroup).value));
-      const c = JSON.parse(JSON.stringify(((this.formWizard.controls.formArray as FormArray).controls[2] as FormGroup).value));
-      const d = JSON.parse(JSON.stringify(((this.formWizard.controls.formArray as FormArray).controls[3] as FormGroup).value));
-      const merged = {...a, ...b, ...c, ...d};
-
-      console.log(merged);
-
-      // Save the profile
-      await this.dataService.saveCoachProfile(this.userId, merged);
-      this.dataService.completeUserTask(this.userId, 'taskDefault001'); // mark the 'create profile' todo as done
-      this.analyticsService.saveUserProfile(merged);
-      this.saving = false;
-      this.wizard = false;
-
-    } else { // invalid form
-      console.log('Invalid form controls:');
+    if (this.formWizard.invalid) {
+      console.log(this.formWizard.value);
       for (const key of Object.keys(this.wizardF)) {
         if (this.wizardF[key].invalid) {
           console.log(key); // let's see what went wrong
         }
       }
-
-      // Pop an alert
-      this.toastService.showToast('Just a moment! Please check you have completed all required info above.', 5000, 'danger', 'bottom', 'center');
+      this.alertService.alert('warning-message', 'Oops', 'Please complete all required fields before saving.');
+      this.saving = false;
+      return;
     }
+
+    // safe
+
+    /*
+      Handle image upload to storage in the background.
+      If the img in the form has not already been stored remotely, store it now.
+      Will update the form with the new remote URL or fall back to the dataUrl if unsuccessful.
+    */
+    const currentImg: string = this.group1.photo.value;
+    if (!currentImg.includes(this.storageService.getStorageDomain())) {
+      const downloadUrl = await this.storageService.storePhotoUpdateDownloadUrl(this.userId, currentImg);
+      ((this.formWizard.controls.formArray as FormArray).controls[1] as FormGroup).patchValue({photo: downloadUrl});
+      console.log('Form updated with photo storage download URL:', this.group1.photo.value);
+    }
+
+    // Ask user if they want to make their profile public at this point
+    const qResult: any = await this.alertService.alert('question-and-confirmation', 'Go Public?', `Would you like to make your profile
+    public now so potential clients can see it?`, 'Yes please!', 'Not now', 'Done!', `Your profile will be
+    avalable for clients to see.`, 'OK', `Got it! You can always go public later on when you're ready.`);
+    if (qResult.action) { // user wants to go public now
+      ((this.formWizard.controls.formArray as FormArray).controls[3] as FormGroup).patchValue({
+        isPublic: true
+      });
+      this.dataService.completeUserTask(this.userId, 'taskDefault002'); // mark the 'go public' todo as done
+    }
+
+    // update the form data from just country code to the full country object.
+    const ct = this.countryService.getCountryByCode(this.group2.country.value);
+    this.group2.country.patchValue(ct);
+
+    // update the form data from just speciality id to the full speciality object.
+    const spec = this.specialitiesService.getSpecialityById(this.group3.speciality1.value);
+    this.group3.speciality1.patchValue(spec);
+
+    // Restructure the goalTags from string formArray into the object array structure required
+    const objArr = [];
+    (this.group3.goalTags.value.controls as any[]).forEach(control => {
+      if (control.value !== '') { // exclude empty tags
+        objArr.push({display: control.value, value: control.value});
+      }
+    });
+    this.group3.goalTags.patchValue(objArr);
+
+    // Restructure the form data as a flat object for sending to the DB
+    const a = JSON.parse(JSON.stringify(((this.formWizard.controls.formArray as FormArray).controls[0] as FormGroup).value));
+    const b = JSON.parse(JSON.stringify(((this.formWizard.controls.formArray as FormArray).controls[1] as FormGroup).value));
+    const c = JSON.parse(JSON.stringify(((this.formWizard.controls.formArray as FormArray).controls[2] as FormGroup).value));
+    const d = JSON.parse(JSON.stringify(((this.formWizard.controls.formArray as FormArray).controls[3] as FormGroup).value));
+    const merged = {...a, ...b, ...c, ...d};
+
+    // console.log(merged);
+
+    // Save the profile
+    await this.dataService.saveCoachProfile(this.userId, merged);
+    this.dataService.completeUserTask(this.userId, 'taskDefault001'); // mark the 'create profile' todo as done
+    this.analyticsService.saveUserProfile(merged);
+    this.saving = false;
+    this.saveAttempt = false;
   }
 
   ngOnDestroy() {
