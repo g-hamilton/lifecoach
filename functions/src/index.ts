@@ -400,7 +400,7 @@ firstName: string | null, lastName: string | null) {
     batch.set(ref1, {
       id: 'taskDefault001',
       title: '1. Complete your profile',
-      description: 'Everything starts with a profile. Complete your profile now before making it public.',
+      description: 'Everything at Lifecoach starts with your Coach profile. Start creating yours now.',
       action: 'profile'
     });
 
@@ -408,16 +408,16 @@ firstName: string | null, lastName: string | null) {
     batch.set(ref2, {
       id: 'taskDefault002',
       title: '2. Go public with your profile',
-      description: 'Make your profile public to tap into our powerful SEO.',
+      description: 'Make your profile public & promote it everywhere to start collecting leads.',
       action: 'profile'
     });
 
     const ref3 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault003');
     batch.set(ref3, {
       id: 'taskDefault003',
-      title: '3. Create your first online coaching course',
-      description: 'Help students all over the world to learn on their own schedule, and get paid!',
-      action: 'my-courses'
+      title: '3. Add your products & services',
+      description: `Promote your coaching programs, take bookings, run live 1-to-1 video sessions & sell eCourses. We'll help every step of the way.`,
+      action: 'coach-products-services'
     });
 
     return batch.commit() // execute batch ops
