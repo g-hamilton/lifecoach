@@ -225,7 +225,7 @@ export function momentAdapterFactory() {
     PersonHistoryTimelineComponent,
     AdminVideoUploaderComponent,
     AdminVideoUploadTaskComponent,
-    VideoSessionCardComponent
+    VideoSessionCardComponent,
     AdminVideoUploadTaskComponent,
     NewProgramComponent,
     ProgramOutlineComponent,
@@ -325,7 +325,7 @@ export function momentAdapterFactory() {
     PersonHistoryTimelineComponent,
     AdminVideoUploaderComponent,
     AdminVideoUploadTaskComponent,
-    VideoSessionCardComponent
+    VideoSessionCardComponent,
     AdminVideoUploadTaskComponent,
     NewProgramComponent,
     ProgramOutlineComponent,
