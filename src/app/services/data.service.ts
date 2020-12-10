@@ -2,18 +2,20 @@ import {Injectable} from '@angular/core';
 import {AngularFirestore} from '@angular/fire/firestore';
 import {Observable} from 'rxjs';
 
-import {UserTask} from '../interfaces/user.tasks.interface';
-import {UserAccount} from '../interfaces/user.account.interface';
-import {CoachProfile} from '../interfaces/coach.profile.interface';
-import {ChatMessage} from 'app/interfaces/chat.message';
-import {CoachingCourse} from 'app/interfaces/course.interface';
-import {AdminCourseReviewRequest} from 'app/interfaces/adminCourseReviewRequest';
-import {CourseBookmark} from 'app/interfaces/course.bookmark.interface';
-import {CourseQuestion, CourseQuestionReply} from 'app/interfaces/q&a.interface';
-import {AnalyticsService} from './analytics.service';
-import {CustomCalendarEvent} from 'app/interfaces/custom.calendar.event.interface';
-import {CoachingService} from 'app/interfaces/coaching.service.interface';
-import {first} from 'rxjs/operators';
+import { UserTask } from '../interfaces/user.tasks.interface';
+import { UserAccount } from '../interfaces/user.account.interface';
+import { CoachProfile } from '../interfaces/coach.profile.interface';
+import { ChatMessage } from 'app/interfaces/chat.message';
+import { CoachingCourse, CoachingCourseVideo } from 'app/interfaces/course.interface';
+import { AdminCourseReviewRequest } from 'app/interfaces/admin.course.review';
+import { CourseBookmark } from 'app/interfaces/course.bookmark.interface';
+import { CourseQuestion, CourseQuestionReply } from 'app/interfaces/q&a.interface';
+import { AnalyticsService } from './analytics.service';
+import { CustomCalendarEvent } from 'app/interfaces/custom.calendar.event.interface';
+import { CoachingService } from 'app/interfaces/coaching.service.interface';
+import { first } from 'rxjs/operators';
+import { CoachingProgram } from 'app/interfaces/coach.program.interface';
+import { AdminProgramReviewRequest } from 'app/interfaces/admin.program.review.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -33,7 +35,6 @@ export class DataService {
   getUserTasksTodos(uid: string) {
     return this.db.collection(`users/${uid}/tasks-todo`)
       .valueChanges() as Observable<UserTask[]>;
-
   }
 
   deleteUserTaskTodo(uid: string, taskId: string) {
@@ -109,7 +110,6 @@ export class DataService {
   }
 
   async updateUserAccount(uid: string, partial: {}) {
-    console.log('Trying to update user obj by this values: ', partial);
     return this.db.collection(`users/${uid}/account`)
       .doc(`account${uid}`)
       .update(partial)
@@ -250,7 +250,7 @@ export class DataService {
   }
 
   getTotalPublicEnrollmentsByCourseSeller(sellerUid: string) {
-    // Returns a document containing a courses total lifetime enrollments
+    // Returns a document containing a coach's total lifetime course enrollments (across all courses)
     return this.db.collection(`seller-course-enrollments`)
       .doc(sellerUid)
       .valueChanges() as Observable<any>;
@@ -774,6 +774,143 @@ export class DataService {
     return this.db.collection(`users/${uid}/people`)
       .doc(personUid)
       .valueChanges() as Observable<any>;
+  }
+
+  // ================================================================================
+  // =====                           COACH PROGRAMS                            ======
+  // ================================================================================
+
+  getPrivateProgram(userId: string, programId: string) {
+    // Returns a coaching program document.
+    return this.db.collection(`users/${userId}/programs`)
+      .doc(programId)
+      .valueChanges() as Observable<CoachingProgram>;
+  }
+
+  getProgramReviewRequest(programId: string) {
+    return this.db.collection(`admin/review-requests/programs`)
+      .doc(programId)
+      .valueChanges() as Observable<AdminProgramReviewRequest>;
+  }
+
+  async savePrivateProgram(uid: string, program: CoachingProgram) {
+    // track
+    this.analyticsService.saveProgram();
+    // Saves a user's program to a document with matching id
+    return this.db.collection(`users/${uid}/programs`)
+      .doc(program.programId)
+      .set(program, {merge: true})
+      .catch(err => console.error(err));
+  }
+
+  async requestProgramReview(program: CoachingProgram) {
+    if (!program.sellerUid) {
+      console.error('Unable to request review: no seller UID');
+      return;
+    }
+    if (!program.programId) {
+      console.error('Unable to request review: no program ID');
+      return;
+    }
+
+    const requestDate = Math.round(new Date().getTime() / 1000); // set unix timestamp
+    const reviewRequest: AdminProgramReviewRequest = {
+      programId: program.programId,
+      sellerUid: program.sellerUid,
+      requested: requestDate,
+      status: 'submitted'
+    };
+
+    await this.db.collection(`admin/review-requests/programs`)
+      .doc(program.programId)
+      .set(reviewRequest, {merge: true})
+      .catch(err => console.error(err));
+
+    return this.db.collection(`users/${program.sellerUid}/programs`)
+      .doc(program.programId)
+      .set({reviewRequest}, {merge: true})
+      .catch(err => console.error(err));
+  }
+
+  getPublicProgram(programId: string) {
+    // Returns a program document.
+    return this.db.collection(`public-programs`)
+      .doc(programId)
+      .valueChanges() as Observable<CoachingProgram>;
+  }
+
+  getTotalPublicEnrollmentsByProgram(programId: string) {
+    // Returns a document containing a program's total lifetime enrollments
+    return this.db.collection(`program-enrollments`)
+      .doc(programId)
+      .valueChanges() as Observable<any>;
+  }
+
+  getPrivatePrograms(uid: string) {
+    // Returns all the user's created program (as seller) documents.
+    return this.db.collection(`users/${uid}/programs`)
+      .valueChanges() as Observable<CoachingProgram[]>;
+  }
+
+  getProgramSalesByMonth(uid: string, month: number, year: number, programId: string) {
+    // Returns all the user's program sales documents for month and year, along with the doc IDs.
+    return this.db.collection(`users/${uid}/program-sales/${month}-${year}/${programId}`)
+      .valueChanges({idField: 'id'}) as Observable<any[]>;
+  }
+
+  getLifetimeTotalProgramSales(uid: string, programId: string) {
+    // Returns a document containing lifetime sales totals.
+    return this.db.collection(`users/${uid}/program-sales/total-lifetime-program-sales/programs`)
+      .doc(programId)
+      .valueChanges() as Observable<any>;
+  }
+
+  getTotalPublicProgramEnrollmentsBySeller(sellerUid: string) {
+    // Returns a document containing a coach's total lifetime program enrollments (across all programs)
+    return this.db.collection(`seller-program-enrollments`)
+      .doc(sellerUid)
+      .valueChanges() as Observable<any>;
+  }
+
+  getPublicProgramsBySeller(sellerUid: string) {
+    const programsRef = this.db.collection('public-programs', ref => ref.where('sellerUid', '==', sellerUid));
+    return programsRef.valueChanges() as Observable<CoachingProgram[]>;
+  }
+
+  async deletePrivateProgram(userId: string, programId: string) {
+    return this.db.collection(`users/${userId}/programs`)
+      .doc(programId)
+      .delete()
+      .catch(err => console.error(err));
+  }
+
+  getTotalAdminProgramsInReview() {
+    return this.db.collection(`admin`)
+      .doc('totalProgramsInReview')
+      .valueChanges() as Observable<any>;
+  }
+
+  getInitialAdminProgramsInReview(limitTo: number) {
+    return this.db.collection(`admin/review-requests/programs`, ref => ref
+      .orderBy('requested', 'asc')
+      .limit(limitTo))
+      .valueChanges({idField: 'id'}) as Observable<AdminProgramReviewRequest[]>;
+  }
+
+  getNextAdminProgramsInReview(limitTo: number, lastDoc: any) {
+    return this.db.collection(`admin/review-requests/programs`, ref => ref
+      .orderBy('requested', 'asc')
+      .startAfter(lastDoc.requested) // must match the .orderBy field!
+      .limit(limitTo))
+      .valueChanges({idField: 'id'}) as Observable<AdminProgramReviewRequest[]>;
+  }
+
+  getPreviousAdminProgramsInReview(limitTo: number, firstDoc: any) {
+    return this.db.collection(`admin/review-requests/programs`, ref => ref
+      .orderBy('requested', 'asc')
+      .endBefore(firstDoc.requested) // must match the .orderBy field!
+      .limitToLast(limitTo))
+      .valueChanges({idField: 'id'}) as Observable<AdminProgramReviewRequest[]>;
   }
 
   // ================================================================================

@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import { finalize, tap } from 'rxjs/operators';
 import { AlertService } from 'app/services/alert.service';
 import { AnalyticsService } from 'app/services/analytics.service';
-import { CoachingCourse, CoachingCourseVideo } from 'app/interfaces/course.interface';
+import { CoachingCourse } from 'app/interfaces/course.interface';
 
 @Component({
   selector: 'app-course-promo-video-upload-task',

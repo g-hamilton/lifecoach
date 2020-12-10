@@ -6,7 +6,6 @@ export interface CoachProfile {
     dateCreated: number; // unix timestamp
     email: string;
     firstName: string;
-    goalTags: { display: string, value: string }[];
     isPublic: boolean;
     lastName: string;
     phone: number;
@@ -36,6 +35,8 @@ export interface CoachProfile {
     qualCsa: boolean;
     qualSa: boolean;
     speciality1: { id: string, itemName: string };
+    goalTags?: { display: string, value: string }[];
+    credentials?: { display: string, value: string }[];
     profileUrl?: string;
     shortUrl?: string;
     fullDescription?: string;

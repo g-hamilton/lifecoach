@@ -14,11 +14,14 @@
       <div class=" col-md-8">
         <div class=" card">
           <div class=" card-header">
-            <h5 class=" title"> Edit Profile 
-              <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001133909-help-with-your-lifecoach-profile" target="_blank">
-                <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> Help with your profile </span>
-              </a>
-            </h5>
+            <h4 class=" title"> My Profile
+            </h4>
+            <p class=" small text-muted pl-2 mb-2">
+                <i class="fas fa-info-circle"></i> Manage your public coach profile on Lifecoach. Need a little help with creating a 
+                great profile? <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001133909-help-with-your-lifecoach-profile" target="_blank">
+                  Read the guide.
+                </a>
+            </p>
           </div>
           <div class=" card-body">
 
@@ -39,17 +42,15 @@
               <div class=" row mt-4">
                 <div class=" col-md-6 pr-md-1">
                   <!-- First Name -->
-                  <label> First Name<span class="required-star">*</span> </label>
+                  <label> First Name </label>
                   <div
                   class=" input-group"
                   [ngClass]="{
                     'input-group-focus': focus === true,
                     'has-danger':
-                      ((focusTouched || savingProfile) &&
-                        profileF.firstName.errors) ||
-                      (profileF.firstName.value != '' &&
+                      (((focusTouched && profileF.firstName.value != '') || saveAttempt) &&
                         profileF.firstName.errors),
-                    'has-success': profileF.firstName.value != '' && !profileF.firstName.errors
+                    'has-success': !profileF.firstName.errors
                   }"
                   >
                     <div class=" input-group-prepend">
@@ -67,30 +68,24 @@
                       (blur)="focus = false"
                     />
                   </div>
-                  <label
+                  <div *ngIf="(((focusTouched && profileF.firstName.value != '') || saveAttempt) && profileF.firstName.errors)">
+                    <label
+                    *ngFor="let error of objKeys(profileF.firstName.errors)"
                     class="error custom-error-label"
-                    *ngIf="
-                      ((focusTouched || savingProfile) &&
-                        profileF.firstName.errors) ||
-                      (profileF.firstName.value != '' &&
-                        profileF.firstName.errors)
-                    "
-                    >This field is required.</label
-                  >
+                    >{{ showError('firstName', error) }}
+                    </label>
+                  </div>
                 </div>
                 <div class=" col-md-6 pl-md-1">
                   <!-- Last Name -->
-                  <label> Last Name<span class="required-star">*</span> </label>
+                  <label> Last Name </label>
                   <div
                   class=" input-group"
                   [ngClass]="{
                     'input-group-focus': focus1 === true,
                     'has-danger':
-                      ((focus1Touched || savingProfile) &&
-                        profileF.lastName.errors) ||
-                      (profileF.lastName.value != '' &&
-                        profileF.lastName.errors),
-                    'has-success': profileF.lastName.value != '' && !profileF.lastName.errors
+                      (((focus1Touched && profileF.lastName.value != '') || saveAttempt) && profileF.lastName.errors),
+                    'has-success': !profileF.lastName.errors
                   }"
                   >
                     <div class=" input-group-prepend">
@@ -108,32 +103,25 @@
                       (blur)="focus1 = false"
                     />
                   </div>
-                  <label
+                  <div *ngIf="(((focus1Touched && profileF.lastName.value != '') || saveAttempt) && profileF.lastName.errors)">
+                    <label
+                    *ngFor="let error of objKeys(profileF.lastName.errors)"
                     class="error custom-error-label"
-                    *ngIf="
-                      ((focus1Touched || savingProfile) &&
-                        profileF.lastName.errors) ||
-                      (profileF.lastName.value != '' &&
-                        profileF.lastName.errors)
-                    "
-                    >This field is required.</label
-                  >
+                    >{{ showError('lastName', error) }}
+                    </label>
+                  </div>
                 </div>
               </div>
               <div class=" row">
                 <!-- City -->
                 <div class=" col-md-6 pr-md-1">
-                  <label> City<span class="required-star">*</span> </label>
+                  <label> City </label>
                   <div
                   class=" input-group"
                   [ngClass]="{
                     'input-group-focus': focus2 === true,
-                    'has-danger':
-                      ((focus2Touched || savingProfile) &&
-                        profileF.city.errors) ||
-                      (profileF.city.value != '' &&
-                        profileF.city.errors),
-                    'has-success': profileF.city.value != '' && !profileF.city.errors
+                    'has-danger': (((focus2Touched && profileF.city.value != '') || saveAttempt) && profileF.city.errors),
+                    'has-success': !profileF.city.errors
                   }"
                   >
                     <div class=" input-group-prepend">
@@ -151,21 +139,18 @@
                     (focus)="focus2 = true; focus2Touched = true"
                     (blur)="focus2 = false"
                     />
-                    <label
+                    <div *ngIf="(((focus2Touched && profileF.city.value != '') || saveAttempt) && profileF.city.errors)">
+                      <label
+                      *ngFor="let error of objKeys(profileF.city.errors)"
                       class="error custom-error-label"
-                      *ngIf="
-                        ((focus2Touched || savingProfile) &&
-                          profileF.city.errors) ||
-                        (profileF.city.value != '' &&
-                          profileF.city.errors)
-                      "
-                      >Required even if you work remotely.</label
-                    >
+                      >{{ showError('city', error) }}
+                      </label>
+                    </div>
                   </div>
                 </div>
                 <!-- Country --> 
                 <div class=" col-md-6 pl-md-1">
-                  <label> Country<span class="required-star">*</span> </label>
+                  <label> Country </label>
                   <div class=" form-group" *ngIf="browser">
                     <select
                     class="form-control"
@@ -180,72 +165,57 @@
                     </select>
                     <div
                       class="error custom-error-label"
-                      *ngIf="
-                        ((focus3Touched || savingProfile) &&
-                          profileF.country.errors) ||
-                        (profileF.country.value != '' &&
-                          profileF.country.errors)
-                      "
+                      *ngIf="(((focus3Touched && profileF.country.value != null) || saveAttempt) && profileF.country.errors)"
                       >Please select a country.
                     </div>
                   </div>
                 </div>
               </div>
               <!-- Short Summary -->
-              <div class=" row mt-3">
+              <div class=" row mt-4">
                 <div class=" col-md-12">
                   <div class=" form-group">
-                    <label> Short Summary<span class="required-star">*</span> </label>
-                    <span class=" h5 text-light ml-2">
-                      <i
-                      class="fas fa-info-circle btn-tooltip"
-                      data-animation="true"
-                      data-container="body"
-                      placement="top"
-                      tooltip="A short summary to introduce yourself to prospective clients. 
+                    <label> Short Summary </label>
+                    <p class=" small text-muted pl-2 mb-2">
+                      <i class="fas fa-info-circle"></i> Add a short summary to introduce yourself to prospective clients. 
                       Clients will see this immediately on your profile card when browsing 
                       and searching coaches. We recommend you expand on this info using the 
-                      'Full Description' field below.">
-                      </i>
-                    </span>
+                      'Full Description' & 'Credentials' fields below.
+                    </p>
                     <textarea
-                    class=" form-control"
+                    class=" form-control mt-2"
                     cols="80"
                     rows="5"
                     formControlName="proSummary"
                     (focus)="focus4 = true; focus4Touched = true"
                     (blur)="focus4 = false"
-                    required=""
-                    >
+                    (input)="onSummaryInput($event)"
+                    required="">
                       A little about me...
                     </textarea>
-                    <label
+                    <small>
+                      <span class="pull-right">
+                        {{ summaryActualLength + '/' + summaryMaxLength }}
+                      </span>
+                    </small>
+                    <div *ngIf="(((focus4Touched && profileF.proSummary.value != '') || savingProfile) && profileF.proSummary.errors)">
+                      <label
+                      *ngFor="let error of objKeys(profileF.proSummary.errors)"
                       class="error custom-error-label"
-                      *ngIf="
-                        ((focus4Touched || savingProfile) &&
-                          profileF.proSummary.errors) ||
-                        (profileF.proSummary.value != '' &&
-                          profileF.proSummary.errors)
-                      "
-                      >Must be between 90 - 210 characters.</label
-                    >
+                      >{{ showError('proSummary', error) }}
+                      </label>
+                    </div>
                   </div>
                 </div>
               </div>
   
               <!-- Field -->
-              <div class=" row mt-3">
+              <div class=" row mt-4">
                 <div class=" col-lg-10">
-                  <label> My Field<span class="required-star">*</span> </label> 
-                  <span class=" h5 text-light ml-2">
-                    <i
-                    class="fas fa-info-circle btn-tooltip"
-                    data-animation="true"
-                    data-container="body"
-                    placement="top"
-                    tooltip="If you don't fit into any of these fields, use the 'suggest new feature' button at the bottom of this page to request we add a new field.">
-                    </i>
-                  </span>
+                  <label> My Coaching Field </label> 
+                  <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> What's your generic field of coaching? Select the closest matching field from the list.
+                  </p>
                 </div>
               </div>
               <div class=" row mt-2">
@@ -262,45 +232,37 @@
                         {{ item.itemName }}
                       </option>
                     </select>
-                    <div
+                    <div *ngIf="(((focus5Touched && profileF.speciality1.value != null) || saveAttempt) && profileF.speciality1.errors)">
+                      <label
+                      *ngFor="let error of objKeys(profileF.speciality1.errors)"
                       class="error custom-error-label"
-                      *ngIf="
-                        ((focus5Touched || savingProfile) &&
-                          profileF.speciality1.errors) ||
-                        (profileF.speciality1.value != '' &&
-                          profileF.speciality1.errors)
-                      "
-                      >Please select a coaching field.
+                      >{{ showError('speciality1', error) }}
+                      </label>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <!-- Specialist areas -->
-              <div class=" row mt-3">
+              <!-- Goal tags -->
+              <div class=" row mt-4">
                 <div class=" col-lg-10">
-                  <label> My Specialist Area(s)<span class="required-star">*</span> </label>
-                  <span class=" h5 text-light ml-2">
-                    <i
-                    class="fas fa-info-circle btn-tooltip"
-                    data-animation="true"
-                    data-container="body"
-                    placement="top"
-                    tooltip="Help prospective clients to find you in search by entering up to 3 of your specialist coaching areas.">
-                    </i>
-                  </span>
+                  <label> My Goal Focussed Outcomes </label>
+                  <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> What can you help clients to achieve? 
+                    Enter up to 3 specific goal focussed outcomes. These help clients who may not yet know they need coaching, 
+                    but have a specific issue or challenge in mind. eg. 'Boost your self-confidence', 'Overcome your fear of public speaking', 
+                    'Unleash your speaking potential'.
+                  </p>
                 </div>
               </div>
-              <div class=" row">
+              <div class=" row mt-2">
                 <div class=" col-md-6 pr-md-1">
                   <div formArrayName="goalTags" *ngFor="let item of profileF.goalTags.value?.controls ; let i = index">
                     <div
                     class="input-group no-symbol"
                     [ngClass]="{
                         'has-danger':
-                        ((profileF.goalTags.value.controls[i].touched || savingProfile) &&  
-                        profileF.goalTags.value.controls[i].errors) ||
-                        (profileF.goalTags.value.controls[i].value != '' && 
+                        (((profileF.goalTags.value.controls[i].touched && profileF.goalTags.value.controls[i].value != '') || saveAttempt) &&  
                         profileF.goalTags.value.controls[i].errors),
                         'has-success': !profileF.goalTags.value.controls[i].errors
                     }">
@@ -308,7 +270,7 @@
                         type="text"
                         class="form-control"
                         [formControl]="profileF.goalTags.value.controls[i]"
-                        placeholder="eg. Mindfulness">
+                        placeholder="eg. Boost your self-confidence">
                         <div class="input-group-append">
                         <span class="input-group-text">
                             {{ profileF.goalTags.value.controls[i].value.length + '/' + goalTagMaxLength }}
@@ -317,19 +279,17 @@
                         <div class=" d-inline">
                           <i
                           class="far fa-trash-alt text-danger ml-3 mt-3"
-                          tooltip="Delete this specialist area"
+                          tooltip="Delete this outcome"
                           (click)="removeGoalTag(i)">
                           </i>  
                         </div>
                     </div>
-                    <div *ngIf="((profileF.goalTags.value.controls[i].touched || savingProfile) && 
-                        profileF.goalTags.value.controls[i].errors) ||
-                        (profileF.goalTags.value.controls[i].value != '' && 
-                        profileF.goalTags.value.controls[i].errors)">
+                    <div *ngIf="(((profileF.goalTags.value.controls[i].value != '') || 
+                    saveAttempt) && profileF.goalTags.value.controls[i].errors)">
                         <label
                         *ngFor="let error of objKeys(profileF.goalTags.value.controls[i].errors)"
                         class="error custom-error-label"
-                        >{{ showError('learningPoints', error) }}
+                        >{{ showError('goalTags', error) }}
                         </label>
                     </div>
                   </div>
@@ -338,24 +298,17 @@
                   class=" btn btn-primary btn-link"
                   (click)="addGoalTag()"
                   [disabled]="profileF.goalTags.value?.controls?.length >= goalTagsMax">
-                      <i class="fas fa-plus"></i> Add a specialist area
+                      <i class="fas fa-plus"></i> Add a goal focussed outcome
                   </button>
                 </div>
               </div>
               <!-- Qualifications -->
               <div class=" row mt-5">
                 <div class=" col-lg-10">
-                  <label> Qualifications </label> 
-                    <span class=" h5 text-light ml-2">
-                      <i
-                      class="fas fa-info-circle btn-tooltip"
-                      data-animation="true"
-                      data-container="body"
-                      placement="top"
-                      tooltip="Add your qualifications & professional life coaching
-                      certifications.">
-                      </i>
-                    </span>
+                  <label> My Qualifications </label>
+                  <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> Do you have any professional qualifications or accreditations? Add them here.
+                  </p>
                 </div>
               </div>
               <div class=" row">
@@ -526,31 +479,88 @@
                   </div>
                 </div>
               </div>
+
+              <!-- Credentials -->
+              <div class=" row mt-4">
+                <div class=" col-lg-10">
+                  <label> My Credentials </label>
+                  <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> Show off your biggest achievements by adding up to {{ credentialsMax }} credentials. 
+                    eg. 'Founder of SuperCoach, an award winning coaching movement'. 'New York Times best selling author'. 
+                    'Winner of the Humanitarian Award for Coaching Services'.
+                  </p>
+                </div>
+              </div>
+              <div class=" row mt-2">
+                <div class=" col-md-10 pr-md-1">
+                  <div formArrayName="credentials" *ngFor="let item of profileF.credentials.value?.controls ; let i = index">
+                    <div
+                    class="input-group no-symbol"
+                    [ngClass]="{
+                        'has-danger':
+                        (((profileF.credentials.value.controls[i].touched && profileF.credentials.value.controls[i].value != '') || saveAttempt) &&  
+                        profileF.credentials.value.controls[i].errors),
+                        'has-success': !profileF.credentials.value.controls[i].errors
+                    }">
+                        <input
+                        type="text"
+                        class="form-control"
+                        [formControl]="profileF.credentials.value.controls[i]"
+                        placeholder="eg. New York Times best selling author">
+                        <div class="input-group-append">
+                        <span class="input-group-text">
+                            {{ profileF.credentials.value.controls[i].value.length + '/' + credentialMaxLength }}
+                        </span>
+                        </div>
+                        <div class=" d-inline">
+                          <i
+                          class="far fa-trash-alt text-danger ml-3 mt-3"
+                          tooltip="Delete this credential"
+                          (click)="removeCredential(i)">
+                          </i>  
+                        </div>
+                    </div>
+                    <div *ngIf="(((profileF.credentials.value.controls[i].value != '') || 
+                    saveAttempt) && profileF.credentials.value.controls[i].errors)">
+                        <label
+                        *ngFor="let error of objKeys(profileF.credentials.value.controls[i].errors)"
+                        class="error custom-error-label"
+                        >{{ showError('credentials', error) }}
+                        </label>
+                    </div>
+                  </div>
+                  <button
+                  type="button"
+                  class=" btn btn-primary btn-link"
+                  (click)="addCredential()"
+                  [disabled]="profileF.credentials.value?.controls?.length >= credentialsMax">
+                      <i class="fas fa-plus"></i> Add a credential
+                  </button>
+                </div>
+              </div>
   
-              <!-- Social Buttons -->
+              <!-- Social links -->
               <div class=" row mt-5">
+                <div class=" col">
+                  <label>
+                    My Social Links
+                  </label>
+                  <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> Feel free to add links through to your social channels. 
+                    We recommend you visit your social pages and simply copy and paste the full link to each page below. 
+                    Be sure to test your links actually work!
+                  </p>
+                </div>
+              </div>
+              <div class=" row mt-2">
                 <!-- Facebook -->
                 <div class=" col-md-6 pr-md-1">
                   <label> Facebook </label>
-                  <span class=" h5 text-light ml-2">
-                    <i
-                    class="fas fa-info-circle btn-tooltip"
-                    data-animation="true"
-                    data-container="body"
-                    placement="top"
-                    tooltip="Copy and paste your full Facebook address here to create a promotional button. 
-                    Be sure to test your button to check it works correctly before saving!">
-                    </i>
-                  </span>
                   <div
                   class=" input-group"
                   [ngClass]="{
                     'input-group-focus': focus6 === true,
-                    'has-danger':
-                      ((focus6Touched || savingProfile) &&
-                        profileF.facebook.errors) ||
-                      (profileF.facebook.value != '' &&
-                        profileF.facebook.errors),
+                    'has-danger': (((focus6Touched && profileF.facebook.value != '') || saveAttempt) && profileF.facebook.errors),
                     'has-success': profileF.facebook.value != '' && !profileF.facebook.errors
                   }"
                   >
@@ -569,13 +579,7 @@
                       (blur)="focus6 = false"
                     />
                   </div>
-                  <div
-                  *ngIf="
-                  ((focus6Touched || savingProfile) &&
-                    profileF.facebook.errors) ||
-                  (profileF.facebook.value != '' &&
-                    profileF.facebook.errors)"
-                  >
+                  <div *ngIf="(((focus6Touched && profileF.facebook.value != '') || saveAttempt) && profileF.facebook.errors)">
                     <label
                     *ngFor="let error of objKeys(profileF.facebook.errors)"
                     class="error custom-error-label"
@@ -586,25 +590,11 @@
                 <!-- Twitter -->
                 <div class=" col-md-6 pl-md-1">
                   <label> Twitter </label>
-                  <span class=" h5 text-light ml-2">
-                    <i
-                    class="fas fa-info-circle btn-tooltip"
-                    data-animation="true"
-                    data-container="body"
-                    placement="top"
-                    tooltip="Copy & paste your full Twitter address here to create a promotional button. 
-                    Be sure to test your button to check it works correctly before saving!">
-                    </i>
-                  </span>
                   <div
                   class=" input-group"
                   [ngClass]="{
                     'input-group-focus': focus7 === true,
-                    'has-danger':
-                      ((focus7Touched || savingProfile) &&
-                        profileF.twitter.errors) ||
-                      (profileF.twitter.value != '' &&
-                        profileF.twitter.errors),
+                    'has-danger': (((focus7Touched && profileF.twitter.value != '') || saveAttempt) && profileF.twitter.errors),
                     'has-success': profileF.twitter.value != '' && !profileF.twitter.errors
                   }"
                   >
@@ -623,13 +613,7 @@
                       (blur)="focus7 = false"
                     />
                   </div>
-                  <div
-                  *ngIf="
-                  ((focus7Touched || savingProfile) &&
-                    profileF.twitter.errors) ||
-                  (profileF.twitter.value != '' &&
-                    profileF.twitter.errors)"
-                  >
+                  <div *ngIf="(((focus7Touched && profileF.twitter.value != '') || saveAttempt) && profileF.twitter.errors)">
                     <label
                     *ngFor="let error of objKeys(profileF.twitter.errors)"
                     class="error custom-error-label"
@@ -642,25 +626,11 @@
                 <!-- LinkedIn -->
                 <div class=" col-md-6 pr-md-1">
                   <label> LinkedIn </label>
-                  <span class=" h5 text-light ml-2">
-                    <i
-                    class="fas fa-info-circle btn-tooltip"
-                    data-animation="true"
-                    data-container="body"
-                    placement="top"
-                    tooltip="Copy & paste your full LinkedIn address here to create a promotional button. 
-                    Be sure to test your button to check it works correctly before saving!">
-                    </i>
-                  </span>
                   <div
                   class=" input-group"
                   [ngClass]="{
                     'input-group-focus': focus8 === true,
-                    'has-danger':
-                      ((focus8Touched || savingProfile) &&
-                        profileF.linkedin.errors) ||
-                      (profileF.linkedin.value != '' &&
-                        profileF.linkedin.errors),
+                    'has-danger': (((focus8Touched && profileF.linkedin.value != '') || savingProfile) && profileF.linkedin.errors),
                     'has-success': profileF.linkedin.value != '' && !profileF.linkedin.errors
                   }"
                   >
@@ -679,13 +649,7 @@
                       (blur)="focus8 = false"
                     />
                   </div>
-                  <div
-                  *ngIf="
-                  ((focus8Touched || savingProfile) &&
-                    profileF.linkedin.errors) ||
-                  (profileF.linkedin.value != '' &&
-                    profileF.linkedin.errors)"
-                  >
+                  <div *ngIf="(((focus8Touched && profileF.linkedin.value != '') || savingProfile) && profileF.linkedin.errors)">
                     <label
                     *ngFor="let error of objKeys(profileF.linkedin.errors)"
                     class="error custom-error-label"
@@ -696,25 +660,11 @@
                 <!-- YouTube -->
                 <div class=" col-md-6 pl-md-1">
                   <label> YouTube </label>
-                  <span class=" h5 text-light ml-2">
-                    <i
-                    class="fas fa-info-circle btn-tooltip"
-                    data-animation="true"
-                    data-container="body"
-                    placement="top"
-                    tooltip="Copy & paste your YouTube address here to create a promotional button. 
-                    Be sure to test your button to check it works correctly before saving!">
-                    </i>
-                  </span>
                   <div
                   class=" input-group"
                   [ngClass]="{
                     'input-group-focus': focus9 === true,
-                    'has-danger':
-                      ((focus9Touched || savingProfile) &&
-                        profileF.youtube.errors) ||
-                      (profileF.youtube.value != '' &&
-                        profileF.youtube.errors),
+                    'has-danger': (((focus9Touched && profileF.youtube.value != '') || savingProfile) && profileF.youtube.errors),
                     'has-success': profileF.youtube.value != '' && !profileF.youtube.errors
                   }"
                   >
@@ -733,13 +683,7 @@
                       (blur)="focus9 = false"
                     />
                   </div>
-                  <div
-                  *ngIf="
-                  ((focus9Touched || savingProfile) &&
-                    profileF.youtube.errors) ||
-                  (profileF.youtube.value != '' &&
-                    profileF.youtube.errors)"
-                  >
+                  <div *ngIf="(((focus9Touched && profileF.youtube.value != '') || savingProfile) && profileF.youtube.errors)">
                     <label
                     *ngFor="let error of objKeys(profileF.youtube.errors)"
                     class="error custom-error-label"
@@ -752,25 +696,11 @@
                 <!-- Instagram -->
                 <div class=" col-md-6 pr-md-1">
                   <label> Instagram </label>
-                  <span class=" h5 text-light ml-2">
-                    <i
-                    class="fas fa-info-circle btn-tooltip"
-                    data-animation="true"
-                    data-container="body"
-                    placement="top"
-                    tooltip="Copy & paste your full Instagram address here to create a promotional button. 
-                    Be sure to test your button to check it works correctly before saving!">
-                    </i>
-                  </span>
                   <div
                   class=" input-group"
                   [ngClass]="{
                     'input-group-focus': focus11 === true,
-                    'has-danger':
-                      ((focus11Touched || savingProfile) &&
-                        profileF.instagram.errors) ||
-                      (profileF.instagram.value != '' &&
-                        profileF.instagram.errors),
+                    'has-danger': (((focus11Touched && profileF.instagram.value != '') || savingProfile) && profileF.instagram.errors),
                     'has-success': profileF.instagram.value != '' && !profileF.instagram.errors
                   }"
                   >
@@ -789,13 +719,7 @@
                       (blur)="focus11 = false"
                     />
                   </div>
-                  <div
-                  *ngIf="
-                  ((focus11Touched || savingProfile) &&
-                    profileF.instagram.errors) ||
-                  (profileF.instagram.value != '' &&
-                    profileF.instagram.errors)"
-                  >
+                  <div *ngIf="(((focus11Touched && profileF.instagram.value != '') || savingProfile) && profileF.instagram.errors)">
                     <label
                     *ngFor="let error of objKeys(profileF.instagram.errors)"
                     class="error custom-error-label"
@@ -806,25 +730,11 @@
                 <!-- Website -->
                 <div class=" col-md-6 pl-md-1">
                   <label> My Website </label>
-                  <span class=" h5 text-light ml-2">
-                    <i
-                    class="fas fa-info-circle btn-tooltip"
-                    data-animation="true"
-                    data-container="body"
-                    placement="top"
-                    tooltip="Copy & paste your full website address here to create a promotional button. 
-                    Be sure to test your button to check it works correctly before saving!">
-                    </i>
-                  </span>
                   <div
                   class=" input-group"
                   [ngClass]="{
                     'input-group-focus': focus12 === true,
-                    'has-danger':
-                      ((focus12Touched || savingProfile) &&
-                        profileF.website.errors) ||
-                      (profileF.website.value != '' &&
-                        profileF.website.errors),
+                    'has-danger': (((focus12Touched && profileF.website.value != '') || savingProfile) && profileF.website.errors),
                     'has-success': profileF.website.value != '' && !profileF.website.errors
                   }"
                   >
@@ -843,13 +753,7 @@
                       (blur)="focus12 = false"
                     />
                   </div>
-                  <div
-                  *ngIf="
-                  ((focus12Touched || savingProfile) &&
-                    profileF.website.errors) ||
-                  (profileF.website.value != '' &&
-                    profileF.website.errors)"
-                  >
+                  <div *ngIf="(((focus12Touched && profileF.website.value != '') || savingProfile) && profileF.website.errors)">
                     <label
                     *ngFor="let error of objKeys(profileF.youtube.errors)"
                     class="error custom-error-label"
@@ -862,18 +766,13 @@
               <!-- Full Description -->
               <div class=" row mt-5">
                 <div class=" col-md-12">
-                  <label> Full Description </label> 
-                  <span class=" h5 text-light ml-2">
-                    <i
-                    class="fas fa-info-circle btn-tooltip"
-                    data-animation="true"
-                    data-container="body"
-                    placement="top"
-                    tooltip="Expand on the information above with a full description of your unique coaching services. 
-                    This information will be shown to prospective clients when they click on your 
-                    profile card to read more about you.">
-                    </i>
-                  </span>
+                  <label> About Me </label>
+                  <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> This is a great place to expand on the information above 
+                    to really promote yourself as a coach. We recommend you focus on yourself. What makes you unique? 
+                    What can you offer your clients? Why should clients choose you? What can you help your clients to 
+                    achieve?
+                  </p>
                   <div *ngIf="viewLoaded" class=" form-group">
                     <editor 
                     apiKey="swb6l7gw85zcl8aw2dh7551jt3t5ydravtthultgf8fo3w2l" 
@@ -924,7 +823,9 @@
               </h5>
               <!-- Tags -->
               <span *ngFor="let item of profileF.goalTags.value?.controls" class=" badge badge-success mr-2">
-                {{ item.value }}
+                <span *ngIf="item.value">
+                  {{ item.value }}
+                </span>
               </span>
             </div>
             <!-- Short Summary -->
@@ -1062,14 +963,12 @@
         <div class=" card">
           <div class=" card-header"><h5 class=" title"> Profile Video </h5></div>
           <div class=" card-body">
-            <p class=" text-muted">
-              Add a more personal touch to your profile with a friendly video introduction.
-            </p>
-            <p>
-              We have seen a 5X increase in leads from profiles with a video intro!
-            </p>
-            <p class=" text-muted">
-              Need a little help with your intro video? Check out our <a href="https://lifecoach.io/course/2yogs3bea">official eCourse</a> or browse our <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001115693-guidelines-for-profile-videos" target="_blank">tips & guidelines</a> for a better intro video.
+            <p class=" small text-muted pl-2 mb-2">
+              <i class="fas fa-info-circle"></i> Add a more personal touch to your profile with a friendly video introduction. 
+              We have seen a 5X increase in leads from profiles with a great video intro! 
+              Need a little help with your intro video? Check out our <a href="https://lifecoach.io/course/2yogs3bea">official eCourse</a> 
+              or browse our <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001115693-guidelines-for-profile-videos" target="_blank">
+              tips & guidelines</a> for a better intro video.
             </p>
             <!-- Video uploader & player -->
             <div class=" row">
@@ -1199,16 +1098,10 @@
               <div class=" col-md-12">
                 <div class=" form-group">
                   <label> Public Display </label>
-                  <span class=" h5 text-light ml-2">
-                    <i
-                    class="fas fa-info-circle btn-tooltip"
-                    data-animation="true"
-                    data-container="body"
-                    placement="top"
-                    tooltip="Set ON to make your profile public and allow clients to contact you. Set OFF to keep your profile private.">
-                    </i>
-                  </span>
-                  <br />
+                  <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> Ensure this is switched on to make your profile public & discoverable to search 
+                    engines. Switch off if you need to temporarily hide your profile for any reason.
+                  </p>
                   <bSwitch
                     [switch-on-color]="'danger'"
                     [switch-off-color]="'danger'"
@@ -1225,11 +1118,13 @@
             <div class=" row">
               <div class=" col-md-12">
                 <label class=" text-muted">
-                  <span class="text-primary">Don't forget to save your changes!</span><br> 
-                  Click the 'Preview' button to view your full profile as a client.<br>
-                  Note 1: Preview will open a new tab so any changes you save can be seen.<br>
-                  Note 2: You may need to wait a moment & refresh your preview page to see all saved changes.
+                  <span class="text-primary">Don't forget to save your changes!</span>
                 </label>
+                <p class=" small text-muted pl-2 mb-2">
+                  <i class="fas fa-info-circle"></i> Click the 'Preview' button to view your full profile as a client. 
+                  Preview will open a new tab so any changes you save can be seen. 
+                  You may need to wait a moment & refresh your preview page to see all saved changes.
+                </p>
               </div>
               <!-- Preview Button -->
               <div class=" col-md-6 mt-4">
@@ -1243,7 +1138,7 @@
                       *ngIf="false"
                       class="spinner-border spinner-border-sm"
                       role="status"
-                      ></span> {{ false ? 'Generating...' : 'Preview'}} 
+                      ></span> {{ false ? 'Generating...' : 'Preview My Profile'}} 
                     </button>
                   </a>
                 </div>

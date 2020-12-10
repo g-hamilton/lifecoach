@@ -568,3 +568,11 @@ select option {
   }
 }
 
+
+// custom styling for images in tables
+.table .img-container {
+  width: 120px;
+  max-height: 160px;
+  overflow: hidden;
+  display: block;
+}

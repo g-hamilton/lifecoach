@@ -8,7 +8,6 @@ import { DataService } from 'app/services/data.service';
 import { AlertService } from 'app/services/alert.service';
 import { AnalyticsService } from 'app/services/analytics.service';
 import { PriceValidator } from 'app/custom-validators/price.validator';
-import { AuthService } from 'app/services/auth.service';
 import { UserAccount } from 'app/interfaces/user.account.interface';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -35,8 +34,8 @@ export class CoursePricingComponent implements OnInit, OnChanges, OnDestroy {
   private baseMinPrice = 1;
   private baseMaxPrice = 10000;
   private baseCurrency = 'GBP';
-  private minPrice: number;
-  private maxPrice: number;
+  private minPrice = 1;
+  private maxPrice = 10000;
 
   public errorMessages = {
     price: {
@@ -48,6 +47,7 @@ export class CoursePricingComponent implements OnInit, OnChanges, OnDestroy {
   };
 
   public saving: boolean;
+  public saveAttempt: boolean;
 
   public objKeys = Object.keys;
 
@@ -56,7 +56,6 @@ export class CoursePricingComponent implements OnInit, OnChanges, OnDestroy {
   constructor(
     @Inject(PLATFORM_ID) public platformId: object,
     public formBuilder: FormBuilder,
-    private authService: AuthService,
     private dataService: DataService,
     private alertService: AlertService,
     private analyticsService: AnalyticsService,
@@ -203,26 +202,20 @@ export class CoursePricingComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async onSubmit() {
+    this.saveAttempt = true;
     this.saving = true;
 
     // safety checks
 
     if (this.pricingForm.invalid) {
-      console.log(this.pricingForm.value);
+      // console.log(this.pricingForm.value);
       this.alertService.alert('warning-message', 'Oops', 'Please complete all required fields before saving.');
       this.saving = false;
       return;
     }
 
     if (!this.userId) {
-      this.alertService.alert('warning-message', 'Oops', 'Error: No user ID. Cannot save landing page data.');
-      this.saving = false;
-      return;
-    }
-
-    if (this.pricingF.pricingStrategy.value === 'paid' && !this.account.stripeUid) {
-      this.pricingForm.patchValue({pricingStrategy: 'free'}); // should already be done by component but double safe!
-      this.alertService.alert('warning-message', 'Oops', 'Before creating a paid course you must enable your payout account. Visit Account > Payout Settings to enable payouts now.');
+      this.alertService.alert('warning-message', 'Oops', 'Error: No user ID. Cannot save data.');
       this.saving = false;
       return;
     }
@@ -239,13 +232,14 @@ export class CoursePricingComponent implements OnInit, OnChanges, OnDestroy {
     this.course.includeInCoachingForCoaches = this.pricingF.includeInCoachingForCoaches.value;
 
     // console.log(this.pricingForm.value);
-    console.log('Saving course:', this.course);
+    // console.log('Saving course:', this.course);
 
     await this.dataService.savePrivateCourse(this.userId, this.course);
 
-    this.alertService.alert('auto-close', 'Success!', 'Course saved.');
+    this.alertService.alert('auto-close', 'Success!', 'eCourse saved.');
 
     this.saving = false;
+    this.saveAttempt = false;
 
     this.analyticsService.editCourseOptions();
   }

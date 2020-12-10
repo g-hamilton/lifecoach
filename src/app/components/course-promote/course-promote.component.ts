@@ -1,9 +1,7 @@
 import { Component, OnInit, Input, Inject, PLATFORM_ID, OnChanges } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { CoachingCourse } from 'app/interfaces/course.interface';
-import { DataService } from 'app/services/data.service';
 import { AlertService } from 'app/services/alert.service';
-import { AnalyticsService } from 'app/services/analytics.service';
 import { isPlatformBrowser } from '@angular/common';
 
 @Component({
@@ -23,9 +21,7 @@ export class CoursePromoteComponent implements OnInit, OnChanges {
   constructor(
     @Inject(PLATFORM_ID) public platformId: object,
     public formBuilder: FormBuilder,
-    private dataService: DataService,
-    private alertService: AlertService,
-    private analyticsService: AnalyticsService
+    private alertService: AlertService
   ) { }
 
   ngOnInit() {

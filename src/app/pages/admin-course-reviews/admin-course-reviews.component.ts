@@ -1,6 +1,4 @@
 import { Component, OnInit, Inject, PLATFORM_ID, OnDestroy } from '@angular/core';
-import { CloudFunctionsService } from 'app/services/cloud-functions.service';
-import { AlertService } from 'app/services/alert.service';
 import { isPlatformBrowser } from '@angular/common';
 import { DataService } from 'app/services/data.service';
 import { AdminCourseReviewRequest } from 'app/interfaces/adminCourseReviewRequest';
@@ -24,9 +22,7 @@ export class AdminCourseReviewsComponent implements OnInit, OnDestroy {
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
-    private cloudFunctionsService: CloudFunctionsService,
-    private dataService: DataService,
-    private alertService: AlertService
+    private dataService: DataService
   ) {
   }
 

@@ -1,0 +1,124 @@
+<!-- Loading spinner -->
+<div *ngIf="!program" class="text-center">
+    <div class="spinner-border" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+</div>
+
+<!-- program loaded -->
+<div *ngIf="program" class=" card">
+    <div class=" card-body">
+        <div class=" mb-3">
+
+            <h5>Program Review
+                <a href="" target="_blank">
+                    <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> Help with the program review process </span>
+                </a>
+            </h5>
+
+            <div class=" mt-4">
+                <div class=" pl-2">
+                    <label> Program Status </label>
+                    <span *ngIf="program.reviewRequest?.status === 'submitted'" class=" text-info"> Submitted for review: {{ getDisplayDate(program.reviewRequest.requested) }} </span>
+                    <div *ngIf="program.reviewRequest?.status === 'approved'">
+                        <span class=" text-success"> Approved: {{ getDisplayDate(program.reviewRequest.requested) }} </span>
+                        - Published.
+                    </div>
+                    <div *ngIf="!program.reviewRequest && programForm.invalid" class=" text-warning">
+                        In draft
+                    </div>
+                    <div *ngIf="!program.reviewRequest && programForm.valid" class=" text-warning">
+                        In draft - Ready to submit for review
+                    </div>
+                    <div *ngIf="program.reviewRequest?.status === 'rejected'">
+                        <span class=" text-danger"> Needs action </span>
+                        - Our Quality Team noticed the following issue(s) with your program:
+                        <div class=" row highlight-box">
+                            <div class=" col">
+                                {{ program.reviewRequest.rejectData.reason }}
+                            </div>
+                        </div>
+                        <div>
+                            <strong>Important:</strong> Please only re-submit your program when you have read through the issues above carefully and actioned any
+                            recommended changes appropriately.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advise user of any issues that prevent submission for review -->
+            <div class=" mt-4" *ngIf="programForm.invalid">
+                <div class="">
+                    <label> <i class="tim-icons icon-alert-circle-exc text-danger ml-2"> </i>
+                        Please fix the following issues before you can submit this program for review: 
+                    </label>
+                    <ul class=" mt-3 small">
+                        <!-- Profile items -->
+                        <li *ngIf="!program.coachName || !program.coachPhoto">
+                            Programs require a public coach profile. Please visit the 'Profile' tab now to 
+                            complete your coach profile.
+                        </li>
+                        <!-- Stripe items -->
+                        <li *ngIf="!program.stripeId">
+                            In order to accept paid bookings, you must enable your coach payout account. Visit 
+                            the 'Account' tab and select 'Payout Settings' to enable your payout account.
+                        </li>
+                        <!-- landing page items -->
+                        <li *ngIf="!program.title">
+                            Program title is missing
+                        </li>
+                        <li *ngIf="!program.subtitle">
+                            Program subtitle is missing
+                        </li>
+                        <li *ngIf="!program.description">
+                            Program description is missing
+                        </li>
+                        <li *ngIf="!program.language">
+                            Program language is missing
+                        </li>
+                        <li *ngIf="!program.category">
+                            Program category is missing
+                        </li>
+                        <li *ngIf="!program.level">
+                            Program level is missing
+                        </li>
+                        <li *ngIf="!program.subject">
+                            Program primary subject is missing
+                        </li>
+                        <!-- sessions & pricing items -->
+                        <li *ngIf="!program.fullPrice">
+                            Program price is missing
+                        </li>
+                        <li *ngIf="!program.currency">
+                            Program currency is missing
+                        </li>
+                        <li *ngIf="program.pricingStrategy === 'flexible' && !program.pricePerSession">
+                            Program price per session is missing (required when 'Pay As You Go' pricing is allowed)
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Submit button -->
+            <div class=" pull-right">
+                <button
+                type="button"
+                class=" btn btn-primary btn-round btn-fill mt-4"
+                (click)="onSubmit()"
+                [disabled]="programForm.invalid || program.reviewRequest && program.reviewRequest.status === 'submitted' ||
+                program.reviewRequest && program.reviewRequest.status === 'in-review' || 
+                program.reviewRequest && program.reviewRequest.status === 'approved'">
+                    <span *ngIf="!requesting">
+                        <i class="fas fa-flag-checkered"></i>
+                      </span>
+                      <span
+                      *ngIf="requesting"
+                      class="spinner-border spinner-border-sm"
+                      role="status"
+                      ></span> {{ requesting ? 'Submitting...' : program.reviewRequest?.status === 'rejected' ? 'Re-submit Program' : 'Submit Program'}}
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>

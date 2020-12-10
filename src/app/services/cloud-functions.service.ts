@@ -7,6 +7,8 @@ import { CoachProfile } from '../interfaces/coach.profile.interface';
 import { UserAccount } from '../interfaces/user.account.interface';
 import { AdminCourseReviewRequest } from 'app/interfaces/adminCourseReviewRequest';
 import { first } from 'rxjs/operators';
+import { StripePaymentIntentRequest } from 'app/interfaces/stripe.payment.intent.request';
+import { RefundRequest } from 'app/interfaces/refund.request.interface';
 import {Answer} from '../pages/video-chatroom/videochatroom.component';
 
 @Injectable({
@@ -206,15 +208,16 @@ export class CloudFunctionsService {
     });
   }
 
-  getStripePaymentIntent(courseId: string, clientCurrency: string, clientPrice: number, clientUid: string, referralCode: string) {
+  getStripePaymentIntent(piRequest: StripePaymentIntentRequest) {
     return new Promise(resolve => {
       const intent = this.cloudFunctions.httpsCallable('stripeCreatePaymentIntent');
       const tempSub = intent({
-        courseId,
-        clientCurrency,
-        clientPrice,
-        clientUid,
-        referralCode
+        saleItemId: piRequest.saleItemId,
+        saleItemType: piRequest.saleItemType,
+        salePrice: piRequest.salePrice,
+        currency: piRequest.currency,
+        buyerUid: piRequest.buyerUid,
+        referralCode : piRequest.referralCode ? piRequest.referralCode : null
       })
         .pipe(first())
         .subscribe(res => {
@@ -252,7 +255,7 @@ export class CloudFunctionsService {
     });
   }
 
-  requestRefund(refundRequest: any) {
+  requestRefund(refundRequest: RefundRequest) {
     return new Promise(resolve => {
       const refund = this.cloudFunctions.httpsCallable('requestRefund');
       const tempSub = refund({

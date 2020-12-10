@@ -34,6 +34,7 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
   public fetchedProfile = false;
   public userProfile: FormGroup;
   public savingProfile = false;
+  public saveAttempt = false;
 
   public focus: boolean;
   public focus1: boolean;
@@ -69,10 +70,36 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
 
   readonly separatorKeysCodes: number[] = [ENTER, COMMA];
 
+  public goalTagMinLength = 6;
   public goalTagMaxLength = 40;
   public goalTagsMax = 3;
 
+  public credentialMinLength = 20;
+  public credentialMaxLength = 120;
+  public credentialsMax = 5;
+
+  public summaryMinLength = 90;
+  public summaryMaxLength = 120;
+  public summaryActualLength = 0;
+
   public ErrorMessages = {
+    firstName: {
+      required: `Please enter your first name`
+    },
+    lastName: {
+      required: `Please enter your last name`
+    },
+    city: {
+      required: `Please enter your city`
+    },
+    proSummary: {
+      required: `Please enter a short summary`,
+      minlength: `This summary should be at least ${this.summaryMinLength} characters.`,
+      maxlength: `This summary should be at less than ${this.summaryMaxLength} characters.`
+    },
+    speciality1: {
+      required: `Please select a closest matching field`
+    },
     facebook: {
       missingUrlScheme: `Address must include either 'http://' or 'https://`
     },
@@ -91,9 +118,17 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
     website: {
       missingUrlScheme: `Address must include either 'http://' or 'https://`
     },
-    learningPoints: {
-      maxLength: `Specialist area must be below ${this.goalTagMaxLength} characters`,
-      includesComma: `Please only add one specialist area per line`
+    goalTags: {
+      required: `Please add at least one goal focussed outcome`,
+      minlength: `Must be more than ${this.goalTagMinLength} characters`,
+      maxlength: `Must be below ${this.goalTagMaxLength} characters`,
+      includesComma: `Please only add one outcome per line`
+    },
+    credentials: {
+      required: `Please add at least one credential`,
+      minlength: `Must be more than ${this.credentialMinLength} characters`,
+      maxlength: `Must be below ${this.credentialMaxLength} characters`,
+      includesComma: `Please only add one credential area per line`
     }
   };
 
@@ -179,7 +214,7 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
       this.dataService.getCoachProfile(this.userId)
         .subscribe(profile => { // subscribe to the profile
           if (profile && profile.dateCreated) {
-            console.log('Fetched user profile:', profile);
+            // console.log('Fetched user profile:', profile);
             this.loadUserProfileData(profile);
           } else { // if no profile exists, load the wizard
             this.loadWizard = true;
@@ -189,7 +224,7 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
     this.subscriptions.add(
       this.dataService.getProfileVideos(this.userId)
         .subscribe(videos => { // subscribe to the profile videos
-          console.log('Profile videos:', videos);
+          // console.log('Profile videos:', videos);
           if (videos && videos.length > 0) {
             const sortedByLastUploaded = videos.sort((a, b) => a.lastUploaded - b.lastUploaded);
             this.profileVideos = sortedByLastUploaded;
@@ -241,10 +276,11 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
       qualCas: [false],
       qualCsa: [false],
       qualSa: [false],
-      proSummary: ['', [Validators.required, Validators.minLength(90), Validators.maxLength(210)]],
+      proSummary: ['', [Validators.required, Validators.minLength(this.summaryMinLength), Validators.maxLength(this.summaryMaxLength)]],
       profileUrl: [''],
       fullDescription: [''],
-      goalTags: [this.formBuilder.array([new FormControl('', [Validators.maxLength(this.goalTagMaxLength)])]), Validators.compose([Validators.required, Validators.maxLength(this.goalTagsMax)])],
+      goalTags: [this.formBuilder.array([new FormControl('', [Validators.minLength(this.goalTagMinLength), Validators.maxLength(this.goalTagMaxLength)])]), Validators.compose([Validators.maxLength(this.goalTagsMax)])],
+      credentials: [this.formBuilder.array([new FormControl('', [Validators.minLength(this.credentialMinLength), Validators.maxLength(this.credentialMaxLength)])]), Validators.compose([Validators.maxLength(this.credentialsMax)])],
       remotePractice: [true],
       freeConsultation: [false],
       payHourly: [false],
@@ -312,6 +348,7 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
       profileUrl: p.profileUrl ? p.profileUrl : `https://lifecoach.io/coach/${this.userId}`,
       fullDescription: p.fullDescription ? p.fullDescription : '',
       goalTags: this.importGoalTags(p.goalTags),
+      credentails: this.importCredentials(p.credentials),
       remotePractice: p.remotePractice ? p.remotePractice : true,
       freeConsultation: p.freeConsultation ? p.freeConsultation : false,
       payHourly: p.payHourly ? p.payHourly : false,
@@ -339,25 +376,50 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
       });
     }
 
+    // init the character counts (before user input detected)
+    this.summaryActualLength = this.profileF.proSummary.value.length;
+
     this.fetchedProfile = true;
   }
 
   importGoalTags(tagsArray: any[]) {
     // transform saved array of objects into a string formArray to work with in the form
     const array = this.formBuilder.array([]);
-    tagsArray.forEach(obj => {
-      array.controls.push(new FormControl(obj.value, [Validators.maxLength(this.goalTagMaxLength)]));
-    });
+    if (tagsArray) {
+      tagsArray.forEach(obj => {
+        array.controls.push(new FormControl(obj.value, [Validators.minLength(this.goalTagMinLength), Validators.maxLength(this.goalTagMaxLength)]));
+      });
+    }
     return array;
   }
 
   addGoalTag() {
-    const control = new FormControl('', [Validators.maxLength(this.goalTagMaxLength)]);
+    const control = new FormControl('', [Validators.minLength(this.goalTagMinLength), Validators.maxLength(this.goalTagMaxLength)]);
     this.profileF.goalTags.value.controls.push(control);
   }
 
   removeGoalTag(index: number) {
     this.profileF.goalTags.value.controls.splice(index, 1);
+  }
+
+  importCredentials(credsArray: any[]) {
+    // transform saved array of objects into a string formArray to work with in the form
+    const array = this.formBuilder.array([]);
+    if (credsArray) {
+      credsArray.forEach(obj => {
+        array.controls.push(new FormControl(obj.value, [Validators.minLength(this.credentialMinLength), Validators.maxLength(this.credentialMaxLength)]));
+      });
+    }
+    return array;
+  }
+
+  addCredential() {
+    const control = new FormControl('', [Validators.minLength(this.credentialMinLength), Validators.maxLength(this.credentialMaxLength)]);
+    this.profileF.credentials.value.controls.push(control);
+  }
+
+  removeCredential(index: number) {
+    this.profileF.credentials.value.controls.splice(index, 1);
   }
 
   buildShareForm() {
@@ -373,7 +435,7 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
   }
 
   showError(control: string, error: string) {
-    console.log(`Form error. Control: ${control}. Error: ${error}`);
+    // console.log(`Form error. Control: ${control}. Error: ${error}`);
     if (this.ErrorMessages[control][error]) {
       return this.ErrorMessages[control][error];
     }
@@ -442,60 +504,83 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
     this.userProfile.patchValue({isPublic: ev.currentValue});
   }
 
+  onSummaryInput(ev: any) {
+    this.summaryActualLength = (ev.target.value as string).length;
+  }
+
   async onSubmit() {
-    if (this.userProfile.valid) {
 
-      // update the form data from just country code to the full country object.
-      const ct = this.countryService.getCountryByCode(this.profileF.country.value);
-      this.userProfile.patchValue({country: ct});
+    this.saveAttempt = true;
+    this.savingProfile = true;
 
-      // update the form data from just speciality id to the full speciality object.
-      const spec = this.specialitiesService.getSpecialityById(this.profileF.speciality1.value);
-      this.userProfile.patchValue({speciality1: spec});
+    // safety checks
 
-      console.log('Profile is valid:', this.userProfile.value);
-
-      const saveProfile = JSON.parse(JSON.stringify(this.userProfile.value));
-
-      // Restructure the goalTags from string formArray into the object array structure required
-      const objArr = [];
-      this.userProfile.value.goalTags.controls.forEach(formCtrl => {
-        if (formCtrl.value !== '') { // exclude empty tags
-          objArr.push({display: formCtrl.value, value: formCtrl.value});
-        }
-      });
-      saveProfile.goalTags = objArr;
-
-      // Handle image upload to storage if required.
-      if (!this.profileF.photo.value.includes(this.storageService.getStorageDomain())) {
-        console.log(`Uploading unstored photo to storage...`);
-        const url = await this.storageService.storePhotoUpdateDownloadUrl(this.userId, this.profileF.photo.value);
-        console.log(`Photo stored successfully. Patching profile form with photo download URL: ${url}`);
-        this.userProfile.patchValue({
-          photo: url
-        });
-        saveProfile.photo = url;
-      }
-
-      // Save the form to the DB
-      console.log(`Saving profile form to DB:`, saveProfile);
-      this.savingProfile = true;
-      await this.dataService.saveCoachProfile(this.userId, saveProfile);
-      if (this.profileF.isPublic.value) {
-        this.dataService.completeUserTask(this.userId, 'taskDefault002');
-      }
-      this.alertService.alert('success-message', 'Success!', 'Profile updated successfully.');
-      this.analyticsService.saveUserProfile(saveProfile);
-      this.savingProfile = false;
-    } else {
-      console.log('Invalid profile!');
+    if (this.userProfile.invalid) {
       for (const key of Object.keys(this.profileF)) {
         if (this.profileF[key].invalid) {
-          console.log(`Missing profile data: ${key}`);
-          this.alertService.alert('warning-message', 'One moment...', `Please check all required fields.`);
+          console.log(`Missing profile data: ${key}.`);
+          console.dir(this.profileF[key]);
         }
       }
+      this.alertService.alert('warning-message', 'Oops', 'Please complete all required fields before saving.');
+      this.savingProfile = false;
+      return;
     }
+
+    // update the form data from just country code to the full country object.
+    const ct = this.countryService.getCountryByCode(this.profileF.country.value);
+    this.userProfile.patchValue({country: ct});
+
+    // update the form data from just speciality id to the full speciality object.
+    const spec = this.specialitiesService.getSpecialityById(this.profileF.speciality1.value);
+    this.userProfile.patchValue({speciality1: spec});
+
+    // console.log('Profile is valid:', this.userProfile.value);
+
+    const saveProfile = this.userProfile.value;
+
+    // Restructure the goalTags from string formArray into the object array structure required
+    const goalObjArr = [];
+    this.userProfile.value.goalTags.controls.forEach(formCtrl => {
+      if (formCtrl.value !== '') { // exclude empty strings
+        goalObjArr.push({display: formCtrl.value, value: formCtrl.value});
+      }
+    });
+    saveProfile.goalTags = goalObjArr;
+
+    // Restructure the credentials from string formArray into the object array structure required
+    const credObjArr = [];
+    this.userProfile.value.credentials.controls.forEach(formCtrl => {
+      if (formCtrl.value !== '') { // exclude empty strings
+        credObjArr.push({display: formCtrl.value, value: formCtrl.value});
+      }
+    });
+    saveProfile.credentials = credObjArr;
+
+    // Handle image upload to storage if required.
+    if (!this.profileF.photo.value.includes(this.storageService.getStorageDomain())) {
+      // console.log(`Uploading unstored photo to storage...`);
+      const url = await this.storageService.storePhotoUpdateDownloadUrl(this.userId, this.profileF.photo.value);
+      // console.log(`Photo stored successfully. Patching profile form with photo download URL: ${url}`);
+      this.userProfile.patchValue({
+        photo: url
+      });
+      saveProfile.photo = url;
+    }
+
+    // Save the form to the DB
+    // console.log(`Saving profile form to DB:`, saveProfile);
+
+    await this.dataService.saveCoachProfile(this.userId, saveProfile);
+    if (this.profileF.isPublic.value) {
+      this.dataService.completeUserTask(this.userId, 'taskDefault002');
+    }
+
+    this.alertService.alert('success-message', 'Success!', 'Profile updated successfully.');
+    this.analyticsService.saveUserProfile(saveProfile);
+
+    this.savingProfile = false;
+    this.saveAttempt = false;
   }
 
   copyShareUrl(element: any) {

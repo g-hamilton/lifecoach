@@ -74,21 +74,29 @@ export const ROUTES: RouteInfo[] = [
     icontype: 'tim-icons icon-badge',
     userTypes: ['regular', 'coach']
   },
-  // {
-  //   path: '/services',
-  //   title: 'Services',
-  //   type: 'link',
-  //   icontype: 'tim-icons icon-bullet-list-67',
-  //   rtlTitle: 'لوحة القيادة',
-  //   userTypes: ['coach']
-  // },
+  {
+    path: '/coach-products-services',
+    title: 'Products & Services',
+    type: 'link',
+    icontype: 'tim-icons icon-bullet-list-67',
+    rtlTitle: 'لوحة القيادة',
+    userTypes: ['coach'],
+  },
+  {
+    path: '/coach-journey',
+    title: 'My Journey',
+    type: 'link',
+    icontype: 'tim-icons icon-compass-05',
+    rtlTitle: 'لوحة القيادة',
+    userTypes: ['coach'],
+  },
   {
     path: '/my-courses',
     title: 'e-Courses',
     rtlTitle: 'التقويم',
     type: 'link',
     icontype: 'tim-icons icon-tv-2',
-    userTypes: ['regular', 'coach'],
+    userTypes: ['regular'],
   },
   {
     path: '/admin-users',
@@ -115,12 +123,31 @@ export const ROUTES: RouteInfo[] = [
     userTypes: ['admin']
   },
   {
-    path: '/admin-course-review',
-    title: 'Course Review',
+    path: '/',
+    title: 'Review',
     rtlTitle: 'التقويم',
-    type: 'link',
+    type: 'sub',
     icontype: 'tim-icons icon-zoom-split',
-    userTypes: ['admin']
+    userTypes: ['admin'],
+    isCollapsed: true,
+    children: [
+      {
+        path: 'admin-course-review',
+        rtlTitle: ' التسعير ',
+        rtlSmallTitle: 'ع ',
+        title: 'eCourse Review',
+        type: 'link',
+        smallTitle: 'eCR'
+      },
+      {
+        path: 'admin-program-review',
+        rtlTitle: 'دعم رتل ',
+        rtlSmallTitle: 'ص',
+        title: 'Program Review',
+        type: 'link',
+        smallTitle: 'PR'
+      }
+    ]
   },
   {
     path: '/account',
@@ -183,35 +210,6 @@ export const ROUTES: RouteInfo[] = [
       }
     ]
   }
-  /* Example of child navigation items
-  {
-    path: '/pages',
-    title: 'Pages',
-    type: 'sub',
-    icontype: 'tim-icons icon-image-02',
-    collapse: 'pages',
-    rtlTitle: 'صفحات',
-    isCollapsed: true,
-    children: [
-      {
-        path: 'pricing',
-        rtlTitle: ' التسعير ',
-        rtlSmallTitle: 'ع ',
-        title: 'Pricing',
-        type: 'link',
-        smallTitle: 'P'
-      },
-      {
-        path: 'rtl',
-        rtlTitle: 'دعم رتل ',
-        rtlSmallTitle: 'ص',
-        title: 'RTL Support',
-        type: 'link',
-        smallTitle: 'RS'
-      }
-    ]
-  },
-  */
 ];
 
 @Component({

@@ -1,55 +1,19 @@
 <div class=" card">
     <div class=" card-body">
 
-        <div *ngIf="true">
-            <!-- Preview course as student -->
+        <h5 class=" mb-3"> More eCourse Options
+            
+        </h5>
 
-            <h5>
-                Preview your course as a Student
-            </h5>
-
-            <p>
-                See how your course looks & feels in the Student Learning Centre.
-            </p>
-
-            <div *ngIf="course?.lectures?.length > 0" class=" mt-3">
-                <a
-                [routerLink]="['/course', course?.courseId, 'learn']"
-                [queryParams]="{previewAsStudent: true}"
-                target="_blank">
-                    <button
-                    type="button"
-                    class="btn btn-success btn-round">
-                        Preview Course
-                    </button>
-                </a>
-            </div>
-
-            <!-- permanently disbaled button until at least one lecture saved -->
-            <div *ngIf="course?.lectures?.length === 0" class=" mt-3">
-
-                <p class="text-danger">
-                    You must add at least 1 lecture before you can preview your course.
-                </p>
-
-                <a
-                href="javascript:void(0)">
-                    <button
-                    type="button"
-                    class="btn btn-success btn-round"
-                    [disabled]="true">
-                        Preview Course
-                    </button>
-                </a>
-            </div>
-
-        </div>
+        <p class=" small text-muted pl-2 mb-2">
+            <i class="fas fa-info-circle"></i> Use these additional options to manage your eCourse.
+        </p>
 
         <div class=" mt-5">
             <!-- Delete course-->
 
             <h5>
-                Delete this course
+                Delete this eCourse
             </h5>
 
             <div class=" mt-3">
@@ -57,7 +21,7 @@
                 type="button"
                 class="btn btn-danger btn-round"
                 (click)="onDeleteCourse()">
-                    Delete Course
+                    Delete eCourse
                 </button>
             </div>
 

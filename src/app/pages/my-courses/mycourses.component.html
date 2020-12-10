@@ -1,148 +1,43 @@
 <div class=" content">
-    <div *ngIf="accountType && accountType === 'coach'">
 
-        <!-- No published courses -->
-        <div *ngIf="!publishedCourses || publishedCourses && publishedCourses.length === 0">
-            <h5 class=" title"> Published eCourses <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001135032-what-are-courses-" target="_blank">
-                <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> What are eCourses? </span>
-            </a></h5>
-            <div class=" row">
-                <div class=" col">
-                    <div class=" card">
-                        <div class=" card-body">
-                            <p>
-                                You haven't published any coaching eCourses yet.
-                            </p>
-                            <p>
-                                Create one now!
-                            </p>
-                            <p>
-                                Not sure how? <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001135032-what-are-courses-" target="_blank">
-                                Read the guide</a>
-                            </p>
-                            <button
-                            type="button"
-                            class=" btn btn-primary btn-fill btn-round mt-4"
-                            (click)="createCourse()"
-                            [disabled]="!account">
-                                <i class=" tim-icons icon-simple-add"></i> Create eCourse
-                            </button>
-                        </div>
-                    </div>
+    <h5 class=" title"> My eCourses 
+        <a href="" target="_blank">
+            <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> What's this? </span>
+        </a>
+    </h5>
+
+    <div class=" row">
+        <div class=" col">
+            <div class=" card">
+                <div class=" card-body">
+                    <p>
+                        eCourses are on-demand, self-study courses that allow you to learn on your own schedule.
+                    </p>
+                    <p>
+                        Use the 'Browse eCourses' button to discover Coach led self-study courses for every area of Personal Transformation.
+                    </p>
+                    <!-- <p>
+                        Not sure how? <a href="" target="_blank">
+                        Read the guide.</a>
+                    </p> -->
                 </div>
             </div>
         </div>
-
-        <!-- Published ecourses -->
-        <div *ngIf="publishedCourses && publishedCourses.length > 0">
-            <div class=" row">
-                <div class=" col-12">
-                    <button
-                    type="button"
-                    class=" btn btn-primary btn-fill btn-round pull-right"
-                    (click)="createCourse()"
-                    [disabled]="!account">
-                        <i class=" tim-icons icon-simple-add"></i> Create eCourse
-                    </button>
-                </div>
-            </div>
-            <h5 class=" title"> Created eCourses </h5>
-            <div class=" row mt-3">
-                <div *ngFor="let course of publishedCourses ; let i = index" class=" col-md-4">
-                    <a [routerLink]="['/my-courses', course.courseId, 'content']">
-                        <div class=" card">
-
-                            <!-- Card image -->
-                            <img
-                            class="card-img-top"
-                            [src]="course.image ? course.image : 'assets/img/image_placeholder.jpg'"
-                            [alt]="course.title" />
-
-                            <!-- Card body -->
-                            <div class=" card-body">
-                                <h4 class="card-title"> {{ course?.title }} </h4>
-                                <h6 class="card-subtitle mb-2 text-muted"> {{ course?.subtitle }} </h6>
-                                <div>
-                                    <span *ngIf="course?.reviewRequest?.status === 'submitted'" class=" badge badge-info ml-2">
-                                        SUBMITTED FOR REVIEW
-                                    </span>
-                                    <span *ngIf="course?.reviewRequest?.status === 'approved'" class=" badge badge-success ml-2">
-                                        PUBLISHED
-                                    </span>
-                                    <span *ngIf="course?.reviewRequest?.status === 'rejected'" class=" badge badge-danger ml-2">
-                                        NEEDS ACTION
-                                    </span>
-                                    <span *ngIf="!course?.reviewRequest?.status" class=" badge badge-warning ml-2">
-                                        DRAFT
-                                    </span>
-                                </div>
-                                <div>
-                                    <blockquote class="blockquote mt-3 mb-0">
-                                        <h6>
-                                            <span class=" text-muted">
-                                                Earned this month: 
-                                            </span>
-                                        </h6>
-                                        <div *ngIf="publishedCourses[i]?.monthlyEarnings" class="">
-                                            <!-- list each unique currency's total sales amount -->
-                                            <p *ngFor="let key of objKeys(publishedCourses[i]?.monthlyEarnings)">
-                                                {{ currencies[key.toUpperCase()].symbol + publishedCourses[i].monthlyEarnings[key].monthTotalInThisCurrency }}
-                                            </p>
-                                        </div>
-                                        <!-- no sales this month -->
-                                        <div *ngIf="publishedCourses[i]?.monthlyEarnings">
-                                            <p *ngIf="objKeys(publishedCourses[i].monthlyEarnings).length == 0">
-                                                0
-                                            </p>
-                                        </div>
-
-                                        <!-- lifetime total enrollments for this course -->
-                                        <div *ngIf="publishedCourses[i]?.lifetimeTotals">
-                                            <h6>
-                                                <span class=" text-muted">
-                                                    Lifetime total earnings: 
-                                                </span>
-                                            </h6>
-                                            <div *ngFor="let key of objKeys(publishedCourses[i].lifetimeTotals)">
-                                                <p *ngIf="key !== 'free'">
-                                                    {{ currencies[(key).toUpperCase()].symbol + publishedCourses[i].lifetimeTotals[key].lifetimeTotalAmount / 100 }}
-                                                </p>
-                                            </div>
-                                            <h6 class="">
-                                                <span class=" text-muted">
-                                                    Lifetime total enrollments: 
-                                                </span>
-                                            </h6>
-                                            <p>
-                                                {{ publishedCourses[i].lifetimeTotalSales }}
-                                            </p>
-                                        </div>
-                                    </blockquote>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                    
-                </div>
-            </div>
-        </div>
-
     </div>
 
-    <!-- All user types -->
     <div>
-        <div class=" row">
+        <div class=" row mt-5">
             <div class=" col-12">
                 <button
                 type="button"
-                class=" btn btn-primary btn-fill btn-round pull-right"
-                (click)="browseCourses()"
-                [disabled]="!account">
+                class=" btn btn-primary btn-fill btn-round pull-right mb-3"
+                (click)="browseCourses()">
                     <i class=" tim-icons icon-tv-2"></i> Browse eCourses
                 </button>
+                <h5 class=" title"> eCourses I'm Enrolled In </h5>
             </div>
         </div>
-        <h5 class=" title"> eCourses I'm Enrolled In </h5>
+
         <!-- No purchased courses -->
         <div class=" row" *ngIf="!purchasedCourses || purchasedCourses && purchasedCourses.length === 0">
             <div class=" col">

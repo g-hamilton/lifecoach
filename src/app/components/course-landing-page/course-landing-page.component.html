@@ -2,29 +2,30 @@
     <div class=" card-body">
         <form *ngIf="landingForm" [formGroup]="landingForm" (submit)="onSubmit()">
 
-            <div class=" mb-3">
+            <h5>eCourse Landing Page
                 <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001126534-your-course-landing-page" target="_blank">
-                    <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> Help with your landing page </span>
+                    <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> Help with your eCourse landing page </span>
                 </a>
-            </div>
+            </h5>
 
             <!-- Course title -->
             <div class="">
-                <label> Course Title <span class="required-star">*</span></label>
+                <label> eCourse Title </label>
+                <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> For best results, keep your title short and goal/outcome focussed.
+                </p>
             </div>
             <div
             class="input-group no-symbol"
             [ngClass]="{
-                'has-danger':
-                ((focusTouched || saving) && landingF.title.value != '' && landingF.title.errors) ||
-                (landingF.title.value != '' && landingF.title.errors),
+                'has-danger': (((focusTouched && landingF.title.value != '') || saveAttempt) && landingF.title.errors),
                 'has-success': !landingF.title.errors
             }">
                 <input
                 type="text"
                 class="form-control"
                 formControlName="title"
-                placeholder="eg. Understanding Your Mindset"
+                placeholder="eg. Master The Growth Mindset"
                 (focus)="focus = true; focusTouched = true"
                 (blur)="focus =false"
                 (input)="onTitleInput($event)">
@@ -34,8 +35,7 @@
                 </span>
                 </div>
             </div>
-            <div *ngIf="((focusTouched || saving) && landingF.title.value != '' && landingF.title.errors) ||
-                (landingF.title.value != '' && landingF.title.errors)">
+            <div *ngIf="(((focusTouched && landingF.title.value != '') || saveAttempt) && landingF.title.errors)">
                 <label
                 *ngFor="let error of objKeys(landingF.title.errors)"
                 class="error custom-error-label"
@@ -45,22 +45,24 @@
             <!-- End of course title -->
 
             <!-- Course subtitle -->
-            <div class=" mt-3">
-                <label> Course Subtitle <span class="required-star">*</span></label>
+            <div class=" mt-4">
+                <label> eCourse Subtitle </label>
+                <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> Expand on your title and entice prospective 
+                    clients/students by telling them what they can achieve on this eCourse.
+                </p>
             </div>
             <div
             class="input-group no-symbol"
             [ngClass]="{
-                'has-danger':
-                ((focus1Touched || saving) && landingF.subtitle.value != '' && landingF.subtitle.errors) ||
-                (landingF.subtitle.value != '' && landingF.subtitle.errors),
+                'has-danger': (((focus1Touched && landingF.subtitle.value != '') || saving) && landingF.subtitle.errors),
                 'has-success': !landingF.subtitle.errors
             }">
                 <input
                 type="text"
                 class="form-control"
                 formControlName="subtitle"
-                placeholder="eg. Start Mastering Your Emotions"
+                placeholder="eg. Discover the power of a growth mindset in your everyday life"
                 (focus)="focus1 = true; focus1Touched = true"
                 (blur)="focus1 = false"
                 (input)="onSubTitleInput($event)">
@@ -70,8 +72,7 @@
                 </span>
                 </div>
             </div>
-            <div *ngIf="((focus1Touched || saving) && landingF.subtitle.value != '' && landingF.subtitle.errors) ||
-                (landingF.subtitle.value != '' && landingF.subtitle.errors)">
+            <div *ngIf="(((focus1Touched && landingF.subtitle.value != '') || saving) && landingF.subtitle.errors)">
                 <label
                 *ngFor="let error of objKeys(landingF.subtitle.errors)"
                 class="error custom-error-label"
@@ -81,8 +82,12 @@
             <!-- End course subtitle -->
 
             <!-- Course description -->
-            <div class=" mt-3">
-                <label> Course Description <span class="required-star">*</span></label>
+            <div class=" mt-4">
+                <label> eCourse Description </label>
+                <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> Describe what's unique about this eCourse, 
+                    what clients/students can expect, and how this eCourse can help them to achieve their goals/desired outcomes.
+                </p>
             </div>
             <editor
             *ngIf="viewLoaded"
@@ -96,7 +101,7 @@
             formControlName="description"
             >
             </editor>
-            <div *ngIf="((saving) && landingF.description.value != '' && landingF.description.errors) ||
+            <div *ngIf="((saveAttempt) && landingF.description.errors) ||
                 (landingF.description.value != '' && landingF.description.errors)">
                 <label
                 *ngFor="let error of objKeys(landingF.description.errors)"
@@ -107,17 +112,22 @@
             <!-- End course description -->
 
             <!-- Course language -->
-            <div class=" mt-3">
-                <label> Course Language <span class="required-star">*</span></label>
+            <div class=" mt-4">
+                <label> Course Language </label>
+                <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> Marketing is more effective when targeting a single primary language. 
+                    If you coach/teach in more than one language, consider creating duplicate eCourses.
+                </p>
             </div>
             <div class="form-group">
                 <select class="form-control" formControlName="language">
+                    <option [value]="null">Select a language</option>
                     <option *ngFor="let item of objKeys(languages)" [value]="item">
                         {{ languages[item].nativeName }}
                     </option>
                 </select>
             </div>
-            <div *ngIf="landingF.language.errors">
+            <div *ngIf="saveAttempt && landingF.language.errors || landingF.language.value != null && landingF.language.errors">
                 <label
                 *ngFor="let error of objKeys(landingF.language.errors)"
                 class="error custom-error-label"
@@ -127,17 +137,21 @@
             <!-- End course language -->
 
             <!-- Course category -->
-            <div class=" mt-3">
-                <label> Course Category <span class="required-star">*</span></label>
+            <div class=" mt-4">
+                <label> eCourse Category </label>
+                <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> Select the closest matching high level category for this eCourse.
+                </p>
             </div>
             <div class="form-group">
                 <select class="form-control" formControlName="category">
+                    <option [value]="null">Select a category</option>
                     <option *ngFor="let item of specialities" [value]="item.itemName">
                         {{ item.itemName }}
                     </option>
                 </select>
             </div>
-            <div *ngIf="landingF.category.errors">
+            <div *ngIf="saveAttempt && landingF.category.errors || landingF.category.value != null && landingF.category.errors">
                 <label
                 *ngFor="let error of objKeys(landingF.category.errors)"
                 class="error custom-error-label"
@@ -147,18 +161,23 @@
             <!-- End course category -->
 
             <!-- Course level -->
-            <div class=" mt-3">
-                <label> Course Level <span class="required-star">*</span></label>
+            <div class=" mt-4">
+                <label> eCourse Level </label>
+                <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> Who is this eCourse suitable for? This helps you to 
+                    attract the most suitable clients/students.
+                </p>
             </div>
             <div class="form-group">
                 <select class="form-control" formControlName="level">
+                    <option [value]="null">Select a level</option>
                     <option value="beginner"> Beginner </option>
                     <option value="intermediate"> Intermediate </option>
                     <option value="advanced"> Advanced </option>
                     <option value="all"> Suitable for all </option>
                 </select>
             </div>
-            <div *ngIf="landingF.level.errors">
+            <div *ngIf="saveAttempt && landingF.level.errors || landingF.level.value != null && landingF.level.errors">
                 <label
                 *ngFor="let error of objKeys(landingF.level.errors)"
                 class="error custom-error-label"
@@ -168,22 +187,23 @@
             <!-- End course level -->
 
             <!-- Course subject -->
-            <div class=" mt-3">
-                <label> What is <strong>Primarily</strong> taught in your course? <span class="required-star">*</span></label>
+            <div class=" mt-4">
+                <label> What is <strong>Primarily</strong> taught in your eCourse? </label>
+                <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> This helps you to attract the most suitable clients/students using search.
+                </p>
             </div>
             <div
             class="input-group no-symbol"
             [ngClass]="{
-                'has-danger':
-                ((focus2Touched || saving) && landingF.subject.value != '' && landingF.subject.errors) ||
-                (landingF.subject.value != '' && landingF.subject.errors),
+                'has-danger': (((focus2Touched && landingF.subject.value != '') || saving) && landingF.subject.errors),
                 'has-success': !landingF.subject.errors
             }">
                 <input
                 type="text"
                 class="form-control"
                 formControlName="subject"
-                placeholder="eg. Six techniques to change your mindset"
+                placeholder="eg. Six techniques to develop a growth mindset"
                 (focus)="focus2 = true; focus2Touched = true"
                 (blur)="focus2 = false"
                 (input)="onSubjectInput($event)">
@@ -193,8 +213,7 @@
                 </span>
                 </div>
             </div>
-            <div *ngIf="((focus2Touched || saving) && landingF.subject.value != '' && landingF.subject.errors) ||
-                (landingF.subject.value != '' && landingF.subject.errors)">
+            <div *ngIf="(((focus2Touched && landingF.subject.value != '') || saving) && landingF.subject.errors)">
                 <label
                 *ngFor="let error of objKeys(landingF.subject.errors)"
                 class="error custom-error-label"
@@ -205,17 +224,16 @@
 
             <!-- Course image -->
             <div class=" mt-4">
-                <label> Course Image </label>
-            </div>
-            <div>
-                <p class="lead text-muted">Make your course stand out with a great cover image!</p>
-                <p class="lead text-muted">Images <strong>MUST</strong> meet our
+                <label> eCourse Cover Image </label>
+                <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> Make your course stand out with a great cover image! 
+                    Note: Images <strong>MUST</strong> be at least 750 x 422 pixels in size; .jpg, .jpeg, .gif, or .png file format and 
+                    meet our
                     <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001126534-your-course-landing-page" target="_blank">
                         image guidelines
                     </a>
-                    to be accepted.
+                    to be accepted. Failure to adhere to the guidelines will result in a delay when publishing your eCourse.
                 </p>
-                <p class="lead text-muted">Important guidelines: At least 750 x 422 pixels; .jpg, .jpeg,. gif, or .png. Avoid text on your image.</p>
             </div>
             <div class=" mt-3">
                 <app-picture-upload
@@ -227,25 +245,16 @@
 
             <!-- Course promotional video -->
             <div class=" mt-4">
-                <label> Course Promotional Video 
-                    <i
-                    class="fas fa-info-circle btn-tooltip"
-                    data-animation="true"
-                    data-container="body"
-                    placement="top"
-                    tooltip="Optional. Coachees who watch a well-made promo video are 5X more likely to enroll in your course. 
-                    We've seen that statistic go up to 10X for exceptional videos!">
-                    </i>
-                </label>
-            </div>
-            <div>
-                <p class="lead text-muted">Learn how to
-                    <a href="https://lifecoach.freshdesk.com/a/solutions/articles/47001126534" target="_blank">
-                        make an exceptional promo video.
-                    </a>
+                <label> eCourse Promotional Video </label>
+                <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> Optional: Upload a short (90sec max.) promotional video to promote your eCourse. Users 
+                    who watch a well-made promo video are 5-10X more likely to enrol! Need a little help? Click  
+                    <a href="" target="_blank">
+                        here
+                    </a> to learn how to make a great promo video. Video files must be at least 720p and less than 4.0GB
                 </p>
-                <p class="lead text-muted mb-4">Important guidelines: Video files must be at least 720p and less than 4.0GB</p>
             </div>
+
             <!-- Video upload options -->
             <tabset class="nav-pills-default" type="pills">
 
@@ -316,26 +325,19 @@
             <!-- End course promotional video -->
 
             <!-- Course learning points -->
-            <div class=" mt-4">
-                <label> What will students learn in your course? 
-                    <i
-                    class="fas fa-info-circle btn-tooltip"
-                    data-animation="true"
-                    data-container="body"
-                    placement="top"
-                    tooltip="Optional. These key learning points will be highlighted on your landing page & help 
-                    to attract the right students to your course.">
-                    </i>
-                </label>
+            <div class=" mt-5">
+                <label> What will students learn in your eCourse? </label>
+                <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> Optional. These learning points will be highlighted on your landing page & help 
+                    to attract the right clients/students to enroll in your eCourse.
+                </p>
             </div>
             <div formArrayName="learningPoints" *ngFor="let item of landingF.learningPoints.value.controls ; let i = index">
                 <div
                 class="input-group no-symbol"
                 [ngClass]="{
                     'has-danger':
-                    ((landingF.learningPoints.value.controls[i].touched || saving) &&  
-                    landingF.learningPoints.value.controls[i].errors) ||
-                    (landingF.learningPoints.value.controls[i].value != '' && 
+                    (( (landingF.learningPoints.value.controls[i].touched && landingF.learningPoints.value.controls[i].value != '') || saveAttempt) &&  
                     landingF.learningPoints.value.controls[i].errors),
                     'has-success': !landingF.learningPoints.value.controls[i].errors
                 }">
@@ -350,10 +352,8 @@
                     </span>
                     </div>
                 </div>
-                <div *ngIf="((landingF.learningPoints.value.controls[i].touched || saving) && 
-                    landingF.learningPoints.value.controls[i].errors) ||
-                    (landingF.learningPoints.value.controls[i].value != '' && 
-                    landingF.learningPoints.value.controls[i].errors)">
+                <div *ngIf="(( (landingF.learningPoints.value.controls[i].touched && landingF.learningPoints.value.controls[i].value != '') || saveAttempt) && 
+                landingF.learningPoints.value.controls[i].errors)">
                     <label
                     *ngFor="let error of objKeys(landingF.learningPoints.value.controls[i].errors)"
                     class="error custom-error-label"
@@ -366,31 +366,26 @@
             class=" btn btn-primary btn-link"
             (click)="addLearningPoint()"
             [disabled]="landingF.learningPoints.value.controls.length >= learningPointsMax">
-                <i class="fas fa-plus"></i> Add an answer
+                <i class="fas fa-plus"></i> Add a Learning Point
             </button>
             <!-- End course learning points -->
 
             <!-- Course requirements -->
             <div class=" mt-4">
-                <label> Are there any course requirements or prerequisites?
-                    <i
-                    class="fas fa-info-circle btn-tooltip"
-                    data-animation="true"
-                    data-container="body"
-                    placement="top"
-                    tooltip="Optional. Any requirements or prerequisites will be highlighted on your landing page & help 
-                    to attract the right students to your course.">
-                    </i>
-                </label>
+                <label> Are there any course requirements or prerequisites? </label>
+                <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> Optional. If you require any specific conditions to be met 
+                    before clients enroll in this eCourse, mention them here. Any requirements or prerequisites will 
+                    be highlighted on your landing page & help 
+                    to attract the right students to your eCourse.
+                </p>
             </div>
             <div formArrayName="requirements" *ngFor="let item of landingF.requirements.value.controls ; let i = index">
                 <div
                 class="input-group no-symbol"
                 [ngClass]="{
                     'has-danger':
-                    ((landingF.requirements.value.controls[i].touched || saving) &&  
-                    landingF.requirements.value.controls[i].errors) ||
-                    (landingF.requirements.value.controls[i].value != '' && 
+                    (( (landingF.requirements.value.controls[i].touched && landingF.requirements.value.controls[i].value != '') || saveAttempt) &&  
                     landingF.requirements.value.controls[i].errors),
                     'has-success': !landingF.requirements.value.controls[i].errors
                 }">
@@ -405,10 +400,8 @@
                     </span>
                     </div>
                 </div>
-                <div *ngIf="((landingF.requirements.value.controls[i].touched || saving) && 
-                    landingF.requirements.value.controls[i].errors) ||
-                    (landingF.requirements.value.controls[i].value != '' && 
-                    landingF.requirements.value.controls[i].errors)">
+                <div *ngIf="(( (landingF.requirements.value.controls[i].touched && landingF.requirements.value.controls[i].value != '') || saveAttempt) && 
+                landingF.requirements.value.controls[i].errors)">
                     <label
                     *ngFor="let error of objKeys(landingF.requirements.value.controls[i].errors)"
                     class="error custom-error-label"
@@ -421,30 +414,24 @@
             class=" btn btn-primary btn-link"
             (click)="addRequirement()"
             [disabled]="landingF.requirements.value.controls.length >= requirementsMax">
-                <i class="fas fa-plus"></i> Add an answer
+                <i class="fas fa-plus"></i> Add a requirement
             </button>
             <!-- End course requirements -->
 
             <!-- Course target students -->
             <div class=" mt-4">
-                <label> Who are your target students? 
-                    <i
-                    class="fas fa-info-circle btn-tooltip"
-                    data-animation="true"
-                    data-container="body"
-                    placement="top"
-                    tooltip="Optional. Adding target students will help to attract the right students to your course.">
-                    </i>
-                </label>
+                <label> Who are your target students? </label>
+                <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> Optional. Adding target clients/students will help 
+                    to attract the right people to your eCourse.
+                </p>
             </div>
             <div formArrayName="targets" *ngFor="let item of landingF.targets.value.controls ; let i = index">
                 <div
                 class="input-group no-symbol"
                 [ngClass]="{
                     'has-danger':
-                    ((landingF.targets.value.controls[i].touched || saving) &&  
-                    landingF.targets.value.controls[i].errors) ||
-                    (landingF.targets.value.controls[i].value != '' && 
+                    (( (landingF.targets.value.controls[i].touched && landingF.targets.value.controls[i].value != '') || saveAttempt) &&  
                     landingF.targets.value.controls[i].errors),
                     'has-success': !landingF.targets.value.controls[i].errors
                 }">
@@ -459,10 +446,8 @@
                     </span>
                     </div>
                 </div>
-                <div *ngIf="((landingF.targets.value.controls[i].touched || saving) && 
-                    landingF.targets.value.controls[i].errors) ||
-                    (landingF.targets.value.controls[i].value != '' && 
-                    landingF.targets.value.controls[i].errors)">
+                <div *ngIf="(( (landingF.targets.value.controls[i].touched && landingF.targets.value.controls[i].value != '') || saveAttempt) && 
+                landingF.targets.value.controls[i].errors)">
                     <label
                     *ngFor="let error of objKeys(landingF.targets.value.controls[i].errors)"
                     class="error custom-error-label"
@@ -475,22 +460,73 @@
             class=" btn btn-primary btn-link"
             (click)="addTarget()"
             [disabled]="landingF.targets.value.controls.length >= targetsMax">
-                <i class="fas fa-plus"></i> Add an answer
+                <i class="fas fa-plus"></i> Add a target user
             </button>
             <!-- End course target students -->
 
-            <!-- Form submit button -->
-            <div class=" pull-right">
-                <button type="submit" class=" btn btn-primary btn-round btn-fill mt-4">
-                    <span *ngIf="!saving">
-                        <i class="fas fa-save"></i>
-                      </span>
-                      <span
-                      *ngIf="saving"
-                      class="spinner-border spinner-border-sm"
-                      role="status"
-                      ></span> {{ saving ? 'Saving...' : 'Save'}}
-                </button>
+            <hr>
+
+            <div class=" row mt-4">
+                <div class="col-md-6">
+                    <!-- Preview landing page -->
+                    <div *ngIf="course?.courseId">
+                        <a
+                        [routerLink]="['/course', course.courseId]"
+                        target="_blank">
+                            <button
+                            type="button"
+                            class="btn btn-default btn-round">
+                                <i class="fas fa-eye"></i> Preview Landing Page
+                            </button>
+                        </a>
+                    </div>
+                    <!-- Preview eCourse in learning mode -->
+                    <div *ngIf="course?.lectures?.length > 0" class=" mt-3">
+                        <a
+                        [routerLink]="['/course', course?.courseId, 'learn']"
+                        [queryParams]="{previewAsStudent: true}"
+                        target="_blank">
+                            <button
+                            type="button"
+                            class="btn btn-default btn-round">
+                            <i class="fas fa-eye"></i> Preview As Enrolled User
+                            </button>
+                        </a>
+                    </div>
+        
+                    <!-- permanently disbaled button until at least one lecture saved -->
+                    <div *ngIf="course?.lectures?.length === 0" class=" mt-3">
+        
+                        <p class="text-danger">
+                            Add at least 1 lecture to preview your eCourse in the Lifecoach Learning Centre.
+                        </p>
+        
+                        <a
+                        href="javascript:void(0)">
+                            <button
+                            type="button"
+                            class="btn btn-default btn-round"
+                            [disabled]="true">
+                            <i class="fas fa-eye"></i> Preview As Enrolled User
+                            </button>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <!-- Form submit button -->
+                    <div class=" pull-right">
+                        <button type="submit" class=" btn btn-primary btn-round btn-fill mt-4">
+                            <span *ngIf="!saving">
+                                <i class="fas fa-save"></i>
+                            </span>
+                            <span
+                            *ngIf="saving"
+                            class="spinner-border spinner-border-sm"
+                            role="status"
+                            ></span> {{ saving ? 'Saving...' : 'Save'}}
+                        </button>
+                    </div>
+                </div>
             </div>
 
         </form>

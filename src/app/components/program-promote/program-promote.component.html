@@ -1,0 +1,64 @@
+<div class=" card">
+    <div class=" card-body">
+        <!-- Promote form -->
+        <form *ngIf="promoteForm" [formGroup]="promoteForm">
+
+            <h5>Promote Your Program
+                <a href="" target="_blank">
+                    <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> Help with promoting your program </span>
+                </a>
+            </h5>
+
+            <p class=" small text-muted pl-2 mb-2">
+                <i class="fas fa-info-circle"></i> Promote your program as widely as you can using this unique link. 
+                Clients will be able to schedule discovery calls with you and enroll in this program by following your link. 
+                You also pay a lower commission on all enrollments when you use this link.
+                    Learn more about <a href="" target="_blank">
+                        promoting your program
+                    </a> and the <a href="" target="_blank">
+                        shared payment model
+                    </a>.
+            </p>
+
+            <!-- Referral code -->
+            <div class=" row">
+                <div class=" col">
+                    <div class=" mt-4">
+                        <div class="form-group">
+                            <label for="referral-code"> Use this link to promote your program:
+                            </label>
+                            <input #referralCode type="text" class="form-control" id="referral-code" formControlName="referralCode">
+                        </div>
+                    </div>
+                    <button 
+                    *ngIf="browser"
+                    type="button"
+                    class=" btn btn-primary btn-round btn-fill pull-right"
+                    (click)="copyReferralCode(referralCode)">
+                        Copy Link
+                    </button>
+                </div>
+            </div>
+
+            <!-- Preview program landing page -->
+            <div>
+                <div>
+                    <div *ngIf="program?.programId">
+                        <a
+                        [routerLink]="['/program', program.programId]"
+                        target="_blank">
+                            <button
+                            type="button"
+                            class="btn btn-default btn-round">
+                                <i class="fas fa-eye"></i> Preview Link Landing Page
+                            </button>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+        <!-- end promote form -->
+    </div>
+</div>
+

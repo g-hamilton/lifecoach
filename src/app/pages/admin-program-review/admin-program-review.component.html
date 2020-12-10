@@ -1,0 +1,88 @@
+<div class=" content">
+    <!-- Loading spinner -->
+    <div *ngIf="!browser" class="text-center">
+        <div class="spinner-border" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+    <div *ngIf="browser">
+        <div class=" row">
+            <div class=" col">
+                <div class=" card">
+                    <div class=" card-header">
+                        <h5 class=" card-title"> Programs In Review </h5>
+                    </div>
+                    <div class=" card-body">
+
+                        <div *ngIf="!results || !results.length">
+                            <p>
+                                🎉 Boom! You're up to date.
+                            </p>
+                        </div>
+
+                        <!-- Results table -->
+                        <div *ngIf="results && results.length" class=" table-responsive">
+                            <table class=" table">
+                            <thead class=" text-primary">
+                                <tr>
+                                <th> Requested </th>
+                                <th> Program ID </th>
+                                <th> Status </th>
+                                <th class=" text-right"> Actions </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let hit of results" class="">
+                                <td> {{ timestampToDate(hit.requested) }} </td>
+                                <td> {{ hit.programId }} </td>
+                                <td>
+                                    <p
+                                    class="text-capitalize"
+                                    [ngClass]="{
+                                        'text-warning': hit.status === 'submitted'
+                                    }"
+                                    >
+                                        {{ hit.status }}
+                                    </p>
+                                </td>
+                                <td class=" text-right">
+                                    <!-- Action buttons -->
+                                    <button
+                                    class="btn btn-primary btn-sm"
+                                    [routerLink]="['/program', hit.programId]"
+                                    > Review </button>
+                                </td>
+                                </tr>
+                            </tbody>
+                            </table>
+                        </div>
+                        <!-- End results table -->
+
+                        <!-- Results pager -->
+                        <div *ngIf="results && results.length" class=" row justify-content-center">
+                            <div class=" col-md-6">
+                                <div class=" card-body">
+                                <nav>
+                                    <pagination
+                                    class=" pagination-primary justify-content-center mt-3"
+                                    [boundaryLinks]="true"
+                                    [rotate]="true"
+                                    [(ngModel)]="page"
+                                    [totalItems]="totalItems"
+                                    [itemsPerPage]="itemsPerPage"
+                                    [maxSize]="maxSize"
+                                    [previousText]="'Prev'"
+                                    (pageChanged)="pageChanged($event)">
+                                    </pagination>
+                                </nav>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>
