@@ -96,6 +96,7 @@ export class CourseLandingPageComponent implements OnInit, OnChanges, AfterViewI
   };
 
   public saving: boolean;
+  public saveAttempt: boolean;
 
   public objKeys = Object.keys;
 
@@ -141,9 +142,9 @@ export class CourseLandingPageComponent implements OnInit, OnChanges, AfterViewI
       title: ['', [Validators.required, Validators.minLength(this.titleMinLength), Validators.maxLength(this.titleMaxLength)]],
       subtitle: ['', [Validators.required, Validators.minLength(this.subTitleMinLength), Validators.maxLength(this.subTitleMaxLength)]],
       description: ['', [Validators.required]],
-      language: ['', [Validators.required]],
-      category: ['', [Validators.required]],
-      level: ['', [Validators.required]],
+      language: [null, [Validators.required]],
+      category: [null, [Validators.required]],
+      level: [null, [Validators.required]],
       subject: ['', [Validators.required, Validators.minLength(this.subjectMinLength), Validators.maxLength(this.subjectMaxLength)]],
       mainImage: [null],
       promoVideo: [null],
@@ -160,16 +161,13 @@ export class CourseLandingPageComponent implements OnInit, OnChanges, AfterViewI
       subtitle: this.course.subtitle ? this.course.subtitle : '',
       description: this.course.description ? this.course.description : '',
       language: this.course.language ? this.course.language : 'en',
-      category: this.course.category ? this.course.category : '',
-      level: this.course.level ? this.course.level : '',
+      category: this.course.category ? this.course.category : null,
+      level: this.course.level ? this.course.level : null,
       subject: this.course.subject ? this.course.subject : '',
       mainImage: this.course.image ? this.course.image : null,
       promoVideo: this.course.promoVideo ? this.course.promoVideo : null,
-      // tslint:disable-next-line: max-line-length
       learningPoints: this.course.learningPoints ? this.loadLpoints() : this.formBuilder.array([new FormControl('', Validators.maxLength(this.learningPointsMaxLength))], Validators.maxLength(this.learningPointsMax)),
-      // tslint:disable-next-line: max-line-length
       requirements: this.course.requirements ? this.loadRequirements() : this.formBuilder.array([new FormControl('', Validators.maxLength(this.requirementsMaxLength))], Validators.maxLength(this.requirementsMax)),
-      // tslint:disable-next-line: max-line-length
       targets: this.course.targets ? this.loadTargets() : this.formBuilder.array([new FormControl('', Validators.maxLength(this.targetsMaxLength))], Validators.maxLength(this.targetsMax))
     });
 
@@ -329,62 +327,27 @@ export class CourseLandingPageComponent implements OnInit, OnChanges, AfterViewI
 
   async onSubmit() {
     this.saving = true;
+    this.saveAttempt = true;
 
     // safety checks
-    if (!this.landingF.title.value) {
-      this.alertService.alert('warning-message', 'Oops', 'Please add a course title.');
-      this.saving = false;
-      return;
-    }
-    if (!this.landingF.subtitle.value) {
-      this.alertService.alert('warning-message', 'Oops', 'Please add a course subtitle.');
-      this.saving = false;
-      return;
-    }
-    if (!this.landingF.description.value) {
-      this.alertService.alert('warning-message', 'Oops', 'Please add a course description.');
-      this.saving = false;
-      return;
-    }
-    if (!this.landingF.language.value) {
-      this.alertService.alert('warning-message', 'Oops', 'Please select a course language.');
-      this.saving = false;
-      return;
-    }
-    if (!this.landingF.category.value) {
-      this.alertService.alert('warning-message', 'Oops', 'Please select a course category.');
-      this.saving = false;
-      return;
-    }
-    if (!this.landingF.level.value) {
-      this.alertService.alert('warning-message', 'Oops', 'Please select a course level.');
-      this.saving = false;
-      return;
-    }
-    if (!this.landingF.subject.value) {
-      this.alertService.alert('warning-message', 'Oops', 'Please add a primary subject.');
-      this.saving = false;
-      return;
-    }
-
-    // catch all fallback
     if (this.landingForm.invalid) {
+      console.log(this.landingForm.value);
       this.alertService.alert('warning-message', 'Oops', 'Please complete all required fields before saving.');
       this.saving = false;
       return;
     }
 
     if (!this.userId) {
-      this.alertService.alert('warning-message', 'Oops', 'Error: No user ID. Cannot save landing page data');
+      this.alertService.alert('warning-message', 'Oops', 'Error: No user ID. Cannot save data.');
       this.saving = false;
       return;
     }
 
     // Handle image upload to storage if required.
     if (this.landingF.mainImage.value && !this.landingF.mainImage.value.includes(this.storageService.getStorageDomain())) {
-      console.log(`Uploading unstored course photo to storage...`);
+      // console.log(`Uploading unstored course photo to storage...`);
       const url = await this.storageService.storeCourseImageUpdateDownloadUrl(this.userId, this.landingF.mainImage.value);
-      console.log(`Photo stored successfully. Patching landing form with photo download URL: ${url}`);
+      // console.log(`Photo stored successfully. Patching landing form with photo download URL: ${url}`);
       this.landingForm.patchValue({
         mainImage: url
       });
@@ -408,9 +371,10 @@ export class CourseLandingPageComponent implements OnInit, OnChanges, AfterViewI
 
     await this.dataService.savePrivateCourse(this.userId, this.course);
 
-    this.alertService.alert('auto-close', 'Success!', 'Course saved.');
+    this.alertService.alert('auto-close', 'Success!', 'eCourse saved.');
 
     this.saving = false;
+    this.saveAttempt = false;
 
     this.analyticsService.editCourseLandingPage();
   }

@@ -13,25 +13,39 @@
                   {{ isNewLecture ? 'New Lecture' : lectureF.title.value }} 
                 </h4>
                 <h6 class="card-subtitle mb-4 text-muted"> 
-                    {{ isNewLecture && course.lectures.length < 1 ? 'Course sections should contain at least one lecture' : 'Editing Lecture' }}
+                    {{ isNewLecture && course.lectures.length < 1 ? "Let's give your lecture a title" : 'Editing your lecture title' }}
                 </h6>
                 <div class=" p-3">
-                    <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001124312-how-to-use-lectures-in-your-course" target="_blank">
-                        <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> Help with lectures </span>
-                    </a>
+                    <p *ngIf="isNewLecture" class=" small text-muted pl-2 mb-2">
+                        <i class="fas fa-info-circle"></i> Lectures are added into eCourse sections. They can be articles or videos. 
+                        All sections need at least 1 lecture. As you add lectures, they will appear 
+                        on the left of the screen in the relevant section of your eCourse. You can change your lecture names by clicking on them, 
+                        or re-order them at any time simply by dragging them up and down. Need a little more help? 
+                        <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001124312-how-to-use-lectures-in-your-course" target="_blank">
+                            Read more.
+                        </a>
+                    </p>
+                    <p *ngIf="!isNewLecture" class=" small text-muted pl-2 mb-2">
+                        <i class="fas fa-info-circle"></i> Edit the current lecture. Don't forget you can add new 
+                        lectures into this section at any time by clicking the 'Add New Lecture' button in this section on the left.  
+                        If you need to re-order lectures in your eCourse, simply use the <i class="fas fa-bars"></i> icon on the left 
+                        to drag a lecture up or down in the order, or even into a different section if it's in the wrong place. 
+                        Need a little more help? 
+                        <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001124312-how-to-use-lectures-in-your-course" target="_blank">
+                            Read more.
+                        </a>
+                    </p>
                     <div class="mt-3">
                         <form *ngIf="lectureForm" [formGroup]="lectureForm" (submit)="onSubmit(true)">
 
                             <!-- Lecture title -->
                             <div class="">
-                                <label> Title </label>
+                                <label> {{ isNewLecture ? 'Lecture Title' : 'Edit Lecture Title' }} </label>
                             </div>
                             <div
                             class="input-group no-symbol"
                             [ngClass]="{
-                                'has-danger':
-                                ((focusTouched || saving) && lectureF.title.value != '' && lectureF.title.errors) ||
-                                (lectureF.title.value != '' && lectureF.title.errors),
+                                'has-danger': (((focusTouched && lectureF.title.value != '') || saveAttempt) && lectureF.title.errors),
                                 'has-success': !lectureF.title.errors
                             }">
                                 <input
@@ -47,8 +61,7 @@
                                 </span>
                                 </div>
                             </div>
-                            <div *ngIf="((focusTouched || saving) && lectureF.title.value != '' && lectureF.title.errors) ||
-                                (lectureF.title.value != '' && lectureF.title.errors)">
+                            <div *ngIf="(((focusTouched && lectureF.title.value != '') || saveAttempt) && lectureF.title.errors)">
                                 <label
                                 *ngFor="let error of objKeys(lectureF.title.errors)"
                                 class="error custom-error-label"
@@ -64,6 +77,16 @@
                                 <div class="">
                                     <label> Lecture Type </label>
                                 </div>
+                                <p class=" small text-muted pl-2 mb-2">
+                                    <i class="fas fa-info-circle"></i> Select a lecture type. Video lectures are highly recommended for 
+                                    maximum client engagement. When using video lectures the best practice is to keep each lecture around 
+                                    5-10 minutes so clients can absorb your content in 'chunks'. Don't forget that you can include 
+                                    textual resources like PDFs and other files along with video lectures using the 'Resources' toggle below, 
+                                    so only use the article button if you need to deliver your lecture in writing rather than video.
+                                </p>
+                                <!-- empty div as a spacer -->
+                                <div class=" mt-3"></div>
+                                <!-- end spacer div -->
                                 <tabset
                                 #lectureTypeTabs
                                 class="nav-pills-primary nav-pills-icons"
@@ -75,11 +98,15 @@
                                         <i class="tim-icons icon-video-66"> </i>
                                     </ng-template>
 
-                                    <div class=" mb-3">
+                                    <p class=" small text-muted pl-2 mb-2">
+                                        <i class="fas fa-info-circle"></i> Upload a video file from your computer, or select a 
+                                        previously uploaded file from your library. All videos you upload will be added to your 
+                                        library. Note: All video files must be .mp4 format, at least 720p resolution and less 
+                                        than 4.0GB. Need a little help? 
                                         <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001124312-how-to-use-lectures-in-your-course" target="_blank">
-                                            <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> Help with video uploads </span>
+                                            Read more.
                                         </a>
-                                    </div>
+                                    </p>
 
                                     <!-- Video upload options -->
                                     <tabset class="nav-pills-default" type="pills">
@@ -91,10 +118,6 @@
                                                 class="fas fa-upload mr-2" 
                                                 style="display: inline-block; line-height: 30px; font-size: 20px;"> </i> Upload Video
                                             </ng-template>
-
-                                            <p class=" text-muted mt-2">
-                                                Note: All files should be .mp4 format, at least 720p and less than 4.0GB
-                                            </p>
 
                                             <!-- Video drop / upload -->
                                             <app-course-video-uploader
@@ -162,12 +185,16 @@
                                     <ng-template tabHeading>
                                         <i class="tim-icons icon-paper"> </i>
                                     </ng-template>
-                                    
-                                    <div class=" mb-3">
+
+                                    <p class=" small text-muted pl-2 mb-2">
+                                        <i class="fas fa-info-circle"></i> Type your article directly into the editor below or copy 
+                                        and paste your material from another source. You can use images, and don't forget that you can add resources like 
+                                        PDFs and other files along with your lecture article using the 'Resources' toggle below. 
+                                        Need a little help? 
                                         <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001124312-how-to-use-lectures-in-your-course" target="_blank">
-                                            <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> Help with articles </span>
+                                            Read more.
                                         </a>
-                                    </div>
+                                    </p>
 
                                     <editor
                                     *ngIf="viewLoaded"
@@ -184,23 +211,25 @@
                                 <!-- End of lecture type -->
                             </div>
 
-                            <div *ngIf="!isNewLecture">
+                            <div *ngIf="!isNewLecture" class=" mt-4">
+                                <hr>
                                 <!-- include resources? -->
                                 <div class=" row mt-3">
                                     <div class=" col-md-12">
                                     <div class=" form-group">
                                         <label> Include resources with this lecture? </label>
-                                        <span class=" h5 text-light ml-2">
-                                        <i
-                                        class="fas fa-info-circle btn-tooltip"
-                                        data-animation="true"
-                                        data-container="body"
-                                        placement="top"
-                                        tooltip="Resources can be included with all lecture types to share extra information with your students.
-                                        For example, you might inlcude a supporting PDF to download in addition to your main article, or a link to a web page to highlight something you discuss in your main video.">
-                                        </i>
-                                        </span>
-                                        <br />
+                                        <p class=" small text-muted pl-2 mb-2">
+                                            <i class="fas fa-info-circle"></i> Need to include resources with this lecture? 
+                                            Resources are a great way to include supporting information with your lectures.
+                                            Resources can be PDFs, files, images or links to other web pages. 
+                                            Any resources you add will appear in a 'Resources' button on the relevant lecture in the Lifecoach 
+                                            Learning Centre so that they can be discovered and downloaded. For best results we recommend you 
+                                            mention them in your lecture so your clients/students don't miss them.
+                                            Need a little help? 
+                                            <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001124312-how-to-use-lectures-in-your-course" target="_blank">
+                                                Read more.
+                                            </a>
+                                        </p>
                                         <bSwitch
                                         [switch-on-color]="'danger'"
                                         [switch-off-color]="'danger'"
@@ -321,17 +350,17 @@
                                     <div class=" col-md-12">
                                     <div class=" form-group">
                                         <label> Allow users to preview this lecture before purchasing your course? </label>
-                                        <span class=" h5 text-light ml-2">
-                                        <i
-                                        class="fas fa-info-circle btn-tooltip"
-                                        data-animation="true"
-                                        data-container="body"
-                                        placement="top"
-                                        tooltip="Set YES to allow potential students to preview this lecture before buying your course. Allowing
-                                        users to preview a few of your most engaging lectures can help to increase sales!">
-                                        </i>
-                                        </span>
-                                        <br />
+                                        <p class=" small text-muted pl-2 mb-2">
+                                            <i class="fas fa-info-circle"></i> Allowing prospective clients/students to preview 
+                                            lectures before buying/enrolling in your eCourse can be a great way to help users 
+                                            decide whether your eCourse is right for them. We recommend you allow users to preview 
+                                            a few of your most engaging lectures (ideally early on in your eCourse) to give yourself 
+                                            the best chance of maximising enrollments.
+                                            Need a little help? 
+                                            <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001124312-how-to-use-lectures-in-your-course" target="_blank">
+                                                Read more.
+                                            </a>
+                                        </p>
                                         <bSwitch
                                         [switch-on-color]="'danger'"
                                         [switch-off-color]="'danger'"

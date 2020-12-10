@@ -7,6 +7,9 @@ import { CoachProfile } from '../interfaces/coach.profile.interface';
 import { UserAccount } from '../interfaces/user.account.interface';
 import { AdminCourseReviewRequest } from 'app/interfaces/adminCourseReviewRequest';
 import { first } from 'rxjs/operators';
+import { StripePaymentIntentRequest } from 'app/interfaces/stripe.payment.intent.request';
+import { RefundRequest } from 'app/interfaces/refund.request.interface';
+import {Answer} from '../pages/video-chatroom/videochatroom.component';
 
 @Injectable({
   providedIn: 'root'
@@ -205,15 +208,16 @@ export class CloudFunctionsService {
     });
   }
 
-  getStripePaymentIntent(courseId: string, clientCurrency: string, clientPrice: number, clientUid: string, referralCode: string) {
+  getStripePaymentIntent(piRequest: StripePaymentIntentRequest) {
     return new Promise(resolve => {
       const intent = this.cloudFunctions.httpsCallable('stripeCreatePaymentIntent');
       const tempSub = intent({
-        courseId,
-        clientCurrency,
-        clientPrice,
-        clientUid,
-        referralCode
+        saleItemId: piRequest.saleItemId,
+        saleItemType: piRequest.saleItemType,
+        salePrice: piRequest.salePrice,
+        currency: piRequest.currency,
+        buyerUid: piRequest.buyerUid,
+        referralCode : piRequest.referralCode ? piRequest.referralCode : null
       })
         .pipe(first())
         .subscribe(res => {
@@ -251,7 +255,7 @@ export class CloudFunctionsService {
     });
   }
 
-  requestRefund(refundRequest: any) {
+  requestRefund(refundRequest: RefundRequest) {
     return new Promise(resolve => {
       const refund = this.cloudFunctions.httpsCallable('requestRefund');
       const tempSub = refund({
@@ -330,10 +334,25 @@ export class CloudFunctionsService {
   // Twilio
   getTwilioToken(uid: string, room: string, timeOfStart: number, duration: number) {
     console.log('Cloud Function Service prop', uid);
+    console.log(timeOfStart, duration);
+    console.group('getTwilioToken Function');
+    console.log(`timeOfStart prop: ${new Date(timeOfStart)}`);
+    console.log(`Duration prop: ${duration}`);
+    console.log(`Date.now: ${new Date(Date.now())}`);
+    console.log(`TTL: ${timeOfStart + duration - Date.now()}`);
+    console.groupEnd();
+    const nowTime = Date.now();
+    const ttl = timeOfStart + duration - nowTime;
+    if (ttl < 0) {
+      return Promise.reject('IS_OVER');
+    }
+    if ( timeOfStart - nowTime > 60000 ) {
+      return Promise.reject('NOT_TIME_YET');
+    }
+    console.log(ttl);
     return new Promise( resolve => {
           const res = this.cloudFunctions.httpsCallable('getTwilioToken');
-          console.log('Cloud Function Service', res);
-          const tempSub = res({uid, room})
+          const tempSub = res({uid, room, ttl})
             .pipe(first())
             .subscribe(r => {
               resolve(r.json);
@@ -342,6 +361,36 @@ export class CloudFunctionsService {
             });
       }
     );
+  }
+
+  // Also twilio, for controlling video-session
+  getInfoAboutCurrentVideoSession(sessionId: string): Promise<Answer> {
+    return new Promise(resolve => {
+
+      const trigger = this.cloudFunctions.httpsCallable('getInfoAboutCurrentVideoSession');
+
+      const tempSub = trigger({ docId: sessionId})
+        .pipe(first())
+        .subscribe(res => {
+          resolve(res);
+          tempSub.unsubscribe();
+        });
+    });
+  }
+
+  // twilio, for aborting session
+  abortVideoSession(roomID: string) {
+    return new Promise(resolve => {
+
+      const trigger = this.cloudFunctions.httpsCallable('abortVideoSession');
+
+      const tempSub = trigger({ roomID })
+        .pipe(first())
+        .subscribe(res => {
+          resolve(res);
+          tempSub.unsubscribe();
+        });
+    });
   }
 
   // *** DANGER AREA ***

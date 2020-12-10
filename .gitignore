@@ -3,3 +3,4 @@ dist
 .firebase/*
 .idea
 tasks.md
+out-tsc

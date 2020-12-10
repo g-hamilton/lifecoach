@@ -1,29 +1,120 @@
-#video-container {
+.video-container {
+  position:relative;
   width: 100%;
 }
 
-#remote, #local {
-  width: 240px;
-  height: 240px;
-  margin: 45px auto;
+.remoteVideo, .localVideo {
+  position: relative;
+  min-height: 35vh;
+  margin: 30px auto 0;
+  background-color: #27293d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  p{
+    text-align: center;
+    color: white;
+  }
 }
 
-#remote {
-  background-color: blue;
+.controls{
+  display:flex;
+  align-items: center;
+  justify-content: center;
+  margin: 30px auto 0;
 }
 
-#local {
-  background-color: red;
-}
-
-#remote p, #local p {
+button {
+  background-color: #27293d;
+  border: 1px solid rgba(0, 0, 0, 0);
+  border-radius: 50px;
+  width: 50px;
+  height: 50px;
+  font-size: 1.5em;
   text-align: center;
-  color: white;
+
+  .play {
+    color: #1fc22a;
+    padding-left: 0.15em;
+  }
+
+  .micro {
+    color: #1fc22a;
+
+    &_off {
+      color: #ec250d;
+    }
+  }
+
+  .stop {
+    color: #ec250d;
+  }
+
+  &:active {
+    background-color: #1c1e2b;
+    border: 1px solid rgba(0, 0, 0, 0);
+    border-radius: 50px;
+    -moz-outline-radius: 50px;
+  }
+
+  &:disabled {
+    .play {
+      padding-left: 0.15em;
+    }
+  }
 }
 
-input {
-  display: block;
-  width: 50%;
-  padding: 2px;
-  margin: 7px auto auto;
+.localVideo {
+
+  min-height: 20vh;
+}
+
+.loader {
+  animation:spin 1s infinite linear;
+  border:solid 2vmin transparent;
+  border-radius:50%;
+  border-right-color:#e14eca;
+  border-top-color:#e14eca;
+  box-sizing:border-box;
+  height:20vmin;
+  left:calc(50% - 10vmin);
+  position:absolute;
+  top:calc(50% - 10vmin);
+  width:20vmin;
+  z-index:1;
+  &:before {
+    animation:spin 2s infinite linear;
+    border:solid 2vmin transparent;
+    border-radius:50%;
+    border-right-color:#fd5d93;
+    border-top-color:#fd5d93;
+    box-sizing:border-box;
+    content:"";
+    height:16vmin;
+    left:0;
+    position:absolute;
+    top:0;
+    width:16vmin;
+  }
+  &:after {
+    animation:spin 3s infinite linear;
+    border:solid 2vmin transparent;
+    border-radius:50%;
+    border-right-color:#e14eca;
+    border-top-color:#e14eca;
+    box-sizing:border-box;
+    content:"";
+    height:12vmin;
+    left:2vmin;
+    position:absolute;
+    top:2vmin;
+    width:12vmin;
+  }
+}
+
+@keyframes spin {
+  100% {
+    transform:rotate(360deg);
+  }
 }

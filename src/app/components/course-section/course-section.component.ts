@@ -5,6 +5,7 @@ import { CoachingCourse, CoachingCourseSection } from 'app/interfaces/course.int
 import { DataService } from 'app/services/data.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AnalyticsService } from 'app/services/analytics.service';
+import { AlertService } from 'app/services/alert.service';
 
 @Component({
   selector: 'app-course-section',
@@ -38,6 +39,7 @@ export class CourseSectionComponent implements OnInit, OnChanges {
   };
 
   public saving: boolean;
+  public saveAttempt: boolean;
 
   public objKeys = Object.keys;
 
@@ -47,7 +49,8 @@ export class CourseSectionComponent implements OnInit, OnChanges {
     private dataService: DataService,
     private route: ActivatedRoute,
     private router: Router,
-    private analyticsService: AnalyticsService
+    private analyticsService: AnalyticsService,
+    private alertService: AlertService,
   ) { }
 
   ngOnInit() {
@@ -104,21 +107,25 @@ export class CourseSectionComponent implements OnInit, OnChanges {
   }
 
   async onSubmit() {
+    this.saveAttempt = true;
+    this.saving = true;
+
     // If this is a new section
     if (this.isNewSection && !this.sectionF.id.value) {
       const sectionId = Math.random().toString(36).substr(2, 9); // generate semi-random id
       this.sectionForm.patchValue({ id: sectionId }); // update form with new id
-
       this.sectionForm.patchValue({ expanded: true }); // auto expand new sections
     }
 
     // Safety checks
     if (this.sectionForm.invalid) {
-      console.log('Invalid form', this.sectionForm.errors);
+      this.alertService.alert('warning-message', 'Oops', 'Please complete all fields to continue.');
+      this.saving = false;
       return;
     }
     if (!this.course) {
-      console.log('No course to associate section with!');
+      this.alertService.alert('warning-message', 'Oops', 'Missing eCourse data. Please contact support.');
+      this.saving = false;
       return;
     }
 
@@ -146,6 +153,9 @@ export class CourseSectionComponent implements OnInit, OnChanges {
     // Save the course object
     const saveCourse = JSON.parse(JSON.stringify(this.course)); // clone to avoid var reference issues
     await this.dataService.savePrivateCourse(this.course.sellerUid, saveCourse);
+
+    this.saving = false;
+    this.saveAttempt = false;
 
     // Navigate to relevant section url
     this.router.navigate(['my-courses', this.course.courseId, 'content', 'section', this.sectionF.id.value], { queryParams: { targetUser: this.targetUserUid }});

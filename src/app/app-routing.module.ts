@@ -31,6 +31,11 @@ const routes: Routes = [
     pathMatch: 'full'
   },
   {
+    path: 'for-coaches',
+    loadChildren: () => import('./pages/pricing/pricing.module').then(m => m.PricingModule),
+    pathMatch: 'full'
+  },
+  {
     path: 'for-publishers',
     loadChildren: () => import('./pages/for-publishers/for.publishers.module').then(m => m.ForPublishersModule),
     pathMatch: 'full'
@@ -47,6 +52,11 @@ const routes: Routes = [
   },
   {
     path: 'sell-coaching-courses',
+    loadChildren: () => import('./pages/courses-landing/courses.landing.module').then(m => m.CoursesLandingModule),
+    pathMatch: 'full'
+  },
+  {
+    path: 'sell-coaching-ecourses',
     loadChildren: () => import('./pages/courses-landing/courses.landing.module').then(m => m.CoursesLandingModule),
     pathMatch: 'full'
   },
@@ -88,6 +98,11 @@ const routes: Routes = [
     pathMatch: 'full'
   },
   {
+    path: 'program/:id',
+    loadChildren: () => import('./pages/program/program.module').then(m => m.ProgramModule),
+    pathMatch: 'full'
+  },
+  {
     path: 'coaching-service/:serviceId',
     loadChildren: () => import('./pages/coaching-service/coaching.service.module').then(m => m.CoachingServiceModule),
     pathMatch: 'full'
@@ -110,8 +125,12 @@ const routes: Routes = [
         loadChildren: () => import('./pages/calendar/calendar.page.module').then(m => m.CalendarPageModule)
       },
       {
-        path: 'services',
+        path: 'coach-products-services',
         loadChildren: () => import('./pages/coach-services/coach.services.module').then(m => m.CoachServicesModule)
+      },
+      {
+        path: 'coach-journey',
+        loadChildren: () => import('./pages/coach-as-regular-user/coach.as.regular.user.module').then(m => m.CoachAsRegularUserModule)
       },
       {
         path: 'people',
@@ -198,6 +217,16 @@ const routes: Routes = [
         pathMatch: 'full'
       },
       {
+        path: 'my-programs/new-program',
+        loadChildren: () => import('./pages/edit-coach-program/edit-coach.program.module').then(m => m.EditCoachProgramModule),
+        pathMatch: 'full'
+      },
+      {
+        path: 'my-programs/:programId/content',
+        loadChildren: () => import('./pages/edit-coach-program/edit-coach.program.module').then(m => m.EditCoachProgramModule),
+        pathMatch: 'full'
+      },
+      {
         path: 'services/new',
         loadChildren: () => import('./pages/edit-coach-service/edit.coach.service.module').then(m => m.EditCoachServiceModule),
         pathMatch: 'full'
@@ -242,6 +271,11 @@ const routes: Routes = [
         path: 'admin-course-review-player/:courseId/learn/lecture/:lectureId',
         loadChildren: () => import('./pages/admin-course-review-player/admin-course-review-player.module').then(m => m.AdminCourseReviewPlayerModule),
         pathMatch: 'full',
+        canActivate: [AdminAuthGuard]
+      },
+      {
+        path: 'admin-program-review',
+        loadChildren: () => import('./pages/admin-program-review/admin-program-review.module').then(m => m.AdminProgramReviewModule),
         canActivate: [AdminAuthGuard]
       },
       {

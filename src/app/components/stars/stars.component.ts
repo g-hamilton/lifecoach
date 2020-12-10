@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { CoachingCourse } from 'app/interfaces/course.interface';
 
 @Component({
@@ -9,6 +9,8 @@ import { CoachingCourse } from 'app/interfaces/course.interface';
 export class StarsComponent implements OnInit {
 
   @Input() course: CoachingCourse;
+
+  @Output() totalReviewsEvent = new EventEmitter<any>();
 
   public totalReviews: number;
   public avgRating: number;
@@ -34,6 +36,9 @@ export class StarsComponent implements OnInit {
     this.course.totalZeroPointFiveStarReviews ? ratings.push(this.course.totalZeroPointFiveStarReviews) : ratings.push(0);
 
     this.totalReviews = ratings.length ? ratings.reduce((total, val) => total + val) : 0;
+
+    this.totalReviewsEvent.emit(this.totalReviews); // emit the data
+
     const points = [ratings[0] * 5, ratings[1] * 4.5, ratings[2] * 4, ratings[3] * 3.5, ratings[4] * 3, ratings[5] * 2.5, ratings[6] * 2, ratings[7] * 1.5, ratings[8], ratings[9] * .5 ];
     this.avgRating = points.reduce((total, val) => total + val) / this.totalReviews;
     if (isNaN(this.avgRating)) { // catch not a number

@@ -34,13 +34,13 @@ export class CourseMoreComponent implements OnInit {
   async onDeleteCourse() {
     const res = await this.alertService.alert('warning-message-and-confirmation', 'Are you sure?', 'Deleting your course is final. It CANNOT BE UNDONE! Note: Any students who have already purchased/enrolled in this course will still have access.', 'Yes - Delete') as any;
     if (res && res.action) { // user confirms
-      console.log('User confirms delete');
+      // console.log('User confirms delete');
       this.dataService.deletePrivateCourse(this.userId, this.course.courseId);
-      this.alertService.alert('success-message', 'Success!', 'Your course has been deleted.');
+      this.alertService.alert('success-message', 'Success!', 'Your eCourse has been deleted.');
       if (this.editingAsAdmin) {
         this.router.navigate(['/admin-manage-user', this.userId]);
       } else {
-        this.router.navigate(['/my-courses']);
+        this.router.navigate(['/coach-products-services']);
       }
     }
   }

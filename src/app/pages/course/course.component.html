@@ -33,13 +33,23 @@
                         <!-- rating stars *BROWSER ONLY* -->
                         <app-stars
                         *ngIf="browser"
-                        [course]="course">
+                        [course]="course"
+                        (totalReviewsEvent)="onTotalReviewsEvent($event)">
                         </app-stars>
                         <span class=" d-inline-block ml-2" style="margin-top: 0.3rem;">
-                          {{ avgRating?.toFixed(2) }} ({{ totalReviews }} {{ totalReviews === 1 ? 'review' : 'reviews'}})
+                          {{ avgRating?.toFixed(2) }} ({{ totalReviews ? totalReviews : '0' }} {{ totalReviews === 1 ? 'review' : 'reviews'}})
                         </span>
-                        <span class=" ml-3">
-                          {{ courseEnrollments?.totalEnrollments ? courseEnrollments?.totalEnrollments : '0' }} students enrolled
+                        <!-- if zero enrollments -->
+                        <span *ngIf="!courseEnrollments?.totalEnrollments" class=" ml-3 badge badge-success">
+                          New eCourse
+                        </span>
+                        <!-- if 1 enrollment -->
+                        <span *ngIf="courseEnrollments?.totalEnrollments && courseEnrollments?.totalEnrollments == 1" class=" ml-3">
+                          1 student enrolled
+                        </span>
+                        <!-- if more than 1 enrollment -->
+                        <span *ngIf="courseEnrollments?.totalEnrollments && courseEnrollments?.totalEnrollments > 1" class=" ml-3">
+                          {{ courseEnrollments.totalEnrollments }} students enrolled
                         </span>
                       </div>
 
@@ -49,12 +59,15 @@
                           Coach: {{ course.coachName }}
   
                           <!-- last updated -->
-                          <span class=" ml-3">
+                          <span *ngIf="course?.lastUpdated" class=" ml-3">
                             Last updated: {{ getDisplayDate(course.lastUpdated) }}
+                          </span>
+                          <span *ngIf="!course?.lastUpdated" class=" ml-3">
+                            Last updated: {{ getDisplayDate(now) }}
                           </span>
   
                           <!-- course language -->
-                          <span class=" ml-3">
+                          <span *ngIf="course?.language" class=" ml-3">
                             <i class="fas fa-comment"></i> {{ languages[course.language].nativeName }}
                           </span>
                         </p>
@@ -117,7 +130,7 @@
                   <!-- course content card -->
                   <div class=" card">
                     <div class=" card-body">
-                      <h4 class=" card-title d-inline-block"> Course Content </h4>
+                      <h4 class=" card-title d-inline-block"> eCourse Content </h4>
                       <app-course-contents [course]="course"></app-course-contents>
                     </div>
                   </div>
@@ -126,7 +139,7 @@
                   <!-- course feedback card *BROWSER ONLY* -->
                   <div *ngIf="browser" class=" card">
                     <div class=" card-body mr-3">
-                      <h4 class=" card-title d-inline-block"> Course Feedback </h4>
+                      <h4 class=" card-title d-inline-block"> eCourse Feedback </h4>
                       <div>
                         <app-course-feedback
                         [course]="course"
@@ -188,8 +201,11 @@
 
                       <div class=" text-center">
                         <!-- price -->
-                        <h3 *ngIf="course?.pricingStrategy === 'paid'"> {{ currencySymbol + '' + displayPrice }} </h3>
-                        <h3 *ngIf="course?.pricingStrategy === 'free'"> FREE </h3>
+                        <h3 *ngIf="course?.pricingStrategy && course?.pricingStrategy === 'paid' 
+                        && course?.price && course?.currency"> {{ currencySymbol + '' + displayPrice }} </h3>
+                        <h3 *ngIf="course?.pricingStrategy && course?.pricingStrategy === 'free'"> FREE </h3>
+                        <h4 *ngIf="!course?.pricingStrategy || (course?.pricingStrategy === 'paid' && !course?.currency) || 
+                        (course?.pricingStrategy === 'paid' && !course?.price)">{{ 'Awaiting currency & price' }}</h4>
                       </div>
 
                       <div *ngIf="userId === course.sellerUid">
@@ -206,7 +222,7 @@
 
                       <div class=" text-center pl-2 pr-2">
                         <!-- Paid pricing strategy -->
-                        <div *ngIf="course?.pricingStrategy === 'paid'">
+                        <div *ngIf="course?.pricingStrategy && course?.pricingStrategy === 'paid'">
                           <!-- buy now button -->
                           <!-- disabled for course seller or if already purchased -->
                           <!-- userId === course.sellerUid || userClaims && userClaims[course.courseId] -->
@@ -242,7 +258,7 @@
                         </div>
 
                         <!-- Free pricing strategy -->
-                        <div *ngIf="course?.pricingStrategy === 'free'">
+                        <div *ngIf="course?.pricingStrategy && course?.pricingStrategy === 'free'">
                           <button
                           class=" btn btn-primary btn-round btn-block btn-fill"
                           id="enrollnow"
@@ -276,13 +292,13 @@
                       </div>
 
                       <!-- Currency picker -->
-                      <div class="pt-3">
+                      <div *ngIf="course?.pricingStrategy && course?.pricingStrategy === 'paid'" class="pt-3">
                         <label> Show price in </label>
+                        <app-select-currency
+                        [currency]="clientCurrency"
+                        (currencyEvent)="onManualCurrencyChange($event)">
+                        </app-select-currency>
                       </div>
-                      <app-select-currency
-                      [currency]="clientCurrency"
-                      (currencyEvent)="onManualCurrencyChange($event)">
-                      </app-select-currency>
 
                     </div>
 

@@ -43,6 +43,7 @@ export class CourseLectureComponent implements OnInit, OnChanges, AfterViewInit 
   };
 
   public saving: boolean;
+  public saveAttempt: boolean;
 
   public objKeys = Object.keys;
 
@@ -79,7 +80,7 @@ export class CourseLectureComponent implements OnInit, OnChanges, AfterViewInit 
   }
 
   ngOnInit() {
-    console.log(this.userId);
+    // console.log(this.userId);
     if (isPlatformBrowser(this.platformId)) {
       this.browser = true;
       this.buildLectureForm();
@@ -112,7 +113,7 @@ export class CourseLectureComponent implements OnInit, OnChanges, AfterViewInit 
   }
 
   async handleTinyImageUpload(blob: any) {
-    console.log('BLOB', blob);
+    // console.log('BLOB', blob);
     return await this.storageService.storeTinyMceImage(blob, this.userId);
   }
 
@@ -179,7 +180,7 @@ export class CourseLectureComponent implements OnInit, OnChanges, AfterViewInit 
 
   onLibraryItemSelectVideo(event: CoachingCourseVideo) {
     // TODO check file is a video!
-    console.log('Video selected from library:', event);
+    // console.log('Video selected from library:', event);
     this.lectureForm.patchValue({
       video: event
     });
@@ -190,7 +191,7 @@ export class CourseLectureComponent implements OnInit, OnChanges, AfterViewInit 
   }
 
   onLibraryItemSelectResource(event: CoachingCourseResource) {
-    console.log('Resource selected from library:', event);
+    // console.log('Resource selected from library:', event);
 
     const resArray = this.lectureF.resources.value;
 
@@ -212,7 +213,7 @@ export class CourseLectureComponent implements OnInit, OnChanges, AfterViewInit 
   }
 
   async onSubmit(silenceSuccessAlert?: boolean) {
-
+    this.saveAttempt = true;
     this.saving = true;
 
     // If this is a new lecture
@@ -223,17 +224,17 @@ export class CourseLectureComponent implements OnInit, OnChanges, AfterViewInit 
 
     // Safety checks
     if (this.lectureForm.invalid) {
-      console.log('Invalid form');
+      this.alertService.alert('warning-message', 'Oops', 'Please complete all fields to continue.');
       this.saving = false;
       return;
     }
     if (!this.course) {
-      console.log('No course to associate lecture with!');
+      this.alertService.alert('warning-message', 'Oops', 'Missing eCourse data. Please contact support.');
       this.saving = false;
       return;
     }
     if (!this.activatedSectionId) {
-      console.log('No section to associate lecture with!');
+      this.alertService.alert('warning-message', 'Oops', 'No section to associate lecture with. Please contact support.');
       this.saving = false;
       return;
     }
@@ -272,6 +273,7 @@ export class CourseLectureComponent implements OnInit, OnChanges, AfterViewInit 
     await this.dataService.savePrivateCourse(this.course.sellerUid, saveCourse);
 
     this.saving = false;
+    this.saveAttempt = false;
 
     if (!silenceSuccessAlert) {
       this.alertService.alert('auto-close', 'Success!', 'Your lecture has been saved successfully!');

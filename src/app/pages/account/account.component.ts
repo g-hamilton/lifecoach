@@ -21,6 +21,7 @@ import { EmojiCountry } from 'app/interfaces/emoji.country.interface';
 import { CountryService } from 'app/services/country.service';
 import { CoachProfile } from 'app/interfaces/coach.profile.interface';
 import { Subscription } from 'rxjs';
+import { RefundRequest } from 'app/interfaces/refund.request.interface';
 
 @Component({
   selector: 'app-account',
@@ -345,7 +346,6 @@ export class AccountComponent implements OnInit, OnDestroy {
           const savedState = localStorage.getItem('stripeState');
           if (!savedState) { // oops, no saved state exists so we can't compare with the data from Stripe
             this.alertService.closeOpenAlert();
-            // tslint:disable-next-line: max-line-length
             this.alertService.alert('warning-message', 'Oops!', 'Unable To Complete Stripe Setup. Error: No saved Stripe state.');
             this.connectingStripe = false;
             return;
@@ -481,7 +481,7 @@ export class AccountComponent implements OnInit, OnDestroy {
       || this.accountSnapshot.breakDuration !== this.accountF.breakDuration.value) {
       alert('Changed session and breaks'); // TODO: Modal
                                             // Alert user, if they had sessions
-      return;
+      // return;
     }
     console.log(this.accountForm.value);
 
@@ -644,11 +644,11 @@ export class AccountComponent implements OnInit, OnDestroy {
       return;
     }
     if (this.refundIds && this.refundIds.includes(this.refundPaymentIntent.id)) {
-      this.alertService.alert('warning-message', 'Oops', 'You have already requested a refund for this course.');
+      this.alertService.alert('warning-message', 'Oops', 'You have already requested a refund for this item.');
       this.refunding = false;
       return;
     }
-    const refundRequest = {
+    const refundRequest: RefundRequest = {
       uid: this.userId,
       paymentIntent: this.refundPaymentIntent,
       formData: this.refundForm.value

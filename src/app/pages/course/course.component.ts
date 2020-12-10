@@ -19,6 +19,7 @@ import { UserAccount } from 'app/interfaces/user.account.interface';
 import { CoachingCourse } from 'app/interfaces/course.interface';
 import { IsoLanguagesService } from 'app/services/iso-languages.service';
 import { Subscription } from 'rxjs';
+import { StripePaymentIntentRequest } from 'app/interfaces/stripe.payment.intent.request';
 
 @Component({
   selector: 'app-course',
@@ -33,6 +34,7 @@ export class CourseComponent implements OnInit, OnDestroy {
   @ViewChild('payModal', {static: false}) public payModal: ModalDirective;
 
   public browser: boolean;
+  public now: number; // unix timestamp at load time
 
   public userId: string;
   public userClaims: any;
@@ -93,6 +95,7 @@ export class CourseComponent implements OnInit, OnDestroy {
     const body = this.document.getElementsByTagName('body')[0];
     body.classList.add('course-page');
     this.userType = 'regular'; // set the default user type to regular. We could let users select if required.
+    this.now = Math.round(new Date().getTime() / 1000); // set now as a unix timestamp
 
     if (isPlatformBrowser(this.platformId)) {
 
@@ -101,7 +104,8 @@ export class CourseComponent implements OnInit, OnDestroy {
       this.analyticsService.pageView();
 
       // Init Stripe.js
-      const stripe = Stripe('pk_test_HtSpdTqwGC86g7APo4XLBgms00TVXJLOf8'); // test key, NOT for prod!
+      const stripe = Stripe('pk_live_GFTeJnPVGhgVifaASOsjEvXf00faFIpXu2'); // production key, NOT for testing!
+      // const stripe = Stripe('pk_test_HtSpdTqwGC86g7APo4XLBgms00TVXJLOf8'); // test key, NOT for prod!
 
       // Init Stripe Elements
       const elements = stripe.elements();
@@ -129,38 +133,43 @@ export class CourseComponent implements OnInit, OnDestroy {
 
         // Check for all necessary payment data before calling for payment intent
         if (!this.courseId) {
-          console.log('Course ID:', this.courseId);
           this.alertService.alert('warning-message', 'Error', 'Missing course ID.');
           return null;
         }
         if (!this.clientCurrency) {
-          console.log('Client currency:', this.clientCurrency);
           this.alertService.alert('warning-message', 'Error', 'Missing payment currency.');
           return null;
         }
         if (!this.displayPrice) {
-          console.log('Course price:', this.displayPrice);
           this.alertService.alert('warning-message', 'Error', 'Missing course price.');
           return null;
         }
 
-        // Request payment intent object
-
+        // Safe to proceed..
         this.purchasingCourse = true;
-
         this.analyticsService.attemptStripePayment();
 
-        // tslint:disable-next-line: max-line-length
-        const pIntentRes = await this.cloudFunctionsService.getStripePaymentIntent(this.courseId, this.clientCurrency, this.displayPrice, this.userId, this.referralCode) as any;
+        // prepare the request object
+        const piRequest: StripePaymentIntentRequest = {
+          saleItemId: this.courseId,
+          saleItemType: 'ecourse',
+          salePrice: this.displayPrice,
+          currency: this.clientCurrency,
+          buyerUid: this.userId,
+          referralCode: this.referralCode ? this.referralCode : null
+        };
 
-        console.log(pIntentRes.stripePaymentIntent);
+        // request the payment intent
+        const pIntentRes = await this.cloudFunctionsService.getStripePaymentIntent(piRequest) as any;
+
+        console.log('Payment Intent created', pIntentRes.stripePaymentIntent);
 
         if (pIntentRes && !pIntentRes.error) { // payment intent success
 
           // Check we have valid user data for billing details
-          // tslint:disable-next-line: max-line-length
           if (!this.account || !this.account.firstName || !this.account.lastName || !this.account.accountEmail || !this.userId || !this.courseId) {
             // alert
+            this.alertService.alert('warning-message', 'Warning: Missing user data for billing details. Please contact support.');
             return null;
           }
 
@@ -176,16 +185,19 @@ export class CourseComponent implements OnInit, OnDestroy {
             receipt_email: this.account.accountEmail
           });
 
-          console.log(res);
+          // console.log(res);
 
           if (res.error) { // error confirming payment
+            console.log('Result error:', res.error);
             // Show error to your customer (e.g., insufficient funds)
             this.alertService.alert('warning-message', 'Oops', `${res.error.message}`);
             this.purchasingCourse = false;
             this.analyticsService.failStripePayment();
+
           } else { // success confirming payment
             // The payment has been processed!
             if (res.paymentIntent.status === 'succeeded') {
+              console.log('Payment succeeded!');
               // Show a success message to your customer
               // There's a risk of the customer closing the window before callback
               // execution. Set up a webhook or plugin to listen for the
@@ -211,6 +223,7 @@ export class CourseComponent implements OnInit, OnDestroy {
         }
 
       });
+      // End of Stripe related code
 
       // Check for saved client currency & country preference
       const savedClientCurrencyPref = localStorage.getItem('client-currency');
@@ -279,7 +292,7 @@ export class CourseComponent implements OnInit, OnDestroy {
               });
               // set the course
               this.course = publicCourse;
-              console.log(this.course)
+              console.log(this.course);
               // update meta
               this.updateCourseMeta();
 
@@ -523,6 +536,7 @@ export class CourseComponent implements OnInit, OnDestroy {
         // Success
         this.register = false;
         console.log('Registration successful:', response.result.user);
+        this.userId = response.result.user.uid; // update the component userId to allow user to purchase
         this.analyticsService.registerUser(response.result.user.uid, 'email&password', newUserAccount);
         this.registerModal.hide();
         if (this.course.pricingStrategy === 'paid') {
@@ -560,6 +574,7 @@ export class CourseComponent implements OnInit, OnDestroy {
       const res = await this.authService.signInWithEmailAndPassword(account);
       if (!res.error) {
         // Login successful.
+        this.userId = res.result.user.uid; // update the component userId to allow user to purchase
         this.loginModal.hide();
         if (this.course.pricingStrategy === 'paid') {
           this.alertService.alert('success-message', 'Login Successful', `Click 'Buy Now' again to complete your purchase...`);
@@ -593,6 +608,7 @@ export class CourseComponent implements OnInit, OnDestroy {
 
   onTotalReviewsEvent(event: number) {
     this.totalReviews = event;
+    // console.log('Total reviews event:', event);
   }
 
   async enrollFree() {

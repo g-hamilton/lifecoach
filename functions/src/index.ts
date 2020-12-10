@@ -3,6 +3,8 @@ import * as admin from 'firebase-admin';
 const firebase_tools = require('firebase-tools');
 const firebase = admin.initializeApp();
 const db = admin.firestore();
+const client = require('twilio')('AC0fbf93e299ce29fc5be48934baed2a2f', '7e167f9588f3ea827969b919f8acfb88');
+
 
 // ================================================================================
 // =====                                                                     ======
@@ -62,8 +64,10 @@ const config: Stripe.StripeConfig = { apiVersion: '2020-03-02', typescript: true
 const stripe = new Stripe(functions.config().stripe.prod.secretkey, config); // prod secret key
 const stripeWebhookSecret = functions.config().stripe.prod.webhooksecret; // prod secret webhook key
 const stripeWebhookConnectSecret = functions.config().stripe.prod.webhookconnectsecret // prod secret webhook key
-const appFeeDecimal = 0.5; // our std application fee percentage expressed as a decimal. eg 0.5 // 50%
-const appFeeReferralDecimal = 0.1; // our reduced app fee percentage expressed as a decimal.
+const ecourseAppFeeDecimal = 0.5; // our std application fee percentage for ecourses, expressed as a decimal. eg 0.5 // 50%
+const ecourseAppFeeReferralDecimal = 0.1; // our reduced ecourse app fee percentage expressed as a decimal.
+const programAppFeeDecimal = 0.05;
+const programAppFeeReferralDecimal = 0.025;
 
 // ================================================================================
 // =====                                                                     ======
@@ -905,63 +909,6 @@ exports.generateCoachProfileShortUrl = functions
 });
 
 // ================================================================================
-// =====                           CALENDAR FUNCTIONS                          ======
-// ================================================================================
-
-exports.scheduledBookingDeleteFunction = functions
-  .runWith({memory: '1GB', timeoutSeconds: 300})
-  .pubsub.schedule('every 15 mins')
-  .timeZone('GMT')
-  .onRun( async (context) => {
-    console.log('This will be run every 15 min, starting at 00:00 AM GMT!');
-    const nowTime = Date.now();
-    try {
-      const toFindAndUpdate: Array<any> = [];
-      await db.collection(`temporary-reserved-events`)
-        .where('timeOfReserve', '<', nowTime - 60000*15)  // 60000 ms = 1 minute (for test)
-        .get()
-        .then(querySnapshot => {
-            querySnapshot.forEach(doc => {
-              const temp = doc.data();
-              toFindAndUpdate.push({taskId: temp.calendarId, coachId: temp.coachId});
-              doc.ref
-                .delete()
-                .catch( e => console.log(e));
-            });
-          })
-        .then(()=>{
-            toFindAndUpdate.forEach((i) => {
-              db.collection(`users/${i.coachId}/calendar`)
-                .where('id', '==', i.taskId)
-                .get()
-                .then( snapshot =>{
-                 if (!snapshot.empty) {
-                   snapshot.docs[0].ref.update({
-                     cssClass:'not',
-                     reserved: false,
-                     reservedById: '',
-                     createdOn: new Date(0)
-                   })
-                     .catch(e => console.log(e));
-                 }
-                })
-                .catch(e => console.log(e));
-              })
-            });
-      return null;
-    } catch (e) {
-      console.log(e);
-      return null;
-    }
-
-
-  });
-
-
-
-
-
-// ================================================================================
 // =====                           STRIPE FUNCTIONS                          ======
 // ================================================================================
 
@@ -1157,20 +1104,24 @@ exports.stripeRetrieveBalance = functions
 /*
   Attempts to generate a Stripe payment intent.
   See: https://stripe.com/docs/connect/destination-charges
+
+  This function can be used to generate a payment intent for all supported Lifecoach products & services,
+  so be careful to pass the correct saleItemType as an argument.
 */
 exports.stripeCreatePaymentIntent = functions
 .runWith({memory: '1GB', timeoutSeconds: 300})
 .https
 .onCall( async (data, context) => {
 
-  const courseId: string = data.courseId;
-  const clientCurrency = (data.clientCurrency as string).toUpperCase();
-  const clientPrice = Number(data.clientPrice);
-  const clientUid = data.clientUid;
-  const referralCode = data.referralCode; // may be undefined
+  const saleItemId: string = data.saleItemIdId;
+  const saleItemType: 'ecourse' | 'fullProgram' = data.saleItemType;
+  const clientPrice = Number(data.salePrice);
+  const clientCurrency = (data.currency as string).toUpperCase();
+  const clientUid = data.buyerUid;
+  const referralCode = data.referralCode; // may be null
 
-  if (!courseId) { // ensure we have a valid course ID string
-    return { error: 'No course ID! Valid course ID required to proceed' }
+  if (!saleItemId) { // ensure we have a valid sale item ID string
+    return { error: 'No sale item ID! Valid sale item ID is required to proceed' }
   }
 
   if (!clientCurrency) { // ensure we have a valid client currency
@@ -1187,33 +1138,49 @@ exports.stripeCreatePaymentIntent = functions
 
   try {
 
-    // Get course data from the DB to avoid client side tampering..
-    console.log(`Preparing Stripe payment intent. Retrieving course data for: ${courseId}`);
+    console.log(`Preparing Stripe payment intent. Retrieving item data for ${saleItemType}: ${saleItemId}`);
 
-    const courseSnapshot = await db.collection(`public-courses`)
-    .doc(courseId)
-    .get();
+    // Get item data from the DB to avoid client side tampering..
 
-    if (!courseSnapshot.exists) { // course must exist!
-      return { error: `Course ID: ${courseId} does not exist or unable to retrieve course info!` }
+    let lookupPath = '';
+    if (saleItemType === 'ecourse') {
+      lookupPath = `public-courses`;
+    } else if (saleItemType === 'fullProgram') {
+      lookupPath = `public-programs`;
     }
 
-    const course = courseSnapshot.data() as any;
+    const itemSnapshot = await db.collection(lookupPath)
+    .doc(saleItemId)
+    .get();
 
-    if (!course.price || !course.currency || !course.stripeId || !course.sellerUid || !course.title) { // valid course data must exist
-      return { error: `Insufficient data saved for course ${courseId}. Unable to proceed.`}
+    if (!itemSnapshot.exists) { // item must exist!
+      return { error: `${saleItemType} with ID: ${saleItemId} does not exist or unable to retrieve item info!` }
+    }
+
+    const saleItem = itemSnapshot.data() as any;
+
+    // as pricing variable data differs between ecourses and programs, make sure we get the correct server side price of the sale item
+    let saleItemPrice = -1;
+    if (saleItemType === 'ecourse') {
+      saleItemPrice = saleItem.price;
+    } else if (saleItemType === 'fullProgram') {
+      saleItemPrice = saleItem.fullPrice;
+    }
+
+    if (!saleItemPrice || !saleItem.currency || !saleItem.stripeId || !saleItem.sellerUid || !saleItem.title) { // valid item data must exist
+      return { error: `Insufficient item data saved for ${saleItemType} with ID: ${saleItemId}. Unable to proceed.`}
     }
 
     // Calculate price to charge the client
     // Should always match the client UI price, but setting server side to avoid tampering
 
     let amount: number; // this will be the actual charge amount (in client's own presentment currency)
-    const courseCurrency = (course.currency as string).toUpperCase();
+    const saleItemCurrency = (saleItem.currency as string).toUpperCase();
 
-    console.log('Client currency:', clientCurrency, 'Course currency:', courseCurrency);
+    console.log('Client currency:', clientCurrency, 'Sale item currency:', saleItemCurrency);
 
-    if (clientCurrency === courseCurrency) { // no currency conversion required
-      amount = Number(course.price);
+    if (clientCurrency === saleItemCurrency) { // no currency conversion required
+      amount = Number(saleItemPrice);
       console.log('No conversion required. Amount:', amount);
 
     } else { // currency conversion required
@@ -1223,11 +1190,11 @@ exports.stripeCreatePaymentIntent = functions
 
       const rates = ratesSnap.data() as any; // fetches a rates document
 
-      if (!rates[courseCurrency] || !rates[clientCurrency]) {
+      if (!rates[saleItemCurrency] || !rates[clientCurrency]) {
         return { error: 'Rates missing! Cannot convert price' }
       }
 
-      amount = Number((course.price / rates[courseCurrency.toUpperCase()]) * rates[clientCurrency.toUpperCase()]); // amount in client currency
+      amount = Number((saleItemPrice / rates[saleItemCurrency.toUpperCase()]) * rates[clientCurrency.toUpperCase()]); // amount in client currency
       console.log('Conversion required. Amount:', amount);
 
       if (!Number.isInteger(amount)) { // if price is not an integer
@@ -1239,9 +1206,9 @@ exports.stripeCreatePaymentIntent = functions
     }
 
     // Check that the client's presentment price is exactly the same as the charge price
-    console.log('Client price:', clientPrice, 'Course price:', amount);
+    console.log('Client price:', clientPrice, 'Sale item price:', amount);
     if (clientPrice !== amount) {
-      return { error: 'Price mismatch. The course price may have just been updated during your purchase. Please refresh the page and try again to ensure you see the most up to date price.' }
+      return { error: 'Price mismatch. The price may have just been updated during your purchase. Please refresh the page and try again to ensure you see the most up to date price.' }
     }
 
     // From this point all price calculations must occur in lowest denominator & integers only (cents / pence etc. no decimals)
@@ -1249,18 +1216,29 @@ exports.stripeCreatePaymentIntent = functions
     console.log('Amount in lowest denominator:', amount);
 
     // Calculate platform fee
-    let feeDecimal: number;
-    if (referralCode && referralCode === course.sellerUid) { // the seller referred this sale
-      feeDecimal = appFeeReferralDecimal; // use the referral (reduced) fee multiplier
-    } else { // the seller did not refer this sale
-      feeDecimal = appFeeDecimal; // use the std fee rate multiplier
+    let feeDecimal = 0;
+
+    // if the seller referred the sale...
+    if (referralCode && referralCode === saleItem.sellerUid) {
+      if (saleItemType === 'ecourse') {
+        feeDecimal = ecourseAppFeeReferralDecimal;
+      } else if (saleItemType === 'fullProgram') {
+        feeDecimal = programAppFeeReferralDecimal;
+      }
+    } else {
+      // the seller did not refer the sale
+      if (saleItemType === 'ecourse') {
+        feeDecimal = ecourseAppFeeDecimal;
+      } else if (saleItemType === 'fullProgram') {
+        feeDecimal = programAppFeeDecimal;
+      }
     }
     console.log('Platform fee calculated with multiplier:', feeDecimal);
 
     const appFee = Math.floor(amount * feeDecimal); // platform fee (always same currency as transaction) rounded DOWN to integer
     const netBalance = amount - appFee; // amount to send to connected account after platform fee (always same currency as transaction)
 
-    console.log(`Preparing payment intent.. Price: ${amount}, Currency: ${clientCurrency}, App Fee: ${appFee}, Destination: ${course.stripeId}`)
+    console.log(`Preparing payment intent.. Price: ${amount}, Currency: ${clientCurrency}, App Fee: ${appFee}, Destination: ${saleItem.stripeId}`)
 
     // Create the payment intent
     const paymentIntent = await stripe.paymentIntents.create({
@@ -1268,17 +1246,18 @@ exports.stripeCreatePaymentIntent = functions
       amount, // never set client side!
       currency: clientCurrency, // the client currency that the charge will be made in
       transfer_data: { // tells Stripe to create a 'destination' charge. See: https://stripe.com/docs/connect/destination-charges
-        destination: course.stripeId, // the connected account that should receive the funds.
+        destination: saleItem.stripeId, // the connected account that should receive the funds.
         amount: netBalance, // tells Stripe to use the 'transfer_data[amount] flow (better for multi currency ops)
-        
+
       },
-      statement_descriptor_suffix: courseId, // max 20 chars.
+      statement_descriptor_suffix: saleItemId, // note: max 20 chars. set by Stripe
       metadata: { // any additional data to save with the payment
-        course_id: courseId,
-        course_title: course.title,
-        course_image: course.image,
+        sale_item_type: saleItemType,
+        sale_item_id: saleItemId,
+        sale_item_title: saleItem.title,
+        sale_item_image: saleItem.image,
         client_UID: clientUid,
-        seller_UID: course.sellerUid,
+        seller_UID: saleItem.sellerUid,
         payment_type: 'lifecoach.io WEB',
         seller_referred: referralCode ? 'true' : 'false' // note: string as cannot be a boolean here
       }
@@ -1326,7 +1305,8 @@ exports.stripeWebhookEvent = functions
       // console.log(`PaymentIntent was successful! ${JSON.stringify(paymentIntent)}`);
 
       const clientUid = paymentIntent.metadata.client_UID;
-      const courseId = paymentIntent.metadata.course_id;
+      const saleItemId = paymentIntent.metadata.sale_item_id;
+      const saleItemType = paymentIntent.metadata.sale_item_type;
 
       // Transform the successful payment intent to remove any sensitive data that we don't want to store ourselves
       const successfulPayment = {
@@ -1348,13 +1328,19 @@ exports.stripeWebhookEvent = functions
         .create(successfulPayment);
         promises.push(promise1);
 
-        // Add the course ID of the purchased course to the user's auth token claims
-        // so the user can access content restricted by the paywall.
-        const promise2 = addCustomUserClaims(clientUid, { [courseId]: true }) as any;
+        // Add the item ID of the purchased item to the user's auth token claims
+        // so the user can access any content restricted by paywall.
+        const promise2 = addCustomUserClaims(clientUid, { [saleItemId]: true }) as any;
         promises.push(promise2);
 
-        const promise3 = recordCourseEnrollmentForStudent(clientUid, courseId, paymentIntent.metadata.course_title, paymentIntent.metadata.course_image);
-        promises.push(promise3);
+        // Record the appropriate purchase/enrollment for the client
+        if (saleItemType === 'ecourse') {
+          const promise3 = recordCourseEnrollmentForStudent(clientUid, saleItemId, paymentIntent.metadata.sale_item_title, paymentIntent.metadata.sale_item_image);
+          promises.push(promise3);
+        } else if (saleItemType === 'fullProgram') {
+          const promise3 = recordFullProgramEnrollmentForClient(clientUid, saleItemId, paymentIntent.metadata.sale_item_title, paymentIntent.metadata.sale_item_image);
+          promises.push(promise3);
+        }
 
         return Promise.all(promises);
 
@@ -1386,39 +1372,48 @@ exports.stripeWebhookEvent = functions
           const originalCharge = await stripe.charges.retrieve(transfer.source_transaction as string);
           // console.log('Original Charge:', originalCharge);
 
-          const sellerUID = originalCharge.metadata.seller_UID;
-          const courseID = originalCharge.metadata.course_id;
-          const clientUID = originalCharge.metadata.client_UID;
-          const sellerReferred = originalCharge.metadata.seller_referred; // will be string 'true' | 'false'
+          const originalSellerUid = originalCharge.metadata.seller_UID;
+          const originalSaleItemId = originalCharge.metadata.sale_item_id;
+          const originalSaleItemType = originalCharge.metadata.sale_item_type;
+          const originalClientUid = originalCharge.metadata.client_UID;
+          const originalSellerReferred = originalCharge.metadata.seller_referred; // will be string 'true' | 'false'
 
           // Check for required metadata on the original charge
-          if (!courseID) {
-            console.error('Stripe webhook transfer.received missing charge metadata course ID');
+          if (!originalSaleItemId) {
+            console.error('Stripe webhook transfer.received missing charge metadata sale item ID');
             return;
           }
-          if (!clientUID) {
+          if (!originalClientUid) {
             console.error('Stripe webhook transfer.received missing charge metadata client UID');
             return;
           }
-          if (!sellerUID) {
+          if (!originalSellerUid) {
             console.error('Stripe webhook transfer.received missing charge metadata seller UID');
             return;
-          }
-          if (!sellerReferred) {
-            console.error('')
           }
 
           // clone the original stripe transfer object and add a new key to track whether sale was seller referred
           const customTransferObj = JSON.parse(JSON.stringify(transfer));
-          customTransferObj.seller_referred = sellerReferred === 'true' ? true : false;
+          customTransferObj.seller_referred = originalSellerReferred === 'true' ? true : false;
 
           const promises = [];
 
-          const promise1 = recordCourseEnrollmentForCreator(sellerUID, courseID, customTransferObj, clientUID);
-          promises.push(promise1);
+          // if the transfer is related to an ecourse sale
+          if (originalSaleItemType === 'ecourse') {
+            const promise1 = recordCourseEnrollmentForCreator(originalSellerUid, originalSaleItemId, customTransferObj, originalClientUid);
+            promises.push(promise1);
 
-          const promise2 = updateCourseEnrollmentCounts(sellerUID, courseID, customTransferObj);
-          promises.concat(await promise2)
+            const promise2 = updateCourseEnrollmentCounts(originalSellerUid, originalSaleItemId, customTransferObj);
+            promises.concat(await promise2)
+
+            // if the transfer is related to a full program sale
+          } else if (originalSaleItemType === 'fullProgram') {
+            const promise1 = recordFullProgramEnrollmentForCreator(originalSellerUid, originalSaleItemId, customTransferObj, originalClientUid);
+            promises.push(promise1);
+
+            const promise2 = updateProgramEnrollmentCounts(originalSellerUid, originalSaleItemId, customTransferObj);
+            promises.concat(await promise2)
+          }
 
           await Promise.all(promises); // run concurrent ops
 
@@ -1582,7 +1577,7 @@ async function recordCourseEnrollmentForCreator(sellerUid: string, courseId: str
   // save the action to this person's history
   return db.collection(`users/${sellerUid}/people/${clientUid}/history`)
   .doc(timestampNow.toString())
-  .set({ action: 'enrolled_in_self_study_course' });
+  .set({ action: 'enrolled_in_self_study_course', courseId });
 }
 
 async function recordCourseEnrollmentForStudent(studentUid: string, courseId: string, courseTitle: string, courseImg: string) {
@@ -1649,12 +1644,103 @@ async function updateCourseEnrollmentCounts(creatorUid: string, courseId:string,
 }
 
 // ================================================================================
+// =====                     PROGRAM ENROLLMENT FUNCTIONS                    ======
+// ================================================================================
+
+async function recordFullProgramEnrollmentForCreator(sellerUid: string, programId: string, obj: any, clientUid: string) {
+  // Save the custom transfer object to the seller account to record the enrollment
+
+  const saleDate = new Date(obj.created * 1000);
+  const saleMonth = saleDate.getMonth() + 1; // go from zero index to jan === 1
+  const saleYear = saleDate.getFullYear();
+  const timestampNow = Math.round(new Date().getTime() / 1000);
+
+  await db.collection(`users/${sellerUid}/program-sales/${saleMonth}-${saleYear}/${programId}`)
+  .doc(obj.id)
+  .create(obj);
+
+  // save the person to the recipient's people (create if doesn't exist yet - it might)
+  await db.collection(`users/${sellerUid}/people`)
+  .doc(clientUid)
+  .set({ lastUpdated: timestampNow }, { merge: true }) // creates a real (not virtual) doc
+  .catch(err => console.log(err));
+
+  // save the action to this person's history
+  return db.collection(`users/${sellerUid}/people/${clientUid}/history`)
+  .doc(timestampNow.toString())
+  .set({ action: 'enrolled_in_full_program', programId });
+}
+
+async function recordFullProgramEnrollmentForClient(studentUid: string, programId: string, programTitle: string, programImg: string) {
+
+  // Add the program ID to the client's own purchased programs node.
+  // We can monitor this with a client side subscription to notify the user of the completed purchase.
+
+  await db.collection(`users/${studentUid}/purchased-programs`)
+  .doc(programId)
+  .set({
+    programId
+  }, { merge: true });
+
+  // trigger a mailchimp event
+  const event = {
+    name: 'program_enrollment',
+    properties: {
+      program_id: programId,
+      program_title: programTitle,
+      program_image: programImg
+    }
+  }
+  return logMailchimpEvent(studentUid, event); // log event
+}
+
+async function updateProgramEnrollmentCounts(creatorUid: string, programId:string, obj: any) {
+  // Accepts a custom transfer object
+  // Promises an array of Firebase write result promises
+
+  const incrementCount = admin.firestore.FieldValue.increment(1);
+  const incrementAmount = admin.firestore.FieldValue.increment(obj.amount);
+  const incrementCurrency = obj.currency;
+
+  const promises = [];
+
+  // Increment the total sales number & total lifetime sales amount for this program creator
+  const promise1 = db.collection(`users/${creatorUid}/program-sales/total-lifetime-program-sales/programs`)
+  .doc(programId)
+  .set({
+    [incrementCurrency]: {
+      lifetimeTotalSales: incrementCount,
+      lifetimeTotalAmount: incrementAmount
+    }
+  }, { merge: true });
+  promises.push(promise1);
+
+  // Increment public program enrollment count (counts total enrollments for a specific program)
+  const promise2 = db.collection(`program-enrollments`)
+  .doc(programId)
+  .set({
+    totalEnrollments: incrementCount
+  }, { merge: true });
+  promises.push(promise2);
+
+  // Increment public seller program enrollment count (counts enrollments across all seller programs)
+  const promise3 = db.collection(`seller-program-enrollments`)
+  .doc(creatorUid)
+  .set({
+    totalEnrollments: incrementCount
+  }, { merge: true });
+  promises.push(promise3);
+
+  return promises;
+}
+
+// ================================================================================
 // =====                              REFUNDS                                ======
 // ================================================================================
 
 /*
-  Triggered when a user requests a refund on a purchased course.
-  Request data should contain the original Stripe payment intent object.
+  Triggered when a user requests a refund on a purchased item.
+  Note: Request data should contain the original Stripe payment intent object (includes meta data).
 */
 exports.requestRefund = functions
 .runWith({memory: '1GB', timeoutSeconds: 300})
@@ -1676,7 +1762,7 @@ exports.requestRefund = functions
   try {
     const index = algolia.initIndex('prod_REFUNDS');
 
-    console.log(`Refund requested by user ${request.uid} for payment: ${JSON.stringify(pI)}`);
+    // console.log(`Refund requested by user ${request.uid} for payment: ${JSON.stringify(pI)}`);
 
     const promises = [] as any[];
 
@@ -1739,7 +1825,7 @@ exports.approveRefund = functions
       expand: ['transfer_reversal']
     });
 
-    console.log('Refund:', refund);
+    // console.log('Refund:', refund);
 
     if (refund && refund.status === 'succeeded') {
 
@@ -1760,7 +1846,7 @@ exports.approveRefund = functions
       .set(request);
       promises.push(promise2);
 
-      // Update refunded request in cleint's history
+      // Update refunded request in client's history
       const promise3 = db.collection(`users/${clientUid}/account/account${clientUid}/refunds`)
       .doc(pI.id)
       .set(request); // overwrite the original request with the newly updated request
@@ -1770,7 +1856,7 @@ exports.approveRefund = functions
       const date = new Date(refund.created * 1000);
       const month = date.getMonth() + 1;
       const year = date.getFullYear();
-      const promise4 = db.collection(`users/${sellerUid}/refunds/${month}-${year}/${pI.metadata.course_id}`)
+      const promise4 = db.collection(`users/${sellerUid}/refunds/${month}-${year}/${pI.metadata.sale_item_id}`)
       .doc(refund.id)
       .set({
         refund_id: refund.id,
@@ -1783,23 +1869,46 @@ exports.approveRefund = functions
       // Update the sellers totals
       const decrementAmount = admin.firestore.FieldValue.increment(-(refund.transfer_reversal as any).amount);
 
-      const promise5 = db.collection(`users/${sellerUid}/sales/${month}-${year}/${pI.metadata.course_id}`)
-      .doc((refund.transfer_reversal as any).transfer)
-      .set({
-        amount_reversed: (refund.transfer_reversal as any).amount // update the amount reversed on the original transfer object
-      }, { merge: true });
-      promises.push(promise5);
+      // If refunding an ecourse...
+      if (pI.metadata.sale_item_type === 'ecourse') {
+        const promise5 = db.collection(`users/${sellerUid}/sales/${month}-${year}/${pI.metadata.sale_item_id}`)
+        .doc((refund.transfer_reversal as any).transfer)
+        .set({
+          amount_reversed: (refund.transfer_reversal as any).amount // update the amount reversed on the original transfer object
+        }, { merge: true });
+        promises.push(promise5);
 
-      const promise6 = db.collection(`users/${sellerUid}/sales`)
-      .doc('totals')
-      .set({
-        [pI.metadata.course_id]: {
-          [(refund.transfer_reversal as any).currency]: {
-            lifetimeTotalAmount: decrementAmount // decrement lifetitme total sales by refunded amount
+        const promise6 = db.collection(`users/${sellerUid}/sales`)
+        .doc('totals')
+        .set({
+          [pI.metadata.sale_item_id]: {
+            [(refund.transfer_reversal as any).currency]: {
+              lifetimeTotalAmount: decrementAmount // decrement lifetitme total sales by refunded amount
+            }
           }
-        }
-      }, { merge: true });
-      promises.push(promise6);
+        }, { merge: true });
+        promises.push(promise6);
+
+      // If refunding a full program...
+      } else if (pI.metadata.sale_item_type === 'fullProgram') {
+        const promise5 = db.collection(`users/${sellerUid}/program-sales/${month}-${year}/${pI.metadata.sale_item_id}`)
+        .doc((refund.transfer_reversal as any).transfer)
+        .set({
+          amount_reversed: (refund.transfer_reversal as any).amount // update the amount reversed on the original transfer object
+        }, { merge: true });
+        promises.push(promise5);
+
+        const promise6 = db.collection(`users/${sellerUid}/program-sales`)
+        .doc('totals')
+        .set({
+          [pI.metadata.sale_item_id]: {
+            [(refund.transfer_reversal as any).currency]: {
+              lifetimeTotalAmount: decrementAmount // decrement lifetitme total sales by refunded amount
+            }
+          }
+        }, { merge: true });
+        promises.push(promise6);
+      }
 
       // Update Algolia
       request.objectID = pI.id;
@@ -1866,7 +1975,7 @@ exports.adminApproveCourseReview = functions
 
     // create an approved course doc to ensure only admin approved courses get updated by creators
     // Important! Do this before writing to the user's private courses node to ensure correct
-    // data gets copied to public & paywall protected areas on update of the provate node.
+    // data gets copied to public & paywall protected areas on update of the private node.
     await db.collection(`approved-courses`)
     .doc(courseId)
     .create({ 
@@ -1935,16 +2044,16 @@ exports.adminRejectCourseReview = functions
 
   // safety checks
   if (!courseId) {
-    return { error: 'Cloud function adminApproveCourseReview error: missing course ID' }
+    return { error: 'Cloud function adminRejectCourseReview error: missing course ID' }
   }
   if (!userId) {
-    return { error: 'Cloud function adminApproveCourseReview error: missing user ID' }
+    return { error: 'Cloud function adminRejectCourseReview error: missing user ID' }
   }
   if (!reviewRequest) {
-    return { error: 'Cloud function adminApproveCourseReview error: missing review request' }
+    return { error: 'Cloud function adminRejectCourseReview error: missing review request' }
   }
   if (!reviewRequest.sellerUid) {
-    return { error: 'Cloud function adminApproveCourseReview error: missing review request seller UID' }
+    return { error: 'Cloud function adminRejectCourseReview error: missing review request seller UID' }
   }
 
   // update the review request object
@@ -1977,6 +2086,173 @@ exports.adminRejectCourseReview = functions
       name: 'admin_rejected_course',
       properties: {
         course_title: course.title,
+        reject_reason: reviewRequest.rejectData.reason
+      }
+    }
+    await logMailchimpEvent(reviewRequest.sellerUid, event); // log event
+
+    return { success: true } // success
+
+  } catch (err) {
+    console.error(err);
+    return { error: err }
+  }
+});
+
+/*
+  Attempts to approve a coaching program in review.
+*/
+exports.adminApproveProgramReview = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.https
+.onCall( async (data, context) => {
+
+  const programId = data.programId;
+  const userId = data.userId; // reviewer not seller!
+  const reviewRequest = data.reviewRequest;
+  const approvedDate = Math.round(new Date().getTime() / 1000); // unix timestamp
+
+  // safety checks
+  if (!programId) {
+    return { error: 'Cloud function adminApproveProgramReview error: missing program ID' }
+  }
+  if (!userId) {
+    return { error: 'Cloud function adminApproveProgramReview error: missing user ID' }
+  }
+  if (!reviewRequest) {
+    return { error: 'Cloud function adminApproveProgramReview error: missing review request' }
+  }
+  if (!reviewRequest.sellerUid) {
+    return { error: 'Cloud function adminApproveProgramReview error: missing review request seller UID' }
+  }
+
+  try {
+
+    // attempt to read program data
+    const programSnap = await db.collection(`users/${reviewRequest.sellerUid}/programs`)
+    .doc(programId)
+    .get();
+
+    if (!programSnap.exists) {
+      console.error('Cloud function onNewProgramReviewApproved error: Unable to read program.')
+      return {error: 'Unable to read program data. Operation failed.'};
+    }
+
+    const program = programSnap.data() as any;
+
+    // create an approved program doc to ensure only admin approved programs get updated by creators
+    // Important! Do this before writing to the user's private programs node to ensure correct
+    // data gets copied to public & paywall protected areas on update of the private node.
+    await db.collection(`approved-programs`)
+    .doc(programId)
+    .create({
+      programId,
+      approved: approvedDate,
+      reviewerUid: userId
+    });
+
+    const batch = db.batch(); // prepare to execute multiple ops atomically
+
+    // update user's private programs node with updated program object
+    const privateProgramCopy = JSON.parse(JSON.stringify(program));
+    const privateReviewRequest = JSON.parse(JSON.stringify(reviewRequest));
+    privateReviewRequest.status = 'approved';
+    privateReviewRequest.approved = approvedDate;
+    privateReviewRequest.reviewerUid = userId;
+    privateProgramCopy.adminApproved = true;
+    privateProgramCopy.reviewRequest = privateReviewRequest;
+    privateProgramCopy.lastUpdated = approvedDate;
+    const privateProgramRef = db.collection(`users/${reviewRequest.sellerUid}/programs`).doc(programId);
+    batch.set(privateProgramRef, privateProgramCopy, { merge: true });
+
+
+    // delete review request from the admin collection
+    const adminRef = db.collection(`admin/review-requests/programs`).doc(programId);
+    batch.delete(adminRef) // triggers onDelete monitor function to update count
+
+    await batch.commit(); // execute batch ops. Any error should trigger catch.
+
+    // add the program id to the seller's custom claims so they can access the program
+    await addCustomUserClaims(program.sellerUid, { [programId]: true });
+
+    // delete the draft program record in Algolia
+    const index = algolia.initIndex('prod_DRAFT_PROGRAMS');
+    await index.deleteObject(programId);
+
+    // trigger a mailchimp event to log program going live
+    const event = {
+      name: 'admin_approved_program',
+      properties: {
+        program_title: program.title
+      }
+    }
+    await logMailchimpEvent(program.sellerUid, event); // log event
+
+    return { success: true } // success if we got this far!
+
+  } catch (err) {
+    console.error(err);
+    return { error: err }
+  }
+});
+
+/*
+  Attempts to reject a coaching program in review.
+*/
+exports.adminRejectProgramReview = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.https
+.onCall( async (data, context) => {
+
+  const programId = data.programId;
+  const userId = data.userId; // reviewer not seller!
+  const reviewRequest = data.reviewRequest;
+  const rejectedDate = Math.round(new Date().getTime() / 1000); // unix timestamp
+
+  // safety checks
+  if (!programId) {
+    return { error: 'Cloud function adminRejectProgramReview error: missing program ID' }
+  }
+  if (!userId) {
+    return { error: 'Cloud function adminRejectProgramReview error: missing user ID' }
+  }
+  if (!reviewRequest) {
+    return { error: 'Cloud function adminRejectProgramReview error: missing review request' }
+  }
+  if (!reviewRequest.sellerUid) {
+    return { error: 'Cloud function adminRejectProgramReview error: missing review request seller UID' }
+  }
+
+  // update the review request object
+  reviewRequest.status = 'rejected';
+  reviewRequest.rejected = rejectedDate;
+  reviewRequest.reviewerUid = userId;
+
+  try {
+
+    const batch = db.batch(); // prepare to execute multiple ops atomically
+
+    // update user's private program node
+    const privateRef = db.collection(`users/${reviewRequest.sellerUid}/programs`).doc(programId);
+    batch.set(privateRef, { reviewRequest }, { merge: true });
+
+    // delete review request from the admin collection (user must make alterations and re-submit for review)
+    const adminRef = db.collection(`admin/review-requests/programs`).doc(programId);
+    batch.delete(adminRef) // triggers onDelete monitor function to update count
+
+    await batch.commit(); // execute batch ops. Any error should trigger catch.
+
+    // attempt to read program data
+    const programSnap = await db.collection(`users/${reviewRequest.sellerUid}/programs`)
+    .doc(programId)
+    .get();
+
+    // log mailchimp event
+    const program = programSnap.data() as any;
+    const event = {
+      name: 'admin_rejected_program',
+      properties: {
+        program_title: program.title,
         reject_reason: reviewRequest.rejectData.reason
       }
     }
@@ -2923,6 +3199,289 @@ exports.onWritePrivateServices = functions
   return index.saveObject(recordToSend);
 });
 
+/*
+  Monitor new admin programs in review (review requests).
+*/
+exports.onNewAdminProgramReviewRequest = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.firestore
+.document(`admin/review-requests/programs/{programId}`)
+.onCreate( async (snap, context) => {
+
+  const reviewRequest = snap.data() as any
+
+  const increment = admin.firestore.FieldValue.increment(1);
+
+  db.collection(`admin`)
+  .doc('totalProgramsInReview')
+  .set({
+    totalRecords: increment
+  }, { merge: true })
+  .catch(err => console.error(err));
+
+  // attempt to read program data
+  if (reviewRequest) {
+    const programSnap = await db.collection(`users/${reviewRequest.sellerUid}/programs`)
+    .doc(reviewRequest.programId)
+    .get();
+
+    const program = programSnap.data() as any;
+
+    if (program) {
+      // record a mailchimp event
+      const event = {
+        name: 'program_submitted_for_review',
+        properties: {
+          program_title: program.title,
+        }
+      }
+      return logMailchimpEvent(program.sellerUid, event); // log event
+    }
+
+  }
+
+});
+
+/*
+  Monitor deleted admin programs in review (review requests).
+*/
+exports.onDeleteAdminProgramReviewRequest = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.firestore
+.document(`admin/review-requests/programs/{programId}`)
+.onDelete((snap, context) => {
+  const decrement = admin.firestore.FieldValue.increment(-1);
+  return db.collection(`admin`)
+  .doc('totalProgramsInReview')
+  .set({
+    totalRecords: decrement
+  }, { merge: true })
+  .catch(err => console.error(err));
+});
+
+/*
+  Monitor public programs node.
+  Sync with Algolia DB.
+*/
+exports.onWritePublicPrograms = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.firestore
+.document(`/public-programs/{programId}`)
+.onWrite((change, context) => {
+  const index = algolia.initIndex('prod_PROGRAMS');
+  const programId = context.params.programId;
+  const program = change.after.data() as any;
+  // Record Removed.
+  if (!program) {
+    return index.deleteObject(programId);
+  }
+  // Record added/updated.
+  const recordToSend = {
+    objectID: programId,
+    title: program.title,
+    subtitle: program.subtitle,
+    category: program.category,
+    language: program.language,
+    level: program.level,
+    subject: program.subject,
+    pricingStrategy: program.pricingStrategy,
+    fullPrice: program.fullPrice,
+    pricePerSession: program.pricePerSession,
+    currency: program.currency,
+    duration: program.duration,
+    numSessions: program.numSessions,
+    image: program.image,
+    promoVideo: program.promoVideo,
+    coachName: program.coachName,
+    coachPhoto: program.coachPhoto,
+    isTest: program.isTest, // will only be true if this program is a test (admin created)
+    approved: program.approved,
+  };
+  // Update Algolia.
+  return index.saveObject(recordToSend);
+});
+
+/*
+  Monitor users' private programs node.
+  If program is admin approved, sync with public programs.
+*/
+exports.onWritePrivateUserProgram = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.firestore
+.document(`/users/{userId}/programs/{programId}`)
+.onWrite( async (change, context) => {
+  const programId = context.params.programId;
+  const program = change.after.data() as any;
+  const programBefore = change.before.data() as any;
+
+  // Record created
+  if (program && !programBefore) {
+    // sync with Algolia draft programs index
+    const index = algolia.initIndex('prod_DRAFT_PROGRAMS');
+    const recordToSend = {
+      objectID: programId,
+      sellerUid: program.sellerUid,
+      isTest: program.isTest ? true : false
+    }
+    await index.saveObject(recordToSend);
+
+    // record a mailchimp event
+    const event = {
+      name: 'new_program_created',
+      properties: {
+        program_title: program.title,
+      }
+    }
+    await logMailchimpEvent(program.sellerUid, event); // log event
+  }
+
+  // Record Removed.
+  if (!program) {
+    // remove program from sale but leave program data behind the paywall as users have paid for it
+    // and shouldn't lose access.
+    await db.collection('public-programs')
+    .doc(programId)
+    .delete()
+    .catch(err => console.error(err));
+
+    // if review request still waiting, delete it
+    await db.collection('admin/review-requests/programs')
+    .doc(programId)
+    .delete();
+
+    // delete the draft program record in Algolia (if it exists)
+    const index = algolia.initIndex('prod_DRAFT_PROGRAMS');
+    return index.deleteObject(programId);
+  }
+
+  // Record added/updated.
+  if (!program.adminApproved) { // check if admin approved
+    return;
+  }
+
+  const adminSnap = await db.collection(`approved-programs`)
+  .doc(programId)
+  .get();
+
+  if (!adminSnap.exists) { // double check if admin approved (this doc can't be tampered with client side)
+    return;
+  }
+
+  // optional: remove any paywall protected data now. (NOT currently used)
+
+  try {
+    // Sync with public-programs.
+    const batch = db.batch(); // prepare to execute multiple ops atomically
+
+    // copy non-paywall protected program data in public programs node (to allow browse & purchase)
+    const publicData = {
+      programId,
+      approved: program.reviewRequest.approved ? program.reviewRequest.approved : null,
+      pricingStrategy: program.pricingStrategy,
+      currency: program.currency ? program.currency : null,
+      fullPrice: program.fullPrice ? program.fullPrice : null,
+      pricePerSession: program.pricePerSession ? program.pricePerSession : null,
+      sellerUid: program.sellerUid,
+      coachName: program.coachName,
+      coachPhoto: program.coachPhoto,
+      stripeId: program.stripeId ? program.stripeId : null,
+      title: program.title,
+      subtitle: program.subtitle,
+      description: program.description,
+      language: program.language,
+      category: program.category,
+      level: program.level,
+      subject: program.subject,
+      image: program.image,
+      promoVideo: program.promoVideo ? program.promoVideo : null,
+      lastUpdated: program.lastUpdated,
+      learningPoints: program.learningPoints ? program.learningPoints : null,
+      requirements: program.requirements ? program.requirements : null,
+      targets: program.targets ? program.targets : null,
+      isTest: program.isTest ? true : false, // will only be true if this program is a test (admin created)
+    };
+    const publicRef = db.collection(`public-programs`).doc(programId);
+    batch.set(publicRef, publicData, { merge: true });
+
+    // copy program object as is into paywall protected node (will be available when purchased!)
+    const lockedRef = db.collection(`locked-program-content`).doc(programId);
+    batch.set(lockedRef, program, { merge: true });
+
+    return batch.commit(); // execute batch ops. Any error should trigger catch.
+  } catch (err) {
+    console.error(err);
+    return;
+  }
+
+});
+
+/*
+  Monitor program user reviews.
+*/
+exports.onWriteProgramReview = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.firestore
+.document(`program-reviews/{reviewId}`)
+.onWrite( async (change, context) => {
+
+  const index = algolia.initIndex('prod_PROGRAM_REVIEWS');
+  const reviewId = context.params.reviewId;
+  const before = change.before.data() as any;
+  const review = change.after.data() as any;
+
+  // Record Removed.
+
+  if (!review) {
+
+    // decrement total review count
+    if (before) {
+      const decrementCount = admin.firestore.FieldValue.increment(-1);
+      await db.collection(`public-programs`)
+      .doc(review.programId)
+      .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: decrementCount }, { merge: true })
+      .catch(err => console.error(err));
+    }
+
+    // sync with Algolia
+    return index.deleteObject(reviewId);
+  }
+
+  // Record added/updated
+
+  // if rating has been updated, decrement the old value before incrementing the new value
+  if (before && before.starValue && review && review.starValue && (before.starValue !== review.starValue)) {
+    const decrementCount = admin.firestore.FieldValue.increment(-1);
+    await db.collection(`public-programs`)
+    .doc(review.programId)
+    .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: decrementCount }, { merge: true })
+    .catch(err => console.error(err));
+  }
+
+  // increment total review count to allow cheaper lookups
+  const incrementCount = admin.firestore.FieldValue.increment(1);
+  await db.collection(`public-programs`)
+  .doc(review.programId)
+  .set({ [`total${getRatingAsText(review.starValue)}StarReviews`]: incrementCount }, { merge: true })
+  .catch(err => console.error(err));
+
+  // sync with Algolia
+  const recordToSend = {
+    objectID: reviewId,
+    programId: review.programId,
+    lastUpdated: review.lastUpdated,
+    reviewerUid: review.reviewerUid,
+    reviewerFirstName: review.reviewerFirstName,
+    reviewerLastName: review.reviewerLastName,
+    reviewerPhoto: review.reviewerPhoto ? review.reviewerPhoto : null,
+    sellerUid: review.sellerUid,
+    starValue: review.starValue,
+    summary: review.summary ? review.summary : null,
+    summaryExists: review.summary ? true : false,
+  };
+  // Update Algolia.
+  return index.saveObject(recordToSend);
+});
+
 // ================================================================================
 // =====                                                                     ======
 // =====                         ADMIN SPECIAL OPS                           ======
@@ -2978,6 +3537,81 @@ exports.updateAllProfilesInSequence = functions
   }
 });
 
+exports.getTwilioToken = functions
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
+  .onCall(async (data: any, context?) => {
+
+    const timeOfStart = data.timeOfStart;
+    const currentTime = Date.now();
+    const uid = data.uid;
+    const room = data.room;
+    const duration = data.duration;
+    if ( (currentTime - timeOfStart > 60000 )|| ((timeOfStart + duration) < currentTime) ) {
+      return {error: 'session can`t be started or it has already been ended'}
+    }
+
+    try {
+
+      const res = await fetch(`https://getvideotoken-9623.twil.io/vide-token?uid=${uid}&room=${room}&timeOfStart${timeOfStart}&duration=${duration}`);
+
+      const json = await res.json()
+      // @ts-ignore
+      return {json} // success
+
+    } catch (err) {
+      console.error(err);
+      return {error: err}
+    }
+
+  });
+
+exports.getInfoAboutCurrentVideoSession = functions
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
+  .onCall(async (data: any, context?) => {
+
+    try {
+      const docSnapshot = await db.collection(`/ordered-sessions/all/sessions`)
+        .doc(data.docId)
+        .get();
+
+      const sessionObject = docSnapshot.exists ? docSnapshot.data() : undefined;
+
+      if (sessionObject) {
+
+        if (sessionObject.start.seconds * 1000 > Date.now()) {
+          return {sessionStatus: 'NOT_STARTED_YET'};
+        }
+        if (sessionObject.end.seconds * 1000 < Date.now()) {
+          return {sessionStatus: 'IS_OVER'};
+        }
+        return {sessionStatus: 'IN_PROGRESS', timeLeft: sessionObject.end.seconds * 1000 - Date.now()};
+      } else {
+        return {sessionStatus: 'SESSION_NOT_FOUND'};
+      }
+    } catch (err) {
+      console.error(err);
+      return {error: err}
+    }
+
+  });
+
+exports.abortVideoSession = functions
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
+  .onCall(async (data: any, context?) => {
+    try {
+      await client.video.rooms(data.roomID)
+        .update({status: 'completed'})
+      return {success: true};
+    } catch (err) {
+      console.error(err);
+      return {error: err}
+    }
+  });
+
+
 // *** TEMP TEMP TEMP ***
 function specialities() {
   return [
@@ -2995,28 +3629,3 @@ function specialities() {
     {id: '012', itemName: 'Productivity & Personal Organisation'}
   ];
 }
-exports.getTwilioToken = functions
-  .runWith({memory: '1GB', timeoutSeconds: 300})
-  .https
-  .onCall( async (data: any, context?) => {
-
-    const uid = data.uid;
-    const room = data.room;
-    const timeOfStart = data.timeOfStart;
-    const duration = data.duration;
-
-    try {
-
-      const res = await fetch(`https://getvideotoken-9623.twil.io/vide-token?uid=${uid}&room=${room}&timeOfStart${timeOfStart}&duration=${duration}`);
-
-      // console.log('Stripe login link result:', JSON.stringify(res));
-      const json = await res.json()
-      // @ts-ignore
-      return { json } // success
-
-    } catch (err) {
-      console.error(err);
-      return { error: err }
-    }
-
-  });

@@ -1,0 +1,12 @@
+.time{
+  color: red;
+}
+.session-card{
+  //min-width: 20vw;
+  &_new {
+    color:green;
+  }
+  &_now {
+    color: yellow;
+  }
+}

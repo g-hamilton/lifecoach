@@ -2,6 +2,7 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {DataService} from '../../services/data.service';
 import {AuthService} from '../../services/auth.service';
 import {Subscription} from 'rxjs';
+import {map} from 'rxjs/operators';
 
 @Component({
   selector: 'app-reserved-sessions',
@@ -35,7 +36,10 @@ export class ReservedSessionsComponent implements OnInit, OnDestroy {
           console.log('ID is ', this.uid);
 
           this.subscriptions.add(
-            this.dataService.getUserReservedEvents(this.uid).subscribe(next => {
+            this.dataService.getUserReservedEvents(this.uid).pipe(
+          // @ts-ignore
+              map( i => i.sort((a, b) => a.timeOfReserve - b.timeOfReserve))
+            ).subscribe(next => {
               console.log(next);
               if (next) {
                 this.reservedEvents = next;
@@ -46,9 +50,9 @@ export class ReservedSessionsComponent implements OnInit, OnDestroy {
             })
           );
 
-          this.dataService.getTestDocFromReference(this.uid)
-            .then(e => console.log(e))
-            .catch(e => console.log(e));
+          // this.dataService.getTestDocFromReference(this.uid)
+          //   .then(e => console.log(e))
+          //   .catch(e => console.log(e));
 
         }
       })

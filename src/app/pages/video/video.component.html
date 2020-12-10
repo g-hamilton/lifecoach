@@ -1,43 +1,39 @@
 <div class="content">
-  <div *ngIf="this.orderedSessions.length; else sessions">
-    <h2>Your ordered sessions</h2>
-    <div *ngFor="let session of orderedSessions">
-      <h2>{{session.sessionId}}</h2>
-      <p> Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-        Alias at aut cum cumque laboriosam obcaecati perferendis porro quod rem tempora!</p>
-      <a [routerLink]="[session.sessionId]">I AM LINK</a>
-      <button type="button" (click)="redirectToSessionIdUrl(session)"
-              class="btn btn-fill btn-round btn-primary mr-2 mb-2">
-        Go To Session Room
-      </button>
-    </div>
+  <div *ngIf="this.orderedSessions.length && this.uid; else sessions">
+    <h1>Your ordered sessions</h1>
+    <div class="row justify-content-center">
+        <app-video-session-card
+          [className]="'col-md-3 card py-5 px-4 mx-2 my-2'"
+          *ngFor="let session of orderedSessions"
+          [sessionId]="session.sessionId"
+          [sessionStartTime]="session.start"
+        ></app-video-session-card>
+      </div>
     <hr>
   </div>
-  <div *ngIf="this.coachingSessions.length; else coachSessions">
-    <h2>Sessions, where You are coaching</h2>
+  <div *ngIf="this.coachingSessions.length  && this.uid; else coachSessions">
+    <h1>Sessions, where You are coaching</h1>
     <hr>
-    <div *ngFor="let session of this.coachingSessions">
-      <h2>{{session.sessionId}}</h2>
-      <p> Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-        Alias at aut cum cumque laboriosam obcaecati perferendis porro quod rem tempora!</p>
-      <a [routerLink]="[session.sessionId]">I AM LINK</a>
-      <button type="button" (click)="redirectToSessionIdUrl(session)"
-              class="btn btn-fill btn-round btn-primary mr-2 mb-2">
-        Go To Session Room
-      </button>
+    <div class="row justify-content-center">
+        <app-video-session-card *ngFor="let session of this.coachingSessions"
+          [className]="'col-md-3 card py-5 px-4 mx-2 my-2'"
+          [sessionId]="session.sessionId"
+          [sessionStartTime]="session.start"></app-video-session-card>
     </div>
-    <br><hr>
+    <br>
+    <hr>
   </div>
   <ng-template #sessions>
-    <h2>
-      You`ve ordered 0 sessions.
-    </h2>
+    <h3>
+      You have no ordered sessions.
+    </h3>
+    <br>
     <hr>
   </ng-template>
   <ng-template #coachSessions>
-    <h2>
+    <h3>
       Looks like nobody ordered Your session yet.
-    </h2>
+    </h3>
     <hr>
   </ng-template>
 </div>

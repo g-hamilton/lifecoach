@@ -23,7 +23,7 @@
                                             <tr>
                                             <th> Requested </th>
                                             <th> Purchased </th>
-                                            <th> Course ID </th>
+                                            <th> Item ID </th>
                                             <th> Amount </th>
                                             <th> Currency </th>
                                             <th> Reason </th>
@@ -35,7 +35,7 @@
                                             <tr *ngFor="let hit of hits" class="">
                                             <td> {{ timestampToDate(hit.created) }} </td>
                                             <td> {{ timestampToDate(hit.paymentIntent.created) }} </td>
-                                            <td> {{ hit.paymentIntent.metadata.course_id }} </td>
+                                            <td> {{ hit.paymentIntent.metadata.sale_item_id }} </td>
                                             <td> {{ hit.paymentIntent.amount / 100 }} </td>
                                             <td> {{ (hit.paymentIntent.currency).toUpperCase() }} </td>
                                             <td> {{ hit.formData.reason }} </td>

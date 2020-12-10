@@ -54,6 +54,7 @@ import { ProfileVideoUploaderComponent } from '../components/profile-video-uploa
 import { ProfileVideoUploadTaskComponent } from '../components/profile-video-upload-task/profile-video-upload-task.component';
 import { SelectCurrencyComponent } from './select-currency/select-currency.component';
 import { NewCourseComponent } from './new-course/new-course.component';
+import { NewProgramComponent } from './new-program/new-program.component';
 import { CourseSectionComponent } from './course-section/course-section.component';
 import { CourseLecturesNavigatorComponent } from './course-lectures-navigator/course-lectures-navigator.component';
 import { CourseLectureComponent } from './course-lecture/course-lecture.component';
@@ -104,6 +105,19 @@ import { CalendarComponent } from './calendar/calendar.component';
 import { CalendarHeaderComponent } from './calendar-header/calendar-header.component';
 import * as moment from 'moment';
 import { PersonHistoryTimelineComponent } from './person-history-timeline/person-history-timeline.component';
+import { ProgramOutlineComponent } from './program-outline/program-outline.component';
+import { ProgramLandingPageComponent } from './program-landing-page/program-landing-page.component';
+import { ProgramPromoVideoUploaderComponent } from './program-promo-video-uploader/program-promo-video-uploader.component';
+import { ProgramPromoVideoUploadTaskComponent } from './program-promo-video-upload-task/program-promo-video-upload-task.component';
+import { ProgramSubmitComponent } from './program-submit/program-submit.component';
+import { ProgramPromoteComponent } from './program-promote/program-promote.component';
+import { ProgramStarsComponent } from './program-stars/program-stars.component';
+import { ProgramCoachComponent } from './program-coach/program-coach.component';
+import { ProgramFeedbackComponent } from './program-feedback/program-feedback.component';
+import { ProgramBrowseReviewsComponent } from './program-browse-reviews/program-browse-reviews.component';
+import { ProgramContentComponent } from './program-content/program-content.component';
+import { ProgramMoreComponent } from './program-more/program-more.component';
+import {VideoSessionCardComponent} from "./video-session-card/video-session-card.component";
 
 export function momentAdapterFactory() {
   return adapterFactory(moment);
@@ -210,7 +224,22 @@ export function momentAdapterFactory() {
     CalendarHeaderComponent,
     PersonHistoryTimelineComponent,
     AdminVideoUploaderComponent,
-    AdminVideoUploadTaskComponent
+    AdminVideoUploadTaskComponent,
+    VideoSessionCardComponent
+    AdminVideoUploadTaskComponent,
+    NewProgramComponent,
+    ProgramOutlineComponent,
+    ProgramLandingPageComponent,
+    ProgramPromoVideoUploaderComponent,
+    ProgramPromoVideoUploadTaskComponent,
+    ProgramSubmitComponent,
+    ProgramPromoteComponent,
+    ProgramStarsComponent,
+    ProgramCoachComponent,
+    ProgramFeedbackComponent,
+    ProgramBrowseReviewsComponent,
+    ProgramContentComponent,
+    ProgramMoreComponent
   ],
   exports: [
     TabsModule,
@@ -295,7 +324,22 @@ export function momentAdapterFactory() {
     CalendarHeaderComponent,
     PersonHistoryTimelineComponent,
     AdminVideoUploaderComponent,
-    AdminVideoUploadTaskComponent
+    AdminVideoUploadTaskComponent,
+    VideoSessionCardComponent
+    AdminVideoUploadTaskComponent,
+    NewProgramComponent,
+    ProgramOutlineComponent,
+    ProgramLandingPageComponent,
+    ProgramPromoVideoUploaderComponent,
+    ProgramPromoVideoUploadTaskComponent,
+    ProgramSubmitComponent,
+    ProgramPromoteComponent,
+    ProgramStarsComponent,
+    ProgramCoachComponent,
+    ProgramFeedbackComponent,
+    ProgramBrowseReviewsComponent,
+    ProgramContentComponent,
+    ProgramMoreComponent
   ]
 })
 export class ComponentsModule {}

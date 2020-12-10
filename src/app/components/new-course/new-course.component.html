@@ -2,21 +2,23 @@
     <div class=" col-md-8">
         <div class="card">
             <div class="card-body">
-              <h4 class="card-title"> Let's give your course a title! </h4>
-              <h6 class="card-subtitle mb-4 text-muted"> It's ok if you can't think of a good title now. You can change it later. </h6>
+              <h4 class="card-title"> Let's give your eCourse a title! </h4>
+              <h6 class="card-subtitle mb-4 text-muted"> You can change your title at any time. </h6>
               <div class=" p-3">
-                <a href="https://lifecoach.freshdesk.com/a/solutions/articles/47001124010" target="_blank">
-                    <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> How to choose a great title </span>
-                </a>
+                <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> For best results, choose a short, goal or outcome focussed title 
+                    that hints at what clients can expect to achieve by completing your eCourse. Need a little help? 
+                    <a href="https://lifecoach.freshdesk.com/a/solutions/articles/47001124010" target="_blank">
+                        Read more.
+                    </a>
+                </p>
                 <div class="mt-3">
                     <form *ngIf="newCourseForm" [formGroup]="newCourseForm" (submit)="onSubmit()">
 
                         <div
                         class="input-group no-symbol"
                         [ngClass]="{
-                            'has-danger':
-                            ((focusTouched || saving) && courseF.title.value != '' && courseF.title.errors) ||
-                            (courseF.title.value != '' && courseF.title.errors),
+                            'has-danger': (((focusTouched && courseF.title.value != '') || saveAttempt) && courseF.title.errors),
                             'has-success': !courseF.title.errors
                         }">
                             <input
@@ -32,8 +34,7 @@
                               </span>
                             </div>
                         </div>
-                        <div *ngIf="((focusTouched || saving) && courseF.title.value != '' && courseF.title.errors) ||
-                            (courseF.title.value != '' && courseF.title.errors)">
+                        <div *ngIf="(((focusTouched && courseF.title.value != '') || saveAttempt) && courseF.title.errors)">
                             <label
                             *ngFor="let error of objKeys(courseF.title.errors)"
                             class="error custom-error-label"

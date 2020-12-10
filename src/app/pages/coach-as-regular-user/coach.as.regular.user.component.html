@@ -1,0 +1,92 @@
+<div class=" content">
+
+    <h5 class=" title"> My Journey
+        <a href="" target="_blank">
+            <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> What's this? </span>
+        </a>
+    </h5>
+
+    <div class=" row">
+        <div class=" col">
+            <div class=" card">
+                <div class=" card-body">
+                    <p>
+                        Did you know that as a Coach, you can enrol in coaching programs, eCourses & services, just 
+                        like any other Lifecoach user.
+                    </p>
+                    <p>
+                        Any coaching programs, eCourses or services that you have purchased or enrolled in as 
+                        part of your own journey will appear below.
+                    </p>
+                    <!-- <p>
+                        Not sure how? <a href="" target="_blank">
+                        Read the guide.</a>
+                    </p> -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- eCourses -->
+    <div>
+        <div class=" row mt-5">
+            <div class=" col">
+                <button
+                type="button"
+                class=" btn btn-primary btn-fill btn-round pull-right mb-3"
+                (click)="browseCourses()">
+                    <i class=" tim-icons icon-tv-2"></i> Browse eCourses
+                </button>
+                <h5 class=" title"> eCourses I'm Enrolled In </h5>
+            </div>
+        </div>
+
+        <!-- No enrolled ecourses -->
+        <div class=" row" *ngIf="!purchasedCourses || purchasedCourses && purchasedCourses.length === 0">
+            <div class=" col">
+                <div class=" card">
+                    <div class=" card-body">
+                        <div>
+                            <p>
+                                You haven't enrolled in any coaching eCourses yet.
+                            </p>
+                            <p>
+                                Browse eCourses now to discover what you can learn next!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Purchased courses -->
+        <div class=" row" *ngIf="purchasedCourses && purchasedCourses.length > 0">
+            <div *ngFor="let course of purchasedCourses ; let p = index" class=" col-md-4">
+                <a [routerLink]="['/course', course.courseId, 'learn']">
+                    <div class=" card">
+
+                        <!-- Card image -->
+                        <img
+                        class="card-img-top"
+                        [src]="course.image ? course.image : 'assets/img/image_placeholder.jpg'"
+                        [alt]="course.title" />
+
+                        <!-- Card body -->
+                        <div class=" card-body">
+                            <h4 class="card-title"> {{ course?.title }} </h4>
+                            <h6 class="card-subtitle mb-2 text-muted"> {{ course?.subtitle }} </h6>
+                            <div class="progress-container progress-primary">
+                                <span class="progress-badge"> Progress </span>
+                                <progressbar class="progress-bar-primary" [value]="course?.progress">
+                                  <span class="progress-value"> {{ course?.progress }}% </span>
+                                </progressbar>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+</div>
