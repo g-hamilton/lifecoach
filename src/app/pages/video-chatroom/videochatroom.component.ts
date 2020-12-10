@@ -9,6 +9,7 @@ import {AuthService} from '../../services/auth.service';
 import {DataService} from '../../services/data.service';
 import {AlertService} from '../../services/alert.service';
 import {ToastService} from '../../services/toast.service';
+import {connect, createLocalTracks} from 'twilio-video';
 
 export interface Answer {
   sessionStatus: 'NOT_STARTED_YET' | 'IS_OVER' | 'IN_PROGRESS';
@@ -32,6 +33,8 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
   username: string;
   loading: boolean;
   isUserConnectedToSession = false;
+  isVideoLoading = false;
+  modalVideoElementRef: any;
 
   sessionObject: any;
   sessionUserType: 'HOST' | 'PARTICIPANT' | undefined;
@@ -44,6 +47,8 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
 
   isMicActive = true;
   isVideoActive = true;
+
+  localVideoStream: any;
   private subscriptions: Subscription = new Subscription();
 
   @ViewChild('localVideo', {static: true}) localVideo: ElementRef;
@@ -116,7 +121,7 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
           case 'IN_PROGRESS':
             console.log(`Сессия закончится через ${Math.floor(answer.timeLeft / (60_000))} минут`);
             if (Math.floor(answer.timeLeft / (60_000)) < 6) {
-              // this.alertAboutSessionEnd(Math.floor(answer.timeLeft / (60_000)) < 6);
+              this.alertAboutSessionEnd(Math.floor(answer.timeLeft / (60_000)));
             }
             break;
           case 'IS_OVER':
@@ -188,7 +193,7 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
           }
         })
         .catch(error => {
-          this.alertService.alert('warning-message-and-cancel')
+          this.alertService.alert('warning-message-and-cancel');
           reject();
         });
     });
@@ -204,19 +209,103 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
 
   disconnect() {
     this.twilioService.disconnect();
+    this.isVideoLoading = false;
     this.sessionHasStarted = false;
     this.isMicActive = true;
     this.isVideoActive = true;
   }
 
   ngAfterViewInit() {
-    console.group();
-    console.log(this.accessToken);
-    console.log(this.message);
-    console.log(this.roomName);
-    console.groupEnd();
   }
 
+  newConnect(): void {
+    const htmlToAdd = '<div class="two">two</div>';
+
+    if (this.loading) {
+      this.alertService
+        .alert('info-message',
+          'Oops...',
+          'Looks like this link is invalid or You have no rights to join this room.' +
+          ' If there is no mistake - try to move to this page from Your VIDEO`s page')
+        .then(() => {
+          return;
+        });
+    } else {
+      const startOfEvent = new Date(this.sessionObject.start.seconds * 1000);
+      this.cloudService.getTwilioToken(this.username, this.roomName, startOfEvent.getTime(),
+        (this.sessionObject.end.seconds * 1000 - this.sessionObject.start.seconds * 1000))
+        .then(e => {
+
+          console.log('Token: ', e);
+          // @ts-ignore
+          this.accessToken = e.token;
+          console.log(Date.now());
+          this.alertService
+            .alert('warning-message-and-confirmation', 'Check before session starts',
+              'You can check Your camera and microphone before Session starts', 'Continue', 'Cancel connection',
+              null, null, null, null,
+              `<video autoplay width="320" height="240" id ='videoPreview'></video>`, this.modalWasOpened.bind(this), this.modalWasClosed.bind(this))
+            .then( alertResult => {
+              console.log('There will be connect', alertResult);
+              // @ts-ignore
+              if (!alertResult.action) { // if user cancelled
+                throw new Error();
+              }
+              this.isVideoLoading = true;
+            }).then(() => {
+              this.twilioService.connectToRoom(this.isVideoLoading, this.accessToken, {
+              name: this.roomName,
+              audio: true,
+              video: {width: 640}
+            });
+              this.sessionHasStarted = true;
+              console.log('should be loader');
+
+            }).catch( error => {
+            switch (error) {
+              case 'IS_OVER':
+                this.alertService
+                  .alert('warning-message', 'Too late', 'Unfortunately, Your session is over. But You can reserve one more :)');
+                break;
+              case 'NOT_TIME_YET':
+                this.alertService
+                  .alert('auto-close', 'Your Session is not ready yet', `Your Session will start at ${startOfEvent.toLocaleTimeString()}. You will be able to connect a few minutes before the Session starts`)
+                break;
+              default:
+                console.log('unexpected error', error);
+                break;
+            }
+          });
+
+        });
+    }
+
+  }
+
+  modalWasOpened( element: any) {
+    console.log(element);
+    this.modalVideoElementRef =  element.querySelector('#videoPreview');
+    navigator.mediaDevices.getUserMedia({video: true, audio: true})
+      .then( vid => {
+        console.log(vid);
+        this.modalVideoElementRef.srcObject = vid;
+        this.localVideoStream = vid;
+      })
+      .catch(console.log);
+  }
+
+  modalWasClosed( element: any) {
+    console.log(this.localVideoStream.getTracks());
+    this.localVideoStream.getTracks().forEach(track => {
+      console.log('stopped', track);
+      track.stop();
+      this.localVideoStream.removeTrack(track);
+    }
+
+    );
+    // this.modalVideoElementRef.srcObject = null;
+    // this.localVideoStream.stop();
+  }
   connect(): void {
     if (this.loading) {
       this.alertService
@@ -262,6 +351,7 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
         })
         .then(() => this.sessionHasStarted = true)
         .catch(e => {
+          console.log(e);
           switch (e) {
             case 'IS_OVER':
               this.alertService
@@ -272,7 +362,7 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
                 .alert('auto-close', 'Your Session is not ready yet', `Your Session will start at ${startOfEvent.toLocaleTimeString()}. You will be able to connect a few minutes before the Session starts`)
               break;
             default:
-              console.log('unexpected error');
+              throw new Error(e);
               break;
           }
         });

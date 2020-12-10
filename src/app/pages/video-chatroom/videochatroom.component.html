@@ -5,7 +5,8 @@
 <div class="video-container content">
   <div class="countdown"></div>
   <div class="remoteVideo col-md-9 mb-2" #remoteVideo>
-    <h2 class="my-1">Your interlocutor`s video</h2>
+    <div *ngIf="this.isVideoLoading" class="loader"></div>
+    <h2 *ngIf="!this.isVideoLoading" class="my-1">Your interlocutor`s video</h2>
   </div>
   <div *ngIf="this.timeBeforeSession && !(this.sessionHasStarted); else loading"
        class="row my-2 justify-content-center">{{this.timeBeforeSession}} </div>
@@ -18,7 +19,7 @@
     <div class="controls col-md-4">
       <button type="button"
               [disabled]="(!username || !roomName)"
-              (click)="this.sessionHasStarted ? this.disconnect(): this.connect()"
+              (click)="this.sessionHasStarted ? this.disconnect(): this.newConnect()"
               class="mx-2">
         <i  [ngClass]="this.sessionHasStarted ? 'fas fa-phone stop' : 'fas fa-phone play'" ></i>
       </button>
@@ -31,7 +32,8 @@
     </div>
     <div class="col-md-1"></div>
     <div class="localVideo col-md-3" #localVideo>
-      <h2 class="my-1">Your video</h2>
+      <div *ngIf="this.isVideoLoading" class="loader"></div>
+      <h2 *ngIf="!this.isVideoLoading" class="my-1">Your video</h2>
     </div>
     <div class="col-md-2"></div>
   </div>

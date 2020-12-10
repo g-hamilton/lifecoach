@@ -132,10 +132,10 @@ export class TwilioService {
         //
         //
         // this.remoteVideo
-        userLoaded();
       }, error => {
         alert('Unable to connect to Room: ' + error.message);
       });
+    userLoaded = true;
   }
 
   abort() {
@@ -150,7 +150,6 @@ export class TwilioService {
   }
 
   toggleMicro() {
-    console.log(this.roomObj);
     if (this.isAudioEnabled) {
       this.roomObj.localParticipant.audioTracks.forEach((publication) => {
         publication.track.disable();
@@ -162,16 +161,8 @@ export class TwilioService {
       publication.track.enable();
     });
     this.isAudioEnabled = !this.isAudioEnabled;
-
-    // for (const track of this.roomObj.localParticipant.audioTracks) {
-    //   if (typeof track !== 'string') {
-    //     track.track.isEnabled ? track.track.disable() : track.track.enable();
-    //     console.log('toggled', track.track.isEnabled );
-    //   }
-    // }
   }
   toggleVideo() {
-    console.log(this.isVideoEnabled);
     if (this.isVideoEnabled) {
       this.roomObj.localParticipant.videoTracks.forEach((publication) => {
         publication.track.disable();
@@ -189,8 +180,10 @@ export class TwilioService {
     if (this.roomObj) {
       this.roomObj.disconnect();
     }
-    this.remoteVideo.nativeElement.innerHTML = null;
-    this.localVideo.nativeElement.innerHTML = null;
+    this.remoteVideo.nativeElement.innerHTML = `<div *ngIf="this.isVideoLoading" class="loader"></div>
+    <h2 *ngIf="!this.isVideoLoading" class="my-1">Your interlocutor's video</h2>`;
+    this.localVideo.nativeElement.innerHTML = `<div *ngIf="this.isVideoLoading" class="loader"></div>
+    <h2 *ngIf="!this.isVideoLoading" class="my-1">Your video</h2>`    ;
     this.isVideoEnabled = true;
     this.isAudioEnabled = true;
     // console.log(this.roomObj.localParticipant);

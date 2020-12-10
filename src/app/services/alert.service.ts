@@ -22,7 +22,7 @@ export class AlertService {
   // tslint:disable-next-line: align
   title?: string, text?: string, confirmText?: string, cancelText?: string, successTitle?: string, successText?: string,
   // tslint:disable-next-line: align
-  cancelledTitle?: string, cancelledText?: string, html?: string) {
+  cancelledTitle?: string, cancelledText?: string, html?: string, willOpen?: any, onClose?: any) {
 
     return new Promise((resolve) => {
       if (type === 'basic') {
@@ -81,12 +81,25 @@ export class AlertService {
           .fire({
             title: title ? title : 'Are you sure?',
             text: text ? text : 'You won\'t be able to revert this!',
+            html: html ? html + `<div>${text}</div>` : 'You can use <b>bold text</b>, ' +
+              '<a href="https://github.com">links</a> ' +
+              'and other HTML tags',
             type: 'warning',
             showCancelButton: true,
             cancelButtonClass: 'btn btn-round btn-danger',
             confirmButtonClass: 'btn btn-round btn-success mr-1',
             confirmButtonText: confirmText ? confirmText : 'Yes, delete it!',
-            buttonsStyling: false
+            buttonsStyling: false,
+            onOpen: (modalElement: HTMLElement) => {
+              if (willOpen) {
+                willOpen(modalElement);
+              }
+            },
+            onClose: (modalElement: HTMLElement) => {
+            if (onClose) {
+              onClose(modalElement);
+            }
+            }
           })
           .then(result => {
             if (result.value) {
@@ -114,6 +127,7 @@ export class AlertService {
                 title: successTitle ? successTitle : 'Deleted!',
                 text: successText ? successText : 'Your imaginary file has been deleted.',
                 type: 'success',
+
                 confirmButtonClass: 'btn btn-round btn-success',
                 buttonsStyling: false
               })
@@ -266,6 +280,8 @@ export class AlertService {
           }
         })
         .catch(err => console.error(err));
+      } else if ( type === 'loader') {
+        swal.showLoading();
       }
     });
 
