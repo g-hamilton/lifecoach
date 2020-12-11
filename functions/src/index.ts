@@ -504,15 +504,15 @@ exports.createAdminUser = functions
     return {error: 'Get lost'}
   }
 
-  // Create the user node in the DB.
+  // Update the user's node in the DB.
   await createUserNode(data.uid, data.email, 'admin', data.firstName, data.lastName);
-  console.log(`User node created successfully for Admin user ${data.uid}`);
+  // console.log(`User node created successfully updated for new Admin user ${data.uid}`);
 
   // Set custom admin claim on the user's auth object.
   const res = await addCustomUserClaims(data.uid, {
       admin: true
   });
-  console.log(`Custom Admin auth claim set successfully`);
+  // console.log(`Custom Admin auth claim set successfully`);
 
   // Return
   if (!res.error) {
