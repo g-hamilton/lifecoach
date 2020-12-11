@@ -15,7 +15,9 @@ export const environment = {
   algoliaApiKey: '2fb04a22ac2afb05afcf086bbf5289e3',
   algoliaApplicationID: 'T46GDX1NCS',
   twilioAccountSID: 'AC7cea98ce8762206b3f5af09b63e9ebbf', // There are test credentials. Need to be changed for prod
-  twilioAuthToken: 'c9775bfe4f0fd11c71b935dfb45f81c7'
+  twilioAuthToken: 'c9775bfe4f0fd11c71b935dfb45f81c7',
+  stripeClientId: '&client_id=ca_Gl8JdfxtwHJFDika4cUSThpPTDfCYZa3',
+  stripeCourseKey: 'pk_test_HtSpdTqwGC86g7APo4XLBgms00TVXJLOf8'
 };
 
 /*

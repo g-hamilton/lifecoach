@@ -22,6 +22,7 @@ import { CountryService } from 'app/services/country.service';
 import { CoachProfile } from 'app/interfaces/coach.profile.interface';
 import { Subscription } from 'rxjs';
 import { RefundRequest } from 'app/interfaces/refund.request.interface';
+import {environment} from "../../../environments/environment";
 
 @Component({
   selector: 'app-account',
@@ -391,7 +392,7 @@ export class AccountComponent implements OnInit, OnDestroy {
     const redirect = `redirect_uri=https://lifecoach.io/account/stripe/oauth`; // use in production!
     // const redirect = `redirect_uri=http://localhost:4200/account/stripe/oauth`; // use for local testing
     // const clientId = `&client_id=ca_Gl8JdfxtwHJFDika4cUSThpPTDfCYZa3`; // use for local testing
-    const clientId = `&client_id=ca_Gl8J06rwgRmJRMoX00JSaSG9SKspTh9t`; // use in production!
+    const clientId = `${environment.stripeClientId}`;
     const state = `&state=${stripeState}`;
     const userType = `&stripe_user[business_type]=individual`;
     const cap = `&suggested_capabilities[]=transfers`;

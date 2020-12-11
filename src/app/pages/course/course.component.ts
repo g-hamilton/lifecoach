@@ -20,6 +20,7 @@ import { CoachingCourse } from 'app/interfaces/course.interface';
 import { IsoLanguagesService } from 'app/services/iso-languages.service';
 import { Subscription } from 'rxjs';
 import { StripePaymentIntentRequest } from 'app/interfaces/stripe.payment.intent.request';
+import {environment} from '../../../environments/environment';
 
 @Component({
   selector: 'app-course',
@@ -104,7 +105,7 @@ export class CourseComponent implements OnInit, OnDestroy {
       this.analyticsService.pageView();
 
       // Init Stripe.js
-      const stripe = Stripe('pk_live_GFTeJnPVGhgVifaASOsjEvXf00faFIpXu2'); // production key, NOT for testing!
+      const stripe = Stripe(`${environment.stripeCourseKey}`); // production key, NOT for testing!
       // const stripe = Stripe('pk_test_HtSpdTqwGC86g7APo4XLBgms00TVXJLOf8'); // test key, NOT for prod!
 
       // Init Stripe Elements
