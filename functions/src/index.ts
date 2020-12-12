@@ -412,10 +412,18 @@ firstName: string | null, lastName: string | null) {
       action: 'profile'
     });
 
-    const ref3 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault003');
+    const ref3 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault004');
     batch.set(ref3, {
+      id: 'taskDefault004',
+      title: '3. Enable your payout account',
+      description: 'Enable your payout account now so you can charge for your products & services.',
+      action: 'account'
+    });
+
+    const ref4 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault003');
+    batch.set(ref4, {
       id: 'taskDefault003',
-      title: '3. Add your products & services',
+      title: '4. Add your products & services',
       description: `Promote your coaching programs, take bookings, run live 1-to-1 video sessions & sell eCourses. We'll help every step of the way.`,
       action: 'coach-products-services'
     });

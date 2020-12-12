@@ -370,6 +370,7 @@ export class AccountComponent implements OnInit, OnDestroy {
           if (!res.error) { // success
             console.log('Stripe connect setup complete', res);
             this.analyticsService.completeStripeConnect();
+            this.dataService.completeUserTask(this.userId, 'taskDefault004'); // mark user task complete
             this.connectingStripe = false;
             this.staticTabs.tabs[1].active = true; // auto navigate to Stripe related account tab
             this.alertService.closeOpenAlert();
