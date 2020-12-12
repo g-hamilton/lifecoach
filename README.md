@@ -63,13 +63,11 @@ Email: greg@lifecoach.io
 https://lifecoach.io
 https://demos.creative-tim.com/black-dashboard-pro-angular/#/documentation/overview
 
-## How To Deploy On Firebase
-
-
-
-1. root -> yarn build:ssr
-2. functions -> npm i && npm run build
-3. firebase deploy --only hosting
-4. firebase deploy --only functions
+## How To Deploy On Firebase Dev Domain
+! Before oy find out search.service, line 25
+1. from root directory/ -> yarn build:dev-ssr
+2. cd functions -> npm i && npm run build
+3. cd ../ -> firebase deploy --only hosting
+4. cd functions -> firebase deploy --only functions
  
 

@@ -4,10 +4,11 @@ import { Router } from '@angular/router';
 import * as algoliasearch from 'algoliasearch/lite';
 
 import { DataService } from '../../services/data.service';
+import {environment} from '../../../environments/environment';
 
 const searchClient = algoliasearch(
-    'PXC7SZHHT9',
-    '73c827f1b21571be69a545f2728f087c'
+    environment.algoliaApplicationID,
+    environment.algoliaApiKey
 );
 
 @Component({
