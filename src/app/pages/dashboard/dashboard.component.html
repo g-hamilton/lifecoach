@@ -4,10 +4,13 @@
     <div class=" col-lg-4">
       <div class=" card card-tasks">
         <div class=" card-header">
-          <h5 class=" title d-inline"> Tasks({{ todos ? todos.length : 0 }}) </h5>
-          <p class=" card-category d-inline">My Todos</p>
-          <div class=" dropdown" dropdown>
-            <!-- <button
+          <h4 class=" card-title"> My Todos
+            <span *ngIf="todos && todos.length" class=" badge badge-primary" id="todos-badge">
+              {{ todos.length }}
+            </span>
+          </h4>
+          <!-- <div class=" dropdown" dropdown>
+            <button
               class=" btn btn-link dropdown-toggle btn-icon dropdown-toggle"
               data-toggle="dropdown"
               dropdownToggle
@@ -17,8 +20,8 @@
             </button>
             <div class=" dropdown-menu dropdown-menu-right" *dropdownMenu>
               <a class=" dropdown-item" href="#pablo"> View completed </a>
-            </div> -->
-          </div>
+            </div>
+          </div> -->
         </div>
         <div class=" card-body">
           <div class=" table-full-width table-responsive">
@@ -28,17 +31,21 @@
                 <tr *ngFor="let task of todos">
                   <td>
                     <p class=" title">{{ task.title }}</p>
-                    <p class=" text-muted">{{ task.description }}</p>
+                    <p class=" text-muted">{{ task.description }} 
+                      <a class=" pl-1 text-success" [routerLink]="['/', task.action]">
+                        Let's do it
+                      </a>
+                    </p>
                   </td>
                   <td class=" td-actions text-right">
                     <button
                       class=" btn btn-link"
                       type="button"
-                      tooltip="Go"
+                      tooltip="Dismiss this todo"
                       placement="left"
-                      [routerLink]="['/', task.action]"
+                      (click)="dismissTodo(task.id)"
                     >
-                      <i class=" tim-icons icon-triangle-right-17"> </i>
+                      <i class=" tim-icons icon-simple-remove text-danger"> </i>
                     </button>
                   </td>
                 </tr>
@@ -47,7 +54,7 @@
               <tbody *ngIf="!todos || todos.length === 0">
                 <tr>
                   <td>
-                    <p> Aces! You're up to date. </p>
+                    <p class=" mt-2"> Aces! You're up to date. </p>
                   </td>
                 </tr>
               </tbody>
@@ -185,10 +192,13 @@
     <div class=" col-lg-4">
       <div class=" card card-tasks">
         <div class=" card-header">
-          <h5 class=" title d-inline"> Tasks({{ todos ? todos.length : 0 }}) </h5>
-          <!-- <p class=" card-category d-inline">My Todos</p> -->
-          <div class=" dropdown" dropdown>
-            <!-- <button
+          <h4 class=" card-title"> My Todos
+            <span *ngIf="todos && todos.length" class=" badge badge-primary" id="todos-badge">
+              {{ todos.length }}
+            </span>
+          </h4>
+          <!-- <div class=" dropdown" dropdown>
+            <button
               class=" btn btn-link dropdown-toggle btn-icon dropdown-toggle"
               data-toggle="dropdown"
               dropdownToggle
@@ -198,8 +208,8 @@
             </button>
             <div class=" dropdown-menu dropdown-menu-right" *dropdownMenu>
               <a class=" dropdown-item" href="#pablo"> View completed </a>
-            </div> -->
-          </div>
+            </div>
+          </div> -->
         </div>
         <div class=" card-body">
           <div class=" table-full-width table-responsive">
@@ -209,17 +219,21 @@
                 <tr *ngFor="let task of todos">
                   <td>
                     <p class=" title">{{ task.title }}</p>
-                    <p class=" text-muted">{{ task.description }}</p>
+                    <p class=" text-muted">{{ task.description }} 
+                      <a class=" pl-1 text-success" [routerLink]="['/', task.action]">
+                        Let's do it
+                      </a>
+                    </p>
                   </td>
                   <td class=" td-actions text-right">
                     <button
                       class=" btn btn-link"
                       type="button"
-                      tooltip="Go"
+                      tooltip="Dismiss this todo"
                       placement="left"
-                      [routerLink]="['/', task.action]"
+                      (click)="dismissTodo(task.id)"
                     >
-                      <i class=" tim-icons icon-triangle-right-17"> </i>
+                      <i class=" tim-icons icon-simple-remove text-danger"> </i>
                     </button>
                   </td>
                 </tr>
@@ -228,7 +242,7 @@
               <tbody *ngIf="!todos || todos.length === 0">
                 <tr>
                   <td>
-                    <p> Aces! You're up to date. </p>
+                    <p class=" mt-2"> Aces! You're up to date. </p>
                   </td>
                 </tr>
               </tbody>

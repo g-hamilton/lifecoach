@@ -228,20 +228,20 @@ function archiveMailchimpUser(accountType: 'regular' | 'coach' | 'publisher' | '
   });
 }
 
-function addSubscriberToWorkflowEmail(workFlowId: string, workFlowEmailId: string, email: string) {
-  // Adds a new subscriber to a workflow email (manually triggers an automated email)
-  // https://mailchimp.com/developer/reference/automation/automation-email/automation-email-queue/
-  // Workflow Id and workflow email ID can be seen in our Mailchimp account for the relevant automation.
-  mailchimp.post(`/automations/${workFlowId}/emails/${workFlowEmailId}/queue`, {
-    email_address: email
-  })
-  .then((results: any) => {
-    console.log(`Successfully triggered Mailchimp workflow ${workFlowId}, email ${workFlowEmailId} for ${email}`);
-  })
-  .catch((err: any) => {
-    console.log('Adding subscriber to workflow email issue:', err);
-  });
-}
+// function addSubscriberToWorkflowEmail(workFlowId: string, workFlowEmailId: string, email: string) {
+//   // Adds a new subscriber to a workflow email (manually triggers an automated email)
+//   // https://mailchimp.com/developer/reference/automation/automation-email/automation-email-queue/
+//   // Workflow Id and workflow email ID can be seen in our Mailchimp account for the relevant automation.
+//   mailchimp.post(`/automations/${workFlowId}/emails/${workFlowEmailId}/queue`, {
+//     email_address: email
+//   })
+//   .then((results: any) => {
+//     console.log(`Successfully triggered Mailchimp workflow ${workFlowId}, email ${workFlowEmailId} for ${email}`);
+//   })
+//   .catch((err: any) => {
+//     console.log('Adding subscriber to workflow email issue:', err);
+//   });
+// }
 
 async function logMailchimpEvent(uid: string, mailchimpEvent: any) {
   // https://mailchimp.com/developer/guides/create-custom-events/
@@ -399,7 +399,7 @@ firstName: string | null, lastName: string | null) {
     const ref1 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault001');
     batch.set(ref1, {
       id: 'taskDefault001',
-      title: '1. Complete your profile',
+      title: 'Complete your profile',
       description: 'Everything at Lifecoach starts with your Coach profile. Start creating yours now.',
       action: 'profile'
     });
@@ -407,15 +407,23 @@ firstName: string | null, lastName: string | null) {
     const ref2 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault002');
     batch.set(ref2, {
       id: 'taskDefault002',
-      title: '2. Go public with your profile',
+      title: 'Go public with your profile',
       description: 'Make your profile public & promote it everywhere to start collecting leads.',
       action: 'profile'
     });
 
-    const ref3 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault003');
+    const ref3 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault004');
     batch.set(ref3, {
+      id: 'taskDefault004',
+      title: 'Enable your payout account',
+      description: 'Enable your payout account now so you can charge for your products & services.',
+      action: 'account'
+    });
+
+    const ref4 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault003');
+    batch.set(ref4, {
       id: 'taskDefault003',
-      title: '3. Add your products & services',
+      title: 'Add your products & services',
       description: `Promote your coaching programs, take bookings, run live 1-to-1 video sessions & sell eCourses. We'll help every step of the way.`,
       action: 'coach-products-services'
     });
@@ -440,7 +448,7 @@ firstName: string | null, lastName: string | null) {
     const ref1 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault004');
     batch.set(ref1, {
       id: 'taskDefault004',
-      title: '1. Enable your payout account',
+      title: 'Enable your payout account',
       description: 'Enable your payout account now so you can start earning commission.',
       action: 'account'
     });
@@ -504,15 +512,15 @@ exports.createAdminUser = functions
     return {error: 'Get lost'}
   }
 
-  // Create the user node in the DB.
+  // Update the user's node in the DB.
   await createUserNode(data.uid, data.email, 'admin', data.firstName, data.lastName);
-  console.log(`User node created successfully for Admin user ${data.uid}`);
+  // console.log(`User node created successfully updated for new Admin user ${data.uid}`);
 
   // Set custom admin claim on the user's auth object.
   const res = await addCustomUserClaims(data.uid, {
       admin: true
   });
-  console.log(`Custom Admin auth claim set successfully`);
+  // console.log(`Custom Admin auth claim set successfully`);
 
   // Return
   if (!res.error) {
@@ -1591,7 +1599,7 @@ async function recordCourseEnrollmentForStudent(studentUid: string, courseId: st
     courseId: courseId
   }, { merge: true });
 
-  // trigger a mailchimp event to log course going live
+  // trigger a mailchimp event
   const event = {
     name: 'course_enrollment',
     properties: {
@@ -2274,8 +2282,9 @@ exports.adminRejectProgramReview = functions
 // ================================================================================
 
 /*
-  Monitor every user's profile node.
+  Monitor every coach type user's profile node.
   When updated, if set to 'isPublic', sync with public profiles node.
+  Note: Regular type users use a different path to their profiles. This one is only for coaches!
 */
 exports.onWriteUserProfileNode = functions
 .runWith({memory: '1GB', timeoutSeconds: 300})
@@ -2293,22 +2302,14 @@ exports.onWriteUserProfileNode = functions
     // only trigger email if real profile created and not just an admin mass update function.
     // real profile will have a 'dateCreated' property. Mass update only has 'adminMassUpdated' property.
     if (profile.dateCreated) {
-      // Trigger workflow email for created profile success
-      const p1 = db.collection(`users/${userId}/account`)
-      .doc('account' + userId)
-      .get()
-      .then(docSnapshot => {
-        if (docSnapshot.exists) {
-          const account = docSnapshot.data() as any;
-          const accountEmail = account.accountEmail;
-          addSubscriberToWorkflowEmail('bca28b1721', '16389df1ae', accountEmail);
+      // trigger a mailchimp event
+      const event = {
+        name: 'coach_profile_created',
+        properties: {
+          is_public: profile.isPublic
         }
-      })
-      .catch(err => {
-        console.error('Error reading user account data during onWriteUserProfileNode', err);
-      });
-
-      await Promise.all([p1]);
+      }
+      return logMailchimpEvent(userId, event); // log event
     }
 
   }

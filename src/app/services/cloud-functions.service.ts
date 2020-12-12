@@ -331,6 +331,25 @@ export class CloudFunctionsService {
     });
   }
 
+  // creates a NEW admin user from scratch. Note: Requires a special admin password (set server side)
+  adminCreateAdminUser(uid: string, email: string, firstName: string, lastName: string, adminPassword: string) {
+    return new Promise(resolve => {
+      const createAdmin = this.cloudFunctions.httpsCallable('createAdminUser');
+      const tempSub = createAdmin({
+        uid,
+        email,
+        firstName,
+        lastName,
+        adminPassword
+      })
+        .pipe(first())
+        .subscribe(res => {
+          resolve(res);
+          tempSub.unsubscribe();
+        });
+    });
+  }
+
   // Twilio
   getTwilioToken(uid: string, room: string, timeOfStart: number, duration: number) {
     console.log('Cloud Function Service prop', uid);
