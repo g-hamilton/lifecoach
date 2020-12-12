@@ -204,6 +204,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
 
+  dismissTodo(taskId) {
+    if (!this.uid) {
+      return;
+    }
+    if (!taskId) {
+      return;
+    }
+    this.dataService.completeUserTask(this.uid, taskId);
+  }
+
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
   }

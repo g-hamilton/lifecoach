@@ -399,7 +399,7 @@ firstName: string | null, lastName: string | null) {
     const ref1 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault001');
     batch.set(ref1, {
       id: 'taskDefault001',
-      title: '1. Complete your profile',
+      title: 'Complete your profile',
       description: 'Everything at Lifecoach starts with your Coach profile. Start creating yours now.',
       action: 'profile'
     });
@@ -407,7 +407,7 @@ firstName: string | null, lastName: string | null) {
     const ref2 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault002');
     batch.set(ref2, {
       id: 'taskDefault002',
-      title: '2. Go public with your profile',
+      title: 'Go public with your profile',
       description: 'Make your profile public & promote it everywhere to start collecting leads.',
       action: 'profile'
     });
@@ -415,7 +415,7 @@ firstName: string | null, lastName: string | null) {
     const ref3 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault004');
     batch.set(ref3, {
       id: 'taskDefault004',
-      title: '3. Enable your payout account',
+      title: 'Enable your payout account',
       description: 'Enable your payout account now so you can charge for your products & services.',
       action: 'account'
     });
@@ -423,7 +423,7 @@ firstName: string | null, lastName: string | null) {
     const ref4 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault003');
     batch.set(ref4, {
       id: 'taskDefault003',
-      title: '4. Add your products & services',
+      title: 'Add your products & services',
       description: `Promote your coaching programs, take bookings, run live 1-to-1 video sessions & sell eCourses. We'll help every step of the way.`,
       action: 'coach-products-services'
     });
@@ -448,7 +448,7 @@ firstName: string | null, lastName: string | null) {
     const ref1 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault004');
     batch.set(ref1, {
       id: 'taskDefault004',
-      title: '1. Enable your payout account',
+      title: 'Enable your payout account',
       description: 'Enable your payout account now so you can start earning commission.',
       action: 'account'
     });
