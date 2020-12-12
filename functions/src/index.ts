@@ -228,20 +228,20 @@ function archiveMailchimpUser(accountType: 'regular' | 'coach' | 'publisher' | '
   });
 }
 
-function addSubscriberToWorkflowEmail(workFlowId: string, workFlowEmailId: string, email: string) {
-  // Adds a new subscriber to a workflow email (manually triggers an automated email)
-  // https://mailchimp.com/developer/reference/automation/automation-email/automation-email-queue/
-  // Workflow Id and workflow email ID can be seen in our Mailchimp account for the relevant automation.
-  mailchimp.post(`/automations/${workFlowId}/emails/${workFlowEmailId}/queue`, {
-    email_address: email
-  })
-  .then((results: any) => {
-    console.log(`Successfully triggered Mailchimp workflow ${workFlowId}, email ${workFlowEmailId} for ${email}`);
-  })
-  .catch((err: any) => {
-    console.log('Adding subscriber to workflow email issue:', err);
-  });
-}
+// function addSubscriberToWorkflowEmail(workFlowId: string, workFlowEmailId: string, email: string) {
+//   // Adds a new subscriber to a workflow email (manually triggers an automated email)
+//   // https://mailchimp.com/developer/reference/automation/automation-email/automation-email-queue/
+//   // Workflow Id and workflow email ID can be seen in our Mailchimp account for the relevant automation.
+//   mailchimp.post(`/automations/${workFlowId}/emails/${workFlowEmailId}/queue`, {
+//     email_address: email
+//   })
+//   .then((results: any) => {
+//     console.log(`Successfully triggered Mailchimp workflow ${workFlowId}, email ${workFlowEmailId} for ${email}`);
+//   })
+//   .catch((err: any) => {
+//     console.log('Adding subscriber to workflow email issue:', err);
+//   });
+// }
 
 async function logMailchimpEvent(uid: string, mailchimpEvent: any) {
   // https://mailchimp.com/developer/guides/create-custom-events/
@@ -1599,7 +1599,7 @@ async function recordCourseEnrollmentForStudent(studentUid: string, courseId: st
     courseId: courseId
   }, { merge: true });
 
-  // trigger a mailchimp event to log course going live
+  // trigger a mailchimp event
   const event = {
     name: 'course_enrollment',
     properties: {
@@ -2282,8 +2282,9 @@ exports.adminRejectProgramReview = functions
 // ================================================================================
 
 /*
-  Monitor every user's profile node.
+  Monitor every coach type user's profile node.
   When updated, if set to 'isPublic', sync with public profiles node.
+  Note: Regular type users use a different path to their profiles. This one is only for coaches!
 */
 exports.onWriteUserProfileNode = functions
 .runWith({memory: '1GB', timeoutSeconds: 300})
@@ -2301,22 +2302,14 @@ exports.onWriteUserProfileNode = functions
     // only trigger email if real profile created and not just an admin mass update function.
     // real profile will have a 'dateCreated' property. Mass update only has 'adminMassUpdated' property.
     if (profile.dateCreated) {
-      // Trigger workflow email for created profile success
-      const p1 = db.collection(`users/${userId}/account`)
-      .doc('account' + userId)
-      .get()
-      .then(docSnapshot => {
-        if (docSnapshot.exists) {
-          const account = docSnapshot.data() as any;
-          const accountEmail = account.accountEmail;
-          addSubscriberToWorkflowEmail('bca28b1721', '16389df1ae', accountEmail);
+      // trigger a mailchimp event
+      const event = {
+        name: 'coach_profile_created',
+        properties: {
+          is_public: profile.isPublic
         }
-      })
-      .catch(err => {
-        console.error('Error reading user account data during onWriteUserProfileNode', err);
-      });
-
-      await Promise.all([p1]);
+      }
+      return logMailchimpEvent(userId, event); // log event
     }
 
   }
