@@ -913,6 +913,19 @@ export class DataService {
       .valueChanges({idField: 'id'}) as Observable<AdminProgramReviewRequest[]>;
   }
 
+  getPurchasedPrograms(uid: string) {
+    // Returns all the user's purchased program documents along with the doc IDs.
+    return this.db.collection(`users/${uid}/purchased-programs`)
+      .valueChanges({idField: 'id'}) as Observable<[]>;
+  }
+
+  getUnlockedPublicProgram(programId: string) {
+    // Returns a program document.
+    return this.db.collection(`locked-program-content`)
+      .doc(programId)
+      .valueChanges() as Observable<CoachingProgram>;
+  }
+
   // ================================================================================
   // =====                           COACH SERVICES                            ======
   // ================================================================================

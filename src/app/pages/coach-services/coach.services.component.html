@@ -38,7 +38,9 @@
                     <div class=" card-body">
                         <p class="p-4">
                             Before you can create coaching programs, you must complete your public coach profile. 
-                            Click the 'Profile' link on the left hand menu to complete your profile now.
+                            Let's <a [routerLink]="['/profile']">
+                                complete your profile now.
+                            </a>
                         </p>
                     </div>
                 </div>
@@ -51,7 +53,10 @@
                 <div class=" card">
                     <div class=" card-body">
                         <p class="p-4">
-                            You haven't created any coaching programs yet. Click the 'Create Program' button above to create one now!
+                            You haven't created any coaching programs yet. Let's 
+                            <a [routerLink]="['/my-programs', 'new-program']">
+                                create one now!
+                            </a>
                         </p>
                     </div>
                 </div>
@@ -121,7 +126,9 @@
                     <div class=" card-body">
                         <p class="p-4">
                             Before you can create eCourses, you must complete your public coach profile. 
-                            Click the 'Profile' link on the left hand menu to complete your profile now.
+                            Let's <a [routerLink]="['/profile']">
+                                complete your profile now.
+                            </a>
                         </p>
                     </div>
                 </div>
@@ -134,8 +141,10 @@
                 <div class=" card">
                     <div class=" card-body">
                         <p class="p-4">
-                            You haven't created any eCourses yet. 
-                            Click the 'Create eCourse' button above to create one now!
+                            You haven't created any eCourses yet. Let's 
+                            <a [routerLink]="['/my-courses', 'new-course']">
+                                create one now!
+                            </a>
                         </p>
                     </div>
                 </div>

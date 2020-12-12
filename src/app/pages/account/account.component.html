@@ -138,14 +138,14 @@
                                 <div class=" col-md-12">
                                     <div class=" pull-left">
                                         <button
-                                        class=" btn btn-fill btn-default btn-round btn-wd mr-2"
+                                        class=" btn btn-fill btn-default btn-round btn-sm mr-2"
                                         type="button"
                                         (click)="onChangeEmail()"
                                         [disabled]="changeEmail || changePassword"
                                         >  Change Login Email
                                         </button>
                                         <button
-                                        class=" btn btn-fill btn-default btn-round btn-wd"
+                                        class=" btn btn-fill btn-default btn-round btn-sm"
                                         type="button"
                                         (click)="onChangePassword()"
                                         [disabled]="changeEmail || changePassword"
@@ -425,7 +425,7 @@
                                     <div class=" col-md-12">
                                         <h6 class=" mt-4"> Delete your account </h6>
                                         <button
-                                        class=" btn btn-fill btn-danger btn-round btn-wd"
+                                        class=" btn btn-fill btn-danger btn-round btn-sm"
                                         name="deletebutton"
                                         type="button"
                                         (click)="deleteAccount()">
@@ -464,16 +464,19 @@
                         <tab *ngIf="accountF.accountType.value === 'coach' || accountF.accountType.value === 'publisher'" heading="Payout Settings">
                             <div class="">
                                 <h6 class=" mt-4 pl-4">
-                                    Get Paid With Stripe
-                                    <a href="https://lifecoach.freshdesk.com/a/solutions/articles/47001123913" target="_blank">
+                                    Enable Your Payout Account
+                                    <!-- <a href="https://lifecoach.freshdesk.com/a/solutions/articles/47001123913" target="_blank">
                                         <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> How payouts work</span>
-                                    </a>
+                                    </a> -->
                                 </h6>
+                                <p class=" small text-muted pl-4 mb-2">
+                                    <i class="fas fa-info-circle"></i> To get paid for any of the products & services you promote through the Lifecoach platform, 
+                                    you need a secure payout account. We use Stripe to make sure you get paid on time and to keep your personal payment details secure.
+                                </p>
                                 <div class=" row highlight-box">
                                     <div class=" col-md-8">
-                                        <p *ngIf="!accountF.stripeUid.value">
-                                            We use Stripe to make sure you get paid on time and to keep your personal bank and details secure.
-                                            Click 'Connect Stripe' to enable payments so you can start getting paid.
+                                        <p *ngIf="!accountF.stripeUid.value" class="mt-4 pl-5">
+                                            Click 'Connect Stripe' now to enable your payout account so you can start getting paid.
                                         </p>
                                         <p *ngIf="accountF.stripeUid.value" class=" text-success mt-4 pl-5">
                                             <i class=" tim-icons icon-check-2"> </i> Connected
@@ -540,8 +543,8 @@
                             </div>
                         </tab>
 
-                        <!-- Course settings tab for coach accounts -->
-                        <tab *ngIf="accountF.accountType.value === 'coach'" heading="Course Settings">
+                        <!-- platform settings tab for coach accounts -->
+                        <tab *ngIf="accountF.accountType.value === 'coach'" heading="Platform Settings">
                             <div class="">
                                 <h6 class=" mt-4 pl-4">
                                     LIFECOACH PROMOTIONS PROGRAM
