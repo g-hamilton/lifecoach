@@ -1,10 +1,11 @@
 import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import {environment} from '../../../environments/environment';
 
 import * as algoliasearch from 'algoliasearch/lite';
 const searchClient = algoliasearch(
-    'PXC7SZHHT9',
-    '73c827f1b21571be69a545f2728f087c'
+    environment.algoliaApplicationID,
+    environment.algoliaApiKey
 );
 
 import { CloudFunctionsService } from 'app/services/cloud-functions.service';
