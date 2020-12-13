@@ -37,7 +37,7 @@ export class CoachComponent implements OnInit, OnDestroy {
   public availableEvents: CustomCalendarEvent[] | [];
   public todayEvents: Array<any>;
   private subscriptions: Subscription = new Subscription();
-  private userId: string;
+  public userId: string;
 
   public showModal = false;
   public dayToSelect: Array<Date> = [];
