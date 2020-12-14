@@ -32,63 +32,51 @@
         <!-- Program loaded into view - keeps stripe element loaded in the dom but hides until program loaded -->
         <div class="hide" [ngClass]="{'show': program}">
 
-          <!-- row 1 -->
           <div *ngIf="program" class=" row">
+            <div class=" col-md-6 ml-auto mr-auto text-center">
+              <h1 class=" title">{{ program.title }}</h1>
+              <h4>
+                {{ program.subtitle }}
+              </h4>
+              <!-- program duration -->
+              <div *ngIf="program?.duration" class="">
+                <h6 class="text-muted">
+                  <span class=""><i class="far fa-calendar-alt"></i> {{ program.duration }} week private 1-to-1 video coaching program</span>
+                </h6>
+              </div>
+              <div class=" mt-4 mb-5">
+                <!-- if zero enrollments -->
+                <span *ngIf="!programEnrollments?.totalEnrollments" class=" badge badge-danger">
+                  🔥 New Coaching Program
+                </span>
+                <!-- if 1 enrollment -->
+                <span *ngIf="programEnrollments?.totalEnrollments && programEnrollments?.totalEnrollments == 1" class="">
+                  1 person enrolled
+                </span>
+                <!-- if more than 1 enrollment -->
+                <span *ngIf="programEnrollments?.totalEnrollments && programEnrollments?.totalEnrollments > 1" class="">
+                  {{ programEnrollments.totalEnrollments }} people enrolled
+                </span>
+              </div>
+            </div>
+          </div>
 
-            <!-- left col -->
+          <div *ngIf="program" class=" row">
             <div class=" col-12">
               <div class=" card">
-                <div class=" card-body" style=" padding-left: 25px; padding-right: 25px;">
+                <div class=" card-body p-5">
 
-                  <!-- title -->
-                  <h3 class=" card-title"> {{ program.title }} </h3>
+                  <!-- last updated -->
+                  <!-- <span *ngIf="program?.lastUpdated" class=" ml-3">
+                    Last updated: {{ getDisplayDate(program.lastUpdated) }}
+                  </span>
+                  <span *ngIf="!program?.lastUpdated" class=" ml-3">
+                    Last updated: {{ getDisplayDate(now) }}
+                  </span> -->
 
-                  <!-- subtitle -->
-                  <h4 class=" card-subtitle text-muted"> {{ program.subtitle }} </h4>
-
-                  <!-- overall rating & enrollments -->
-                  <div class=" mt-3">
-                    <!-- rating stars *BROWSER ONLY* -->
-                    <app-program-stars
-                    *ngIf="browser"
-                    [program]="program"
-                    (totalReviewsEvent)="onTotalReviewsEvent($event)">
-                    </app-program-stars>
-                    <span class=" d-inline-block ml-2" style="margin-top: 0.3rem;">
-                      {{ avgRating?.toFixed(2) }} ({{ totalReviews ? totalReviews : '0' }} {{ totalReviews === 1 ? 'review' : 'reviews'}})
-                    </span>
-                    <!-- if zero enrollments -->
-                    <span *ngIf="!programEnrollments?.totalEnrollments" class=" ml-3 badge badge-success">
-                      New Coaching Program
-                    </span>
-                    <!-- if 1 enrollment -->
-                    <span *ngIf="programEnrollments?.totalEnrollments && programEnrollments?.totalEnrollments == 1" class=" ml-3">
-                      1 student enrolled
-                    </span>
-                    <!-- if more than 1 enrollment -->
-                    <span *ngIf="programEnrollments?.totalEnrollments && programEnrollments?.totalEnrollments > 1" class=" ml-3">
-                      {{ programEnrollments.totalEnrollments }} students enrolled
-                    </span>
-                  </div>
-
-                  <!-- coach -->
-                  <div class=" mt-4">
-                    <p class=" h5">
-                      Coach: {{ program.coachName }}
-
-                      <!-- last updated -->
-                      <span *ngIf="program?.lastUpdated" class=" ml-3">
-                        Last updated: {{ getDisplayDate(program.lastUpdated) }}
-                      </span>
-                      <span *ngIf="!program?.lastUpdated" class=" ml-3">
-                        Last updated: {{ getDisplayDate(now) }}
-                      </span>
-
-                      <!-- program language -->
-                      <span *ngIf="program?.language" class=" ml-3">
-                        <i class="fas fa-comment"></i> {{ languages[program.language]?.nativeName }}
-                      </span>
-                    </p>
+                  <!-- description -->
+                  <div class="">
+                    <div id="test" class=" card-description" [innerHTML]="program.description"></div>
                   </div>
 
                   <hr>
@@ -97,20 +85,11 @@
                   <div *ngIf="program.learningPoints" class=" mt-4">
                     <h5 class=" card-title"> What you'll learn </h5>
                     <div *ngIf="program.learningPoints" class=" mt-4">
-                      <div class=" highlight-box">
-                        <table class=" table">
-                          <tbody>
-                            <tr *ngFor="let item of program.learningPoints">
-                              <td style="border-top: none;">
-                                <i class="fas fa-check text-success"></i>
-                              </td>
-                              <td style="border-top: none;">
-                                {{ item }}
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
+                      <ul>
+                        <li *ngFor="let item of program.learningPoints" style="color: rgba(255, 255, 255, 0.7);">
+                          {{ item }}
+                        </li>
+                      </ul>
                     </div>
                   </div>
 
@@ -131,33 +110,36 @@
                     </div>
                   </div>
 
-                  <!-- description -->
-                  <div class=" mt-5">
-                    <h5 class=" card-title"> Description </h5>
-                    <div id="test" class=" card-description" [innerHTML]="program.description"></div>
-                  </div>
-
                   <!-- ideal clients -->
                   <div *ngIf="program.targets" class=" mt-5">
                     <h5 class=" card-title"> The perfect coaching program for: </h5>
                     <div *ngIf="program.targets" class=" mt-4">
-                      <div class=" highlight-box">
-                        <table class=" table">
-                          <tbody>
-                            <tr *ngFor="let item of program.targets">
-                              <td style="border-top: none;">
-                                <small>
-                                  <i class="fas fa-circle text-success"></i>
-                                </small>
-                              </td>
-                              <td style="border-top: none;">
-                                {{ item }}
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
+                      <ul>
+                        <li *ngFor="let item of program.targets" style="color: rgba(255, 255, 255, 0.7);">
+                          {{ item }}
+                        </li>
+                      </ul>
                     </div>
+                  </div>
+
+                  <hr>
+
+                  <!-- program duration -->
+                  <div *ngIf="program?.duration" class=" mt-5">
+                    <h5 class=" card-title"> Average program duration: </h5>
+                    <h6 class="text-muted">
+                      <span class=""><i class="far fa-calendar-alt"></i> {{ program.duration }} weeks</span>
+                    </h6>
+                    <p>Note: This is an average duration. 
+                      Your Coach will tailor your program to fit your needs so this duration is only intended as a guide</p>
+                  </div>
+
+                  <!-- program language -->
+                  <div *ngIf="program?.language" class=" mt-5">
+                    <h5 class=" card-title"> Program language: </h5>
+                    <h6 class="text-muted">
+                      <i class="fas fa-comment"></i> {{ languages[program.language]?.nativeName }}
+                    </h6>
                   </div>
 
                 </div>
@@ -165,30 +147,37 @@
               <!-- end card -->
 
               <!-- coach card -->
+              <div class=" mt-5"></div>
               <app-program-coach [program]="program"></app-program-coach>
               <!-- end coach card -->
 
-              <!-- program content card -->
-              <app-program-content [program]="program"></app-program-content>
-              <!-- end program content card -->
-
-              <!-- program feedback card *BROWSER ONLY* -->
-              <div *ngIf="browser" class=" card">
-                <div class=" card-body mr-3">
-                  <h4 class=" card-title d-inline-block"> Program Feedback </h4>
-                  <div>
-                    <app-program-feedback
+              <!-- program feedback *BROWSER ONLY* -->
+              <div *ngIf="browser">
+                <div class=" col-md-6 ml-auto mr-auto text-center mt-5">
+                  <h2 class=" title"> What others are saying </h2>
+                </div>
+                <div class=" card">
+                  <div class=" card-body mr-3">
+                    <h4 class=" card-title d-inline-block"> Program Feedback </h4>
+                    <div>
+                      <app-program-feedback
+                      [program]="program">
+                      </app-program-feedback>
+                    </div>
+  
+                    <!-- browse reviews -->
+                    <app-program-browse-reviews
                     [program]="program">
-                    </app-program-feedback>
+                    </app-program-browse-reviews>
                   </div>
-
-                  <!-- browse reviews -->
-                  <app-program-browse-reviews
-                  [program]="program">
-                  </app-program-browse-reviews>
                 </div>
               </div>
-              <!-- end program feedback card -->
+              <!-- end program feedback -->
+
+              <!-- program content card -->
+              <div class=" mt-5"></div>
+              <app-program-content [program]="program"></app-program-content>
+              <!-- end program content card -->
 
             </div>
             <!-- end left col -->
