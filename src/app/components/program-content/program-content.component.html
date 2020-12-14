@@ -8,35 +8,24 @@
 <!-- when program loaded -->
 <div *ngIf="program">
     <!-- sessions & durations set -->
-    <div *ngIf="program.numSessions && program.duration">
+    <div *ngIf="program.pricingStrategy">
+
         <div class=" row">
-            <!-- program duration card -->
-            <div class=" col-lg-6 col-xs-12">
-                <div class=" card card-pricing card-primary">
-                  <div class=" card-body">
-                    <h1 class=" card-title">duration</h1>
-                    <img
-                      alt="Image"
-                      class=" card-img"
-                      src="assets/img/card-primary.png"
-                    />
-      
-                    <ul class=" list-group">
-                      <li class=" list-group-item">Program Duration</li>
-                    </ul>
-                    <div class=" card-prices pl-3 pr-3">
-                      <h3 class=" text-on-front">{{ program.duration }}</h3>
-                      <h5 class=" text-on-back">{{ program.duration }}</h5>
-                      <p class=" plan">This is a {{ program.duration }} week private coaching program</p>
-                    </div>
-                  </div>
-                </div>
-            </div>
-            <!-- program sessions card -->
-            <div class=" col-lg-6 col-xs-12">
+          <div class=" col-md-6 ml-auto mr-auto text-center">
+            <h1 class=" title">Join the program</h1>
+            <h4 class=" description">
+              Schedule a free discovery call with your coach and get started when you're ready.
+            </h4>
+          </div>
+        </div>
+
+        <div class=" row">
+            
+            <!--  -->
+            <div *ngIf="program.fullPrice" class=" col-lg-4 col-xs-12">
                 <div class=" card card-pricing card-success card-white">
                   <div class=" card-body">
-                    <h1 class=" card-title">sessions</h1>
+                    <h1 class=" card-title">program</h1>
                     <img
                       alt="Image"
                       class=" card-img"
@@ -44,23 +33,85 @@
                     />
       
                     <ul class=" list-group">
-                      <li class=" list-group-item">Coaching Sessions</li>
+                      <li class=" list-group-item">Buy the full program</li>
                     </ul>
                     <div class=" card-prices pl-3 pr-3">
-                      <h3 class=" text-on-front">{{ program.numSessions }}</h3>
-                      <h5 class=" text-on-back">{{ program.numSessions }}</h5>
-                      <p class=" plan">Over the duration of this program, you will receive {{ program.numSessions }} private 1-to-1 video coaching sessions with this coach</p>
+                      <h3 class=" text-on-front">{{ program.fullPrice }}</h3>
+                      <h5 class=" text-on-back">{{ program.fullPrice }}</h5>
+                      <p class=" plan">Get full access</p>
                     </div>
+                  </div>
+                  <div class=" card-footer text-center mb-3 mt-3">
+                    <button class=" btn btn-round btn-just-icon btn-success">
+                      Get Started
+                    </button>
                   </div>
                 </div>
             </div>
+
+            <!--  -->
+            <div class=" col-lg-4 col-xs-12">
+              <div class=" card card-pricing card-raised card-primary">
+                <div class=" card-body">
+                  <h1 class=" card-title">discover</h1>
+                  <img
+                    alt="Image"
+                    class=" card-img"
+                    src="assets/img/card-primary.png"
+                  />
+    
+                  <ul class=" list-group">
+                    <li class=" list-group-item">Schedule a discovery call</li>
+                  </ul>
+                  <div class=" card-prices pl-3 pr-3">
+                    <h3 class=" text-on-front">FREE</h3>
+                    <h5 class=" text-on-back">FREE</h5>
+                    <p class=" plan">Check this program is right for you. <br>Ask your coach anything you like prior to starting.</p>
+                  </div>
+                </div>
+                <div class=" card-footer text-center mb-3 mt-3">
+                  <button class=" btn btn-round btn-just-icon btn-primary">
+                    <i class="fas fa-phone"></i> Schedule a Call
+                  </button>
+                </div>
+              </div>
+          </div>
+
+            <!--  -->
+            <div *ngIf="program.fullPrice" class=" col-lg-4 col-xs-12">
+              <div class=" card card-pricing card-success card-white">
+                <div class=" card-body">
+                  <h1 class=" card-title">session</h1>
+                  <img
+                    alt="Image"
+                    class=" card-img"
+                    src="assets/img/card-warning.png"
+                  />
+    
+                  <ul class=" list-group">
+                    <li class=" list-group-item">Pay Per Session</li>
+                  </ul>
+                  <div class=" card-prices pl-3 pr-3">
+                    <h3 class=" text-on-front">{{ program.pricePerSession }}</h3>
+                    <h5 class=" text-on-back">{{ program.pricePerSession }}</h5>
+                    <p class=" plan">Buy a single session</p>
+                  </div>
+                </div>
+                <div class=" card-footer text-center mb-3 mt-3">
+                  <button class=" btn btn-round btn-just-icon btn-warning">
+                    Get Started
+                  </button>
+                </div>
+              </div>
+          </div>
+
         </div>
     </div>
 
-    <!-- No sessions or duration yet -->
-    <div *ngIf="!program.numSessions || !program.duration">
+    <!-- No pricing strategy -->
+    <div *ngIf="!program.pricingStrategy">
         <p>
-            Awaiting session information.
+            Awaiting session information & pricing.
         </p>
     </div>
 </div>
