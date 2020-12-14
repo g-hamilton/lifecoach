@@ -57,11 +57,56 @@
                 <span *ngIf="programEnrollments?.totalEnrollments && programEnrollments?.totalEnrollments > 1" class="">
                   {{ programEnrollments.totalEnrollments }} people enrolled
                 </span>
+                <!-- is coach viewing own program? -->
+                <div *ngIf="userId === program.sellerUid">
+                  <p class=" text-success text-center mt-3">
+                    You created this program
+                  </p>
+                </div>
+                <!-- has user already purcahsed? -->
+                <div *ngIf="userClaims && userClaims[program.programId]">
+                  <p class=" text-success text-center mt-3">
+                    You purchased this program
+                  </p>
+                </div>
               </div>
             </div>
           </div>
 
-          <div *ngIf="program" class=" row">
+          <!-- program promo video? -->
+          <div *ngIf="program && program.promoVideo && program.promoVideo.downloadURL" class="">
+            <div class=" row">
+              <div class=" col-md-6 ml-auto mr-auto text-center">
+                <vg-player>
+                  <vg-controls>
+                      <vg-play-pause></vg-play-pause>
+                      <vg-playback-button></vg-playback-button>
+                
+                      <vg-time-display vgProperty="current" vgFormat="mm:ss"></vg-time-display>
+                
+                      <vg-scrub-bar>
+                          <vg-scrub-bar-current-time></vg-scrub-bar-current-time>
+                          <vg-scrub-bar-buffering-time></vg-scrub-bar-buffering-time>
+                      </vg-scrub-bar>
+                
+                      <vg-time-display vgProperty="total" vgFormat="mm:ss"></vg-time-display>
+                
+                      <vg-mute></vg-mute>
+                      <vg-volume></vg-volume>
+                
+                      <vg-fullscreen></vg-fullscreen>
+                  </vg-controls>
+                
+                  <video #media [vgMedia]="media" id="singleVideo" preload="auto">
+                      <source [src]="program.promoVideo.downloadURL">
+                  </video>
+                </vg-player>
+              </div>
+            </div>
+          </div>
+
+          <!-- program description & info -->
+          <div *ngIf="program" class=" row pb-5">
             <div class=" col-12">
               <div class=" card">
                 <div class=" card-body p-5">
@@ -174,122 +219,308 @@
               </div>
               <!-- end program feedback -->
 
-              <!-- program content card -->
-              <div class=" mt-5"></div>
-              <app-program-content [program]="program"></app-program-content>
-              <!-- end program content card -->
+              <!-- program pricing & call booking -->
 
-            </div>
-            <!-- end left col -->
-
-            <!-- right col -->
-            <div class=" col-md-4">
-              <div class=" card">
-                <!-- program promo vid? -->
-                <div *ngIf="program.promoVideo">
-                  <vg-player>
-                    <vg-controls>
-                        <vg-play-pause></vg-play-pause>
-                        <vg-playback-button></vg-playback-button>
-                  
-                        <vg-time-display vgProperty="current" vgFormat="mm:ss"></vg-time-display>
-                  
-                        <vg-scrub-bar>
-                            <vg-scrub-bar-current-time></vg-scrub-bar-current-time>
-                            <vg-scrub-bar-buffering-time></vg-scrub-bar-buffering-time>
-                        </vg-scrub-bar>
-                  
-                        <vg-time-display vgProperty="total" vgFormat="mm:ss"></vg-time-display>
-                  
-                        <vg-mute></vg-mute>
-                        <vg-volume></vg-volume>
-                  
-                        <vg-fullscreen></vg-fullscreen>
-                    </vg-controls>
-                  
-                    <video #media [vgMedia]="media" id="singleVideo" preload="auto">
-                        <source [src]="program.promoVideo.downloadURL">
-                    </video>
-                  </vg-player>
+              <!-- template if program pricing strategy is full -->
+              <div *ngIf="program && program.pricingStrategy && program.pricingStrategy === 'full' 
+              && program.fullPrice && program.currency ; else flexiPricing" class=" mt-5">
+                <div class=" row">
+                  <div class=" col-md-6 ml-auto mr-auto text-center">
+                    <h1 class=" title">Join the program</h1>
+                    <h4 class=" description">
+                      Got questions? Schedule a free discovery call with your coach before you get started.
+                    </h4>
+                  </div>
                 </div>
 
-                <!-- program image? -->
-                <img
-                *ngIf="!program.promoVideo"
-                class=" card-img-top"
-                [src]="program.image ? program.image : 'assets/img/awaiting-image.png'"
-                [alt]="program.title" />
+                <!-- payment options row -->
+                <div class=" row">
 
-                <div class=" card-body">
-
-                  <div class=" text-center">
-                    <!-- price -->
-                    <h3 *ngIf="program?.currency && program?.fullPrice"> {{ currencySymbol + '' + displayPrice }} </h3>
-                    <h4 *ngIf="program?.currency && !program?.fullPrice"> {{ currencySymbol + ' Awaiting price' }} </h4>
-                    <h4 *ngIf="!program?.currency && !program?.fullPrice"> {{ 'Awaiting currency & price' }} </h4>
+                  <!-- discover col -->
+                  <div class=" col-lg-4 col-xs-12">
+                    <div class=" card card-pricing card-raised card-primary">
+                      <div class=" card-body">
+                        <h1 class=" card-title">discover</h1>
+                        <img
+                          alt="Image"
+                          class=" card-img"
+                          src="assets/img/card-primary.png"
+                        />
+          
+                        <ul class=" list-group">
+                          <li class=" list-group-item">Schedule a discovery call</li>
+                        </ul>
+                        <div class=" card-prices pl-3 pr-3">
+                          <h3 class=" text-on-front">FREE</h3>
+                          <h5 class=" text-on-back">FREE</h5>
+                          <p class=" plan">Check this program is right for you. <br>Ask your coach anything you like prior to starting.</p>
+                        </div>
+                      </div>
+                      <div class=" card-footer text-center mb-3 mt-3">
+                        <!-- schedule call button -->
+                        <!-- disabled for program seller or if already purchased -->
+                        <!-- userId === program.sellerUid || userClaims && userClaims[program.programId] -->
+                        <button class=" btn btn-round btn-just-icon btn-primary"
+                        [disabled]="userId === program.sellerUid || userClaims && userClaims[program.programId]">
+                          <i class="fas fa-phone"></i> Schedule a Call
+                        </button>
+                      </div>
+                    </div>
                   </div>
+                  <!--  end discover col -->
 
-                  <div *ngIf="userId === program.sellerUid">
-                    <p class=" text-success text-center">
-                      You created this program
-                    </p>
+                  <!-- pay in full col -->
+                  <div class=" col-lg-4 col-xs-12">
+                    <div class=" card card-pricing card-success card-white">
+                      <div class=" card-body">
+                        <h1 class=" card-title">program</h1>
+                        <img
+                              alt="Image"
+                              class=" card-img"
+                              src="assets/img/card-success.png"
+                        />
+              
+                        <ul class=" list-group">
+                          <li class=" list-group-item">Buy the full program</li>
+                        </ul>
+                        <div class=" card-prices pl-3 pr-3">
+                          <h3 class=" text-on-front">{{ currencySymbol + displayFullPrice }}</h3>
+                          <h5 class=" text-on-back">{{ currencySymbol + displayFullPrice }}</h5>
+                          <p class=" plan">Get full access</p>
+                        </div>
+                      </div>
+                      <div class=" card-footer text-center mb-3 mt-3">
+                        <!-- purchase button -->
+                        <!-- disabled for program seller or if already purchased -->
+                        <!-- userId === program.sellerUid || userClaims && userClaims[program.programId] -->
+                        <button
+                        class=" btn btn-round btn-success"
+                        id="buynowfull"
+                        type="button"
+                        data-target="#payModal"
+                        (click)="purchaseType = 'full' ; userId ? payModal.show() : registerModal.show()"
+                        [disabled]="userId === program.sellerUid || userClaims && userClaims[program.programId]">
+                          <span
+                          *ngIf="purchasingProgram"
+                          class="spinner-border spinner-border-sm"
+                          role="status"
+                          ></span> {{ purchasingProgram ? 'Purchasing...' : 'Buy Now'}} 
+                        </button>
+                        <div class="mt-2">
+                          <small>
+                            28-Day Money-Back Guarantee.
+                            <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001123378-refunds" taget="_blank">
+                              Info
+                            </a>
+                          </small>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-
-                  <div *ngIf="userClaims && userClaims[program.programId]">
-                    <p class=" text-success text-center">
-                      You purchased this program
-                    </p>
-                  </div>
-
-                  <!-- buy now button -->
-                  <!-- disabled for program seller or if already purchased -->
-                  <!-- userId === program.sellerUid || userClaims && userClaims[program.programId] -->
-                  <button
-                  class=" btn btn-primary btn-round btn-block btn-fill"
-                  id="buynow"
-                  type="button"
-                  data-target="#payModal"
-                  (click)="userId ? payModal.show() : registerModal.show()"
-                  [disabled]="userId === program.sellerUid || userClaims && userClaims[program.programId]">
-                    <span
-                    *ngIf="purchasingProgram"
-                    class="spinner-border spinner-border-sm"
-                    role="status"
-                    ></span> {{ purchasingProgram ? 'Purchasing...' : 'Buy Now'}} 
-                  </button>
-                  <!-- program owned button -->
-                  <button
-                  *ngIf="userClaims && userClaims[program.programId]"
-                  class=" btn btn-success btn-round btn-block btn-fill"
-                  id="gotoprogram"
-                  type="button"
-                  [routerLink]="['/program', program.programId, 'learn']">
-                    Go to Program
-                  </button>
-                  <!-- returns -->
-                  <small class="text-centre">
-                    28-Day Money-Back Guarantee.
-                    <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001123378-refunds" taget="_blank">
-                      Info
-                    </a>
-                  </small>
-
-                  <!-- Currency picker -->
-                  <div class="pt-3">
-                    <label> Show price in </label>
-                  </div>
-                  <app-select-currency
-                  [currency]="clientCurrency"
-                  (currencyEvent)="onManualCurrencyChange($event)">
-                  </app-select-currency>
+                  <!-- end pay in full col -->
 
                 </div>
+                <!-- end payment options row -->
+
+                <!-- Currency picker row -->
+                <div class=" row">
+                  <div class=" col-md-4 ml-auto mr-auto">
+                    <div>
+                      <label> Show prices in </label>
+                    </div>
+                    <app-select-currency
+                    [currency]="clientCurrency"
+                    (currencyEvent)="onManualCurrencyChange($event)">
+                    </app-select-currency>
+                  </div>
+                </div>
+                <!-- end currency picker row -->
 
               </div>
-            </div>
+              <!-- end template if pricing strategy is full -->
 
+              <!-- template if program pricing strategy is flexible or not set yet -->
+              <ng-template #flexiPricing class=" mt-5">
+                <!-- if were still waiting for pricing or session information -->
+                <div *ngIf="!program || !program.pricingStrategy || !program.fullPrice || 
+                (program.pricingStrategy == 'flexible' && !program.pricePerSession) || !program.currency"
+                >
+                  <p>
+                    Awaiting pricing & session information
+                  </p>
+                </div>
+
+                <!-- we've got all the info we need for flexible pricing -->
+                <div *ngIf="program && program.pricingStrategy && program.fullPrice && 
+                (program.pricingStrategy == 'flexible' && program.pricePerSession) && program.currency" class=" row mt-5">
+                  <div class=" col-md-6 ml-auto mr-auto text-center">
+                    <h1 class=" title">Join the program</h1>
+                    <h4 class=" description">
+                      Got questions? Schedule a free discovery call with your coach before you get started.
+                    </h4>
+                  </div>
+                </div>
+
+                <!-- payment options row -->
+                <div class=" row">
+
+                  <!-- pay in full col -->
+                  <div *ngIf="program?.currency && program?.fullPrice" class=" col-lg-4 col-xs-12">
+                    <div class=" card card-pricing card-success card-white">
+                      <div class=" card-body">
+                        <h1 class=" card-title">program</h1>
+                        <img
+                              alt="Image"
+                              class=" card-img"
+                              src="assets/img/card-success.png"
+                        />
+              
+                        <ul class=" list-group">
+                          <li class=" list-group-item">Buy the full program</li>
+                        </ul>
+                        <div class=" card-prices pl-3 pr-3">
+                          <h3 class=" text-on-front">{{ currencySymbol + displayFullPrice }}</h3>
+                          <h5 class=" text-on-back">{{ currencySymbol + displayFullPrice }}</h5>
+                          <p class=" plan">Get full access</p>
+                        </div>
+                      </div>
+                      <div class=" card-footer text-center mb-3 mt-3">
+                        <!-- purchase button -->
+                        <!-- disabled for program seller or if already purchased -->
+                        <!-- userId === program.sellerUid || userClaims && userClaims[program.programId] -->
+                        <button
+                        class=" btn btn-round btn-success"
+                        id="buynowfull"
+                        type="button"
+                        data-target="#payModal"
+                        (click)="purchaseType = 'full' ; userId ? payModal.show() : registerModal.show()"
+                        [disabled]="userId === program.sellerUid || userClaims && userClaims[program.programId]">
+                          <span
+                          *ngIf="purchasingProgram"
+                          class="spinner-border spinner-border-sm"
+                          role="status"
+                          ></span> {{ purchasingProgram ? 'Purchasing...' : 'Buy Now'}} 
+                        </button>
+                        <div class="mt-2">
+                          <small>
+                            28-Day Money-Back Guarantee.
+                            <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001123378-refunds" taget="_blank">
+                              Info
+                            </a>
+                          </small>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- end pay in full col -->
+
+                  <!-- discover col -->
+                  <div class=" col-lg-4 col-xs-12">
+                    <div class=" card card-pricing card-raised card-primary">
+                      <div class=" card-body">
+                        <h1 class=" card-title">discover</h1>
+                        <img
+                          alt="Image"
+                          class=" card-img"
+                          src="assets/img/card-primary.png"
+                        />
+          
+                        <ul class=" list-group">
+                          <li class=" list-group-item">Schedule a discovery call</li>
+                        </ul>
+                        <div class=" card-prices pl-3 pr-3">
+                          <h3 class=" text-on-front">FREE</h3>
+                          <h5 class=" text-on-back">FREE</h5>
+                          <p class=" plan">Check this program is right for you. <br>Ask your coach anything you like prior to starting.</p>
+                        </div>
+                      </div>
+                      <div class=" card-footer text-center mb-3 mt-3">
+                        <!-- schedule call button -->
+                        <!-- disabled for program seller or if already purchased -->
+                        <!-- userId === program.sellerUid || userClaims && userClaims[program.programId] -->
+                        <button class=" btn btn-round btn-just-icon btn-primary"
+                        [disabled]="userId === program.sellerUid || userClaims && userClaims[program.programId]">
+                          <i class="fas fa-phone"></i> Schedule a Call
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <!--  end discover col -->
+
+                  <!-- pay per session col -->
+                  <div *ngIf="program?.currency && program?.fullPrice && program?.pricePerSession" class=" col-lg-4 col-xs-12">
+                    <div class=" card card-pricing card-success card-white">
+                      <div class=" card-body">
+                        <h1 class=" card-title">session</h1>
+                        <img
+                          alt="Image"
+                          class=" card-img"
+                          src="assets/img/card-warning.png"
+                        />
+
+                        <ul class=" list-group">
+                          <li class=" list-group-item">Pay Per Session</li>
+                        </ul>
+                        <div class=" card-prices pl-3 pr-3">
+                          <h3 class=" text-on-front">{{ currencySymbol + displaySessionPrice }}</h3>
+                          <h5 class=" text-on-back">{{ currencySymbol + displaySessionPrice }}</h5>
+                          <p class=" plan">Buy a single session</p>
+                        </div>
+                      </div>
+                      <div class=" card-footer text-center mb-3 mt-3">
+                        <!-- purchase button -->
+                        <!-- disabled for program seller or if already purchased -->
+                        <!-- userId === program.sellerUid || userClaims && userClaims[program.programId] -->
+                        <button
+                        class=" btn btn-round btn-warning"
+                        id="buynowfull"
+                        type="button"
+                        data-target="#payModal"
+                        (click)="purchaseType = 'session' ; userId ? payModal.show() : registerModal.show()"
+                        [disabled]="userId === program.sellerUid || userClaims && userClaims[program.programId]">
+                          <span
+                          *ngIf="purchasingProgram"
+                          class="spinner-border spinner-border-sm"
+                          role="status"
+                          ></span> {{ purchasingProgram ? 'Purchasing...' : 'Buy Now'}} 
+                        </button>
+                        <div class="mt-2">
+                          <small>
+                            28-Day Money-Back Guarantee.
+                            <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001123378-refunds" taget="_blank">
+                              Info
+                            </a>
+                          </small>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- end pay per session col -->
+
+                </div>
+                <!-- end payment options row -->
+
+                <!-- Currency picker row -->
+                <div class=" row">
+                  <div class=" col-md-4 ml-auto mr-auto">
+                    <div>
+                      <label> Show prices in </label>
+                    </div>
+                    <app-select-currency
+                    [currency]="clientCurrency"
+                    (currencyEvent)="onManualCurrencyChange($event)">
+                    </app-select-currency>
+                  </div>
+                </div>
+                <!-- end currency picker row -->
+
+              </ng-template>
+              <!-- end template if pricing strategy is flexible -->
+
+            </div>
+            <!-- end col -->
           </div>
-          <!-- End row 1 -->
+          <!-- End row -->
 
         </div>
         <!-- end of program loaded into view -->
@@ -363,9 +594,9 @@
                                   </svg>
                                 </button>
                               </div>
-                              <div class="ElementsModal--product ElementsModal--details"> Online Coaching Program </div>
+                              <div class="ElementsModal--product ElementsModal--details"> {{purchaseType === 'full' ? 'Online Coaching Program' : 'Online Coaching Program - Single Session'}} </div>
                               <div *ngIf="program" class="ElementsModal--price ElementsModal--details"> 
-                                {{ currencySymbol + '' + displayPrice }}
+                                {{ currencySymbol + '' + (purchaseType === 'full' ? displayFullPrice : displaySessionPrice) }}
                               </div>
                               <div *ngIf="account && account.accountEmail" class="ElementsModal--email ElementsModal--details"> {{ account.accountEmail }} </div>
                             </div>
@@ -438,7 +669,7 @@
                                       *ngIf="purchasingProgram"
                                       class="spinner-border spinner-border-sm"
                                       role="status"
-                                      ></span> {{ purchasingProgram ? 'Processing...' : 'Pay' + ' ' + currencySymbol + displayPrice}}
+                                      ></span> {{ purchasingProgram ? 'Processing...' : currencySymbol + '' + (purchaseType === 'full' ? displayFullPrice : displaySessionPrice) }}
                                     </button>
                                   </div>
                                 </div>

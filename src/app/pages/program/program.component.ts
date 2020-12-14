@@ -49,6 +49,7 @@ export class ProgramComponent implements OnInit, OnDestroy {
   public totalReviews: number;
   public avgRating: number;
   private referralCode: string;
+  public purchaseType: 'full' | 'session'; // value should be set depending on which purchase button is pressed
 
   public loginForm: FormGroup;
   public login = false;
@@ -131,8 +132,8 @@ export class ProgramComponent implements OnInit, OnDestroy {
           this.alertService.alert('warning-message', 'Error', 'Missing payment currency.');
           return null;
         }
-        if (!this.displayPrice) {
-          this.alertService.alert('warning-message', 'Error', 'Missing program price.');
+        if (!this.displayFullPrice) {
+          this.alertService.alert('warning-message', 'Error', 'Missing program full price.');
           return null;
         }
 
@@ -144,7 +145,7 @@ export class ProgramComponent implements OnInit, OnDestroy {
         const piRequest: StripePaymentIntentRequest = {
           saleItemId: this.programId,
           saleItemType: 'fullProgram',
-          salePrice: this.displayPrice,
+          salePrice: this.displayFullPrice,
           currency: this.clientCurrency,
           buyerUid: this.userId,
           referralCode: this.referralCode ? this.referralCode : null
@@ -438,7 +439,7 @@ export class ProgramComponent implements OnInit, OnDestroy {
     this.clientCurrency = ev;
   }
 
-  get displayPrice() {
+  get displayFullPrice() {
     if (!this.program.fullPrice || !this.rates || !this.program.currency || !this.clientCurrency) {
       return null;
     }
@@ -450,6 +451,27 @@ export class ProgramComponent implements OnInit, OnDestroy {
     }
 
     amount = Number((this.program.fullPrice / this.rates[this.program.currency.toUpperCase()] * this.rates[this.clientCurrency.toUpperCase()]));
+
+    if (!Number.isInteger(amount)) { // if price is not an integer
+      const rounded = Math.floor(amount) + .99; // round UP to .99
+      amount = rounded;
+    }
+
+    return amount;
+  }
+
+  get displaySessionPrice() {
+    if (!this.program.pricePerSession || !this.rates || !this.program.currency || !this.clientCurrency) {
+      return null;
+    }
+
+    let amount: number;
+
+    if (this.program.currency === this.clientCurrency) { // no conversion needed
+      return this.program.pricePerSession;
+    }
+
+    amount = Number((this.program.pricePerSession / this.rates[this.program.currency.toUpperCase()] * this.rates[this.clientCurrency.toUpperCase()]));
 
     if (!Number.isInteger(amount)) { // if price is not an integer
       const rounded = Math.floor(amount) + .99; // round UP to .99
