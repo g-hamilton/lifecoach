@@ -390,9 +390,7 @@ export class AccountComponent implements OnInit, OnDestroy {
     // See: https://stripe.com/docs/connect/oauth-reference
     const stripeState = this.createStripeState();
     const base = `https://connect.stripe.com/express/oauth/authorize?`;
-    const redirect = `redirect_uri=https://lifecoach.io/account/stripe/oauth`; // use in production!
-    // const redirect = `redirect_uri=http://localhost:4200/account/stripe/oauth`; // use for local testing
-    // const clientId = `&client_id=ca_Gl8JdfxtwHJFDika4cUSThpPTDfCYZa3`; // use for local testing
+    const redirect = `${environment.stripeRedirectUri}`;
     const clientId = `${environment.stripeClientId}`;
     const state = `&state=${stripeState}`;
     const userType = `&stripe_user[business_type]=individual`;
