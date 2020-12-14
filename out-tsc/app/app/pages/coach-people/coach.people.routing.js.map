@@ -1,1 +1,0 @@
-{"version":3,"file":"coach.people.routing.js","sourceRoot":"","sources":["../../../../../src/app/pages/coach-people/coach.people.routing.ts"],"names":[],"mappings":"AAEA,OAAO,EAAE,oBAAoB,EAAE,MAAM,0BAA0B,CAAC;AAEhE,MAAM,CAAC,MAAM,iBAAiB,GAAW;IACvC;QACE,IAAI,EAAE,EAAE;QACR,QAAQ,EAAE;YACR;gBACE,IAAI,EAAE,EAAE;gBACR,SAAS,EAAE,oBAAoB;aAChC;SACF;KACF;CACF,CAAC"}

@@ -1,1 +1,0 @@
-{"version":3,"file":"contactpage.routing.js","sourceRoot":"","sources":["../../../../../src/app/pages/contact/contactpage.routing.ts"],"names":[],"mappings":"AAEA,OAAO,EAAE,oBAAoB,EAAE,MAAM,yBAAyB,CAAC;AAE/D,MAAM,CAAC,MAAM,iBAAiB,GAAW;IACvC;QACE,IAAI,EAAE,EAAE;QACR,QAAQ,EAAE;YACR;gBACE,IAAI,EAAE,EAAE;gBACR,SAAS,EAAE,oBAAoB;aAChC;SACF;KACF;CACF,CAAC"}

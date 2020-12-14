@@ -1,1 +1,0 @@
-{"version":3,"file":"admin.uploader.routing.js","sourceRoot":"","sources":["../../../../../src/app/pages/admin-uploader/admin.uploader.routing.ts"],"names":[],"mappings":"AAEA,OAAO,EAAE,sBAAsB,EAAE,MAAM,4BAA4B,CAAC;AAEpE,MAAM,CAAC,MAAM,mBAAmB,GAAW;IACzC;QACE,IAAI,EAAE,EAAE;QACR,QAAQ,EAAE;YACR;gBACE,IAAI,EAAE,EAAE;gBACR,SAAS,EAAE,sBAAsB;aAClC;SACF;KACF;CACF,CAAC"}

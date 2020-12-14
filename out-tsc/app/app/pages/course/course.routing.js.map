@@ -1,1 +1,0 @@
-{"version":3,"file":"course.routing.js","sourceRoot":"","sources":["../../../../../src/app/pages/course/course.routing.ts"],"names":[],"mappings":"AAEA,OAAO,EAAE,eAAe,EAAE,MAAM,oBAAoB,CAAC;AAErD,MAAM,CAAC,MAAM,YAAY,GAAW;IAClC;QACE,IAAI,EAAE,EAAE;QACR,QAAQ,EAAE;YACR;gBACE,IAAI,EAAE,EAAE;gBACR,SAAS,EAAE,eAAe;aAC3B;SACF;KACF;CACF,CAAC"}
