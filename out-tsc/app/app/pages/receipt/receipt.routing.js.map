@@ -1,1 +1,0 @@
-{"version":3,"file":"receipt.routing.js","sourceRoot":"","sources":["../../../../../src/app/pages/receipt/receipt.routing.ts"],"names":[],"mappings":"AAEA,OAAO,EAAE,gBAAgB,EAAE,MAAM,qBAAqB,CAAC;AAEvD,MAAM,CAAC,MAAM,aAAa,GAAW;IACnC;QACE,IAAI,EAAE,EAAE;QACR,QAAQ,EAAE;YACR;gBACE,IAAI,EAAE,EAAE;gBACR,SAAS,EAAE,gBAAgB;aAC5B;SACF;KACF;CACF,CAAC"}

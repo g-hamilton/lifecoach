@@ -1,1 +1,0 @@
-{"version":3,"file":"courses.landing.routing.js","sourceRoot":"","sources":["../../../../../src/app/pages/courses-landing/courses.landing.routing.ts"],"names":[],"mappings":"AAEA,OAAO,EAAE,uBAAuB,EAAE,MAAM,6BAA6B,CAAC;AAEtE,MAAM,CAAC,MAAM,oBAAoB,GAAW;IAC1C;QACE,IAAI,EAAE,EAAE;QACR,QAAQ,EAAE;YACR;gBACE,IAAI,EAAE,EAAE;gBACR,SAAS,EAAE,uBAAuB;aACnC;SACF;KACF;CACF,CAAC"}

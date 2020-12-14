@@ -1,1 +1,0 @@
-{"version":3,"file":"chatroom.routing.js","sourceRoot":"","sources":["../../../../../src/app/pages/chatroom/chatroom.routing.ts"],"names":[],"mappings":"AAEA,OAAO,EAAE,iBAAiB,EAAE,MAAM,sBAAsB,CAAC;AAEzD,MAAM,CAAC,MAAM,cAAc,GAAW;IACpC;QACE,IAAI,EAAE,EAAE;QACR,QAAQ,EAAE;YACR;gBACE,IAAI,EAAE,EAAE;gBACR,SAAS,EAAE,iBAAiB;aAC7B;SACF;KACF;CACF,CAAC"}
