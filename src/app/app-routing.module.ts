@@ -279,6 +279,12 @@ const routes: Routes = [
         canActivate: [AdminAuthGuard]
       },
       {
+        path: 'admin-review-program/:programId',
+        loadChildren: () => import('./pages/admin-review-program/admin-review-program.module').then(m => m.AdminReviewProgramModule),
+        pathMatch: 'full',
+        canActivate: [AdminAuthGuard]
+      },
+      {
         path: 'receipt/:id',
         loadChildren: () => import('./pages/receipt/receipt.module').then(m => m.ReceiptModule)
       },
