@@ -3377,6 +3377,8 @@ exports.onWritePrivateUserProgram = functions
     const publicData = {
       programId,
       approved: program.reviewRequest.approved ? program.reviewRequest.approved : null,
+      numSessions: program.numSessions ? program.numSessions : null,
+      duration: program.duration ? program.duration : null,
       pricingStrategy: program.pricingStrategy,
       currency: program.currency ? program.currency : null,
       fullPrice: program.fullPrice ? program.fullPrice : null,

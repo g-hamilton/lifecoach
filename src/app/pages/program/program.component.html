@@ -70,7 +70,7 @@
                   </p>
                 </div>
                 <!-- has user already purcahsed? -->
-                <div *ngIf="userClaims && userClaims[program.programId]">
+                <div *ngIf="(userId !== program.sellerUid) && userClaims && userClaims[program.programId]">
                   <p class=" text-success text-center mt-3">
                     You purchased this program
                   </p>
