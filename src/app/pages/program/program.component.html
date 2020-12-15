@@ -6,13 +6,13 @@
   <div *ngIf="program && program.image"
   class="jumbotron jumbotron-fluid" 
   [ngStyle]="{'background-image': 'url(' + program.image +')'}"
-  style="margin-top: 60px; height: 60vh; background-position: center; background-size: cover; background-repeat: no-repeat;">
+  style="margin-top: 60px; height: 75vh; background-position: center; background-size: cover; background-repeat: no-repeat;">
   </div>
 
   <!-- Placeholder cover img if program loaded and no image exists -->
   <div *ngIf="program && !program.image"
   class="jumbotron jumbotron-fluid" 
-  style="margin-top: 60px; height: 60vh; background-color: white;">
+  style="margin-top: 60px; height: 75vh; background-color: white;">
     <div class="container">
       <div class="row justify-content-center text-center">
         <div class="col-md-10">
