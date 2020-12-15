@@ -22,7 +22,7 @@ import { CountryService } from 'app/services/country.service';
 import { CoachProfile } from 'app/interfaces/coach.profile.interface';
 import { Subscription } from 'rxjs';
 import { RefundRequest } from 'app/interfaces/refund.request.interface';
-import {environment} from "../../../environments/environment";
+import {environment} from '../../../environments/environment';
 
 @Component({
   selector: 'app-account',
@@ -110,6 +110,7 @@ export class AccountComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    console.log('ENVIRONMENT IS', environment);
     if (isPlatformBrowser(this.platformId)) {
       this.browser = true;
       this.analyticsService.pageView();
@@ -274,7 +275,7 @@ export class AccountComponent implements OnInit, OnDestroy {
       creatorDealsProgram: [false],
       creatorExtendedPromotionsProgram: [false],
       sessionDuration: [ 30 ],
-      breakDuration: [5]
+      breakDuration: [0]
     });
   }
 
@@ -316,7 +317,7 @@ export class AccountComponent implements OnInit, OnDestroy {
       creatorDealsProgram: account.creatorDealsProgram ? account.creatorDealsProgram : false,
       creatorExtendedPromotionsProgram: account.creatorExtendedPromotionsProgram ? account.creatorExtendedPromotionsProgram : false,
       sessionDuration: account.sessionDuration ? account.sessionDuration : 30,
-      breakDuration: account.breakDuration ? account.breakDuration : 5
+      breakDuration: account.breakDuration ? account.breakDuration : 0
     });
     // console.log(this.accountForm.value);
   }
@@ -479,8 +480,8 @@ export class AccountComponent implements OnInit, OnDestroy {
   async onSubmit() {
     if (this.accountSnapshot.sessionDuration !== this.accountF.sessionDuration.value
       || this.accountSnapshot.breakDuration !== this.accountF.breakDuration.value) {
-      alert('Changed session and breaks'); // TODO: Modal
-                                            // Alert user, if they had sessions
+      // alert('Changed session and breaks'); // Modal
+                                            // TODO: Alert user, if they had sessions
       // return;
     }
     console.log(this.accountForm.value);

@@ -7,8 +7,8 @@ import {CustomCalendarEvent} from '../../interfaces/custom.calendar.event.interf
 import {DataService} from 'app/services/data.service';
 import {AuthService} from 'app/services/auth.service';
 import {take} from 'rxjs/operators';
-import {ToastrService} from "ngx-toastr";
-import {AlertService} from "../../services/alert.service";
+import {ToastrService} from 'ngx-toastr';
+import {AlertService} from '../../services/alert.service';
 
 declare var JitsiMeetExternalAPI: any;
 
@@ -118,7 +118,7 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
           this.subscriptions.add(
             this.dataService.getUserAccount(this.userId).pipe(take(1)).subscribe(userAccount => {
                 this.sessionDuration = userAccount.sessionDuration ? userAccount.sessionDuration : 30;
-                this.breakDuration = userAccount.breakDuration ? userAccount.breakDuration : 15;
+                this.breakDuration = userAccount.breakDuration ? userAccount.breakDuration : 0;
               }
             )
           );
@@ -205,6 +205,10 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     console.group('test');
     // console.log('EndTimes before cleaning', this.endTimes);
     this.endTimes = [];
+    console.group('Session settings in compomnent')
+    console.log(this.sessionDuration);
+    console.log(this.breakDuration);
+    console.groupEnd()
     while (newTime.getDate() === date.getDate()) {
       console.log('Date: ', date.getDate(), 'NewTime: ', newTime.getDate());
       newTime = new Date(newTime.setMinutes(newTime.getMinutes() + this.sessionDuration));
@@ -286,7 +290,7 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     this.eventDetailModal.hide();
     console.log('275,', this.activeEvent);
     if (this.activeEvent.reserved) {
-      alert(`Sorry, this event was already reserved by the user: ${this.activeEvent.reservedById}`);// TODO: Modal
+      alert(`Sorry, this event was already reserved by the user: ${this.activeEvent.reservedById}`); // TODO: Modal
       return;
     }
     // this.activeEvent = null;
@@ -376,8 +380,10 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
         expireTime += this.sessionDuration * 60000 + this.breakDuration * 60000;
       }
     } else {
+      console.log('соло ивент');
       result.push({
         ...ob,
+        end: new Date(ob.end.getTime() - this.breakDuration * 60000),
         title: ob.reservedById ? (ob.ordered ? 'Ordered' : 'reserved') : 'I am free',
         reserved: false,
         reservedById: null,
@@ -409,10 +415,10 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     let error = false;
     if (thisDayEvents.length) {
       for (let i = 0; i < thisDayEvents.length; i++) {
-        if ((this.toTimeStampFromStr(ev.start) <= this.toTimeStampFromStr(thisDayEvents[i].end.toString())
-          && (this.toTimeStampFromStr(ev.start) >= this.toTimeStampFromStr(thisDayEvents[i].start.toString())))
-          || (this.toTimeStampFromStr(ev.end) >= this.toTimeStampFromStr(thisDayEvents[i].start.toString()))
-          && (this.toTimeStampFromStr(ev.end) <= this.toTimeStampFromStr(thisDayEvents[i].end.toString()))) {
+        if ((this.toTimeStampFromStr(ev.start) < this.toTimeStampFromStr(thisDayEvents[i].end.toString())
+          && (this.toTimeStampFromStr(ev.start) > this.toTimeStampFromStr(thisDayEvents[i].start.toString())))
+          || (this.toTimeStampFromStr(ev.end) > this.toTimeStampFromStr(thisDayEvents[i].start.toString()))
+          && (this.toTimeStampFromStr(ev.end) < this.toTimeStampFromStr(thisDayEvents[i].end.toString()))) {
           error = true;
         }
 
@@ -424,10 +430,10 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
       this.alertService.alert(
           'warning-message',
         'Choose other time!',
-          'Our apologize. System is working in test-mode. Please, choose time which will not across Your other free time events',
+          'Our apologizes. System is working in test-mode. Please, choose time which will not across Your other free time events',
         'ok',
         'btn btn-round btn-success',
-      ).then(()=>console.log('ended'));
+      ).then(() => console.log('ended'));
       return;
     }
     // Make a divider there
@@ -481,16 +487,22 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
 
   fillStartTimes(event: any) {
     this.startTimes = [];
+    console.log('EVENT', event);
     const oldTime: Date = event.date instanceof Date ? event.date : event.date.value ;
     let newTime = new Date(oldTime);
-    this.startTimes = [...this.startTimes, oldTime];
-    while ( true ) {
-      newTime = new Date(newTime.setMinutes(newTime.getMinutes() + this.sessionDuration));
+    this.startTimes = [oldTime, ...this.startTimes];
+    let isOneDay = true;
+    while ( isOneDay ) {
+      // newTime = new Date(newTime.setMinutes(newTime.getMinutes() + this.sessionDuration));
+      newTime = new Date(newTime.getTime() + this.sessionDuration * 60000);
+      console.log(newTime + '\n');
       if (newTime.getDay() !== oldTime.getDay()) {
-        break;
+        console.log('BREAKED');
+        isOneDay = false;
       }
       this.startTimes =  [...this.startTimes, newTime ];
     }
+    console.log('This,startTimes', this.startTimes);
     this.activeEventForm.patchValue({
       start: this.startTimes[0]
     });

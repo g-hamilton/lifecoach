@@ -11,6 +11,14 @@
       </div>
     <hr>
   </div>
+  <ng-template #sessions>
+    <h3>
+      You have no ordered sessions.
+    </h3>
+    <br>
+    <hr>
+  </ng-template>
+  <ng-template [ngIf]="this.userType && this.userType!=='regular'">
   <div *ngIf="this.coachingSessions.length  && this.uid; else coachSessions">
     <h1>Sessions, where You are coaching</h1>
     <hr>
@@ -23,17 +31,12 @@
     <br>
     <hr>
   </div>
-  <ng-template #sessions>
-    <h3>
-      You have no ordered sessions.
-    </h3>
-    <br>
-    <hr>
-  </ng-template>
+
   <ng-template #coachSessions>
     <h3>
       Looks like nobody ordered Your session yet.
     </h3>
     <hr>
+  </ng-template>
   </ng-template>
 </div>
