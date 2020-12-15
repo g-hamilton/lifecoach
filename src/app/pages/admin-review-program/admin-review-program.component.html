@@ -115,7 +115,7 @@
                 <!-- end of row -->
 
                 <!-- program description & info -->
-                <div *ngIf="program" class=" row mt-5 pb-5">
+                <div *ngIf="program" class=" pricing-page row mt-5 pb-5">
                     <div class=" col-12">
                     <div class=" card">
                         <div class=" card-body p-5">
@@ -483,21 +483,21 @@
                 <!-- End row -->
 
                 <!-- Admin review decision panel row -->
-                <div class=" row">
+                <div *ngIf="program" class=" row">
                     <div class=" col">
                         <div class=" card">
                             <div class=" card-header">
                                 <h4> Admin Actions </h4>
                             </div>
 
-                            <div class=card-body>
+                            <div class="card-body">
                                 <div class=" row">
                                     <div class=" col">
                                         <div class=" card-title">
                                             <h5> View Public Coach Profile (new window) </h5>
                                         </div>
                                         <a target="_blank" [routerLink]="['/coach', program.sellerUid]">
-                                            <button class="btn btn-default">
+                                            <button class="btn btn-default btn-round">
                                                 <i class="fas fa-user"></i> View Coach Profile
                                             </button>
                                         </a>
@@ -508,7 +508,11 @@
                                     <div class=" col">
                                         <div class=" card-title">
                                             <h5> Upload a Program Image </h5>
-                                            <p class="text-danger">TODO: so admin can add an image before decision</p>
+                                            <app-picture-upload 
+                                            [avatar]="false" 
+                                            [inputImg]="program.image" 
+                                            (messageEvent)="onImageUpload($event)">
+                                            </app-picture-upload>
                                         </div>
                                     </div>
                                 </div>
@@ -519,10 +523,11 @@
                                             <div class=" card-title">
                                                 <h5> Review Decision </h5>
                                             </div>
-                                            <button class="btn btn-danger mr-2" (click)="rejectModal.show()">
+                                            <button class="btn btn-round btn-danger mr-2" (click)="rejectModal.show()">
                                                 <i class="fas fa-thumbs-down"></i> Reject 
                                             </button>
-                                            <button class="btn btn-success" (click)="approveProgram()">
+                                            <button class="btn btn-round btn-success" (click)="approveProgram()"
+                                            [disabled]="!program.image">
                                                 <span *ngIf="!approving">
                                                     <i class="fas fa-thumbs-up"></i>
                                                 </span>
@@ -565,7 +570,7 @@
                 <h1 class=" card-title"> Reject This Program </h1>
                 </div>
                 <div class=" card-body">
-                    <form [formGroup]="rejectProgram">
+                    <form [formGroup]="rejectForm">
                         <div class="form-group">
                             <label for="rejectReason"> Reason </label>
                             <textarea

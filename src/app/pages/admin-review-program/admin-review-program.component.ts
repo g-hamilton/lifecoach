@@ -10,6 +10,7 @@ import { CoachingProgram } from 'app/interfaces/coach.program.interface';
 import { AuthService } from 'app/services/auth.service';
 import { CloudFunctionsService } from 'app/services/cloud-functions.service';
 import { AnalyticsService } from 'app/services/analytics.service';
+import { StorageService } from 'app/services/storage.service';
 
 @Component({
   selector: 'app-admin-review-program',
@@ -23,6 +24,7 @@ export class AdminReviewProgramComponent implements OnInit, OnDestroy {
   private programId: string;
   public program: CoachingProgram;
   public reviewRequest: AdminProgramReviewRequest;
+  public uploadedImage: string; // will be a base64 string
   public rejectForm: FormGroup;
   public focus: boolean;
   public focusTouched: boolean;
@@ -39,7 +41,8 @@ export class AdminReviewProgramComponent implements OnInit, OnDestroy {
     private alertService: AlertService,
     private authService: AuthService,
     private cloudFunctionsService: CloudFunctionsService,
-    private analyticsService: AnalyticsService
+    private analyticsService: AnalyticsService,
+    private storageService: StorageService
   ) {
   }
 
@@ -111,6 +114,27 @@ export class AdminReviewProgramComponent implements OnInit, OnDestroy {
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const day = days[date.getDay()];
     return `${day} ${date.toLocaleDateString()}`;
+  }
+
+  async onImageUpload($event: any) {
+    /*
+      Triggered by the 'messageEvent' listener on the component template.
+      The child 'picture-upload-component' will emit a chosen image as
+      a base64 string when an image is chosen. We'll listen for that change 
+      here and grab the string for saving to storage & patching into the program.
+    */
+    // console.log(`received base64 image string: ${$event}`);
+    this.uploadedImage = $event;
+    if (!this.uploadedImage) {
+      return;
+    }
+
+    // auto save any new image to storage
+    const url = await this.storageService.storeProgramImageUpdateDownloadUrl(this.program.sellerUid, this.uploadedImage);
+    this.program.image = url; // assigns a storage downloadURL string
+
+    // auto save the program now that it has a new image
+    this.dataService.savePrivateProgram(this.program.sellerUid, this.program);
   }
 
   async approveProgram() {

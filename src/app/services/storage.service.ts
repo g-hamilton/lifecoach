@@ -151,4 +151,47 @@ export class StorageService {
     }
   }
 
+  async storeProgramImageUpdateDownloadUrl(uid: string, img: string) {
+    /*
+    1. Stores an image at a given path in Firebase Storage with an auto assigned ID
+    2. Replaces the dataURL with the storage URL
+    3. Returns the newly assigned updated storage URL
+    4. If unable to store the image, returns the original dataURL as a fallback.
+    */
+    const original = img;
+    const imgId = this.generateRandomImgID();
+    const path = `users/${uid}/programImages/${imgId}`;
+    try {
+      console.log(`Attempting storage upload for user ${uid}`);
+      const destination = this.storage.ref(path);
+      const snap = await destination.putString(original, 'data_url');
+      const storagePath = await snap.ref.getDownloadURL();
+      console.log(`Program img stored & download URL ${storagePath} captured successfully.`);
+      return storagePath;
+    } catch (err) {
+      console.error(err);
+      return original;
+    }
+  }
+
+  deleteProgramImageFromStorage(uid: string, imgId: string) {
+    /*
+    1. Check if an image exists by looking for a download url
+    2. If the image exists in storage, delete it
+    */
+    const path = `users/${uid}/programImages/${imgId}`;
+    try {
+      const $obs = this.storage.ref(path).getDownloadURL();
+      $obs.pipe(first()).subscribe(data => {
+        if (data) {
+          this.storage.ref(path).delete();
+        } else {
+          console.log(`Program image not found in storage.`);
+        }
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
 }
