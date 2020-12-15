@@ -105,8 +105,7 @@ export class CourseComponent implements OnInit, OnDestroy {
       this.analyticsService.pageView();
 
       // Init Stripe.js
-      const stripe = Stripe(`${environment.stripeCourseKey}`); // production key, NOT for testing!
-      // const stripe = Stripe('pk_test_HtSpdTqwGC86g7APo4XLBgms00TVXJLOf8'); // test key, NOT for prod!
+      const stripe = Stripe(`${environment.stripeJsClientKey}`);
 
       // Init Stripe Elements
       const elements = stripe.elements();

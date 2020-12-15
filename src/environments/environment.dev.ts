@@ -11,6 +11,6 @@ export const environment = {
   algoliaApiKey: '2fb04a22ac2afb05afcf086bbf5289e3',
   algoliaApplicationID: 'T46GDX1NCS',
   stripeClientId: '&client_id=ca_Gl8JdfxtwHJFDika4cUSThpPTDfCYZa3',
-  stripeCourseKey: 'pk_test_HtSpdTqwGC86g7APo4XLBgms00TVXJLOf8',
+  stripeJsClientKey: 'pk_test_HtSpdTqwGC86g7APo4XLBgms00TVXJLOf8',
   stripeRedirectUri: 'redirect_uri=http://livecoach-dev.web.app/account/stripe/oauth'
 };
