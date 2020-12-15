@@ -226,13 +226,19 @@
             <div class=" mt-4">
                 <label> Program Cover Image </label>
             </div>
-            <p class=" text-success">
-                Get a free, professional program cover image!
-            </p>
-            <p class=" small text-muted">
-                Our design team will get to work creating an attractive cover image as soon as you 
-                submit your program for review.
-            </p>
+            <div *ngIf="program?.image ; else noImage">
+                <img [src]="program.image" style="height: 200px;">
+            </div>
+            <ng-template #noImage>
+                <p class=" text-success">
+                    Get a free, professional program cover image!
+                </p>
+                <p class=" small text-muted">
+                    Our design team will get to work creating an attractive cover image as soon as you 
+                    submit your program for review.
+                </p>
+            </ng-template>
+
             <!-- <div>
                 <p class="lead text-muted">Make your program stand out with a great cover image!</p>
                 <p class="lead text-muted">Images <strong>MUST</strong> meet our

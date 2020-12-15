@@ -315,7 +315,7 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
     this.program.category = this.landingF.category.value;
     this.program.level = this.landingF.level.value;
     this.program.subject = this.landingF.subject.value;
-    this.program.image = this.landingF.mainImage.value;
+    this.program.image = this.landingF.image.value;
     this.program.promoVideo = this.landingF.promoVideo.value;
     this.program.learningPoints = this.buildLpArray();
     this.program.requirements = this.buildReqArray();
