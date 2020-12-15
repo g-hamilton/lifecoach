@@ -41,7 +41,13 @@
               <!-- program duration -->
               <div *ngIf="program?.duration" class="">
                 <h6 class="text-muted">
-                  <span class=""><i class="far fa-calendar-alt"></i> {{ program.duration }} week private 1-to-1 video coaching program</span>
+                  <span class=""><i class="far fa-calendar-alt"></i> {{ program.duration }} weeks</span>
+                </h6>
+              </div>
+              <!-- program sessions -->
+              <div *ngIf="program?.numSessions" class="">
+                <h6 class="text-muted">
+                  <span class=""><i class="fas fa-comments"></i> {{ program.numSessions }} private 1-to-1 video coaching sessions</span>
                 </h6>
               </div>
               <div class=" mt-4 mb-5">
@@ -120,9 +126,14 @@
                   </span> -->
 
                   <!-- description -->
-                  <div class="">
+                  <div *ngIf="program.description ; else noDescription">
                     <div id="test" class=" card-description" [innerHTML]="program.description"></div>
                   </div>
+                  <ng-template #noDescription>
+                    <div id="no-description" class=" card-description">
+                      Awaiting description
+                    </div>
+                  </ng-template>
 
                   <hr>
 
@@ -170,7 +181,7 @@
                   <hr>
 
                   <!-- program duration -->
-                  <div *ngIf="program?.duration" class=" mt-5">
+                  <div *ngIf="program?.duration ; else noDuration" class=" mt-5">
                     <h5 class=" card-title"> Average program duration: </h5>
                     <h6 class="text-muted">
                       <span class=""><i class="far fa-calendar-alt"></i> {{ program.duration }} weeks</span>
@@ -178,14 +189,37 @@
                     <p>Note: This is an average duration. 
                       Your Coach will tailor your program to fit your needs so this duration is only intended as a guide</p>
                   </div>
+                  <ng-template #noDuration>
+                    <div class=" card-description mt-5">
+                      Awaiting duration
+                    </div>
+                  </ng-template>
+
+                  <!-- program sessions -->
+                  <div *ngIf="program?.numSessions ; else noNumSessions" class=" mt-5">
+                    <h5 class=" card-title"> Number of sessions: </h5>
+                    <h6 class="text-muted">
+                      <span class=""><i class="fas fa-comments"></i> {{ program.numSessions }} </span>
+                    </h6>
+                  </div>
+                  <ng-template #noNumSessions>
+                    <div class=" card-description mt-5">
+                      Awaiting session information
+                    </div>
+                  </ng-template>
 
                   <!-- program language -->
-                  <div *ngIf="program?.language" class=" mt-5">
+                  <div *ngIf="program?.language ; else noLanguage" class=" mt-5">
                     <h5 class=" card-title"> Program language: </h5>
                     <h6 class="text-muted">
                       <i class="fas fa-comment"></i> {{ languages[program.language]?.nativeName }}
                     </h6>
                   </div>
+                  <ng-template #noLanguage>
+                    <div class=" card-description mt-5">
+                      Awaiting language
+                    </div>
+                  </ng-template>
 
                 </div>
               </div>
@@ -235,6 +269,9 @@
 
                 <!-- payment options row -->
                 <div class=" row">
+
+                  <!-- spacer col -->
+                  <div class=" col-lg-2 col-xs-0"></div>
 
                   <!-- discover col -->
                   <div class=" col-lg-4 col-xs-12">
@@ -362,11 +399,45 @@
                 </div>
 
                 <!-- payment options row -->
-                <div class=" row">
+                <div *ngIf="program && program.pricingStrategy && program.fullPrice && 
+                (program.pricingStrategy == 'flexible' && program.pricePerSession) && program.currency" class=" row">
+
+                  <!-- discover col -->
+                  <div class=" col-lg-4 col-xs-12">
+                    <div class=" card card-pricing card-primary">
+                      <div class=" card-body">
+                        <h1 class=" card-title">discover</h1>
+                        <img
+                          alt="Image"
+                          class=" card-img"
+                          src="assets/img/card-primary.png"
+                        />
+          
+                        <ul class=" list-group">
+                          <li class=" list-group-item mt-4">Schedule a discovery call</li>
+                        </ul>
+                        <div class=" card-prices pl-3 pr-3">
+                          <h3 class=" text-on-front">FREE</h3>
+                          <h5 class=" text-on-back">FREE</h5>
+                          <p class=" plan">Check this program is right for you. <br>Ask your coach anything you like prior to starting.</p>
+                        </div>
+                      </div>
+                      <div class=" card-footer text-center mb-3 mt-3">
+                        <!-- schedule call button -->
+                        <!-- disabled for program seller or if already purchased -->
+                        <!-- userId === program.sellerUid || userClaims && userClaims[program.programId] -->
+                        <button class=" btn btn-round btn-just-icon btn-primary"
+                        [disabled]="userId === program.sellerUid || userClaims && userClaims[program.programId]">
+                          <i class="fas fa-phone"></i> Schedule a Call
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <!--  end discover col -->
 
                   <!-- pay in full col -->
                   <div *ngIf="program?.currency && program?.fullPrice" class=" col-lg-4 col-xs-12">
-                    <div class=" card card-pricing card-success card-white">
+                    <div class=" card card-pricing card-success card-raised card-white">
                       <div class=" card-body">
                         <h1 class=" card-title">program</h1>
                         <img
@@ -377,6 +448,7 @@
               
                         <ul class=" list-group">
                           <li class=" list-group-item">Buy the full program</li>
+                          <li class=" list-group-item text-danger">Save {{ ((program.fullPrice / (program.numSessions * program.pricePerSession)) * 100).toFixed() }}%</li>
                         </ul>
                         <div class=" card-prices pl-3 pr-3">
                           <h3 class=" text-on-front">{{ currencySymbol + displayFullPrice }}</h3>
@@ -414,39 +486,6 @@
                   </div>
                   <!-- end pay in full col -->
 
-                  <!-- discover col -->
-                  <div class=" col-lg-4 col-xs-12">
-                    <div class=" card card-pricing card-raised card-primary">
-                      <div class=" card-body">
-                        <h1 class=" card-title">discover</h1>
-                        <img
-                          alt="Image"
-                          class=" card-img"
-                          src="assets/img/card-primary.png"
-                        />
-          
-                        <ul class=" list-group">
-                          <li class=" list-group-item">Schedule a discovery call</li>
-                        </ul>
-                        <div class=" card-prices pl-3 pr-3">
-                          <h3 class=" text-on-front">FREE</h3>
-                          <h5 class=" text-on-back">FREE</h5>
-                          <p class=" plan">Check this program is right for you. <br>Ask your coach anything you like prior to starting.</p>
-                        </div>
-                      </div>
-                      <div class=" card-footer text-center mb-3 mt-3">
-                        <!-- schedule call button -->
-                        <!-- disabled for program seller or if already purchased -->
-                        <!-- userId === program.sellerUid || userClaims && userClaims[program.programId] -->
-                        <button class=" btn btn-round btn-just-icon btn-primary"
-                        [disabled]="userId === program.sellerUid || userClaims && userClaims[program.programId]">
-                          <i class="fas fa-phone"></i> Schedule a Call
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  <!--  end discover col -->
-
                   <!-- pay per session col -->
                   <div *ngIf="program?.currency && program?.fullPrice && program?.pricePerSession" class=" col-lg-4 col-xs-12">
                     <div class=" card card-pricing card-success card-white">
@@ -459,7 +498,7 @@
                         />
 
                         <ul class=" list-group">
-                          <li class=" list-group-item">Pay Per Session</li>
+                          <li class=" list-group-item mt-4">Pay Per Session</li>
                         </ul>
                         <div class=" card-prices pl-3 pr-3">
                           <h3 class=" text-on-front">{{ currencySymbol + displaySessionPrice }}</h3>
@@ -501,7 +540,8 @@
                 <!-- end payment options row -->
 
                 <!-- Currency picker row -->
-                <div class=" row">
+                <div *ngIf="program && program.pricingStrategy && program.fullPrice && 
+                (program.pricingStrategy == 'flexible' && program.pricePerSession) && program.currency" class=" row">
                   <div class=" col-md-4 ml-auto mr-auto">
                     <div>
                       <label> Show prices in </label>

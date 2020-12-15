@@ -86,6 +86,12 @@
                             Program primary subject is missing
                         </li>
                         <!-- sessions & pricing items -->
+                        <li *ngIf="!program.numSessions">
+                            Program session information is missing
+                        </li>
+                        <li *ngIf="!program.duration">
+                            Program duration is missing
+                        </li>
                         <li *ngIf="!program.fullPrice">
                             Program price is missing
                         </li>

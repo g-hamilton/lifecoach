@@ -48,9 +48,9 @@
       .text-on-back {
         position: relative;
         z-index: 1;
-        font-size: 9.5em;
+        font-size: 5em;
         text-align: center;
-        margin-top: -160px;
+        margin-top: -125px;
         font-weight: 900;
         color: rgba($default-states, 0.1);
       }
@@ -58,7 +58,7 @@
       .plan {
         font-weight: 600;
         font-size: 0.8em;
-        margin-top: -80px;
+        margin-top: -28px;
         text-align: center;
         color: rgba($white, 0.9);
       }
