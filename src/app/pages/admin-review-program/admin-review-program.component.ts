@@ -50,6 +50,7 @@ export class AdminReviewProgramComponent implements OnInit, OnDestroy {
     if (isPlatformBrowser(this.platformId)) {
       this.browser = true;
       this.getRouteData();
+      this.getUserData();
       this.buildRejectForm();
     }
   }
@@ -158,7 +159,7 @@ export class AdminReviewProgramComponent implements OnInit, OnDestroy {
     }
 
     // attempt approval
-    const res = await this.alertService.alert('warning-message-and-confirmation', 'Confirm', 'Confirm program approval.', 'Yes - Confirm') as any;
+    const res = await this.alertService.alert('warning-message-and-confirmation', 'Confirm', 'Are you sure you want to approve this program?', 'Yes - Approve', 'Cancel') as any;
     if (res && res.action) { // user confirms
       console.log('Sending program review approval:', this.programId, this.userId, this.reviewRequest);
       const response = await this.cloudFunctionsService.adminApproveProgramReview(this.programId, this.userId, this.reviewRequest) as any;
