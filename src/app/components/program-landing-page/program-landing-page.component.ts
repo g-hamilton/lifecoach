@@ -142,7 +142,7 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
       category: [null, [Validators.required]],
       level: [null, [Validators.required]],
       subject: ['', [Validators.required, Validators.minLength(this.subjectMinLength), Validators.maxLength(this.subjectMaxLength)]],
-      mainImage: [null],
+      image: [null],
       promoVideo: [null],
       learningPoints: [this.formBuilder.array([])],
       requirements: [this.formBuilder.array([])],
