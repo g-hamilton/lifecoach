@@ -10,6 +10,7 @@ import { first } from 'rxjs/operators';
 import { StripePaymentIntentRequest } from 'app/interfaces/stripe.payment.intent.request';
 import { RefundRequest } from 'app/interfaces/refund.request.interface';
 import {Answer} from '../pages/video-chatroom/videochatroom.component';
+import { AdminProgramReviewRequest } from 'app/interfaces/admin.program.review.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -404,6 +405,38 @@ export class CloudFunctionsService {
       const trigger = this.cloudFunctions.httpsCallable('abortVideoSession');
 
       const tempSub = trigger({ roomID })
+        .pipe(first())
+        .subscribe(res => {
+          resolve(res);
+          tempSub.unsubscribe();
+        });
+    });
+  }
+
+  adminApproveProgramReview(programId: string, userId: string, reviewRequest: AdminProgramReviewRequest) {
+    return new Promise(resolve => {
+      const approve = this.cloudFunctions.httpsCallable('adminApproveProgramReview');
+      const tempSub = approve({
+        programId,
+        userId,
+        reviewRequest
+      })
+        .pipe(first())
+        .subscribe(res => {
+          resolve(res);
+          tempSub.unsubscribe();
+        });
+    });
+  }
+
+  adminRejectProgramReview(programId: string, userId: string, reviewRequest: AdminProgramReviewRequest) {
+    return new Promise(resolve => {
+      const reject = this.cloudFunctions.httpsCallable('adminRejectProgramReview');
+      const tempSub = reject({
+        programId,
+        userId,
+        reviewRequest
+      })
         .pipe(first())
         .subscribe(res => {
           resolve(res);

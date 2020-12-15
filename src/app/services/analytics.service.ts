@@ -362,4 +362,16 @@ export class AnalyticsService {
     });
   }
 
+  adminApproveProgram(programId: string) {
+    mixpanel.track('admin approved program', {
+      programId
+    });
+  }
+
+  adminRejectProgram(programId: string) {
+    mixpanel.track('admin rejected program', {
+      programId
+    });
+  }
+
 }
