@@ -2,7 +2,7 @@ import {Component, Inject, OnDestroy, OnInit} from '@angular/core';
 import {DataService} from '../../services/data.service';
 import {AuthService} from '../../services/auth.service';
 import {Subscription} from 'rxjs';
-import {filter, flatMap, map} from 'rxjs/operators';
+import {filter, first, flatMap, map} from 'rxjs/operators';
 
 @Component({
   selector: 'app-video',
@@ -16,7 +16,7 @@ export class VideoComponent implements OnInit, OnDestroy {
   user: any;
   onLoad = true;
   uid: string = undefined;
-
+  userType: string = undefined;
 
   private subscriptions: Subscription = new Subscription();
 
@@ -33,10 +33,17 @@ export class VideoComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.authService.getAuthUser().subscribe(user => {
         if (user) {
-          console.log('USER OBJ:', user);
+          // console.log('USER OBJ:', user);
+          // @ts-ignore
+          // console.log(user.accountType)
           this.uid = user.uid;
-          console.log('ID is ', this.uid);
+          // console.log('ID is ', this.uid);
 
+          this.subscriptions.add(
+            this.dataService.getUserAccount(this.uid)
+              .pipe(first())
+              .subscribe( usr => this.userType = usr.accountType)
+          );
 
           this.subscriptions.add(
             this.dataService.getUserOrderedSessions(this.uid)

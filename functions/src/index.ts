@@ -3,7 +3,7 @@ import * as admin from 'firebase-admin';
 const firebase_tools = require('firebase-tools');
 const firebase = admin.initializeApp();
 const db = admin.firestore();
-const client = require('twilio')('AC0fbf93e299ce29fc5be48934baed2a2f', '7e167f9588f3ea827969b919f8acfb88');
+const client = require('twilio')(functions.config().twilio.accountsid, functions.config().twilio.authtoken);
 
 
 // ================================================================================
@@ -36,7 +36,6 @@ import fetch from 'node-fetch'; // Using the Fetch API which supports promises
 
 import * as algoliasearch from 'algoliasearch';
 const algolia = algoliasearch(functions.config().algolia.appid, functions.config().algolia.adminkey);
-
 // ================================================================================
 // =====                   NOLT CLIENT FEEDBACK CONFIG                       ======
 // ================================================================================

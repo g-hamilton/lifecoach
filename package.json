@@ -17,8 +17,10 @@
     "ssr": "npm run build:ssr && npm run serve:ssr",
     "ssr:dev": "npm run build:dev-ssr && npm run serve:ssr",
     "build:client-and-server-bundles": "ng build --prod && ng run black-dashboard-pro-angular:server:production --bundleDependencies none",
-    "build:dev-client-and-server-bundles": "ng build --prod --configuration=dev && ng run black-dashboard-pro-angular:server:production --bundleDependencies none",
-    "start:https:win": "ng serve --ssl true --ssl-key D:/greg-project/certificates/localhost.key --ssl-cert D:/greg-projectcertificates/localhost.crt --host 192.168.0.101 --port 4200"
+    "build:dev-client-and-server-bundles": "ng build --configuration=dev && ng run black-dashboard-pro-angular:server:production --bundleDependencies none",
+    "build:dev-client-and-dev-server-bundles": "ng build --configuration=dev && ng run black-dashboard-pro-angular:server:dev --bundleDependencies none",
+    "start:https:win": "ng serve --ssl true --ssl-key D:/greg-project/certificates/localhost.key --ssl-cert D:/greg-projectcertificates/localhost.crt --host 192.168.0.101 --port 4200",
+    "build:ssr:fulldev": "npm run build:dev-client-and-dev-server-bundles && npm run webpack:server"
   },
   "private": true,
   "dependencies": {
@@ -106,3 +108,4 @@
     "xhr2": "^0.2.0"
   }
 }
+

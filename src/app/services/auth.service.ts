@@ -27,7 +27,7 @@ export class AuthService {
     try {
       /*
       Attempts to register a new user with Firebase.
-      Firebase auth promises a user credential.
+      FirebasecompleteStripeConnect auth promises a user credential.
       If signup successful, attempts to set a custom claim on the user object to always identify them by type,
       either regular user or coach (business) user.
       Refreshes the user credential client side with the newly set custom claim.
