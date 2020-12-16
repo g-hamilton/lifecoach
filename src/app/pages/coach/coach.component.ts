@@ -137,7 +137,7 @@ export class CoachComponent implements OnInit, OnDestroy {
 
       if (programsData === null) { // if state data does not exist - retrieve it from the api
         this.subscriptions.add(
-          this.dataService.getPublicProgramsBySeller(this.userId).subscribe(programs => {
+          this.dataService.getPublicProgramsBySeller(this.coachId).subscribe(programs => {
             if (programs) { // The coach has at least one published program
               this.publishedPrograms = programs;
               if (isPlatformServer(this.platformId)) {
