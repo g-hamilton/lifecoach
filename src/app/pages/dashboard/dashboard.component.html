@@ -28,9 +28,9 @@
             <table class=" table">
               <!-- User has active tasks -->
               <tbody *ngIf="todos && todos.length > 0">
-                <tr *ngFor="let task of todos">
+                <tr *ngFor="let task of todos ; let i = index">
                   <td>
-                    <p class=" title">{{ task.title }}</p>
+                    <p class=" title">{{ (i + 1) + '. ' + task.title }}</p>
                     <p class=" text-muted">{{ task.description }} 
                       <a class=" pl-1 text-success" [routerLink]="['/', task.action]">
                         Let's do it
@@ -216,9 +216,9 @@
             <table class=" table">
               <!-- User has active tasks -->
               <tbody *ngIf="todos && todos.length > 0">
-                <tr *ngFor="let task of todos">
+                <tr *ngFor="let task of todos ; let i = index">
                   <td>
-                    <p class=" title">{{ task.title }}</p>
+                    <p class=" title">{{ (i + 1) + '. ' + task.title }}</p>
                     <p class=" text-muted">{{ task.description }} 
                       <a class=" pl-1 text-success" [routerLink]="['/', task.action]">
                         Let's do it
