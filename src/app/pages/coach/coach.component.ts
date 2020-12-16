@@ -124,10 +124,10 @@ export class CoachComponent implements OnInit, OnDestroy {
                   if (profile) {
                     this.initProfile(profile);
                   }
-                })
+                }, error => console.log('error logger', error.message))
               );
             }
-          })
+          }, error => console.log('error logger', error.message))
         );
 
       } else { // if profile state data exists retrieve it from the state storage
@@ -149,7 +149,7 @@ export class CoachComponent implements OnInit, OnDestroy {
                 this.transferState.set(COURSES_KEY, publicCourses);
               }
             }
-          })
+          }, error => console.log('error logger', error.message))
         );
       } else { // if courses state data exists retrieve it from the state storage
         this.courses = coursesData;
@@ -162,16 +162,23 @@ export class CoachComponent implements OnInit, OnDestroy {
       const programsData = this.transferState.get(PROGRAMS_KEY, null as any); // checking if data in the storage exists
 
       if (programsData === null) { // if state data does not exist - retrieve it from the api
-        this.subscriptions.add(
-          this.dataService.getPublicProgramsBySeller(this.coachId).subscribe(programs => {
-            if (programs) { // The coach has at least one published program
-              this.publishedPrograms = programs;
-              if (isPlatformServer(this.platformId)) {
-                this.transferState.set(PROGRAMS_KEY, programs);
+        // this.route.params.pipe().subscribe(params => {});
+        this.route.params.pipe(first()).subscribe(
+        par => {
+          console.log(par.uid);
+          this.subscriptions.add(
+            this.dataService.getPublicProgramsBySeller(par.uid).subscribe(programs => {
+              if (programs) { // The coach has at least one published program
+                this.publishedPrograms = programs;
+                if (isPlatformServer(this.platformId)) {
+                  this.transferState.set(PROGRAMS_KEY, programs);
+                }
               }
-            }
-          })
+            }, error => console.log('error logger', error.message))
+          );
+        }
         );
+
       } else { // if state data exists retrieve it from the state storage
         this.publishedPrograms = programsData;
         this.transferState.remove(PROGRAMS_KEY);
@@ -191,7 +198,7 @@ export class CoachComponent implements OnInit, OnDestroy {
                 this.transferState.set(SERVICES_KEY, services);
               }
             }
-          })
+          }, error => console.log('error logger', error.message))
         );
       } else { // if state data exists retrieve it from the state storage
         this.publishedServices = servicesData;
@@ -275,9 +282,10 @@ export class CoachComponent implements OnInit, OnDestroy {
             });
             }
           console.log('UNIQUE DAYS:', this.dayToSelect);
-        })
+        },
+          error => console.log('error logger', error.message))
       );
-      this.authService.getAuthUser().pipe(first()).subscribe(value => this.userId = value.uid);
+      this.authService.getAuthUser().pipe(first()).subscribe(value => this.userId = value.uid, error => console.log('error logger', error.message));
     }
   }
 
@@ -288,7 +296,7 @@ export class CoachComponent implements OnInit, OnDestroy {
         this.dataService.getUserNotReservedEvents(this.coachId, new Date(event.target.value))
           .subscribe(next => {
           this.todayEvents = next;
-        })
+        }, error => console.log('error logger', error.message))
       );
     } else {
     }

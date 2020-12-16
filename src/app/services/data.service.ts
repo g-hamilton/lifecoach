@@ -731,6 +731,7 @@ export class DataService {
       console.log(date);
       const startTime = new Date(date.setHours(0, 0, 0, 0));
       const endTime = new Date(date.setHours(24));
+      console.log('Возможно, undefined', startTime, endTime);
       return this.db.collection(`users/${uid}/calendar`, ref => ref
         .where('reserved', '==', false)
         .where('start', '>=', startTime)
@@ -873,6 +874,7 @@ export class DataService {
   }
 
   getPublicProgramsBySeller(sellerUid: string) {
+    console.log(sellerUid);
     const programsRef = this.db.collection('public-programs', ref => ref.where('sellerUid', '==', sellerUid));
     return programsRef.valueChanges() as Observable<CoachingProgram[]>;
   }
