@@ -17,9 +17,7 @@ import { AnalyticsService } from '../../services/analytics.service';
 
 import { UserAccount } from '../../interfaces/user.account.interface';
 import { CurrenciesService } from 'app/services/currencies.service';
-import { EmojiCountry } from 'app/interfaces/emoji.country.interface';
 import { CountryService } from 'app/services/country.service';
-import { CoachProfile } from 'app/interfaces/coach.profile.interface';
 import { Subscription } from 'rxjs';
 import { RefundRequest } from 'app/interfaces/refund.request.interface';
 import {environment} from '../../../environments/environment';
@@ -212,13 +210,12 @@ export class AccountComponent implements OnInit, OnDestroy {
                           const tempProfSub = this.dataService.getCoachProfile(this.userId).subscribe(profile => {
                             if (profile) {
                               if (profile.country) {
-                                // tslint:disable-next-line: max-line-length
                                 this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[country]=${profile.country.code}`);
                               }
                               if (profile.profileUrl) {
                                 this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[url]=${profile.profileUrl}`);
                               } else {
-                                this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[url]=https://lifecoach.io`);
+                                this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[url]=${environment.baseUrl}`);
                               }
                             }
                             tempProfSub.unsubscribe();

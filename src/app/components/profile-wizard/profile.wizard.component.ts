@@ -15,6 +15,7 @@ import { ToastService } from '../../services/toast.service';
 
 import { UserAccount } from '../../interfaces/user.account.interface';
 import { Subscription } from 'rxjs';
+import { environment } from 'environments/environment';
 
 @Component({
   selector: 'app-profile-wizard',
@@ -169,7 +170,7 @@ export class ProfileWizardComponent implements OnInit, OnDestroy {
           qualCas: [false],
           qualCsa: [false],
           qualSa: [false],
-          proSummary: ['', [Validators.required, Validators.minLength(90),Validators.minLength(this.summaryMinLength), Validators.maxLength(this.summaryMaxLength)]],
+          proSummary: ['', [Validators.required, Validators.minLength(90), Validators.minLength(this.summaryMinLength), Validators.maxLength(this.summaryMaxLength)]],
           goalTags: [this.formBuilder.array([new FormControl('', Validators.maxLength(this.goalTagMaxLength))]), Validators.compose([Validators.required, Validators.maxLength(this.goalTagsMax)])],
           isPublic: [false],
           profileUrl: [''],
@@ -202,7 +203,7 @@ export class ProfileWizardComponent implements OnInit, OnDestroy {
                       firstName: account.firstName,
                       lastName: account.lastName,
                       email: account.accountEmail,
-                      profileUrl: `https://lifecoach.io/coach/${user.uid}`
+                      profileUrl: `${environment.baseUrl}/coach/${user.uid}`
                     });
                   }
                 })
@@ -343,8 +344,8 @@ export class ProfileWizardComponent implements OnInit, OnDestroy {
     // console.log(merged);
 
     // alert
-    await this.alertService.alert('success-message', 'Nice Work!', `Your basic profile is ready. Feel free to keep building on it and 
-    don't forget to make it public when you're ready to start generating leads.`)
+    await this.alertService.alert('success-message', 'Nice Work!', `Your basic profile is ready. Feel free to keep building on it and
+    don't forget to make it public when you're ready to start generating leads.`);
 
     // Save the profile
     await this.dataService.saveCoachProfile(this.userId, merged);

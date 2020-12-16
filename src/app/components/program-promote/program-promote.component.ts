@@ -3,6 +3,7 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { AlertService } from 'app/services/alert.service';
 import { isPlatformBrowser } from '@angular/common';
 import { CoachingProgram } from 'app/interfaces/coach.program.interface';
+import { environment } from 'environments/environment';
 
 @Component({
   selector: 'app-program-promote',
@@ -32,7 +33,7 @@ export class ProgramPromoteComponent implements OnInit, OnChanges {
 
   ngOnChanges() {
     if (this.userId && this.program) {
-      const baseUrl = `https://lifecoach.io/programs/${this.program.programId}/`;
+      const baseUrl = `${environment.baseUrl}/program/${this.program.programId}`;
       const queryparams = `?referralCode=${this.userId}`;
       this.promoteForm.patchValue({ referralCode: `${baseUrl}${queryparams}` });
     }

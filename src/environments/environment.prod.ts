@@ -13,5 +13,6 @@ export const environment = {
   algoliaAdminApiKey: 'b1d6ac013a3bc541d40cd0026bac5c13',
   stripeClientId: '&client_id=ca_Gl8J06rwgRmJRMoX00JSaSG9SKspTh9t',
   stripeJsClientKey: 'pk_live_GFTeJnPVGhgVifaASOsjEvXf00faFIpXu2',
-  stripeRedirectUri: 'redirect_uri=https://lifecoach.io/account/stripe/oauth'
+  stripeRedirectUri: 'redirect_uri=https://lifecoach.io/account/stripe/oauth',
+  baseUrl: 'https://lifecoach.io'
 };

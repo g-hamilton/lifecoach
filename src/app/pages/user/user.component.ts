@@ -14,9 +14,9 @@ import { CoachingSpecialitiesService } from '../../services/coaching.specialitie
 import { AnalyticsService } from '../../services/analytics.service';
 import { StorageService } from '../../services/storage.service';
 import { AlertService } from 'app/services/alert.service';
-import { EmojiCountry } from 'app/interfaces/emoji.country.interface';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { environment } from 'environments/environment';
 
 @Component({
   selector: 'app-user',
@@ -345,7 +345,7 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
       qualCsa: p.qualCsa ? p.qualCsa : null,
       qualSa: p.qualSa ? p.qualSa : null,
       proSummary: p.proSummary,
-      profileUrl: p.profileUrl ? p.profileUrl : `https://lifecoach.io/coach/${this.userId}`,
+      profileUrl: p.profileUrl ? p.profileUrl : `${environment.baseUrl}/coach/${this.userId}`,
       fullDescription: p.fullDescription ? p.fullDescription : '',
       goalTags: this.importGoalTags(p.goalTags),
       credentails: this.importCredentials(p.credentials),
@@ -430,7 +430,7 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
 
   updateShareForm() {
     this.shareForm.patchValue({
-      shareUrl: `https://lifecoach.io/coach/${this.userId}`
+      shareUrl: `${environment.baseUrl}/coach/${this.userId}`
     });
   }
 

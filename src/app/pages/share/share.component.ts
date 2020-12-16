@@ -8,6 +8,7 @@ import { AnalyticsService } from '../../services/analytics.service';
 import { CoachProfile } from 'app/interfaces/coach.profile.interface';
 import { CloudFunctionsService } from 'app/services/cloud-functions.service';
 import { Subscription } from 'rxjs';
+import { environment } from 'environments/environment';
 
 @Component({
   selector: 'app-share',
@@ -59,7 +60,7 @@ export class ShareComponent implements OnInit, OnDestroy {
       this.generatingSmartlink = true;
 
       if (!this.profile.profileUrl) { // catch the case where profileUrl is not defined
-        this.profile.profileUrl = `https://lifecoach.io/coach/${this.userId}`;
+        this.profile.profileUrl = `${environment.baseUrl}/coach/${this.userId}`;
         this.dataService.saveCoachProfile(this.userId, this.profile);
       }
 
