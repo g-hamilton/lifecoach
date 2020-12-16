@@ -56,6 +56,7 @@ export class ProgramComponent implements OnInit, OnDestroy {
   public login = false;
   public lfocusTouched = false;
   public lfocusTouched1 = false;
+  public loginAttempt: boolean;
 
   public userType: string;
   public registerForm: FormGroup;
@@ -64,6 +65,7 @@ export class ProgramComponent implements OnInit, OnDestroy {
   public rfocusTouched1 = false;
   public rfocusTouched2 = false;
   public rfocusTouched3 = false;
+  public registerAttempt: boolean;
 
   private subscriptions: Subscription = new Subscription();
 
@@ -524,6 +526,7 @@ export class ProgramComponent implements OnInit, OnDestroy {
   }
 
   async onRegister() {
+    this.registerAttempt = true;
     // Check we have captured a user type
     console.log('User type to register:', this.userType);
     if (!this.userType) {
@@ -565,12 +568,14 @@ export class ProgramComponent implements OnInit, OnDestroy {
           this.alertService.alert('warning-message', 'Oops', 'Something went wrong. Please contact hello@lifecoach.io for help');
         }
       }
+      this.registerAttempt = false;
     } else {
       this.alertService.alert('warning-message', 'Oops', 'Please complete all required fields.');
     }
   }
 
   async onLogin() {
+    this.loginAttempt = true;
     // Log the user in
     if (this.loginForm.valid) {
       this.login = true;
@@ -599,6 +604,7 @@ export class ProgramComponent implements OnInit, OnDestroy {
           this.alertService.alert('warning-message', 'Oops', 'Something went wrong. Please try again or contact hello@lifecoach.io for assistance.');
         }
       }
+      this.loginAttempt = false;
     } else {
       this.alertService.alert('warning-message', 'Oops', 'Please complete all required fields.');
     }
