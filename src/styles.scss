@@ -568,11 +568,25 @@ select option {
   }
 }
 
-
 // custom styling for images in tables
 .table .img-container {
   width: 120px;
   max-height: 160px;
   overflow: hidden;
   display: block;
+}
+
+// custom styling to add a border between columns in a row
+.border-between > [class*='col-']:before {
+  background: #2b3553;
+  bottom: 0;
+  content: " ";
+  left: 0;
+  position: absolute;
+  width: 1px;
+  top: 0;
+}
+
+.border-between > [class*='col-']:first-child:before {
+  display: none;
 }

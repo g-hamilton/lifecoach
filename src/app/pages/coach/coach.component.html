@@ -80,18 +80,6 @@
                         <div class=" card-description text-center ml-5 mr-5">
                         {{ this.userProfile.proSummary }}
                         </div>
-                        <div *ngIf='this.userId !== undefined && this.userId!== this.coachId' class=" col-md-12 mt-1">
-                            <div class=" pull-right">
-                                <button
-                                  class=" btn btn-fill btn-round btn-primary mr-2 mb-2"
-                                  type="button"
-                                  (click)="showSessions($event)"
-                                  [disabled]="!this.userId"
-                                ><i class="fas fa-phone">&nbsp;</i>
-                                    <span>Get a Call</span>
-                                </button>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -260,10 +248,21 @@
                 <h4 class=" card-title"> Contact {{ userProfile.firstName }} </h4>
                 <div class=" card">
                     <div class=" card-body">
-                        <div class=" row justify-content-center">
-                            <div class=" col-md-10">
-                                <!-- Contact component -->
+                        <div class=" row justify-content-center border-between">
+                            <div class=" col-md-8">
+                                <h5 class=" card-title"> Send {{ userProfile.firstName }} a message </h5>
                                 <app-coach-contact [coachUid]="userId"></app-coach-contact>
+                            </div>
+                            <div class=" col-md-4 text-center pt-5">
+                                <h5 class=" card-title"> Or schedule a discovery call with {{ userProfile.firstName }} </h5>
+                                <button
+                                  class=" btn btn-fill btn-round btn-primary mr-2 mb-2"
+                                  type="button"
+                                  (click)="showSessions($event)"
+                                  [disabled]="!this.userId || this.userId === this.coachId"
+                                ><i class="fas fa-phone">&nbsp;</i>
+                                    <span>Schedule a Call</span>
+                                </button>
                             </div>
                         </div>
                     </div>
