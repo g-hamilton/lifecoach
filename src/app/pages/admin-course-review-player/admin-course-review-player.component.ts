@@ -281,7 +281,7 @@ export class AdminCourseReviewPlayerComponent implements OnInit, OnDestroy {
       }
       // success
       this.analyticsService.adminApproveCourse(this.courseId);
-      await this.alertService.alert('success-message', 'Success!', 'Course Approved.');
+      await this.alertService.alert('success-message', 'Success!', 'eCourse Approved.');
       this.router.navigate(['/admin-course-review']);
     }
     this.approving = false;
