@@ -20,6 +20,7 @@ import 'zone.js/dist/zone-node';
 import * as express from 'express';
 import {join} from 'path';
 
+
 // Express server
 export const app = express();
 
@@ -59,7 +60,8 @@ app.get('*.*', express.static(DIST_FOLDER, {
 
 // All regular routes use the Universal engine
 app.get('*', (req, res) => {
-  res.render('index', { req });
+
+  res.render('index', { req});
 });
 
 // Start up the Node server

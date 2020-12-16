@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import {Component, Inject, PLATFORM_ID} from '@angular/core';
 
-import { AuthService} from './services/auth.service';
-import { AnalyticsService } from './services/analytics.service';
+import {AuthService} from './services/auth.service';
+import {AnalyticsService} from './services/analytics.service';
+import { Platform } from '@angular/cdk/platform';
 
 @Component({
   selector: 'app-root',
@@ -14,29 +15,24 @@ export class AppComponent {
 
   constructor(
     private authService: AuthService,
-    private analytics: AnalyticsService
-    ) {
+    private analytics: AnalyticsService,
+    @Inject(PLATFORM_ID) private platformId: any,
+    @Inject(Platform) private testPlatform: any
+  ) {
 
     // Initialise analytics
     this.analytics.init();
+    if (testPlatform.isBrowser) {
+      if (!testPlatform.TRIDENT && !testPlatform.SAFARI) {
+        document.body.classList.add('webp');
+      } else {
+        console.log('changed body');
+      }
+    }
+    this.checkBrowser();
+  }
 
-    // Monitor the user's auth state
-    // this.authService.getAuthUser().subscribe(user => {
-    //   if (user) {
-    //     console.log('User is authorised');
-    //     // Auth state is not null. User is authorised.
-    //     this.userAuthorised = true;
-    //     // Check the user's custom auth claims.
-    //     // user.getIdTokenResult()
-    //     // .then(tokenRes => {
-    //     //   console.log('Custom user claims:', tokenRes.claims);
-    //     // });
-    //   } else {
-    //     // User is not authorised.
-    //     console.log('User not authorised.');
-    //     this.userAuthorised = false;
-    //   }
-    // });
+  checkBrowser() {
   }
 
 }

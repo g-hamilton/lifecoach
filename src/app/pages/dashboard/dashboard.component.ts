@@ -9,7 +9,6 @@ import { SsoService } from 'app/services/sso.service';
 
 import { UserTask } from '../../interfaces/user.tasks.interface';
 import { Subscription } from 'rxjs';
-import { environment } from 'environments/environment';
 
 @Component({
   selector: 'app-dashboard',
@@ -61,7 +60,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.analyticsService.pageView();
       this.loadUserData();
     }
-    console.log(environment);
   }
 
   async loadUserData() {

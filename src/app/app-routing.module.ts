@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BrowserModule } from '@angular/platform-browser';
-import { Routes, RouterModule } from '@angular/router';
+import {Routes, RouterModule, PreloadAllModules} from '@angular/router';
 
 import { AuthGuardService as AuthGuard } from './services/auth-guard.service';
 import { AdminAuthGuardService as AdminAuthGuard } from './services/admin-auth-guard.service';
@@ -330,7 +330,8 @@ const routes: Routes = [
       useHash: false,
       scrollPositionRestoration: 'enabled',
       anchorScrolling: 'enabled',
-      scrollOffset: [0, 64]
+      scrollOffset: [0, 64],
+      preloadingStrategy: PreloadAllModules
     })
   ],
   exports: [RouterModule]
