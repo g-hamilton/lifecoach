@@ -295,10 +295,11 @@
                       </div>
                       <div class=" card-footer text-center mb-3 mt-3">
                         <!-- schedule call button -->
-                        <!-- disabled for program seller or if already purchased -->
-                        <!-- userId === program.sellerUid || userClaims && userClaims[program.programId] -->
+                        <!-- disabled for program seller -->
+                        <!-- userId === program.sellerUid -->
                         <button class=" btn btn-round btn-just-icon btn-primary"
-                        [disabled]="userId === program.sellerUid || userClaims && userClaims[program.programId]">
+                        [disabled]="userId === program.sellerUid"
+                        (click)="logSessions() ; this.userId ? schedulerModal.show() : registerModal.show()">
                           <i class="fas fa-phone"></i> Schedule a Call
                         </button>
                       </div>
@@ -424,10 +425,11 @@
                       </div>
                       <div class=" card-footer text-center mb-3 mt-3">
                         <!-- schedule call button -->
-                        <!-- disabled for program seller or if already purchased -->
-                        <!-- userId === program.sellerUid || userClaims && userClaims[program.programId] -->
+                        <!-- disabled for program seller -->
+                        <!-- userId === program.sellerUid -->
                         <button class=" btn btn-round btn-just-icon btn-primary"
-                        [disabled]="userId === program.sellerUid || userClaims && userClaims[program.programId]">
+                        [disabled]="userId === program.sellerUid"
+                        (click)="logSessions() ; this.userId ? schedulerModal.show() : registerModal.show()">
                           <i class="fas fa-phone"></i> Schedule a Call
                         </button>
                       </div>
@@ -1047,6 +1049,47 @@
         </div>
         </div>
         <!-- End of register modal -->
+
+        <!-- scheduler modal -->
+        <div 
+        aria-hidden="true"
+        aria-labelledby="schedulerModalLabel"
+        bsModal
+        class="modal fade"
+        #schedulerModal="bs-modal"
+        id="schedulerModal"
+        role="dialog"
+        tabindex="-1"
+        >
+            <div class="modalContainer" >
+                <div class="modalContent">
+                    <button type="button" class="closeButton" (click)="schedulerModal.hide()"><i class="fas fa-times"></i></button>
+                    <span>Check free dates</span><br>
+                    <br/>
+                    <!-- Select for date -->
+                    <select name="" id="" (change)="daySelect($event)">
+                        <option value='NULL' [defaultSelected]="true">Please, choose available Date</option>
+                        <option *ngFor="let day of this.dayToSelect" [ngValue]="day">
+                            {{day | date: 'yyyy, MMM, dd'}}
+                        </option>
+                    </select>
+                    <div class="sessions">
+
+                        <div *ngFor="let event of this.todayEvents" class="session">
+                            <span  class="sessionTitle">{{event.start*1000 | date: "HH:mm"}} - {{event.end*1000 | date: "HH:mm"}}</span>
+                            <button
+                              class=" btn btn-fill btn-round btn-primary mr-2 mb-2 sessionReserveButton"
+                              type="button"
+                              (click)="reserveSession($event)"
+                              [value]="event.id"
+                            >Reserve </button>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- end scheduler modal -->
 
     </div>
   </div>

@@ -18,6 +18,9 @@ import { IsoLanguagesService } from 'app/services/iso-languages.service';
 import { Subscription } from 'rxjs';
 import { StripePaymentIntentRequest } from 'app/interfaces/stripe.payment.intent.request';
 import {environment} from '../../../environments/environment';
+import { CustomCalendarEvent } from 'app/interfaces/custom.calendar.event.interface';
+import { take } from 'rxjs/operators';
+import { ToastrService } from 'ngx-toastr';
 
 declare var Stripe: any;
 
@@ -32,6 +35,7 @@ export class ProgramComponent implements OnInit, OnDestroy {
   @ViewChild('loginModal', {static: false}) public loginModal: ModalDirective;
   @ViewChild('registerModal', {static: false}) public registerModal: ModalDirective;
   @ViewChild('payModal', {static: false}) public payModal: ModalDirective;
+  @ViewChild('schedulerModal', {static: false}) public schedulerModal: ModalDirective;
 
   public browser: boolean;
   public userId: string;
@@ -69,6 +73,16 @@ export class ProgramComponent implements OnInit, OnDestroy {
 
   private subscriptions: Subscription = new Subscription();
 
+  public dayToSelect: Array<Date> = [];
+  public timeToSelect: Array<Date> = [];
+
+  public testArr: [];
+  public test$;
+  public testData: any;
+  private selectedDate: Date;
+  public availableEvents: CustomCalendarEvent[] | [];
+  public todayEvents: Array<any>;
+
   constructor(
     @Inject(DOCUMENT) private document: any,
     @Inject(PLATFORM_ID) private platformId: object,
@@ -85,7 +99,8 @@ export class ProgramComponent implements OnInit, OnDestroy {
     private currenciesService: CurrenciesService,
     private countryService: CountryService,
     public formBuilder: FormBuilder,
-    private languagesService: IsoLanguagesService
+    private languagesService: IsoLanguagesService,
+    private toastrService: ToastrService,
   ) { }
 
   ngOnInit() {
@@ -617,6 +632,46 @@ export class ProgramComponent implements OnInit, OnDestroy {
   onTotalReviewsEvent(event: number) {
     this.totalReviews = event;
     // console.log('Total reviews event:', event);
+  }
+
+  daySelect(event: any) {
+    if (event.target.value !== 'NULL') {
+      console.log(event.target.value);
+      this.subscriptions.add(
+        this.dataService.getUserNotReservedEvents(this.program.sellerUid, new Date(event.target.value))
+          .subscribe(next => {
+          this.todayEvents = next;
+        })
+      );
+    } else {
+    }
+  }
+
+  isSameDay(a: Date, b: Date) {
+    return (a.getUTCFullYear() === b.getUTCFullYear() && a.getUTCMonth() === b.getUTCMonth() && a.getUTCDate() === b.getUTCDate());
+  }
+
+  logSessions() {
+    console.log('Free events', this.availableEvents);
+  }
+
+  reserveSession($event: any) {
+    this.dataService.reserveEvent(this.userId, this.program.sellerUid, $event.target.value).then( r => console.log('Reserved'));
+    this.showNotification();
+  }
+  showNotification() {
+    this.toastrService.success('<span data-notify="icon" class="tim-icons icon-bell-55"></span>You have 15 minutes for confirm Your reservation. Click here to redirect lifecoach.io/reserved.sessions',
+      `You have successfully reserved event`,
+      {
+        timeOut: 8000,
+        closeButton: true,
+        enableHtml: true,
+        toastClass: 'alert alert-danger alert-with-icon',
+        positionClass: 'toast-top-right'
+      }, )
+      .onTap
+      .pipe(take(1))
+      .subscribe(() => this.router.navigate(['/reserved-sessions']));
   }
 
   ngOnDestroy() {
