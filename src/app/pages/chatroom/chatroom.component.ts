@@ -119,7 +119,7 @@ export class ChatroomComponent implements OnInit, OnDestroy {
           if (data) {
             data.sort((a, b) => parseFloat(a.lastActive) + parseFloat(b.lastActive)); // sort by last active (desc)
             this.userRooms = data;
-            console.log(data);
+            // console.log(data);
           }
         });
         this.subscriptions.add(roomSub);

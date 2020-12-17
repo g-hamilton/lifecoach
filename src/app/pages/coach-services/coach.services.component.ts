@@ -68,7 +68,7 @@ export class CoachServicesComponent implements OnInit, OnDestroy {
             this.dataService.getPrivatePrograms(this.userId).subscribe(programs => {
               if (programs) {
                 this.publishedPrograms = programs;
-                console.log('Published Programs:', programs);
+                // console.log('Published Programs:', programs);
 
                 const now = new Date();
                 const month = now.getMonth() + 1; // we dont store zero based. jan === 1

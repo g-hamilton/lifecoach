@@ -29,7 +29,7 @@ export class AnalyticsService {
 
   init() {
     mixpanel.init('396e30c4792b524a734d80ccbee3897c');
-    console.log('Initialising Mixpanel analytics');
+    // console.log('Initialising Mixpanel analytics');
   }
 
   aliasUser(uid: string) {
