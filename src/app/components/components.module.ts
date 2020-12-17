@@ -117,7 +117,11 @@ import { ProgramFeedbackComponent } from './program-feedback/program-feedback.co
 import { ProgramBrowseReviewsComponent } from './program-browse-reviews/program-browse-reviews.component';
 import { ProgramContentComponent } from './program-content/program-content.component';
 import { ProgramMoreComponent } from './program-more/program-more.component';
-import {VideoSessionCardComponent} from "./video-session-card/video-session-card.component";
+import { VideoSessionCardComponent } from './video-session-card/video-session-card.component';
+import { ProgramSearchFilterUiComponent } from './program-search-filter-ui/program-search-filter-ui.component';
+import { ProgramResultsComponent } from './program-results/program-results.component';
+import { ProgramCardComponent } from './program-card/program-card.component';
+import { ProgramBotlinksComponent } from './program-botlinks/program-botlinks.component';
 
 export function momentAdapterFactory() {
   return adapterFactory(moment);
@@ -239,7 +243,11 @@ export function momentAdapterFactory() {
     ProgramFeedbackComponent,
     ProgramBrowseReviewsComponent,
     ProgramContentComponent,
-    ProgramMoreComponent
+    ProgramMoreComponent,
+    ProgramSearchFilterUiComponent,
+    ProgramResultsComponent,
+    ProgramCardComponent,
+    ProgramBotlinksComponent
   ],
   exports: [
     TabsModule,
@@ -339,7 +347,11 @@ export function momentAdapterFactory() {
     ProgramFeedbackComponent,
     ProgramBrowseReviewsComponent,
     ProgramContentComponent,
-    ProgramMoreComponent
+    ProgramMoreComponent,
+    ProgramSearchFilterUiComponent,
+    ProgramResultsComponent,
+    ProgramCardComponent,
+    ProgramBotlinksComponent
   ]
 })
 export class ComponentsModule {}

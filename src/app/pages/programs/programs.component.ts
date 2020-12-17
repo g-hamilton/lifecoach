@@ -58,7 +58,7 @@ export class ProgramsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.titleService.setTitle('Online Privvate Coaching Programs');
+    this.titleService.setTitle('Online Private Coaching Programs');
     this.metaTagService.updateTag({name: 'description', content: 'Get coached by the best with top rated online private coaching programs from Lifecoach.io'});
     const body = this.document.getElementsByTagName('body')[0];
     body.classList.add('programs-page');

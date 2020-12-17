@@ -1,0 +1,33 @@
+<a [routerLink]="['/program', programId]">
+    <div class=" card">
+
+        <!-- Card image -->
+        <img
+        class=" card-img-top program-card-image"
+        [src]="program.image ? program.image : 'assets/img/awaiting-image.png'"
+        [alt]="program.title" />
+
+        <!-- Card body -->
+        <div class=" card-body">
+            <h4 class="card-title"> {{ program?.title }} </h4>
+            <h6 class="card-subtitle mb-2 text-muted"> {{ program?.coachName }} </h6>
+            <div *ngIf="browser">
+                <app-program-stars
+                *ngIf="programObject"
+                [program]="programObject">
+                </app-program-stars>
+            </div>
+            <div *ngIf="clientCurrency && rates" style="clear: both;">
+                <h4> {{ currencySymbol + '' + displayFullPrice }} 
+                    <span *ngIf="program.pricingStrategy === 'flexible'">
+                        / {{ currencySymbol + '' + displaySessionPrice }} per session
+                    </span>
+                </h4>
+            </div>
+            <span class=" badge badge-success">
+                New
+            </span>
+        </div>
+
+    </div>
+</a>
