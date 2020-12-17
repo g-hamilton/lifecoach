@@ -1,0 +1,40 @@
+<app-auth-navbar></app-auth-navbar>
+
+<div class="full-page programs-page">
+
+    <div class=" content" id="page-content">
+        <div class=" container">
+
+            <!-- Search & Filters View -->
+            <!-- <app-course-search-filter-ui
+            [clientCurrency]="clientCurrency"
+            (currencyEvent)="onManualCurrencyChange($event)"
+            [categories]="categories">
+            </app-course-search-filter-ui> -->
+
+            <!-- Results View -->
+            <!-- <app-course-results
+            [results]="hits"
+            [clientCurrency]="clientCurrency"
+            [clientCountry]="clientCountry"
+            [rates]="rates">
+            </app-course-results> -->
+
+            <!-- Navigator View -->
+            <app-navigator
+            [page]="page"
+            [totalItems]="totalHits"
+            [itemsPerPage]="hitsPerPage"
+            [maxSize]="maxSize"
+            (messageEvent)="receivePageUpdate($event)"
+            ></app-navigator>
+
+            <!-- Botlinks View -->
+            <!-- <app-course-botlinks
+            [filters]="filters"
+            [categories]="categories"
+            ></app-course-botlinks> -->
+
+        </div>
+    </div>
+</div>
