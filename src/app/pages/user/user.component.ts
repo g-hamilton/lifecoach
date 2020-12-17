@@ -348,7 +348,7 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
       profileUrl: p.profileUrl ? p.profileUrl : `${environment.baseUrl}/coach/${this.userId}`,
       fullDescription: p.fullDescription ? p.fullDescription : '',
       goalTags: this.importGoalTags(p.goalTags),
-      credentails: this.importCredentials(p.credentials),
+      credentials: this.importCredentials(p.credentials),
       remotePractice: p.remotePractice ? p.remotePractice : true,
       freeConsultation: p.freeConsultation ? p.freeConsultation : false,
       payHourly: p.payHourly ? p.payHourly : false,

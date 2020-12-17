@@ -292,7 +292,7 @@ export class CourseComponent implements OnInit, OnDestroy {
               });
               // set the course
               this.course = publicCourse;
-              console.log(this.course);
+              // console.log(this.course);
               // update meta
               this.updateCourseMeta();
 
@@ -306,7 +306,7 @@ export class CourseComponent implements OnInit, OnDestroy {
                 // Monitor user data
                 this.subscriptions.add(
                   this.authService.getAuthUser().subscribe(user => { // check if user authorised
-                    console.log('User:', user);
+                    // console.log('User:', user);
                     if (user) { // user is authorised
                       this.userId = user.uid;
                       user.getIdTokenResult(true).then(token => this.userClaims = token.claims); // retrieve user auth claims
