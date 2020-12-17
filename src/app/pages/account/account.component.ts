@@ -108,7 +108,7 @@ export class AccountComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    console.log('ENVIRONMENT IS', environment);
+    // console.log('ENVIRONMENT IS', environment);
     if (isPlatformBrowser(this.platformId)) {
       this.browser = true;
       this.analyticsService.pageView();
@@ -133,7 +133,7 @@ export class AccountComponent implements OnInit, OnDestroy {
               this.dataService.hasUserEvents(this.userId)
                 .then( val => {
                   this.hasUserEvents = val;
-                  console.log(this.hasUserEvents);
+                  // console.log(this.hasUserEvents);
                 })
                 .catch(e => console.log(e));
 
@@ -256,7 +256,7 @@ export class AccountComponent implements OnInit, OnDestroy {
           })
       );
     }
-    console.log(this.accountF);
+    // console.log(this.accountF);
 
   }
 

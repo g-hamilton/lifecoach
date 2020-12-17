@@ -336,7 +336,6 @@ const routes: Routes = [
       scrollPositionRestoration: 'enabled',
       anchorScrolling: 'enabled',
       scrollOffset: [0, 64],
-      preloadingStrategy: PreloadAllModules
     })
   ],
   exports: [RouterModule]

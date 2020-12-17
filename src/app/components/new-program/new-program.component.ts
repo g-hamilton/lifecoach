@@ -82,7 +82,7 @@ export class NewProgramComponent implements OnInit, OnChanges, OnDestroy {
       this.dataService.getPublicCoachProfile(this.userId).subscribe(profile => {
         if (profile) {
           this.userProfile = profile;
-          console.log('Fetched profile:', profile);
+          // console.log('Fetched profile:', profile);
         }
       })
     );
@@ -145,9 +145,7 @@ export class NewProgramComponent implements OnInit, OnChanges, OnDestroy {
     // Navigate to continue
     this.router.navigate(['/my-programs', programId, 'content'], { queryParams: { targetUser: this.userId }});
   }
-
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
   }
-
 }

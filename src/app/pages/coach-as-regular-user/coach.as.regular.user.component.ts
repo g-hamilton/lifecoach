@@ -45,13 +45,13 @@ export class CoachAsRegularUserComponent implements OnInit, OnDestroy {
         if (user) {
           this.userId = user.uid;
           const token = await user.getIdTokenResult(true);
-          console.log('Claims:', token.claims);
+          // console.log('Claims:', token.claims);
 
           // Check for purchased courses. Coaches and regular users can purchase courses
           this.subscriptions.add(
             this.dataService.getPurchasedCourses(this.userId).subscribe(courseIds => {
               if (courseIds) {
-                console.log('Enrolled In Course Ids:', courseIds);
+                // console.log('Enrolled In Course Ids:', courseIds);
                 this.purchasedCourses = []; // reset
                 courseIds.forEach((o: any, index) => { // fetch and monitor live / latest course info
                   this.subscriptions.add(
