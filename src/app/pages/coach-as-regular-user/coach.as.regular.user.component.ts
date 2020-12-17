@@ -92,9 +92,22 @@ export class CoachAsRegularUserComponent implements OnInit, OnDestroy {
     );
   }
 
-  browseCourses() {
+  clickBrowsePrograms() {
+    this.analyticsService.clickBrowsePrograms();
+  }
+
+  clickBrowseCourses() {
     this.analyticsService.clickBrowseCourses();
+  }
+
+  browseCourses() {
+    this.clickBrowseCourses();
     this.router.navigate(['courses']);
+  }
+
+  browsePrograms() {
+    this.clickBrowsePrograms();
+    this.router.navigate(['programs']);
   }
 
   calcCourseProgress(course: CoachingCourse, index: number) {

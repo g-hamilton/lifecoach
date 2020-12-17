@@ -18,7 +18,7 @@
                 <button
                 type="button"
                 class=" btn btn-primary btn-fill btn-round pull-right mb-3"
-                (click)="browseCourses()">
+                (click)="clickBrowsePrograms() ; browsePrograms()">
                     <i class=" tim-icons icon-tv-2"></i> Browse Programs
                 </button>
                 <h5 class=" title"> Programs I'm Enrolled In </h5>
@@ -35,7 +35,7 @@
                                 You haven't enrolled in any coaching programs yet.
                             </p>
                             <p>
-                                <a routerLink="['/programs']">
+                                <a [routerLink]="['/programs']">
                                     Browse programs
                                 </a> now to discover what you can achieve next!
                             </p>
@@ -82,7 +82,7 @@
                 <button
                 type="button"
                 class=" btn btn-primary btn-fill btn-round pull-right mb-3"
-                (click)="browseCourses()">
+                (click)="clickBrowseCourses() ; browseCourses()">
                     <i class=" tim-icons icon-tv-2"></i> Browse eCourses
                 </button>
                 <h5 class=" title"> eCourses I'm Enrolled In </h5>

@@ -374,4 +374,8 @@ export class AnalyticsService {
     });
   }
 
+  clickBrowsePrograms() {
+    mixpanel.track('clicked browse programs');
+  }
+
 }
