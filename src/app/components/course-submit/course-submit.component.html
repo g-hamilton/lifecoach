@@ -98,6 +98,9 @@
                             <li *ngIf="courseF.sections.errors">
                                 Each section in your eCourse must have at least 1 lecture
                             </li>
+                            <li *ngIf="courseF.lectures.errors">
+                                At least one of your eCourse lectures is missing content
+                            </li>
                         </ul>
                     </div>
                 </div>

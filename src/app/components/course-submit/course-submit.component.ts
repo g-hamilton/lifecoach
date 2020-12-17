@@ -7,6 +7,7 @@ import { AlertService } from 'app/services/alert.service';
 import { AnalyticsService } from 'app/services/analytics.service';
 import { Subscription } from 'rxjs';
 import { CourseSectionsValidator } from 'app/custom-validators/course.sections.validator';
+import { CourseLecturesValidator } from 'app/custom-validators/course.lectures.validator';
 
 @Component({
   selector: 'app-course-submit',
@@ -64,8 +65,10 @@ export class CourseSubmitComponent implements OnInit, OnChanges, OnDestroy {
       stripeId: ['', [Validators.required]],
       coachName: ['', [Validators.required]],
       coachPhoto: ['', [Validators.required]],
-      sections: [null, [CourseSectionsValidator]],
+      sections: [null, [Validators.required]],
       lectures: [null, [Validators.required]],
+    }, {
+      validators: [CourseSectionsValidator('sections'), CourseLecturesValidator('lectures')]
     });
   }
 
@@ -90,7 +93,7 @@ export class CourseSubmitComponent implements OnInit, OnChanges, OnDestroy {
       sections: this.course.sections,
       lectures: this.course.lectures,
     });
-    // console.dir(this.courseForm.value);
+    console.dir(this.courseForm.value);
   }
 
   get courseF(): any {
@@ -134,11 +137,6 @@ export class CourseSubmitComponent implements OnInit, OnChanges, OnDestroy {
       this.alertService.alert('info-message', 'Just a second!', `This course is already approved.`);
       return;
     }
-
-    // ***** ADMIN ONLY for testing *****
-    // mark course as test
-    // run this locally - remember to comment out before releasing!!!
-    // this.course.isTest = true;
 
     // request review
     await this.dataService.savePrivateCourse(this.course.sellerUid, this.course); // autosave the course now that we've added additional seller profile data
