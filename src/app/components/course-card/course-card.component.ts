@@ -1,7 +1,7 @@
 import {Component, OnInit, Input, OnChanges, Inject, PLATFORM_ID, OnDestroy} from '@angular/core';
-import { CurrenciesService } from 'app/services/currencies.service';
-import { isPlatformBrowser } from '@angular/common';
-import { Subscription } from 'rxjs';
+import {CurrenciesService} from 'app/services/currencies.service';
+import {isPlatformBrowser} from '@angular/common';
+import {Subscription} from 'rxjs';
 import {DataService} from '../../services/data.service';
 
 @Component({
@@ -39,7 +39,7 @@ export class CourseCardComponent implements OnInit, OnChanges, OnDestroy {
     }
     // console.log(this.course);
     this.subscriptions.add(
-      this.dataService.getPublicCourse(this.courseId).subscribe( course => {
+      this.dataService.getPublicCourse(this.courseId).subscribe(course => {
         if (course) {
           this.courseObject = course;
         }
