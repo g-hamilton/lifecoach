@@ -42,14 +42,14 @@ export const ROUTES: RouteInfo[] = [
     rtlTitle: 'لوحة القيادة',
     userTypes: ['regular', 'coach', 'publisher', 'provider', 'admin']
   },
-  {
-    path: '/people',
-    title: 'People',
-    type: 'link',
-    icontype: 'tim-icons icon-single-02',
-    rtlTitle: 'لوحة القيادة',
-    userTypes: ['coach']
-  },
+  // {
+  //   path: '/people',
+  //   title: 'People',
+  //   type: 'link',
+  //   icontype: 'tim-icons icon-single-02',
+  //   rtlTitle: 'لوحة القيادة',
+  //   userTypes: ['coach']
+  // },
   {
     path: '/messages',
     title: 'Messages',
@@ -178,30 +178,30 @@ export const ROUTES: RouteInfo[] = [
   },
 
   /* LINK FOR TESTING */
-  {
-    path: '/calendar',
-    title: 'CALENDAR',
-    rtlTitle: 'التقويم',
-    type: 'link',
-    icontype: 'tim-icons icon-calendar-60',
-    userTypes: ['coach']
-  },
-  {
-    path: '/reserved-sessions',
-    title: 'reserved-sessions',
-    rtlTitle: 'التقويم',
-    type: 'link',
-    icontype: 'tim-icons icon-bag-16',
-    userTypes: ['regular', 'coach']
-  },
-  {
-    path: '/video',
-    title: 'VIDEO',
-    rtlTitle: 'التقويم',
-    type: 'link',
-    icontype: 'tim-icons icon-video-66',
-    userTypes: ['regular', 'coach']
-  }
+  // {
+  //   path: '/calendar',
+  //   title: 'CALENDAR',
+  //   rtlTitle: 'التقويم',
+  //   type: 'link',
+  //   icontype: 'tim-icons icon-calendar-60',
+  //   userTypes: ['coach']
+  // },
+  // {
+  //   path: '/reserved-sessions',
+  //   title: 'reserved-sessions',
+  //   rtlTitle: 'التقويم',
+  //   type: 'link',
+  //   icontype: 'tim-icons icon-bag-16',
+  //   userTypes: ['regular', 'coach']
+  // },
+  // {
+  //   path: '/video',
+  //   title: 'VIDEO',
+  //   rtlTitle: 'التقويم',
+  //   type: 'link',
+  //   icontype: 'tim-icons icon-video-66',
+  //   userTypes: ['regular', 'coach']
+  // }
 ];
 
 @Component({
