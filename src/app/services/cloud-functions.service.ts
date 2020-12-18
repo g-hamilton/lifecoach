@@ -113,14 +113,14 @@ export class CloudFunctionsService {
         .pipe(first())
         .subscribe(res => {
           console.log(res);
-          resolve();
+          resolve(res);
           tempSub.unsubscribe();
         });
     });
   }
 
   postNewMessage(senderUid: string, recipientUid: string | null, message: string, roomID: string | null) {
-    // console.log(`Posting msg. Room ${roomID}, Sender: ${senderUid}.`);
+    // console.log(`Posting msg. Room ${roomID}, Sender: ${senderUid}, recipient: ${recipientUid}, msg: ${message}.`);
     return new Promise(resolve => {
       const pnm = this.cloudFunctions.httpsCallable('postNewMessage');
       const tempSub = pnm({

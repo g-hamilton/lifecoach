@@ -1,7 +1,33 @@
 <div class=" content">
 
-    <!--  -->
-    <div class=" row">
+  <h4 class=" title"> People 
+  </h4>
+  <p class=" small text-muted pl-2 mb-2">
+      <i class="fas fa-info-circle"></i> Manage all of your clients and leads in one place.
+      The 'People' tab helps you to keep track of everyone who sends you an enquiry message, 
+      schedules a discovery call with you or enrolls in any of your your coaching programs or eCourses. 
+      Not sure how? <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001167999-how-to-manage-your-clients-and-leads-on-the-lifecoach-platform" target="_blank">Read the guide.</a>
+  </p>
+
+    <!-- no people yet -->
+    <div *ngIf="!people || !people.length ; else peopleView">
+      <div class=" row mt-5">
+        <div class=" col">
+          <div class=" card">
+              <div class=" card-body">
+                  <p class="p-4">
+                    As soon as you receive a new lead or enroll a new client they will appear here. Promote your Lifecoach profile, 
+                    products & services as widely as you can to start generating sales and leads!
+                  </p>
+              </div>
+          </div>
+      </div>
+      </div>
+    </div>
+
+    <!-- people -->
+    <ng-template #peopleView>
+      <div class=" row mt-5">
         <div class=" col-lg-12">
           <div class=" card">
             <div class=" card-header">
@@ -190,7 +216,8 @@
               </div>
             </div>
         </div>
-    </div> -->
+      </div> -->
     <!--  -->
+    </ng-template>
 
 </div>
