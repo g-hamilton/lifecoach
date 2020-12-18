@@ -186,30 +186,30 @@ export const ROUTES: RouteInfo[] = [
   },
 
   /* LINK FOR TESTING */
-  // {
-  //   path: '/calendar',
-  //   title: 'CALENDAR',
-  //   rtlTitle: 'التقويم',
-  //   type: 'link',
-  //   icontype: 'tim-icons icon-calendar-60',
-  //   userTypes: ['coach']
-  // },
-  // {
-  //   path: '/reserved-sessions',
-  //   title: 'reserved-sessions',
-  //   rtlTitle: 'التقويم',
-  //   type: 'link',
-  //   icontype: 'tim-icons icon-bag-16',
-  //   userTypes: ['regular', 'coach']
-  // },
-  // {
-  //   path: '/video',
-  //   title: 'VIDEO',
-  //   rtlTitle: 'التقويم',
-  //   type: 'link',
-  //   icontype: 'tim-icons icon-video-66',
-  //   userTypes: ['regular', 'coach']
-  // }
+  {
+    path: '/calendar',
+    title: 'CALENDAR',
+    rtlTitle: 'التقويم',
+    type: 'link',
+    icontype: 'tim-icons icon-calendar-60',
+    userTypes: ['coach']
+  },
+  {
+    path: '/reserved-sessions',
+    title: 'reserved-sessions',
+    rtlTitle: 'التقويم',
+    type: 'link',
+    icontype: 'tim-icons icon-bag-16',
+    userTypes: ['regular', 'coach']
+  },
+  {
+    path: '/video',
+    title: 'VIDEO',
+    rtlTitle: 'التقويم',
+    type: 'link',
+    icontype: 'tim-icons icon-video-66',
+    userTypes: ['regular', 'coach']
+  }
 ];
 
 @Component({
