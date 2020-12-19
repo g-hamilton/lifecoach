@@ -1,5 +1,5 @@
 export interface CRMPerson {
-    id: string; // this person's lifecoach uid
+    id: string; // will be this person's lifecoach uid as well as the db record id
     created: Date;
     type: 'warm lead' | 'lead' | 'client';
     firstName: string;
@@ -13,6 +13,8 @@ export interface CRMPerson {
 
 export interface CRMPersonHistoryEvent {
     action: 'sent_first_message' | 'enrolled_in_self_study_course';
-    id: string;
-    roomId: string;
+    id: string; // will be the db record which is also a unix timestamp - NOT the person's lifecoach uid
+    roomId?: string; // if the action relates to a message
+    courseId?: string; // if this action relates to an eCourse
+    programId?: string; // if this action relates to a program
 }

@@ -15,4 +15,13 @@ export class PersonHistoryTimelineComponent implements OnInit {
   ngOnInit() {
   }
 
+  getDisplayDate(unix: number) {
+    const date = new Date(unix * 1000);
+    return date.toLocaleDateString();
+  }
+
+  getDisplayTime(unix: number) {
+    return new Date(unix * 1000).toLocaleTimeString();
+  }
+
 }

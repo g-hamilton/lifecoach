@@ -26,7 +26,14 @@
                     <!-- heading -->
                     <div class=" timeline-heading">
                         <span *ngIf="item.action === 'sent_first_message'" class=" badge badge-success"> New Lead </span>
-                        <span *ngIf="item.action === 'enrolled_in_self_study_course'" class=" badge badge-primary"> Enrolled In Self-Study Course </span>
+                        <span *ngIf="item.action === 'enrolled_in_self_study_course'" class=" badge badge-primary"> Enrolled In eCourse </span>
+
+                        <!-- time / date of this action -->
+                        <span class="pull-right">
+                            <small class="text-muted">
+                                {{ getDisplayDate(item.id) + ' ' + getDisplayTime(item.id) }}
+                            </small>
+                        </span>
                     </div>
 
                     <!-- body -->
@@ -35,7 +42,7 @@
                             {{ person.firstName }} first contacted you by message.
                         </p>
                         <p *ngIf="item.action === 'enrolled_in_self_study_course'">
-                            {{ person.firstName }} enrolled in a self-study-course.
+                            {{ person.firstName }} enrolled in an eCourse.
                         </p>
                         <hr />
                     </div>
