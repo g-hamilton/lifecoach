@@ -7,8 +7,6 @@ import { AuthService } from '../../services/auth.service';
 import { AnalyticsService } from '../../services/analytics.service';
 import { DataService } from 'app/services/data.service';
 import { PaginationService } from 'app/services/pagination.service';
-
-import { ChatMessage } from 'app/interfaces/chat.message';
 import { Subscription } from 'rxjs';
 
 
@@ -27,7 +25,6 @@ export class ChatroomComponent implements OnInit, OnDestroy {
   public roomLoaded: boolean;
   public noUserRooms: boolean;
   public userRooms = [];
-  public feed: ChatMessage[];
   public paginationService: PaginationService;
   public leadsSelected = true;
   public courseQaSelected: boolean;
