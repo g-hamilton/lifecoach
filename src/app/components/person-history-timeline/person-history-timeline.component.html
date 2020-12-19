@@ -42,38 +42,26 @@
 
                     <!-- footer -->
                     <div class=" timeline-footer">
-                        <div *ngIf="item.action === 'sent_first_message'" class=" dropdown" dropdown>
-                            <button
-                            class=" btn btn-round btn-success dropdown-toggle dropdown-toggle"
-                            data-toggle="dropdown"
-                            dropdownToggle
-                            type="button"
-                            >
-                            <i class=" tim-icons icon-bullet-list-67"> </i>
-                            </button>
-                            <div class=" dropdown-menu" *dropdownMenu>
-                                <a class=" dropdown-item" [routerLink]="['/messages', 'rooms', person.history[i].roomId]">
-                                    Message {{ person.firstName }}
-                                </a>
-                            </div>
-                        </div>
-                        <!-- <div *ngIf="item.action === 'enrolled_in_self_study_course'" class=" dropdown" dropdown>
+                        <div class=" dropdown" dropdown>
                             <button
                             class=" btn btn-round btn-primary dropdown-toggle dropdown-toggle"
                             data-toggle="dropdown"
                             dropdownToggle
                             type="button"
                             >
-                            <i class=" tim-icons icon-bullet-list-67"> </i>
+                                <span class="pl-2">Actions</span>
                             </button>
-                            <div class=" dropdown-menu" *dropdownMenu>
-                                <a class=" dropdown-item" href="#"> Action </a>
-                                <a class=" dropdown-item" href="#"> Another action </a>
-                                <a class=" dropdown-item" href="#">
-                                    Something else here
+                            <div class=" dropdown-menu dropdown-menu-left" *dropdownMenu>
+
+                                <!-- message user back if they have sent a first message -->
+                                <a *ngIf="item.action === 'sent_first_message'" class=" dropdown-item" [routerLink]="['/messages', 'rooms', person.history[i].roomId]">
+                                    Message {{ person.firstName }}
                                 </a>
+
+                                <!-- what else? -->
+
                             </div>
-                        </div> -->
+                        </div>
                     </div>
                 </div>
             </li>

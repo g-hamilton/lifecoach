@@ -351,7 +351,8 @@ export function momentAdapterFactory() {
     ProgramSearchFilterUiComponent,
     ProgramResultsComponent,
     ProgramCardComponent,
-    ProgramBotlinksComponent
+    ProgramBotlinksComponent,
+    BsDropdownModule
   ]
 })
 export class ComponentsModule {}

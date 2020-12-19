@@ -639,6 +639,7 @@ export class DataService {
   // Function responsibilities :
   async orderSession(coachId: string, calendarId: string, time: number, uid: string) {
     console.group('ORDERING SESSION');
+    // tslint:disable-next-line: one-variable-per-declaration
     let newDocId: string | undefined, newDocRef: any, sessionObject: any;
     return this.db.collection(`temporary-reserved-events`,
       ref => ref.where('coachId', '==', coachId)
@@ -755,26 +756,6 @@ export class DataService {
       .doc(date.getTime().toString())
       .delete()
       .catch(err => console.error(err));
-  }
-
-  // ================================================================================
-  // =====                            PEOPLE (CRM)                             ======
-  // ================================================================================
-
-  getUserPeople(uid: string) {
-    return this.db.collection(`users/${uid}/people`)
-      .valueChanges({idField: 'id'}) as Observable<any[]>;
-  }
-
-  getUserPersonHistory(uid: string, personUid: string) {
-    return this.db.collection(`users/${uid}/people/${personUid}/history`)
-      .valueChanges({idField: 'id'}) as Observable<any[]>;
-  }
-
-  getUserPerson(uid: string, personUid: string) {
-    return this.db.collection(`users/${uid}/people`)
-      .doc(personUid)
-      .valueChanges() as Observable<any>;
   }
 
   // ================================================================================

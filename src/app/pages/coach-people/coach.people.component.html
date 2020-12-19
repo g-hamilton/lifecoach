@@ -31,36 +31,16 @@
         <div class=" col-lg-12">
           <div class=" card">
             <div class=" card-header">
-              <div class=" tools float-right">
-                <div class=" dropdown" dropdown>
-                  <button
-                    class=" btn btn-link dropdown-toggle btn-icon dropdown-toggle"
-                    data-toggle="dropdown"
-                    dropdownToggle
-                    type="button"
-                  >
-                    <i class=" tim-icons icon-settings-gear-63"> </i>
-                  </button>
-                  <div class=" dropdown-menu dropdown-menu-right" *dropdownMenu>
-                    <a class=" dropdown-item" href="#pablo"> Action </a>
-                    <a class=" dropdown-item" href="#pablo"> Another action </a>
-                    <a class=" dropdown-item" href="#pablo"> Something else </a>
-                    <a class=" dropdown-item text-danger" href="#pablo">
-                      Remove Data
-                    </a>
-                  </div>
-                </div>
-              </div>
-              <h5 class=" card-title"> People </h5>
+              <!-- blank -->
             </div>
             <div class=" card-body">
-              <div class=" table-responsive">
+              <div class=" table-responsive table-striped" style="padding-bottom: 10em;">
                 <table class=" table">
                   <thead class=" text-primary">
                     <tr>
-                      <th> # </th>
+                      <th> Type </th>
+                      <th> Person </th>
                       <th> </th>
-                      <th> Name </th>
                       <th> Connected </th>
                       <th> Status </th>
                       <th class=" text-right">Actions</th>
@@ -70,7 +50,7 @@
                     <tr *ngFor="let user of people">
                       <td>
                         <div *ngIf="user.type === 'warm lead'" class=" badge badge-danger">
-                          🔥Warm Lead
+                          🔥 Warm Lead
                         </div>
                         <div *ngIf="user.type === 'lead'" class=" badge badge-success">
                           Lead
@@ -81,10 +61,16 @@
                       </td>
                       <td>
                         <div class=" photo">
+                          <a (click)="openHistory(user)" href="javascript:void(0)">
                             <img alt="photo" [src]="user.photo" />
+                          </a>
                         </div>
                       </td>
-                      <td> {{ user.firstName + ' ' + user.lastName }} </td>
+                      <td>
+                        <a (click)="openHistory(user)" href="javascript:void(0)">
+                          {{ user.firstName + ' ' + user.lastName }}
+                        </a>
+                      </td>
                       <td> {{ user.created.toDateString() }} </td>
                       <td> 
                         <div 
@@ -95,7 +81,44 @@
                         </div>
                       </td>
                       <td class=" text-right">
-                        <button
+                        <div class=" tools float-right">
+                          <div class=" dropdown" dropdown>
+                            <button
+                              class=" btn btn-link dropdown-toggle btn-icon dropdown-toggle"
+                              data-toggle="dropdown"
+                              dropdownToggle
+                              type="button"
+                            >
+                              <i class=" tim-icons icon-settings-gear-63"> </i>
+                            </button>
+                            <div class=" dropdown-menu dropdown-menu-right" *dropdownMenu>
+
+                              <!-- if this person has sent a first message, message them back -->
+                              <a *ngIf="user.history[user.history.length - 1].action === 'sent_first_message'" 
+                              class=" dropdown-item" 
+                              (click)="openMessage(user.history[user.history.length - 1].roomId)" href="javascript:void(0)"> 
+                                View Messages
+                              </a> 
+
+                              <!-- show this person's history -->
+                              <a *ngIf="user.history?.length" 
+                              class=" dropdown-item" 
+                              (click)="openHistory(user)" href="javascript:void(0)"> 
+                                View Timeline
+                              </a>
+                              
+                              <!-- archive this person -->
+                              <a *ngIf="true" 
+                              class=" dropdown-item text-danger" 
+                              (click)="archivePerson(user)" href="javascript:void(0)"> 
+                                Archive Person
+                              </a>
+
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- <button
                           *ngIf="user.history[user.history.length - 1].action === 'sent_first_message'"
                           class=" btn btn-success btn-link btn-icon btn-sm btn-simple"
                           tooltip="Message"
@@ -119,7 +142,7 @@
                           type="button"
                         >
                           <i class="fas fa-archive"></i>
-                        </button>
+                        </button> -->
                       </td>
                     </tr>
                   </tbody>
