@@ -5,6 +5,7 @@ import { ComponentsModule } from '../../components/components.module';
 
 import { PersonHistoryComponent } from './person.history.component';
 import { PersonHistoryRoutes } from './person.history.routing';
+import { CoachInviteComponent } from 'app/components/coach-invite/coach-invite.component';
 
 @NgModule({
   imports: [
@@ -14,6 +15,9 @@ import { PersonHistoryRoutes } from './person.history.routing';
   ],
   declarations: [
     PersonHistoryComponent
+  ],
+  entryComponents: [
+    CoachInviteComponent
   ]
 })
 export class PersonHistoryModule {}

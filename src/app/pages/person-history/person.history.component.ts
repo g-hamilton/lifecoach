@@ -1,17 +1,20 @@
 import { Component, OnInit, Inject, PLATFORM_ID, OnDestroy } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { DataService } from 'app/services/data.service';
 import { AuthService } from 'app/services/auth.service';
-import { Router, ActivatedRoute } from '@angular/router';
-import { CRMPerson, CRMPersonHistoryEvent } from 'app/interfaces/crm.person.interface';
+import { ActivatedRoute } from '@angular/router';
+import { CRMPerson } from 'app/interfaces/crm.person.interface';
 import { Subscription } from 'rxjs';
 import { CrmPeopleService } from 'app/services/crm-people.service';
+import { BsModalService, BsModalRef, ModalOptions } from 'ngx-bootstrap/modal';
+import { CoachInviteComponent } from 'app/components/coach-invite/coach-invite.component';
 
 @Component({
   selector: 'app-person-history',
   templateUrl: 'person.history.component.html'
 })
 export class PersonHistoryComponent implements OnInit, OnDestroy {
+
+  public bsModalRef: BsModalRef;
 
   public browser: boolean;
   private userId: string; // the user's own id
@@ -23,10 +26,9 @@ export class PersonHistoryComponent implements OnInit, OnDestroy {
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
     private authService: AuthService,
-    private dataService: DataService,
     private crmPeopleService: CrmPeopleService,
     private route: ActivatedRoute,
-    private router: Router
+    private modalService: BsModalService
   ) {
   }
 
@@ -79,6 +81,16 @@ export class PersonHistoryComponent implements OnInit, OnDestroy {
     if (roomId) {
       this.msgUrl = `/messages/rooms/${roomId}`;
     }
+  }
+
+  openInviteModal() {
+    const config: ModalOptions = {
+      initialState: {
+        title: 'Woop!',
+        closeBtnName: 'Close Up!'
+      }
+    };
+    this.bsModalRef = this.modalService.show(CoachInviteComponent, config);
   }
 
   ngOnDestroy() {
