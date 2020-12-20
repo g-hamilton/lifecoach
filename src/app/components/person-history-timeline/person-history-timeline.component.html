@@ -39,37 +39,20 @@
                     <!-- body -->
                     <div class=" timeline-body">
                         <p *ngIf="item.action === 'sent_first_message'">
-                            {{ person.firstName }} first contacted you by message.
+                            {{ person.firstName }} first contacted you by message. 
+                            <a class=" pl-2" [routerLink]="['/messages', 'rooms', person.history[i].roomId]">
+                                View Messages
+                            </a>
                         </p>
                         <p *ngIf="item.action === 'enrolled_in_self_study_course'">
                             {{ person.firstName }} enrolled in an eCourse.
                         </p>
-                        <hr />
                     </div>
 
                     <!-- footer -->
-                    <div class=" timeline-footer">
-                        <div class=" dropdown" dropdown>
-                            <button
-                            class=" btn btn-round btn-primary dropdown-toggle dropdown-toggle"
-                            data-toggle="dropdown"
-                            dropdownToggle
-                            type="button"
-                            >
-                                <span class="pl-2">Actions</span>
-                            </button>
-                            <div class=" dropdown-menu dropdown-menu-left" *dropdownMenu>
-
-                                <!-- message user back if they have sent a first message -->
-                                <a *ngIf="item.action === 'sent_first_message'" class=" dropdown-item" [routerLink]="['/messages', 'rooms', person.history[i].roomId]">
-                                    Message {{ person.firstName }}
-                                </a>
-
-                                <!-- what else? -->
-
-                            </div>
-                        </div>
-                    </div>
+                    <!-- <div class=" timeline-footer">
+                        <hr>
+                    </div> -->
                 </div>
             </li>
           </ul>

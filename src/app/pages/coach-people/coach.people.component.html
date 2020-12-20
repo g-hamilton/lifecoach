@@ -40,9 +40,9 @@
                     <tr>
                       <th> Type </th>
                       <th> Person </th>
-                      <th> </th>
                       <th> Connected </th>
                       <th> Status </th>
+                      <th> Most Recent Note </th>
                       <th class=" text-right">Actions</th>
                     </tr>
                   </thead>
@@ -60,15 +60,13 @@
                         </div>
                       </td>
                       <td>
-                        <div class=" photo">
-                          <a (click)="openHistory(user)" href="javascript:void(0)">
-                            <img alt="photo" [src]="user.photo" />
-                          </a>
-                        </div>
-                      </td>
-                      <td>
                         <a (click)="openHistory(user)" href="javascript:void(0)">
-                          {{ user.firstName + ' ' + user.lastName }}
+                          <div class=" photo pull-left mr-3">
+                            <img alt="photo" [src]="user.photo" />
+                          </div>
+                          <span class=" d-inline-block pt-1">
+                            {{ user.firstName + ' ' + user.lastName }}
+                          </span>
                         </a>
                       </td>
                       <td> {{ user.created.toDateString() }} </td>
@@ -79,6 +77,9 @@
                         >
                           {{ user.status }}
                         </div>
+                      </td>
+                      <td>
+                        {{ truncate('I think I should contact Greg to offer him access to my eCourse. I hope he enrolls because then it will be great.', 120) }}
                       </td>
                       <td class=" text-right">
                         <div class=" tools float-right">

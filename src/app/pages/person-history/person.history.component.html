@@ -62,11 +62,60 @@
                   </p>
                 </div>
 
+                <!-- coach actions -->
+                <div class=" mt-4 text-center">
+                  <div class=" dropdown btn-group" dropdown>
+                    <button
+                    class=" btn btn-round btn-default dropdown-toggle dropdown-toggle"
+                    data-toggle="dropdown"
+                    dropdownToggle
+                    type="button"
+                    >
+                        <span class="pl-2">Actions</span>
+                    </button>
+                    <div class=" dropdown-menu" *dropdownMenu>
+
+                      <!--  -->
+                      <a *ngIf="true" class=" dropdown-item" [routerLink]="msgUrl">
+                        Send {{ person.firstName }} a message
+                      </a>
+  
+                      <!--  -->
+                      <a *ngIf="true" class=" dropdown-item">
+                        Invite {{ person.firstName }} to join a program
+                      </a>
+
+                      <!--  -->
+                      <a *ngIf="true" class=" dropdown-item">
+                        Invite {{ person.firstName }} to enroll in an eCourse
+                      </a>
+
+                      <!--  -->
+                      <a *ngIf="true" class=" dropdown-item" [routerLink]="'/calendar'">
+                        Schedule a calendar event
+                      </a>
+  
+                    </div>
+                  </div>
+                </div>
+
             </div>
-            <div class=" card-footer">
-              <!--  -->
-            </div>
+            <!-- <div class=" card-footer">
+            </div> -->
           </div>
+          <!-- end of person card -->
+
+          <!-- notes card -->
+          <!-- <div class=" card">
+            <div class=" card-header">
+              <h5> Add a quick note: </h5>
+            </div>
+            <div class=" card-body">
+              <textarea></textarea>
+            </div>
+          </div> -->
+          <!-- end notes card -->
+
         </div>
         <!-- end col -->
         <div class=" col-md-6">

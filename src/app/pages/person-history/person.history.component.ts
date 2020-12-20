@@ -18,6 +18,7 @@ export class PersonHistoryComponent implements OnInit, OnDestroy {
   private personId: string; // the id of the person the user is looking at
   public person: CRMPerson;
   private subscriptions: Subscription = new Subscription();
+  public msgUrl = '/messages';
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
@@ -58,9 +59,26 @@ export class PersonHistoryComponent implements OnInit, OnDestroy {
         if (p) {
           console.log('person:', p);
           this.person = await this.crmPeopleService.getFilledPerson(this.userId, p, this.personId);
+          this.updateMsgUrl();
         }
       })
     );
+  }
+
+  updateMsgUrl() {
+    // checks if this person has a message room. if so, updates the msg url to take
+    // the coach to that room on click
+    let roomId: string;
+    if (this.person.history) {
+      this.person.history.forEach(item => {
+        if (item.roomId) {
+          roomId = item.roomId;
+        }
+      });
+    }
+    if (roomId) {
+      this.msgUrl = `/messages/rooms/${roomId}`;
+    }
   }
 
   ngOnDestroy() {

@@ -69,6 +69,8 @@ export class CoachPeopleComponent implements OnInit, OnDestroy {
     alert('Coming soon!');
   }
 
+  truncate = (input: string, max: number) => input.length > max ? `${input.substring(0, max)}...` : input;
+
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
   }
