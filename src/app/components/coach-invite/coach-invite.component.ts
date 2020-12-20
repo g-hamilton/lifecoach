@@ -10,6 +10,7 @@ export class CoachInviteComponent implements OnInit {
 
   public title: string;
   public closeBtnName: string;
+  public type: 'ecourse' | 'program';
 
   constructor(
     public bsModalRef: BsModalRef

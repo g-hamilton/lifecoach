@@ -83,11 +83,12 @@ export class PersonHistoryComponent implements OnInit, OnDestroy {
     }
   }
 
-  openInviteModal() {
+  openInviteModal(type: 'ecourse' | 'program') {
     const config: ModalOptions = {
       initialState: {
         title: 'Woop!',
-        closeBtnName: 'Close Up!'
+        closeBtnName: 'Close Up!',
+        type
       }
     };
     this.bsModalRef = this.modalService.show(CoachInviteComponent, config);
