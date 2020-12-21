@@ -8,6 +8,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { CRMPerson } from 'app/interfaces/crm.person.interface';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ToastService } from 'app/services/toast.service';
 
 /*
   This component is designed to be a re-usable modal.
@@ -43,6 +44,7 @@ export class CoachInviteComponent implements OnInit {
     private authService: AuthService,
     private dataService: DataService,
     public formBuilder: FormBuilder,
+    private toastService: ToastService
   ) { }
 
   ngOnInit() {
@@ -56,11 +58,13 @@ export class CoachInviteComponent implements OnInit {
   buildForm() {
     if (this.type === 'program') {
       this.inviteForm = this.formBuilder.group({
-        program: [null, Validators.required]
+        program: [null, Validators.required],
+        message: [null]
       });
     } else if (this.type === 'ecourse') {
       this.inviteForm = this.formBuilder.group({
-        course: [null, Validators.required]
+        course: [null, Validators.required],
+        message: [null]
       });
     }
   }
@@ -105,6 +109,19 @@ export class CoachInviteComponent implements OnInit {
         }
       })
     );
+  }
+
+  onSubmit() {
+    this.saveAttempt = true;
+    this.saving = true;
+
+    console.log('onsubmit:', this.inviteForm.value);
+
+    if (this.inviteForm.invalid) {
+      this.saving = false;
+      this.toastService.showToast('Please complete all required fields', 3000, 'danger', 'top', 'right');
+      return;
+    }
   }
 
 }

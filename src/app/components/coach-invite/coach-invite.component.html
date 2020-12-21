@@ -6,8 +6,6 @@
     </button>
   </div>
   <div class="modal-body">
-    Type: {{ type }}
-    Invitee ID: {{ invitee.id }}
 
     <div *ngIf="browser">
 
@@ -16,8 +14,8 @@
             <form [formGroup]="inviteForm">
                 <div class=" row">
                     <div class=" col">
-                        <label> Program </label>
                         <div class=" form-group">
+                            <label for="programSelect"> Select a Program </label>
                             <select
                             class="form-control"
                             id="programSelect"
@@ -25,7 +23,7 @@
                             (focus)="focus = true; focusTouched = true"
                             (blur)="focus = false">
                                 <option [ngValue]="null"> Select... </option>
-                                <option *ngFor="let item of publishedPrograms ; let i = index" [value]="i">
+                                <option *ngFor="let item of publishedPrograms" [value]="item.programId">
                                 {{ item.title }}
                                 </option>
                             </select>
@@ -34,6 +32,17 @@
                                 *ngIf="(((focusTouched && inviteF.program.value != null) || saveAttempt) && inviteF.program.errors)"
                                 >Please select a program.
                             </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- end row -->
+                <div class=" row">
+                    <div class=" col">
+                        <div class="form-group">
+                            <label for="message">
+                                Optional: Add a personal message to {{ invitee.firstName }}:
+                            </label>
+                            <textarea class="form-control" id="message" rows="3" formControlName="message"></textarea>
                         </div>
                     </div>
                 </div>
@@ -47,8 +56,8 @@
             <form [formGroup]="inviteForm">
                 <div class=" row">
                     <div class=" col">
-                        <label> eCourse </label>
                         <div class=" form-group">
+                            <label for="courseSelect"> Select an eCourse </label>
                             <select
                             class="form-control"
                             id="courseSelect"
@@ -56,7 +65,7 @@
                             (focus)="focus = true; focusTouched = true"
                             (blur)="focus = false">
                                 <option [ngValue]="null"> Select... </option>
-                                <option *ngFor="let item of publishedCourses ; let i = index" [value]="i">
+                                <option *ngFor="let item of publishedCourses" [value]="item.courseId">
                                 {{ item.title }}
                                 </option>
                             </select>
@@ -69,6 +78,17 @@
                     </div>
                 </div>
                 <!-- end row -->
+                <div class=" row">
+                    <div class=" col">
+                        <div class="form-group">
+                            <label for="message">
+                                Optional: Add a personal message to {{ invitee.firstName }}:
+                            </label>
+                            <textarea class="form-control" id="message" rows="3" formControlName="message"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <!-- end row -->
             </form>
         </div>
         <!-- end modal type div -->
@@ -77,7 +97,19 @@
 
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-default" (click)="bsModalRef.hide()"> Cancel </button>
-    <button type="button" class="btn btn-primary pull-right"> Send Invite </button>
+    <button type="button" class="btn btn-default" (click)="bsModalRef.hide()">
+        <i class="fas fa-times"></i>
+        Cancel
+    </button>
+    <button type="button" class="btn btn-primary pull-right" (click)="onSubmit()">
+        <span *ngIf="!saving">
+            <i class="fas fa-envelope"></i>
+          </span>
+          <span
+          *ngIf="saving"
+          class="spinner-border spinner-border-sm"
+          role="status"
+          ></span> {{ saving ? 'Sending...' : 'Send Invite'}}
+    </button>
 </div>
 <!-- End of invite modal -->
