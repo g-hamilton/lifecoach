@@ -1,14 +1,83 @@
 <!-- Invite modal -->
 <div class="modal-header">
-    <h4 class="modal-title pull-left">{{ title }}</h4>
+    <h4 class="modal-title pull-left">Invite {{ invitee.firstName }} {{ type === 'program' ? 'to join a coaching program' : 'to enroll in an eCourse' }}</h4>
     <button type="button" class="close pull-right" aria-label="Close" (click)="bsModalRef.hide()">
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
   <div class="modal-body">
     Type: {{ type }}
+    Invitee ID: {{ invitee.id }}
+
+    <div *ngIf="browser">
+
+        <!-- if modal type is program -->
+        <div *ngIf="type === 'program'">
+            <form [formGroup]="inviteForm">
+                <div class=" row">
+                    <div class=" col">
+                        <label> Program </label>
+                        <div class=" form-group">
+                            <select
+                            class="form-control"
+                            id="programSelect"
+                            formControlName="program"
+                            (focus)="focus = true; focusTouched = true"
+                            (blur)="focus = false">
+                                <option [ngValue]="null"> Select... </option>
+                                <option *ngFor="let item of publishedPrograms ; let i = index" [value]="i">
+                                {{ item.title }}
+                                </option>
+                            </select>
+                            <div
+                                class="error custom-error-label"
+                                *ngIf="(((focusTouched && inviteF.program.value != null) || saveAttempt) && inviteF.program.errors)"
+                                >Please select a program.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- end row -->
+            </form>
+        </div>
+        <!-- end modal type div -->
+
+        <!-- if modal type is ecourse -->
+        <div *ngIf="type === 'ecourse'">
+            <form [formGroup]="inviteForm">
+                <div class=" row">
+                    <div class=" col">
+                        <label> eCourse </label>
+                        <div class=" form-group">
+                            <select
+                            class="form-control"
+                            id="courseSelect"
+                            formControlName="course"
+                            (focus)="focus = true; focusTouched = true"
+                            (blur)="focus = false">
+                                <option [ngValue]="null"> Select... </option>
+                                <option *ngFor="let item of publishedCourses ; let i = index" [value]="i">
+                                {{ item.title }}
+                                </option>
+                            </select>
+                            <div
+                                class="error custom-error-label"
+                                *ngIf="(((focusTouched && inviteF.course.value != null) || saveAttempt) && inviteF.course.errors)"
+                                >Please select an eCourse.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- end row -->
+            </form>
+        </div>
+        <!-- end modal type div -->
+
+    </div>
+
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-default" (click)="bsModalRef.hide()">{{ closeBtnName }}</button>
+    <button type="button" class="btn btn-default" (click)="bsModalRef.hide()"> Cancel </button>
+    <button type="button" class="btn btn-primary pull-right"> Send Invite </button>
 </div>
 <!-- End of invite modal -->

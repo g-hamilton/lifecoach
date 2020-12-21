@@ -84,11 +84,12 @@ export class PersonHistoryComponent implements OnInit, OnDestroy {
   }
 
   openInviteModal(type: 'ecourse' | 'program') {
+    // we can send data to the modal & open in a another component via a service
+    // https://valor-software.com/ngx-bootstrap/#/modals#service-component
     const config: ModalOptions = {
       initialState: {
-        title: 'Woop!',
-        closeBtnName: 'Close Up!',
-        type
+        type,
+        invitee: this.person
       }
     };
     this.bsModalRef = this.modalService.show(CoachInviteComponent, config);
