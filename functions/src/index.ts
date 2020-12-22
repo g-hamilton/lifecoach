@@ -2274,6 +2274,71 @@ exports.adminRejectProgramReview = functions
 });
 
 // ================================================================================
+// =====                            COACH INVITES                            ======
+// ================================================================================
+
+/*
+  Allows coaches to invite people in their CRM to sign up for their products & services.
+  The data object will be a 'CoachInvite'
+*/
+exports.sendCoachInvite = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.https
+.onCall( async (data, context) => {
+
+  // Reject any unauthorised user immediately.
+  if (!context.auth) {
+    return {error: 'Unauthorised!'}
+  }
+
+  const now = Math.round(new Date().getTime()/1000) // unix timestamp
+
+  const baseUrl = `https://lifecoach.io`
+  let landingUrl = baseUrl;
+  if (data.type === 'program') {
+    landingUrl = `${baseUrl}/program/${data.item.programId}`;
+  } else if (data.type === 'ecourse') {
+    landingUrl = `${baseUrl}/course/${data.item.courseId}`;
+  }
+
+  try {
+
+    // trigger the email
+    const event = {
+      name: 'coach_invited_user',
+      properties: {
+        coachUid: data.item.sellerUid,
+        coach_name: data.item.coachName,
+        coach_photo: data.item.coachPhoto,
+        itemType: data.type,
+        itemTitle: data.item.title,
+        itemSubtitle: data.item.subtitle,
+        itemImage: data.item.image,
+        landing_url: landingUrl
+      }
+    };
+    await logMailchimpEvent(data.invitee.id, event);
+
+    // record the crm event
+    await db.collection(`users/${data.item.sellerUid}/people/${data.invitee.id}/history`)
+    .doc(now.toString())
+    .set({ action: event.name, event });
+
+    // record in invites sent node
+    await db.collection(`users/${data.item.sellerUid}/sent-invites/${data.invitee.id}/by-date`)
+    .doc(now.toString())
+    .set(event);
+
+    // success
+    return { success: true } // success
+
+  } catch (err) {
+    console.error(err);
+    return { error: err }
+  }
+});
+
+// ================================================================================
 // =====                                                                     ======
 // =====                       LISTENER FUNCTIONS                            ======
 // =====                                                                     ======

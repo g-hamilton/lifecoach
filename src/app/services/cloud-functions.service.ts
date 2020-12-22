@@ -11,6 +11,7 @@ import { StripePaymentIntentRequest } from 'app/interfaces/stripe.payment.intent
 import { RefundRequest } from 'app/interfaces/refund.request.interface';
 import {Answer} from '../pages/video-chatroom/videochatroom.component';
 import { AdminProgramReviewRequest } from 'app/interfaces/admin.program.review.interface';
+import { CoachInvite } from 'app/interfaces/coach.invite.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -437,6 +438,18 @@ export class CloudFunctionsService {
         userId,
         reviewRequest
       })
+        .pipe(first())
+        .subscribe(res => {
+          resolve(res);
+          tempSub.unsubscribe();
+        });
+    });
+  }
+
+  sendCoachInvite(data: CoachInvite) {
+    return new Promise(resolve => {
+      const invite = this.cloudFunctions.httpsCallable('sendCoachInvite');
+      const tempSub = invite(data)
         .pipe(first())
         .subscribe(res => {
           resolve(res);
