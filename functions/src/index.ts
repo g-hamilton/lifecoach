@@ -2317,13 +2317,13 @@ exports.sendCoachInvite = functions
     const event = {
       name: 'coach_invited_user',
       properties: {
-        coachUid: data.item.sellerUid,
+        coach_uid: data.item.sellerUid,
         coach_name: data.item.coachName,
         coach_photo: data.item.coachPhoto,
-        itemType: data.type,
-        itemTitle: data.item.title,
-        itemSubtitle: data.item.subtitle,
-        itemImage: data.item.image,
+        item_type: data.type,
+        item_title: data.item.title,
+        item_subtitle: data.item.subtitle,
+        item_image: data.item.image,
         landing_url: landingUrl
       }
     };
