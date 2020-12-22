@@ -502,10 +502,15 @@ export class DataService {
       .set({completed: timestampNow})
       .catch(err => console.error(err));
 
+    // save the action to this user's history with this coach
+    await this.db.collection(`users/${userId}/coaches/${course.sellerUid}/history`)
+    .doc(timestampNow.toString())
+    .set({ action: 'completed_self_study_course', courseId: course.courseId });
+
     // save the action to this person's history for the course creator
     return this.db.collection(`users/${course.sellerUid}/people/${userId}/history`)
       .doc(timestampNow.toString())
-      .set({action: 'completed_self_study_course'});
+      .set({ action: 'completed_self_study_course', courseId: course.courseId });
   }
 
   getUserCoursesComplete(userId: string) {
