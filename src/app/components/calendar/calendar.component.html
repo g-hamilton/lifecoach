@@ -107,41 +107,46 @@
 >
   <div class="modal-dialog" style="transform: translate(0,0);">
     <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title pull-left"> Manage this slot </h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="onEditEventModalClose()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
       <div class="modal-body">
         <div class="card card-login card-white">
 
           <div class=" card-body">
 
-            <!-- close cross -->
-            <div class=" row">
-              <div class=" col">
-                <div class=" pull-right">
-                  <i
-                    class="fas fa-times text-default"
-                    tooltip="Close"
-                    (click)="onEditEventModalClose()">
-                  </i>
-                </div>
-              </div>
-            </div>
-
             <form [formGroup]="activeEventForm">
 
-              <!-- title -->
-<!--              <div class=" form-group">-->
-<!--                <label for="title"> Title <span class="required-star">*</span></label>-->
-<!--                <input-->
-<!--                  id="title"-->
-<!--                  type="text"-->
-<!--                  disabled-->
-<!--                  class="form-control"-->
-<!--                  formControlName="title"-->
-<!--                  placeholder="eg. Check in"-->
-<!--                >-->
-<!--              </div>-->
+              <!--  -->
+              <div class=" row">
+                <div class=" col">
+                    <div class=" form-group">
+                        <label for="eventType"> Action </label>
+                        <select
+                        class="form-control"
+                        id="eventType"
+                        formControlName="type"
+                        (focus)="focus = true; focusTouched = true"
+                        (blur)="focus = false">
+                            <option [ngValue]="null"> Select... </option>
+                            <option *ngFor="let item of eventTypes" [value]="item.id">
+                            {{ item.name }}
+                            </option>
+                        </select>
+                        <div
+                            class="error custom-error-label"
+                            *ngIf="(((focusTouched && activeEventF.type.value != null) || saveAttempt) && activeEventF.type.errors)"
+                            >Please select a program.
+                        </div>
+                    </div>
+                </div>
+              </div>
 
               <div>
-                <label for="starttime"> Start <span class="required-star">*</span></label>
+                <label for="starttime"> Start </label>
               </div>
 
               <div class=" row">

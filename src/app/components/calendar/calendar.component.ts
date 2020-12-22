@@ -2,7 +2,7 @@ import {Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation} from '@angul
 import {CalendarView} from 'angular-calendar';
 import {Subject, Subscription} from 'rxjs';
 import {ModalDirective} from 'ngx-bootstrap/modal';
-import {FormBuilder, FormGroup} from '@angular/forms';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {CustomCalendarEvent} from '../../interfaces/custom.calendar.event.interface';
 import {DataService} from 'app/services/data.service';
 import {AuthService} from 'app/services/auth.service';
@@ -30,7 +30,13 @@ export class CalendarComponent implements OnInit, OnDestroy {
   public refresh: Subject<any> = new Subject(); // allows us to refresh the view when data changes
   public activeEvent: CustomCalendarEvent;
   public activeEventForm: FormGroup;
+  public saveAttempt: boolean;
   public savingEvent: boolean;
+
+  public focus: boolean;
+  public focusTouched: boolean;
+
+  public eventTypes = [{ id: 'available', name: 'Set as available for discovery calls'}];
 
   public events: CustomCalendarEvent[];
 
@@ -61,10 +67,11 @@ export class CalendarComponent implements OnInit, OnDestroy {
   buildActiveEventForm() {
     this.activeEventForm = this.formBuilder.group(
       {
-        id: [null],
+        id: [null, Validators.required],
+        type: [null, Validators.required],
         title: [null],
-        start: [null],
-        end: [null],
+        start: [null, Validators.required],
+        end: [null, Validators.required],
         draggable: [null],
         cssClass: [null],
         description: [null]
@@ -122,9 +129,10 @@ export class CalendarComponent implements OnInit, OnDestroy {
   loadActiveEventFormData() {
     this.activeEventForm.patchValue({
       id: this.activeEvent.id ? this.activeEvent.id : null,
+      type: this.activeEvent.type ? this.activeEvent.type : null,
       start: this.activeEvent.start ? this.activeEvent.start : null,
       end: this.activeEvent.end ? this.activeEvent.end : null,
-      // title: this.activeEvent.start.toLocaleTimeString() + ' - ' + (this.activeEvent.end.toLocaleTimeString() || ' '),
+      title: this.activeEvent.start.toLocaleTimeString() + ' - ' + (this.activeEvent.end.toLocaleTimeString() || ' '),
       draggable: false,
       description: this.activeEvent.description ? this.activeEvent.description : null,
       reserved: this.activeEvent.reserved ? this.activeEvent.reserved : false,
@@ -196,6 +204,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
     // prepare a new event object
     const newEvent: CustomCalendarEvent = {
       id: Math.random().toString(36).substr(2, 9), // generate semi-random id
+      type: 'available',
       title: 'New Event',
       start: date,
       end: date
@@ -362,6 +371,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
     return result;
   }
   onUpdateEvent() {
+    this.saveAttempt = true;
     this.savingEvent = true;
     // if the event has no id, create one id now
 
@@ -395,6 +405,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
     if (error) {
       // TODO: It will be better to do a Modal with warning;
       // alert('Choose other date!'); // TODO: Modal
+      this.savingEvent = false;
       this.alertService.alert(
           'warning-message',
         'Choose other time!',
@@ -419,6 +430,9 @@ export class CalendarComponent implements OnInit, OnDestroy {
       return;
     }
     // this.dataService.saveUserCalendarEvent(this.userId, ev.start, ev);
+
+    this.savingEvent = false;
+    this.saveAttempt = false;
 
     // dismiss the modal
     this.editEventModal.hide();
