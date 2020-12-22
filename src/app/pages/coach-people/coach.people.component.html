@@ -1,42 +1,48 @@
 <div class=" content">
 
-    <!--  -->
-    <div class=" row">
+  <h4 class=" title"> People 
+  </h4>
+  <p class=" small text-muted pl-2 mb-2">
+      <i class="fas fa-info-circle"></i> Manage all of your clients and leads in one place.
+      The 'People' tab helps you to keep track of everyone who sends you an enquiry message, 
+      schedules a discovery call with you or enrolls in any of your your coaching programs or eCourses. 
+      Not sure how? <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001167999-how-to-manage-your-clients-and-leads-on-the-lifecoach-platform" target="_blank">Read the guide.</a>
+  </p>
+
+    <!-- no people yet -->
+    <div *ngIf="!people || !people.length ; else peopleView">
+      <div class=" row mt-5">
+        <div class=" col">
+          <div class=" card">
+              <div class=" card-body">
+                  <p class="p-4">
+                    As soon as you receive a new lead or enroll a new client they will appear here. Promote your Lifecoach profile, 
+                    products & services as widely as you can to start generating sales and leads!
+                  </p>
+              </div>
+          </div>
+      </div>
+      </div>
+    </div>
+
+    <!-- people -->
+    <ng-template #peopleView>
+      <div class=" row mt-5">
         <div class=" col-lg-12">
           <div class=" card">
             <div class=" card-header">
-              <div class=" tools float-right">
-                <div class=" dropdown" dropdown>
-                  <button
-                    class=" btn btn-link dropdown-toggle btn-icon dropdown-toggle"
-                    data-toggle="dropdown"
-                    dropdownToggle
-                    type="button"
-                  >
-                    <i class=" tim-icons icon-settings-gear-63"> </i>
-                  </button>
-                  <div class=" dropdown-menu dropdown-menu-right" *dropdownMenu>
-                    <a class=" dropdown-item" href="#pablo"> Action </a>
-                    <a class=" dropdown-item" href="#pablo"> Another action </a>
-                    <a class=" dropdown-item" href="#pablo"> Something else </a>
-                    <a class=" dropdown-item text-danger" href="#pablo">
-                      Remove Data
-                    </a>
-                  </div>
-                </div>
-              </div>
-              <h5 class=" card-title"> People </h5>
+              <!-- blank -->
             </div>
             <div class=" card-body">
-              <div class=" table-responsive">
+              <div class=" table-responsive table-striped" style="padding-bottom: 10em;">
                 <table class=" table">
                   <thead class=" text-primary">
                     <tr>
-                      <th> # </th>
-                      <th> </th>
-                      <th> Name </th>
+                      <th> Type </th>
+                      <th> Person </th>
                       <th> Connected </th>
                       <th> Status </th>
+                      <th> Most Recent Note </th>
                       <th class=" text-right">Actions</th>
                     </tr>
                   </thead>
@@ -44,7 +50,7 @@
                     <tr *ngFor="let user of people">
                       <td>
                         <div *ngIf="user.type === 'warm lead'" class=" badge badge-danger">
-                          🔥Warm Lead
+                          🔥 Warm Lead
                         </div>
                         <div *ngIf="user.type === 'lead'" class=" badge badge-success">
                           Lead
@@ -54,11 +60,15 @@
                         </div>
                       </td>
                       <td>
-                        <div class=" photo">
+                        <a (click)="openHistory(user)" href="javascript:void(0)">
+                          <div class=" photo pull-left mr-3">
                             <img alt="photo" [src]="user.photo" />
-                        </div>
+                          </div>
+                          <span class=" d-inline-block pt-1">
+                            {{ user.firstName + ' ' + user.lastName }}
+                          </span>
+                        </a>
                       </td>
-                      <td> {{ user.firstName + ' ' + user.lastName }} </td>
                       <td> {{ user.created.toDateString() }} </td>
                       <td> 
                         <div 
@@ -68,8 +78,48 @@
                           {{ user.status }}
                         </div>
                       </td>
+                      <td>
+                        {{ truncate('I think I should contact Greg to offer him access to my eCourse. I hope he enrolls because then it will be great.', 120) }}
+                      </td>
                       <td class=" text-right">
-                        <button
+                        <div class=" tools float-right">
+                          <div class=" dropdown" dropdown>
+                            <button
+                              class=" btn btn-link dropdown-toggle btn-icon dropdown-toggle"
+                              data-toggle="dropdown"
+                              dropdownToggle
+                              type="button"
+                            >
+                              <i class=" tim-icons icon-settings-gear-63"> </i>
+                            </button>
+                            <div class=" dropdown-menu dropdown-menu-right" *dropdownMenu>
+
+                              <!-- if this person has sent a first message, message them back -->
+                              <a *ngIf="user.history[user.history.length - 1].action === 'sent_first_message'" 
+                              class=" dropdown-item" 
+                              (click)="openMessage(user.history[user.history.length - 1].roomId)" href="javascript:void(0)"> 
+                                View Messages
+                              </a> 
+
+                              <!-- show this person's history -->
+                              <a *ngIf="user.history?.length" 
+                              class=" dropdown-item" 
+                              (click)="openHistory(user)" href="javascript:void(0)"> 
+                                View Person
+                              </a>
+                              
+                              <!-- archive this person -->
+                              <a *ngIf="true" 
+                              class=" dropdown-item text-danger" 
+                              (click)="archivePerson(user)" href="javascript:void(0)"> 
+                                Archive Person
+                              </a>
+
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- <button
                           *ngIf="user.history[user.history.length - 1].action === 'sent_first_message'"
                           class=" btn btn-success btn-link btn-icon btn-sm btn-simple"
                           tooltip="Message"
@@ -93,7 +143,7 @@
                           type="button"
                         >
                           <i class="fas fa-archive"></i>
-                        </button>
+                        </button> -->
                       </td>
                     </tr>
                   </tbody>
@@ -190,7 +240,8 @@
               </div>
             </div>
         </div>
-    </div> -->
+      </div> -->
     <!--  -->
+    </ng-template>
 
 </div>

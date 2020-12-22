@@ -1,0 +1,115 @@
+<!-- Invite modal -->
+<div class="modal-header">
+    <h4 class="modal-title pull-left">Invite {{ invitee.firstName }} {{ type === 'program' ? 'to join a coaching program' : 'to enroll in an eCourse' }}</h4>
+    <button type="button" class="close pull-right" aria-label="Close" (click)="bsModalRef.hide()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+
+    <div *ngIf="browser">
+
+        <!-- if modal type is program -->
+        <div *ngIf="type === 'program'">
+            <form [formGroup]="inviteForm">
+                <div class=" row">
+                    <div class=" col">
+                        <div class=" form-group">
+                            <label for="programSelect"> Select a Program </label>
+                            <select
+                            class="form-control"
+                            id="programSelect"
+                            formControlName="program"
+                            (focus)="focus = true; focusTouched = true"
+                            (blur)="focus = false">
+                                <option [ngValue]="null"> Select... </option>
+                                <option *ngFor="let item of publishedPrograms" [value]="item.programId">
+                                {{ item.title }}
+                                </option>
+                            </select>
+                            <div
+                                class="error custom-error-label"
+                                *ngIf="(((focusTouched && inviteF.program.value != null) || saveAttempt) && inviteF.program.errors)"
+                                >Please select a program.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- end row -->
+                <div class=" row">
+                    <div class=" col">
+                        <div class="form-group">
+                            <label for="message">
+                                Optional: Add a personal message to {{ invitee.firstName }}:
+                            </label>
+                            <textarea class="form-control" id="message" rows="3" formControlName="message"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <!-- end row -->
+            </form>
+        </div>
+        <!-- end modal type div -->
+
+        <!-- if modal type is ecourse -->
+        <div *ngIf="type === 'ecourse'">
+            <form [formGroup]="inviteForm">
+                <div class=" row">
+                    <div class=" col">
+                        <div class=" form-group">
+                            <label for="courseSelect"> Select an eCourse </label>
+                            <select
+                            class="form-control"
+                            id="courseSelect"
+                            formControlName="course"
+                            (focus)="focus = true; focusTouched = true"
+                            (blur)="focus = false">
+                                <option [ngValue]="null"> Select... </option>
+                                <option *ngFor="let item of publishedCourses" [value]="item.courseId">
+                                {{ item.title }}
+                                </option>
+                            </select>
+                            <div
+                                class="error custom-error-label"
+                                *ngIf="(((focusTouched && inviteF.course.value != null) || saveAttempt) && inviteF.course.errors)"
+                                >Please select an eCourse.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- end row -->
+                <div class=" row">
+                    <div class=" col">
+                        <div class="form-group">
+                            <label for="message">
+                                Optional: Add a personal message to {{ invitee.firstName }}:
+                            </label>
+                            <textarea class="form-control" id="message" rows="3" formControlName="message"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <!-- end row -->
+            </form>
+        </div>
+        <!-- end modal type div -->
+
+    </div>
+
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" (click)="bsModalRef.hide()">
+        <i class="fas fa-times"></i>
+        Cancel
+    </button>
+    <button type="button" class="btn btn-primary pull-right" (click)="sendInvite()">
+        <span *ngIf="!saving">
+            <i class="fas fa-envelope"></i>
+          </span>
+          <span
+          *ngIf="saving"
+          class="spinner-border spinner-border-sm"
+          role="status"
+          ></span> {{ saving ? 'Sending...' : 'Send Invite'}}
+    </button>
+</div>
+<!-- End of invite modal -->

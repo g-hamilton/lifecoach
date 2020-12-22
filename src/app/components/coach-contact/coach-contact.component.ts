@@ -77,7 +77,7 @@ export class CoachContactComponent implements OnInit, OnDestroy {
   }
 
   recaptchaResolved(event: any) {
-    console.log('reCaptchaEvent', event);
+    // console.log('reCaptchaEvent', event);
   }
 
   getUser() {
@@ -86,6 +86,7 @@ export class CoachContactComponent implements OnInit, OnDestroy {
         .subscribe(user => {
           if (user) {
             this.userId = user.uid;
+            // console.log('Coach contact component - current user ID:', this.userId)
             // Remove the form controls we don't need when user is authorised
             this.contactForm.removeControl('firstName');
             this.contactForm.removeControl('lastName');
@@ -124,9 +125,11 @@ export class CoachContactComponent implements OnInit, OnDestroy {
         if (res.success) {
           this.submitted = false;
           await this.alertService.alert('success-message', 'Success!', `
-          Message sent successfully! Visit 'My Dashboard > Messages' to see replies.
-          If this Coach takes a little while to respond, we'll send you an email as soon as they reply.`);
+          Message sent successfully! 
+          If this Coach takes a little while to respond, we'll send you an email as soon as they reply. 
+          Be sure to add 'hello@lifecoach.io' to the list of trusted email senders in your email program.`);
           this.resetForm();
+          this.router.navigate(['/messages'])
         } else if (res.error) {
           this.submitted = false;
           await this.alertService.alert('warning-message', 'Oops', `
@@ -155,10 +158,11 @@ export class CoachContactComponent implements OnInit, OnDestroy {
       if (res.success) { // message sent successfully
         this.submitted = false;
         await this.alertService.alert('success-message', 'Success!', `
-        Message sent successfully! Visit 'My Dashboard > Messages' to see replies.
-        If this Coach takes a little while to respond, we'll send you an email as soon as they reply.`);
+        Message sent successfully! 
+        If this Coach takes a little while to respond, we'll send you an email as soon as they reply. 
+          Be sure to add 'hello@lifecoach.io' to the list of trusted email senders in your email program.`);
         this.resetForm();
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/messages']);
       } else if (res.error) { // error sending message
         this.submitted = false;
         await this.alertService.alert('warning-message', 'Oops', `

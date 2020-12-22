@@ -96,14 +96,68 @@ export class CoachComponent implements OnInit, OnDestroy {
       this.analyticsService.pageView();
       this.buildRegisterForm();
       this.buildLoginForm();
+      this.getUser();
     }
 
     // Check activated route params for user ID
     this.route.params.subscribe(params => {
       this.coachId = params.uid;
+      console.log('Activated Coach ID:', this.coachId);
+      if (!this.coachId) {
+        return;
+      }
 
-      // Fetch the activated user's profile
-      const PROFILE_KEY = makeStateKey<any>('profile'); // create a key for saving/retrieving profile state
+      // we have a coach id. continue...
+      this.getCoachProfile();
+      this.getCoachCourses();
+      this.getCoachPrograms();
+      this.getCoachCalendarEvents();
+      // this.getCoachServices();
+
+    });
+  }
+
+  getUser() {
+    this.subscriptions.add(
+      this.authService.getAuthUser()
+        .subscribe(user => {
+          if (user) {
+            this.userId = user.uid;
+          }
+        }, error => console.log('error logger', error.message))
+    );
+  }
+
+  buildRegisterForm() {
+    this.registerForm = this.formBuilder.group(
+      {
+        firstName: ['', [Validators.required]],
+        lastName: ['', [Validators.required]],
+        email: ['', [Validators.required, Validators.pattern(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)]],
+        password: ['', [Validators.required, Validators.minLength(6)]]
+      }
+    );
+  }
+
+  get registerF(): any {
+    return this.registerForm.controls;
+  }
+
+  buildLoginForm() {
+    this.loginForm = this.formBuilder.group(
+      {
+        email: ['', [Validators.required, Validators.email]],
+        password: ['', [Validators.required, Validators.minLength(6)]],
+      }
+    );
+  }
+
+  get loginF(): any {
+    return this.loginForm.controls;
+  }
+
+  getCoachProfile() {
+    const PROFILE_KEY = makeStateKey<any>('profile'); // create a key for saving/retrieving profile state
 
       const profileData = this.transferState.get(PROFILE_KEY, null as any); // checking if profile data in the storage exists
 
@@ -134,106 +188,6 @@ export class CoachComponent implements OnInit, OnDestroy {
         this.initProfile(profileData);
         this.transferState.remove(PROFILE_KEY);
       }
-
-      // Fetch the activated user's courses
-      const COURSES_KEY = makeStateKey<any>('courses'); // create a key for saving/retrieving courses state
-
-      const coursesData = this.transferState.get(COURSES_KEY, null as any); // checking if course data in the storage exists
-
-      if (coursesData === null) { // if courses state data does not exist - retrieve it from the api
-        this.subscriptions.add(
-          this.dataService.getPublicCoursesBySeller(this.coachId).subscribe(publicCourses => {
-            if (publicCourses) { // The coach has at least one public course
-              this.courses = publicCourses;
-              if (isPlatformServer(this.platformId)) {
-                this.transferState.set(COURSES_KEY, publicCourses);
-              }
-            }
-          }, error => console.log('error logger', error.message))
-        );
-      } else { // if courses state data exists retrieve it from the state storage
-        this.courses = coursesData;
-        this.transferState.remove(COURSES_KEY);
-      }
-
-      // Fetch the activated user's programs
-      const PROGRAMS_KEY = makeStateKey<any>('programs'); // create a key for saving/retrieving state
-
-      const programsData = this.transferState.get(PROGRAMS_KEY, null as any); // checking if data in the storage exists
-
-      if (programsData === null) { // if state data does not exist - retrieve it from the api
-        // this.route.params.pipe().subscribe(params => {});
-        this.route.params.pipe(first()).subscribe(
-        par => {
-          console.log(par.uid);
-          this.subscriptions.add(
-            this.dataService.getPublicProgramsBySeller(par.uid).subscribe(programs => {
-              if (programs) { // The coach has at least one published program
-                this.publishedPrograms = programs;
-                if (isPlatformServer(this.platformId)) {
-                  this.transferState.set(PROGRAMS_KEY, programs);
-                }
-              }
-            }, error => console.log('error logger', error.message))
-          );
-        }
-        );
-
-      } else { // if state data exists retrieve it from the state storage
-        this.publishedPrograms = programsData;
-        this.transferState.remove(PROGRAMS_KEY);
-      }
-
-      // Fetch the activated user's services
-      const SERVICES_KEY = makeStateKey<any>('services'); // create a key for saving/retrieving state
-
-      const servicesData = this.transferState.get(SERVICES_KEY, null as any); // checking if data in the storage exists
-
-      if (servicesData === null) { // if state data does not exist - retrieve it from the api
-        this.subscriptions.add(
-          this.dataService.getCoachServices(this.coachId).subscribe(services => {
-            if (services) { // The coach has at least one published service
-              this.publishedServices = services;
-              if (isPlatformServer(this.platformId)) {
-                this.transferState.set(SERVICES_KEY, services);
-              }
-            }
-          }, error => console.log('error logger', error.message))
-        );
-      } else { // if state data exists retrieve it from the state storage
-        this.publishedServices = servicesData;
-        this.transferState.remove(SERVICES_KEY);
-      }
-
-    });
-  }
-
-  buildRegisterForm() {
-    this.registerForm = this.formBuilder.group(
-      {
-        firstName: ['', [Validators.required]],
-        lastName: ['', [Validators.required]],
-        email: ['', [Validators.required, Validators.pattern(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)]],
-        password: ['', [Validators.required, Validators.minLength(6)]]
-      }
-    );
-  }
-
-  get registerF(): any {
-    return this.registerForm.controls;
-  }
-
-  buildLoginForm() {
-    this.loginForm = this.formBuilder.group(
-      {
-        email: ['', [Validators.required, Validators.email]],
-        password: ['', [Validators.required, Validators.minLength(6)]],
-      }
-    );
-  }
-
-  get loginF(): any {
-    return this.loginForm.controls;
   }
 
   initProfile(profile) {
@@ -265,28 +219,97 @@ export class CoachComponent implements OnInit, OnDestroy {
       if (isPlatformBrowser(this.platformId)) {
         this.analyticsService.viewCoach(this.userProfile);
       }
-      this.subscriptions.add(
-        this.dataService.getUserNotReservedEvents(this.coachId).subscribe(next => {
-          console.log(next);
-          if (next) {
-            this.availableEvents = next;
-            console.log(next);
-            this.dayToSelect = [];
-            this.availableEvents.forEach( i => {
-              // @ts-ignore
-              const startDate = new Date(i.start.seconds * 1000);
-              const day = new Date(startDate.getUTCFullYear(), startDate.getUTCMonth(), startDate.getUTCDate());
-              if (!this.dayToSelect.some( (date) => this.isSameDay(date, day))) {
-                this.dayToSelect.push(day);
-              }
-            });
-            }
-          console.log('UNIQUE DAYS:', this.dayToSelect);
-        },
-          error => console.log('error logger', error.message))
-      );
-      this.authService.getAuthUser().pipe(first()).subscribe(value => this.userId = value.uid, error => console.log('error logger', error.message));
     }
+  }
+
+  getCoachCourses() {
+    const COURSES_KEY = makeStateKey<any>('courses'); // create a key for saving/retrieving courses state
+
+      const coursesData = this.transferState.get(COURSES_KEY, null as any); // checking if course data in the storage exists
+
+      if (coursesData === null) { // if courses state data does not exist - retrieve it from the api
+        this.subscriptions.add(
+          this.dataService.getPublicCoursesBySeller(this.coachId).subscribe(publicCourses => {
+            if (publicCourses) { // The coach has at least one public course
+              this.courses = publicCourses;
+              if (isPlatformServer(this.platformId)) {
+                this.transferState.set(COURSES_KEY, publicCourses);
+              }
+            }
+          }, error => console.log('error logger', error.message))
+        );
+      } else { // if courses state data exists retrieve it from the state storage
+        this.courses = coursesData;
+        this.transferState.remove(COURSES_KEY);
+      }
+  }
+
+  getCoachPrograms() {
+    const PROGRAMS_KEY = makeStateKey<any>('programs'); // create a key for saving/retrieving state
+
+      const programsData = this.transferState.get(PROGRAMS_KEY, null as any); // checking if data in the storage exists
+
+      if (programsData === null) { // if state data does not exist - retrieve it from the api
+        this.subscriptions.add(
+          this.dataService.getPublicProgramsBySeller(this.coachId).subscribe(programs => {
+            if (programs) { // The coach has at least one published program
+              this.publishedPrograms = programs;
+              if (isPlatformServer(this.platformId)) {
+                this.transferState.set(PROGRAMS_KEY, programs);
+              }
+            }
+          }, error => console.log('error logger', error.message))
+        );
+
+      } else { // if state data exists retrieve it from the state storage
+        this.publishedPrograms = programsData;
+        this.transferState.remove(PROGRAMS_KEY);
+      }
+  }
+
+  getCoachServices() {
+    const SERVICES_KEY = makeStateKey<any>('services'); // create a key for saving/retrieving state
+
+      const servicesData = this.transferState.get(SERVICES_KEY, null as any); // checking if data in the storage exists
+
+      if (servicesData === null) { // if state data does not exist - retrieve it from the api
+        this.subscriptions.add(
+          this.dataService.getCoachServices(this.coachId).subscribe(services => {
+            if (services) { // The coach has at least one published service
+              this.publishedServices = services;
+              if (isPlatformServer(this.platformId)) {
+                this.transferState.set(SERVICES_KEY, services);
+              }
+            }
+          }, error => console.log('error logger', error.message))
+        );
+      } else { // if state data exists retrieve it from the state storage
+        this.publishedServices = servicesData;
+        this.transferState.remove(SERVICES_KEY);
+      }
+  }
+
+  getCoachCalendarEvents() {
+    this.subscriptions.add(
+      this.dataService.getUserNotReservedEvents(this.coachId).subscribe(next => {
+        console.log(next);
+        if (next) {
+          this.availableEvents = next;
+          console.log(next);
+          this.dayToSelect = [];
+          this.availableEvents.forEach( i => {
+            // @ts-ignore
+            const startDate = new Date(i.start.seconds * 1000);
+            const day = new Date(startDate.getUTCFullYear(), startDate.getUTCMonth(), startDate.getUTCDate());
+            if (!this.dayToSelect.some( (date) => this.isSameDay(date, day))) {
+              this.dayToSelect.push(day);
+            }
+          });
+          }
+        console.log('UNIQUE DAYS:', this.dayToSelect);
+      },
+        error => console.log('error logger', error.message))
+    );
   }
 
   daySelect(event: any) {

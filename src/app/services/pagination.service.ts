@@ -125,7 +125,7 @@ export class PaginationService {
         if (!values.length) {
           this._done.next(true);
         }
-      }), first())
+      }))
       .subscribe();
 
   }

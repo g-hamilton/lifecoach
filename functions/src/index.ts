@@ -1581,8 +1581,13 @@ async function recordCourseEnrollmentForCreator(sellerUid: string, courseId: str
   .set({ lastUpdated: timestampNow }, { merge: true }) // creates a real (not virtual) doc
   .catch(err => console.log(err));
 
-  // save the action to this person's history
-  return db.collection(`users/${sellerUid}/people/${clientUid}/history`)
+  // save the action to this person's history for the coach
+  await db.collection(`users/${sellerUid}/people/${clientUid}/history`)
+  .doc(timestampNow.toString())
+  .set({ action: 'enrolled_in_self_study_course', courseId });
+
+  // save the action to this user's history with the coach
+  return db.collection(`users/${clientUid}/coaches/${sellerUid}/history`)
   .doc(timestampNow.toString())
   .set({ action: 'enrolled_in_self_study_course', courseId });
 }
@@ -1672,8 +1677,13 @@ async function recordFullProgramEnrollmentForCreator(sellerUid: string, programI
   .set({ lastUpdated: timestampNow }, { merge: true }) // creates a real (not virtual) doc
   .catch(err => console.log(err));
 
-  // save the action to this person's history
-  return db.collection(`users/${sellerUid}/people/${clientUid}/history`)
+  // save the action to this person's history for the coach
+  await db.collection(`users/${sellerUid}/people/${clientUid}/history`)
+  .doc(timestampNow.toString())
+  .set({ action: 'enrolled_in_full_program', programId });
+
+  // save the action to this person's history with the coach
+  return db.collection(`users/${clientUid}/coaches/${sellerUid}/history`)
   .doc(timestampNow.toString())
   .set({ action: 'enrolled_in_full_program', programId });
 }
@@ -2265,6 +2275,76 @@ exports.adminRejectProgramReview = functions
     }
     await logMailchimpEvent(reviewRequest.sellerUid, event); // log event
 
+    return { success: true } // success
+
+  } catch (err) {
+    console.error(err);
+    return { error: err }
+  }
+});
+
+// ================================================================================
+// =====                            COACH INVITES                            ======
+// ================================================================================
+
+/*
+  Allows coaches to invite people in their CRM to sign up for their products & services.
+  The data object will be a 'CoachInvite'
+*/
+exports.sendCoachInvite = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.https
+.onCall( async (data, context) => {
+
+  // Reject any unauthorised user immediately.
+  if (!context.auth) {
+    return {error: 'Unauthorised!'}
+  }
+
+  const now = Math.round(new Date().getTime()/1000) // unix timestamp
+
+  const baseUrl = `https://lifecoach.io`
+  let landingUrl = baseUrl;
+  if (data.type === 'program') {
+    landingUrl = `${baseUrl}/program/${data.item.programId}`;
+  } else if (data.type === 'ecourse') {
+    landingUrl = `${baseUrl}/course/${data.item.courseId}`;
+  }
+
+  try {
+
+    // trigger the email
+    const event = {
+      name: 'coach_invited_user',
+      properties: {
+        coach_uid: data.item.sellerUid,
+        coach_name: data.item.coachName,
+        coach_photo: data.item.coachPhoto,
+        item_type: data.type,
+        item_title: data.item.title,
+        item_subtitle: data.item.subtitle,
+        item_image: data.item.image,
+        landing_url: landingUrl
+      }
+    };
+    await logMailchimpEvent(data.invitee.id, event);
+
+    // record the crm event in the coach's history
+    await db.collection(`users/${data.item.sellerUid}/people/${data.invitee.id}/history`)
+    .doc(now.toString())
+    .set({ action: event.name, event });
+
+    // record in coach's invites sent node
+    await db.collection(`users/${data.item.sellerUid}/sent-invites/${data.invitee.id}/by-date`)
+    .doc(now.toString())
+    .set(event);
+
+    // record in invitees invites received node
+    await db.collection(`users/${data.invitee.id}/received-invites/${data.item.sellerUid}/by-date`)
+    .doc(now.toString())
+    .set(event);
+
+    // success
     return { success: true } // success
 
   } catch (err) {

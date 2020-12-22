@@ -122,6 +122,7 @@ import { ProgramSearchFilterUiComponent } from './program-search-filter-ui/progr
 import { ProgramResultsComponent } from './program-results/program-results.component';
 import { ProgramCardComponent } from './program-card/program-card.component';
 import { ProgramBotlinksComponent } from './program-botlinks/program-botlinks.component';
+import { CoachInviteComponent } from './coach-invite/coach-invite.component';
 
 export function momentAdapterFactory() {
   return adapterFactory(moment);
@@ -247,7 +248,8 @@ export function momentAdapterFactory() {
     ProgramSearchFilterUiComponent,
     ProgramResultsComponent,
     ProgramCardComponent,
-    ProgramBotlinksComponent
+    ProgramBotlinksComponent,
+    CoachInviteComponent
   ],
   exports: [
     TabsModule,
@@ -351,7 +353,9 @@ export function momentAdapterFactory() {
     ProgramSearchFilterUiComponent,
     ProgramResultsComponent,
     ProgramCardComponent,
-    ProgramBotlinksComponent
+    ProgramBotlinksComponent,
+    BsDropdownModule,
+    CoachInviteComponent
   ]
 })
 export class ComponentsModule {}

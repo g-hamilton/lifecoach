@@ -29,7 +29,7 @@
 
                 <!-- person type -->
                 <div *ngIf="person.type === 'warm lead'" class=" badge badge-danger">
-                  🔥Warm Lead
+                  🔥 Warm Lead
                 </div>
                 <div *ngIf="person.type === 'lead'" class=" badge badge-success">
                   Lead
@@ -38,21 +38,84 @@
                   Client
                 </div>
 
+                <!-- connected -->
+                <div class=" mt-4">
+                  <small class=" text-muted">
+                    Connected
+                  </small>
+                  <p>
+                    {{ person.created.toLocaleDateString() + ' ' + person.created.toLocaleTimeString() }}
+                  </p>
+                </div>
+
                 <!-- person status -->
-                <div class=" mt-3" 
+                <div class=" mt-4">
+                  <small class=" text-muted">
+                    Status
+                  </small>
+                  <p
                   [ngClass]="{
                   'text-danger': person.status === 'Awaiting reply' || person.status === 'Client responded',
                   'text-success' : person.status === 'Responded',
-                  'text-primary' : person.status === 'Enrolled in self-study course'}"
-                  >
+                  'text-primary' : person.status === 'Enrolled in self-study course'}">
                     {{ person.status }}
+                  </p>
+                </div>
+
+                <!-- coach actions -->
+                <div class=" mt-4 text-center">
+                  <div class=" dropdown btn-group" dropdown>
+                    <button
+                    class=" btn btn-round btn-default dropdown-toggle dropdown-toggle"
+                    data-toggle="dropdown"
+                    dropdownToggle
+                    type="button"
+                    >
+                        <span class="pl-2">Actions</span>
+                    </button>
+                    <div class=" dropdown-menu" *dropdownMenu>
+
+                      <!--  -->
+                      <a *ngIf="true" class=" dropdown-item" [routerLink]="msgUrl">
+                        Send {{ person.firstName }} a message
+                      </a>
+  
+                      <!--  -->
+                      <a *ngIf="true" class=" dropdown-item" href="javascript:void(0)" (click)="openInviteModal('program')">
+                        Invite {{ person.firstName }} to join a program
+                      </a>
+
+                      <!--  -->
+                      <a *ngIf="true" class=" dropdown-item" href="javascript:void(0)" (click)="openInviteModal('ecourse')">
+                        Invite {{ person.firstName }} to enroll in an eCourse
+                      </a>
+
+                      <!--  -->
+                      <a *ngIf="true" class=" dropdown-item" [routerLink]="'/calendar'">
+                        Schedule a calendar event
+                      </a>
+  
+                    </div>
+                  </div>
                 </div>
 
             </div>
-            <div class=" card-footer">
-              <!--  -->
-            </div>
+            <!-- <div class=" card-footer">
+            </div> -->
           </div>
+          <!-- end of person card -->
+
+          <!-- notes card -->
+          <!-- <div class=" card">
+            <div class=" card-header">
+              <h5> Add a quick note: </h5>
+            </div>
+            <div class=" card-body">
+              <textarea></textarea>
+            </div>
+          </div> -->
+          <!-- end notes card -->
+
         </div>
         <!-- end col -->
         <div class=" col-md-6">
