@@ -2324,7 +2324,9 @@ exports.sendCoachInvite = functions
         item_title: data.item.title,
         item_subtitle: data.item.subtitle,
         item_image: data.item.image,
-        landing_url: landingUrl
+        landing_url: landingUrl,
+        coach_url: `https://lifecoach.io/coach/${data.item.sellerUid}`,
+        message: data.message
       }
     };
     await logMailchimpEvent(data.invitee.id, event);
