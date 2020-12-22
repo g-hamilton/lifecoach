@@ -44,7 +44,8 @@
                     Connected
                   </small>
                   <p>
-                    {{ person.created.toLocaleDateString() + ' ' + person.created.toLocaleTimeString() }}
+                    <i class="fas fa-calendar text-muted"></i> {{ person.created.toLocaleDateString() }} 
+                    <i class="fas fa-clock text-muted ml-2"></i> {{ person.created.toLocaleTimeString() }}
                   </p>
                 </div>
 
@@ -56,8 +57,8 @@
                   <p
                   [ngClass]="{
                   'text-danger': person.status === 'Awaiting reply' || person.status === 'Client responded',
-                  'text-success' : person.status === 'Responded',
-                  'text-primary' : person.status === 'Enrolled in self-study course'}">
+                  'text-success' : person.status === 'Responded' || person.status === 'Invited',
+                  'text-primary' : person.status === 'Enrolled in eCourse' || person.status === 'Enrolled in program'}">
                     {{ person.status }}
                   </p>
                 </div>

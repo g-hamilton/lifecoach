@@ -13,11 +13,17 @@
             <li *ngFor="let item of person.history ; let i = index" class=" timeline-inverted">
 
                 <!-- badge -->
-                <div *ngIf="item.action === 'sent_first_message'" class=" timeline-badge success">
+                <div *ngIf="item.action === 'sent_first_message'" class=" timeline-badge danger">
                     <i class="fas fa-comments"></i>
                 </div>
                 <div *ngIf="item.action === 'enrolled_in_self_study_course'" class=" timeline-badge primary">
                     <i class="fas fa-play-circle"></i>
+                </div>
+                <div *ngIf="item.action === 'enrolled_in_full_program'" class=" timeline-badge primary">
+                    <i class="fas fa-user-friends"></i>
+                </div>
+                <div *ngIf="item.action === 'coach_invited_user'" class=" timeline-badge success">
+                    <i class="fas fa-envelope"></i>
                 </div>
 
                 <!-- panel -->
@@ -25,13 +31,16 @@
 
                     <!-- heading -->
                     <div class=" timeline-heading">
-                        <span *ngIf="item.action === 'sent_first_message'" class=" badge badge-success"> New Lead </span>
+                        <span *ngIf="item.action === 'sent_first_message'" class=" badge badge-danger"> New Lead </span>
                         <span *ngIf="item.action === 'enrolled_in_self_study_course'" class=" badge badge-primary"> Enrolled In eCourse </span>
+                        <span *ngIf="item.action === 'enrolled_in_full_program'" class=" badge badge-primary"> Enrolled In Program (Full) </span>
+                        <span *ngIf="item.action === 'coach_invited_user'" class=" badge badge-success"> Sent Invite </span>
 
                         <!-- time / date of this action -->
                         <span class="pull-right">
                             <small class="text-muted">
-                                {{ getDisplayDate(item.id) + ' ' + getDisplayTime(item.id) }}
+                                <i class="fas fa-calendar"></i> {{ getDisplayDate(item.id) }} 
+                                <i class="fas fa-clock ml-2"></i> {{ getDisplayTime(item.id) }}
                             </small>
                         </span>
                     </div>
@@ -45,7 +54,17 @@
                             </a>
                         </p>
                         <p *ngIf="item.action === 'enrolled_in_self_study_course'">
-                            {{ person.firstName }} enrolled in an eCourse.
+                            {{ person.firstName }} enrolled in your eCourse.
+                        </p>
+                        <p *ngIf="item.action === 'enrolled_in_full_program'">
+                            {{ person.firstName }} enrolled in your program.
+                        </p>
+                        <p *ngIf="item.action === 'coach_invited_user'">
+                            You sent {{ person.firstName }} an invitation to your 
+                            {{ person.history[i].event.properties.item_type }}: 
+                            <a [href]="person.history[i].event.properties.landing_url" target="_blank">
+                                {{ person.history[i].event.properties.item_title }}
+                            </a>
                         </p>
                     </div>
 

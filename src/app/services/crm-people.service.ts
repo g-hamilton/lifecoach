@@ -124,6 +124,12 @@ export class CrmPeopleService implements OnDestroy {
         case 'enrolled_in_self_study_course':
           type = 'client';
           break;
+        case 'enrolled_in_full_program':
+          type = 'client';
+          break;
+        case 'coach_invited_user':
+          type = 'lead';
+          break;
         default:
           type = 'lead';
       }
@@ -161,7 +167,13 @@ export class CrmPeopleService implements OnDestroy {
           status = await this.getMsgStatus(uid, person.history[person.history.length - 1].roomId) as any;
           break;
         case 'enrolled_in_self_study_course':
-          status = 'Enrolled in self-study course';
+          status = 'Enrolled in eCourse';
+          break;
+        case 'enrolled_in_full_program':
+          status = 'Enrolled in program';
+          break;
+        case 'coach_invited_user':
+          status = 'Invited';
           break;
         default:
           status = 'Message';
