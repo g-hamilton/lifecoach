@@ -51,6 +51,14 @@ export const ROUTES: RouteInfo[] = [
     userTypes: ['coach']
   },
   {
+    path: '/calendar',
+    title: 'Calendar',
+    rtlTitle: 'التقويم',
+    type: 'link',
+    icontype: 'tim-icons icon-calendar-60',
+    userTypes: ['coach']
+  },
+  {
     path: '/messages',
     title: 'Messages',
     rtlTitle: 'التقويم',
@@ -175,16 +183,6 @@ export const ROUTES: RouteInfo[] = [
         smallTitle: 'U'
       }
     ]
-  },
-
-  /* LINK FOR TESTING */
-  {
-    path: '/calendar',
-    title: 'CALENDAR',
-    rtlTitle: 'التقويم',
-    type: 'link',
-    icontype: 'tim-icons icon-calendar-60',
-    userTypes: ['coach']
   },
   {
     path: '/reserved-sessions',
