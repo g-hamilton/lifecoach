@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
+import {Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
 import {CalendarView} from 'angular-calendar';
 import {Subject, Subscription} from 'rxjs';
 import {ModalDirective} from 'ngx-bootstrap/modal';
@@ -10,15 +10,13 @@ import {take} from 'rxjs/operators';
 import {ToastrService} from 'ngx-toastr';
 import {AlertService} from '../../services/alert.service';
 
-declare var JitsiMeetExternalAPI: any;
-
 @Component({
   selector: 'app-calendar',
   encapsulation: ViewEncapsulation.None,
   templateUrl: './calendar.component.html',
 })
 
-export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
+export class CalendarComponent implements OnInit, OnDestroy {
 
   @ViewChild('eventDetailModal', {static: false}) public eventDetailModal: ModalDirective;
   @ViewChild('editEventModal', {static: false}) public editEventModal: ModalDirective;
@@ -40,10 +38,6 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
   breakDuration = 15;
   endTimes: Date[] | [];
   startTimes: Date[] | [];
-  // video conferencing
-  private meetingDomain = 'live.lifecoach.io';
-  private meetingOptions: any;
-  private meetingApi: any;
 
   private subscriptions: Subscription = new Subscription();
 
@@ -61,34 +55,7 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loadUserData();
     this.endTimes = [];
     this.startTimes = [];
-    console.log('View', this.viewDate);
-  }
-
-  ngAfterViewInit() {
-    // this.initJitsiMeet();
-  }
-
-  initJitsiMeet() {
-    // https://jitsi.github.io/handbook/docs/dev-guide/dev-guide-iframe
-
-    this.meetingOptions = {
-      roomName: 'nkbfjksbfksdbfjsbfksb',
-      width: 700,
-      height: 700,
-      parentNode: document.querySelector('#meet'),
-      // interfaceConfigOverwrite: {
-      //   APP_NAME: 'Lifecoach',
-      //   NATIVE_APP_NAME: 'Lifecoach',
-      //   SHOW_JITSI_WATERMARK: false,
-      //   SHOW_PROMOTIONAL_CLOSE_PAGE: false,
-      //   BRAND_WATERMARK_LINK: 'https://lifecoach.io',
-      //   DEFAULT_LOGO_URL: 'https://lifecoach.io/assets/img/lifecoach-logo-dark-monotone.svg',
-      //   AUDIO_LEVEL_PRIMARY_COLOR: 'rgba(255,255,255,0.4)',
-      //   AUDIO_LEVEL_SECONDARY_COLOR: 'rgba(255,255,255,0.2)',
-      //   MOBILE_APP_PROMO: false,
-      // },
-    };
-    this.meetingApi = new JitsiMeetExternalAPI(this.meetingDomain, this.meetingOptions);
+    console.log('View date:', this.viewDate);
   }
 
   buildActiveEventForm() {
@@ -205,10 +172,10 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     console.group('test');
     // console.log('EndTimes before cleaning', this.endTimes);
     this.endTimes = [];
-    console.group('Session settings in compomnent')
+    console.group('Session settings in compomnent');
     console.log(this.sessionDuration);
     console.log(this.breakDuration);
-    console.groupEnd()
+    console.groupEnd();
     while (newTime.getDate() === date.getDate()) {
       console.log('Date: ', date.getDate(), 'NewTime: ', newTime.getDate());
       newTime = new Date(newTime.setMinutes(newTime.getMinutes() + this.sessionDuration));
@@ -414,6 +381,7 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     console.log(thisDayEvents);
     let error = false;
     if (thisDayEvents.length) {
+      // tslint:disable-next-line: prefer-for-of
       for (let i = 0; i < thisDayEvents.length; i++) {
         if ((this.toTimeStampFromStr(ev.start) < this.toTimeStampFromStr(thisDayEvents[i].end.toString())
           && (this.toTimeStampFromStr(ev.start) > this.toTimeStampFromStr(thisDayEvents[i].start.toString())))
