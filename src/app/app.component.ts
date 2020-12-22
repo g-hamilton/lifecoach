@@ -20,47 +20,34 @@ export class AppComponent implements OnInit {
     @Optional()@Inject(DOCUMENT) private document, private r: Renderer2
   ) {
     // Initialise analytics
-    // this.analytics.init();
-    // if (testPlatform.isBrowser) {
-    //   if (!testPlatform.TRIDENT && !testPlatform.SAFARI) {
-    //     document.body.classList.add('webp');
-    //   } else {
-    //     console.log('changed body');
-    //   }
-    // }
-    // this.checkBrowser();
+    this.analytics.init();
 
-    //2 variant
-    // constructor(@Optional() @Inject(REQUEST) private request: any,
-    // @Optional() @Inject(RESPONSE) private response: any,
-    // @Inject(PLATFORM_ID) private platformId: Object)
-    // {
-    //   if (isPlatformServer(this.platformId))
-    //   {
-    //     console.log(this.request.get('host’)); // host on the server
-    //   } else
-    //   {
-    //     console.log(document.location.hostname); // host on the browser
-    //   }
-    // }
   }
   ngOnInit() {
-    if (this.request) {
-      console.log(this.request.headers['user-agent']);
-      console.log(this.request.headers);
+    if (this.request) { // from server-side, checking URL/headers/User-agent
+      const ua = this.request.headers['user-agent'];
+      console.log('User Agent\n', ua);
+      let browserName = '';
+      if (/MSIE (\d+\.\d+);/.test(ua) || (ua.lastIndexOf('Trident/') && ua.lastIndexOf('Edg/') > 0 )) {
+        browserName = 'IE';
+      } else if (/Firefox[\/\s](\d+\.\d+)/.test(ua)) {
+        browserName = 'Firefox';
+      } else if (ua.lastIndexOf('Chrome/') > 0) {
+        browserName = 'Chrome';
+      } else if (ua.lastIndexOf('Safari/') > 0) {
+        browserName = 'Safari';
+      } // If !IE and !Safari add webp to body and minimize images
+      console.log('BrowserName after test\n', browserName);
       try {
-        // document.body.classList.add('someclass'); Не работает
-        this.r.addClass(this.document.body, 'testClass');
-        console.log('someclass added');
+        if (browserName !== 'IE' && browserName !== 'Safari') {
+          this.r.addClass(this.document.body, 'webp');
+          console.log('Class should be added');
+        }
       } catch (e) {
-        console.log(e.message);
+        console.log('error on server', e.message);
       }
     } else {
-      console.log('no user agent');
-
+      console.log('CSR');
     }
   }
-  checkBrowser() {
-  }
-
 }

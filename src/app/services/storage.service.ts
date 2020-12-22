@@ -113,6 +113,7 @@ export class StorageService {
     // The storage path
     const path = `users/${userId}/editorContent/${file.name}`;
 
+
     try {
       console.log(`Attempting storage upload...`);
 
