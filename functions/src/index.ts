@@ -1581,8 +1581,13 @@ async function recordCourseEnrollmentForCreator(sellerUid: string, courseId: str
   .set({ lastUpdated: timestampNow }, { merge: true }) // creates a real (not virtual) doc
   .catch(err => console.log(err));
 
-  // save the action to this person's history
-  return db.collection(`users/${sellerUid}/people/${clientUid}/history`)
+  // save the action to this person's history for the coach
+  await db.collection(`users/${sellerUid}/people/${clientUid}/history`)
+  .doc(timestampNow.toString())
+  .set({ action: 'enrolled_in_self_study_course', courseId });
+
+  // save the action to this user's history with the coach
+  return db.collection(`users/${clientUid}/coaches/${sellerUid}/history`)
   .doc(timestampNow.toString())
   .set({ action: 'enrolled_in_self_study_course', courseId });
 }
@@ -1672,8 +1677,13 @@ async function recordFullProgramEnrollmentForCreator(sellerUid: string, programI
   .set({ lastUpdated: timestampNow }, { merge: true }) // creates a real (not virtual) doc
   .catch(err => console.log(err));
 
-  // save the action to this person's history
-  return db.collection(`users/${sellerUid}/people/${clientUid}/history`)
+  // save the action to this person's history for the coach
+  await db.collection(`users/${sellerUid}/people/${clientUid}/history`)
+  .doc(timestampNow.toString())
+  .set({ action: 'enrolled_in_full_program', programId });
+
+  // save the action to this person's history with the coach
+  return db.collection(`users/${clientUid}/coaches/${sellerUid}/history`)
   .doc(timestampNow.toString())
   .set({ action: 'enrolled_in_full_program', programId });
 }
@@ -2319,13 +2329,18 @@ exports.sendCoachInvite = functions
     };
     await logMailchimpEvent(data.invitee.id, event);
 
-    // record the crm event
+    // record the crm event in the coach's history
     await db.collection(`users/${data.item.sellerUid}/people/${data.invitee.id}/history`)
     .doc(now.toString())
     .set({ action: event.name, event });
 
-    // record in invites sent node
+    // record in coach's invites sent node
     await db.collection(`users/${data.item.sellerUid}/sent-invites/${data.invitee.id}/by-date`)
+    .doc(now.toString())
+    .set(event);
+
+    // record in invitees invites received node
+    await db.collection(`users/${data.invitee.id}/received-invites/${data.item.sellerUid}/by-date`)
     .doc(now.toString())
     .set(event);
 
