@@ -36,7 +36,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
   public focus: boolean;
   public focusTouched: boolean;
 
-  public eventTypes = [{ id: 'available', name: 'Set as available for discovery calls'}];
+  public eventTypes = [{ id: 'available', name: 'Set me as available for discovery calls'}];
 
   public events: CustomCalendarEvent[];
 
@@ -109,14 +109,15 @@ export class CalendarComponent implements OnInit, OnDestroy {
               if (events) {
                 console.log('events before forEach', events);
                 // important: update date objects as Firebase stores dates as unix string: 't {seconds: 0, nanoseconds: 0}'
-                events.forEach((ev: any) => {
+                events.forEach((ev: CustomCalendarEvent) => {
                   if (ev.start) {
-                    ev.start = new Date(ev.start.seconds * 1000);
+                    ev.start = new Date((ev.start as any).seconds * 1000);
                   }
                   if (ev.end) {
-                    ev.end = new Date(ev.end.seconds * 1000);
+                    ev.end = new Date((ev.end as any).seconds * 1000);
                   }
-                  ev.title = ev.reserved ? (ev.ordered ? 'ORDERED' : 'RESERVED') : 'FREE';
+                  ev.title = this.getTitle(ev);
+                  // ev.title = ev.reserved ? (ev.ordered ? 'ORDERED' : 'RESERVED') : 'FREE';
                   ev.cssClass = ev.reserved ? (ev.ordered ? 'ordered' : 'reserved') : 'free' ;
                 });
 
@@ -131,6 +132,14 @@ export class CalendarComponent implements OnInit, OnDestroy {
         }
       })
     );
+  }
+
+  getTitle(ev: CustomCalendarEvent) {
+    let title = '';
+    if (ev.type === 'available') {
+      title = ev.reserved ? (ev.ordered ? 'Ordered' : 'Reserved') : 'Available';
+    }
+    return title;
   }
 
   loadActiveEventFormData() {
@@ -211,7 +220,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
     // prepare a new event object
     const newEvent: CustomCalendarEvent = {
       id: Math.random().toString(36).substr(2, 9), // generate semi-random id
-      type: 'available',
+      type: null,
       title: 'New Event',
       start: date,
       end: date

@@ -147,39 +147,31 @@
                 </div>
               </div>
 
+              <!-- help tips -->
               <div>
-                <label for="starttime"> Start </label>
+                <div class=" row">
+                  <div class=" col">
+                    <!-- if action is set me available -->
+                    <div *ngIf="activeEventF.type.value === 'available'">
+                      <p class=" small text-muted pl-2 mb-3">
+                        <i class="fas fa-info-circle"></i> This action creates one or more 'available' slots, which Lifecoach users can 
+                        use to schedule free discovery video calls with you. Think of each available slot as a bookable calendar slot  
+                        which can be used by a single person to schedule a video call with you. 
+                        Set a short start and end time to create a single slot or set a longer time period to automatically 
+                        create multiple available slots. Visit 'Account > Session Settings' to manage your default slot times. 
+                        Slots can easily be deleted at any time before they are booked.
+                    </p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div class=" row">
-<!--                <div class=" col-md-6">-->
-<!--                  &lt;!&ndash; start date &ndash;&gt;-->
-<!--                  <div class=" form-group">-->
-<!--                    &lt;!&ndash; https://valor-software.com/ngx-bootstrap/#/datepicker &ndash;&gt;-->
-<!--                    <input-->
-<!--                      bsDatepicker-->
-<!--                      class="form-control"-->
-<!--                      data-datepicker-color="primary"-->
-<!--                      [bsConfig]="{ isAnimated: true, containerClass: 'theme-green' }"-->
-<!--                      formControlName="start"-->
-<!--                      id="startdate"-->
-<!--                      type="text"-->
-<!--                    />-->
-<!--                  </div>-->
-<!--                </div>-->
-
+                <!-- start time -->
                 <div class=" col-md-6">
-                  <!-- start time -->
                   <div class=" form-group">
-                    <!-- https://valor-software.com/ngx-bootstrap/#/timepicker -->
-<!--                    <timepicker-->
-<!--                      formControlName="start"-->
-<!--                      [showSpinners]="false"-->
-<!--                      [showMeridian]="false"-->
-<!--                      type="number"-->
-<!--                      id="starttime">-->
-<!--                    </timepicker>-->
-                    <select name="starttime" formControlName="start" id="starttime" (change)="onChangeStartTimeHandler($event)">
+                    <label for="starttime"> Start </label>
+                    <select class="form-control" name="starttime" formControlName="start" id="starttime" (change)="onChangeStartTimeHandler($event)">
                       <option *ngFor="let time of startTimes"
                               [value]="time"
                               >
@@ -188,53 +180,22 @@
                     </select>
                   </div>
                 </div>
-              </div>
-
-              <div>
-                <label for="endtime"> End </label>
-              </div>
-
-              <div class=" row">
-<!--                <div class=" col-md-6">-->
-<!--                  &lt;!&ndash; start date &ndash;&gt;-->
-<!--                  <div class=" form-group">-->
-<!--                    &lt;!&ndash; https://valor-software.com/ngx-bootstrap/#/datepicker &ndash;&gt;-->
-<!--                    <input-->
-<!--                      bsDatepicker-->
-<!--                      class="form-control"-->
-<!--                      data-datepicker-color="primary"-->
-<!--                      [bsConfig]="{ isAnimated: true, containerClass: 'theme-green' }"-->
-<!--                      formControlName="end"-->
-<!--                      id="enddate"-->
-<!--                      type="text"-->
-<!--                    />-->
-<!--                  </div>-->
-<!--                </div>-->
-
+                <!-- end time -->
                 <div class=" col-md-6">
-                  <!-- start time -->
-<!--                  <div class=" form-group">-->
-<!--                    &lt;!&ndash; https://valor-software.com/ngx-bootstrap/#/timepicker &ndash;&gt;-->
-<!--                    <timepicker-->
-<!--                      formControlName="end"-->
-<!--                      [showSpinners]="false"-->
-<!--                      [showMeridian]="false"-->
-<!--                      type="number"-->
-<!--                      id="endtime">-->
-<!--                    </timepicker>-->
-<!--                  </div>-->
-                  <select name="end" formControlName="end"  id="endtime">
-                    <option  *ngFor=" let time of endTimes; let i = index"
-                             [defaultSelected]="time==endTimes[0]"
-                             [ngValue]="time"
-                            >
-                      {{time | date:'HH:mm'}}
-                    </option>
-                  </select>
+                  <div class=" form-group">
+                    <label for="endtime"> End </label>
+                    <select class="form-control" name="end" formControlName="end"  id="endtime">
+                      <option  *ngFor=" let time of endTimes; let i = index"
+                               [defaultSelected]="time==endTimes[0]"
+                               [ngValue]="time"
+                              >
+                        {{time | date:'HH:mm'}}
+                      </option>
+                    </select>
+                  </div>
                 </div>
-
               </div>
-
+              <!-- end row -->
 
               <!-- description -->
 <!--              <div class="form-group">-->
