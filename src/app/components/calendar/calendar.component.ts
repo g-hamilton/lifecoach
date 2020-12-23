@@ -311,6 +311,11 @@ export class CalendarComponent implements OnInit, OnDestroy {
       alert(`Sorry, this event was already reserved by the user: ${this.activeEvent.reservedById}`); // TODO: Modal
       return;
     }
+    // if this is an available slot, no need to confirm or notify other participant. just delete..
+    if (this.activeEvent.type === 'available') {
+      this.onDeleteEvent(false);
+      return;
+    }
     this.cancelEventModal.show();
   }
 

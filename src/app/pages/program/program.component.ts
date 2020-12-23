@@ -569,7 +569,7 @@ export class ProgramComponent implements OnInit, OnDestroy {
         this.userId = response.result.user.uid; // update the component userId to allow user to purchase
         this.analyticsService.registerUser(response.result.user.uid, 'email&password', newUserAccount);
         this.registerModal.hide();
-        this.alertService.alert('success-message', 'Success!', `Welcome to Lifecoach ${firstName}. Click 'Buy Now' again to complete your enrollment...`);
+        this.alertService.alert('success-message', 'Success!', `Welcome to Lifecoach ${firstName}. You can now continue...`);
       } else {
         // Error
         this.register = false;
@@ -604,7 +604,7 @@ export class ProgramComponent implements OnInit, OnDestroy {
         // Login successful.
         this.userId = res.result.user.uid; // update the component userId to allow user to purchase
         this.loginModal.hide();
-        this.alertService.alert('success-message', 'Login Successful', `Click 'Buy Now' again to complete your enrollment...`);
+        this.alertService.alert('success-message', 'Login Successful', `You can now continue...`);
         this.analyticsService.signIn(res.result.user.uid, 'email&password', account.accountEmail);
       } else {
         // Login error.
@@ -649,10 +649,6 @@ export class ProgramComponent implements OnInit, OnDestroy {
 
   isSameDay(a: Date, b: Date) {
     return (a.getUTCFullYear() === b.getUTCFullYear() && a.getUTCMonth() === b.getUTCMonth() && a.getUTCDate() === b.getUTCDate());
-  }
-
-  logSessions() {
-    console.log('Free events', this.availableEvents);
   }
 
   reserveSession($event: any) {

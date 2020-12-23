@@ -299,7 +299,7 @@
                         <!-- userId === program.sellerUid -->
                         <button class=" btn btn-round btn-just-icon btn-primary"
                         [disabled]="userId === program.sellerUid"
-                        (click)="logSessions() ; this.userId ? schedulerModal.show() : registerModal.show()">
+                        (click)="this.userId ? schedulerModal.show() : registerModal.show()">
                           <i class="fas fa-phone"></i> Schedule a Call
                         </button>
                       </div>
@@ -429,7 +429,7 @@
                         <!-- userId === program.sellerUid -->
                         <button class=" btn btn-round btn-just-icon btn-primary"
                         [disabled]="userId === program.sellerUid"
-                        (click)="logSessions() ; this.userId ? schedulerModal.show() : registerModal.show()">
+                        (click)="this.userId ? schedulerModal.show() : registerModal.show()">
                           <i class="fas fa-phone"></i> Schedule a Call
                         </button>
                       </div>
@@ -886,16 +886,16 @@
 
                         <div class=" row">
                             <div class=" col">
-                                <p>Just a second! You need a Lifecoach account to enroll in coaching programs. 
-                                    Joining Lifecoach is free and only takes seconds!
-                                </p>
+                              <p> Just a second! You need a Lifecoach account to continue. 
+                                Joining Lifecoach is free and only takes seconds!
+                              </p>
                             </div>
                         </div>
 
                     <div class=" row mt-3">
 
                         <!-- First Name -->
-                        <div class=" col-sm-12 col-md-6">
+                        <div class=" col-sm-12 col-md-6 pr-2">
                         <div
                         class=" input-group"
                         [ngClass]="{
