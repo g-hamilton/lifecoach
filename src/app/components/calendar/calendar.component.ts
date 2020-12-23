@@ -46,6 +46,13 @@ export class CalendarComponent implements OnInit, OnDestroy {
   startTimes: Date[] | [];
 
   private subscriptions: Subscription = new Subscription();
+  public objKeys = Object.keys;
+
+  public ErrorMessages = {
+    type: {
+      required: `Please select a calendar action.`
+    }
+  };
 
   constructor(
     private authService: AuthService,
@@ -488,5 +495,13 @@ export class CalendarComponent implements OnInit, OnDestroy {
     this.activeEventForm.patchValue({
       start: this.startTimes[0]
     });
+  }
+
+  showError(control: string, error: string) {
+    // console.log(`Form error. Control: ${control}. Error: ${error}`);
+    if (this.ErrorMessages[control][error]) {
+      return this.ErrorMessages[control][error];
+    }
+    return 'Invalid input';
   }
 }

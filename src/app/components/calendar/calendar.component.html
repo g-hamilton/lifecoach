@@ -136,10 +136,12 @@
                             {{ item.name }}
                             </option>
                         </select>
-                        <div
-                            class="error custom-error-label"
-                            *ngIf="(((focusTouched && activeEventF.type.value != null) || saveAttempt) && activeEventF.type.errors)"
-                            >Please select a program.
+                        <div *ngIf="(((focusTouched && activeEventF.type.value != null) || saveAttempt) && activeEventF.type.errors)">
+                          <label
+                          *ngFor="let error of objKeys(activeEventF.type.errors)"
+                          class="error custom-error-label"
+                          >{{ showError('type', error) }}
+                          </label>
                         </div>
                     </div>
                 </div>
