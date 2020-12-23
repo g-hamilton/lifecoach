@@ -467,14 +467,14 @@ export class CalendarComponent implements OnInit, OnDestroy {
 
   eventNotification( ev: any ) {
     console.log(ev);
-    this.toastService.show( '<span data-notify="icon" class="tim-icons icon-bell-55"></span>',
-      `Your Calendar successfully updated.
-      Added free time from ${ev.start.toLocaleString()} till ${ev.end.toLocaleString()}`,
+    this.toastService.show( '<span data-notify="icon" class="tim-icons icon-calendar-60"></span>',
+      `Calendar updated.
+      ${this.getTitle(ev)} from ${ev.start.toLocaleString()} until ${ev.end.toLocaleString()}`,
       {
         timeOut: 4000,
         closeButton: true,
         enableHtml: true,
-        toastClass: 'alert alert-danger alert-with-icon',
+        toastClass: 'alert alert-success alert-with-icon',
         positionClass: 'toast-top-right'
       });
   }
