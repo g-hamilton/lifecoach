@@ -31,7 +31,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
   public activeEvent: CustomCalendarEvent;
   public activeEventForm: FormGroup;
   public saveAttempt: boolean;
-  public savingEvent: boolean;
+  public saving: boolean;
 
   public focus: boolean;
   public focusTouched: boolean;
@@ -388,9 +388,16 @@ export class CalendarComponent implements OnInit, OnDestroy {
   }
   onUpdateEvent() {
     this.saveAttempt = true;
-    this.savingEvent = true;
-    // if the event has no id, create one id now
+    this.saving = true;
 
+    // safety checks
+    if (this.activeEventForm.invalid) {
+      this.alertService.alert('warning-message', 'Oops', 'Please complete all required fields before saving.');
+      this.saving = false;
+      return;
+    }
+
+    // if the event has no id, create one id now
     if (!this.activeEventF.id.value) {
       this.activeEventForm.patchValue({id: Math.random().toString(36).substr(2, 9)}); // generate semi-random id
     }
@@ -421,7 +428,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
     if (error) {
       // TODO: It will be better to do a Modal with warning;
       // alert('Choose other date!'); // TODO: Modal
-      this.savingEvent = false;
+      this.saving = false;
       this.alertService.alert(
           'warning-message',
         'Choose other time!',
@@ -447,7 +454,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
     }
     // this.dataService.saveUserCalendarEvent(this.userId, ev.start, ev);
 
-    this.savingEvent = false;
+    this.saving = false;
     this.saveAttempt = false;
 
     // dismiss the modal

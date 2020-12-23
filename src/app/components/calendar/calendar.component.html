@@ -223,7 +223,14 @@
 <!--            </button>-->
 
             <button class=" btn btn-primary btn-block mt-3" (click)="onUpdateEvent()">
-              Save Event
+              <span *ngIf="!saving">
+                <i class="fas fa-calendar"></i>
+              </span>
+              <span
+              *ngIf="saving"
+              class="spinner-border spinner-border-sm"
+              role="status"
+              ></span> {{ saving ? 'Saving...' : 'Save'}}
             </button>
 
           </div>
