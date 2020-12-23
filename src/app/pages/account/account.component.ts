@@ -5,7 +5,7 @@ import { isPlatformBrowser, DOCUMENT } from '@angular/common';
 import { ModalDirective } from 'ngx-bootstrap/modal';
 
 
-import { TabsetComponent } from 'ngx-bootstrap';
+import { TabsetComponent } from 'ngx-bootstrap/tabs';
 
 import { MustMatch } from '../../custom-validators/mustmatch.validator';
 

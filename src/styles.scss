@@ -590,3 +590,7 @@ select option {
 .border-between > [class*='col-']:first-child:before {
   display: none;
 }
+
+bs-datepicker-inline-container { 
+  margin-left: 4em;
+}

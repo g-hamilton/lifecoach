@@ -9,8 +9,18 @@
 
     <div *ngIf="browser">
 
+      <div class=" card card-white">
+        <div class=" card-body">
+          <div class="row">
+            <div class=" col">
+              <bs-datepicker-inline [bsValue]="bsInlineValue" [bsConfig]="dateSelectConfig"></bs-datepicker-inline>
+            </div>
+          </div>
+        </div>
+      </div>
+
         <!-- Select for date -->
-        <select name="" id="" (change)="daySelect($event)">
+        <!-- <select name="" id="" (change)="daySelect($event)">
             <option value='NULL' [defaultSelected]="true">Please, choose available Date</option>
             <option *ngFor="let day of this.dayToSelect" [ngValue]="day">
                 {{day | date: 'yyyy, MMM, dd'}}
@@ -28,7 +38,7 @@
                 >Reserve </button>
 
             </div>
-        </div>
+        </div> -->
 
     </div>
 

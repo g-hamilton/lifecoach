@@ -4,7 +4,7 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { DataService } from 'app/services/data.service';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
-import { TabDirective, TabsetComponent } from 'ngx-bootstrap';
+import { TabDirective, TabsetComponent } from 'ngx-bootstrap/tabs';
 import { AlertService } from 'app/services/alert.service';
 import { AnalyticsService } from 'app/services/analytics.service';
 import { StorageService } from 'app/services/storage.service';

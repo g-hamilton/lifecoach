@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { CustomCalendarEvent } from 'app/interfaces/custom.calendar.event.interface';
 import { AuthService } from 'app/services/auth.service';
 import { DataService } from 'app/services/data.service';
+import { BsDatepickerConfig } from 'ngx-bootstrap/datepicker';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { ToastrService } from 'ngx-toastr';
 import { Subscription } from 'rxjs';
@@ -32,6 +33,10 @@ export class ScheduleCallComponent implements OnInit {
   public timeToSelect: Array<Date> = [];
   public availableEvents: CustomCalendarEvent[] | [];
   public todayEvents: Array<any>;
+
+  // ngx datePicker
+  public bsInlineValue = new Date();
+  public dateSelectConfig = {} as BsDatepickerConfig;
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
