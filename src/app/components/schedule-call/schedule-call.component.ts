@@ -36,7 +36,13 @@ export class ScheduleCallComponent implements OnInit {
 
   // ngx datePicker
   public bsInlineValue = new Date();
-  public dateSelectConfig = {} as BsDatepickerConfig;
+  public dateSelectConfig = {
+    datesEnabled: [
+      new Date('2020-12-24'),
+      new Date('2020-12-25'),
+      new Date('2020-12-26'),
+    ]
+  } as BsDatepickerConfig;
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
