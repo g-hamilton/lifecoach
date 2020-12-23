@@ -520,4 +520,20 @@ export class CalendarComponent implements OnInit, OnDestroy {
     }
     return 'Invalid input';
   }
+
+  getDisplayDate(date: Date) {
+    if (!date) {
+      return '';
+    }
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const day = days[date.getDay()];
+    return `${day} - ${date.toLocaleDateString()}`;
+  }
+
+  getDisplaytime(date: Date) {
+    if (!date) {
+      return '';
+    }
+    return date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}); // exclude seconds
+  }
 }

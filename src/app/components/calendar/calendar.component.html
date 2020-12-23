@@ -51,43 +51,58 @@
 >
   <div class="modal-dialog" style="transform: translate(0,0);">
     <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title pull-left"> {{ activeEvent?.title }} </h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="onEventDetailModalClose()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
       <div class="modal-body">
         <div class="card card-login card-white">
-          <div class=" card-header">
-            <div class=" row">
-              <div class=" col">
-                <div class=" pull-right">
-                  <i
-                    class="far fa-edit text-default mr-3"
-                    tooltip="Edit this event"
-                    (click)="onEditEvent()">
-                  </i>
-                  <i
-                    class="far fa-trash-alt text-danger mr-3"
-                    tooltip="Delete this event"
-                    (click)="onDetailDeleteEvent()">
-                  </i>
-                  <i
-                    class="fas fa-times text-default"
-                    tooltip="Close"
-                    (click)="onEventDetailModalClose()">
-                  </i>
-                </div>
-              </div>
-            </div>
-            <h1 class=" card-title">
-              {{ activeEvent?.title }}
-            </h1>
-          </div>
+          <!-- <div class=" card-header">
+
+          </div> -->
           <div class=" card-body">
 
-<!--            <p>-->
-<!--              <i class="far fa-calendar-alt"></i>-->
-<!--              {{ activeEvent?.start }}-->
-<!--            </p>-->
+            <!-- day -->
+            <div class=" row">
+              <div class=" col">
+                <label> Date: </label>
+                <p>
+                  <i class="fas fa-calendar text-muted"></i>
+                  {{ getDisplayDate(activeEvent?.start) }}
+                </p>
+              </div>
+            </div>
+
+            <!-- start & end -->
+            <div class=" row">
+              <div class=" col-md-6">
+                <label> From: </label>
+                <p>
+                  <i class="fas fa-clock text-muted"></i>
+                  {{ getDisplaytime(activeEvent?.start) }}
+                </p>
+              </div>
+              <div class=" col-md-6">
+                <label> Until: </label>
+                <p>
+                  <i class="fas fa-clock text-muted"></i>
+                  {{ getDisplaytime(activeEvent?.end) }}
+                </p>
+              </div>
+            </div>
 
           </div>
         </div>
+      </div>
+      <div class=" modal-footer">
+        <button class=" btn btn-danger btn-block mt-3" (click)="onDetailDeleteEvent()">
+          <i class="fas fa-trash mr-2"></i> Delete
+        </button>
+        <button class=" btn btn-default btn-block mt-3" (click)="onEditEvent()">
+          <i class="far fa-edit mr-2"></i> Edit
+        </button>
       </div>
     </div>
   </div>
