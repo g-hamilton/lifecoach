@@ -21,6 +21,8 @@ import { ToastrService } from 'ngx-toastr';
 import { CoachingProgram } from 'app/interfaces/coach.program.interface';
 import { AlertService } from 'app/services/alert.service';
 import { UserAccount } from 'app/interfaces/user.account.interface';
+import { BsModalService, BsModalRef, ModalOptions } from 'ngx-bootstrap/modal';
+import { ScheduleCallComponent } from 'app/components/schedule-call/schedule-call.component';
 
 
 @Component({
@@ -33,7 +35,8 @@ export class CoachComponent implements OnInit, OnDestroy {
 
   @ViewChild('loginModal', {static: false}) public loginModal: ModalDirective;
   @ViewChild('registerModal', {static: false}) public registerModal: ModalDirective;
-  @ViewChild('schedulerModal', {static: false}) public schedulerModal: ModalDirective;
+
+  public bsModalRef: BsModalRef;
 
   public browser: boolean;
   public coachId: string;
@@ -61,14 +64,6 @@ export class CoachComponent implements OnInit, OnDestroy {
   public rfocusTouched3 = false;
   public registerAttempt: boolean;
 
-  public dayToSelect: Array<Date> = [];
-  public timeToSelect: Array<Date> = [];
-
-  public testArr: [];
-  public test$;
-  public testData: any;
-  private selectedDate: Date;
-
   constructor(
     @Inject(DOCUMENT) private document: any,
     @Inject(PLATFORM_ID) private platformId: object,
@@ -83,6 +78,7 @@ export class CoachComponent implements OnInit, OnDestroy {
     private toastrService: ToastrService,
     public formBuilder: FormBuilder,
     private alertService: AlertService,
+    private modalService: BsModalService
   ) {
   }
 
@@ -111,7 +107,6 @@ export class CoachComponent implements OnInit, OnDestroy {
       this.getCoachProfile();
       this.getCoachCourses();
       this.getCoachPrograms();
-      this.getCoachCalendarEvents();
       // this.getCoachServices();
 
     });
@@ -159,30 +154,30 @@ export class CoachComponent implements OnInit, OnDestroy {
   getCoachProfile() {
     const PROFILE_KEY = makeStateKey<any>('profile'); // create a key for saving/retrieving profile state
 
-      const profileData = this.transferState.get(PROFILE_KEY, null as any); // checking if profile data in the storage exists
+    const profileData = this.transferState.get(PROFILE_KEY, null as any); // checking if profile data in the storage exists
 
-      if (profileData === null) { // if profile state data does not exist - retrieve it from the api
-        this.subscriptions.add(
-          this.dataService.getPublicCoachProfile(this.coachId).subscribe(publicProfile => {
-            if (publicProfile) { // The profile is public
-              this.initProfile(publicProfile);
-              if (isPlatformServer(this.platformId)) {
-                this.transferState.set(PROFILE_KEY, publicProfile as any);
-              }
-
-              // The profile is not yet public so fallback to allow user to still preview their own profile.
-              // Not needed for SSR as this data is private.
-            } else if (isPlatformBrowser(this.platformId)) {
-              this.subscriptions.add(
-                this.dataService.getCoachProfile(this.coachId).subscribe(profile => {
-                  if (profile) {
-                    this.initProfile(profile);
-                  }
-                }, error => console.log('error logger', error.message))
-              );
+    if (profileData === null) { // if profile state data does not exist - retrieve it from the api
+      this.subscriptions.add(
+        this.dataService.getPublicCoachProfile(this.coachId).subscribe(publicProfile => {
+          if (publicProfile) { // The profile is public
+            this.initProfile(publicProfile);
+            if (isPlatformServer(this.platformId)) {
+              this.transferState.set(PROFILE_KEY, publicProfile as any);
             }
-          }, error => console.log('error logger', error.message))
-        );
+
+            // The profile is not yet public so fallback to allow user to still preview their own profile.
+            // Not needed for SSR as this data is private.
+          } else if (isPlatformBrowser(this.platformId)) {
+            this.subscriptions.add(
+              this.dataService.getCoachProfile(this.coachId).subscribe(profile => {
+                if (profile) {
+                  this.initProfile(profile);
+                }
+              }, error => console.log('error logger', error.message))
+            );
+          }
+        }, error => console.log('error logger', error.message))
+      );
 
       } else { // if profile state data exists retrieve it from the state storage
         this.initProfile(profileData);
@@ -225,107 +220,68 @@ export class CoachComponent implements OnInit, OnDestroy {
   getCoachCourses() {
     const COURSES_KEY = makeStateKey<any>('courses'); // create a key for saving/retrieving courses state
 
-      const coursesData = this.transferState.get(COURSES_KEY, null as any); // checking if course data in the storage exists
+    const coursesData = this.transferState.get(COURSES_KEY, null as any); // checking if course data in the storage exists
 
-      if (coursesData === null) { // if courses state data does not exist - retrieve it from the api
-        this.subscriptions.add(
-          this.dataService.getPublicCoursesBySeller(this.coachId).subscribe(publicCourses => {
-            if (publicCourses) { // The coach has at least one public course
-              this.courses = publicCourses;
-              if (isPlatformServer(this.platformId)) {
-                this.transferState.set(COURSES_KEY, publicCourses);
-              }
+    if (coursesData === null) { // if courses state data does not exist - retrieve it from the api
+      this.subscriptions.add(
+        this.dataService.getPublicCoursesBySeller(this.coachId).subscribe(publicCourses => {
+          if (publicCourses) { // The coach has at least one public course
+            this.courses = publicCourses;
+            if (isPlatformServer(this.platformId)) {
+              this.transferState.set(COURSES_KEY, publicCourses);
             }
-          }, error => console.log('error logger', error.message))
-        );
-      } else { // if courses state data exists retrieve it from the state storage
-        this.courses = coursesData;
-        this.transferState.remove(COURSES_KEY);
-      }
+          }
+        }, error => console.log('error logger', error.message))
+      );
+    } else { // if courses state data exists retrieve it from the state storage
+      this.courses = coursesData;
+      this.transferState.remove(COURSES_KEY);
+    }
   }
 
   getCoachPrograms() {
     const PROGRAMS_KEY = makeStateKey<any>('programs'); // create a key for saving/retrieving state
 
-      const programsData = this.transferState.get(PROGRAMS_KEY, null as any); // checking if data in the storage exists
+    const programsData = this.transferState.get(PROGRAMS_KEY, null as any); // checking if data in the storage exists
 
-      if (programsData === null) { // if state data does not exist - retrieve it from the api
-        this.subscriptions.add(
-          this.dataService.getPublicProgramsBySeller(this.coachId).subscribe(programs => {
-            if (programs) { // The coach has at least one published program
-              this.publishedPrograms = programs;
-              if (isPlatformServer(this.platformId)) {
-                this.transferState.set(PROGRAMS_KEY, programs);
-              }
+    if (programsData === null) { // if state data does not exist - retrieve it from the api
+      this.subscriptions.add(
+        this.dataService.getPublicProgramsBySeller(this.coachId).subscribe(programs => {
+          if (programs) { // The coach has at least one published program
+            this.publishedPrograms = programs;
+            if (isPlatformServer(this.platformId)) {
+              this.transferState.set(PROGRAMS_KEY, programs);
             }
-          }, error => console.log('error logger', error.message))
-        );
+          }
+        }, error => console.log('error logger', error.message))
+      );
 
-      } else { // if state data exists retrieve it from the state storage
-        this.publishedPrograms = programsData;
-        this.transferState.remove(PROGRAMS_KEY);
-      }
+    } else { // if state data exists retrieve it from the state storage
+      this.publishedPrograms = programsData;
+      this.transferState.remove(PROGRAMS_KEY);
+    }
   }
 
   getCoachServices() {
     const SERVICES_KEY = makeStateKey<any>('services'); // create a key for saving/retrieving state
 
-      const servicesData = this.transferState.get(SERVICES_KEY, null as any); // checking if data in the storage exists
+    const servicesData = this.transferState.get(SERVICES_KEY, null as any); // checking if data in the storage exists
 
-      if (servicesData === null) { // if state data does not exist - retrieve it from the api
-        this.subscriptions.add(
-          this.dataService.getCoachServices(this.coachId).subscribe(services => {
-            if (services) { // The coach has at least one published service
-              this.publishedServices = services;
-              if (isPlatformServer(this.platformId)) {
-                this.transferState.set(SERVICES_KEY, services);
-              }
-            }
-          }, error => console.log('error logger', error.message))
-        );
-      } else { // if state data exists retrieve it from the state storage
-        this.publishedServices = servicesData;
-        this.transferState.remove(SERVICES_KEY);
-      }
-  }
-
-  getCoachCalendarEvents() {
-    this.subscriptions.add(
-      this.dataService.getUserNotReservedEvents(this.coachId).subscribe(next => {
-        console.log(next);
-        if (next) {
-          this.availableEvents = next;
-          console.log(next);
-          this.dayToSelect = [];
-          this.availableEvents.forEach( i => {
-            // @ts-ignore
-            const startDate = new Date(i.start.seconds * 1000);
-            const day = new Date(startDate.getUTCFullYear(), startDate.getUTCMonth(), startDate.getUTCDate());
-            if (!this.dayToSelect.some( (date) => this.isSameDay(date, day))) {
-              this.dayToSelect.push(day);
-            }
-          });
-          }
-        console.log('UNIQUE DAYS:', this.dayToSelect);
-      },
-        error => console.log('error logger', error.message))
-    );
-  }
-
-  daySelect(event: any) {
-    if (event.target.value !== 'NULL') {
-      console.log(event.target.value);
+    if (servicesData === null) { // if state data does not exist - retrieve it from the api
       this.subscriptions.add(
-        this.dataService.getUserNotReservedEvents(this.coachId, new Date(event.target.value))
-          .subscribe(next => {
-          this.todayEvents = next;
+        this.dataService.getCoachServices(this.coachId).subscribe(services => {
+          if (services) { // The coach has at least one published service
+            this.publishedServices = services;
+            if (isPlatformServer(this.platformId)) {
+              this.transferState.set(SERVICES_KEY, services);
+            }
+          }
         }, error => console.log('error logger', error.message))
       );
-    } else {
+    } else { // if state data exists retrieve it from the state storage
+      this.publishedServices = servicesData;
+      this.transferState.remove(SERVICES_KEY);
     }
-  }
-  isSameDay(a: Date, b: Date) {
-    return (a.getUTCFullYear() === b.getUTCFullYear() && a.getUTCMonth() === b.getUTCMonth() && a.getUTCDate() === b.getUTCDate());
   }
 
   buildMap() {
@@ -369,34 +325,15 @@ export class CoachComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy() {
-    this.subscriptions.unsubscribe();
-
-    const body = this.document.getElementsByTagName('body')[0];
-    body.classList.remove('coach-page');
-  }
-
-  logSessions() {
-    console.log('Free events', this.availableEvents);
-  }
-
-  reserveSession($event: any) {
-    this.dataService.reserveEvent(this.userId, this.coachId, $event.target.value).then( r => console.log('Reserved'));
-    this.showNotification();
-  }
-  showNotification() {
-    this.toastrService.success('<span data-notify="icon" class="tim-icons icon-bell-55"></span>You have 15 minutes for confirm Your reservation. Click here to redirect lifecoach.io/reserved.sessions',
-      `You have successfully reserved event`,
-      {
-        timeOut: 8000,
-        closeButton: true,
-        enableHtml: true,
-        toastClass: 'alert alert-danger alert-with-icon',
-        positionClass: 'toast-top-right'
-      }, )
-      .onTap
-      .pipe(take(1))
-      .subscribe(() => this.router.navigate(['/reserved-sessions']));
+  openScheduleCallModal() {
+    // we can send data to the modal & open in a another component via a service
+    // https://valor-software.com/ngx-bootstrap/#/modals#service-component
+    const config: ModalOptions = {
+      initialState: {
+        coachId: this.coachId
+      }
+    };
+    this.bsModalRef = this.modalService.show(ScheduleCallComponent, config);
   }
 
   async forgotPassword() {
@@ -502,6 +439,13 @@ export class CoachComponent implements OnInit, OnDestroy {
     } else {
       this.alertService.alert('warning-message', 'Oops', 'Please complete all required fields.');
     }
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
+
+    const body = this.document.getElementsByTagName('body')[0];
+    body.classList.remove('coach-page');
   }
 
 }

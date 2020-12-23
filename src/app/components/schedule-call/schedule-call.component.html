@@ -1,0 +1,42 @@
+<!-- Invite modal -->
+<div class="modal-header">
+    <h4 class="modal-title pull-left"> Schedule a discovery call </h4>
+    <button type="button" class="close pull-right" aria-label="Close" (click)="bsModalRef.hide()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+
+    <div *ngIf="browser">
+
+        <!-- Select for date -->
+        <select name="" id="" (change)="daySelect($event)">
+            <option value='NULL' [defaultSelected]="true">Please, choose available Date</option>
+            <option *ngFor="let day of this.dayToSelect" [ngValue]="day">
+                {{day | date: 'yyyy, MMM, dd'}}
+            </option>
+        </select>
+        <div class="sessions">
+
+            <div *ngFor="let event of this.todayEvents" class="session">
+                <span  class="sessionTitle">{{event.start*1000 | date: "HH:mm"}} - {{event.end*1000 | date: "HH:mm"}}</span>
+                <button
+                  class=" btn btn-fill btn-round btn-primary mr-2 mb-2 sessionReserveButton"
+                  type="button"
+                  (click)="reserveSession($event)"
+                  [value]="event.id"
+                >Reserve </button>
+
+            </div>
+        </div>
+
+    </div>
+
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" (click)="bsModalRef.hide()">
+        <i class="fas fa-times"></i>
+        Cancel
+    </button>
+</div>
+<!-- End of invite modal -->

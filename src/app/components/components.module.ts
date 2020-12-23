@@ -123,6 +123,7 @@ import { ProgramResultsComponent } from './program-results/program-results.compo
 import { ProgramCardComponent } from './program-card/program-card.component';
 import { ProgramBotlinksComponent } from './program-botlinks/program-botlinks.component';
 import { CoachInviteComponent } from './coach-invite/coach-invite.component';
+import { ScheduleCallComponent } from './schedule-call/schedule-call.component';
 
 export function momentAdapterFactory() {
   return adapterFactory(moment);
@@ -249,7 +250,8 @@ export function momentAdapterFactory() {
     ProgramResultsComponent,
     ProgramCardComponent,
     ProgramBotlinksComponent,
-    CoachInviteComponent
+    CoachInviteComponent,
+    ScheduleCallComponent
   ],
   exports: [
     TabsModule,
@@ -355,7 +357,8 @@ export function momentAdapterFactory() {
     ProgramCardComponent,
     ProgramBotlinksComponent,
     BsDropdownModule,
-    CoachInviteComponent
+    CoachInviteComponent,
+    ScheduleCallComponent
   ]
 })
 export class ComponentsModule {}
