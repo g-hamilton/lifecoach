@@ -13,7 +13,14 @@
         <div class=" card-body">
           <div class="row">
             <div class=" col">
-              <bs-datepicker-inline [bsValue]="bsInlineValue" [bsConfig]="dateSelectConfig" [datesDisabled]="disabledDates"></bs-datepicker-inline>
+              <!-- date picker ui -->
+              <!-- nb: don't use bs-datepicker-inline it is buggy! -->
+              <input type="text"
+              placeholder="Pick an available date & time"
+              class="form-control"
+              bsDatepicker
+              [datesDisabled]="disabledDates"
+              (bsValueChange)="onDayChange($event)">
             </div>
           </div>
         </div>
@@ -25,10 +32,10 @@
             <option *ngFor="let day of this.dayToSelect" [ngValue]="day">
                 {{day | date: 'yyyy, MMM, dd'}}
             </option>
-        </select>
-        <div class="sessions">
+        </select>-->
+        <div class="sessions" *ngIf="this.availableSlotsToday?.length > 0">
 
-            <div *ngFor="let event of this.todayEvents" class="session">
+            <div *ngFor="let event of this.availableSlotsToday" class="session">
                 <span  class="sessionTitle">{{event.start*1000 | date: "HH:mm"}} - {{event.end*1000 | date: "HH:mm"}}</span>
                 <button
                   class=" btn btn-fill btn-round btn-primary mr-2 mb-2 sessionReserveButton"
@@ -38,7 +45,7 @@
                 >Reserve </button>
 
             </div>
-        </div> -->
+        </div>
 
     </div>
 

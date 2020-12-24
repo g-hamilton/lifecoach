@@ -32,7 +32,7 @@ export class ScheduleCallComponent implements OnInit {
   public uniqueEnabledDays: Array<Date> = [];
   public timeToSelect: Array<Date> = [];
   public discoveryAvailableEvents: CustomCalendarEvent[] | [];
-  public todayEvents: Array<any>;
+  public availableSlotsToday: Array<any>;
 
   // ngx datePicker
   public bsInlineValue = new Date();
@@ -128,17 +128,14 @@ export class ScheduleCallComponent implements OnInit {
     // console.log('Calculated disabled dates: ', this.disabledDates);
   }
 
-  daySelect(event: any) {
-    if (event.target.value !== 'NULL') {
-      console.log(event.target.value);
-      this.subscriptions.add(
-        this.dataService.getUserAvailableDiscoveryEvents(this.coachId, new Date(event.target.value))
-          .subscribe(next => {
-          this.todayEvents = next;
-        })
-      );
-    } else {
-    }
+  onDayChange(value: Date) {
+    console.log('day changed', value);
+    this.subscriptions.add(
+      this.dataService.getUserAvailableDiscoveryEvents(this.coachId, new Date(value))
+        .subscribe(next => {
+        this.availableSlotsToday = next;
+      })
+    );
   }
 
   isSameDay(a: Date, b: Date) {
