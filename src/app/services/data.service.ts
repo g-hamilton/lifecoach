@@ -730,21 +730,23 @@ export class DataService {
   }
 
 
-  getUserNotReservedEvents(uid: string, date?: Date) {
-    console.log('Data Service works');
+  getUserAvailableDiscoveryEvents(uid: string, date?: Date) {
+    // console.log('Data Service works');
 
     if (date) {
-      console.log(date);
+      console.log('for date: ', date);
       const startTime = new Date(date.setHours(0, 0, 0, 0));
       const endTime = new Date(date.setHours(24));
       console.log('Возможно, undefined', startTime, endTime);
       return this.db.collection(`users/${uid}/calendar`, ref => ref
+        .where('type', '==', 'discovery')
         .where('reserved', '==', false)
         .where('start', '>=', startTime)
         .where('start', '<', endTime)
       ).valueChanges() as Observable<CustomCalendarEvent[]>;
     } else {
       return this.db.collection(`users/${uid}/calendar`, ref => ref
+        .where('type', '==', 'discovery')
         .where('reserved', '==', false))
         .valueChanges() as Observable<CustomCalendarEvent[]>;
     }

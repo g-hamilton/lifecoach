@@ -36,7 +36,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
   public focus: boolean;
   public focusTouched: boolean;
 
-  public eventTypes = [{ id: 'available', name: 'Set me as available for discovery calls'}];
+  public eventTypes = [{ id: 'discovery', name: 'Set me as available for discovery calls'}];
 
   public events: CustomCalendarEvent[];
 
@@ -136,7 +136,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
 
   getTitle(ev: CustomCalendarEvent) {
     let title = '';
-    if (ev.type === 'available') {
+    if (ev.type === 'discovery') {
       title = ev.reserved ? (ev.ordered ? 'Ordered' : 'Reserved') : 'Available';
     }
     return title;
@@ -311,8 +311,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
       alert(`Sorry, this event was already reserved by the user: ${this.activeEvent.reservedById}`); // TODO: Modal
       return;
     }
-    // if this is an available slot, no need to confirm or notify other participant. just delete..
-    if (this.activeEvent.type === 'available') {
+    // if this is an available discovery slot, no need to confirm or notify other participant. just delete..
+    if (this.activeEvent.type === 'discovery' && !this.activeEvent.reserved && !this.activeEvent.ordered) {
       this.onDeleteEvent(false);
       return;
     }

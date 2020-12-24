@@ -74,11 +74,10 @@ export class ScheduleCallComponent implements OnInit {
 
   getCoachCalendarEvents() {
     this.subscriptions.add(
-      this.dataService.getUserNotReservedEvents(this.coachId).subscribe(next => {
+      this.dataService.getUserAvailableDiscoveryEvents(this.coachId).subscribe(next => {
         console.log(next);
         if (next) {
           this.availableEvents = next;
-          console.log(next);
           this.dayToSelect = [];
           this.availableEvents.forEach( i => {
             // @ts-ignore
@@ -99,7 +98,7 @@ export class ScheduleCallComponent implements OnInit {
     if (event.target.value !== 'NULL') {
       console.log(event.target.value);
       this.subscriptions.add(
-        this.dataService.getUserNotReservedEvents(this.coachId, new Date(event.target.value))
+        this.dataService.getUserAvailableDiscoveryEvents(this.coachId, new Date(event.target.value))
           .subscribe(next => {
           this.todayEvents = next;
         })
