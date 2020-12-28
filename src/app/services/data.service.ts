@@ -679,7 +679,7 @@ export class DataService {
                   orderedByPhoto: userPhoto,
                   cssClass: 'ordered',
                   sessionId: newDocRef.id,
-                  sessionRef: newDocRef
+                  // sessionRef: newDocRef
                 }).catch(e => console.log('error on update'));
             }
           })
@@ -690,7 +690,7 @@ export class DataService {
               start: sessionObject.start,
               end: sessionObject.end,
               sessionId: newDocRef.id,
-              sessionRef: newDocRef,
+              // sessionRef: newDocRef,
             }).catch(e => console.log('error 6'));
           })
           .then(() => {
