@@ -137,7 +137,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
   getTitle(ev: CustomCalendarEvent) {
     let title = '';
     if (ev.type === 'discovery') {
-      title = ev.ordered ? 'Booked' : 'Available';
+      title = ev.ordered ? `Discovery with ${ev.orderedByName}` : 'Available';
     }
     return title;
   }

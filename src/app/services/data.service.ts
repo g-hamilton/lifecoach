@@ -642,35 +642,41 @@ export class DataService {
   }
 
   // Function responsibilities :
-  async orderSession(coachId: string, calendarId: string, uid: string) {
+  async orderSession(coachId: string, calendarId: string, uid: string, userName: string, userPhoto: string) {
     console.group('ORDERING SESSION');
     // tslint:disable-next-line: one-variable-per-declaration
     let newDocId: string | undefined, newDocRef: any, sessionObject: any;
+
+    // add this session to all platform sessions
     return this.db.collection(`ordered-sessions/all/sessions`).add({
       // sessionId: `${coachId}_${calendarId}`,
       coachId,
       timeOfReserve: Date.now(),
       participants: [coachId, uid],
       testField: 'testField'
-    }).then(docRef => {
-      console.log('4', docRef.id);
+    })
+    .then(docRef => {
+      console.log('All sessions docRef ID:', docRef.id);
       newDocId = docRef.id;
       newDocRef = docRef;
-    }).catch(e => console.log('4'))
+    }).catch(e => console.log('docRef error!'))
       .then( () => {
+
+        // Update the coach's calendar
         this.db.collection(`users/${coachId}/calendar`,
           ref => ref.where('id', '==', calendarId))
           .get().toPromise()
           .then(querySnapshot => {
-            console.log('5', querySnapshot);
+            console.log('Coach calendar querySnapshot:', querySnapshot);
             if (!querySnapshot.empty) {
-              // Changing event in coach calendar
               const queryDocumentSnapshot = querySnapshot.docs[0];
               sessionObject = queryDocumentSnapshot.data();
               return queryDocumentSnapshot.ref
                 .update({
                   ordered: true,
                   orderedById: uid,
+                  orderedByName: userName,
+                  orderedByPhoto: userPhoto,
                   cssClass: 'ordered',
                   sessionId: newDocRef.id,
                   sessionRef: newDocRef
@@ -678,7 +684,8 @@ export class DataService {
             }
           })
           .then(() => {
-            console.log('6');
+            // add the ordered session for the regular user
+            console.log(`Adding ordered session for regular user ${uid}`);
             this.db.collection(`users/${uid}/ordered-sessions`).add({
               start: sessionObject.start,
               end: sessionObject.end,
@@ -687,12 +694,13 @@ export class DataService {
             }).catch(e => console.log('error 6'));
           })
           .then(() => {
+            console.log(`Updating all sessions docRef with start & end time ${uid}`);
             newDocRef.update({
               start: sessionObject.start,
               end: sessionObject.end,
             });
           })
-          .catch(err => console.log(err, 'Не могу создать'));
+          .catch(err => console.error(err));
       });
 
   }

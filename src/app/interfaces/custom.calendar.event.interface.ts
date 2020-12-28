@@ -7,4 +7,6 @@ export interface CustomCalendarEvent extends CalendarEvent {
     reservedById?: string | null;
     ordered?: boolean;
     orderedById?: string | null;
+    orderedByName?: string;
+    orderedByPhoto?: string;
 }

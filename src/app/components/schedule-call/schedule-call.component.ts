@@ -27,6 +27,8 @@ export class ScheduleCallComponent implements OnInit {
   // component
   public browser: boolean;
   public userId: string;
+  private userProfileName: string;
+  private userProfilePhoto: string;
   private subscriptions: Subscription = new Subscription();
   public uniqueEnabledDays: Array<Date> = [];
   public timeToSelect: Array<Date> = [];
@@ -60,9 +62,22 @@ export class ScheduleCallComponent implements OnInit {
         .subscribe(user => {
           if (user) {
             this.userId = user.uid;
+            this.getUserProfileData();
             this.getCoachCalendarEvents();
           }
         }, error => console.log('error logger', error.message))
+    );
+  }
+
+  getUserProfileData() {
+    this.subscriptions.add(
+      this.dataService.getRegularProfile(this.userId).subscribe(regProfile => {
+        if (regProfile) {
+          this.userProfileName = `${regProfile.firstName} ${regProfile.lastName}`;
+          this.userProfilePhoto = regProfile.photo ? regProfile.photo :
+            `https://eu.ui-avatars.com/api/?name=${regProfile.firstName}+${regProfile.lastName}`; // https://eu.ui-avatars.com/
+        }
+      })
     );
   }
 
@@ -145,7 +160,7 @@ export class ScheduleCallComponent implements OnInit {
     // this.dataService.reserveEvent(this.userId, this.coachId, $event.target.value).then( r => console.log('Reserved'));
 
     // skip reserving for limited time and go straight to booking (no payment required)
-    this.dataService.orderSession(this.coachId, $event.target.value, this.userId)
+    this.dataService.orderSession(this.coachId, $event.target.value, this.userId, this.userProfileName, this.userProfilePhoto)
       .then(r => {
         console.log(`Session with ID ${ $event.target.value} booked between coach ${this.coachId} and user ${this.userId}`);
       });
