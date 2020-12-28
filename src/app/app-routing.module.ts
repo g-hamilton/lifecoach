@@ -294,7 +294,7 @@ const routes: Routes = [
         loadChildren: () => import('./pages/receipt/receipt.module').then(m => m.ReceiptModule)
       },
       {
-        path: 'reserved-sessions',
+        path: 'my-sessions',
         loadChildren: () => import('./pages/reserved-sessions/reserved-sessions.module').then(m => m.ReservedSessionsModule),
       },
       {

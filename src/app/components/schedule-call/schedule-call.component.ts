@@ -148,22 +148,10 @@ export class ScheduleCallComponent implements OnInit {
   }
 
   async showReservedAlert() {
-    const res = await this.alertService.alert('success-message', 'Success!', 'Your discovery session is scheduled with this Coach. Click OK to view it now...', 'OK');
+    const res = await this.alertService.alert('success-message', 'Success!', 'Your discovery session is scheduled with this Coach. Click OK to view it now...', 'OK') as any;
+    if (res && res.action) { // user confirms
+      this.router.navigate(['/my-sessions']);
+    }
   }
-
-  // showNotification() {
-  //   this.toastrService.success('<span data-notify="icon" class="tim-icons icon-bell-55"></span>You have 15 minutes for confirm Your reservation. Click here to redirect lifecoach.io/reserved.sessions',
-  //     `You have successfully reserved event`,
-  //     {
-  //       timeOut: 8000,
-  //       closeButton: true,
-  //       enableHtml: true,
-  //       toastClass: 'alert alert-danger alert-with-icon',
-  //       positionClass: 'toast-top-right'
-  //     }, )
-  //     .onTap
-  //     .pipe(take(1))
-  //     .subscribe(() => this.router.navigate(['/reserved-sessions']));
-  // }
 
 }
