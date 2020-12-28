@@ -118,7 +118,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
                   }
                   ev.title = this.getTitle(ev);
                   // ev.title = ev.reserved ? (ev.ordered ? 'ORDERED' : 'RESERVED') : 'FREE';
-                  ev.cssClass = ev.reserved ? (ev.ordered ? 'ordered' : 'reserved') : 'free' ;
+                  ev.cssClass = ev.ordered ? 'ordered' : 'free' ;
                 });
 
                 this.events = events;
@@ -137,7 +137,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
   getTitle(ev: CustomCalendarEvent) {
     let title = '';
     if (ev.type === 'discovery') {
-      title = ev.reserved ? (ev.ordered ? 'Ordered' : 'Reserved') : 'Available';
+      title = ev.ordered ? 'Booked' : 'Available';
     }
     return title;
   }
