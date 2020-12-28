@@ -28,16 +28,10 @@ export class VideoComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    console.log('Initialized');
-    console.log(this.authService.getAuthUser());
     this.subscriptions.add(
       this.authService.getAuthUser().subscribe(user => {
         if (user) {
-          // console.log('USER OBJ:', user);
-          // @ts-ignore
-          // console.log(user.accountType)
           this.uid = user.uid;
-          // console.log('ID is ', this.uid);
 
           this.subscriptions.add(
             this.dataService.getUserAccount(this.uid)
@@ -52,11 +46,7 @@ export class VideoComponent implements OnInit, OnDestroy {
               )
               .subscribe(sessions => {
                 if (sessions) {
-                  console.log('sessions incoming in that way', sessions);
                   this.orderedSessions = sessions;
-                  for (const session of this.orderedSessions) {
-                    console.log(session);
-                  }
                 }
               })
           );
@@ -78,17 +68,13 @@ export class VideoComponent implements OnInit, OnDestroy {
 
   }
 
-  ngOnDestroy() {
-    this.subscriptions.unsubscribe();
-  }
-
   filterSessionsByTodayAndSort(arr: any) {
     const nowTime = Date.now();
-    return arr.filter( i => nowTime - i.end.getTime() < 0).sort((a,b) => a.start.getTime() - b.start.getTime());
+    return arr.filter( i => nowTime - i.end.getTime() < 0).sort((a, b) => a.start.getTime() - b.start.getTime());
   }
 
   formTimeStampToDate(arr: any) {
-    console.log(arr);
+    console.log('formTimeStampToDate sessions:', arr);
     if (arr) {
       return arr.map(i => ({
         ...i,
@@ -101,4 +87,8 @@ export class VideoComponent implements OnInit, OnDestroy {
 
   // redirectToSessionIdUrl(session: any) {
   // }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
+  }
 }

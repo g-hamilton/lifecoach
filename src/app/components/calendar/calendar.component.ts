@@ -9,6 +9,7 @@ import {AuthService} from 'app/services/auth.service';
 import {take} from 'rxjs/operators';
 import {ToastrService} from 'ngx-toastr';
 import {AlertService} from '../../services/alert.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-calendar',
@@ -59,7 +60,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
     public formBuilder: FormBuilder,
     private dataService: DataService,
     private toastService: ToastrService,
-    public alertService: AlertService
+    public alertService: AlertService,
+    private router: Router
   ) {
   }
 
@@ -362,7 +364,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
         const ev = {
           ...ob,
           // title: `${new Date(expireTime).toLocaleTimeString()} - ${new Date(expireTime + this.sessionDuration * 60000).toLocaleTimeString()}`,
-          title: ob.reservedById ? (ob.ordered ? 'Ordered' : 'reserved') : 'I am free',
+          title: ob.reservedById ? (ob.ordered ? 'Ordered' : 'reserved') : 'Available',
           start: new Date(expireTime),
           end: new Date(expireTime + this.sessionDuration * 60000),
           id: Math.random().toString(36).substr(2, 9),
@@ -484,8 +486,10 @@ export class CalendarComponent implements OnInit, OnDestroy {
       });
   }
 
-  ngOnDestroy() {
-    this.subscriptions.unsubscribe();
+  onGoToSession() {
+    this.eventDetailModal.hide();
+    console.log('Active event:', this.activeEvent);
+    this.router.navigate(['/my-sessions', this.activeEvent.sessionId]);
   }
 
   onChangeStartTimeHandler(event: any) {
@@ -540,5 +544,9 @@ export class CalendarComponent implements OnInit, OnDestroy {
       return '';
     }
     return date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}); // exclude seconds
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 }

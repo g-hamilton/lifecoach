@@ -925,13 +925,13 @@ export class DataService {
 
   getUserOrderedSessions(uid: string) {
     return this.db.collection(`users/${uid}/ordered-sessions`)
-      .valueChanges() as Observable<any>;
+      .valueChanges() as Observable<CustomCalendarEvent[]>;
   }
 
   getUserIsCoachSession(uid: string) {
     // console.log(uid);
     return this.db.collection(`users/${uid}/calendar`, ref => ref.where('ordered', '==', true))
-      .valueChanges() as Observable<any>;
+      .valueChanges() as Observable<CustomCalendarEvent[]>;
   }
 
   getParticularOrderedSession(roomName: string) {

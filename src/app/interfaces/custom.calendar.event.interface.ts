@@ -1,6 +1,7 @@
 import { CalendarEvent } from 'angular-calendar';
 
 export interface CustomCalendarEvent extends CalendarEvent {
+    id: string;
     type: 'discovery';
     description?: string;
     reserved?: boolean;
@@ -9,4 +10,5 @@ export interface CustomCalendarEvent extends CalendarEvent {
     orderedById?: string | null;
     orderedByName?: string;
     orderedByPhoto?: string;
+    sessionId?: string;
 }
