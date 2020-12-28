@@ -716,19 +716,19 @@ export class DataService {
       console.log('Возможно, undefined', startTime, endTime);
       return this.db.collection(`users/${uid}/calendar`, ref => ref
         .where('type', '==', 'discovery')
-        .where('reserved', '==', false)
+        .where('ordered', '==', false)
         .where('start', '>=', startTime)
         .where('start', '<', endTime)
       ).valueChanges() as Observable<CustomCalendarEvent[]>;
     } else {
       return this.db.collection(`users/${uid}/calendar`, ref => ref
         .where('type', '==', 'discovery')
-        .where('reserved', '==', false))
+        .where('ordered', '==', false))
         .valueChanges() as Observable<CustomCalendarEvent[]>;
     }
   }
 
-  // TODO:
+  // Not currently in use as users can oerder events without reserving first
   getUserReservedEvents(uid: string) {
     return this.db.collection(`users/${uid}/reserved-events`)
       .valueChanges() as Observable<CustomCalendarEvent[]>;
