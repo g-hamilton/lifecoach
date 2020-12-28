@@ -13,6 +13,11 @@
         <div class=" card-body">
           <div class="row">
             <div class=" col">
+
+              <p *ngIf="!this.availableSlotsToday?.length" class=" small text-muted pl-2 mb-3">
+                <i class="fas fa-info-circle"></i> Select an available day to see all available times.
+              </p>
+
               <!-- date picker ui -->
               <!-- nb: don't use bs-datepicker-inline it is buggy! -->
               <input type="text"
@@ -42,7 +47,7 @@
                   type="button"
                   (click)="reserveSession($event)"
                   [value]="event.id"
-                >Reserve </button>
+                >Book </button>
 
             </div>
         </div>
