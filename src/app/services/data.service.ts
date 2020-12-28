@@ -642,7 +642,7 @@ export class DataService {
   }
 
   // Function responsibilities :
-  async orderSession(coachId: string, calendarId: string, uid: string, userName: string, userPhoto: string) {
+  async orderSession(coachId: string, event: CustomCalendarEvent, uid: string, userName: string, userPhoto: string) {
     console.group('ORDERING SESSION');
     // tslint:disable-next-line: one-variable-per-declaration
     let newDocId: string | undefined, newDocRef: any, sessionObject: any;
@@ -664,7 +664,7 @@ export class DataService {
 
         // Update the coach's calendar
         this.db.collection(`users/${coachId}/calendar`,
-          ref => ref.where('id', '==', calendarId))
+          ref => ref.where('id', '==', event.id))
           .get().toPromise()
           .then(querySnapshot => {
             console.log('Coach calendar querySnapshot:', querySnapshot);
@@ -691,6 +691,7 @@ export class DataService {
               end: sessionObject.end,
               sessionId: newDocRef.id,
               // sessionRef: newDocRef,
+              type: event.type
             }).catch(e => console.log('error 6'));
           })
           .then(() => {
@@ -928,8 +929,7 @@ export class DataService {
       .valueChanges() as Observable<CustomCalendarEvent[]>;
   }
 
-  getUserIsCoachSession(uid: string) {
-    // console.log(uid);
+  getUserIsCoachSessions(uid: string) {
     return this.db.collection(`users/${uid}/calendar`, ref => ref.where('ordered', '==', true))
       .valueChanges() as Observable<CustomCalendarEvent[]>;
   }

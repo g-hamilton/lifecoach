@@ -13,15 +13,13 @@
 
     <!-- user has ordered sessions with coach(es) -->
     <div *ngIf="this.orderedSessions.length && this.uid; else sessions">
-      <div class="row justify-content-center">
+      <div class="row">
+        <div *ngFor="let session of orderedSessions" class="col-md-3">
           <app-video-session-card
-            [className]="'col-md-3 card py-5 px-4 mx-2 my-2'"
-            *ngFor="let session of orderedSessions"
-            [sessionId]="session.sessionId"
-            [sessionStartTime]="session.start"
+            [session]="session"
           ></app-video-session-card>
         </div>
-      <hr>
+      </div>
     </div>
 
     <!-- user has not ordered any sessions yet -->
@@ -51,11 +49,12 @@
 
     <!-- coach has session(s) scheduled -->
     <div *ngIf="this.coachingSessions.length  && this.uid; else coachSessions">
-      <div class="row justify-content-center">
-          <app-video-session-card *ngFor="let session of this.coachingSessions"
-            [className]="'col-md-3 card py-5 px-4 mx-2 my-2'"
-            [sessionId]="session.sessionId"
-            [sessionStartTime]="session.start"></app-video-session-card>
+      <div class="row">
+        <div *ngFor="let session of coachingSessions" class="col-md-3">
+          <app-video-session-card
+            [session]="session"
+          ></app-video-session-card>
+        </div>
       </div>
     </div>
   

@@ -52,10 +52,11 @@ export class VideoComponent implements OnInit, OnDestroy {
           );
 
           this.subscriptions.add(
-            this.dataService.getUserIsCoachSession(this.uid)
+            this.dataService.getUserIsCoachSessions(this.uid)
               .pipe(
                 map(i => this.filterSessionsByTodayAndSort(this.formTimeStampToDate(i)))
-              ).subscribe(sessions => {
+              )
+              .subscribe(sessions => {
                     if (sessions) {
                       this.coachingSessions = sessions;
                     }
@@ -64,7 +65,6 @@ export class VideoComponent implements OnInit, OnDestroy {
         }
       })
     );
-
 
   }
 

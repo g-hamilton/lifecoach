@@ -156,13 +156,13 @@ export class ScheduleCallComponent implements OnInit {
     return (a.getUTCFullYear() === b.getUTCFullYear() && a.getUTCMonth() === b.getUTCMonth() && a.getUTCDate() === b.getUTCDate());
   }
 
-  reserveSession($event: any) {
-    // this.dataService.reserveEvent(this.userId, this.coachId, $event.target.value).then( r => console.log('Reserved'));
+  reserveSession(ev: CustomCalendarEvent) {
+    // console.log('EVENT', ev);
 
     // skip reserving for limited time and go straight to booking (no payment required)
-    this.dataService.orderSession(this.coachId, $event.target.value, this.userId, this.userProfileName, this.userProfilePhoto)
+    this.dataService.orderSession(this.coachId, ev, this.userId, this.userProfileName, this.userProfilePhoto)
       .then(r => {
-        console.log(`Session with ID ${ $event.target.value} booked between coach ${this.coachId} and user ${this.userId}`);
+        console.log(`Session with ID ${ev.id} booked between coach ${this.coachId} and user ${this.userId}`);
       });
     this.bsModalRef.hide();
     this.showReservedAlert();
