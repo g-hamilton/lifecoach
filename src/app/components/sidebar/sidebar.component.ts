@@ -67,6 +67,14 @@ export const ROUTES: RouteInfo[] = [
     userTypes: ['regular', 'coach', 'admin']
   },
   {
+    path: '/my-sessions',
+    title: 'My Sessions',
+    rtlTitle: 'التقويم',
+    type: 'link',
+    icontype: 'tim-icons icon-chat-33',
+    userTypes: ['regular', 'coach']
+  },
+  {
     path: '/profile',
     title: 'My Profile',
     rtlTitle: 'التقويم',
@@ -183,22 +191,6 @@ export const ROUTES: RouteInfo[] = [
         smallTitle: 'U'
       }
     ]
-  },
-  {
-    path: '/my-sessions',
-    title: 'My Sessions',
-    rtlTitle: 'التقويم',
-    type: 'link',
-    icontype: 'tim-icons icon-chat-33',
-    userTypes: ['regular', 'coach']
-  },
-  {
-    path: '/video',
-    title: 'VIDEO',
-    rtlTitle: 'التقويم',
-    type: 'link',
-    icontype: 'tim-icons icon-video-66',
-    userTypes: ['regular', 'coach']
   }
 ];
 

@@ -142,7 +142,14 @@ export class ScheduleCallComponent implements OnInit {
   }
 
   reserveSession($event: any) {
-    this.dataService.reserveEvent(this.userId, this.coachId, $event.target.value).then( r => console.log('Reserved'));
+    const nowUnix = Math.round(new Date().getTime() / 1000);
+    // this.dataService.reserveEvent(this.userId, this.coachId, $event.target.value).then( r => console.log('Reserved'));
+
+    // skip reserving for limited time and go straight to booking (no payment required)
+    this.dataService.orderSession(this.coachId, $event.target.value, nowUnix, this.userId)
+      .then(r => {
+        console.log(`Session with ID ${ $event.target.value} booked between coach ${this.coachId} and user ${this.userId} at time ${nowUnix}`);
+      });
     this.bsModalRef.hide();
     this.showReservedAlert();
   }
