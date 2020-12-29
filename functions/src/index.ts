@@ -2379,6 +2379,9 @@ exports.orderCoachSession = functions
   const userName = data.userName; // the username of the person booking
   const userPhoto = data.userPhoto; // the avatar url of the person booking
   const sessionId = data.event.id; // use the event id to create the session id
+  const dateNow = Date.now();
+
+  const promises = []; // an array of promises to execute
 
   const batch = db.batch(); // prepare to execute multiple ops atomically
 
@@ -2421,7 +2424,7 @@ exports.orderCoachSession = functions
     const allSessionsRef = db.collection(`ordered-sessions/all/sessions`).doc(sessionId);
     batch.set(allSessionsRef, {
       coachId,
-      timeOfReserve: Date.now(),
+      timeOfReserve: dateNow,
       participants: [coachId, uid],
       originalEvent: event,
       start: originalEvent.start,
@@ -2432,6 +2435,38 @@ exports.orderCoachSession = functions
     await batch.commit(); // execute batch ops. Any error should trigger catch.
 
     // send emails
+
+    // trigger a mailchimp event to send an email to the person booking
+    const bookerMailEvent = {
+      name: 'booked_coach_session',
+      properties: {
+        timeOfReserve: dateNow,
+        type: originalEvent.type,
+        start: originalEvent.start,
+        end: originalEvent.end,
+        coachName: '', // todo!
+        coachPhoto: '', // todo!
+      }
+    }
+    const mailBookerPromise = logMailchimpEvent(uid, bookerMailEvent); // log event
+    promises.push(mailBookerPromise); // add the promise to the promises array
+
+    // trigger a mailchimp event to send an email to the coach
+    const coachMailEvent = {
+      name: 'session_booked',
+      properties: {
+        timeOfReserve: dateNow,
+        type: originalEvent.type,
+        start: originalEvent.start,
+        end: originalEvent.end,
+        userName,
+        userPhoto
+      }
+    }
+    const mailCoachPromise = logMailchimpEvent(coachId, coachMailEvent); // log event
+    promises.push(mailCoachPromise); // add the promise to the promises array
+
+    await Promise.all(promises); // execute all promises
 
     return {success: true};
 
