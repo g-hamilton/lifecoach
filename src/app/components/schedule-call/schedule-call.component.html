@@ -46,7 +46,13 @@
                   class=" btn btn-fill btn-round btn-primary mr-2 mb-2 sessionReserveButton"
                   type="button"
                   (click)="reserveSession(event)"
-                >Book </button>
+                >
+                <span
+                  *ngIf="reserving"
+                  class="spinner-border spinner-border-sm"
+                  role="status"
+                  ></span> {{ reserving ? 'Booking...' : 'Book'}} 
+                </button>
 
             </div>
         </div>

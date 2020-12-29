@@ -2356,6 +2356,166 @@ exports.sendCoachInvite = functions
 });
 
 // ================================================================================
+// =====                         COACHING SESSIONS                           ======
+// ================================================================================
+
+/*
+  Allows regular users to book/order coaching / discovery sessions with coaches.
+*/
+
+exports.orderCoachSession = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.https
+.onCall( async (data, context) => {
+
+  // Reject any unathorised user immediately.
+  if (!context.auth) {
+    return {error: 'Unauthorised!'}
+  }
+
+  const coachId = data.coachId; // the user id of the coach
+  const event = data.event; // is a type CustomCalendarEvent
+  const uid = data.uid; // the user id of the person booking
+  const userName = data.userName; // the username of the person booking
+  const userPhoto = data.userPhoto; // the avatar url of the person booking
+  const sessionId = data.event.id; // use the event id to create the session id
+
+  const batch = db.batch(); // prepare to execute multiple ops atomically
+
+  try {
+    
+    console.group('ORDERING COACH SESSION');
+
+    // update the event on the coach calendar
+    const coachEventSnap = await db.collection(`users/${coachId}/calendar`)
+      .where('id', '==', event.id)
+      .get() // lookup the original event on the coach calendar
+
+    if (coachEventSnap.empty) { // original event does not exist
+      return; // abort batch commit
+    }
+
+    const queryDocSnap = coachEventSnap.docs[0]; // capture the query document snapshot
+    const coachEventRef = queryDocSnap.ref; // capture the reference to the document
+    const originalEvent = queryDocSnap.data(); // capture the original event object
+
+    batch.set(coachEventRef, { // update the document by merging new data into the event object
+      ordered: true,
+      orderedById: uid,
+      orderedByName: userName,
+      orderedByPhoto: userPhoto,
+      cssClass: 'ordered',
+      sessionId,
+    }, { merge: true });
+
+    // create the ordered session for the person booking using the session id as the document id
+    const orderedSessionRef = db.collection(`users/${uid}/ordered-sessions`).doc(sessionId);
+    batch.set(orderedSessionRef, {
+      start: originalEvent.start,
+      end: originalEvent.end,
+      sessionId,
+      type: event.type
+    });
+
+    // create the session in the all sessions node using the session id as the doc id
+    const allSessionsRef = db.collection(`ordered-sessions/all/sessions`).doc(sessionId);
+    batch.set(allSessionsRef, {
+      coachId,
+      timeOfReserve: Date.now(),
+      participants: [coachId, uid],
+      originalEvent: event,
+      start: originalEvent.start,
+      end: originalEvent.end,
+      testField: 'testField'
+    }, { merge: true });
+
+    await batch.commit(); // execute batch ops. Any error should trigger catch.
+
+    // send emails
+
+    return {success: true};
+
+  } catch (err) {
+    console.error(err);
+    return {error: err}
+  }
+});
+
+exports.getTwilioToken = functions
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
+  .onCall(async (data: any, context?) => {
+
+    const timeOfStart = data.timeOfStart;
+    const currentTime = Date.now();
+    const uid = data.uid;
+    const room = data.room;
+    const duration = data.duration;
+    if ( (currentTime - timeOfStart > 60000 )|| ((timeOfStart + duration) < currentTime) ) {
+      return {error: 'session can`t be started or it has already been ended'}
+    }
+
+    try {
+
+      const res = await fetch(`https://getvideotoken-9623.twil.io/vide-token?uid=${uid}&room=${room}&timeOfStart${timeOfStart}&duration=${duration}`);
+
+      const json = await res.json()
+      // @ts-ignore
+      return {json} // success
+
+    } catch (err) {
+      console.error(err);
+      return {error: err}
+    }
+
+});
+
+exports.getInfoAboutCurrentVideoSession = functions
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
+  .onCall(async (data: any, context?) => {
+
+    try {
+      const docSnapshot = await db.collection(`/ordered-sessions/all/sessions`)
+        .doc(data.docId)
+        .get();
+
+      const sessionObject = docSnapshot.exists ? docSnapshot.data() : undefined;
+
+      if (sessionObject) {
+
+        if (sessionObject.start.seconds * 1000 > Date.now()) {
+          return {sessionStatus: 'NOT_STARTED_YET'};
+        }
+        if (sessionObject.end.seconds * 1000 < Date.now()) {
+          return {sessionStatus: 'IS_OVER'};
+        }
+        return {sessionStatus: 'IN_PROGRESS', timeLeft: sessionObject.end.seconds * 1000 - Date.now()};
+      } else {
+        return {sessionStatus: 'SESSION_NOT_FOUND'};
+      }
+    } catch (err) {
+      console.error(err);
+      return {error: err}
+    }
+
+});
+
+exports.abortVideoSession = functions
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
+  .onCall(async (data: any, context?) => {
+    try {
+      await client.video.rooms(data.roomID)
+        .update({status: 'completed'})
+      return {success: true};
+    } catch (err) {
+      console.error(err);
+      return {error: err}
+    }
+});
+
+// ================================================================================
 // =====                                                                     ======
 // =====                       LISTENER FUNCTIONS                            ======
 // =====                                                                     ======
@@ -3620,81 +3780,6 @@ exports.updateAllProfilesInSequence = functions
     return {error: err};
   }
 });
-
-exports.getTwilioToken = functions
-  .runWith({memory: '1GB', timeoutSeconds: 300})
-  .https
-  .onCall(async (data: any, context?) => {
-
-    const timeOfStart = data.timeOfStart;
-    const currentTime = Date.now();
-    const uid = data.uid;
-    const room = data.room;
-    const duration = data.duration;
-    if ( (currentTime - timeOfStart > 60000 )|| ((timeOfStart + duration) < currentTime) ) {
-      return {error: 'session can`t be started or it has already been ended'}
-    }
-
-    try {
-
-      const res = await fetch(`https://getvideotoken-9623.twil.io/vide-token?uid=${uid}&room=${room}&timeOfStart${timeOfStart}&duration=${duration}`);
-
-      const json = await res.json()
-      // @ts-ignore
-      return {json} // success
-
-    } catch (err) {
-      console.error(err);
-      return {error: err}
-    }
-
-  });
-
-exports.getInfoAboutCurrentVideoSession = functions
-  .runWith({memory: '1GB', timeoutSeconds: 300})
-  .https
-  .onCall(async (data: any, context?) => {
-
-    try {
-      const docSnapshot = await db.collection(`/ordered-sessions/all/sessions`)
-        .doc(data.docId)
-        .get();
-
-      const sessionObject = docSnapshot.exists ? docSnapshot.data() : undefined;
-
-      if (sessionObject) {
-
-        if (sessionObject.start.seconds * 1000 > Date.now()) {
-          return {sessionStatus: 'NOT_STARTED_YET'};
-        }
-        if (sessionObject.end.seconds * 1000 < Date.now()) {
-          return {sessionStatus: 'IS_OVER'};
-        }
-        return {sessionStatus: 'IN_PROGRESS', timeLeft: sessionObject.end.seconds * 1000 - Date.now()};
-      } else {
-        return {sessionStatus: 'SESSION_NOT_FOUND'};
-      }
-    } catch (err) {
-      console.error(err);
-      return {error: err}
-    }
-
-  });
-
-exports.abortVideoSession = functions
-  .runWith({memory: '1GB', timeoutSeconds: 300})
-  .https
-  .onCall(async (data: any, context?) => {
-    try {
-      await client.video.rooms(data.roomID)
-        .update({status: 'completed'})
-      return {success: true};
-    } catch (err) {
-      console.error(err);
-      return {error: err}
-    }
-  });
-
 
 // *** TEMP TEMP TEMP ***
 function specialities() {

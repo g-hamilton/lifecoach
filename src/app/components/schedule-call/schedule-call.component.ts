@@ -2,8 +2,10 @@ import { isPlatformBrowser } from '@angular/common';
 import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
 import { CustomCalendarEvent } from 'app/interfaces/custom.calendar.event.interface';
+import { OrderCoachSessionRequest } from 'app/interfaces/order.coach.session.request.interface';
 import { AlertService } from 'app/services/alert.service';
 import { AuthService } from 'app/services/auth.service';
+import { CloudFunctionsService } from 'app/services/cloud-functions.service';
 import { DataService } from 'app/services/data.service';
 import { BsDatepickerConfig } from 'ngx-bootstrap/datepicker';
 import { BsModalRef } from 'ngx-bootstrap/modal';
@@ -34,6 +36,7 @@ export class ScheduleCallComponent implements OnInit {
   public timeToSelect: Array<Date> = [];
   public discoveryAvailableEvents: CustomCalendarEvent[] | [];
   public availableSlotsToday: Array<any>;
+  public reserving: boolean;
 
   // ngx datePicker
   public bsInlineValue = new Date();
@@ -46,7 +49,8 @@ export class ScheduleCallComponent implements OnInit {
     private dataService: DataService,
     private authService: AuthService,
     private alertService: AlertService,
-    private router: Router
+    private router: Router,
+    private cloudFunctionsService: CloudFunctionsService
   ) { }
 
   ngOnInit() {
@@ -156,14 +160,29 @@ export class ScheduleCallComponent implements OnInit {
     return (a.getUTCFullYear() === b.getUTCFullYear() && a.getUTCMonth() === b.getUTCMonth() && a.getUTCDate() === b.getUTCDate());
   }
 
-  reserveSession(ev: CustomCalendarEvent) {
-    // console.log('EVENT', ev);
+  async reserveSession(ev: CustomCalendarEvent) {
+    // console.log('calendar event', ev);
+
+    this.reserving = true;
 
     // skip reserving for limited time and go straight to booking (no payment required)
-    this.dataService.orderSession(this.coachId, ev, this.userId, this.userProfileName, this.userProfilePhoto)
-      .then(r => {
-        console.log(`Session with ID ${ev.id} booked between coach ${this.coachId} and user ${this.userId}`);
-      });
+    const request: OrderCoachSessionRequest = {
+      coachId: this.coachId,
+      event: ev,
+      uid: this.userId,
+      userName: this.userProfileName,
+      userPhoto: this.userProfilePhoto
+    };
+
+    const res = await this.cloudFunctionsService.orderCoachSession(request) as any;
+    if (res.error) { // error
+      this.reserving = false;
+      this.bsModalRef.hide();
+      this.alertService.alert('warning-message', 'Oops', `Error: ${res.error}. Please contact hello@lifecoach.io for support.`);
+    }
+    // success
+    this.reserving = false;
+    console.log(`Session with ID ${ev.id} booked between coach ${this.coachId} and user ${this.userId}`);
     this.bsModalRef.hide();
     this.showReservedAlert();
   }
