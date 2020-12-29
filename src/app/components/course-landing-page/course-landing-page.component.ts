@@ -10,6 +10,8 @@ import { AnalyticsService } from 'app/services/analytics.service';
 import { StorageService } from 'app/services/storage.service';
 import { CoachingSpecialitiesService } from 'app/services/coaching.specialities.service';
 import { IsoLanguagesService } from 'app/services/iso-languages.service';
+import { CloudFunctionsService } from '../../services/cloud-functions.service';
+import {daLocale} from 'ngx-bootstrap';
 
 @Component({
   selector: 'app-course-landing-page',
@@ -112,7 +114,8 @@ export class CourseLandingPageComponent implements OnInit, OnChanges, AfterViewI
     private analyticsService: AnalyticsService,
     private storageService: StorageService,
     private specialitiesService: CoachingSpecialitiesService,
-    private languagesService: IsoLanguagesService
+    private languagesService: IsoLanguagesService,
+    private cloudFunctions: CloudFunctionsService
   ) { }
 
   ngOnInit() {
@@ -346,7 +349,13 @@ export class CourseLandingPageComponent implements OnInit, OnChanges, AfterViewI
     // Handle image upload to storage if required.
     if (this.landingF.mainImage.value && !this.landingF.mainImage.value.includes(this.storageService.getStorageDomain())) {
       // console.log(`Uploading unstored course photo to storage...`);
-      const url = await this.storageService.storeCourseImageUpdateDownloadUrl(this.userId, this.landingF.mainImage.value);
+
+      // const url = await this.storageService.storeCourseImageUpdateDownloadUrl(this.userId, this.landingF.mainImage.value);
+
+      const url = await this.cloudFunctions
+        .uploadCourseImage({uid: this.userId, img: this.landingF.mainImage.value})
+        .catch(e => console.log(e));
+      console.log(url);
       // console.log(`Photo stored successfully. Patching landing form with photo download URL: ${url}`);
       this.landingForm.patchValue({
         mainImage: url

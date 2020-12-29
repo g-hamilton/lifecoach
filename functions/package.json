@@ -15,6 +15,7 @@
   "main": "lib/index.js",
   "dependencies": {
     "@angular/fire": "^5.2.3",
+    "@google-cloud/storage": "^5.7.0",
     "@types/algoliasearch": "^3.34.5",
     "@types/node-fetch": "^2.5.4",
     "@types/nodemailer": "^6.4.0",

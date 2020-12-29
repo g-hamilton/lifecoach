@@ -27,8 +27,11 @@ export class StorageService {
     4. If unable to store the image, returns the original dataURL as a fallback.
     */
     const original = img;
-    const imgId = this.generateRandomImgID();
+    const imgId = this.generateRandomImgID(); // After getting ID we should create
+    // different versions of file and add extension mark for each format
+    // (like test_file_id.webp/test_file_id.jpg);
     const path = `users/${uid}/profilePics/${imgId}`;
+
     try {
       console.log(`Attempting storage upload for user ${uid}`);
       const destination = this.storage.ref(path);

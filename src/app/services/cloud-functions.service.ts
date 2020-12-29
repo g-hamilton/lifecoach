@@ -472,4 +472,35 @@ export class CloudFunctionsService {
     });
   }
 
+  // Image services functions
+  uploadProgramImage( data: any) {
+    return new Promise(resolve => {
+      const trigger = this.cloudFunctions.httpsCallable('uploadProgramImage');
+      const tempSub = trigger(data)
+        .pipe(first())
+        .subscribe(res => {
+          resolve(res);
+          tempSub.unsubscribe();
+        });
+    });
+  }
+
+  uploadCourseImage( data: any) {
+    console.log('Cloud functions service.\n Starting request');
+    console.log(data);
+    return new Promise(resolve => {
+      const trigger = this.cloudFunctions.httpsCallable('uploadCourseImage');
+      const tempSub = trigger(data)
+        .pipe(first())
+        .subscribe(res => {
+          console.log('Getting result: ', res);
+          resolve(res);
+          tempSub.unsubscribe();
+        }, error => {
+
+          console.log('Getting Error', error);
+        });
+    });
+  }
+
 }

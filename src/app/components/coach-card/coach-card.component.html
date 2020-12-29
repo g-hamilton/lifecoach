@@ -9,11 +9,16 @@
         <div class=" block block-four"></div>
         <!-- Avatar -->
         <div>
-          <img
-          [alt]="coachProfile.firstName + ' ' + coachProfile.lastName + ' ' + coachProfile.speciality1.itemName + ' ' + 'Coach'"
-          class=" avatar"
-          src="{{ coachProfile.photo }}"
-          />
+          <div
+              [ngStyle]="{'background-image':'url('+coachProfile.photo+')'}"
+            class="avatar fasterAvatar">
+          </div>
+<!--          <img-->
+<!--          [alt]="coachProfile.firstName + ' ' + coachProfile.lastName + ' ' + coachProfile.speciality1.itemName + ' ' + 'Coach'"-->
+<!--          class=" avatar"-->
+<!--          src="../../../assets/img/microded114x114.jpg"-->
+<!--          />-->
+<!--          src="{{ coachProfile.photo }}"-->
           <div *ngIf="coachProfile.profileVideo" id="profile-vid-play">
             <i class="fab fa-youtube" tooltip="Video intro"></i>
           </div>

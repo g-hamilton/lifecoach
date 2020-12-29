@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, ViewChild, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Title, Meta, TransferState, makeStateKey } from '@angular/platform-browser';
 import { DOCUMENT, isPlatformBrowser, isPlatformServer } from '@angular/common';
@@ -28,9 +28,13 @@ declare var Stripe: any;
   selector: 'app-program',
   templateUrl: './program.component.html',
   styleUrls: ['./program.component.scss'],
-  encapsulation: ViewEncapsulation.None // to allow styling to be applied to innerHTML on the description
+  // encapsulation: ViewEncapsulation.None // to allow styling to be applied to innerHTML on the description // I'm not sure, but looks like this is redundant
 })
 export class ProgramComponent implements OnInit, OnDestroy {
+// testing media
+  mdq: MediaQueryList;
+  mediaQueryListener: () => void;
+// testing media
 
   @ViewChild('loginModal', {static: false}) public loginModal: ModalDirective;
   @ViewChild('registerModal', {static: false}) public registerModal: ModalDirective;
@@ -100,7 +104,7 @@ export class ProgramComponent implements OnInit, OnDestroy {
     private countryService: CountryService,
     public formBuilder: FormBuilder,
     private languagesService: IsoLanguagesService,
-    private toastrService: ToastrService,
+    private toastrService: ToastrService
   ) { }
 
   ngOnInit() {

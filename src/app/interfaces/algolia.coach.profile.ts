@@ -1,4 +1,5 @@
-import { EmojiCountry } from "./emoji.country.interface";
+import { EmojiCountry } from './emoji.country.interface';
+import {UserAvatarImagePaths} from './image-path.interface';
 
 export interface AlgoliaCoachProfile {
     city: string;
@@ -36,4 +37,5 @@ export interface AlgoliaCoachProfile {
     qualCsa: boolean;
     qualSa: boolean;
     profileVideo: string;
+    avatarImagePaths: UserAvatarImagePaths;
 }

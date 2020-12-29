@@ -2,12 +2,41 @@
 
 <div class="full-page pricing-page">
 
+
+<!--  <div *ngIf="program && program.image"-->
+<!--  class="jumbotron jumbotron-fluid"-->
+<!--  [ngStyle]="{'background-image': 'url(' + program.image +')'}"-->
+<!--  style="margin-top: 60px; height: 75vh; background-position: center; background-size: cover; background-repeat: no-repeat;">-->
+<!--  </div>-->
+
+<!--  jumbotron jumbotron-fluid test image-->
+
+
   <!-- Program cover img if program loaded and image exists -->
-  <div *ngIf="program && program.image"
-  class="jumbotron jumbotron-fluid" 
-  [ngStyle]="{'background-image': 'url(' + program.image +')'}"
-  style="margin-top: 60px; height: 75vh; background-position: center; background-size: cover; background-repeat: no-repeat;">
-  </div>
+  <ng-container *ngIf="program && (program.imagePaths.original || program.imagePaths.webp)">
+    <div class="jumbotron jumbotron-fluid test test-575-jpg"
+         [ngStyle]="{'background-image': 'url(' + program.imagePaths.original['575'] +')'}"></div>
+    <div class="jumbotron jumbotron-fluid test test-768-jpg"
+         [ngStyle]="{'background-image': 'url(' + program.imagePaths.original['768'] +')'}"></div>
+    <div class="jumbotron jumbotron-fluid test test-991-jpg"
+         [ngStyle]="{'background-image': 'url(' + program.imagePaths.original['991'] +')'}"></div>
+    <div class="jumbotron jumbotron-fluid test test-1200-jpg"
+         [ngStyle]="{'background-image': 'url(' + program.imagePaths.original['1200'] +')'}"></div>
+    <div class="jumbotron jumbotron-fluid test test-original-jpg"
+         [ngStyle]="{'background-image': 'url(' + program.imagePaths.original.fullSize +')'}"></div>
+    <div class="jumbotron jumbotron-fluid test test-575-webp"
+         [ngStyle]="{'background-image': 'url(' + program.imagePaths.webp['575'] +')'}"></div>
+    <div class="jumbotron jumbotron-fluid test test-768-webp"
+         [ngStyle]="{'background-image': 'url(' + program.imagePaths.webp['768'] +')'}"></div>
+    <div class="jumbotron jumbotron-fluid test test-991-webp"
+         [ngStyle]="{'background-image': 'url(' + program.imagePaths.webp['991'] +')'}"></div>
+    <div class="jumbotron jumbotron-fluid test test-1200-webp"
+         [ngStyle]="{'background-image': 'url(' + program.imagePaths.webp['1200'] +')'}"></div>
+    <div class="jumbotron jumbotron-fluid test test-original-webp"
+         [ngStyle]="{'background-image': 'url(' + program.imagePaths.webp.fullSize +')'}"></div>
+  </ng-container>
+
+<!--  jumbotron jumbotron-fluid test images-->
 
   <!-- Placeholder cover img if program loaded and no image exists -->
   <div *ngIf="program && !program.image"

@@ -17,6 +17,7 @@ import { AlertService } from 'app/services/alert.service';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { environment } from 'environments/environment';
+import {CloudFunctionsService} from '../../services/cloud-functions.service';
 
 @Component({
   selector: 'app-user',
@@ -156,7 +157,8 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
     private specialitiesService: CoachingSpecialitiesService,
     private analyticsService: AnalyticsService,
     private storageService: StorageService,
-    private alertService: AlertService
+    private alertService: AlertService,
+    private cloudFunctions: CloudFunctionsService
   ) {
   }
 
@@ -560,7 +562,9 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
     // Handle image upload to storage if required.
     if (!this.profileF.photo.value.includes(this.storageService.getStorageDomain())) {
       // console.log(`Uploading unstored photo to storage...`);
+
       const url = await this.storageService.storePhotoUpdateDownloadUrl(this.userId, this.profileF.photo.value);
+      // const url = await this.cloudFunctions.uploadProgramImage({uid: this.userId, img: this.profileF.photo.value})
       // console.log(`Photo stored successfully. Patching profile form with photo download URL: ${url}`);
       this.userProfile.patchValue({
         photo: url

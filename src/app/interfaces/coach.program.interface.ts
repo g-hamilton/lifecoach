@@ -1,4 +1,5 @@
 import { AdminProgramReviewRequest } from './admin.program.review.interface';
+import { ProgramImagePaths } from './image-path.interface';
 
 export interface CoachingProgram {
     programId: string;
@@ -44,4 +45,6 @@ export interface CoachingProgram {
     adminApproved?: boolean;
     approved?: number; // unix timestamp
     progress?: number;
+    imagePaths: ProgramImagePaths;
+    // for different image to speed up first render --test_feature
 }

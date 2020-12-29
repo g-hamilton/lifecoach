@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, ViewChild, ElementRef, EventEmitter, Output, OnChanges } from '@angular/core';
 import { AlertService } from '../../services/alert.service';
+import {ImageHelperService} from '../../services/image-helper.service';
 
 @Component({
   selector: 'app-picture-upload',
@@ -17,11 +18,14 @@ export class PictureUploadComponent implements OnInit, OnChanges {
   public file: any = {}; // < -- Will contain the selected file
   public imagePreviewUrl: any = {}; // <-- Will contain the silected file's base64 data
 
-  private allowedFileTypes = ['jpg', 'jpeg', 'png'];
+  private allowedFileTypes = ['jpg', 'jpeg', 'png', 'webp', 'bmp']; // added webp (lighter) and bmp (for windows users)
 
   @ViewChild('fileInput', { static: false }) fileInput: ElementRef;
 
-  constructor(private alertService: AlertService) {
+  constructor(
+    private alertService: AlertService,
+    private imageHelper: ImageHelperService
+  ) {
     this.handleImageChange = this.handleImageChange.bind(this);
   }
 
@@ -54,9 +58,12 @@ export class PictureUploadComponent implements OnInit, OnChanges {
       this.file = file;
       // Validate the file
       const result = this.validateFile();
+
+      // TODO: resize image here and then preview should be with resized image
+
       console.log('File validation result:', result);
       if (result.success) {
-        this.imagePreviewUrl = reader.result;
+        this.imagePreviewUrl = reader.result;  // TODO: here should be resized image
         // console.log('Image preview url:', this.imagePreviewUrl);
         this.emitBase64(); // <-- Should emit the base 64 image url of the chosen file
       } else {
