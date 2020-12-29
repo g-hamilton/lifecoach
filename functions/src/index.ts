@@ -2449,7 +2449,8 @@ exports.orderCoachSession = functions
         start: originalEvent.start,
         end: originalEvent.end,
         coach_name: `${coachProfile ? coachProfile.firstName : 'Lifecoach'} ${coachProfile ? coachProfile.lastName : 'Coach'}`,
-        coach_photo: `${coachProfile ? coachProfile.photo : 'https://eu.ui-avatars.com/api/?name=lifecoach+coach&background=00f2c3&color=fff&rounded=true&bold=true'}`
+        coach_photo: `${coachProfile ? coachProfile.photo : 'https://eu.ui-avatars.com/api/?name=lifecoach+coach&background=00f2c3&color=fff&rounded=true&bold=true'}`,
+        landing_url: `https://lifecoach.io/my-sessions/${sessionId}`
       }
     }
     const mailBookerPromise = logMailchimpEvent(uid, bookerMailEvent); // log event
@@ -2463,7 +2464,8 @@ exports.orderCoachSession = functions
         start: originalEvent.start,
         end: originalEvent.end,
         user_name: userName,
-        user_photo: userPhoto
+        user_photo: userPhoto,
+        landing_url: `https://lifecoach.io/my-sessions/${sessionId}`
       }
     }
     const mailCoachPromise = logMailchimpEvent(coachId, coachMailEvent); // log event
