@@ -4,6 +4,7 @@ import { Observable, Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { CRMPerson, CRMPersonHistoryEvent } from 'app/interfaces/crm.person.interface';
 import { DataService } from './data.service';
+import { CustomCalendarEvent } from 'app/interfaces/custom.calendar.event.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -130,6 +131,9 @@ export class CrmPeopleService implements OnDestroy {
         case 'coach_invited_user':
           type = 'lead';
           break;
+        case 'booked_session':
+          type = this.isPersonWarm(person) ? 'warm lead' : 'lead';
+          break;
         default:
           type = 'lead';
       }
@@ -147,12 +151,19 @@ export class CrmPeopleService implements OnDestroy {
 
     if (!person.lastReplyReceived && person.created) {
       if (personCreatedUnix > (nowUnix - warmLimit)) {
-        return true; // the first lead was received in the last 7 days
+        return true; // the first lead was received within the time limit
       }
     }
 
     if (Number(person.lastReplyReceived) > (nowUnix - warmLimit)) {
-      return true; // the user responded in the last 7 days
+      return true; // the user responded within the time limit
+    }
+
+    if (person.history[person.history.length - 1].action === 'booked_session') {
+      const endDateUnix = Math.round(new Date(((person.history[person.history.length - 1].event) as CustomCalendarEvent).end).getTime() / 1000);
+      if (endDateUnix > (nowUnix - warmLimit)) {
+        return true; // the user ended a session within the time limit
+      }
     }
 
     return false;
@@ -174,6 +185,9 @@ export class CrmPeopleService implements OnDestroy {
           break;
         case 'coach_invited_user':
           status = 'Invited';
+          break;
+        case 'booked_session':
+          status = 'In Discovery';
           break;
         default:
           status = 'Message';
