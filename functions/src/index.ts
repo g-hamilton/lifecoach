@@ -2400,7 +2400,7 @@ exports.orderCoachSession = functions
 
     const queryDocSnap = coachEventSnap.docs[0]; // capture the query document snapshot
     const coachEventRef = queryDocSnap.ref; // capture the reference to the document
-    const originalEvent = queryDocSnap.data(); // capture the original event object
+    // const originalEvent = queryDocSnap.data(); // capture the original event object
 
     batch.set(coachEventRef, { // update the document by merging new data into the event object
       ordered: true,
@@ -2414,8 +2414,8 @@ exports.orderCoachSession = functions
     // create the ordered session for the person booking using the session id as the document id
     const orderedSessionRef = db.collection(`users/${uid}/ordered-sessions`).doc(sessionId);
     batch.set(orderedSessionRef, {
-      start: originalEvent.start,
-      end: originalEvent.end,
+      start: event.start,
+      end: event.end,
       sessionId,
       type: event.type
     });
@@ -2427,10 +2427,14 @@ exports.orderCoachSession = functions
       timeOfReserve: dateNow,
       participants: [coachId, uid],
       originalEvent: event,
-      start: originalEvent.start,
-      end: originalEvent.end,
+      start: event.start,
+      end: event.end,
       testField: 'testField'
     }, { merge: true });
+
+    // record the crm event in the coach's history
+    const coachCrmRef = db.collection(`users/${data.item.sellerUid}/people/${data.invitee.id}/history`).doc((dateNow / 1000).toString());
+    batch.set(coachCrmRef, { action: 'booked_session', event });
 
     await batch.commit(); // execute batch ops. Any error should trigger catch.
 
@@ -2445,9 +2449,9 @@ exports.orderCoachSession = functions
     const bookerMailEvent = {
       name: 'booked_coach_session',
       properties: {
-        type: originalEvent.type,
-        start: originalEvent.start,
-        end: originalEvent.end,
+        type: event.type,
+        start: event.start,
+        end: event.end,
         coach_name: `${coachProfile ? coachProfile.firstName : 'Lifecoach'} ${coachProfile ? coachProfile.lastName : 'Coach'}`,
         coach_photo: `${coachProfile ? coachProfile.photo : 'https://eu.ui-avatars.com/api/?name=lifecoach+coach&background=00f2c3&color=fff&rounded=true&bold=true'}`,
         landing_url: `https://lifecoach.io/my-sessions/${sessionId}`
@@ -2460,9 +2464,9 @@ exports.orderCoachSession = functions
     const coachMailEvent = {
       name: 'session_booked',
       properties: {
-        type: originalEvent.type,
-        start: originalEvent.start,
-        end: originalEvent.end,
+        type: event.type,
+        start: event.start,
+        end: event.end,
         user_name: userName,
         user_photo: userPhoto,
         landing_url: `https://lifecoach.io/my-sessions/${sessionId}`
