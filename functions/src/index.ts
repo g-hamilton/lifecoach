@@ -2395,7 +2395,7 @@ exports.orderCoachSession = functions
       .get() // lookup the original event on the coach calendar
 
     if (coachEventSnap.empty) { // original event does not exist
-      return; // abort batch commit
+      return {error: 'Cannot find original calendar event'}; // abort
     }
 
     const queryDocSnap = coachEventSnap.docs[0]; // capture the query document snapshot
@@ -2437,6 +2437,11 @@ exports.orderCoachSession = functions
     // send emails
 
     // trigger a mailchimp event to send an email to the person booking
+    const coachProfileSnap = await db.collection(`public-coaches`)
+    .doc(coachId)
+    .get();  // lookup coach data for the email
+    const coachProfile = coachProfileSnap.data();
+
     const bookerMailEvent = {
       name: 'booked_coach_session',
       properties: {
@@ -2444,8 +2449,8 @@ exports.orderCoachSession = functions
         type: originalEvent.type,
         start: originalEvent.start,
         end: originalEvent.end,
-        coachName: '', // todo!
-        coachPhoto: '', // todo!
+        coachName: `${coachProfile ? coachProfile.firstName : 'Lifecoach'} ${coachProfile ? coachProfile.lastName : 'Coach'}`,
+        coachPhoto: `${coachProfile ? coachProfile.photo : 'https://eu.ui-avatars.com/api/?name=lifecoach+coach&background=00f2c3&color=fff&rounded=true&bold=true'}`
       }
     }
     const mailBookerPromise = logMailchimpEvent(uid, bookerMailEvent); // log event
