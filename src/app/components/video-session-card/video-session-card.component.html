@@ -1,18 +1,100 @@
-<div class="session-card" *ngIf="this.coachProfile; else nosessions">
-  <h2 *ngIf="!this.isSamePerson">Coach: {{this.coachProfile.firstName + ' ' + this.coachProfile.lastName}}</h2>
-  <span *ngIf="this.isGoingNow" class="session-card_now">GOING NOW<br></span>
-  <span *ngIf="this.isNew" class="session-card_new">NEW</span>
-  <div><br><span class="time">{{this.sessionStartTime | date: 'medium'}}</span></div>
-  <br>
-  <p *ngIf="!this.isSamePerson; else forCoach"> You have 1-to-1 session with {{this.coachProfile.firstName}}. When You will be ready - just click on link below to
-    start.</p>
-  <ng-template #forCoach>
-    <p>Looks like one of the LifeCoach users bought a video-session with You. When You will be ready - click below to start session.</p>
-  </ng-template>
-  <a [routerLink]="[this.sessionId]">START SESSION</a>
+<!-- Loading spinner -->
+<div *ngIf="!loaded" class="text-center">
+  <div class="spinner-border" role="status">
+      <span class="sr-only">Loading...</span>
+  </div>
 </div>
-<ng-template #nosessions>
-  <div class="test">
+
+<!-- when data is loaded -->
+<div *ngIf="loaded">
+
+  <!-- session card ui for regular users -->
+  <div class="session-card" *ngIf="!isSamePerson; else forCoach">
+
+    <div class=" card card-testimonial">
+      <div class=" card-header card-header-avatar">
+        <a href="javascript:void(0)">
+          <img
+            alt="Card image"
+            class=" img img-raised"
+            [src]="coachProfile.photo"
+          />
+        </a>
+      </div>
+      <div class=" card-body">
+        <span class=" badge badge-default">
+          {{ session.type }}
+        </span>
+        <p class=" card-description">
+          {{ session.start | date: 'medium' }}
+        </p>
+        <p class=" category mt-3">Coach:</p>
+        <h4 class=" card-title">{{ this.coachProfile.firstName + ' ' + this.coachProfile.lastName }}</h4>
+        <span *ngIf="isNew" class=" badge badge-danger">
+          New
+        </span>
+        <span *ngIf="isGoingNow" class=" badge badge-primary">
+          Starting Now
+        </span>
+      </div>
+      <div class=" card-footer">
+        <!-- button if session is starting now -->
+        <button *ngIf="isGoingNow" class="btn btn-round btn-primary" [routerLink]="[session.sessionId]">
+          Go to Session <i class="fas fa-arrow-right ml-1"></i>
+        </button>
+        <!-- button if session is not starting now -->
+        <button *ngIf="!isGoingNow" class="btn btn-round btn-default" [routerLink]="[session.sessionId]">
+          Go to Session <i class="fas fa-arrow-right ml-1"></i>
+        </button>
+      </div>
+    </div>
 
   </div>
-</ng-template>
+  <!-- end session card for regular users -->
+
+  <!-- session card ui for coaches -->
+  <ng-template class="session-card" #forCoach>
+    
+    <div class=" card card-testimonial">
+      <div class=" card-header card-header-avatar">
+        <a href="javascript:void(0)">
+          <img
+            alt="Card image"
+            class=" img img-raised"
+            [src]="session.orderedByPhoto"
+          />
+        </a>
+      </div>
+      <div class=" card-body">
+        <span class=" badge badge-default">
+          {{ session.type }}
+        </span>
+        <p class=" card-description">
+          {{ session.start | date: 'medium' }}
+        </p>
+        <p class=" category mt-3">Session with:</p>
+        <h4 class=" card-title">{{ session.orderedByName }}</h4>
+        <span *ngIf="isNew" class=" badge badge-danger">
+          New
+        </span>
+        <span *ngIf="isGoingNow" class=" badge badge-primary">
+          Starting Now
+        </span>
+      </div>
+      <div class=" card-footer">
+        <!-- button if session is starting now -->
+        <button *ngIf="isGoingNow" class="btn btn-round btn-primary" [routerLink]="[session.sessionId]">
+          Go to Session <i class="fas fa-arrow-right ml-1"></i>
+        </button>
+        <!-- button if session is not starting now -->
+        <button *ngIf="!isGoingNow" class="btn btn-round btn-default" [routerLink]="[session.sessionId]">
+          Go to Session <i class="fas fa-arrow-right ml-1"></i>
+        </button>
+      </div>
+    </div>
+
+  </ng-template>
+  <!-- end session card for coaches -->
+
+</div>
+<!-- end ui when loaded -->

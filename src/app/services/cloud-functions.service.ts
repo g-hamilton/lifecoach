@@ -12,6 +12,7 @@ import { RefundRequest } from 'app/interfaces/refund.request.interface';
 import {Answer} from '../pages/video-chatroom/videochatroom.component';
 import { AdminProgramReviewRequest } from 'app/interfaces/admin.program.review.interface';
 import { CoachInvite } from 'app/interfaces/coach.invite.interface';
+import { OrderCoachSessionRequest } from 'app/interfaces/order.coach.session.request.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -450,6 +451,18 @@ export class CloudFunctionsService {
     return new Promise(resolve => {
       const invite = this.cloudFunctions.httpsCallable('sendCoachInvite');
       const tempSub = invite(data)
+        .pipe(first())
+        .subscribe(res => {
+          resolve(res);
+          tempSub.unsubscribe();
+        });
+    });
+  }
+
+  orderCoachSession(data: OrderCoachSessionRequest) {
+    return new Promise(resolve => {
+      const order = this.cloudFunctions.httpsCallable('orderCoachSession');
+      const tempSub = order(data)
         .pipe(first())
         .subscribe(res => {
           resolve(res);

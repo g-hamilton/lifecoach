@@ -291,7 +291,7 @@
                   <div class=" col-md-6 ml-auto mr-auto text-center">
                     <h1 class=" title">Join the program</h1>
                     <h4 class=" description">
-                      Got questions? Schedule a free discovery call with your coach before you get started.
+                      Got questions? Schedule a free discovery session with your coach before you get started.
                     </h4>
                   </div>
                 </div>
@@ -314,7 +314,7 @@
                         />
           
                         <ul class=" list-group">
-                          <li class=" list-group-item">Schedule a discovery call</li>
+                          <li class=" list-group-item">Schedule a discovery session</li>
                         </ul>
                         <div class=" card-prices pl-3 pr-3">
                           <h3 class=" text-on-front">FREE</h3>
@@ -328,8 +328,8 @@
                         <!-- userId === program.sellerUid -->
                         <button class=" btn btn-round btn-just-icon btn-primary"
                         [disabled]="userId === program.sellerUid"
-                        (click)="logSessions() ; this.userId ? schedulerModal.show() : registerModal.show()">
-                          <i class="fas fa-phone"></i> Schedule a Call
+                        (click)="this.userId ? openScheduleCallModal() : registerModal.show()">
+                         Schedule a Session
                         </button>
                       </div>
                     </div>
@@ -423,7 +423,7 @@
                   <div class=" col-md-6 ml-auto mr-auto text-center">
                     <h1 class=" title">Join the program</h1>
                     <h4 class=" description">
-                      Got questions? Schedule a free discovery call with your coach before you get started.
+                      Got questions? Schedule a free discovery session with your coach before you get started.
                     </h4>
                   </div>
                 </div>
@@ -444,7 +444,7 @@
                         />
           
                         <ul class=" list-group">
-                          <li class=" list-group-item mt-4">Schedule a discovery call</li>
+                          <li class=" list-group-item mt-4">Schedule a discovery session</li>
                         </ul>
                         <div class=" card-prices pl-3 pr-3">
                           <h3 class=" text-on-front">FREE</h3>
@@ -458,8 +458,8 @@
                         <!-- userId === program.sellerUid -->
                         <button class=" btn btn-round btn-just-icon btn-primary"
                         [disabled]="userId === program.sellerUid"
-                        (click)="logSessions() ; this.userId ? schedulerModal.show() : registerModal.show()">
-                          <i class="fas fa-phone"></i> Schedule a Call
+                        (click)="this.userId ? openScheduleCallModal() : registerModal.show()">
+                         Schedule a Session
                         </button>
                       </div>
                     </div>
@@ -915,16 +915,16 @@
 
                         <div class=" row">
                             <div class=" col">
-                                <p>Just a second! You need a Lifecoach account to enroll in coaching programs. 
-                                    Joining Lifecoach is free and only takes seconds!
-                                </p>
+                              <p> Just a second! You need a Lifecoach account to continue. 
+                                Joining Lifecoach is free and only takes seconds!
+                              </p>
                             </div>
                         </div>
 
                     <div class=" row mt-3">
 
                         <!-- First Name -->
-                        <div class=" col-sm-12 col-md-6">
+                        <div class=" col-sm-12 col-md-6 pr-2">
                         <div
                         class=" input-group"
                         [ngClass]="{
@@ -1078,48 +1078,6 @@
         </div>
         </div>
         <!-- End of register modal -->
-
-        <!-- scheduler modal -->
-        <div 
-        aria-hidden="true"
-        aria-labelledby="schedulerModalLabel"
-        bsModal
-        class="modal fade"
-        #schedulerModal="bs-modal"
-        id="schedulerModal"
-        role="dialog"
-        tabindex="-1"
-        >
-            <div class="modalContainer" >
-                <div class="modalContent">
-                    <button type="button" class="closeButton" (click)="schedulerModal.hide()"><i class="fas fa-times"></i></button>
-                    <span>Check free dates</span><br>
-                    <br/>
-                    <!-- Select for date -->
-                    <select name="" id="" (change)="daySelect($event)">
-                        <option value='NULL' [defaultSelected]="true">Please, choose available Date</option>
-                        <option *ngFor="let day of this.dayToSelect" [ngValue]="day">
-                            {{day | date: 'yyyy, MMM, dd'}}
-                        </option>
-                    </select>
-                    <div class="sessions">
-
-                        <div *ngFor="let event of this.todayEvents" class="session">
-                            <span  class="sessionTitle">{{event.start*1000 | date: "HH:mm"}} - {{event.end*1000 | date: "HH:mm"}}</span>
-                            <button
-                              class=" btn btn-fill btn-round btn-primary mr-2 mb-2 sessionReserveButton"
-                              type="button"
-                              (click)="reserveSession($event)"
-                              [value]="event.id"
-                            >Reserve </button>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- end scheduler modal -->
-
     </div>
   </div>
 </div>

@@ -10,7 +10,6 @@ import { CRMPerson } from 'app/interfaces/crm.person.interface';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ToastService } from 'app/services/toast.service';
 import { CoachInvite } from 'app/interfaces/coach.invite.interface';
-import { CoachProfile } from 'app/interfaces/coach.profile.interface';
 import { AlertService } from 'app/services/alert.service';
 import { CloudFunctionsService } from 'app/services/cloud-functions.service';
 
@@ -33,7 +32,6 @@ export class CoachInviteComponent implements OnInit {
   // component
   public browser: boolean;
   private userId: string;
-  private coachProfile: CoachProfile;
   public publishedPrograms: CoachingProgram[]; // programs created as coach
   public publishedCourses: CoachingCourse[]; // ecourses created as coach
   private subscriptions: Subscription = new Subscription();
@@ -141,12 +139,6 @@ export class CoachInviteComponent implements OnInit {
       return;
     }
 
-    if (!this.coachProfile) {
-      this.saving = false;
-      this.alertService.alert('warning-message', 'Oops', 'Missing Coach profile. Please contact hello@lifecoach.io for support');
-      return;
-    }
-
     const formData = this.inviteForm.value;
 
     let itemId: string;
@@ -173,7 +165,7 @@ export class CoachInviteComponent implements OnInit {
 
     const res = await this.cloudFunctionsService.sendCoachInvite(data) as any;
     if (res.success) {
-      this.alertService.alert('success-message', 'Success!', res.message);
+      this.alertService.alert('success-message', 'Success!', `Your invite is on it's way.`);
       this.bsModalRef.hide();
       this.saving = false;
       this.saveAttempt = false;

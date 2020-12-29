@@ -242,12 +242,12 @@ const routes: Routes = [
         pathMatch: 'full'
       },
       {
-        path: 'video',
+        path: 'my-sessions',
         loadChildren: () => import('./pages/video/video.module').then(m => m.VideoModule),
         pathMatch: 'full'
       },
       {
-        path: 'video/:sessionId',
+        path: 'my-sessions/:sessionId',
         loadChildren: () => import('./pages/video-chatroom/videochatroom.module').then(m => m.VideochatroomModule),
         pathMatch: 'full'
       },
@@ -292,10 +292,6 @@ const routes: Routes = [
       {
         path: 'receipt/:id',
         loadChildren: () => import('./pages/receipt/receipt.module').then(m => m.ReceiptModule)
-      },
-      {
-        path: 'reserved-sessions',
-        loadChildren: () => import('./pages/reserved-sessions/reserved-sessions.module').then(m => m.ReservedSessionsModule),
       },
       {
         path: 'admin-manage-user/:targetUserUid',

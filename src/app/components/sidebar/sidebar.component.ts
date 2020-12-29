@@ -36,7 +36,7 @@ export interface ChildrenItems2 {
 export const ROUTES: RouteInfo[] = [
   {
     path: '/dashboard',
-    title: 'Dashboard',
+    title: 'My Dashboard',
     type: 'link',
     icontype: 'tim-icons icon-chart-pie-36',
     rtlTitle: 'لوحة القيادة',
@@ -44,23 +44,39 @@ export const ROUTES: RouteInfo[] = [
   },
   {
     path: '/people',
-    title: 'People',
+    title: 'My People',
     type: 'link',
     icontype: 'tim-icons icon-single-02',
     rtlTitle: 'لوحة القيادة',
     userTypes: ['coach']
   },
   {
-    path: '/messages',
-    title: 'Messages',
+    path: '/calendar',
+    title: 'My Calendar',
     rtlTitle: 'التقويم',
     type: 'link',
-    icontype: 'tim-icons icon-chat-33',
+    icontype: 'tim-icons icon-calendar-60',
+    userTypes: ['coach']
+  },
+  {
+    path: '/messages',
+    title: 'My Messages',
+    rtlTitle: 'التقويم',
+    type: 'link',
+    icontype: 'tim-icons icon-email-85',
     userTypes: ['regular', 'coach', 'admin']
   },
   {
+    path: '/my-sessions',
+    title: 'My Sessions',
+    rtlTitle: 'التقويم',
+    type: 'link',
+    icontype: 'tim-icons icon-chat-33',
+    userTypes: ['regular', 'coach']
+  },
+  {
     path: '/profile',
-    title: 'Profile',
+    title: 'My Profile',
     rtlTitle: 'التقويم',
     type: 'link',
     icontype: 'tim-icons icon-badge',
@@ -68,7 +84,7 @@ export const ROUTES: RouteInfo[] = [
   },
   {
     path: '/coach-products-services',
-    title: 'Products & Services',
+    title: 'My Products & Services',
     type: 'link',
     icontype: 'tim-icons icon-bullet-list-67',
     rtlTitle: 'لوحة القيادة',
@@ -84,7 +100,7 @@ export const ROUTES: RouteInfo[] = [
   },
   {
     path: '/my-courses',
-    title: 'e-Courses',
+    title: 'My e-Courses',
     rtlTitle: 'التقويم',
     type: 'link',
     icontype: 'tim-icons icon-tv-2',
@@ -143,7 +159,7 @@ export const ROUTES: RouteInfo[] = [
   },
   {
     path: '/account',
-    title: 'Account',
+    title: 'My Account',
     rtlTitle: 'التقويم',
     type: 'link',
     icontype: 'tim-icons icon-lock-circle',
@@ -175,32 +191,6 @@ export const ROUTES: RouteInfo[] = [
         smallTitle: 'U'
       }
     ]
-  },
-
-  /* LINK FOR TESTING */
-  {
-    path: '/calendar',
-    title: 'CALENDAR',
-    rtlTitle: 'التقويم',
-    type: 'link',
-    icontype: 'tim-icons icon-calendar-60',
-    userTypes: ['coach']
-  },
-  {
-    path: '/reserved-sessions',
-    title: 'reserved-sessions',
-    rtlTitle: 'التقويم',
-    type: 'link',
-    icontype: 'tim-icons icon-bag-16',
-    userTypes: ['regular', 'coach']
-  },
-  {
-    path: '/video',
-    title: 'VIDEO',
-    rtlTitle: 'التقويم',
-    type: 'link',
-    icontype: 'tim-icons icon-video-66',
-    userTypes: ['regular', 'coach']
   }
 ];
 

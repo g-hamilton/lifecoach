@@ -1,16 +1,15 @@
-import {AfterViewInit, Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
+import {Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
 import {CalendarView} from 'angular-calendar';
 import {Subject, Subscription} from 'rxjs';
 import {ModalDirective} from 'ngx-bootstrap/modal';
-import {FormBuilder, FormGroup} from '@angular/forms';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {CustomCalendarEvent} from '../../interfaces/custom.calendar.event.interface';
 import {DataService} from 'app/services/data.service';
 import {AuthService} from 'app/services/auth.service';
 import {take} from 'rxjs/operators';
 import {ToastrService} from 'ngx-toastr';
 import {AlertService} from '../../services/alert.service';
-
-declare var JitsiMeetExternalAPI: any;
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-calendar',
@@ -18,7 +17,7 @@ declare var JitsiMeetExternalAPI: any;
   templateUrl: './calendar.component.html',
 })
 
-export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
+export class CalendarComponent implements OnInit, OnDestroy {
 
   @ViewChild('eventDetailModal', {static: false}) public eventDetailModal: ModalDirective;
   @ViewChild('editEventModal', {static: false}) public editEventModal: ModalDirective;
@@ -32,7 +31,13 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
   public refresh: Subject<any> = new Subject(); // allows us to refresh the view when data changes
   public activeEvent: CustomCalendarEvent;
   public activeEventForm: FormGroup;
-  public savingEvent: boolean;
+  public saveAttempt: boolean;
+  public saving: boolean;
+
+  public focus: boolean;
+  public focusTouched: boolean;
+
+  public eventTypes = [{ id: 'discovery', name: 'Set me as available for discovery calls'}];
 
   public events: CustomCalendarEvent[];
 
@@ -40,19 +45,23 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
   breakDuration = 15;
   endTimes: Date[] | [];
   startTimes: Date[] | [];
-  // video conferencing
-  private meetingDomain = 'live.lifecoach.io';
-  private meetingOptions: any;
-  private meetingApi: any;
 
   private subscriptions: Subscription = new Subscription();
+  public objKeys = Object.keys;
+
+  public ErrorMessages = {
+    type: {
+      required: `Please select a calendar action.`
+    }
+  };
 
   constructor(
     private authService: AuthService,
     public formBuilder: FormBuilder,
     private dataService: DataService,
     private toastService: ToastrService,
-    public alertService: AlertService
+    public alertService: AlertService,
+    private router: Router
   ) {
   }
 
@@ -61,43 +70,17 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loadUserData();
     this.endTimes = [];
     this.startTimes = [];
-    console.log('View', this.viewDate);
-  }
-
-  ngAfterViewInit() {
-    // this.initJitsiMeet();
-  }
-
-  initJitsiMeet() {
-    // https://jitsi.github.io/handbook/docs/dev-guide/dev-guide-iframe
-
-    this.meetingOptions = {
-      roomName: 'nkbfjksbfksdbfjsbfksb',
-      width: 700,
-      height: 700,
-      parentNode: document.querySelector('#meet'),
-      // interfaceConfigOverwrite: {
-      //   APP_NAME: 'Lifecoach',
-      //   NATIVE_APP_NAME: 'Lifecoach',
-      //   SHOW_JITSI_WATERMARK: false,
-      //   SHOW_PROMOTIONAL_CLOSE_PAGE: false,
-      //   BRAND_WATERMARK_LINK: 'https://lifecoach.io',
-      //   DEFAULT_LOGO_URL: 'https://lifecoach.io/assets/img/lifecoach-logo-dark-monotone.svg',
-      //   AUDIO_LEVEL_PRIMARY_COLOR: 'rgba(255,255,255,0.4)',
-      //   AUDIO_LEVEL_SECONDARY_COLOR: 'rgba(255,255,255,0.2)',
-      //   MOBILE_APP_PROMO: false,
-      // },
-    };
-    this.meetingApi = new JitsiMeetExternalAPI(this.meetingDomain, this.meetingOptions);
+    console.log('View date:', this.viewDate);
   }
 
   buildActiveEventForm() {
     this.activeEventForm = this.formBuilder.group(
       {
-        id: [null],
+        id: [null, Validators.required],
+        type: [null, Validators.required],
         title: [null],
-        start: [null],
-        end: [null],
+        start: [null, Validators.required],
+        end: [null, Validators.required],
         draggable: [null],
         cssClass: [null],
         description: [null]
@@ -128,15 +111,16 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
               if (events) {
                 console.log('events before forEach', events);
                 // important: update date objects as Firebase stores dates as unix string: 't {seconds: 0, nanoseconds: 0}'
-                events.forEach((ev: any) => {
+                events.forEach((ev: CustomCalendarEvent) => {
                   if (ev.start) {
-                    ev.start = new Date(ev.start.seconds * 1000);
+                    ev.start = new Date((ev.start as any).seconds * 1000);
                   }
                   if (ev.end) {
-                    ev.end = new Date(ev.end.seconds * 1000);
+                    ev.end = new Date((ev.end as any).seconds * 1000);
                   }
-                  ev.title = ev.reserved ? (ev.ordered ? 'ORDERED' : 'RESERVED') : 'FREE';
-                  ev.cssClass = ev.reserved ? (ev.ordered ? 'ordered' : 'reserved') : 'free' ;
+                  ev.title = this.getTitle(ev);
+                  // ev.title = ev.reserved ? (ev.ordered ? 'ORDERED' : 'RESERVED') : 'FREE';
+                  ev.cssClass = ev.ordered ? 'ordered' : 'free' ;
                 });
 
                 this.events = events;
@@ -152,12 +136,21 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     );
   }
 
+  getTitle(ev: CustomCalendarEvent) {
+    let title = '';
+    if (ev.type === 'discovery') {
+      title = ev.ordered ? `Discovery with ${ev.orderedByName}` : 'Available';
+    }
+    return title;
+  }
+
   loadActiveEventFormData() {
     this.activeEventForm.patchValue({
       id: this.activeEvent.id ? this.activeEvent.id : null,
+      type: this.activeEvent.type ? this.activeEvent.type : null,
       start: this.activeEvent.start ? this.activeEvent.start : null,
       end: this.activeEvent.end ? this.activeEvent.end : null,
-      // title: this.activeEvent.start.toLocaleTimeString() + ' - ' + (this.activeEvent.end.toLocaleTimeString() || ' '),
+      title: this.activeEvent.start.toLocaleTimeString() + ' - ' + (this.activeEvent.end.toLocaleTimeString() || ' '),
       draggable: false,
       description: this.activeEvent.description ? this.activeEvent.description : null,
       reserved: this.activeEvent.reserved ? this.activeEvent.reserved : false,
@@ -205,10 +198,10 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     console.group('test');
     // console.log('EndTimes before cleaning', this.endTimes);
     this.endTimes = [];
-    console.group('Session settings in compomnent')
+    console.group('Session settings in compomnent');
     console.log(this.sessionDuration);
     console.log(this.breakDuration);
-    console.groupEnd()
+    console.groupEnd();
     while (newTime.getDate() === date.getDate()) {
       console.log('Date: ', date.getDate(), 'NewTime: ', newTime.getDate());
       newTime = new Date(newTime.setMinutes(newTime.getMinutes() + this.sessionDuration));
@@ -229,6 +222,7 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     // prepare a new event object
     const newEvent: CustomCalendarEvent = {
       id: Math.random().toString(36).substr(2, 9), // generate semi-random id
+      type: null,
       title: 'New Event',
       start: date,
       end: date
@@ -319,6 +313,11 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
       alert(`Sorry, this event was already reserved by the user: ${this.activeEvent.reservedById}`); // TODO: Modal
       return;
     }
+    // if this is an available discovery slot, no need to confirm or notify other participant. just delete..
+    if (this.activeEvent.type === 'discovery' && !this.activeEvent.reserved && !this.activeEvent.ordered) {
+      this.onDeleteEvent(false);
+      return;
+    }
     this.cancelEventModal.show();
   }
 
@@ -365,7 +364,7 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
         const ev = {
           ...ob,
           // title: `${new Date(expireTime).toLocaleTimeString()} - ${new Date(expireTime + this.sessionDuration * 60000).toLocaleTimeString()}`,
-          title: ob.reservedById ? (ob.ordered ? 'Ordered' : 'reserved') : 'I am free',
+          title: ob.reservedById ? (ob.ordered ? 'Ordered' : 'reserved') : 'Available',
           start: new Date(expireTime),
           end: new Date(expireTime + this.sessionDuration * 60000),
           id: Math.random().toString(36).substr(2, 9),
@@ -395,9 +394,17 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     return result;
   }
   onUpdateEvent() {
-    this.savingEvent = true;
-    // if the event has no id, create one id now
+    this.saveAttempt = true;
+    this.saving = true;
 
+    // safety checks
+    if (this.activeEventForm.invalid) {
+      this.alertService.alert('warning-message', 'Oops', 'Please complete all required fields before saving.');
+      this.saving = false;
+      return;
+    }
+
+    // if the event has no id, create one id now
     if (!this.activeEventF.id.value) {
       this.activeEventForm.patchValue({id: Math.random().toString(36).substr(2, 9)}); // generate semi-random id
     }
@@ -414,6 +421,7 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     console.log(thisDayEvents);
     let error = false;
     if (thisDayEvents.length) {
+      // tslint:disable-next-line: prefer-for-of
       for (let i = 0; i < thisDayEvents.length; i++) {
         if ((this.toTimeStampFromStr(ev.start) < this.toTimeStampFromStr(thisDayEvents[i].end.toString())
           && (this.toTimeStampFromStr(ev.start) > this.toTimeStampFromStr(thisDayEvents[i].start.toString())))
@@ -427,6 +435,7 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     if (error) {
       // TODO: It will be better to do a Modal with warning;
       // alert('Choose other date!'); // TODO: Modal
+      this.saving = false;
       this.alertService.alert(
           'warning-message',
         'Choose other time!',
@@ -452,6 +461,9 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     // this.dataService.saveUserCalendarEvent(this.userId, ev.start, ev);
 
+    this.saving = false;
+    this.saveAttempt = false;
+
     // dismiss the modal
     this.editEventModal.hide();
 
@@ -462,20 +474,22 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
 
   eventNotification( ev: any ) {
     console.log(ev);
-    this.toastService.show( '<span data-notify="icon" class="tim-icons icon-bell-55"></span>',
-      `Your Calendar successfully updated.
-      Added free time from ${ev.start.toLocaleString()} till ${ev.end.toLocaleString()}`,
+    this.toastService.show( '<span data-notify="icon" class="tim-icons icon-calendar-60"></span>',
+      `Calendar updated.
+      ${this.getTitle(ev)} from ${ev.start.toLocaleString()} until ${ev.end.toLocaleString()}`,
       {
         timeOut: 4000,
         closeButton: true,
         enableHtml: true,
-        toastClass: 'alert alert-danger alert-with-icon',
+        toastClass: 'alert alert-success alert-with-icon',
         positionClass: 'toast-top-right'
       });
   }
 
-  ngOnDestroy() {
-    this.subscriptions.unsubscribe();
+  onGoToSession() {
+    this.eventDetailModal.hide();
+    console.log('Active event:', this.activeEvent);
+    this.router.navigate(['/my-sessions', this.activeEvent.sessionId]);
   }
 
   onChangeStartTimeHandler(event: any) {
@@ -506,5 +520,33 @@ export class CalendarComponent implements OnInit, AfterViewInit, OnDestroy {
     this.activeEventForm.patchValue({
       start: this.startTimes[0]
     });
+  }
+
+  showError(control: string, error: string) {
+    // console.log(`Form error. Control: ${control}. Error: ${error}`);
+    if (this.ErrorMessages[control][error]) {
+      return this.ErrorMessages[control][error];
+    }
+    return 'Invalid input';
+  }
+
+  getDisplayDate(date: Date) {
+    if (!date) {
+      return '';
+    }
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const day = days[date.getDay()];
+    return `${day} - ${date.toLocaleDateString()}`;
+  }
+
+  getDisplaytime(date: Date) {
+    if (!date) {
+      return '';
+    }
+    return date.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}); // exclude seconds
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 }

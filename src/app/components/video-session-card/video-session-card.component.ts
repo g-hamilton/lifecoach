@@ -2,6 +2,8 @@ import {Component, Inject, Input, OnChanges, OnDestroy, OnInit, PLATFORM_ID} fro
 import {DataService} from '../../services/data.service';
 import {AuthService} from '../../services/auth.service';
 import {Subscription} from 'rxjs';
+import { CustomCalendarEvent } from 'app/interfaces/custom.calendar.event.interface';
+import { CoachProfile } from 'app/interfaces/coach.profile.interface';
 
 @Component({
   selector: 'app-video-session-card',
@@ -9,14 +11,15 @@ import {Subscription} from 'rxjs';
   styleUrls: ['./video-session-card.component.scss']
 })
 export class VideoSessionCardComponent implements OnInit, OnDestroy {
-  @Input() sessionId: string;
-  @Input() sessionStartTime: number;
-  private subscriptions: Subscription = new Subscription();
-  public coachProfile: any;
 
-  isNew = false;
-  isGoingNow = false;
-  isSamePerson = false; // When user is coach for this session
+  @Input() session: CustomCalendarEvent;
+
+  private subscriptions: Subscription = new Subscription();
+  public coachProfile: CoachProfile;
+  public isNew = false;
+  public isGoingNow = false;
+  public isSamePerson = false; // When user is coach for this session
+  public loaded: boolean; // trigger view when all necessary data is loaded
 
   constructor(
     @Inject(PLATFORM_ID) public platformId: object,
@@ -25,15 +28,16 @@ export class VideoSessionCardComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    console.log(this.sessionId);
+    console.log('Session: ', this.session);
     this.subscriptions.add(
       this.authService.getAuthUser().subscribe(user => {
         console.log(user.uid);
-        this.dataService.getParticularOrderedSession(this.sessionId)
+        this.dataService.getParticularOrderedSession(this.session.sessionId)
           .get()
           .toPromise()
           .then(session => {
             if (session.exists) {
+              console.log('session data:', session.data());
               console.log(this.isSamePerson, user.uid, session.data().coachId);
               if ( session.data().coachId === user.uid ) {
                 this.isSamePerson = true;
@@ -52,6 +56,7 @@ export class VideoSessionCardComponent implements OnInit, OnDestroy {
                   .subscribe(coach => {
                     console.log(coach);
                     this.coachProfile = coach;
+                    this.loaded = true;
                   })
               );
             } else {

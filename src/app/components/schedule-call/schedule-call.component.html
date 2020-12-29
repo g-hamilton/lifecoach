@@ -1,0 +1,69 @@
+<!-- Invite modal -->
+<div class="modal-header">
+    <h4 class="modal-title pull-left"> Schedule a free discovery session </h4>
+    <button type="button" class="close pull-right" aria-label="Close" (click)="bsModalRef.hide()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+
+    <div *ngIf="browser">
+
+      <div class=" card card-white">
+        <div class=" card-body">
+          <div class="row">
+            <div class=" col">
+
+              <p *ngIf="!this.availableSlotsToday?.length" class=" small text-muted pl-2 mb-3">
+                <i class="fas fa-info-circle"></i> Select an available day to see all available times.
+              </p>
+
+              <!-- date picker ui -->
+              <!-- nb: don't use bs-datepicker-inline it is buggy! -->
+              <input type="text"
+              placeholder="Pick an available date & time"
+              class="form-control"
+              bsDatepicker
+              [datesDisabled]="disabledDates"
+              (bsValueChange)="onDayChange($event)">
+            </div>
+          </div>
+        </div>
+      </div>
+
+        <!-- Select for date -->
+        <!-- <select name="" id="" (change)="daySelect($event)">
+            <option value='NULL' [defaultSelected]="true">Please, choose available Date</option>
+            <option *ngFor="let day of this.dayToSelect" [ngValue]="day">
+                {{day | date: 'yyyy, MMM, dd'}}
+            </option>
+        </select>-->
+        <div class="sessions" *ngIf="this.availableSlotsToday?.length > 0">
+
+            <div *ngFor="let event of this.availableSlotsToday" class="session">
+                <span  class="sessionTitle">{{event.start*1000 | date: "HH:mm"}} - {{event.end*1000 | date: "HH:mm"}}</span>
+                <button
+                  class=" btn btn-fill btn-round btn-primary mr-2 mb-2 sessionReserveButton"
+                  type="button"
+                  (click)="reserveSession(event)"
+                >
+                <span
+                  *ngIf="reserving"
+                  class="spinner-border spinner-border-sm"
+                  role="status"
+                  ></span> {{ reserving ? 'Booking...' : 'Book'}} 
+                </button>
+
+            </div>
+        </div>
+
+    </div>
+
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" (click)="bsModalRef.hide()">
+        <i class="fas fa-times"></i>
+        Cancel
+    </button>
+</div>
+<!-- End of invite modal -->

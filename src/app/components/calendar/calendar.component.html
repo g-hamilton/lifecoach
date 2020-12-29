@@ -38,9 +38,6 @@
   </mwl-calendar-day-view>
 </div>
 
-<!-- TESTING -->
-<!-- <div id="meet"></div> -->
-
 <!-- event detail modal -->
 <div
   aria-hidden="true"
@@ -54,43 +51,61 @@
 >
   <div class="modal-dialog" style="transform: translate(0,0);">
     <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title pull-left"> {{ activeEvent?.title }} </h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="onEventDetailModalClose()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
       <div class="modal-body">
         <div class="card card-login card-white">
-          <div class=" card-header">
-            <div class=" row">
-              <div class=" col">
-                <div class=" pull-right">
-                  <i
-                    class="far fa-edit text-default mr-3"
-                    tooltip="Edit this event"
-                    (click)="onEditEvent()">
-                  </i>
-                  <i
-                    class="far fa-trash-alt text-danger mr-3"
-                    tooltip="Delete this event"
-                    (click)="onDetailDeleteEvent()">
-                  </i>
-                  <i
-                    class="fas fa-times text-default"
-                    tooltip="Close"
-                    (click)="onEventDetailModalClose()">
-                  </i>
-                </div>
-              </div>
-            </div>
-            <h1 class=" card-title">
-              {{ activeEvent?.title }}
-            </h1>
-          </div>
+          <!-- <div class=" card-header">
+
+          </div> -->
           <div class=" card-body">
 
-<!--            <p>-->
-<!--              <i class="far fa-calendar-alt"></i>-->
-<!--              {{ activeEvent?.start }}-->
-<!--            </p>-->
+            <!-- day -->
+            <div class=" row">
+              <div class=" col">
+                <label> Date: </label>
+                <p>
+                  <i class="fas fa-calendar text-muted"></i>
+                  {{ getDisplayDate(activeEvent?.start) }}
+                </p>
+              </div>
+            </div>
+
+            <!-- start & end -->
+            <div class=" row">
+              <div class=" col-md-6">
+                <label> From: </label>
+                <p>
+                  <i class="fas fa-clock text-muted"></i>
+                  {{ getDisplaytime(activeEvent?.start) }}
+                </p>
+              </div>
+              <div class=" col-md-6">
+                <label> Until: </label>
+                <p>
+                  <i class="fas fa-clock text-muted"></i>
+                  {{ getDisplaytime(activeEvent?.end) }}
+                </p>
+              </div>
+            </div>
 
           </div>
         </div>
+      </div>
+      <div class=" modal-footer">
+        <button class=" btn btn-danger btn-block mt-3" (click)="onDetailDeleteEvent()">
+          <i class="fas fa-trash mr-2"></i> Delete
+        </button>
+        <button class=" btn btn-default btn-block mt-3" (click)="onEditEvent()">
+          <i class="far fa-edit mr-2"></i> Edit
+        </button>
+        <button class=" btn btn-primary btn-block mt-3" (click)="onGoToSession()">
+          <i class="fas fa-arrow-right"></i> Go to Session
+        </button>
       </div>
     </div>
   </div>
@@ -110,72 +125,71 @@
 >
   <div class="modal-dialog" style="transform: translate(0,0);">
     <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title pull-left"> Manage this slot </h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="onEditEventModalClose()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
       <div class="modal-body">
         <div class="card card-login card-white">
 
           <div class=" card-body">
 
-            <!-- close cross -->
-            <div class=" row">
-              <div class=" col">
-                <div class=" pull-right">
-                  <i
-                    class="fas fa-times text-default"
-                    tooltip="Close"
-                    (click)="onEditEventModalClose()">
-                  </i>
-                </div>
-              </div>
-            </div>
-
             <form [formGroup]="activeEventForm">
 
-              <!-- title -->
-<!--              <div class=" form-group">-->
-<!--                <label for="title"> Title <span class="required-star">*</span></label>-->
-<!--                <input-->
-<!--                  id="title"-->
-<!--                  type="text"-->
-<!--                  disabled-->
-<!--                  class="form-control"-->
-<!--                  formControlName="title"-->
-<!--                  placeholder="eg. Check in"-->
-<!--                >-->
-<!--              </div>-->
+              <!--  -->
+              <div class=" row">
+                <div class=" col">
+                    <div class=" form-group">
+                        <label for="eventType"> Action </label>
+                        <select
+                        class="form-control"
+                        id="eventType"
+                        formControlName="type"
+                        (focus)="focus = true; focusTouched = true"
+                        (blur)="focus = false">
+                            <option [ngValue]="null"> Select... </option>
+                            <option *ngFor="let item of eventTypes" [value]="item.id">
+                            {{ item.name }}
+                            </option>
+                        </select>
+                        <div *ngIf="(((focusTouched && activeEventF.type.value != null) || saveAttempt) && activeEventF.type.errors)">
+                          <label
+                          *ngFor="let error of objKeys(activeEventF.type.errors)"
+                          class="error custom-error-label"
+                          >{{ showError('type', error) }}
+                          </label>
+                        </div>
+                    </div>
+                </div>
+              </div>
 
+              <!-- help tips -->
               <div>
-                <label for="starttime"> Start <span class="required-star">*</span></label>
+                <div class=" row">
+                  <div class=" col">
+                    <!-- if action is set me available for discovery -->
+                    <div *ngIf="activeEventF.type.value === 'discovery'">
+                      <p class=" small text-muted pl-2 mb-3">
+                        <i class="fas fa-info-circle"></i> This action creates one or more 'Available' slots, which Lifecoach users can 
+                        use to schedule free discovery video sessions with you. Think of each 'Available' slot as a bookable calendar slot  
+                        which can be used by a single person to schedule a video session with you. 
+                        Set a short start and end time to create a single slot or set a longer time period to automatically 
+                        create multiple available slots. Visit 'Account > Session Settings' to manage your default session times. 
+                        You can easily delete slots at any time before they are booked.
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div class=" row">
-<!--                <div class=" col-md-6">-->
-<!--                  &lt;!&ndash; start date &ndash;&gt;-->
-<!--                  <div class=" form-group">-->
-<!--                    &lt;!&ndash; https://valor-software.com/ngx-bootstrap/#/datepicker &ndash;&gt;-->
-<!--                    <input-->
-<!--                      bsDatepicker-->
-<!--                      class="form-control"-->
-<!--                      data-datepicker-color="primary"-->
-<!--                      [bsConfig]="{ isAnimated: true, containerClass: 'theme-green' }"-->
-<!--                      formControlName="start"-->
-<!--                      id="startdate"-->
-<!--                      type="text"-->
-<!--                    />-->
-<!--                  </div>-->
-<!--                </div>-->
-
+                <!-- start time -->
                 <div class=" col-md-6">
-                  <!-- start time -->
                   <div class=" form-group">
-                    <!-- https://valor-software.com/ngx-bootstrap/#/timepicker -->
-<!--                    <timepicker-->
-<!--                      formControlName="start"-->
-<!--                      [showSpinners]="false"-->
-<!--                      [showMeridian]="false"-->
-<!--                      type="number"-->
-<!--                      id="starttime">-->
-<!--                    </timepicker>-->
-                    <select name="starttime" formControlName="start" id="starttime" (change)="onChangeStartTimeHandler($event)">
+                    <label for="starttime"> Start </label>
+                    <select class="form-control" name="starttime" formControlName="start" id="starttime" (change)="onChangeStartTimeHandler($event)">
                       <option *ngFor="let time of startTimes"
                               [value]="time"
                               >
@@ -184,53 +198,22 @@
                     </select>
                   </div>
                 </div>
-              </div>
-
-              <div>
-                <label for="endtime"> End </label>
-              </div>
-
-              <div class=" row">
-<!--                <div class=" col-md-6">-->
-<!--                  &lt;!&ndash; start date &ndash;&gt;-->
-<!--                  <div class=" form-group">-->
-<!--                    &lt;!&ndash; https://valor-software.com/ngx-bootstrap/#/datepicker &ndash;&gt;-->
-<!--                    <input-->
-<!--                      bsDatepicker-->
-<!--                      class="form-control"-->
-<!--                      data-datepicker-color="primary"-->
-<!--                      [bsConfig]="{ isAnimated: true, containerClass: 'theme-green' }"-->
-<!--                      formControlName="end"-->
-<!--                      id="enddate"-->
-<!--                      type="text"-->
-<!--                    />-->
-<!--                  </div>-->
-<!--                </div>-->
-
+                <!-- end time -->
                 <div class=" col-md-6">
-                  <!-- start time -->
-<!--                  <div class=" form-group">-->
-<!--                    &lt;!&ndash; https://valor-software.com/ngx-bootstrap/#/timepicker &ndash;&gt;-->
-<!--                    <timepicker-->
-<!--                      formControlName="end"-->
-<!--                      [showSpinners]="false"-->
-<!--                      [showMeridian]="false"-->
-<!--                      type="number"-->
-<!--                      id="endtime">-->
-<!--                    </timepicker>-->
-<!--                  </div>-->
-                  <select name="end" formControlName="end"  id="endtime">
-                    <option  *ngFor=" let time of endTimes; let i = index"
-                             [defaultSelected]="time==endTimes[0]"
-                             [ngValue]="time"
-                            >
-                      {{time | date:'HH:mm'}}
-                    </option>
-                  </select>
+                  <div class=" form-group">
+                    <label for="endtime"> End </label>
+                    <select class="form-control" name="end" formControlName="end"  id="endtime">
+                      <option  *ngFor=" let time of endTimes; let i = index"
+                               [defaultSelected]="time==endTimes[0]"
+                               [ngValue]="time"
+                              >
+                        {{time | date:'HH:mm'}}
+                      </option>
+                    </select>
+                  </div>
                 </div>
-
               </div>
-
+              <!-- end row -->
 
               <!-- description -->
 <!--              <div class="form-group">-->
@@ -258,7 +241,14 @@
 <!--            </button>-->
 
             <button class=" btn btn-primary btn-block mt-3" (click)="onUpdateEvent()">
-              Save Event
+              <span *ngIf="!saving">
+                <i class="fas fa-calendar"></i>
+              </span>
+              <span
+              *ngIf="saving"
+              class="spinner-border spinner-border-sm"
+              role="status"
+              ></span> {{ saving ? 'Saving...' : 'Save'}}
             </button>
 
           </div>

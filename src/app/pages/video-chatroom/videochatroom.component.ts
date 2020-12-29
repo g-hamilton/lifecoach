@@ -167,7 +167,7 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   checkRoom(roomName: string) {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       this.dataService.getParticularOrderedSession(roomName)
         .get().toPromise()
         .then(doc => {
@@ -269,7 +269,7 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
                 break;
               case 'NOT_TIME_YET':
                 this.alertService
-                  .alert('auto-close', 'Your Session is not ready yet', `Your Session will start at ${startOfEvent.toLocaleTimeString()}. You will be able to connect a few minutes before the Session starts`)
+                  .alert('auto-close', 'Your Session is not ready yet', `Your Session will start at ${startOfEvent.toLocaleTimeString()}. You will be able to connect a few minutes before the Session starts`);
                 break;
               default:
                 console.log('unexpected error', error);
@@ -359,7 +359,7 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
               break;
             case 'NOT_TIME_YET':
               this.alertService
-                .alert('auto-close', 'Your Session is not ready yet', `Your Session will start at ${startOfEvent.toLocaleTimeString()}. You will be able to connect a few minutes before the Session starts`)
+                .alert('auto-close', 'Your Session is not ready yet', `Your Session will start at ${startOfEvent.toLocaleTimeString()}. You will be able to connect a few minutes before the Session starts`);
               break;
             default:
               throw new Error(e);

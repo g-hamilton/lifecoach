@@ -255,13 +255,12 @@
                             </div>
                             <div class=" col-md-4 text-center pt-5">
                                 <h5 class=" card-title"> Or schedule a discovery call with {{ userProfile.firstName }} </h5>
-                                <p>Coming Soon!</p>
                                 <!-- scheduler button. User must be logged in to schedule a call. -->
                                 <button
                                   class=" btn btn-fill btn-round btn-primary mr-2 mb-2"
                                   id="schedule-button"
                                   type="button"
-                                  (click)="logSessions() ; this.userId ? schedulerModal.show() : registerModal.show()"
+                                  (click)="this.userId ? openScheduleCallModal() : registerModal.show()"
                                   [disabled]="this.userId === this.coachId"
                                 ><i class="fas fa-phone">&nbsp;</i>
                                     <span>Schedule a Call</span>
@@ -340,47 +339,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- scheduler modal -->
-            <div 
-            aria-hidden="true"
-            aria-labelledby="schedulerModalLabel"
-            bsModal
-            class="modal fade"
-            #schedulerModal="bs-modal"
-            id="schedulerModal"
-            role="dialog"
-            tabindex="-1"
-            >
-                <div class="modalContainer" >
-                    <div class="modalContent">
-                        <button type="button" class="closeButton" (click)="schedulerModal.hide()"><i class="fas fa-times"></i></button>
-                        <span>Check free dates</span><br>
-                        <br/>
-                        <!-- Select for date -->
-                        <select name="" id="" (change)="daySelect($event)">
-                            <option value='NULL' [defaultSelected]="true">Please, choose available Date</option>
-                            <option *ngFor="let day of this.dayToSelect" [ngValue]="day">
-                                {{day | date: 'yyyy, MMM, dd'}}
-                            </option>
-                        </select>
-                        <div class="sessions">
-
-                            <div *ngFor="let event of this.todayEvents" class="session">
-                                <span  class="sessionTitle">{{event.start*1000 | date: "HH:mm"}} - {{event.end*1000 | date: "HH:mm"}}</span>
-                                <button
-                                  class=" btn btn-fill btn-round btn-primary mr-2 mb-2 sessionReserveButton"
-                                  type="button"
-                                  (click)="reserveSession($event)"
-                                  [value]="event.id"
-                                >Reserve </button>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- end scheduler modal -->
 
             <!-- Login modal -->
             <div

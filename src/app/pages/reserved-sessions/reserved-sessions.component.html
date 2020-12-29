@@ -6,7 +6,7 @@
       <div *ngFor="let event of reservedEvents; index as i" class="col-md-4">
         <div class="event">
           <h3>You have time to buy it until {{ event.timeOfReserve + (60000 * 15) | date: 'mediumTime'}}</h3>
-          <button type="button" (click)="buyEvent(event)" class="btn btn-fill btn-round btn-primary mr-2 mb-2">Buy
+          <button type="button" class="btn btn-fill btn-round btn-primary mr-2 mb-2">Buy
             event
           </button>
 

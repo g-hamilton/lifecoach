@@ -641,116 +641,29 @@ export class DataService {
       });
   }
 
-  // Function responsibilities :
-  async orderSession(coachId: string, calendarId: string, time: number, uid: string) {
-    console.group('ORDERING SESSION');
-    // tslint:disable-next-line: one-variable-per-declaration
-    let newDocId: string | undefined, newDocRef: any, sessionObject: any;
-    return this.db.collection(`temporary-reserved-events`,
-      ref => ref.where('coachId', '==', coachId)
-        .where('calendarId', '==', calendarId))
-      .get().toPromise()
-      .then(qSnapshot => {
-        console.log('1', qSnapshot);
-        if (qSnapshot) {
-          qSnapshot.docs[0].ref.delete()
-            .then(() => console.log('2'))
-            .catch(e => alert('Error 2'));
-        }
-      }).catch(e => console.log('error 1'))
-      .then(() => {
-          console.log('3');
-          this.db.collection(`ordered-sessions/all/sessions`).add({
-            // sessionId: `${coachId}_${calendarId}`,
-            coachId,
-            timeOfReserve: Date.now(),
-            participants: [coachId, uid],
-            testField: 'testField'
-          }).then(docRef => {
-            console.log('4', docRef.id);
-            newDocId = docRef.id;
-            newDocRef = docRef;
-          }).catch(e => console.log('4'))
-            .then( () => {
-              this.db.collection(`users/${coachId}/calendar`,
-                ref => ref.where('id', '==', calendarId))
-                .get().toPromise()
-                .then(querySnapshot => {
-                  console.log('5', querySnapshot);
-                  if (!querySnapshot.empty) {
-                    // Changing event in coach calendar
-                    const queryDocumentSnapshot = querySnapshot.docs[0];
-                    sessionObject = queryDocumentSnapshot.data();
-                    return queryDocumentSnapshot.ref
-                      .update({
-                        ordered: true,
-                        orderedById: uid,
-                        cssClass: 'ordered',
-                        sessionId: newDocRef.id,
-                        sessionRef: newDocRef
-                      }).catch(e => console.log('error on update'));
-                  }
-                })
-                .then(() => {
-                  this.db.collection(`users/${uid}/reserved-events`,
-                    ref => ref.where('coachId', '==', coachId)
-                      .where('calendarId', '==', calendarId))
-                    .get().toPromise().then(querySnapshot => {
-                    console.log('5', querySnapshot);
-                    if (!querySnapshot.empty) {
-                      // Changing event in coach calendar
-                      const queryDocumentSnapshot = querySnapshot.docs[0];
-                      console.log(queryDocumentSnapshot);
-                      return queryDocumentSnapshot.ref.delete()
-                        .then(() => console.log('Deleted from user`s reserved-events'))
-                        .catch(e => console.log('can`t delete from user`s reserved-events'));
-                    }
-                  });
-                })
-                .then(() => {
-                  console.log('6');
-                  this.db.collection(`users/${uid}/ordered-sessions`).add({
-                    start: sessionObject.start,
-                    end: sessionObject.end,
-                    sessionId: newDocRef.id,
-                    sessionRef: newDocRef,
-                  }).catch(e => console.log('error 6'));
-                })
-                .then(() => {
-                  newDocRef.update({
-                    start: sessionObject.start,
-                    end: sessionObject.end,
-                  });
-                })
-                .catch(err => console.log(err, 'Не могу создать'));
-            });
-      }).catch(e => console.log('v konce'));
-
-
-  }
-
-
-  getUserNotReservedEvents(uid: string, date?: Date) {
-    console.log('Data Service works');
+  getUserAvailableDiscoveryEvents(uid: string, date?: Date) {
+    // console.log('Data Service works');
 
     if (date) {
-      console.log(date);
+      console.log('for date: ', date);
       const startTime = new Date(date.setHours(0, 0, 0, 0));
       const endTime = new Date(date.setHours(24));
       console.log('Возможно, undefined', startTime, endTime);
       return this.db.collection(`users/${uid}/calendar`, ref => ref
-        .where('reserved', '==', false)
+        .where('type', '==', 'discovery')
+        .where('ordered', '==', false)
         .where('start', '>=', startTime)
         .where('start', '<', endTime)
       ).valueChanges() as Observable<CustomCalendarEvent[]>;
     } else {
       return this.db.collection(`users/${uid}/calendar`, ref => ref
-        .where('reserved', '==', false))
+        .where('type', '==', 'discovery')
+        .where('ordered', '==', false))
         .valueChanges() as Observable<CustomCalendarEvent[]>;
     }
   }
 
-  // TODO:
+  // Not currently in use as users can oerder events without reserving first
   getUserReservedEvents(uid: string) {
     return this.db.collection(`users/${uid}/reserved-events`)
       .valueChanges() as Observable<CustomCalendarEvent[]>;
@@ -947,13 +860,12 @@ export class DataService {
 
   getUserOrderedSessions(uid: string) {
     return this.db.collection(`users/${uid}/ordered-sessions`)
-      .valueChanges() as Observable<any>;
+      .valueChanges() as Observable<CustomCalendarEvent[]>;
   }
 
-  getUserIsCoachSession(uid: string) {
-    // console.log(uid);
+  getUserIsCoachSessions(uid: string) {
     return this.db.collection(`users/${uid}/calendar`, ref => ref.where('ordered', '==', true))
-      .valueChanges() as Observable<any>;
+      .valueChanges() as Observable<CustomCalendarEvent[]>;
   }
 
   getParticularOrderedSession(roomName: string) {

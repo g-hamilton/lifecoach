@@ -60,15 +60,6 @@ export class ReservedSessionsComponent implements OnInit, OnDestroy {
 
   }
 
-  buyEvent(event: any) {
-    console.log('You tried to buy event with id: ', new Date(event.timeOfReserve));
-    console.log(event.timeOfReserve);
-    this.dataService.orderSession(event.coachId, event.calendarId, event.timeOfReserve, this.uid)
-      .then(r => {
-      })
-      .catch(e => console.log(e));
-  }
-
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
   }
