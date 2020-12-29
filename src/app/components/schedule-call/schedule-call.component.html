@@ -40,18 +40,19 @@
         </select>-->
         <div class="sessions" *ngIf="this.availableSlotsToday?.length > 0">
 
-            <div *ngFor="let event of this.availableSlotsToday" class="session">
+            <div *ngFor="let event of this.availableSlotsToday ; let i = index" class="session">
                 <span  class="sessionTitle">{{event.start*1000 | date: "HH:mm"}} - {{event.end*1000 | date: "HH:mm"}}</span>
                 <button
                   class=" btn btn-fill btn-round btn-primary mr-2 mb-2 sessionReserveButton"
                   type="button"
-                  (click)="reserveSession(event)"
+                  (click)="reserveSession(event, i)"
+                  [disabled]="reserving"
                 >
                 <span
-                  *ngIf="reserving"
+                  *ngIf="reserving && reservingButtonIndex === i"
                   class="spinner-border spinner-border-sm"
                   role="status"
-                  ></span> {{ reserving ? 'Booking...' : 'Book'}} 
+                  ></span> {{ (reserving && reservingButtonIndex === i) ? 'Booking...' : 'Book'}}
                 </button>
 
             </div>
