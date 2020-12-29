@@ -2445,12 +2445,11 @@ exports.orderCoachSession = functions
     const bookerMailEvent = {
       name: 'booked_coach_session',
       properties: {
-        timeOfReserve: dateNow,
         type: originalEvent.type,
         start: originalEvent.start,
         end: originalEvent.end,
-        coachName: `${coachProfile ? coachProfile.firstName : 'Lifecoach'} ${coachProfile ? coachProfile.lastName : 'Coach'}`,
-        coachPhoto: `${coachProfile ? coachProfile.photo : 'https://eu.ui-avatars.com/api/?name=lifecoach+coach&background=00f2c3&color=fff&rounded=true&bold=true'}`
+        coach_name: `${coachProfile ? coachProfile.firstName : 'Lifecoach'} ${coachProfile ? coachProfile.lastName : 'Coach'}`,
+        coach_photo: `${coachProfile ? coachProfile.photo : 'https://eu.ui-avatars.com/api/?name=lifecoach+coach&background=00f2c3&color=fff&rounded=true&bold=true'}`
       }
     }
     const mailBookerPromise = logMailchimpEvent(uid, bookerMailEvent); // log event
@@ -2460,12 +2459,11 @@ exports.orderCoachSession = functions
     const coachMailEvent = {
       name: 'session_booked',
       properties: {
-        timeOfReserve: dateNow,
         type: originalEvent.type,
         start: originalEvent.start,
         end: originalEvent.end,
-        userName,
-        userPhoto
+        user_name: userName,
+        user_photo: userPhoto
       }
     }
     const mailCoachPromise = logMailchimpEvent(coachId, coachMailEvent); // log event
