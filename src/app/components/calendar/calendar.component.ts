@@ -324,6 +324,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
     if (this.activeEvent.type === 'discovery' && this.activeEvent.ordered) {
 
       // probably should not let the user cancel if time is within 5 minutes of start or the session has already started.
+      // What should we do if event is in the past? Allow delete?
       // Todo: pop a modal advising user to join the session and tell the other person they have to cancel on the call?
       // return;
 

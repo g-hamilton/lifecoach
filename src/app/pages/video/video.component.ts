@@ -11,12 +11,12 @@ import {filter, first, flatMap, map} from 'rxjs/operators';
 })
 export class VideoComponent implements OnInit, OnDestroy {
 
-  coachingSessions: Array<any> = [];
-  orderedSessions: Array<any> = [];
-  user: any;
-  onLoad = true;
-  uid: string = undefined;
-  userType: string = undefined;
+  public coachingSessions: Array<any> = [];
+  public orderedSessions: Array<any> = [];
+  private user: any;
+  public onLoad = true;
+  public uid: string;
+  public userType: string;
 
   private subscriptions: Subscription = new Subscription();
 
