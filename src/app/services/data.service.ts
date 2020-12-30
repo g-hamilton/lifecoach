@@ -674,7 +674,7 @@ export class DataService {
       .doc(date.getTime().toString())
       .delete()
       .catch(err => console.error(err));
-  }
+  } 
 
   // ================================================================================
   // =====                           COACH PROGRAMS                            ======

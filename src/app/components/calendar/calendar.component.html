@@ -272,45 +272,45 @@
 >
   <div class="modal-dialog" style="transform: translate(0,0);">
     <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title pull-left"> Cancel this session? </h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="onCancelEventModalClose()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
       <div class="modal-body">
         <div class="card card-login card-white">
-          <div class=" card-header">
-            <div class=" row">
-              <div class=" col">
-                <div class=" pull-right">
-                  <i
-                    class="fas fa-times text-default"
-                    tooltip="Close"
-                    (click)="onCancelEventModalClose()">
-                  </i>
-                </div>
-              </div>
-            </div>
-            <h1 class=" card-title">
-              Cancel Event
-            </h1>
-          </div>
+          <!-- <div class=" card-header">
+            
+          </div> -->
           <div class=" card-body">
 
-            <p>
-              Send an update to the other person?
-            </p>
-
-            <div class=" row">
-              <div class=" col-md-6">
-                <button class=" btn btn-default btn-block mt-3" (click)="onDeleteEvent(false)">
-                  No
-                </button>
-              </div>
-              <div class=" col-md-6">
-                <button class=" btn btn-primary btn-block mt-3" (click)="onDeleteEvent(true)">
-                  Yes
-                </button>
-              </div>
+            <!-- ui for discovery sessions -->
+            <div *ngIf="activeEvent?.type === 'discovery'">
+              <p>
+                <i class="fas fa-question-circle text-muted"></i> Are you sure you want to cancel this discovery session?
+              </p>
+              <p>
+                A cancellation email will be sent to {{ activeEvent.orderedByName }}, advising them to 
+                find another available slot in your calendar and re-book the session but it is likely 
+                they will not re-book with you.
+              </p>
             </div>
 
           </div>
         </div>
+      </div>
+      <div class=" modal-footer">
+        <button class=" btn btn-danger btn-block mt-3" (click)="onDeleteEvent()">
+          <span
+            *ngIf="cancelling"
+            class="spinner-border spinner-border-sm"
+            role="status"
+          ></span> {{ cancelling ? 'Cancelling...' : 'Yes - Cancel Session'}}
+        </button>
+        <button class=" btn btn-default btn-block mt-3" (click)="onCancelEventModalClose()">
+          No - Go Back
+        </button>
       </div>
     </div>
   </div>
