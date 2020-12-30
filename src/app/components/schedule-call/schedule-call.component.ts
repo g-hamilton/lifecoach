@@ -120,7 +120,6 @@ export class ScheduleCallComponent implements OnInit {
     /*
       Required workaround to reverse datesEnabled. Pass in an array of dates to enable and this method
       will populate an array of dates to disable.
-      Disables every date between a defined start and end point that is not in the enabled array.
     */
     const millisecondPerDay = 24 * 60 * 60 * 1000;
     const now = new Date();
@@ -128,17 +127,20 @@ export class ScheduleCallComponent implements OnInit {
     const endDate: Date = new Date(now.setFullYear(now.getFullYear() + 2)); // change as per need
     console.log('get disabled dates start:', startDate);
     console.log('get disabled dates end:', endDate);
+
     this.disabledDates = [];
-    do {
-      let found = false;
-      // tslint:disable-next-line: prefer-for-of
-      for (let i = 0; i < enabledDates.length; i++) {
-        const excludeDate: Date = enabledDates[i];
-        if (this.isSameDay(excludeDate, startDate)) {
-          found = true;
+    do { // check every date in the enabled array between the start and end point
+      let disable = true; // disable by default
+
+      for (const day of enabledDates) {
+
+        if (this.isSameDay(day, startDate)) { // is the day we're iterating found in the enabled array?
+          // console.log('enabled day found:', day);
+          disable = false; // enable the day!
         }
+
       }
-      if (!found) {
+      if (disable) {
         this.disabledDates.push(startDate);
       }
       startDate = new Date((startDate.getTime() + millisecondPerDay));
