@@ -269,7 +269,7 @@ async function logMailchimpEvent(uid: string, mailchimpEvent: any) {
         console.log(`Successfully logged Mailchimp event ${mailchimpEvent.name} for ${account.accountEmail}`);
       })
       .catch((err: any) => {
-        console.log(`Logging Mailchimp event ${mailchimpEvent.name} issue: ${err}`);
+        console.error(err);
       });
     }
   }
