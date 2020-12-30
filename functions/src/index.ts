@@ -2395,12 +2395,12 @@ exports.orderCoachSession = functions
       .get() // lookup the original event on the coach calendar
 
     if (coachEventSnap.empty) { // original event does not exist
-      return; // abort batch commit
+      return {error: 'Cannot find original calendar event'}; // abort
     }
 
     const queryDocSnap = coachEventSnap.docs[0]; // capture the query document snapshot
     const coachEventRef = queryDocSnap.ref; // capture the reference to the document
-    const originalEvent = queryDocSnap.data(); // capture the original event object
+    // const originalEvent = queryDocSnap.data(); // capture the original event object
 
     batch.set(coachEventRef, { // update the document by merging new data into the event object
       ordered: true,
@@ -2414,8 +2414,8 @@ exports.orderCoachSession = functions
     // create the ordered session for the person booking using the session id as the document id
     const orderedSessionRef = db.collection(`users/${uid}/ordered-sessions`).doc(sessionId);
     batch.set(orderedSessionRef, {
-      start: originalEvent.start,
-      end: originalEvent.end,
+      start: event.start,
+      end: event.end,
       sessionId,
       type: event.type
     });
@@ -2427,25 +2427,34 @@ exports.orderCoachSession = functions
       timeOfReserve: dateNow,
       participants: [coachId, uid],
       originalEvent: event,
-      start: originalEvent.start,
-      end: originalEvent.end,
+      start: event.start,
+      end: event.end,
       testField: 'testField'
     }, { merge: true });
+
+    // record the crm event in the coach's history
+    const coachCrmRef = db.collection(`users/${coachId}/people/${uid}/history`).doc((dateNow / 1000).toString());
+    batch.set(coachCrmRef, { action: 'booked_session', event });
 
     await batch.commit(); // execute batch ops. Any error should trigger catch.
 
     // send emails
 
     // trigger a mailchimp event to send an email to the person booking
+    const coachProfileSnap = await db.collection(`public-coaches`)
+    .doc(coachId)
+    .get();  // lookup coach data for the email
+    const coachProfile = coachProfileSnap.data();
+
     const bookerMailEvent = {
       name: 'booked_coach_session',
       properties: {
-        timeOfReserve: dateNow,
-        type: originalEvent.type,
-        start: originalEvent.start,
-        end: originalEvent.end,
-        coachName: '', // todo!
-        coachPhoto: '', // todo!
+        type: event.type,
+        start: event.start,
+        end: event.end,
+        coach_name: `${coachProfile ? coachProfile.firstName : 'Lifecoach'} ${coachProfile ? coachProfile.lastName : 'Coach'}`,
+        coach_photo: `${coachProfile ? coachProfile.photo : 'https://eu.ui-avatars.com/api/?name=lifecoach+coach&background=00f2c3&color=fff&rounded=true&bold=true'}`,
+        landing_url: `https://lifecoach.io/my-sessions/${sessionId}`
       }
     }
     const mailBookerPromise = logMailchimpEvent(uid, bookerMailEvent); // log event
@@ -2455,16 +2464,171 @@ exports.orderCoachSession = functions
     const coachMailEvent = {
       name: 'session_booked',
       properties: {
-        timeOfReserve: dateNow,
-        type: originalEvent.type,
-        start: originalEvent.start,
-        end: originalEvent.end,
-        userName,
-        userPhoto
+        type: event.type,
+        start: event.start,
+        end: event.end,
+        user_name: userName,
+        user_photo: userPhoto,
+        landing_url: `https://lifecoach.io/my-sessions/${sessionId}`
       }
     }
     const mailCoachPromise = logMailchimpEvent(coachId, coachMailEvent); // log event
     promises.push(mailCoachPromise); // add the promise to the promises array
+
+    await Promise.all(promises); // execute all promises
+
+    return {success: true};
+
+  } catch (err) {
+    console.error(err);
+    return {error: err}
+  }
+});
+
+/*
+  Allows coaches or regular users to cancel sessions.
+*/
+
+exports.cancelCoachSession = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.https
+.onCall( async (data, context) => {
+
+  // Reject any unathorised user immediately.
+  if (!context.auth) {
+    return {error: 'Unauthorised!'}
+  }
+
+  const coachId = data.coachId; // the user id of the coach
+  const event = data.event; // is a type CustomCalendarEvent
+  const cancelledById = data.cancelledById; // who cancelled the session?
+  const dateNow = Date.now();
+
+  const promises = []; // an array of promises to execute
+
+  const batch = db.batch(); // prepare to execute multiple ops atomically
+
+  try {
+    
+    console.group('CANCELLING COACH SESSION');
+
+    // update the event on the coach calendar
+    const coachEventSnap = await db.collection(`users/${coachId}/calendar`)
+      .where('id', '==', event.id)
+      .get() // lookup the original event on the coach calendar
+
+    if (coachEventSnap.empty) { // original event does not exist
+      return {error: 'Cannot find original calendar event'}; // abort
+    }
+
+    const queryDocSnap = coachEventSnap.docs[0]; // capture the query document snapshot
+    const coachEventRef = queryDocSnap.ref; // capture the reference to the document
+    // const originalEvent = queryDocSnap.data(); // capture the original event object
+
+    batch.set(coachEventRef, { // update the document by merging new data into the event object
+      cancelled: true,
+      cancelledById,
+      cancelledTime: (dateNow / 1000)
+    }, { merge: true });
+
+    // update the ordered session for the regular user
+    const orderedSessionRef = db.collection(`users/${event.orderedById}/ordered-sessions`).doc(event.sessionId);
+    batch.set(orderedSessionRef, {
+      cancelled: true,
+      cancelledById,
+      cancelledTime: (dateNow / 1000)
+    }, { merge: true });
+
+    // update the session in the all sessions node
+    const allSessionsRef = db.collection(`ordered-sessions/all/sessions`).doc(event.sessionId);
+    batch.set(allSessionsRef, {
+      cancelled: true,
+      cancelledById,
+      cancelledTime: (dateNow / 1000)
+    }, { merge: true });
+
+    // record the crm event in the coach's history
+    const coachCrmRef = db.collection(`users/${coachId}/people/${event.orderedById}/history`).doc((dateNow / 1000).toString());
+    batch.set(coachCrmRef, { action: 'cancelled_session', event });
+
+    await batch.commit(); // execute batch ops. Any error should trigger catch.
+
+    // send emails
+
+    // if the coach cancelled the session
+    if (cancelledById === coachId) {
+      // trigger a mailchimp event to send to the regular user
+      const coachProfileSnap = await db.collection(`public-coaches`)
+      .doc(coachId)
+      .get();  // lookup coach data for the email
+      const coachProfile = coachProfileSnap.data();
+
+      const bookerMailEvent = {
+        name: 'coach_cancelled_your_session',
+        properties: {
+          type: event.type,
+          start: event.start,
+          end: event.end,
+          coach_name: `${coachProfile ? coachProfile.firstName : 'Lifecoach'} ${coachProfile ? coachProfile.lastName : 'Coach'}`,
+          coach_photo: `${coachProfile ? coachProfile.photo : 'https://eu.ui-avatars.com/api/?name=lifecoach+coach&background=00f2c3&color=fff&rounded=true&bold=true'}`,
+          landing_url: `https://lifecoach.io/my-sessions/${event.sessionId}`
+        }
+      }
+      const mailBookerPromise = logMailchimpEvent(event.orderedById, bookerMailEvent); // log event
+      promises.push(mailBookerPromise); // add the promise to the promises array
+
+      // trigger a mailchimp event to send an email to the coach
+      const coachMailEvent = {
+        name: 'coach_cancelled_own_session',
+        properties: {
+          type: event.type,
+          start: event.start,
+          end: event.end,
+          user_name: event.orderedByName,
+          user_photo: event.orderedByPhoto,
+          landing_url: `https://lifecoach.io/my-sessions/${event.sessionId}`
+        }
+      }
+      const mailCoachPromise = logMailchimpEvent(coachId, coachMailEvent); // log event
+      promises.push(mailCoachPromise); // add the promise to the promises array
+
+    } else if (cancelledById !== coachId) { // if the regular user cancelled the session
+
+      // trigger a mailchimp event to send to the regular user
+      const coachProfileSnap = await db.collection(`public-coaches`)
+      .doc(coachId)
+      .get();  // lookup coach data for the email
+      const coachProfile = coachProfileSnap.data();
+
+      const bookerMailEvent = {
+        name: 'you_cancelled_coach_session',
+        properties: {
+          type: event.type,
+          start: event.start,
+          end: event.end,
+          coach_name: `${coachProfile ? coachProfile.firstName : 'Lifecoach'} ${coachProfile ? coachProfile.lastName : 'Coach'}`,
+          coach_photo: `${coachProfile ? coachProfile.photo : 'https://eu.ui-avatars.com/api/?name=lifecoach+coach&background=00f2c3&color=fff&rounded=true&bold=true'}`,
+          landing_url: `https://lifecoach.io/my-sessions/${event.sessionId}`
+        }
+      }
+      const mailBookerPromise = logMailchimpEvent(event.orderedById, bookerMailEvent); // log event
+      promises.push(mailBookerPromise); // add the promise to the promises array
+
+      // trigger a mailchimp event to send an email to the coach
+      const coachMailEvent = {
+        name: 'user_cancelled_your_session',
+        properties: {
+          type: event.type,
+          start: event.start,
+          end: event.end,
+          user_name: event.orderedByName,
+          user_photo: event.orderedByPhoto,
+          landing_url: `https://lifecoach.io/my-sessions/${event.sessionId}`
+        }
+      }
+      const mailCoachPromise = logMailchimpEvent(coachId, coachMailEvent); // log event
+      promises.push(mailCoachPromise); // add the promise to the promises array
+    }
 
     await Promise.all(promises); // execute all promises
 

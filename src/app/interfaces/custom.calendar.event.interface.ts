@@ -11,4 +11,7 @@ export interface CustomCalendarEvent extends CalendarEvent {
     orderedByName?: string;
     orderedByPhoto?: string;
     sessionId?: string;
+    cancelled?: boolean;
+    cancelledTime?: number;
+    cancelledById?: string;
 }

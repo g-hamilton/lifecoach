@@ -37,6 +37,7 @@ export class ScheduleCallComponent implements OnInit {
   public discoveryAvailableEvents: CustomCalendarEvent[] | [];
   public availableSlotsToday: Array<any>;
   public reserving: boolean;
+  public reservingButtonIndex: number;
 
   // ngx datePicker
   public bsInlineValue = new Date();
@@ -160,10 +161,11 @@ export class ScheduleCallComponent implements OnInit {
     return (a.getUTCFullYear() === b.getUTCFullYear() && a.getUTCMonth() === b.getUTCMonth() && a.getUTCDate() === b.getUTCDate());
   }
 
-  async reserveSession(ev: CustomCalendarEvent) {
+  async reserveSession(ev: CustomCalendarEvent, index: number) {
     // console.log('calendar event', ev);
 
     this.reserving = true;
+    this.reservingButtonIndex = index;
 
     // skip reserving for limited time and go straight to booking (no payment required)
     const request: OrderCoachSessionRequest = {
@@ -177,11 +179,13 @@ export class ScheduleCallComponent implements OnInit {
     const res = await this.cloudFunctionsService.orderCoachSession(request) as any;
     if (res.error) { // error
       this.reserving = false;
+      this.reservingButtonIndex = null;
       this.bsModalRef.hide();
       this.alertService.alert('warning-message', 'Oops', `Error: ${res.error}. Please contact hello@lifecoach.io for support.`);
     }
     // success
     this.reserving = false;
+    this.reservingButtonIndex = null;
     console.log(`Session with ID ${ev.id} booked between coach ${this.coachId} and user ${this.userId}`);
     this.bsModalRef.hide();
     this.showReservedAlert();

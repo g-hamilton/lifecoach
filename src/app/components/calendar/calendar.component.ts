@@ -10,6 +10,8 @@ import {take} from 'rxjs/operators';
 import {ToastrService} from 'ngx-toastr';
 import {AlertService} from '../../services/alert.service';
 import { Router } from '@angular/router';
+import { CloudFunctionsService } from 'app/services/cloud-functions.service';
+import { CancelCoachSessionRequest } from 'app/interfaces/cancel.coach.session.request.interface';
 
 @Component({
   selector: 'app-calendar',
@@ -33,6 +35,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
   public activeEventForm: FormGroup;
   public saveAttempt: boolean;
   public saving: boolean;
+  public cancelling: boolean;
 
   public focus: boolean;
   public focusTouched: boolean;
@@ -61,7 +64,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
     private dataService: DataService,
     private toastService: ToastrService,
     public alertService: AlertService,
-    private router: Router
+    private router: Router,
+    private cloudFunctionsService: CloudFunctionsService
   ) {
   }
 
@@ -309,16 +313,23 @@ export class CalendarComponent implements OnInit, OnDestroy {
 
   onDetailDeleteEvent() {
     this.eventDetailModal.hide();
-    if (this.activeEvent.reserved) {
-      alert(`Sorry, this event was already reserved by the user: ${this.activeEvent.reservedById}`); // TODO: Modal
-      return;
-    }
+
     // if this is an available discovery slot, no need to confirm or notify other participant. just delete..
     if (this.activeEvent.type === 'discovery' && !this.activeEvent.reserved && !this.activeEvent.ordered) {
-      this.onDeleteEvent(false);
+      this.onDeleteEvent();
       return;
     }
-    this.cancelEventModal.show();
+
+    // if this is an ordered discovery slot...
+    if (this.activeEvent.type === 'discovery' && this.activeEvent.ordered) {
+
+      // probably should not let the user cancel if time is within 5 minutes of start or the session has already started.
+      // Todo: pop a modal advising user to join the session and tell the other person they have to cancel on the call?
+      // return;
+
+      this.cancelEventModal.show();
+      return;
+    }
   }
 
   onEditDeleteEvent() {
@@ -332,21 +343,31 @@ export class CalendarComponent implements OnInit, OnDestroy {
     this.activeEventForm.reset();
   }
 
-  async onDeleteEvent(notifyOther: boolean) {
+  async onDeleteEvent() {
 
-    console.log('Cancel event. Notify other(s):', notifyOther);
-    // TODO could send notification emails / notifications now
+    this.cancelling = true;
 
     // delete the event
-    await this.dataService.deleteUserCalendarEvent(this.userId, this.activeEvent.start);
+    const request: CancelCoachSessionRequest = {
+      coachId: this.userId,
+      event: this.activeEvent,
+      cancelledById: this.userId
+    };
+    const res = await this.cloudFunctionsService.cancelCoachSession(request) as any;
 
-    // dismiss the modal
+    if (res.error) { // error
+      this.cancelling = false;
+      this.alertService.alert('warning-message', 'Oops', `Error: ${res.error}. Please contact hello@lifecoach.io for support.`);
+    }
+
+    // success
+
+    this.cancelling = false;
     this.cancelEventModal.hide();
-
-    // reset the active event
     this.activeEvent = null;
     this.activeEventForm.reset();
   }
+
   isTheSameDay(a: Date, b: Date): boolean {
     return (a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDay() === b.getDay());
   }

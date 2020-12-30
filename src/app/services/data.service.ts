@@ -669,13 +669,6 @@ export class DataService {
       .valueChanges() as Observable<CustomCalendarEvent[]>;
   }
 
-  async deleteUserCalendarEvent(uid: string, date: Date) {
-    return this.db.collection(`users/${uid}/calendar`)
-      .doc(date.getTime().toString())
-      .delete()
-      .catch(err => console.error(err));
-  }
-
   // ================================================================================
   // =====                           COACH PROGRAMS                            ======
   // ================================================================================
