@@ -359,15 +359,14 @@ export class CalendarComponent implements OnInit, OnDestroy {
 
     // delete the event
     const request: CancelCoachSessionRequest = {
-      coachId: this.userId,
-      event: this.activeEvent,
+      eventId: this.activeEvent.id,
       cancelledById: this.userId
     };
     const res = await this.cloudFunctionsService.cancelCoachSession(request) as any;
 
     if (res.error) { // error
       this.cancelling = false;
-      this.alertService.alert('warning-message', 'Oops', `Error: ${res.error}. Please contact hello@lifecoach.io for support.`);
+      this.alertService.alert('warning-message', 'Oops', `Error: ${JSON.stringify(res.error)}. Please contact hello@lifecoach.io for support.`);
     }
 
     // success

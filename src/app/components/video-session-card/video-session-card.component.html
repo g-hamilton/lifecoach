@@ -22,6 +22,20 @@
         </a>
       </div>
       <div class=" card-body">
+        <div class=" dropdown" dropdown style="float: right; position: absolute; top: 1em; right: 1em;">
+          <button
+            class=" btn btn-link dropdown-toggle btn-icon dropdown-toggle"
+            data-toggle="dropdown"
+            dropdownToggle
+            type="button"
+          >
+            <i class=" tim-icons icon-settings-gear-63"> </i>
+          </button>
+          <div class=" dropdown-menu dropdown-menu-right" *dropdownMenu>
+            <a class=" dropdown-item" [routerLink]="[session.sessionId]"> Go to session </a>
+            <a class=" dropdown-item" href="javascript:void(0)" (click)="cancelSession()"> Cancel session </a>
+          </div>
+        </div>
         <span class=" badge badge-default">
           {{ session.type }}
         </span>
@@ -66,10 +80,9 @@
         </a>
       </div>
       <div class=" card-body">
-        <div class=" dropdown" dropdown>
+        <div class=" dropdown" dropdown style="float: right; position: absolute; top: 1em; right: 1em;">
           <button
             class=" btn btn-link dropdown-toggle btn-icon dropdown-toggle"
-            style="float: right; position: absolute; top: -3em; right: 0;"
             data-toggle="dropdown"
             dropdownToggle
             type="button"
@@ -146,15 +159,17 @@
                 <i class="fas fa-question-circle text-muted"></i> Are you sure you want to cancel this discovery session?
               </p>
               <!-- to show if user is the coach -->
-              <p *ngIf="session?.orderedById !== userId">
+              <p *ngIf="session?.orderedById ; else regularIsCancelling">
                 A cancellation email will be sent to {{ session?.orderedByName }}, advising them to 
                 find another available slot in your calendar and re-book the session but it is likely 
                 they will not re-book with you.
               </p>
               <!-- to show if user is not the coach -->
-              <p *ngIf="session?.orderedById === userId">
-                A cancellation email will be sent to the Coach.
-              </p>
+              <ng-template #regularIsCancelling>
+                <p>
+                  A cancellation email will be sent to the Coach.
+                </p>
+              </ng-template>
             </div>
 
           </div>

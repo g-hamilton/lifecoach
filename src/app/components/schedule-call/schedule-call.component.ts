@@ -80,7 +80,7 @@ export class ScheduleCallComponent implements OnInit {
         if (regProfile) {
           this.userProfileName = `${regProfile.firstName} ${regProfile.lastName}`;
           this.userProfilePhoto = regProfile.photo ? regProfile.photo :
-            `https://eu.ui-avatars.com/api/?name=${regProfile.firstName}+${regProfile.lastName}`; // https://eu.ui-avatars.com/
+            `https://eu.ui-avatars.com/api/?name=${regProfile.firstName}+${regProfile.lastName}&size=100`; // https://eu.ui-avatars.com/
         }
       })
     );

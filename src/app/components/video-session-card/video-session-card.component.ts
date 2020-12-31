@@ -23,6 +23,7 @@ export class VideoSessionCardComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription = new Subscription();
   public userId: string;
   public coachProfile: CoachProfile;
+  private sessionData: any;
   public isNew = false;
   public isGoingNow = false;
   public isSamePerson = false; // When user is coach for this session
@@ -50,6 +51,7 @@ export class VideoSessionCardComponent implements OnInit, OnDestroy {
           .then(session => {
             if (session.exists) {
               console.log('session data:', session.data());
+              this.sessionData = session.data();
               console.log(this.isSamePerson, user.uid, session.data().coachId);
               if ( session.data().coachId === user.uid ) {
                 this.isSamePerson = true;
@@ -63,14 +65,20 @@ export class VideoSessionCardComponent implements OnInit, OnDestroy {
               if (nowTime > session.data().start.seconds * 1000 && nowTime < session.data().end.seconds * 1000 ) {
                 this.isGoingNow = true;
               }
-              this.subscriptions.add(
-                this.dataService.getPublicCoachProfile(session.data().coachId)
-                  .subscribe(coach => {
-                    console.log(coach);
-                    this.coachProfile = coach;
-                    this.loaded = true;
-                  })
-              );
+              // get the coach profile if user is not the coach
+              if (!this.isSamePerson) {
+                this.subscriptions.add(
+                  this.dataService.getPublicCoachProfile(session.data().coachId)
+                    .subscribe(coach => {
+                      console.log(coach);
+                      this.coachProfile = coach;
+                      this.loaded = true;
+                    })
+                );
+              } else {
+                this.loaded = true;
+              }
+
             } else {
               throw new Error();
             }
@@ -89,17 +97,34 @@ export class VideoSessionCardComponent implements OnInit, OnDestroy {
   async onConfirmCancelSession() {
     this.cancelling = true;
 
+    // safety checks
+    if (!this.sessionData || !this.sessionData.coachId) {
+      this.alertService.alert('warning-message', 'Oops', `Error: missing coach ID. Please contact support.`);
+      this.cancelling = false;
+    }
+    if (!this.session) {
+      this.alertService.alert('warning-message', 'Oops', `Error: missing session. Please contact support.`);
+      this.cancelling = false;
+    }
+    if (!this.userId) {
+      this.alertService.alert('warning-message', 'Oops', `Error: missing user ID. Please contact support.`);
+      this.cancelling = false;
+    }
+
     // delete the event
     const request: CancelCoachSessionRequest = {
-      coachId: this.userId,
-      event: this.session,
+      eventId: this.session.id,
       cancelledById: this.userId
     };
+
+    console.log('REQUEST:', request);
+    return;
+
     const res = await this.cloudFunctionsService.cancelCoachSession(request) as any;
 
     if (res.error) { // error
       this.cancelling = false;
-      this.alertService.alert('warning-message', 'Oops', `Error: ${res.error}. Please contact hello@lifecoach.io for support.`);
+      this.alertService.alert('warning-message', 'Oops', `Error: ${JSON.stringify(res.error)}. Please contact hello@lifecoach.io for support.`);
     }
 
     // success
