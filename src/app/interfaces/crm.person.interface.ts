@@ -25,4 +25,6 @@ export interface CRMPersonHistoryEvent {
 export interface CRMPersonHistoryEventData {
     name?: string;
     properties?: any; // will be an object containing custom properties
+    type?: 'discovery';
+    id?: string;
 }

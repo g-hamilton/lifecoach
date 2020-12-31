@@ -25,6 +25,12 @@
                 <div *ngIf="item.action === 'coach_invited_user'" class=" timeline-badge success">
                     <i class="fas fa-envelope"></i>
                 </div>
+                <div *ngIf="item.action === 'booked_session'" class=" timeline-badge success">
+                    <i class="fas fa-calendar"></i>
+                </div>
+                <div *ngIf="item.action === 'cancelled_session'" class=" timeline-badge warning">
+                    <i class="fas fa-calendar"></i>
+                </div>
 
                 <!-- panel -->
                 <div class=" timeline-panel">
@@ -35,6 +41,8 @@
                         <span *ngIf="item.action === 'enrolled_in_self_study_course'" class=" badge badge-primary"> Enrolled In eCourse </span>
                         <span *ngIf="item.action === 'enrolled_in_full_program'" class=" badge badge-primary"> Enrolled In Program (Full) </span>
                         <span *ngIf="item.action === 'coach_invited_user'" class=" badge badge-success"> Sent Invite </span>
+                        <span *ngIf="item.action === 'booked_session'" class=" badge badge-success"> Booked Session </span>
+                        <span *ngIf="item.action === 'cancelled_session'" class=" badge badge-warning"> Cancelled Session </span>
 
                         <!-- time / date of this action -->
                         <span class="pull-right">
@@ -64,6 +72,18 @@
                             {{ person.history[i].event.properties.item_type }}: 
                             <a [href]="person.history[i].event.properties.landing_url" target="_blank">
                                 {{ person.history[i].event.properties.item_title }}
+                            </a>
+                        </p>
+                        <p *ngIf="item.action === 'booked_session'">
+                            {{ person.firstName }} booked a {{ person.history[i].event.type }} session with you. 
+                            <a [routerLink]="['/my-sessions', person.history[i].event.id]">
+                                Go to Session
+                            </a>
+                        </p>
+                        <p *ngIf="item.action === 'cancelled_session'">
+                            {{ person.firstName }} cancelled a {{ person.history[i].event.type }} session with you. 
+                            <a [routerLink]="['/calendar']">
+                                View Calendar
                             </a>
                         </p>
                     </div>
