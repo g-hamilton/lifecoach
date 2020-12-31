@@ -3,6 +3,7 @@ import {DataService} from '../../services/data.service';
 import {AuthService} from '../../services/auth.service';
 import {Subscription} from 'rxjs';
 import {filter, first, flatMap, map} from 'rxjs/operators';
+import { CustomCalendarEvent } from 'app/interfaces/custom.calendar.event.interface';
 
 @Component({
   selector: 'app-video',
@@ -68,9 +69,10 @@ export class VideoComponent implements OnInit, OnDestroy {
 
   }
 
-  filterSessionsByTodayAndSort(arr: any) {
+  filterSessionsByTodayAndSort(arr: CustomCalendarEvent[]) {
     const nowTime = Date.now();
-    return arr.filter( i => nowTime - i.end.getTime() < 0).sort((a, b) => a.start.getTime() - b.start.getTime());
+    const noCancelledSessions = arr.filter(i => !i.cancelled);
+    return noCancelledSessions.filter( i => nowTime - i.end.getTime() < 0).sort((a, b) => a.start.getTime() - b.start.getTime());
   }
 
   formTimeStampToDate(arr: any) {
