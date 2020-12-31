@@ -189,6 +189,9 @@ export class CrmPeopleService implements OnDestroy {
         case 'booked_session':
           status = 'In Discovery';
           break;
+        case 'cancelled_session':
+          status = 'Cancelled Session';
+          break;
         default:
           status = 'Message';
       }
