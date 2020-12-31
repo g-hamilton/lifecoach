@@ -584,8 +584,6 @@ export class DataService {
 
   getUserCalendarEvents(uid: string, date: Date) {
     return this.db.collection(`users/${uid}/calendar`)
-      // ref => ref.where('__name__', '>', '1604359800000')
-      //         .where('__name__', '<', '1604458500000')
       .valueChanges() as Observable<CustomCalendarEvent[]>;
   }
 

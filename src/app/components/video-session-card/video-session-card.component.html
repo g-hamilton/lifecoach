@@ -22,6 +22,20 @@
         </a>
       </div>
       <div class=" card-body">
+        <div class=" dropdown" dropdown style="float: right; position: absolute; top: 1em; right: 1em;">
+          <button
+            class=" btn btn-link dropdown-toggle btn-icon dropdown-toggle"
+            data-toggle="dropdown"
+            dropdownToggle
+            type="button"
+          >
+            <i class=" tim-icons icon-settings-gear-63"> </i>
+          </button>
+          <div class=" dropdown-menu dropdown-menu-right" *dropdownMenu>
+            <a class=" dropdown-item" [routerLink]="[session.sessionId]"> Go to session </a>
+            <a class=" dropdown-item" href="javascript:void(0)" (click)="cancelSession()"> Cancel session </a>
+          </div>
+        </div>
         <span class=" badge badge-default">
           {{ session.type }}
         </span>
@@ -34,7 +48,7 @@
           New
         </span>
         <span *ngIf="isGoingNow" class=" badge badge-primary">
-          Starting Now
+          Session Started
         </span>
       </div>
       <div class=" card-footer">
@@ -66,6 +80,20 @@
         </a>
       </div>
       <div class=" card-body">
+        <div class=" dropdown" dropdown style="float: right; position: absolute; top: 1em; right: 1em;">
+          <button
+            class=" btn btn-link dropdown-toggle btn-icon dropdown-toggle"
+            data-toggle="dropdown"
+            dropdownToggle
+            type="button"
+          >
+            <i class=" tim-icons icon-settings-gear-63"> </i>
+          </button>
+          <div class=" dropdown-menu dropdown-menu-right" *dropdownMenu>
+            <a class=" dropdown-item" [routerLink]="[session.sessionId]"> Go to session </a>
+            <a class=" dropdown-item" href="javascript:void(0)" (click)="cancelSession()"> Cancel session </a>
+          </div>
+        </div>
         <span class=" badge badge-default">
           {{ session.type }}
         </span>
@@ -78,7 +106,7 @@
           New
         </span>
         <span *ngIf="isGoingNow" class=" badge badge-primary">
-          Starting Now
+          Session Started
         </span>
       </div>
       <div class=" card-footer">
@@ -98,3 +126,68 @@
 
 </div>
 <!-- end ui when loaded -->
+
+<!-- cancel session modal -->
+<div
+  aria-hidden="true"
+  aria-labelledby="cancelEventModalLabel"
+  bsModal
+  class="modal fade"
+  #cancelEventModal="bs-modal"
+  id="cancelEventModal"
+  role="dialog"
+  tabindex="-1"
+>
+  <div class="modal-dialog" style="transform: translate(0,0);">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title pull-left"> Cancel this session? </h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="cancelEventModal.hide()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="card card-login card-white">
+          <!-- <div class=" card-header">
+            
+          </div> -->
+          <div class=" card-body">
+
+            <!-- ui for discovery sessions -->
+            <div *ngIf="session?.type === 'discovery'">
+              <p>
+                <i class="fas fa-question-circle text-muted"></i> Are you sure you want to cancel this discovery session?
+              </p>
+              <!-- to show if user is the coach -->
+              <p *ngIf="session?.orderedById ; else regularIsCancelling">
+                A cancellation email will be sent to {{ session?.orderedByName }}, advising them to 
+                find another available slot in your calendar and re-book the session but it is likely 
+                they will not re-book with you.
+              </p>
+              <!-- to show if user is not the coach -->
+              <ng-template #regularIsCancelling>
+                <p>
+                  A cancellation email will be sent to the Coach.
+                </p>
+              </ng-template>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      <div class=" modal-footer">
+        <button class=" btn btn-danger btn-block mt-3" (click)="onConfirmCancelSession()">
+          <span
+            *ngIf="cancelling"
+            class="spinner-border spinner-border-sm"
+            role="status"
+          ></span> {{ cancelling ? 'Cancelling...' : 'Yes - Cancel Session'}}
+        </button>
+        <button class=" btn btn-default btn-block mt-3" (click)="cancelEventModal.hide()">
+          No - Go Back
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- cancel session modal -->

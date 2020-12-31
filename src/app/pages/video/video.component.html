@@ -1,7 +1,7 @@
 <div class="content">
 
   <!-- UI for regular users -->
-  <div *ngIf="this.userType && this.userType == 'regular'">
+  <div *ngIf="userType && userType == 'regular'">
 
     <h4 class=" title"> My Sessions </h4>
     <p class=" small text-muted pl-2 mb-2">
@@ -12,7 +12,7 @@
     </p>
 
     <!-- user has ordered sessions with coach(es) -->
-    <div *ngIf="this.orderedSessions.length && this.uid; else sessions">
+    <div *ngIf="orderedSessions.length && orderedSessions.length > 0; else sessions">
       <div class="row">
         <div *ngFor="let session of orderedSessions" class="col-md-3">
           <app-video-session-card
@@ -24,9 +24,11 @@
 
     <!-- user has not ordered any sessions yet -->
     <ng-template #sessions>
-      <p>
-        You have not scheduled any coaching or discovery sessions yet. 
-        Explore Lifecoach programs to find the perfect coaching program now!
+      <p class=" mt-5">
+        You don't have any scheduled sessions yet. 
+        <a [routerLink]="['/programs']">
+          Explore Lifecoach programs
+        </a> to find the perfect coaching program now!
       </p>
     </ng-template>
 
@@ -34,7 +36,7 @@
   <!-- end of UI for regular users -->
 
   <!-- UI for coach users -->
-  <div *ngIf="this.userType && this.userType == 'coach'">
+  <div *ngIf="userType && userType == 'coach'">
 
     <h4 class=" title"> My Sessions </h4>
     <p class=" small text-muted pl-2 mb-2">
@@ -48,7 +50,7 @@
     </p>
 
     <!-- coach has session(s) scheduled -->
-    <div *ngIf="this.coachingSessions.length  && this.uid; else coachSessions">
+    <div *ngIf="coachingSessions.length && coachingSessions.length > 0; else coachSessions">
       <div class="row">
         <div *ngFor="let session of coachingSessions" class="col-md-3">
           <app-video-session-card
@@ -60,10 +62,10 @@
   
     <!-- coach has no scheduled sessions -->
     <ng-template #coachSessions>
-      <p>
+      <p class=" mt-5">
         You have no scheduled sessions yet. 
       </p>
-      <p> Tips to start filling your sessions: </p>
+      <p class=" mt-3"> Tips to start filling your sessions: </p>
       <ol>
         <li>Be sure to schedule some 'Available' time in your calendar</li>
         <li>Promote your coaching programs as widely as possible to start taking bookings for your free discovery sessions</li>

@@ -159,10 +159,10 @@ export class CrmPeopleService implements OnDestroy {
       return true; // the user responded within the time limit
     }
 
-    if (person.history[person.history.length - 1].action === 'booked_session') {
+    if (person.history[person.history.length - 1].action === 'booked_session' || person.history[person.history.length - 1].action === 'cancelled_session') {
       const endDateUnix = Math.round(new Date(((person.history[person.history.length - 1].event) as CustomCalendarEvent).end).getTime() / 1000);
       if (endDateUnix > (nowUnix - warmLimit)) {
-        return true; // the user ended a session within the time limit
+        return true; // the user booked or cancelled a booked session within the time limit
       }
     }
 
@@ -188,6 +188,9 @@ export class CrmPeopleService implements OnDestroy {
           break;
         case 'booked_session':
           status = 'In Discovery';
+          break;
+        case 'cancelled_session':
+          status = 'Cancelled Session';
           break;
         default:
           status = 'Message';
