@@ -20,6 +20,8 @@ import { StripePaymentIntentRequest } from 'app/interfaces/stripe.payment.intent
 import { environment } from '../../../environments/environment';
 import { BsModalService, BsModalRef, ModalOptions } from 'ngx-bootstrap/modal';
 import { ScheduleCallComponent } from 'app/components/schedule-call/schedule-call.component';
+import {take} from 'rxjs/operators';
+import {ToastrService} from 'ngx-toastr';
 
 declare var Stripe: any;
 
@@ -636,25 +638,25 @@ export class ProgramComponent implements OnInit, OnDestroy {
     // console.log('Total reviews event:', event);
   }
 
-  daySelect(event: any) {
-    if (event.target.value !== 'NULL') {
-      console.log(event.target.value);
-      this.subscriptions.add(
-        this.dataService.getUserNotReservedEvents(this.program.sellerUid, new Date(event.target.value))
-          .subscribe(next => {
-          this.todayEvents = next;
-        })
-      );
-    } else {
-    }
-  }
+  // daySelect(event: any) {
+  //   if (event.target.value !== 'NULL') {
+  //     console.log(event.target.value);
+  //     this.subscriptions.add(
+  //       this.dataService.getUserNotReservedEvents(this.program.sellerUid, new Date(event.target.value))
+  //         .subscribe(next => {
+  //         this.todayEvents = next;
+  //       })
+  //     );
+  //   } else {
+  //   }
+  // }
 
   isSameDay(a: Date, b: Date) {
     return (a.getUTCFullYear() === b.getUTCFullYear() && a.getUTCMonth() === b.getUTCMonth() && a.getUTCDate() === b.getUTCDate());
   }
 
   logSessions() {
-    console.log('Free events', this.availableEvents);
+    // console.log('Free events', this.availableEvents);
   }
 
   reserveSession($event: any) {
