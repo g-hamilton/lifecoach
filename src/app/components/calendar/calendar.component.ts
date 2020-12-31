@@ -6,7 +6,7 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {CustomCalendarEvent} from '../../interfaces/custom.calendar.event.interface';
 import {DataService} from 'app/services/data.service';
 import {AuthService} from 'app/services/auth.service';
-import {take} from 'rxjs/operators';
+import { take, map } from 'rxjs/operators';
 import {ToastrService} from 'ngx-toastr';
 import {AlertService} from '../../services/alert.service';
 import { Router } from '@angular/router';
@@ -111,7 +111,11 @@ export class CalendarComponent implements OnInit, OnDestroy {
           );
 
           this.subscriptions.add(
-            this.dataService.getUserCalendarEvents(this.userId, this.viewDate).subscribe(events => {
+            this.dataService.getUserCalendarEvents(this.userId, this.viewDate)
+            .pipe(
+              map(i => this.filterEvents(i))
+            )
+            .subscribe(events => {
               if (events) {
                 console.log('events before forEach', events);
                 // important: update date objects as Firebase stores dates as unix string: 't {seconds: 0, nanoseconds: 0}'
@@ -138,6 +142,11 @@ export class CalendarComponent implements OnInit, OnDestroy {
         }
       })
     );
+  }
+
+  filterEvents(arr: CustomCalendarEvent[]) {
+    const noCancelledEvents = arr.filter(i => !i.cancelled);
+    return noCancelledEvents;
   }
 
   getTitle(ev: CustomCalendarEvent) {
