@@ -41,19 +41,27 @@
         <div class="sessions" *ngIf="this.availableSlotsToday?.length > 0">
 
             <div *ngFor="let event of this.availableSlotsToday ; let i = index" class="session">
-                <span  class="sessionTitle">{{event.start*1000 | date: "HH:mm"}} - {{event.end*1000 | date: "HH:mm"}}</span>
-                <button
+              <div class=" row">
+                <div class="col-md-6">
+                  <p class="sessionTitle">
+                    {{event.start*1000 | date: "HH:mm"}} - {{event.end*1000 | date: "HH:mm"}}
+                  </p>
+                </div>
+                <div class="col-md-6">
+                  <button
                   class=" btn btn-fill btn-round btn-primary mr-2 mb-2 sessionReserveButton"
                   type="button"
                   (click)="reserveSession(event, i)"
                   [disabled]="reserving"
-                >
-                <span
-                  *ngIf="reserving && reservingButtonIndex === i"
-                  class="spinner-border spinner-border-sm"
-                  role="status"
-                  ></span> {{ (reserving && reservingButtonIndex === i) ? 'Booking...' : 'Book'}}
-                </button>
+                  >
+                  <span
+                    *ngIf="reserving && reservingButtonIndex === i"
+                    class="spinner-border spinner-border-sm"
+                    role="status"
+                    ></span> {{ (reserving && reservingButtonIndex === i) ? 'Booking...' : 'Book'}}
+                  </button>
+                </div>
+              </div>
 
             </div>
         </div>
