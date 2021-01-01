@@ -2513,18 +2513,17 @@ exports.cancelCoachSession = functions
 
     // lookup the event data in all events to get the coach ID
     const eventSnap = await db.collection(`ordered-sessions/all/sessions`)
-      .where('id', '==', eventId)
+      .doc(eventId)
       .get() // lookup the event
     
-    if (eventSnap.empty) { // event does not exist
+    if (!eventSnap.exists) { // doc does not exist
       return {error: 'Cannot find event in all events'}; // abort
     }
 
-    const queryEventDocSnap = eventSnap.docs[0]; // capture the query document snapshot
-    const eventInAllEvents = queryEventDocSnap.data();
+    const eventInAllEvents = eventSnap.data();
 
     if (!eventInAllEvents) {
-      return {error: 'Event document data is missing'}; // abort
+      return {error: 'Event in all events document data is missing'}; // abort
     }
 
     const coachId = eventInAllEvents.coachId;
