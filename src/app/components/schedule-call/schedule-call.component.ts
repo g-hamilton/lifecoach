@@ -178,6 +178,8 @@ export class ScheduleCallComponent implements OnInit {
       userPhoto: this.userProfilePhoto
     };
 
+    console.log('Session Request:', request);
+
     const res = await this.cloudFunctionsService.orderCoachSession(request) as any;
     if (res.error) { // error
       this.reserving = false;

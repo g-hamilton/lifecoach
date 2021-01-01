@@ -2450,8 +2450,8 @@ exports.orderCoachSession = functions
       name: 'booked_coach_session',
       properties: {
         type: event.type,
-        start: event.start,
-        end: event.end,
+        start: new Date(event.start.seconds).toUTCString(),
+        end: new Date(event.end.seconds).toUTCString(),
         coach_name: `${coachProfile ? coachProfile.firstName : 'Lifecoach'} ${coachProfile ? coachProfile.lastName : 'Coach'}`,
         coach_photo: `${coachProfile ? coachProfile.photo : 'https://eu.ui-avatars.com/api/?name=lifecoach+coach&background=00f2c3&color=fff&rounded=true&bold=true'}`,
         landing_url: `https://lifecoach.io/my-sessions/${sessionId}`
@@ -2465,8 +2465,8 @@ exports.orderCoachSession = functions
       name: 'session_booked',
       properties: {
         type: event.type,
-        start: event.start,
-        end: event.end,
+        start: new Date(event.start.seconds).toUTCString(),
+        end: new Date(event.end.seconds).toUTCString(),
         user_name: userName,
         user_photo: userPhoto,
         landing_url: `https://lifecoach.io/my-sessions/${sessionId}`
@@ -2584,8 +2584,8 @@ exports.cancelCoachSession = functions
         name: 'coach_cancelled_your_session',
         properties: {
           type: coachCalEvent.type,
-          start: coachCalEvent.start,
-          end: coachCalEvent.end,
+          start: new Date(coachCalEvent.start.seconds).toUTCString(),
+          end: new Date(coachCalEvent.end.seconds).toUTCString(),
           coach_name: `${coachProfile ? coachProfile.firstName : 'Lifecoach'} ${coachProfile ? coachProfile.lastName : 'Coach'}`,
           coach_photo: `${coachProfile ? coachProfile.photo : 'https://eu.ui-avatars.com/api/?name=lifecoach+coach&background=00f2c3&color=fff&rounded=true&bold=true'}`,
           landing_url: `https://lifecoach.io/my-sessions/${coachCalEvent.sessionId}`
@@ -2599,8 +2599,8 @@ exports.cancelCoachSession = functions
         name: 'coach_cancelled_own_session',
         properties: {
           type: coachCalEvent.type,
-          start: coachCalEvent.start,
-          end: coachCalEvent.end,
+          start: new Date(coachCalEvent.start.seconds).toUTCString(),
+          end: new Date(coachCalEvent.end.seconds).toUTCString(),
           user_name: coachCalEvent.orderedByName,
           user_photo: coachCalEvent.orderedByPhoto,
           landing_url: `https://lifecoach.io/my-sessions/${coachCalEvent.sessionId}`
@@ -2621,8 +2621,8 @@ exports.cancelCoachSession = functions
         name: 'you_cancelled_coach_session',
         properties: {
           type: coachCalEvent.type,
-          start: coachCalEvent.start,
-          end: coachCalEvent.end,
+          start: new Date(coachCalEvent.start.seconds).toUTCString(),
+          end: new Date(coachCalEvent.end.seconds).toUTCString(),
           coach_name: `${coachProfile ? coachProfile.firstName : 'Lifecoach'} ${coachProfile ? coachProfile.lastName : 'Coach'}`,
           coach_photo: `${coachProfile ? coachProfile.photo : 'https://eu.ui-avatars.com/api/?name=lifecoach+coach&background=00f2c3&color=fff&rounded=true&bold=true'}`,
           landing_url: `https://lifecoach.io/my-sessions/${coachCalEvent.sessionId}`
@@ -2636,8 +2636,8 @@ exports.cancelCoachSession = functions
         name: 'user_cancelled_your_session',
         properties: {
           type: coachCalEvent.type,
-          start: coachCalEvent.start,
-          end: coachCalEvent.end,
+          start: new Date(coachCalEvent.start.seconds).toUTCString(),
+          end: new Date(coachCalEvent.end.seconds).toUTCString(),
           user_name: coachCalEvent.orderedByName,
           user_photo: coachCalEvent.orderedByPhoto,
           landing_url: `https://lifecoach.io/my-sessions/${coachCalEvent.sessionId}`
