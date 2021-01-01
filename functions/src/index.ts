@@ -2587,7 +2587,8 @@ exports.cancelCoachSession = functions
           end: new Date(coachCalEvent.end.seconds * 1000).toUTCString(),
           coach_name: `${coachProfile ? coachProfile.firstName : 'Lifecoach'} ${coachProfile ? coachProfile.lastName : 'Coach'}`,
           coach_photo: `${coachProfile ? coachProfile.photo : 'https://eu.ui-avatars.com/api/?name=lifecoach+coach&background=00f2c3&color=fff&rounded=true&bold=true'}`,
-          landing_url: `https://lifecoach.io/my-sessions/${coachCalEvent.sessionId}`
+          landing_url: `https://lifecoach.io/my-sessions/${coachCalEvent.sessionId}`,
+          coach_profile_url: `https://lifecoach.io/coach/${coachId}`
         }
       }
       const mailBookerPromise = logMailchimpEvent(coachCalEvent.orderedById, bookerMailEvent); // log event
@@ -2624,7 +2625,8 @@ exports.cancelCoachSession = functions
           end: new Date(coachCalEvent.end.seconds * 1000).toUTCString(),
           coach_name: `${coachProfile ? coachProfile.firstName : 'Lifecoach'} ${coachProfile ? coachProfile.lastName : 'Coach'}`,
           coach_photo: `${coachProfile ? coachProfile.photo : 'https://eu.ui-avatars.com/api/?name=lifecoach+coach&background=00f2c3&color=fff&rounded=true&bold=true'}`,
-          landing_url: `https://lifecoach.io/my-sessions/${coachCalEvent.sessionId}`
+          landing_url: `https://lifecoach.io/my-sessions/${coachCalEvent.sessionId}`,
+          coach_profile_url: `https://lifecoach.io/coach/${coachId}`
         }
       }
       const mailBookerPromise = logMailchimpEvent(coachCalEvent.orderedById, bookerMailEvent); // log event
