@@ -11,7 +11,7 @@ import { StorageService } from 'app/services/storage.service';
 import { CoachingSpecialitiesService } from 'app/services/coaching.specialities.service';
 import { IsoLanguagesService } from 'app/services/iso-languages.service';
 import { CloudFunctionsService } from '../../services/cloud-functions.service';
-import {daLocale} from 'ngx-bootstrap';
+// import {daLocale} from 'ngx-bootstrap';
 
 @Component({
   selector: 'app-course-landing-page',
