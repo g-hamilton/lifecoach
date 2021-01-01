@@ -113,12 +113,11 @@ export class VideoSessionCardComponent implements OnInit, OnDestroy {
 
     // delete the event
     const request: CancelCoachSessionRequest = {
-      eventId: this.session.id,
+      eventId: this.sessionData.originalEvent.id,
       cancelledById: this.userId
     };
 
     console.log('REQUEST:', request);
-    return;
 
     const res = await this.cloudFunctionsService.cancelCoachSession(request) as any;
 
@@ -130,6 +129,7 @@ export class VideoSessionCardComponent implements OnInit, OnDestroy {
     // success
     this.cancelling = false;
     this.cancelEventModal.hide();
+    this.alertService.alert('success-message', 'Success!', 'Your session has been cancelled.');
   }
 
   ngOnDestroy() {
