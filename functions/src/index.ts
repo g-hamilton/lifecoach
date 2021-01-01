@@ -2565,7 +2565,7 @@ exports.cancelCoachSession = functions
 
     // record the crm event in the coach's history
     const coachCrmRef = db.collection(`users/${coachId}/people/${coachCalEvent.orderedById}/history`).doc((dateNow / 1000).toString());
-    batch.set(coachCrmRef, { action: 'cancelled_session', coachCalEvent });
+    batch.set(coachCrmRef, { action: 'cancelled_session', event: coachCalEvent });
 
     await batch.commit(); // execute batch ops. Any error should trigger catch.
 
