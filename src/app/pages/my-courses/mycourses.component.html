@@ -1,29 +1,11 @@
 <div class=" content">
 
-    <h5 class=" title"> My eCourses 
-        <a href="" target="_blank">
-            <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> What's this? </span>
-        </a>
-    </h5>
-
-    <div class=" row">
-        <div class=" col">
-            <div class=" card">
-                <div class=" card-body">
-                    <p>
-                        eCourses are on-demand, self-study courses that allow you to learn on your own schedule.
-                    </p>
-                    <p>
-                        Use the 'Browse eCourses' button to discover Coach led self-study courses for every area of Personal Transformation.
-                    </p>
-                    <!-- <p>
-                        Not sure how? <a href="" target="_blank">
-                        Read the guide.</a>
-                    </p> -->
-                </div>
-            </div>
-        </div>
-    </div>
+    <h5 class=" title"> My eCourses </h5>
+    <p class=" small text-muted pl-2 mb-2">
+        <i class="fas fa-info-circle"></i> eCourses are on-demand, self-study courses that allow you to learn on your own schedule. 
+        Any eCourses that you have enrolled in will appear below.
+        Use the 'Browse eCourses' button to discover Coach led self-study courses for every area of Personal Transformation.
+    </p>
 
     <div>
         <div class=" row mt-5">
@@ -34,7 +16,6 @@
                 (click)="browseCourses()">
                     <i class=" tim-icons icon-tv-2"></i> Browse eCourses
                 </button>
-                <h5 class=" title"> eCourses I'm Enrolled In </h5>
             </div>
         </div>
 
@@ -48,7 +29,9 @@
                                 You haven't enrolled in any coaching eCourses yet.
                             </p>
                             <p>
-                                Browse eCourses now to discover what you can learn next!
+                                <a [routerLink]="['/courses']">
+                                    Browse eCourses now
+                                </a> to discover what you can learn next!
                             </p>
                         </div>
                     </div>
