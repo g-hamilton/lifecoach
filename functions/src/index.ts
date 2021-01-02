@@ -1121,7 +1121,7 @@ exports.stripeCreatePaymentIntent = functions
 .onCall( async (data, context) => {
 
   const saleItemId: string = data.saleItemIdId;
-  const saleItemType: 'ecourse' | 'fullProgram' = data.saleItemType;
+  const saleItemType: 'ecourse' | 'fullProgram' | 'programSession' = data.saleItemType;
   const clientPrice = Number(data.salePrice);
   const clientCurrency = (data.currency as string).toUpperCase();
   const clientUid = data.buyerUid;
@@ -1152,7 +1152,7 @@ exports.stripeCreatePaymentIntent = functions
     let lookupPath = '';
     if (saleItemType === 'ecourse') {
       lookupPath = `public-courses`;
-    } else if (saleItemType === 'fullProgram') {
+    } else if (saleItemType === 'fullProgram' || saleItemType === 'programSession') {
       lookupPath = `public-programs`;
     }
 
@@ -1172,6 +1172,8 @@ exports.stripeCreatePaymentIntent = functions
       saleItemPrice = saleItem.price;
     } else if (saleItemType === 'fullProgram') {
       saleItemPrice = saleItem.fullPrice;
+    } else if (saleItemType === 'programSession') {
+      saleItemPrice = saleItem.pricePerSession;
     }
 
     if (!saleItemPrice || !saleItem.currency || !saleItem.stripeId || !saleItem.sellerUid || !saleItem.title) { // valid item data must exist
@@ -1229,14 +1231,14 @@ exports.stripeCreatePaymentIntent = functions
     if (referralCode && referralCode === saleItem.sellerUid) {
       if (saleItemType === 'ecourse') {
         feeDecimal = ecourseAppFeeReferralDecimal;
-      } else if (saleItemType === 'fullProgram') {
+      } else if (saleItemType === 'fullProgram' || saleItemType === 'programSession') {
         feeDecimal = programAppFeeReferralDecimal;
       }
     } else {
       // the seller did not refer the sale
       if (saleItemType === 'ecourse') {
         feeDecimal = ecourseAppFeeDecimal;
-      } else if (saleItemType === 'fullProgram') {
+      } else if (saleItemType === 'fullProgram' || saleItemType === 'programSession') {
         feeDecimal = programAppFeeDecimal;
       }
     }
@@ -1344,8 +1346,8 @@ exports.stripeWebhookEvent = functions
         if (saleItemType === 'ecourse') {
           const promise3 = recordCourseEnrollmentForStudent(clientUid, saleItemId, paymentIntent.metadata.sale_item_title, paymentIntent.metadata.sale_item_image);
           promises.push(promise3);
-        } else if (saleItemType === 'fullProgram') {
-          const promise3 = recordFullProgramEnrollmentForClient(clientUid, saleItemId, paymentIntent.metadata.sale_item_title, paymentIntent.metadata.sale_item_image);
+        } else if (saleItemType === 'fullProgram' || saleItemType === 'programSession') {
+          const promise3 = recordProgramEnrollmentForClient(saleItemType, clientUid, saleItemId, paymentIntent.metadata.sale_item_title, paymentIntent.metadata.sale_item_image);
           promises.push(promise3);
         }
 
@@ -1414,8 +1416,8 @@ exports.stripeWebhookEvent = functions
             promises.concat(await promise2)
 
             // if the transfer is related to a full program sale
-          } else if (originalSaleItemType === 'fullProgram') {
-            const promise1 = recordFullProgramEnrollmentForCreator(originalSellerUid, originalSaleItemId, customTransferObj, originalClientUid);
+          } else if (originalSaleItemType === 'fullProgram' || originalSaleItemType === 'programSession') {
+            const promise1 = recordProgramEnrollmentForCreator(originalSaleItemType, originalSellerUid, originalSaleItemId, customTransferObj, originalClientUid);
             promises.push(promise1);
 
             const promise2 = updateProgramEnrollmentCounts(originalSellerUid, originalSaleItemId, customTransferObj);
@@ -1659,7 +1661,7 @@ async function updateCourseEnrollmentCounts(creatorUid: string, courseId:string,
 // =====                     PROGRAM ENROLLMENT FUNCTIONS                    ======
 // ================================================================================
 
-async function recordFullProgramEnrollmentForCreator(sellerUid: string, programId: string, obj: any, clientUid: string) {
+async function recordProgramEnrollmentForCreator(enrollmentType: 'fullProgram' | 'programSession', sellerUid: string, programId: string, obj: any, clientUid: string) {
   // Save the custom transfer object to the seller account to record the enrollment
 
   const saleDate = new Date(obj.created * 1000);
@@ -1680,15 +1682,15 @@ async function recordFullProgramEnrollmentForCreator(sellerUid: string, programI
   // save the action to this person's history for the coach
   await db.collection(`users/${sellerUid}/people/${clientUid}/history`)
   .doc(timestampNow.toString())
-  .set({ action: 'enrolled_in_full_program', programId });
+  .set({ action: enrollmentType === 'fullProgram' ? 'enrolled_in_full_program' : 'enrolled_in_program_session', programId });
 
   // save the action to this person's history with the coach
   return db.collection(`users/${clientUid}/coaches/${sellerUid}/history`)
   .doc(timestampNow.toString())
-  .set({ action: 'enrolled_in_full_program', programId });
+  .set({ action: enrollmentType === 'fullProgram' ? 'enrolled_in_full_program' : 'enrolled_in_program_session', programId });
 }
 
-async function recordFullProgramEnrollmentForClient(studentUid: string, programId: string, programTitle: string, programImg: string) {
+async function recordProgramEnrollmentForClient(enrollmentType: 'fullProgram' | 'programSession', studentUid: string, programId: string, programTitle: string, programImg: string) {
 
   // Add the program ID to the client's own purchased programs node.
   // We can monitor this with a client side subscription to notify the user of the completed purchase.
@@ -1696,19 +1698,33 @@ async function recordFullProgramEnrollmentForClient(studentUid: string, programI
   await db.collection(`users/${studentUid}/purchased-programs`)
   .doc(programId)
   .set({
-    programId
+    programId,
+    enrollmentType
   }, { merge: true });
 
-  // trigger a mailchimp event
-  const event = {
-    name: 'program_enrollment',
-    properties: {
-      program_id: programId,
-      program_title: programTitle,
-      program_image: programImg
+  // send email
+
+  if (enrollmentType === 'fullProgram') {
+    const event = {
+      name: 'program_enrollment',
+      properties: {
+        program_id: programId,
+        program_title: programTitle,
+        program_image: programImg
+      }
     }
+    return logMailchimpEvent(studentUid, event); // log event
+  } else if (enrollmentType === 'programSession') {
+    const event = {
+      name: 'program_session_enrollment',
+      properties: {
+        program_id: programId,
+        program_title: programTitle,
+        program_image: programImg
+      }
+    }
+    return logMailchimpEvent(studentUid, event); // log event
   }
-  return logMailchimpEvent(studentUid, event); // log event
 }
 
 async function updateProgramEnrollmentCounts(creatorUid: string, programId:string, obj: any) {
@@ -1907,7 +1923,7 @@ exports.approveRefund = functions
         promises.push(promise6);
 
       // If refunding a full program...
-      } else if (pI.metadata.sale_item_type === 'fullProgram') {
+      } else if (pI.metadata.sale_item_type === 'fullProgram' || pI.metadata.sale_item_type === 'programSession') {
         const promise5 = db.collection(`users/${sellerUid}/program-sales/${month}-${year}/${pI.metadata.sale_item_id}`)
         .doc((refund.transfer_reversal as any).transfer)
         .set({
@@ -1920,7 +1936,7 @@ exports.approveRefund = functions
         .set({
           [pI.metadata.sale_item_id]: {
             [(refund.transfer_reversal as any).currency]: {
-              lifetimeTotalAmount: decrementAmount // decrement lifetitme total sales by refunded amount
+              lifetimeTotalAmount: decrementAmount // decrement lifetime total sales by refunded amount
             }
           }
         }, { merge: true });

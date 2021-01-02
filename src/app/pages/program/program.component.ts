@@ -154,8 +154,8 @@ export class ProgramComponent implements OnInit, OnDestroy {
         // prepare the request object
         const piRequest: StripePaymentIntentRequest = {
           saleItemId: this.programId,
-          saleItemType: 'fullProgram',
-          salePrice: this.displayFullPrice,
+          saleItemType: this.purchaseType === 'full' ? 'fullProgram' : 'programSession',
+          salePrice: this.purchaseType === 'full' ? this.displayFullPrice : this.displaySessionPrice,
           currency: this.clientCurrency,
           buyerUid: this.userId,
           referralCode: this.referralCode ? this.referralCode : null

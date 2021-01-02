@@ -22,6 +22,9 @@
                 <div *ngIf="item.action === 'enrolled_in_full_program'" class=" timeline-badge primary">
                     <i class="fas fa-user-friends"></i>
                 </div>
+                <div *ngIf="item.action === 'enrolled_in_program_session'" class=" timeline-badge primary">
+                    <i class="fas fa-user-friends"></i>
+                </div>
                 <div *ngIf="item.action === 'coach_invited_user'" class=" timeline-badge success">
                     <i class="fas fa-envelope"></i>
                 </div>
@@ -40,6 +43,7 @@
                         <span *ngIf="item.action === 'sent_first_message'" class=" badge badge-danger"> New Lead </span>
                         <span *ngIf="item.action === 'enrolled_in_self_study_course'" class=" badge badge-primary"> Enrolled In eCourse </span>
                         <span *ngIf="item.action === 'enrolled_in_full_program'" class=" badge badge-primary"> Enrolled In Program (Full) </span>
+                        <span *ngIf="item.action === 'enrolled_in_program_session'" class=" badge badge-primary"> Enrolled In Program (PAYG) </span>
                         <span *ngIf="item.action === 'coach_invited_user'" class=" badge badge-success"> Sent Invite </span>
                         <span *ngIf="item.action === 'booked_session'" class=" badge badge-success"> Booked Session </span>
                         <span *ngIf="item.action === 'cancelled_session'" class=" badge badge-warning"> Cancelled Session </span>
@@ -65,7 +69,10 @@
                             {{ person.firstName }} enrolled in your eCourse.
                         </p>
                         <p *ngIf="item.action === 'enrolled_in_full_program'">
-                            {{ person.firstName }} enrolled in your program.
+                            {{ person.firstName }} enrolled in your program and paid in full.
+                        </p>
+                        <p *ngIf="item.action === 'enrolled_in_program_session'">
+                            {{ person.firstName }} enrolled in your program and is paying per session.
                         </p>
                         <p *ngIf="item.action === 'coach_invited_user'">
                             You sent {{ person.firstName }} an invitation to your 

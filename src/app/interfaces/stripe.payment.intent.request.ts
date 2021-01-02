@@ -5,7 +5,7 @@
 
 export interface StripePaymentIntentRequest {
     saleItemId: string; // can be a 'courseId' or 'programId'
-    saleItemType: 'ecourse' | 'fullProgram';
+    saleItemType: 'ecourse' | 'fullProgram' | 'programSession';
     salePrice: number;
     currency: string;
     buyerUid: string; // the Lifecoach UID of the purchaser

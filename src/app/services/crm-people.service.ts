@@ -128,6 +128,9 @@ export class CrmPeopleService implements OnDestroy {
         case 'enrolled_in_full_program':
           type = 'client';
           break;
+        case 'enrolled_in_program_session':
+          type = 'client';
+          break;
         case 'coach_invited_user':
           type = 'lead';
           break;
@@ -171,7 +174,7 @@ export class CrmPeopleService implements OnDestroy {
 
   getPersonStatus(uid, person: CRMPerson) {
     return new Promise(async resolve => {
-      const lastAction = person.history[person.history.length - 1].action;
+      const lastAction = (person.history[person.history.length - 1] as CRMPersonHistoryEvent).action;
       let status: string;
       switch (lastAction) {
         case 'sent_first_message':
@@ -181,6 +184,9 @@ export class CrmPeopleService implements OnDestroy {
           status = 'Enrolled in eCourse';
           break;
         case 'enrolled_in_full_program':
+          status = 'Enrolled in program';
+          break;
+        case 'enrolled_in_program_session':
           status = 'Enrolled in program';
           break;
         case 'coach_invited_user':
