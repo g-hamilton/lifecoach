@@ -1710,7 +1710,8 @@ async function recordProgramEnrollmentForClient(enrollmentType: 'fullProgram' | 
       properties: {
         program_id: programId,
         program_title: programTitle,
-        program_image: programImg
+        program_image: programImg,
+        landing_url: `https://lifecoach.io/my-programs/${programId}`
       }
     }
     return logMailchimpEvent(studentUid, event); // log event
@@ -1720,7 +1721,8 @@ async function recordProgramEnrollmentForClient(enrollmentType: 'fullProgram' | 
       properties: {
         program_id: programId,
         program_title: programTitle,
-        program_image: programImg
+        program_image: programImg,
+        landing_url: `https://lifecoach.io/my-programs/${programId}`
       }
     }
     return logMailchimpEvent(studentUid, event); // log event
