@@ -75,6 +75,22 @@ export const ROUTES: RouteInfo[] = [
     userTypes: ['regular', 'coach']
   },
   {
+    path: '/my-programs',
+    title: 'My Programs',
+    rtlTitle: 'التقويم',
+    type: 'link',
+    icontype: 'tim-icons icon-trophy',
+    userTypes: ['regular'],
+  },
+  {
+    path: '/my-courses',
+    title: 'My e-Courses',
+    rtlTitle: 'التقويم',
+    type: 'link',
+    icontype: 'tim-icons icon-tv-2',
+    userTypes: ['regular'],
+  },
+  {
     path: '/profile',
     title: 'My Profile',
     rtlTitle: 'التقويم',
@@ -97,14 +113,6 @@ export const ROUTES: RouteInfo[] = [
     icontype: 'tim-icons icon-compass-05',
     rtlTitle: 'لوحة القيادة',
     userTypes: ['coach'],
-  },
-  {
-    path: '/my-courses',
-    title: 'My e-Courses',
-    rtlTitle: 'التقويم',
-    type: 'link',
-    icontype: 'tim-icons icon-tv-2',
-    userTypes: ['regular'],
   },
   {
     path: '/admin-users',

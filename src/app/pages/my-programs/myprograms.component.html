@@ -1,0 +1,74 @@
+<div class=" content">
+
+    <h5 class=" title"> My Programs </h5>
+    <p class=" small text-muted pl-2 mb-2">
+        <i class="fas fa-info-circle"></i> Lifecoach programs are collections of private 1-to-1 coaching sessions 
+        built around specific goals or outcomes. 
+        Any programs that you have enrolled in will appear below.
+        Use the 'Browse Programs' button to discover top personal coaching programs from the world's best Coaches 
+        for every area of Personal Transformation.
+    </p>
+
+    <div>
+        <div class=" row mt-5">
+            <div class=" col-12">
+                <button
+                type="button"
+                class=" btn btn-primary btn-fill btn-round pull-right mb-3"
+                (click)="browsePrograms()" [routerLink]="['/programs']">
+                 Browse Programs <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- No purchased programs -->
+        <div class=" row" *ngIf="!purchasedPrograms || purchasedPrograms && purchasedPrograms.length === 0">
+            <div class=" col">
+                <div class=" card">
+                    <div class=" card-body">
+                        <div>
+                            <p>
+                                You haven't enrolled in any coaching programs yet.
+                            </p>
+                            <p>
+                                <a (click)="browsePrograms()" [routerLink]="['/programs']">
+                                    Browse programs now
+                                </a> to discover what you can achieve next with the help of a top rated personal Coach!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Purchased programs -->
+        <div class=" row" *ngIf="purchasedPrograms && purchasedPrograms.length > 0">
+            <div *ngFor="let program of purchasedPrograms ; let p = index" class=" col-md-4">
+                <a [routerLink]="['/program', program.programId, 'learn']">
+                    <div class=" card">
+
+                        <!-- Card image -->
+                        <img
+                        class="card-img-top"
+                        [src]="program.image ? program.image : 'assets/img/image_placeholder.jpg'"
+                        [alt]="program.title" />
+
+                        <!-- Card body -->
+                        <div class=" card-body">
+                            <h4 class="card-title"> {{ program?.title }} </h4>
+                            <h6 class="card-subtitle mb-2 text-muted"> {{ program?.subtitle }} </h6>
+                            <!-- <div class="progress-container progress-primary">
+                                <span class="progress-badge"> Progress </span>
+                                <progressbar class="progress-bar-primary" [value]="program?.progress">
+                                  <span class="progress-value"> {{ program?.progress }}% </span>
+                                </progressbar>
+                            </div> -->
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+</div>

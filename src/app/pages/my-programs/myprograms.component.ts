@@ -5,19 +5,19 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { DataService } from '../../services/data.service';
 import { AlertService } from 'app/services/alert.service';
-import { CoachingCourse } from 'app/interfaces/course.interface';
 import { AnalyticsService } from 'app/services/analytics.service';
 import { Subscription } from 'rxjs';
+import { CoachingProgram } from 'app/interfaces/coach.program.interface';
 
 @Component({
-  selector: 'app-my-courses',
-  templateUrl: 'mycourses.component.html'
+  selector: 'app-my-programs',
+  templateUrl: 'myprograms.component.html'
 })
-export class MyCoursesComponent implements OnInit, OnDestroy {
+export class MyProgramsComponent implements OnInit, OnDestroy {
 
   public browser: boolean;
   private userId: string;
-  public purchasedCourses = [] as CoachingCourse[]; // purchased courses as buyer
+  public purchasedPrograms = [] as CoachingProgram[]; // purchased programs as buyer
   public objKeys = Object.keys;
   private subscriptions: Subscription = new Subscription();
 
@@ -47,18 +47,18 @@ export class MyCoursesComponent implements OnInit, OnDestroy {
           const token = await user.getIdTokenResult(true);
           console.log('Claims:', token.claims);
 
-          // Check for purchased courses. Coaches and regular users can purchase courses
+          // Check for purchased programs
           this.subscriptions.add(
-            this.dataService.getPurchasedCourses(this.userId).subscribe(courseIds => {
-              if (courseIds) {
-                console.log('Enrolled In Course Ids:', courseIds);
-                this.purchasedCourses = []; // reset
-                courseIds.forEach((o: any, index) => { // fetch and monitor live / latest course info
+            this.dataService.getPurchasedPrograms(this.userId).subscribe(programIds => {
+              if (programIds) {
+                console.log('Enrolled In Program Ids:', programIds);
+                this.purchasedPrograms = []; // reset
+                programIds.forEach((o: any, index) => { // fetch and monitor live / latest program info
                   this.subscriptions.add(
-                    this.dataService.getUnlockedPublicCourse(o.id).subscribe(course => {
-                      if (course) {
-                        this.purchasedCourses.push(course);
-                        this.calcCourseProgress(course, index);
+                    this.dataService.getUnlockedPublicProgram(o.id).subscribe(program => {
+                      if (program) {
+                        this.purchasedPrograms.push(program);
+                        // this.calcProgramProgress(program, index); TODO
                       }
                     })
                   );
@@ -71,18 +71,8 @@ export class MyCoursesComponent implements OnInit, OnDestroy {
     );
   }
 
-  browseCourses() {
-    this.analyticsService.clickBrowseCourses();
-  }
-
-  calcCourseProgress(course: CoachingCourse, index: number) {
-    this.subscriptions.add(
-      this.dataService.getPrivateCourseLecturesComplete(this.userId, course.courseId).subscribe(completedLectures => {
-        const lecturesComplete = completedLectures.map(i => i.id);
-        const pc = (lecturesComplete.length / course.lectures.length) * 100;
-        this.purchasedCourses[index].progress = pc ? Number(pc.toFixed()) : 0;
-      })
-    );
+  browsePrograms() {
+    this.analyticsService.clickBrowsePrograms();
   }
 
   ngOnDestroy() {

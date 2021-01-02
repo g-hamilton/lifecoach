@@ -13,8 +13,9 @@
                 <button
                 type="button"
                 class=" btn btn-primary btn-fill btn-round pull-right mb-3"
-                (click)="browseCourses()">
-                    <i class=" tim-icons icon-tv-2"></i> Browse eCourses
+                (click)="browseCourses()"
+                [routerLink]="['/courses']">
+                    Browse eCourses <i class="fas fa-arrow-right"></i>
                 </button>
             </div>
         </div>
@@ -29,7 +30,7 @@
                                 You haven't enrolled in any coaching eCourses yet.
                             </p>
                             <p>
-                                <a [routerLink]="['/courses']">
+                                <a (click)="browseCourses()" [routerLink]="['/courses']">
                                     Browse eCourses now
                                 </a> to discover what you can learn next!
                             </p>
