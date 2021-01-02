@@ -1681,18 +1681,20 @@ async function recordProgramEnrollmentForCreator(enrollmentType: 'fullProgram' |
       properties: {
         program_id: programId,
         program_title: programTitle,
-        program_image: programImg
+        program_image: programImg,
+        client_url: `https://lifecoach.io/person-history/${clientUid}`
       }
     }
     const emailPromise = logMailchimpEvent(sellerUid, event); // log event
     promises.push(emailPromise);
   } else if (enrollmentType === 'programSession') {
     const event = {
-      name: 'coach_program_session_enrollment',
+      name: 'coach_program_session_enroll',
       properties: {
         program_id: programId,
         program_title: programTitle,
-        program_image: programImg
+        program_image: programImg,
+        client_url: `https://lifecoach.io/person-history/${clientUid}`
       }
     }
     const emailPromise = logMailchimpEvent(sellerUid, event); // log event
