@@ -2544,7 +2544,8 @@ exports.cancelCoachSession = functions
     batch.set(coachEventRef, { // update the document by merging new data into the event object
       cancelled: true,
       cancelledById,
-      cancelledTime: (dateNow / 1000)
+      cancelledTime: (dateNow / 1000),
+      cssClass: 'cancelled'
     }, { merge: true });
 
     // update the ordered session for the regular user
