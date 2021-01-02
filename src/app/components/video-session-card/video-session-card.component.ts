@@ -8,6 +8,7 @@ import { CoachProfile } from 'app/interfaces/coach.profile.interface';
 import { CancelCoachSessionRequest } from 'app/interfaces/cancel.coach.session.request.interface';
 import { CloudFunctionsService } from 'app/services/cloud-functions.service';
 import { AlertService } from 'app/services/alert.service';
+import { AnalyticsService } from 'app/services/analytics.service';
 
 @Component({
   selector: 'app-video-session-card',
@@ -35,7 +36,8 @@ export class VideoSessionCardComponent implements OnInit, OnDestroy {
     private dataService: DataService,
     private authService: AuthService,
     private cloudFunctionsService: CloudFunctionsService,
-    private alertService: AlertService
+    private alertService: AlertService,
+    private analyticsService: AnalyticsService
     ) {
   }
 
@@ -130,6 +132,7 @@ export class VideoSessionCardComponent implements OnInit, OnDestroy {
     this.cancelling = false;
     this.cancelEventModal.hide();
     this.alertService.alert('success-message', 'Success!', 'Your session has been cancelled.');
+    this.analyticsService.cancelCoachSession(this.sessionData.originalEvent.type, this.sessionData.originalEvent.id, this.userId);
   }
 
   ngOnDestroy() {

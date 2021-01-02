@@ -12,6 +12,7 @@ import {AlertService} from '../../services/alert.service';
 import { Router } from '@angular/router';
 import { CloudFunctionsService } from 'app/services/cloud-functions.service';
 import { CancelCoachSessionRequest } from 'app/interfaces/cancel.coach.session.request.interface';
+import { AnalyticsService } from 'app/services/analytics.service';
 
 @Component({
   selector: 'app-calendar',
@@ -65,7 +66,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
     private toastService: ToastrService,
     public alertService: AlertService,
     private router: Router,
-    private cloudFunctionsService: CloudFunctionsService
+    private cloudFunctionsService: CloudFunctionsService,
+    private analyticsService: AnalyticsService
   ) {
   }
 
@@ -375,6 +377,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
     this.cancelEventModal.hide();
     this.activeEvent = null;
     this.activeEventForm.reset();
+    this.analyticsService.cancelCoachSession(this.activeEvent.type, this.activeEvent.id, this.userId);
   }
 
   isTheSameDay(a: Date, b: Date): boolean {

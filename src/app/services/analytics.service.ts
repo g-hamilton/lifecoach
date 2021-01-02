@@ -378,4 +378,21 @@ export class AnalyticsService {
     mixpanel.track('clicked browse programs');
   }
 
+  orderCoachSession(type: 'discovery', userId: string, coachId: string, sessionId: string) {
+    mixpanel.track('ordered coaching session', {
+      type,
+      userId,
+      coachId,
+      sessionId
+    });
+  }
+
+  cancelCoachSession(type: 'discovery', sessionId: string, cancelledById: string) {
+    mixpanel.track('ordered coaching session', {
+      type,
+      sessionId,
+      cancelledById
+    });
+  }
+
 }

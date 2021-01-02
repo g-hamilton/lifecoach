@@ -41,7 +41,7 @@
         <div class="sessions" *ngIf="this.availableSlotsToday?.length > 0">
 
             <div *ngFor="let event of this.availableSlotsToday ; let i = index" class="session">
-              <div class=" row">
+              <div class=" row" style="width: 100%;">
                 <div class="col-md-6">
                   <p class="sessionTitle">
                     {{event.start*1000 | date: "HH:mm"}} - {{event.end*1000 | date: "HH:mm"}}
@@ -49,7 +49,7 @@
                 </div>
                 <div class="col-md-6">
                   <button
-                  class=" btn btn-fill btn-round btn-primary mr-2 mb-2 sessionReserveButton"
+                  class=" btn btn-fill btn-round btn-primary pull-right sessionReserveButton"
                   type="button"
                   (click)="reserveSession(event, i)"
                   [disabled]="reserving"

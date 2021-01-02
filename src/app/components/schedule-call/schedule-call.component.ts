@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { CustomCalendarEvent } from 'app/interfaces/custom.calendar.event.interface';
 import { OrderCoachSessionRequest } from 'app/interfaces/order.coach.session.request.interface';
 import { AlertService } from 'app/services/alert.service';
+import { AnalyticsService } from 'app/services/analytics.service';
 import { AuthService } from 'app/services/auth.service';
 import { CloudFunctionsService } from 'app/services/cloud-functions.service';
 import { DataService } from 'app/services/data.service';
@@ -51,7 +52,8 @@ export class ScheduleCallComponent implements OnInit {
     private authService: AuthService,
     private alertService: AlertService,
     private router: Router,
-    private cloudFunctionsService: CloudFunctionsService
+    private cloudFunctionsService: CloudFunctionsService,
+    private analyticsService: AnalyticsService
   ) { }
 
   ngOnInit() {
@@ -191,6 +193,7 @@ export class ScheduleCallComponent implements OnInit {
     this.reserving = false;
     this.reservingButtonIndex = null;
     console.log(`Session with ID ${ev.id} booked between coach ${this.coachId} and user ${this.userId}`);
+    this.analyticsService.orderCoachSession(ev.type, this.userId, this.coachId, ev.id);
     this.bsModalRef.hide();
     this.showReservedAlert();
   }
