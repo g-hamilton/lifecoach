@@ -1120,7 +1120,7 @@ exports.stripeCreatePaymentIntent = functions
 .https
 .onCall( async (data, context) => {
 
-  const saleItemId: string = data.saleItemIdId;
+  const saleItemId: string = data.saleItemId;
   const saleItemType: 'ecourse' | 'fullProgram' | 'programSession' = data.saleItemType;
   const clientPrice = Number(data.salePrice);
   const clientCurrency = (data.currency as string).toUpperCase();
