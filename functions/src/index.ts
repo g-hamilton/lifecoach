@@ -1268,7 +1268,8 @@ exports.stripeCreatePaymentIntent = functions
         client_UID: clientUid,
         seller_UID: saleItem.sellerUid,
         payment_type: 'lifecoach.io WEB',
-        seller_referred: referralCode ? 'true' : 'false' // note: string as cannot be a boolean here
+        seller_referred: referralCode ? 'true' : 'false', // note: string as cannot be a boolean here
+        num_sessions: saleItem.numSessions ? saleItem.numSessions : null // if purchasing a program numSessions will be the number of sessions in the program
       }
     });
 
@@ -1388,6 +1389,7 @@ exports.stripeWebhookEvent = functions
           const originalSaleItemImage = originalCharge.metadata.sale_item_image;
           const originalClientUid = originalCharge.metadata.client_UID;
           const originalSellerReferred = originalCharge.metadata.seller_referred; // will be string 'true' | 'false'
+          const originalNumSessions = originalCharge.metadata.num_sessions // if purchasing program will be the number of sessions in the program, otherwise null
 
           // Check for required metadata on the original charge
           if (!originalSaleItemId) {
@@ -1417,9 +1419,9 @@ exports.stripeWebhookEvent = functions
             const promise2 = updateCourseEnrollmentCounts(originalSellerUid, originalSaleItemId, customTransferObj, originalClientUid);
             promises.concat(await promise2)
 
-            // if the transfer is related to a full program sale
+            // if the transfer is related to a program sale (full program or single session purchase)
           } else if (originalSaleItemType === 'fullProgram' || originalSaleItemType === 'programSession') {
-            const promise1 = recordProgramEnrollmentForCreator(originalSaleItemType, originalSellerUid, originalSaleItemId, customTransferObj, originalClientUid, originalSaleItemTitle, originalSaleItemImage);
+            const promise1 = recordProgramEnrollmentForCreator(originalSaleItemType, originalSellerUid, originalSaleItemId, customTransferObj, originalClientUid, originalSaleItemTitle, originalSaleItemImage, originalNumSessions);
             promises.push(promise1);
 
             const promise2 = updateProgramEnrollmentCounts(originalSellerUid, originalSaleItemId, customTransferObj, originalClientUid);
@@ -1673,13 +1675,18 @@ async function updateCourseEnrollmentCounts(creatorUid: string, courseId:string,
 // =====                     PROGRAM ENROLLMENT FUNCTIONS                    ======
 // ================================================================================
 
-async function recordProgramEnrollmentForCreator(enrollmentType: 'fullProgram' | 'programSession', sellerUid: string, programId: string, obj: any, clientUid: string, programTitle: string, programImg: string) {
+async function recordProgramEnrollmentForCreator(enrollmentType: 'fullProgram' | 'programSession', sellerUid: string, programId: string, obj: any, clientUid: string, programTitle: string, programImg: string, numSessions: string) {
   // Save the custom transfer object to the seller account to record the enrollment
 
   const saleDate = new Date(obj.created * 1000);
   const saleMonth = saleDate.getMonth() + 1; // go from zero index to jan === 1
   const saleYear = saleDate.getFullYear();
   const timestampNow = Math.round(new Date().getTime() / 1000);
+
+  let sessionsPurchased = 1; // default to one session purchased
+  if (enrollmentType === 'fullProgram') {
+    sessionsPurchased = Number(numSessions) // if user has purchased the whole program, update to number of sessions in the program
+  }
 
   const promises = [];
 
@@ -1721,6 +1728,20 @@ async function recordProgramEnrollmentForCreator(enrollmentType: 'fullProgram' |
   .set({ lastUpdated: timestampNow }, { merge: true }) // creates a real (not virtual) doc
   .catch(err => console.log(err));
 
+  // update this person's session data (allows the coach to see how many paid sessions this person has purchased/remaining)
+  let i = 0;
+  while (i < sessionsPurchased) {
+    await db.collection(`users/${sellerUid}/people/${clientUid}/sessions-purchased`)
+    .doc()
+    .create({
+      sellerUid,
+      clientUid,
+      programId,
+      saleDate
+    });
+    i++;
+  }
+
   // save the action to this person's history for the coach
   await db.collection(`users/${sellerUid}/people/${clientUid}/history`)
   .doc(timestampNow.toString())
@@ -1730,7 +1751,6 @@ async function recordProgramEnrollmentForCreator(enrollmentType: 'fullProgram' |
   return db.collection(`users/${clientUid}/coaches/${sellerUid}/history`)
   .doc(timestampNow.toString())
   .set({ action: enrollmentType === 'fullProgram' ? 'enrolled_in_full_program' : 'enrolled_in_program_session', programId });
-
 }
 
 async function recordProgramEnrollmentForClient(enrollmentType: 'fullProgram' | 'programSession', studentUid: string, programId: string, programTitle: string, programImg: string) {
@@ -1810,7 +1830,8 @@ async function updateProgramEnrollmentCounts(creatorUid: string, programId:strin
   }, { merge: true });
   promises.push(promise3);
 
-  // update this client on the coach's enrollments by program node
+  // update this client on the coach's enrollments (clients) by program node
+  // allows coaches to see which (and how many) clients are enrolled on each program
   const promise4 = db.collection(`coach-enrollments-by-program/${creatorUid}/programs/${programId}/enrolled`)
   .doc(clientUid)
   .set({
