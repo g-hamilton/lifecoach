@@ -2525,7 +2525,7 @@ exports.orderCoachSession = functions
     }, { merge: true });
 
     // record the crm event in the coach's history
-    const coachCrmRef = db.collection(`users/${coachId}/people/${uid}/history`).doc((dateNow / 1000).toString());
+    const coachCrmRef = db.collection(`users/${coachId}/people/${uid}/history`).doc((Math.round(dateNow / 1000)).toString());
     batch.set(coachCrmRef, { action: 'booked_session', event });
 
     await batch.commit(); // execute batch ops. Any error should trigger catch.
@@ -2657,7 +2657,7 @@ exports.cancelCoachSession = functions
     }, { merge: true });
 
     // record the crm event in the coach's history
-    const coachCrmRef = db.collection(`users/${coachId}/people/${coachCalEvent.orderedById}/history`).doc((dateNow / 1000).toString());
+    const coachCrmRef = db.collection(`users/${coachId}/people/${coachCalEvent.orderedById}/history`).doc((Math.round(dateNow / 1000)).toString());
     batch.set(coachCrmRef, { action: 'cancelled_session', event: coachCalEvent });
 
     await batch.commit(); // execute batch ops. Any error should trigger catch.
