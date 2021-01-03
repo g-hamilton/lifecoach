@@ -1737,7 +1737,8 @@ async function recordProgramEnrollmentForCreator(enrollmentType: 'fullProgram' |
       sellerUid,
       clientUid,
       programId,
-      saleDate
+      saleDate,
+      relatedStripeTransferId: obj.id
     });
     i++;
   }
