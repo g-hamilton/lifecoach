@@ -1335,7 +1335,7 @@ exports.stripeWebhookEvent = functions
         // Save the successful payment to the purchaser's account for payment history
         const promise1 = db.collection(`users/${clientUid}/account/account${clientUid}/successful-payments/`)
         .doc(successfulPayment.id)
-        .create(successfulPayment);
+        .set(successfulPayment);
         promises.push(promise1);
 
         // Add the item ID of the purchased item to the user's auth token claims
