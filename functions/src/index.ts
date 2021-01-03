@@ -1658,7 +1658,7 @@ async function updateCourseEnrollmentCounts(creatorUid: string, courseId:string,
   promises.push(promise3);
 
   // update this client on the seller's enrollments by course node
-  const promise4 = db.collection(`seller-enrollments-by-program/${creatorUid}/courses/${courseId}/enrolled`)
+  const promise4 = db.collection(`seller-enrollments-by-course/${creatorUid}/courses/${courseId}/enrolled`)
   .doc(clientUid)
   .set({
     timeOfLastEnrollment: timestampNow.toString(),
