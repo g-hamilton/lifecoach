@@ -4,7 +4,7 @@ const firebase_tools = require('firebase-tools');
 const firebase = admin.initializeApp();
 const db = admin.firestore();
 const client = require('twilio')(functions.config().twilio.accountsid, functions.config().twilio.authtoken);
-
+// import * as stream from 'stream';
 
 // ================================================================================
 // =====                                                                     ======
@@ -172,7 +172,7 @@ function addUserToMailchimp(email: string, firstName: string, lastName: string, 
 }
 
 function patchMailchimpUserEmail(accountType: 'regular' | 'coach' | 'publisher' | 'provider', oldEmail: string, newEmail: string) {
-  
+
   // Which list is the member subscribed to?
   const listId = getMcListId(accountType);
 
@@ -372,8 +372,8 @@ async function removeCustomUserClaims(uid: string, claims: any) {
     return {error: err}
   }
 }
-  
-async function createUserNode(uid: string, email: string, type: 'regular' | 'coach' | 'publisher' | 'provider' | 'admin', 
+
+async function createUserNode(uid: string, email: string, type: 'regular' | 'coach' | 'publisher' | 'provider' | 'admin',
 firstName: string | null, lastName: string | null) {
 
   // Initialise account data
@@ -442,7 +442,7 @@ firstName: string | null, lastName: string | null) {
     .catch(err => console.error(err));
 
   } else if (type === 'publisher') { // publisher account
-    
+
     // Default tasks for publishers
     const ref1 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault004');
     batch.set(ref1, {
@@ -550,7 +550,7 @@ exports.recursiveDeleteUserData = functions
   const path = `users/${userId}`;
   console.log(`User ${context.auth.uid} has requested to delete path ${path}`);
 
-  /* 
+  /*
     Cleanup DB.
     Run a recursive delete on the given document or collection path.
     The 'token' must be set in the functions config, and can be generated
@@ -713,7 +713,7 @@ exports.postNewMessage = functions
 
       // save a record of the new lead to Algolia
       const index = algolia.initIndex('prod_LEADS');
-      
+
       const recordToSend = {
         objectID: roomId,
         created: timestampNow,
@@ -930,7 +930,7 @@ exports.scheduledFunctionUpdateRates = functions
   .timeZone('GMT')
   .onRun( async (context) => {
   console.log('This will be run every hour, starting at 00:00 AM GMT!');
-  
+
   try {
     // request rates from Open Exchange Rates API with default USD as the base rate
     const response = await fetch(`${openXBaseUrl}latest.json?app_id=${openXAppId}`);
@@ -966,11 +966,11 @@ exports.manualUpdateRates = functions
   .runWith({memory: '1GB', timeoutSeconds: 300})
   .https
   .onCall( async (context) => {
-  
+
   try {
     // request rates from Open Exchange Rates API with default USD as the base rate
     const response = await fetch(`${openXBaseUrl}latest.json?app_id=${openXAppId}`);
-  
+
     if (response.status === 200) { // fetch success
       const oXRates = await response.json();
       console.log(`Open Exchange Rates fetched successfully!`);
@@ -1555,7 +1555,7 @@ exports.completeFreeCourseEnrollment = functions
 
     // Execute concurrent ops
     await Promise.all(promises);
-    
+
     return { success: true }
 
   } catch (err) {
@@ -1599,7 +1599,7 @@ async function recordCourseEnrollmentForCreator(sellerUid: string, courseId: str
 }
 
 async function recordCourseEnrollmentForStudent(studentUid: string, courseId: string, courseTitle: string, courseImg: string) {
-  
+
   // Add the course ID to the student's own purchased courses node.
   // We can monitor this with a client side subscription to notify the user of the completed purchase.
 
@@ -2087,7 +2087,7 @@ exports.adminApproveCourseReview = functions
     // data gets copied to public & paywall protected areas on update of the private node.
     await db.collection(`approved-courses`)
     .doc(courseId)
-    .create({ 
+    .create({
       courseId,
       approved: approvedDate,
       reviewerUid: userId
@@ -2600,14 +2600,14 @@ exports.cancelCoachSession = functions
   const batch = db.batch(); // prepare to execute multiple ops atomically
 
   try {
-    
+
     console.group('CANCELLING COACH SESSION');
 
     // lookup the event data in all events to get the coach ID
     const eventSnap = await db.collection(`ordered-sessions/all/sessions`)
       .doc(eventId)
       .get() // lookup the event
-    
+
     if (!eventSnap.exists) { // doc does not exist
       return {error: 'Cannot find event in all events'}; // abort
     }
@@ -3101,10 +3101,10 @@ exports.onUpdateUserChatRoom = functions
   const before = change.before.data() as any;
   const after = change.after.data() as any;
   const wait = 10; // integer in seconds (unix)
-  
+
   if (after) { // only run if room exists
     if (before.lastActive !== after.lastActive) { // only run when new message received in room
-      /* 
+      /*
       Give the user time to read the message. If the last active message time is greater than
       the last read time after the wait period, consider the message unread. Note: read time
       s set when the user receives the new msg in their client view of the feed, so the wait
@@ -3115,7 +3115,7 @@ exports.onUpdateUserChatRoom = functions
         const roomSnap = await db.collection(`userRooms/${userId}/rooms`)
         .doc(roomId)
         .get();
-        
+
         if (roomSnap.exists) {
           const room = roomSnap.data() as any;
           if ( !room.lastRead || (room.lastActive > room.lastRead) ) { // msg is unread
@@ -3211,7 +3211,7 @@ exports.onNewAdminCourseReviewRequest = functions
     const courseSnap = await db.collection(`users/${reviewRequest.sellerUid}/courses`)
     .doc(reviewRequest.courseId)
     .get();
-  
+
     const course = courseSnap.data() as any;
 
     if (course) {
@@ -3374,8 +3374,8 @@ exports.onWritePrivateUserCourse = functions
 
   try {
     // Sync with public-courses.
-    const batch = db.batch(); // prepare to execute multiple ops atomically 
-    
+    const batch = db.batch(); // prepare to execute multiple ops atomically
+
     // copy non-paywall protected course data in public courses node (to allow browse & purchase)
     const publicData = {
       courseId,
@@ -3434,7 +3434,7 @@ exports.onWriteCourseReview = functions
   const review = change.after.data() as any;
 
   // Record Removed.
-  
+
   if (!review) {
 
     // decrement total review count
@@ -4204,52 +4204,80 @@ exports.uploadCourseImage = functions
   .runWith({memory: '1GB', timeoutSeconds: 300})
   .https
   .onCall(async (data: any, context?) => { // uid: string, img: string
-    const buck = firebase.storage().bucket();
-    const bucket = firebase.storage().bucket('livecoach-dev.appspot.com');
-    // const storage = firebase.storage().bucket('livecoach-dev.appspot.com').storage;
-    // const storage = admin.storage().bucket();
-    // const bucketList = admin.storage().app.storage().bucket().storage.getBuckets();
+    const base64Text = data.img.split(';base64,').pop();
+    const imageBuffer = Buffer.from(base64Text, 'base64');
+    const contentType = data.img.split(';base64,')[0].split(':')[1];
+    const fileName = 'myimage.png';
+    const imageUrl = 'https://storage.googleapis.com/livecoach-dev.appspot.com/' + fileName;
 
-    const generateRandomImgID = () => Math.random().toString(36).substr(2, 9);
+    const promise = admin.storage(firebase).bucket('livecoach-dev.appspot.com').file('/' + fileName).save(imageBuffer, {
+      public: true,
+      gzip: true,
+      metadata: {
+        contentType,
+        cacheControl: 'public, max-age=31536000',
+      }
+    });
+    promise
+      .then( () => {
+        return imageUrl;
+      })
+      .catch(e => {
+        console.error(e);
+        return 'null';
+      })
+  /*  try{
+    var bufferStream = new stream.PassThrough();
+    bufferStream.end(Buffer.from(data.img, 'base64'));
 
-    const original = data.img;
+    // const generateRandomImgID = () => Math.random().toString(36).substr(2, 9);
+    // const original = data.img;
+    // const imgId = generateRandomImgID();
+    // const path = `users/${data.uid}/coursePics/${imgId}`;
+    //
+    // const options = {
+    //   destination: path,
+    //   resumable: true,
+    //   metadata: {
+    //     cacheControl: 'no-cache'
+    //   }
+    // }
 
-    const imgId = generateRandomImgID();
-    const path = `users/${data.uid}/coursePics/${imgId}`;
-    let dest: any = '';
-    try {
-      console.log(`Attempting storage upload for user ${data.uid}`);
-      let file = await buck.upload(original, { public: true, destination: path });
-      let sfile = await bucket.upload(original, { public: true, destination: path });
+      const bucket =  admin.storage(firebase).bucket('livecoach-dev.appspot.com');
 
-      const trimUrl = file[0].metadata.mediaLink;
-      const trimUrl2 = sfile[0].metadata.mediaLink;
-      //  buck.upload(original, { public: true, destination: path }, function(err, file) {
-      //   if (err) {
-      //     console.log(err);
-      //   }
-      // });
-      const meta = buck.file(`users/${data.uid}/coursePics/${imgId}`).download();
+      const file = bucket.file('my-file.jpg');
 
-      // const storagePath = await .ref.getDownloadURL();
-      console.log(`Course img stored & download URL captured successfully.`);
-      return ({
-        url:trimUrl,
-        ulr2:trimUrl2,
-        meta: meta,
-        buck: buck,
-        test: firebase.storage().bucket(),
-      });
-    } catch (err) {
-      console.error({err: err.message,
-        buck: buck,
+      bufferStream.pipe(file.createWriteStream({
+        metadata: {
+          contentType: 'image/jpeg',
+          metadata: {
+            custom: 'metadata'
+          }
+        },
+        public: true,
+        validation: "md5"
+      }))
+        .on('error', function(err) {
 
-        test: firebase.storage().bucket(),
-      });
-
-      return {err: err.message,
-      destination: dest}
+          return 'error';
+        })
+        .on('finish', function() {
+          file
+            .makePublic()
+            .then(async ()=>{
+              const urla = await file.getSignedUrl({ "action": 'read', expires: '03-17-2025' });
+              console.error(urla[0]);
+              console.log('done')
+              return 'nothing';
+            })
+            .catch(e=>console.error(e))
+          return 'success';
+        });
+    }catch (e) {
+      console.error(e);
+      return 'error on catch';
     }
+return 'complex error';*/
   })
 
 
