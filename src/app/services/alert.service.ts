@@ -81,9 +81,7 @@ export class AlertService {
           .fire({
             title: title ? title : 'Are you sure?',
             text: text ? text : 'You won\'t be able to revert this!',
-            html: html ? html + `<div>${text}</div>` : 'You can use <b>bold text</b>, ' +
-              '<a href="https://github.com">links</a> ' +
-              'and other HTML tags',
+            html: html ? html : null,
             type: 'warning',
             showCancelButton: true,
             cancelButtonClass: 'btn btn-round btn-danger',
