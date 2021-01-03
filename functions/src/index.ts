@@ -1414,7 +1414,7 @@ exports.stripeWebhookEvent = functions
             const promise1 = recordCourseEnrollmentForCreator(originalSellerUid, originalSaleItemId, customTransferObj, originalClientUid);
             promises.push(promise1);
 
-            const promise2 = updateCourseEnrollmentCounts(originalSellerUid, originalSaleItemId, customTransferObj);
+            const promise2 = updateCourseEnrollmentCounts(originalSellerUid, originalSaleItemId, customTransferObj, originalClientUid);
             promises.concat(await promise2)
 
             // if the transfer is related to a full program sale
@@ -1422,7 +1422,7 @@ exports.stripeWebhookEvent = functions
             const promise1 = recordProgramEnrollmentForCreator(originalSaleItemType, originalSellerUid, originalSaleItemId, customTransferObj, originalClientUid, originalSaleItemTitle, originalSaleItemImage);
             promises.push(promise1);
 
-            const promise2 = updateProgramEnrollmentCounts(originalSellerUid, originalSaleItemId, customTransferObj);
+            const promise2 = updateProgramEnrollmentCounts(originalSellerUid, originalSaleItemId, customTransferObj, originalClientUid);
             promises.concat(await promise2)
           }
 
@@ -1548,7 +1548,7 @@ exports.completeFreeCourseEnrollment = functions
     const promise3 = recordCourseEnrollmentForCreator(course.sellerUid, courseId, freeEnrollmentObj, clientUid);
     promises.push(promise3);
 
-    const promise4 = updateCourseEnrollmentCounts(course.sellerUid, courseId, freeEnrollmentObj);
+    const promise4 = updateCourseEnrollmentCounts(course.sellerUid, courseId, freeEnrollmentObj, clientUid);
     promises.concat(await promise4)
 
     // Execute concurrent ops
@@ -1619,13 +1619,14 @@ async function recordCourseEnrollmentForStudent(studentUid: string, courseId: st
   return logMailchimpEvent(studentUid, event); // log event
 }
 
-async function updateCourseEnrollmentCounts(creatorUid: string, courseId:string, obj: any) {
+async function updateCourseEnrollmentCounts(creatorUid: string, courseId:string, obj: any, clientUid: string) {
   // Accepts either a custom transfer object (paid courses) or a free course enrollment object (free courses)
   // Promises an array of Firebase write result promises
 
   const incrementCount = admin.firestore.FieldValue.increment(1);
   const incrementAmount = admin.firestore.FieldValue.increment(obj.amount);
   const incrementCurrency = obj.currency;
+  const timestampNow = Math.round(new Date().getTime() / 1000);
 
   const promises = [];
 
@@ -1655,6 +1656,15 @@ async function updateCourseEnrollmentCounts(creatorUid: string, courseId:string,
     totalEnrollments: incrementCount
   }, { merge: true });
   promises.push(promise3);
+
+  // update this client on the seller's enrollments by course node
+  const promise4 = db.collection(`seller-enrollments-by-program/${creatorUid}/courses/${courseId}/enrolled`)
+  .doc(clientUid)
+  .set({
+    timeOfLastEnrollment: timestampNow.toString(),
+    clientUid
+  }, { merge: true });
+  promises.push(promise4);
 
   return promises;
 }
@@ -1762,13 +1772,14 @@ async function recordProgramEnrollmentForClient(enrollmentType: 'fullProgram' | 
   }
 }
 
-async function updateProgramEnrollmentCounts(creatorUid: string, programId:string, obj: any) {
+async function updateProgramEnrollmentCounts(creatorUid: string, programId:string, obj: any, clientUid: string) {
   // Accepts a custom transfer object
   // Promises an array of Firebase write result promises
 
   const incrementCount = admin.firestore.FieldValue.increment(1);
   const incrementAmount = admin.firestore.FieldValue.increment(obj.amount);
   const incrementCurrency = obj.currency;
+  const timestampNow = Math.round(new Date().getTime() / 1000);
 
   const promises = [];
 
@@ -1798,6 +1809,15 @@ async function updateProgramEnrollmentCounts(creatorUid: string, programId:strin
     totalEnrollments: incrementCount
   }, { merge: true });
   promises.push(promise3);
+
+  // update this client on the coach's enrollments by program node
+  const promise4 = db.collection(`coach-enrollments-by-program/${creatorUid}/programs/${programId}/enrolled`)
+  .doc(clientUid)
+  .set({
+    timeOfLastEnrollment: timestampNow.toString(),
+    clientUid
+  }, { merge: true });
+  promises.push(promise4);
 
   return promises;
 }
