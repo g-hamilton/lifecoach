@@ -4,7 +4,7 @@ const firebase_tools = require('firebase-tools');
 const firebase = admin.initializeApp();
 const db = admin.firestore();
 const client = require('twilio')(functions.config().twilio.accountsid, functions.config().twilio.authtoken);
-// import * as stream from 'stream';
+import * as sharp from 'sharp';
 
 // ================================================================================
 // =====                                                                     ======
@@ -4204,80 +4204,56 @@ exports.uploadCourseImage = functions
   .runWith({memory: '1GB', timeoutSeconds: 300})
   .https
   .onCall(async (data: any, context?) => { // uid: string, img: string
+
+    const bucketName = 'livecoach-dev.appspot.com';
+    const generateRandomImgID = () => Math.random().toString(36).substr(2, 9);
+    const imgId = generateRandomImgID(); // imgId in cloud storage
+    const path = `users/${data.uid}/coursePics/${imgId}`; // test jpg but we can save it as original
+
     const base64Text = data.img.split(';base64,').pop();
-    const imageBuffer = Buffer.from(base64Text, 'base64');
+    const imageBuffer = Buffer.from(base64Text, 'base64'); // original image buffer
     const contentType = data.img.split(';base64,')[0].split(':')[1];
-    const fileName = 'myimage.png';
-    const imageUrl = 'https://storage.googleapis.com/livecoach-dev.appspot.com/' + fileName;
 
-    const promise = admin.storage(firebase).bucket('livecoach-dev.appspot.com').file('/' + fileName).save(imageBuffer, {
-      public: true,
-      gzip: true,
-      metadata: {
-        contentType,
-        cacheControl: 'public, max-age=31536000',
-      }
-    });
-    promise
-      .then( () => {
-        return imageUrl;
-      })
-      .catch(e => {
-        console.error(e);
-        return 'null';
-      })
-  /*  try{
-    var bufferStream = new stream.PassThrough();
-    bufferStream.end(Buffer.from(data.img, 'base64'));
+    try{
 
-    // const generateRandomImgID = () => Math.random().toString(36).substr(2, 9);
-    // const original = data.img;
-    // const imgId = generateRandomImgID();
-    // const path = `users/${data.uid}/coursePics/${imgId}`;
-    //
-    // const options = {
-    //   destination: path,
-    //   resumable: true,
-    //   metadata: {
-    //     cacheControl: 'no-cache'
-    //   }
-    // }
+      const webpBuffer = await sharp(imageBuffer).toBuffer();
 
-      const bucket =  admin.storage(firebase).bucket('livecoach-dev.appspot.com');
-
-      const file = bucket.file('my-file.jpg');
-
-      bufferStream.pipe(file.createWriteStream({
-        metadata: {
-          contentType: 'image/jpeg',
+      await admin.storage(firebase).bucket(bucketName)
+        .file(path+'.webp').
+        save(webpBuffer,{ public: true,
+          gzip: true,
+          predefinedAcl:'publicRead',
           metadata: {
-            custom: 'metadata'
+            contentType: 'image/webp',
+            cacheControl: 'public, max-age=31536000',
           }
-        },
-        public: true,
-        validation: "md5"
-      }))
-        .on('error', function(err) {
-
-          return 'error';
-        })
-        .on('finish', function() {
-          file
-            .makePublic()
-            .then(async ()=>{
-              const urla = await file.getSignedUrl({ "action": 'read', expires: '03-17-2025' });
-              console.error(urla[0]);
-              console.log('done')
-              return 'nothing';
-            })
-            .catch(e=>console.error(e))
-          return 'success';
         });
+
+      await admin.storage(firebase).bucket(bucketName)
+        .file(path+'.jpg').
+        save(imageBuffer, {
+          public: true,
+          gzip: true,
+          predefinedAcl:'publicRead',
+          metadata: {
+            contentType,
+            cacheControl: 'public, max-age=31536000',
+          }
+        });
+
+      const resp = await admin.storage(firebase).bucket(bucketName)
+        .file(path+'.webp').makePublic();
+
+      const webResp = await admin.storage(firebase).bucket(bucketName)
+        .file(path+'.jpg').makePublic();
+
+      const url = `https://storage.googleapis.com/${bucketName}/${await resp[0].object}`;
+      const webpUrl = `https://storage.googleapis.com/${bucketName}/${await webResp[0].object}`;
+
+      return {url: await url,webp: await webpUrl};
     }catch (e) {
-      console.error(e);
-      return 'error on catch';
+      return {err: e.message};
     }
-return 'complex error';*/
   })
 
 
