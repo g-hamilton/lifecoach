@@ -49,9 +49,15 @@ export class MyProgramsComponent implements OnInit, OnDestroy {
 
           // Check for purchased programs
           this.subscriptions.add(
-            this.dataService.getPurchasedPrograms(this.userId).subscribe(programIds => {
+            this.dataService.getPurchasedPrograms(this.userId).subscribe(async programIds => {
               if (programIds) {
                 console.log('Enrolled In Program Ids:', programIds);
+
+                // force refresh the user claims on a change to purchased programs
+                // trying to avoid "insufficient permissions" error when going to my-programs immediately afer program purchase 
+                const token = await user.getIdTokenResult(true);
+                console.log('Claims:', token.claims);
+
                 this.purchasedPrograms = []; // reset
                 programIds.forEach((o: any, index) => { // fetch and monitor live / latest program info
                   this.subscriptions.add(
