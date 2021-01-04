@@ -138,6 +138,17 @@ export class PersonHistoryComponent implements OnInit, OnDestroy {
       .pipe(take(1))
       .subscribe(course => {
         if (course) {
+          // calculate course progress
+          this.subscriptions.add(
+            this.dataService.getPrivateCourseLecturesComplete(this.userId, course.courseId)
+            .pipe(take(1))
+            .subscribe(completedLectures => {
+              const lecturesComplete = completedLectures.map(i => i.id);
+              const pc = (lecturesComplete.length / course.lectures.length) * 100;
+              course.progress = pc ? Number(pc.toFixed()) : 0;
+            })
+          );
+          // add the course to the array
           this.enrolledInCourses.push(course);
           console.log('enrolled in courses:', this.enrolledInCourses);
         }
