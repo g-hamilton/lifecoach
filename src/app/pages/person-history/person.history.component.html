@@ -119,7 +119,7 @@
 
           <!-- enrolled in products cards -->
           <div *ngIf="enrolledInCourses?.length > 0 || enrolledInPrograms?.length > 0">
-            <h5> Enrolled In: </h5>
+            <h5> {{ person.firstName }} Enrolled In: </h5>
           </div>
 
           <div class=" row">
@@ -137,7 +137,7 @@
                           <h6 class="card-subtitle mb-2 text-muted"> {{ program?.subtitle }} </h6>
                           <span class=" badge badge-default"> Program </span>
                           <div class="progress-container progress-primary mt-2">
-                              <span class="progress-badge"> Progress </span>
+                              <span class="progress-badge"> {{ person.firstName }}'s Progress </span>
                               <progressbar class="progress-bar-primary" [value]="program?.progress">
                                 <span class="progress-value"> {{ program?.progress }}% </span>
                               </progressbar>
@@ -162,7 +162,7 @@
                           <h6 class="card-subtitle mb-2 text-muted"> {{ course?.subtitle }} </h6>
                           <span class=" badge badge-default"> eCourse </span>
                           <div class="progress-container progress-primary mt-2">
-                              <span class="progress-badge"> Progress </span>
+                              <span class="progress-badge"> {{ person.firstName }}'s Progress </span>
                               <progressbar class="progress-bar-primary" [value]="course?.progress">
                                 <span class="progress-value"> {{ course?.progress }}% </span>
                               </progressbar>
