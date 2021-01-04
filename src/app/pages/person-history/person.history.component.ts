@@ -124,6 +124,17 @@ export class PersonHistoryComponent implements OnInit, OnDestroy {
       .pipe(take(1))
       .subscribe(program => {
         if (program) {
+          // calculate program progress
+          this.subscriptions.add(
+            this.dataService.getPurchasedProgramSessions(this.userId, this.personId, programId)
+            .pipe(take(1))
+            .subscribe(sessions => {
+              const sessionsComplete = []; // TODO NEED TO UPDATE WHEN WE ARE SAVING SESSIONS COMPLETE!
+              const pc = (sessionsComplete.length / sessions.length) * 100;
+              program.progress = pc ? Number(pc.toFixed()) : 0;
+            })
+          );
+          // add the program to the array
           this.enrolledInPrograms.push(program);
           console.log('enrolled in programs:', this.enrolledInPrograms);
         }

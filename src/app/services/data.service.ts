@@ -818,6 +818,13 @@ export class DataService {
       .valueChanges() as Observable<CoachingProgram>;
   }
 
+  getPurchasedProgramSessions(coachId: string, clientId: string, programId: string) {
+    // returns all of the purchased sessions for a specific program
+    return this.db.collection(`users/${coachId}/people/${clientId}/sessions-purchased`, ref => ref
+      .where('programId', '==', programId))
+      .valueChanges({idField: 'id'}) as Observable<[]>;
+  }
+
   // ================================================================================
   // =====                           COACH SERVICES                            ======
   // ================================================================================
