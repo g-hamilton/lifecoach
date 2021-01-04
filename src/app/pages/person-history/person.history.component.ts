@@ -72,10 +72,17 @@ export class PersonHistoryComponent implements OnInit, OnDestroy {
           if (this.person.history) {
             // deal with programs
             const programs = this.person.history.filter(i => i.action === 'enrolled_in_program_session' || i.action === 'enrolled_in_full_program');
-            const mapped = programs.map(i => i.programId); // make an array of program ids (may contain duplicates if paying per session!)
-            const uniqueProgramIds = [...new Set(mapped)]; // remove any duplicates
+            const programIds = programs.map(i => i.programId); // make an array of program ids (may contain duplicates if paying per session!)
+            const uniqueProgramIds = [...new Set(programIds)]; // remove any duplicates
             this.enrolledInPrograms = []; // reset
             uniqueProgramIds.forEach(i => this.loadProgram(i));
+
+            // deal with eCourses
+            const courses = this.person.history.filter(i => i.action === 'enrolled_in_self_study_course');
+            const courseIds = courses.map(i => i.courseId); // make an array of course ids
+            const uniqueCourseIds = [...new Set(courseIds)]; // remove any duplicates (there shouldn't be any)
+            this.enrolledInCourses = []; // reset
+            uniqueCourseIds.forEach(i => this.loadCourse(i));
           }
         }
       })
@@ -119,6 +126,20 @@ export class PersonHistoryComponent implements OnInit, OnDestroy {
         if (program) {
           this.enrolledInPrograms.push(program);
           console.log('enrolled in programs:', this.enrolledInPrograms);
+        }
+      })
+    );
+  }
+
+  loadCourse(courseId: string) {
+    // fetch the course and push it to the array of courses the person is enrolled in
+    this.subscriptions.add(
+      this.dataService.getPublicCourse(courseId)
+      .pipe(take(1))
+      .subscribe(course => {
+        if (course) {
+          this.enrolledInCourses.push(course);
+          console.log('enrolled in courses:', this.enrolledInCourses);
         }
       })
     );
