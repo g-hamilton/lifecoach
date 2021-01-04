@@ -118,18 +118,61 @@
           <!-- end notes card -->
 
           <!-- enrolled in products cards -->
-          <div>
+          <div *ngIf="enrolledInCourses?.length > 0 || enrolledInPrograms?.length > 0">
             <h5> Enrolled In: </h5>
           </div>
-          <div class=" card">
-            <div class=" card-header">
-              <h5> Add a quick note: </h5>
-            </div>
-            <div class=" card-body">
 
+          <div class=" row">
+            <!-- enrolled programs -->
+            <div *ngFor="let program of enrolledInPrograms ; let p = index" class=" col-md-6">
+              <a [routerLink]="['/my-programs', program.programId, 'content']">
+                  <div class=" card">
+                      <img
+                      class="card-img-top"
+                      [src]="program.image ? program.image : 'assets/img/image_placeholder.jpg'"
+                      [alt]="program.title" />
+
+                      <div class=" card-body">
+                          <h4 class="card-title"> {{ program?.title }} </h4>
+                          <h6 class="card-subtitle mb-2 text-muted"> {{ program?.subtitle }} </h6>
+                          <span class=" badge badge-default"> Program </span>
+                          <div class="progress-container progress-primary mt-2">
+                              <span class="progress-badge"> Progress </span>
+                              <progressbar class="progress-bar-primary" [value]="program?.progress">
+                                <span class="progress-value"> {{ program?.progress }}% </span>
+                              </progressbar>
+                          </div>
+                      </div>
+                  </div>
+              </a>
             </div>
+            <!-- end enrolled programs -->
+
+            <!-- enrolled courses -->
+            <div *ngFor="let course of enrolledInCourses ; let c = index" class=" col-md-6">
+              <a [routerLink]="['/my-courses', course.courseId, 'content']">
+                  <div class=" card">
+                      <img
+                      class="card-img-top"
+                      [src]="course.image ? course.image : 'assets/img/image_placeholder.jpg'"
+                      [alt]="course.title" />
+
+                      <div class=" card-body">
+                          <h4 class="card-title"> {{ course?.title }} </h4>
+                          <h6 class="card-subtitle mb-2 text-muted"> {{ course?.subtitle }} </h6>
+                          <span class=" badge badge-default"> eCourse </span>
+                          <div class="progress-container progress-primary mt-2">
+                              <span class="progress-badge"> Progress </span>
+                              <progressbar class="progress-bar-primary" [value]="course?.progress">
+                                <span class="progress-value"> {{ course?.progress }}% </span>
+                              </progressbar>
+                          </div>
+                      </div>
+                  </div>
+              </a>
+            </div>
+            <!-- end enrolled courses -->
           </div>
-          <!-- end notes card -->
 
         </div>
         <!-- end col -->
