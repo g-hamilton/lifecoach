@@ -1,4 +1,5 @@
 import { AdminCourseReviewRequest } from './adminCourseReviewRequest';
+import { CourseImagePaths } from './image-path.interface';
 
 export interface CoachingCourse {
     courseId: string;
@@ -48,6 +49,7 @@ export interface CoachingCourse {
     totalZeroPointFiveStarReviews?: number;
     totalZeroStarReviews?: number;
     isTest?: boolean;
+    imagePaths?: CourseImagePaths;
 }
 
 export interface CoachingCourseSection {

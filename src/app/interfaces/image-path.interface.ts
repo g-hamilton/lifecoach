@@ -15,6 +15,17 @@ export interface ProgramImagePaths {
   };
   other?: any;
 }
+export interface CourseImagePaths { // Not sure about sizes, but anywayt its test
+  original: {
+    991: string;
+    fullSize: string;
+  };
+  webp: {
+    991: string;
+    fullSize: string;
+  };
+  other?: any;
+}
 
 export interface UserAvatarImagePaths {
   original: {

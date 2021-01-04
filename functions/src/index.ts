@@ -4216,8 +4216,11 @@ exports.uploadCourseImage = functions
 
     try{
 
-      const webpBuffer = await sharp(imageBuffer).toBuffer();
+      const resizedBuffer = await sharp(imageBuffer).resize(991,null).toBuffer();
+      const webpBuffer =  await sharp(imageBuffer).toFormat('webp').toBuffer();
+      const resizedWebpBuffer =  await sharp(resizedBuffer).toFormat('webp').toBuffer();
 
+      // original sizes
       await admin.storage(firebase).bucket(bucketName)
         .file(path+'.webp').
         save(webpBuffer,{ public: true,
@@ -4241,18 +4244,60 @@ exports.uploadCourseImage = functions
           }
         });
 
-      const resp = await admin.storage(firebase).bucket(bucketName)
-        .file(path+'.webp').makePublic();
+      // resized
+      await admin.storage(firebase).bucket(bucketName)
+        .file(path+'_991.webp').
+        save(resizedWebpBuffer,{ public: true,
+          gzip: true,
+          predefinedAcl:'publicRead',
+          metadata: {
+            contentType: 'image/webp',
+            cacheControl: 'public, max-age=31536000',
+          }
+        });
 
-      const webResp = await admin.storage(firebase).bucket(bucketName)
-        .file(path+'.jpg').makePublic();
+      await admin.storage(firebase).bucket(bucketName)
+        .file(path+'_991.jpg').
+        save(resizedBuffer, {
+          public: true,
+          gzip: true,
+          predefinedAcl:'publicRead',
+          metadata: {
+            contentType,
+            cacheControl: 'public, max-age=31536000',
+          }
+        });
+      const resp = await admin.storage(firebase).bucket(bucketName).file(path+'.jpg').makePublic();
+
+      const webResp = await admin.storage(firebase).bucket(bucketName).file(path+'.webp').makePublic();
+
+      const resizedResp = await admin.storage(firebase).bucket(bucketName).file(path+'_991.jpg').makePublic();
+
+      const resizedWebResp = await admin.storage(firebase).bucket(bucketName).file(path+'_991.webp').makePublic();
 
       const url = `https://storage.googleapis.com/${bucketName}/${await resp[0].object}`;
-      const webpUrl = `https://storage.googleapis.com/${bucketName}/${await webResp[0].object}`;
+      const resizedUrl = `https://storage.googleapis.com/${bucketName}/${await resizedResp[0].object}`;
 
-      return {url: await url,webp: await webpUrl};
-    }catch (e) {
+      const webpUrl = `https://storage.googleapis.com/${bucketName}/${await webResp[0].object}`;
+      const resizedWebpUrl = `https://storage.googleapis.com/${bucketName}/${await resizedWebResp[0].object}`;
+
+      const response = {
+        original: {
+          991: await resizedUrl,
+          fullSize: await url
+        },
+        webp: {
+          991: await resizedWebpUrl,
+          fullSize: await webpUrl
+        }
+      };
+
+      return response;
+
+    } catch (e) {
+
       return {err: e.message};
+
     }
   })
 
