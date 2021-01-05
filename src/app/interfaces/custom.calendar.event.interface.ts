@@ -2,7 +2,7 @@ import { CalendarEvent } from 'angular-calendar';
 
 export interface CustomCalendarEvent extends CalendarEvent {
     id: string;
-    type: 'discovery';
+    type: 'discovery' | 'session';
     description?: string;
     reserved?: boolean;
     reservedById?: string | null;

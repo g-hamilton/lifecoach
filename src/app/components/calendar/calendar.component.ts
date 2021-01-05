@@ -13,6 +13,7 @@ import { Router } from '@angular/router';
 import { CloudFunctionsService } from 'app/services/cloud-functions.service';
 import { CancelCoachSessionRequest } from 'app/interfaces/cancel.coach.session.request.interface';
 import { AnalyticsService } from 'app/services/analytics.service';
+import { CrmPeopleService } from 'app/services/crm-people.service';
 
 @Component({
   selector: 'app-calendar',
@@ -41,7 +42,10 @@ export class CalendarComponent implements OnInit, OnDestroy {
   public focus: boolean;
   public focusTouched: boolean;
 
-  public eventTypes = [{ id: 'discovery', name: 'Set me as available for discovery calls'}];
+  public eventTypes = [
+    { id: 'discovery', name: 'Set me as available for discovery calls'},
+    { id: 'session', name: 'Schedule a client session'}
+  ];
 
   public events: CustomCalendarEvent[];
 
@@ -49,6 +53,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
   breakDuration = 15;
   endTimes: Date[] | [];
   startTimes: Date[] | [];
+
+  public clients = []; // an array contining this coach's clients
 
   private subscriptions: Subscription = new Subscription();
   public objKeys = Object.keys;
@@ -67,7 +73,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
     public alertService: AlertService,
     private router: Router,
     private cloudFunctionsService: CloudFunctionsService,
-    private analyticsService: AnalyticsService
+    private analyticsService: AnalyticsService,
+    private crmPeopleService: CrmPeopleService
   ) {
   }
 
@@ -141,6 +148,22 @@ export class CalendarComponent implements OnInit, OnDestroy {
             })
           );
 
+          // monitor this coach's clients
+          this.subscriptions.add(
+            this.crmPeopleService.getUserPeople(this.userId)
+            .subscribe(async people => {
+              if (people) {
+                // note: a person is a client if they have enrolled in a course or program, so check their history...
+                const filledPeople = await this.crmPeopleService.getFilledPeople(this.userId, people);
+                // console.log('filled people', filledPeople);
+                const clients = filledPeople.filter(o => o.history.filter(h => h.action === 'enrolled_in_full_program' ||
+                h.action === 'enrolled_in_program_session' || h.action === 'enrolled_in_self_study_course'));
+                // console.log('Clients:', clients);
+                this.clients = clients;
+              }
+            })
+          );
+
         }
       })
     );
@@ -155,6 +178,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
     let title = '';
     if (ev.type === 'discovery') {
       title = ev.ordered ? `Discovery with ${ev.orderedByName}` : 'Available';
+    } else if (ev.type === 'session') {
+      title = `Session with ${ev.orderedByName}`;
     }
     return title;
   }
@@ -338,6 +363,15 @@ export class CalendarComponent implements OnInit, OnDestroy {
       // What should we do if event is in the past? Allow delete?
       // Todo: pop a modal advising user to join the session and tell the other person they have to cancel on the call?
       // return;
+
+      this.cancelEventModal.show();
+      return;
+    }
+
+    // if this is a coach created client session
+    if (this.activeEvent.type === 'session') {
+
+      // anything special?
 
       this.cancelEventModal.show();
       return;
