@@ -219,6 +219,26 @@
                 </div>
               </div>
 
+              <!-- advisory on sessions remaining if a client is selected -->
+              <div *ngIf="activeEventF.client.value" class=" mb-3">
+                <div class=" row" *ngFor="let program of getClientPrograms(activeEventF.client.value)">
+                  <div class=" col-md-6">
+                    <small>
+                      <span class=" text-default">
+                        {{ program.title }} 
+                      </span>
+                    </small>
+                  </div>
+                  <div class=" col-md-6">
+                    <small> 
+                      <span class=" text-success">
+                        {{ program.purchasedSessions }} paid {{ program.purchasedSessions === 1 ? 'session' : 'sessions' }}
+                      </span>
+                    </small>
+                  </div>
+                </div>
+              </div>
+
               <div class=" row">
                 <!-- start time -->
                 <div class=" col-md-6">

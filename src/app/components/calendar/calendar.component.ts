@@ -161,8 +161,41 @@ export class CalendarComponent implements OnInit, OnDestroy {
                 // console.log('filled people', filledPeople);
                 const clients = filledPeople.filter(o => o.history.filter(h => h.action === 'enrolled_in_full_program' ||
                 h.action === 'enrolled_in_program_session' || h.action === 'enrolled_in_self_study_course'));
-                console.log('Clients:', clients);
+                // work out which programs each client is enrolled in
+                clients.forEach(c => {
+                  const programIds = [];
+                  if (c.history) {
+                    c.history.forEach(i => {
+                      if (i.action === 'enrolled_in_program_session' || i.action === 'enrolled_in_full_program') {
+                        programIds.push(i.programId);
+                      }
+                    });
+                    const uniqueProgramIds = [...new Set(programIds)]; // remove any duplicates
+                    // work out how many purchased sessions remain for each program the person is enrolled in
+                    c.enrolledPrograms = [];
+                    uniqueProgramIds.forEach(p => {
+                      this.dataService.getPurchasedProgramSessions(this.userId, c.id, p)
+                      .pipe(take(1))
+                      .subscribe(sessions => {
+                        if (sessions && sessions.length) {
+                          this.dataService.getPublicProgram(p)
+                          .pipe(take(1))
+                          .subscribe(pubProgram => {
+                            if (pubProgram) {
+                              c.enrolledPrograms.push({
+                                id: p,
+                                purchasedSessions: sessions.length,
+                                title: pubProgram.title
+                              });
+                            }
+                          });
+                        }
+                      });
+                    });
+                  }
+                });
                 this.clients = clients;
+                console.log('Clients:', clients);
               }
             })
           );
@@ -185,6 +218,10 @@ export class CalendarComponent implements OnInit, OnDestroy {
       title = `Session with ${ev.orderedByName}`;
     }
     return title;
+  }
+
+  getClientPrograms(clientId: string) {
+    return this.clients.filter(i => i.id === clientId)[0].enrolledPrograms;
   }
 
   loadActiveEventFormData() {

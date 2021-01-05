@@ -10,6 +10,7 @@ export interface CRMPerson {
     'Cancelled Session' | 'Enrolled in program';
     history?: CRMPersonHistoryEvent[];
     lastReplyReceived?: string; // should be a unix string if this person has sent a reply after sending initial chat msg
+    enrolledPrograms?: EnrolledProgram[]; // can contain an array of program ids that this person has enrolled in
 }
 
 export interface CRMPersonHistoryEvent {
@@ -27,4 +28,10 @@ export interface CRMPersonHistoryEventData {
     properties?: any; // will be an object containing custom properties
     type?: 'discovery';
     id?: string;
+}
+
+export interface EnrolledProgram {
+    id: string;
+    purchasedSessions?: number; // how many sessions the user has purchased (remaining) in the program
+    title?: string; // the program title
 }
