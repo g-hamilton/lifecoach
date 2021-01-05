@@ -183,9 +183,37 @@
                     <!-- if action is schedule a client session -->
                     <div *ngIf="activeEventF.type.value === 'session'">
                       <p class=" small text-muted pl-2 mb-3">
-                        <i class="fas fa-info-circle"></i> This action creates a client video coaching session.
+                        <i class="fas fa-info-circle"></i> This action creates a video coaching session with one of your active clients. 
+                        Upon saving the session, your client will receive an email notification of the session date & time and the 
+                        session will appear in their account.
                       </p>
-                      <!-- allow coach to select a client -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Client picker if action is schedule a client session -->
+              <div class=" row" *ngIf="activeEventF.type.value === 'session'">
+                <div class=" col">
+                  <div class=" form-group">
+                    <label for="eventType"> Client </label>
+                    <select
+                    class="form-control"
+                    id="clientSelect"
+                    formControlName="client"
+                    (focus)="focus1 = true; focus1Touched = true"
+                    (blur)="focus1 = false">
+                        <option [ngValue]="null"> Select... </option>
+                        <option *ngFor="let item of clients" [value]="item.id">
+                        {{ item.firstName + ' ' + item.lastName }}
+                        </option>
+                    </select>
+                    <div *ngIf="(((focus1Touched && activeEventF.client.value != null) || saveAttempt) && activeEventF.client.errors)">
+                      <label
+                      *ngFor="let error of objKeys(activeEventF.client.errors)"
+                      class="error custom-error-label"
+                      >{{ showError('client', error) }}
+                      </label>
                     </div>
                   </div>
                 </div>

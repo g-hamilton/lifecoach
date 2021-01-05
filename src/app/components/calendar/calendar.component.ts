@@ -40,7 +40,9 @@ export class CalendarComponent implements OnInit, OnDestroy {
   public cancelling: boolean;
 
   public focus: boolean;
+  public focus1: boolean;
   public focusTouched: boolean;
+  public focus1Touched: boolean;
 
   public eventTypes = [
     { id: 'discovery', name: 'Set me as available for discovery calls'},
@@ -96,7 +98,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
         end: [null, Validators.required],
         draggable: [null],
         cssClass: [null],
-        description: [null]
+        description: [null],
+        client: [null]
       }
     );
   }
@@ -158,7 +161,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
                 // console.log('filled people', filledPeople);
                 const clients = filledPeople.filter(o => o.history.filter(h => h.action === 'enrolled_in_full_program' ||
                 h.action === 'enrolled_in_program_session' || h.action === 'enrolled_in_self_study_course'));
-                // console.log('Clients:', clients);
+                console.log('Clients:', clients);
                 this.clients = clients;
               }
             })
@@ -198,6 +201,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
       ordered: this.activeEvent.ordered ? this.activeEvent.ordered : null,
       orderedById: this.activeEvent.orderedById ? this.activeEvent.orderedById : null,
       cssClass: this.activeEvent.cssClass ? this.activeEvent.cssClass : null,
+      client: this.activeEvent.client ? this.activeEvent.client : null,
     });
   }
 
