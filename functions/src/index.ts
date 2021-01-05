@@ -4205,6 +4205,9 @@ exports.uploadCourseImage = functions
   .https
   .onCall(async (data: any, context?) => { // uid: string, img: string
 
+    const uploadingPromises = [];
+
+
     const bucketName = 'livecoach-dev.appspot.com';
     const generateRandomImgID = () => Math.random().toString(36).substr(2, 9);
     const imgId = generateRandomImgID(); // imgId in cloud storage
@@ -4215,13 +4218,12 @@ exports.uploadCourseImage = functions
     const contentType = data.img.split(';base64,')[0].split(':')[1];
 
     try{
-
-      const resizedBuffer = await sharp(imageBuffer).resize(991,null).toBuffer();
-      const webpBuffer =  await sharp(imageBuffer).toFormat('webp').toBuffer();
-      const resizedWebpBuffer =  await sharp(resizedBuffer).toFormat('webp').toBuffer();
+      const resizedBuffer = await sharp(imageBuffer).resize(991,null).toBuffer(); // Getting resizing image
+      const webpBuffer = await sharp(imageBuffer).toFormat('webp').toBuffer(); // webp image
+      const resizedWebpBuffer = await sharp(resizedBuffer).toFormat('webp').toBuffer(); // resized webp image
 
       // original sizes
-      await admin.storage(firebase).bucket(bucketName)
+      const u1 = admin.storage(firebase).bucket(bucketName) // uploading promise #1
         .file(path+'.webp').
         save(webpBuffer,{ public: true,
           gzip: true,
@@ -4232,7 +4234,7 @@ exports.uploadCourseImage = functions
           }
         });
 
-      await admin.storage(firebase).bucket(bucketName)
+      const u2 = admin.storage(firebase).bucket(bucketName) // uploading promise #2
         .file(path+'.jpg').
         save(imageBuffer, {
           public: true,
@@ -4245,7 +4247,7 @@ exports.uploadCourseImage = functions
         });
 
       // resized
-      await admin.storage(firebase).bucket(bucketName)
+      const u3 = admin.storage(firebase).bucket(bucketName) // resized uploading promise #3
         .file(path+'_991.webp').
         save(resizedWebpBuffer,{ public: true,
           gzip: true,
@@ -4256,7 +4258,7 @@ exports.uploadCourseImage = functions
           }
         });
 
-      await admin.storage(firebase).bucket(bucketName)
+      const u4 = admin.storage(firebase).bucket(bucketName) // resized uploading promise #4
         .file(path+'_991.jpg').
         save(resizedBuffer, {
           public: true,
@@ -4267,21 +4269,25 @@ exports.uploadCourseImage = functions
             cacheControl: 'public, max-age=31536000',
           }
         });
-      const resp = await admin.storage(firebase).bucket(bucketName).file(path+'.jpg').makePublic();
 
-      const webResp = await admin.storage(firebase).bucket(bucketName).file(path+'.webp').makePublic();
+      uploadingPromises.push(u1, u2, u3, u4);
+      await Promise.all(uploadingPromises);
 
-      const resizedResp = await admin.storage(firebase).bucket(bucketName).file(path+'_991.jpg').makePublic();
+      const resp = admin.storage(firebase).bucket(bucketName).file(path+'.jpg').makePublic();
+      const webResp = admin.storage(firebase).bucket(bucketName).file(path+'.webp').makePublic();
+      const resizedResp = admin.storage(firebase).bucket(bucketName).file(path+'_991.jpg').makePublic();
+      const resizedWebResp = admin.storage(firebase).bucket(bucketName).file(path+'_991.webp').makePublic();
 
-      const resizedWebResp = await admin.storage(firebase).bucket(bucketName).file(path+'_991.webp').makePublic();
+      const makePublicPromises:Array<any> = [];
+      makePublicPromises.push(resp, resizedResp, webResp, resizedWebResp);
+      const response = await Promise.all(makePublicPromises)
 
-      const url = `https://storage.googleapis.com/${bucketName}/${await resp[0].object}`;
-      const resizedUrl = `https://storage.googleapis.com/${bucketName}/${await resizedResp[0].object}`;
+      const url = `https://storage.googleapis.com/${bucketName}/${await response[0][0].object}`;
+      const resizedUrl = `https://storage.googleapis.com/${bucketName}/${await response[1][0].object}`;
+      const webpUrl = `https://storage.googleapis.com/${bucketName}/${await response[2][0].object}`;
+      const resizedWebpUrl = `https://storage.googleapis.com/${bucketName}/${await response[3][0].object}`;
 
-      const webpUrl = `https://storage.googleapis.com/${bucketName}/${await webResp[0].object}`;
-      const resizedWebpUrl = `https://storage.googleapis.com/${bucketName}/${await resizedWebResp[0].object}`;
-
-      const response = {
+      const result = {
         original: {
           991: await resizedUrl,
           fullSize: await url
@@ -4291,15 +4297,11 @@ exports.uploadCourseImage = functions
           fullSize: await webpUrl
         }
       };
-
-      return response;
-
+      return await result;
     } catch (e) {
-
       return {err: e.message};
-
     }
-  })
+  });
 
 
 // Image services - end

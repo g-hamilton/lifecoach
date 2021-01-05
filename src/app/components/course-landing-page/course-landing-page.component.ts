@@ -153,7 +153,9 @@ export class CourseLandingPageComponent implements OnInit, OnChanges, AfterViewI
       promoVideo: [null],
       learningPoints: [this.formBuilder.array([])],
       requirements: [this.formBuilder.array([])],
-      targets: [this.formBuilder.array([])]
+      targets: [this.formBuilder.array([])],
+      // field below should replace image field in future
+      imagePaths: [null]
     });
   }
 
@@ -171,7 +173,9 @@ export class CourseLandingPageComponent implements OnInit, OnChanges, AfterViewI
       promoVideo: this.course.promoVideo ? this.course.promoVideo : null,
       learningPoints: this.course.learningPoints ? this.loadLpoints() : this.formBuilder.array([new FormControl('', Validators.maxLength(this.learningPointsMaxLength))], Validators.maxLength(this.learningPointsMax)),
       requirements: this.course.requirements ? this.loadRequirements() : this.formBuilder.array([new FormControl('', Validators.maxLength(this.requirementsMaxLength))], Validators.maxLength(this.requirementsMax)),
-      targets: this.course.targets ? this.loadTargets() : this.formBuilder.array([new FormControl('', Validators.maxLength(this.targetsMaxLength))], Validators.maxLength(this.targetsMax))
+      targets: this.course.targets ? this.loadTargets() : this.formBuilder.array([new FormControl('', Validators.maxLength(this.targetsMaxLength))], Validators.maxLength(this.targetsMax)),
+      // field below should replace image field in future
+      imagePaths: this.course.imagePaths ? this.course.imagePaths : null
     });
 
     if (this.course.promoVideo) {
@@ -352,13 +356,18 @@ export class CourseLandingPageComponent implements OnInit, OnChanges, AfterViewI
 
       // const url = await this.storageService.storeCourseImageUpdateDownloadUrl(this.userId, this.landingF.mainImage.value);
 
-      const url = await this.cloudFunctions
+      const imagePaths = await this.cloudFunctions
         .uploadCourseImage({uid: this.userId, img: this.landingF.mainImage.value})
         .catch(e => console.log(e));
+
+      // @ts-ignore
+      const url = await imagePaths.original.fullSize || '';
       console.log(url);
       // console.log(`Photo stored successfully. Patching landing form with photo download URL: ${url}`);
       this.landingForm.patchValue({
-        mainImage: url
+        mainImage: url,
+        // field below should replace image field in future
+        imagePaths: await imagePaths
       });
     }
 
@@ -375,8 +384,10 @@ export class CourseLandingPageComponent implements OnInit, OnChanges, AfterViewI
     this.course.learningPoints = this.buildLpArray();
     this.course.requirements = this.buildReqArray();
     this.course.targets = this.buildTargetArray();
+    // field below should replace image field in future
+    this.course.imagePaths = this.landingF.imagePaths.value;
 
-    // console.log(this.course);
+    console.log(this.course);
 
     await this.dataService.savePrivateCourse(this.userId, this.course);
 
