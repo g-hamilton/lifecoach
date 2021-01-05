@@ -125,26 +125,34 @@
           <div class=" row">
             <!-- enrolled programs -->
             <div *ngFor="let program of enrolledInPrograms ; let p = index" class=" col-md-6">
-              <a [routerLink]="['/my-programs', program.programId, 'content']">
-                  <div class=" card">
-                      <img
-                      class="card-img-top"
-                      [src]="program.image ? program.image : 'assets/img/image_placeholder.jpg'"
-                      [alt]="program.title" />
+              <div class=" card">
+                  <a [routerLink]="['/my-programs', program.programId, 'content']">
+                    <img
+                    class="card-img-top"
+                    [src]="program.image ? program.image : 'assets/img/image_placeholder.jpg'"
+                    [alt]="program.title" />
+                  </a>
 
-                      <div class=" card-body">
-                          <h4 class="card-title"> {{ program?.title }} </h4>
-                          <h6 class="card-subtitle mb-2 text-muted"> {{ program?.subtitle }} </h6>
-                          <span class=" badge badge-default"> Program </span>
-                          <div class="progress-container progress-primary mt-2">
-                              <span class="progress-badge"> {{ person.firstName }}'s Progress </span>
-                              <progressbar class="progress-bar-primary" [value]="program?.progress">
-                                <span class="progress-value"> {{ program?.progress }}% </span>
-                              </progressbar>
-                          </div>
-                      </div>
+                  <div class=" card-body">
+                    <a [routerLink]="['/my-programs', program.programId, 'content']">
+                      <h4 class="card-title"> {{ program?.title }} </h4>
+                      <h6 class="card-subtitle mb-2 text-muted"> {{ program?.subtitle }} </h6>
+                      <span class=" badge badge-default"> Program </span>
+                    </a>
+                    <div class="progress-container progress-primary mt-2">
+                        <span class="progress-badge"> {{ person.firstName }}'s Progress </span>
+                        <progressbar class="progress-bar-primary" [value]="program?.progress">
+                          <span class="progress-value"> {{ program?.progress }}% </span>
+                        </progressbar>
+                    </div>
                   </div>
-              </a>
+                  <div class=" card-footer" *ngIf="program.purchasedSessions?.length > 0">
+                    <button class="btn btn-sm btn-round btn-primary pull-right"
+                    [routerLink]="['/calendar']">
+                      Schedule Next Session
+                    </button>
+                  </div>
+              </div>
             </div>
             <!-- end enrolled programs -->
 

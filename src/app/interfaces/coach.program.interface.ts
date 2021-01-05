@@ -45,6 +45,7 @@ export interface CoachingProgram {
     adminApproved?: boolean;
     approved?: number; // unix timestamp
     progress?: number;
+    purchasedSessions?: any[];
     imagePaths: ProgramImagePaths;
     // for different image to speed up first render --test_feature
 }

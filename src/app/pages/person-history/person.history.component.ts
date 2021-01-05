@@ -132,6 +132,7 @@ export class PersonHistoryComponent implements OnInit, OnDestroy {
               const sessionsComplete = []; // TODO NEED TO UPDATE WHEN WE ARE SAVING SESSIONS COMPLETE!
               const pc = (sessionsComplete.length / sessions.length) * 100;
               program.progress = pc ? Number(pc.toFixed()) : 0;
+              program.purchasedSessions = sessions;
             })
           );
           // add the program to the array
