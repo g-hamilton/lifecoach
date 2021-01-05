@@ -14,7 +14,7 @@ import { CloudFunctionsService } from 'app/services/cloud-functions.service';
 import { CancelCoachSessionRequest } from 'app/interfaces/cancel.coach.session.request.interface';
 import { AnalyticsService } from 'app/services/analytics.service';
 import { CrmPeopleService } from 'app/services/crm-people.service';
-import { EnrolledProgram } from 'app/interfaces/crm.person.interface';
+import { CRMPerson, EnrolledProgram } from 'app/interfaces/crm.person.interface';
 
 @Component({
   selector: 'app-calendar',
@@ -59,7 +59,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
   endTimes: Date[] | [];
   startTimes: Date[] | [];
 
-  public clients = []; // an array contining this coach's clients
+  public clients = [] as CRMPerson[]; // an array contining this coach's clients
 
   private subscriptions: Subscription = new Subscription();
   public objKeys = Object.keys;
@@ -103,7 +103,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
         cssClass: [null],
         description: [null],
         client: [null],
-        program: [null]
+        program: [null],
+        orderedByName: [null]
       }
     );
   }
@@ -250,6 +251,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
       reservedById: this.activeEvent.reservedById ? this.activeEvent.reservedById : null,
       ordered: this.activeEvent.ordered ? this.activeEvent.ordered : null,
       orderedById: this.activeEvent.orderedById ? this.activeEvent.orderedById : null,
+      orderedByName: this.activeEvent.orderedByName ? this.activeEvent.orderedByName : null,
       cssClass: this.activeEvent.cssClass ? this.activeEvent.cssClass : null,
       client: this.activeEvent.client ? this.activeEvent.client : null,
       program: this.activeEvent.program ? this.activeEvent.program : null,
@@ -531,11 +533,22 @@ export class CalendarComponent implements OnInit, OnDestroy {
       this.activeEventForm.patchValue({id: Math.random().toString(36).substr(2, 9)}); // generate semi-random id
     }
 
+    // if the coach is scheduling a client event, insert the client data into the form prior to saving
+    if (this.activeEventF.type.value === 'session') {
+      if (!this.activeEventF.client.value) {
+        this.alertService.alert('warning-message', 'Oops', '`Error: Client ID is missing. Please contact support.');
+      }
+      const selectedClient = this.clients.filter(i => i.id === this.activeEventF.client.value)[0];
+      this.activeEventForm.patchValue({ orderedByName: `${selectedClient.firstName} ${selectedClient.lastName}` });
+    }
+
     console.log(this.activeEventF);
     console.log('Events', this.events);
 
     const ev = this.activeEventForm.value;
+
     ev.start = new Date(ev.start);
+
     const thisDayEvents = this.events !== undefined ?
       this.events
         .filter( item => this.isTheSameDay(item.start, ev.start))
