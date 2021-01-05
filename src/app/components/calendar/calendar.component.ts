@@ -14,6 +14,7 @@ import { CloudFunctionsService } from 'app/services/cloud-functions.service';
 import { CancelCoachSessionRequest } from 'app/interfaces/cancel.coach.session.request.interface';
 import { AnalyticsService } from 'app/services/analytics.service';
 import { CrmPeopleService } from 'app/services/crm-people.service';
+import { EnrolledProgram } from 'app/interfaces/crm.person.interface';
 
 @Component({
   selector: 'app-calendar',
@@ -224,7 +225,16 @@ export class CalendarComponent implements OnInit, OnDestroy {
   }
 
   getClientPrograms(clientId: string) {
-    return this.clients.filter(i => i.id === clientId)[0].enrolledPrograms;
+    return this.clients.filter(i => i.id === clientId)[0].enrolledPrograms as EnrolledProgram[];
+  }
+
+  clientHasPurchasedProgramSessions(clientId: string, programId: string) {
+    const enrolledPrograms = this.getClientPrograms(clientId);
+    const purchasedSessions = enrolledPrograms.filter(i => i.id === programId)[0].purchasedSessions;
+    if (purchasedSessions > 0) {
+      return true;
+    }
+    return false;
   }
 
   loadActiveEventFormData() {

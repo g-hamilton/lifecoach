@@ -220,7 +220,7 @@
               </div>
 
               <!-- program picker if a client is selected -->
-              <div *ngIf="activeEventF.client.value" class=" mb-3">
+              <div *ngIf="activeEventF.client.value">
                 <div class=" row">
                   <div class=" col">
                     <div class=" form-group">
@@ -304,7 +304,8 @@
 <!--              Cancel Event-->
 <!--            </button>-->
 
-            <button class=" btn btn-primary btn-block mt-3" (click)="onUpdateEvent()">
+            <button class=" btn btn-primary btn-block mt-3" (click)="onUpdateEvent()"
+            [disabled]="activeEventF.client.value && activeEventF.program.value && !this.clientHasPurchasedProgramSessions(activeEventF.client.value, activeEventF.program.value)">
               <span *ngIf="!saving">
                 <i class="fas fa-calendar"></i>
               </span>
