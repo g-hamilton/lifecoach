@@ -219,22 +219,31 @@
                 </div>
               </div>
 
-              <!-- advisory on sessions remaining if a client is selected -->
+              <!-- program picker if a client is selected -->
               <div *ngIf="activeEventF.client.value" class=" mb-3">
-                <div class=" row" *ngFor="let program of getClientPrograms(activeEventF.client.value)">
-                  <div class=" col-md-6">
-                    <small>
-                      <span class=" text-default">
-                        {{ program.title }} 
-                      </span>
-                    </small>
-                  </div>
-                  <div class=" col-md-6">
-                    <small> 
-                      <span class=" text-success">
-                        {{ program.purchasedSessions }} paid {{ program.purchasedSessions === 1 ? 'session' : 'sessions' }}
-                      </span>
-                    </small>
+                <div class=" row">
+                  <div class=" col">
+                    <div class=" form-group">
+                      <label for="eventType"> Program </label>
+                      <select
+                      class="form-control"
+                      id="programSelect"
+                      formControlName="program"
+                      (focus)="focus2 = true; focus2Touched = true"
+                      (blur)="focus2 = false">
+                          <option [ngValue]="null"> Select... </option>
+                          <option *ngFor="let item of getClientPrograms(activeEventF.client.value)" [value]="item.id">
+                          {{ item.title }} - {{ item.purchasedSessions }} paid {{ item.purchasedSessions === 1 ? 'session' : 'sessions' }}
+                          </option>
+                      </select>
+                      <div *ngIf="(((focus2Touched && activeEventF.program.value != null) || saveAttempt) && activeEventF.program.errors)">
+                        <label
+                        *ngFor="let error of objKeys(activeEventF.program.errors)"
+                        class="error custom-error-label"
+                        >{{ showError('program', error) }}
+                        </label>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -41,8 +41,10 @@ export class CalendarComponent implements OnInit, OnDestroy {
 
   public focus: boolean;
   public focus1: boolean;
+  public focus2: boolean;
   public focusTouched: boolean;
   public focus1Touched: boolean;
+  public focus2Touched: boolean;
 
   public eventTypes = [
     { id: 'discovery', name: 'Set me as available for discovery calls'},
@@ -99,7 +101,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
         draggable: [null],
         cssClass: [null],
         description: [null],
-        client: [null]
+        client: [null],
+        program: [null]
       }
     );
   }
@@ -239,6 +242,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
       orderedById: this.activeEvent.orderedById ? this.activeEvent.orderedById : null,
       cssClass: this.activeEvent.cssClass ? this.activeEvent.cssClass : null,
       client: this.activeEvent.client ? this.activeEvent.client : null,
+      program: this.activeEvent.program ? this.activeEvent.program : null,
     });
   }
 

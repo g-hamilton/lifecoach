@@ -15,4 +15,5 @@ export interface CustomCalendarEvent extends CalendarEvent {
     cancelledTime?: number;
     cancelledById?: string;
     client?: string; // can contain a client uid if coach is booking a client session
+    program?: string; // can contain a program id if the event is related to a program session
 }
