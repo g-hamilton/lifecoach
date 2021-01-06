@@ -93,12 +93,22 @@
               </div>
             </div>
 
+            <!-- program if session is related to a program -->
+            <div class=" row" *ngIf="activeEvent?.type === 'session' && activeEvent?.program">
+              <div class=" col">
+                <label> Program: </label>
+                <p>
+                  {{ getProgram(activeEvent.program).title }}
+                </p>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
       <div class=" modal-footer">
         <button class=" btn btn-danger btn-block mt-3" (click)="onDetailDeleteEvent()">
-          <i class="fas fa-trash mr-2"></i> Delete
+          <i class="fas fa-times"></i> Cancel
         </button>
         <button class=" btn btn-default btn-block mt-3" (click)="onEditEvent()">
           <i class="far fa-edit mr-2"></i> Edit
@@ -180,6 +190,70 @@
                         You can easily delete slots at any time before they are booked.
                       </p>
                     </div>
+                    <!-- if action is schedule a client session -->
+                    <div *ngIf="activeEventF.type.value === 'session'">
+                      <p class=" small text-muted pl-2 mb-3">
+                        <i class="fas fa-info-circle"></i> This action creates a video coaching session with one of your active clients. 
+                        Upon saving the session, your client will receive an email notification of the session date & time and the 
+                        session will appear in their account.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Client picker if action is schedule a client session -->
+              <div class=" row" *ngIf="activeEventF.type.value === 'session'">
+                <div class=" col">
+                  <div class=" form-group">
+                    <label for="eventType"> Client </label>
+                    <select
+                    class="form-control"
+                    id="clientSelect"
+                    formControlName="client"
+                    (focus)="focus1 = true; focus1Touched = true"
+                    (blur)="focus1 = false">
+                        <option [ngValue]="null"> Select... </option>
+                        <option *ngFor="let item of clients" [value]="item.id">
+                        {{ item.firstName + ' ' + item.lastName }}
+                        </option>
+                    </select>
+                    <div *ngIf="(((focus1Touched && activeEventF.client.value != null) || saveAttempt) && activeEventF.client.errors)">
+                      <label
+                      *ngFor="let error of objKeys(activeEventF.client.errors)"
+                      class="error custom-error-label"
+                      >{{ showError('client', error) }}
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- program picker if a client is selected -->
+              <div *ngIf="activeEventF.client.value">
+                <div class=" row">
+                  <div class=" col">
+                    <div class=" form-group">
+                      <label for="eventType"> Program </label>
+                      <select
+                      class="form-control"
+                      id="programSelect"
+                      formControlName="program"
+                      (focus)="focus2 = true; focus2Touched = true"
+                      (blur)="focus2 = false">
+                          <option [ngValue]="null"> Select... </option>
+                          <option *ngFor="let item of getClientPrograms(activeEventF.client.value)" [value]="item.id">
+                          {{ item.title }} - {{ item.purchasedSessions }} paid {{ item.purchasedSessions === 1 ? 'session' : 'sessions' }}
+                          </option>
+                      </select>
+                      <div *ngIf="(((focus2Touched && activeEventF.program.value != null) || saveAttempt) && activeEventF.program.errors)">
+                        <label
+                        *ngFor="let error of objKeys(activeEventF.program.errors)"
+                        class="error custom-error-label"
+                        >{{ showError('program', error) }}
+                        </label>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -240,7 +314,8 @@
 <!--              Cancel Event-->
 <!--            </button>-->
 
-            <button class=" btn btn-primary btn-block mt-3" (click)="onUpdateEvent()">
+            <button class=" btn btn-primary btn-block mt-3" (click)="onUpdateEvent()"
+            [disabled]="activeEventF.client.value && activeEventF.program.value && !this.clientHasPurchasedProgramSessions(activeEventF.client.value, activeEventF.program.value)">
               <span *ngIf="!saving">
                 <i class="fas fa-calendar"></i>
               </span>
@@ -294,6 +369,17 @@
                 A cancellation email will be sent to {{ activeEvent.orderedByName }}, advising them to 
                 find another available slot in your calendar and re-book the session but it is likely 
                 they will not re-book with you.
+              </p>
+            </div>
+
+            <!-- ui for coaching sessions -->
+            <div *ngIf="activeEvent?.type === 'session'">
+              <p>
+                <i class="fas fa-question-circle text-muted"></i> Are you sure you want to cancel this coaching session?
+              </p>
+              <p>
+                A cancellation email will be sent to {{ activeEvent.orderedByName }}, advising them that 
+                you will schedule a new session with them.
               </p>
             </div>
 

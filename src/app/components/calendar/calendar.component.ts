@@ -13,6 +13,9 @@ import { Router } from '@angular/router';
 import { CloudFunctionsService } from 'app/services/cloud-functions.service';
 import { CancelCoachSessionRequest } from 'app/interfaces/cancel.coach.session.request.interface';
 import { AnalyticsService } from 'app/services/analytics.service';
+import { CrmPeopleService } from 'app/services/crm-people.service';
+import { CRMPerson, EnrolledProgram } from 'app/interfaces/crm.person.interface';
+import { CoachingProgram } from 'app/interfaces/coach.program.interface';
 
 @Component({
   selector: 'app-calendar',
@@ -39,9 +42,16 @@ export class CalendarComponent implements OnInit, OnDestroy {
   public cancelling: boolean;
 
   public focus: boolean;
+  public focus1: boolean;
+  public focus2: boolean;
   public focusTouched: boolean;
+  public focus1Touched: boolean;
+  public focus2Touched: boolean;
 
-  public eventTypes = [{ id: 'discovery', name: 'Set me as available for discovery calls'}];
+  public eventTypes = [
+    { id: 'discovery', name: 'Set me as available for discovery calls'},
+    { id: 'session', name: 'Schedule a client session'}
+  ];
 
   public events: CustomCalendarEvent[];
 
@@ -49,6 +59,9 @@ export class CalendarComponent implements OnInit, OnDestroy {
   breakDuration = 15;
   endTimes: Date[] | [];
   startTimes: Date[] | [];
+
+  public clients = [] as CRMPerson[]; // an array contining this coach's clients
+  public coachPrograms = [] as CoachingProgram[]; // an array containing this coach's programs
 
   private subscriptions: Subscription = new Subscription();
   public objKeys = Object.keys;
@@ -67,7 +80,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
     public alertService: AlertService,
     private router: Router,
     private cloudFunctionsService: CloudFunctionsService,
-    private analyticsService: AnalyticsService
+    private analyticsService: AnalyticsService,
+    private crmPeopleService: CrmPeopleService
   ) {
   }
 
@@ -89,7 +103,10 @@ export class CalendarComponent implements OnInit, OnDestroy {
         end: [null, Validators.required],
         draggable: [null],
         cssClass: [null],
-        description: [null]
+        description: [null],
+        client: [null],
+        program: [null],
+        orderedByName: [null]
       }
     );
   }
@@ -104,46 +121,120 @@ export class CalendarComponent implements OnInit, OnDestroy {
         if (user) {
           console.log('USER OBJ:', user);
           this.userId = user.uid;
-          this.subscriptions.add(
-            this.dataService.getUserAccount(this.userId).pipe(take(1)).subscribe(userAccount => {
-                this.sessionDuration = userAccount.sessionDuration ? userAccount.sessionDuration : 30;
-                this.breakDuration = userAccount.breakDuration ? userAccount.breakDuration : 0;
-              }
-            )
-          );
-
-          this.subscriptions.add(
-            this.dataService.getUserCalendarEvents(this.userId, this.viewDate)
-            .pipe(
-              map(i => this.filterEvents(i))
-            )
-            .subscribe(events => {
-              if (events) {
-                console.log('events before forEach', events);
-                // important: update date objects as Firebase stores dates as unix string: 't {seconds: 0, nanoseconds: 0}'
-                events.forEach((ev: CustomCalendarEvent) => {
-                  if (ev.start) {
-                    ev.start = new Date((ev.start as any).seconds * 1000);
-                  }
-                  if (ev.end) {
-                    ev.end = new Date((ev.end as any).seconds * 1000);
-                  }
-                  ev.title = this.getTitle(ev);
-                  // ev.title = ev.reserved ? (ev.ordered ? 'ORDERED' : 'RESERVED') : 'FREE';
-                  ev.cssClass = ev.ordered ? 'ordered' : 'free' ;
-                });
-
-                this.events = events;
-                this.refresh.next(); // refresh the view
-
-                // console.log(this.events);
-              }
-            })
-          );
-
+          this.getUserAccount();
+          this.getCoachCalendarEvents();
+          this.loadCoachClients();
+          this.loadCoachPrograms();
         }
       })
     );
+  }
+
+  getUserAccount() {
+    this.subscriptions.add(
+      this.dataService.getUserAccount(this.userId).pipe(take(1)).subscribe(userAccount => {
+          this.sessionDuration = userAccount.sessionDuration ? userAccount.sessionDuration : 30;
+          this.breakDuration = userAccount.breakDuration ? userAccount.breakDuration : 0;
+        }
+      )
+    );
+  }
+
+  getCoachCalendarEvents() {
+    this.subscriptions.add(
+      this.dataService.getUserCalendarEvents(this.userId, this.viewDate)
+      .pipe(
+        map(i => this.filterEvents(i))
+      )
+      .subscribe(events => {
+        if (events) {
+          console.log('events before forEach', events);
+          // important: update date objects as Firebase stores dates as unix string: 't {seconds: 0, nanoseconds: 0}'
+          events.forEach((ev: CustomCalendarEvent) => {
+            if (ev.start) {
+              ev.start = new Date((ev.start as any).seconds * 1000);
+            }
+            if (ev.end) {
+              ev.end = new Date((ev.end as any).seconds * 1000);
+            }
+            ev.title = this.getTitle(ev);
+            // ev.title = ev.reserved ? (ev.ordered ? 'ORDERED' : 'RESERVED') : 'FREE';
+            ev.cssClass = ev.ordered ? 'ordered' : 'free' ;
+          });
+
+          this.events = events;
+          this.refresh.next(); // refresh the view
+
+          // console.log(this.events);
+        }
+      })
+    );
+  }
+
+  loadCoachClients() {
+    // monitor this coach's clients
+    this.subscriptions.add(
+      this.crmPeopleService.getUserPeople(this.userId)
+      .subscribe(async people => {
+        if (people) {
+          // note: a person is a client if they have enrolled in a course or program, so check their history...
+          const filledPeople = await this.crmPeopleService.getFilledPeople(this.userId, people);
+          // console.log('filled people', filledPeople);
+          const clients = filledPeople.filter(o => o.history.filter(h => h.action === 'enrolled_in_full_program' ||
+          h.action === 'enrolled_in_program_session' || h.action === 'enrolled_in_self_study_course'));
+          // work out which programs each client is enrolled in
+          clients.forEach(c => {
+            const programIds = [];
+            if (c.history) {
+              c.history.forEach(i => {
+                if (i.action === 'enrolled_in_program_session' || i.action === 'enrolled_in_full_program') {
+                  programIds.push(i.programId);
+                }
+              });
+              const uniqueProgramIds = [...new Set(programIds)]; // remove any duplicates
+              // work out how many purchased sessions remain for each program the person is enrolled in
+              c.enrolledPrograms = [];
+              uniqueProgramIds.forEach(p => {
+                this.dataService.getPurchasedProgramSessions(this.userId, c.id, p)
+                .pipe(take(1))
+                .subscribe(sessions => {
+                  if (sessions && sessions.length) {
+                    this.dataService.getPublicProgram(p)
+                    .pipe(take(1))
+                    .subscribe(pubProgram => {
+                      if (pubProgram) {
+                        c.enrolledPrograms.push({
+                          id: p,
+                          purchasedSessions: sessions.length,
+                          title: pubProgram.title
+                        });
+                      }
+                    });
+                  }
+                });
+              });
+            }
+          });
+          this.clients = clients;
+          console.log('Clients:', clients);
+        }
+      })
+    );
+  }
+
+  loadCoachPrograms() {
+    this.subscriptions.add(
+      this.dataService.getPublicProgramsBySeller(this.userId)
+      .subscribe(programs => {
+        if (programs) {
+          this.coachPrograms = programs;
+        }
+      })
+    );
+  }
+
+  getProgram(id: string) {
+    return this.coachPrograms.filter(i => i.programId === id)[0];
   }
 
   filterEvents(arr: CustomCalendarEvent[]) {
@@ -155,8 +246,23 @@ export class CalendarComponent implements OnInit, OnDestroy {
     let title = '';
     if (ev.type === 'discovery') {
       title = ev.ordered ? `Discovery with ${ev.orderedByName}` : 'Available';
+    } else if (ev.type === 'session') {
+      title = `Session with ${ev.orderedByName}`;
     }
     return title;
+  }
+
+  getClientPrograms(clientId: string) {
+    return this.clients.filter(i => i.id === clientId)[0].enrolledPrograms as EnrolledProgram[];
+  }
+
+  clientHasPurchasedProgramSessions(clientId: string, programId: string) {
+    const enrolledPrograms = this.getClientPrograms(clientId);
+    const purchasedSessions = enrolledPrograms.filter(i => i.id === programId)[0].purchasedSessions;
+    if (purchasedSessions > 0) {
+      return true;
+    }
+    return false;
   }
 
   loadActiveEventFormData() {
@@ -172,7 +278,10 @@ export class CalendarComponent implements OnInit, OnDestroy {
       reservedById: this.activeEvent.reservedById ? this.activeEvent.reservedById : null,
       ordered: this.activeEvent.ordered ? this.activeEvent.ordered : null,
       orderedById: this.activeEvent.orderedById ? this.activeEvent.orderedById : null,
+      orderedByName: this.activeEvent.orderedByName ? this.activeEvent.orderedByName : null,
       cssClass: this.activeEvent.cssClass ? this.activeEvent.cssClass : null,
+      client: this.activeEvent.client ? this.activeEvent.client : null,
+      program: this.activeEvent.program ? this.activeEvent.program : null,
     });
   }
 
@@ -342,6 +451,15 @@ export class CalendarComponent implements OnInit, OnDestroy {
       this.cancelEventModal.show();
       return;
     }
+
+    // if this is a coach created client session
+    if (this.activeEvent.type === 'session') {
+
+      // anything special?
+
+      this.cancelEventModal.show();
+      return;
+    }
   }
 
   onEditDeleteEvent() {
@@ -442,11 +560,22 @@ export class CalendarComponent implements OnInit, OnDestroy {
       this.activeEventForm.patchValue({id: Math.random().toString(36).substr(2, 9)}); // generate semi-random id
     }
 
+    // if the coach is scheduling a client event, insert the client data into the form prior to saving
+    if (this.activeEventF.type.value === 'session') {
+      if (!this.activeEventF.client.value) {
+        this.alertService.alert('warning-message', 'Oops', '`Error: Client ID is missing. Please contact support.');
+      }
+      const selectedClient = this.clients.filter(i => i.id === this.activeEventF.client.value)[0];
+      this.activeEventForm.patchValue({ orderedByName: `${selectedClient.firstName} ${selectedClient.lastName}` });
+    }
+
     console.log(this.activeEventF);
     console.log('Events', this.events);
 
     const ev = this.activeEventForm.value;
+
     ev.start = new Date(ev.start);
+
     const thisDayEvents = this.events !== undefined ?
       this.events
         .filter( item => this.isTheSameDay(item.start, ev.start))

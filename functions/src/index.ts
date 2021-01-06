@@ -1335,7 +1335,7 @@ exports.stripeWebhookEvent = functions
         // Save the successful payment to the purchaser's account for payment history
         const promise1 = db.collection(`users/${clientUid}/account/account${clientUid}/successful-payments/`)
         .doc(successfulPayment.id)
-        .create(successfulPayment);
+        .set(successfulPayment);
         promises.push(promise1);
 
         // Add the item ID of the purchased item to the user's auth token claims
@@ -1737,7 +1737,8 @@ async function recordProgramEnrollmentForCreator(enrollmentType: 'fullProgram' |
       sellerUid,
       clientUid,
       programId,
-      saleDate
+      saleDate,
+      relatedStripeTransferId: obj.id
     });
     i++;
   }
@@ -2525,7 +2526,7 @@ exports.orderCoachSession = functions
     }, { merge: true });
 
     // record the crm event in the coach's history
-    const coachCrmRef = db.collection(`users/${coachId}/people/${uid}/history`).doc((dateNow / 1000).toString());
+    const coachCrmRef = db.collection(`users/${coachId}/people/${uid}/history`).doc((Math.round(dateNow / 1000)).toString());
     batch.set(coachCrmRef, { action: 'booked_session', event });
 
     await batch.commit(); // execute batch ops. Any error should trigger catch.
@@ -2657,7 +2658,7 @@ exports.cancelCoachSession = functions
     }, { merge: true });
 
     // record the crm event in the coach's history
-    const coachCrmRef = db.collection(`users/${coachId}/people/${coachCalEvent.orderedById}/history`).doc((dateNow / 1000).toString());
+    const coachCrmRef = db.collection(`users/${coachId}/people/${coachCalEvent.orderedById}/history`).doc((Math.round(dateNow / 1000)).toString());
     batch.set(coachCrmRef, { action: 'cancelled_session', event: coachCalEvent });
 
     await batch.commit(); // execute batch ops. Any error should trigger catch.
@@ -4037,6 +4038,78 @@ exports.onWriteProgramReview = functions
   };
   // Update Algolia.
   return index.saveObject(recordToSend);
+});
+
+/*
+  Monitor user calendars.
+*/
+exports.onWriteUserCalendar = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.firestore
+.document(`users/{uid}/calendar/{eventId}`)
+.onWrite(async (change, context) => {
+  const userId = context.params.uid; // note only coach users have a calendar so uid will always be a coach
+  const event = change.after.data() as any; // will be a CustomCalendarEvent
+  const eventBefore = change.before.data() as any; // will not exist on first create
+  const promises = [];
+  // Record Removed.
+  if (!event) {
+    // do anything?
+  }
+  // Record created
+  if (!eventBefore) {
+    if (event.type === 'session') { // coach has scheduled a coaching session with a client
+      // send email
+
+      const coachProfileSnap = await db.collection(`public-coaches`)
+      .doc(userId)
+      .get();  // lookup coach data for the email
+      const coachProfile = coachProfileSnap.data();
+
+      if (!coachProfile) {
+        console.error('onWriteUserCalendar: Coach profile data missing');
+        return;
+      }
+
+      const programSnap = await db.collection(`public-programs`)
+      .doc(event.program)
+      .get();  // lookup public program data
+      const program = programSnap.data();
+
+      if (!program) {
+        console.error('onWriteUserCalendar: Program data missing');
+        return;
+      }
+
+      const coachMailEvent = { // send email to the coach
+        name: 'coach_scheduled_client_session',
+        properties: {
+          start: new Date(event.start).toUTCString(),
+          client_name: event.orderedByName,
+          program_title: program.title,
+          program_image: program.image,
+          session_landing_url: `https://lifecoach.io/my-sessions/${event.id}`
+        }
+      }
+      promises.push(logMailchimpEvent(userId, coachMailEvent));
+
+      const UserMailEvent = { // send email to the regular user
+        name: 'coach_scheduled_your_session',
+        properties: {
+          start: new Date(event.start).toUTCString(),
+          coach_name: `${coachProfile ? coachProfile.firstName : 'Lifecoach'} ${coachProfile ? coachProfile.lastName : 'Coach'}`,
+          coach_photo: `${coachProfile ? coachProfile.photo : 'https://eu.ui-avatars.com/api/?name=lifecoach+coach&background=00f2c3&color=fff&rounded=true&bold=true'}`,
+          program_title: program.title,
+          program_image: program.image,
+          session_landing_url: `https://lifecoach.io/my-sessions/${event.id}`
+        }
+      }
+      promises.push(logMailchimpEvent(event.client, UserMailEvent));
+    }
+  }
+  await Promise.all(promises);
+  // done
+  return;
 });
 
 // ================================================================================

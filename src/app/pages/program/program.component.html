@@ -13,7 +13,7 @@
 
 
   <!-- Program cover img if program loaded and image exists -->
-  <ng-container *ngIf="program && (program.imagePaths.original || program.imagePaths.webp)">
+  <ng-container *ngIf="program && (program.imagePaths?.original || program.imagePaths?.webp)">
     <div class="jumbotron jumbotron-fluid test test-575-jpg"
          [ngStyle]="{'background-image': 'url(' + program.imagePaths.original['575'] +')'}"></div>
     <div class="jumbotron jumbotron-fluid test test-768-jpg"
