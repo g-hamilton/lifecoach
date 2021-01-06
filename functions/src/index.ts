@@ -3022,7 +3022,8 @@ exports.onWritePublicCoachesNode = functions
     qualSa: profile.qualSa,
     proSummary: profile.proSummary,
     goalTags: profile.goalTags,
-    profileVideo: profile.selectedProfileVideo
+    profileVideo: profile.selectedProfileVideo,
+    photoPaths: profile.photoPaths ? profile.photoPaths : undefined
   };
   // Update Algolia.
   return index.saveObject(recordToSend);
@@ -3280,7 +3281,8 @@ exports.onWritePublicCourses = functions
     coachPhoto: course.coachPhoto,
     isTest: course.isTest, // will only be true if this course is a test (admin created)
     approved: course.approved,
-    includeInCoachingForCoaches: course.includeInCoachingForCoaches
+    includeInCoachingForCoaches: course.includeInCoachingForCoaches,
+    imagePaths: course.imagePaths ? course.imagePaths : undefined
   };
   // Update Algolia.
   return index.saveObject(recordToSend);
@@ -3402,7 +3404,8 @@ exports.onWritePrivateUserCourse = functions
       sections: course.sections,
       lectures: publicLectures, // Caution! Don't add lecture data here without removing paywall protected content!
       includeInCoachingForCoaches: course.includeInCoachingForCoaches ? course.includeInCoachingForCoaches : null,
-      isTest: course.isTest ? true : false, // will only be true if this course is a test (admin created)
+      isTest: course.isTest ? true : false, // will only be true if this course is a test (admin created),
+      imagePaths: course.imagePaths ? course.imagePaths : undefined
     };
     const publicRef = db.collection(`public-courses`).doc(courseId);
     batch.set(publicRef, publicData, { merge: true });
@@ -4302,8 +4305,107 @@ exports.uploadCourseImage = functions
       return {err: e.message};
     }
   });
+//UserAvatarImagePaths
 
+exports.uploadUserAvatar = functions
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
+  .onCall(async (data: any, context?)=> {
+    const bucketName = 'livecoach-dev.appspot.com';
+    const generateRandomImgID = () => Math.random().toString(36).substr(2, 9);
+    const imgId = generateRandomImgID(); // imgId in cloud storage
+    const path = `users/${data.uid}/profilePics/${imgId}`; // test jpg but we can save it as original
 
+    const base64Text = data.img.split(';base64,').pop();
+    const imageBuffer = Buffer.from(base64Text, 'base64'); // original image buffer
+    const contentType = data.img.split(';base64,')[0].split(':')[1];
+
+    try{
+      const webpBuffer = await sharp(imageBuffer).toFormat('webp').toBuffer(); // webp image
+      // xs = 124px s = 248px m = 372px l = 496px || full. Getting resizing image w - webp
+
+      const xs = sharp(imageBuffer).resize(124,null).toBuffer();
+      const s = sharp(imageBuffer).resize(248,null).toBuffer();
+      const m = sharp(imageBuffer).resize(372,null).toBuffer();
+      const l = sharp(imageBuffer).resize(496,null).toBuffer();
+
+      const xsw = sharp(webpBuffer).resize(124,null).toBuffer();
+      const sw = sharp(webpBuffer).resize(248,null).toBuffer();
+      const mw = sharp(webpBuffer).resize(372,null).toBuffer();
+      const lw = sharp(webpBuffer).resize(496,null).toBuffer();
+
+      const resizingPromises = [];
+      resizingPromises.push(xs, s, m , l, xsw, sw, mw , lw);
+
+      const resized = await Promise.all(resizingPromises); // all Buffers! of images resized.
+
+      //configs for webp && original
+      const webpConfig:any =  {
+        'public': true,
+        gzip: true,
+        predefinedAcl:'publicRead',
+        metadata: {
+        contentType: 'image/webp',
+          cacheControl: 'public, max-age=31536000',
+      }};
+      const originalConfig:any ={
+        public: true,
+        gzip: true,
+        predefinedAcl:'publicRead',
+        metadata: {
+          contentType,
+          cacheControl: 'public, max-age=31536000',
+        }}
+
+      //Uploading promises
+      const uw1 = admin.storage(firebase).bucket(bucketName).file(path+'.webp').save(webpBuffer, webpConfig);
+      const uw2 = admin.storage(firebase).bucket(bucketName).file(path+'xs.webp').save(await resized[4], webpConfig);
+      const uw3 = admin.storage(firebase).bucket(bucketName).file(path+'s.webp').save(await resized[5], webpConfig);
+      const uw4 = admin.storage(firebase).bucket(bucketName).file(path+'m.webp').save(await resized[6], webpConfig);
+      const uw5 = admin.storage(firebase).bucket(bucketName).file(path+'l.webp').save(await resized[7], webpConfig);
+
+      const u1 = admin.storage(firebase).bucket(bucketName).file(path+'.jpg').save(imageBuffer, originalConfig);
+      const u2 = admin.storage(firebase).bucket(bucketName).file(path+'xs.jpg').save(await resized[0], originalConfig);
+      const u3 = admin.storage(firebase).bucket(bucketName).file(path+'s.jpg').save(await resized[1], originalConfig);
+      const u4 = admin.storage(firebase).bucket(bucketName).file(path+'m.jpg').save(await resized[2], originalConfig);
+      const u5 = admin.storage(firebase).bucket(bucketName).file(path+'l.jpg').save(await resized[3], originalConfig);
+
+      const uploadingPromises = [];
+      uploadingPromises.push(u1, u2, u3, u4, u5, uw1, uw2, uw3, uw4, uw5);
+      await Promise.all(uploadingPromises);
+
+      const makePublicPromises:Array<any> = [];
+      const sizes = ['xs', 's', 'm', 'l', ''];
+      for(let i=0; i<5; i++) {
+        makePublicPromises.push(admin.storage(firebase).bucket(bucketName).file(path+sizes[i]+'.jpg').makePublic())
+      }
+      for(let i=0; i<5; i++) {
+        makePublicPromises.push(admin.storage(firebase).bucket(bucketName).file(path+sizes[i]+'.webp').makePublic())
+      }
+      const response = await Promise.all(makePublicPromises);
+
+      const urls = response.map( i => `https://storage.googleapis.com/${bucketName}/${i[0].object}`);
+
+      const result = {
+        original: {
+          124: urls[0],
+          248: urls[1],
+          372: urls[2],
+          496: urls[3],
+          fullSize: urls[4],
+        },
+        webp: {
+          124: urls[5],
+          248: urls[6],
+          372: urls[7],
+          496: urls[8],
+          fullSize: urls[9],
+        }};
+      return result;
+    }catch (e) {
+      return {err: e.message};
+    }
+  });
 // Image services - end
 
 // *** TEMP TEMP TEMP ***

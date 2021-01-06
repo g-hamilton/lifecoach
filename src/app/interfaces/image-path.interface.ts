@@ -31,11 +31,15 @@ export interface UserAvatarImagePaths {
   original: {
     124: string;
     248: string;
+    372: string;
+    496: string;
     fullSize: string;
   };
   webp: {
     124: string;
     248: string;
+    372: string;
+    496: string;
     fullSize: string;
   };
   other?: any;

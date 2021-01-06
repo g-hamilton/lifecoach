@@ -512,8 +512,6 @@ export class CloudFunctionsService {
   }
 
   uploadCourseImage( data: any) {
-    console.log('Cloud functions service.\n Starting request');
-    console.log(data);
     return new Promise(resolve => {
       const trigger = this.cloudFunctions.httpsCallable('uploadCourseImage');
       const tempSub = trigger(data)
@@ -529,4 +527,18 @@ export class CloudFunctionsService {
     });
   }
 
+  uploadUserAvatar( data: any) {
+    return new Promise(resolve => {
+      const trigger = this.cloudFunctions.httpsCallable('uploadUserAvatar');
+      const tempSub = trigger(data)
+        .pipe(first())
+        .subscribe(res => {
+          console.log(res);
+          resolve(res);
+          tempSub.unsubscribe();
+        }, error => {
+          console.log('Getting Error', error);
+        });
+    });
+  }
 }

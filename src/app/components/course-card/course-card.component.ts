@@ -31,6 +31,7 @@ export class CourseCardComponent implements OnInit, OnChanges, OnDestroy {
   ) { }
 
   ngOnInit() {
+    console.log(this.course);
     if (isPlatformBrowser(this.platformId)) {
       this.browser = true;
     }

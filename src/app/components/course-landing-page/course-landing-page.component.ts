@@ -369,6 +369,7 @@ export class CourseLandingPageComponent implements OnInit, OnChanges, AfterViewI
         // field below should replace image field in future
         imagePaths: await imagePaths
       });
+      console.log('IMAGE PATHS PATCHED');
     }
 
     // Merge landing form data into course data & save the course object

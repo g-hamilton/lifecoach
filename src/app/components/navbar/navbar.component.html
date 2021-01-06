@@ -1,4 +1,5 @@
-<nav class=" navbar navbar-expand-lg navbar-absolute" [ngClass]="{'bg-white': isCollapsed === false, 'navbar-transparent': isCollapsed === true}">
+<nav class=" navbar navbar-expand-lg navbar-absolute"
+     [ngClass]="{'bg-white': isCollapsed === false, 'navbar-transparent': isCollapsed === true}">
   <div class=" container-fluid">
     <div class=" navbar-wrapper">
       <div class=" navbar-minimize d-inline">
@@ -141,9 +142,22 @@
             tooltip="Account"
             placement="bottom"
           >
-            <div class=" photo">
-              <img alt="Profile Photo" src="{{userProfile ? userProfile.photo : 'assets/img/placeholder.jpg'}}" />
-            </div>
+            <ng-container *ngIf="userProfile">
+              <ng-container *ngIf="userProfile.photoPaths; else noPhotos">
+                <div class=" photo webp-photo">
+                  <img alt="Profile Photo" src="{{userProfile.photoPaths.webp['124']}}"/>
+                </div>
+                <div class=" photo default">
+                  <img alt="Profile Photo" src="{{userProfile.photoPaths.original['124']}}"/>
+                </div>
+
+              </ng-container>
+              <ng-template #noPhotos>
+                <div class=" photo">
+                  <img alt="Profile Photo" src="{{userProfile ? userProfile.photo : 'assets/img/placeholder.jpg'}}"/>
+                </div>
+              </ng-template>
+            </ng-container>
             <b class=" caret d-none d-lg-block d-xl-block"> </b>
             <p class=" d-lg-none">Log out</p>
           </a>

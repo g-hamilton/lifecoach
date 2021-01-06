@@ -1,4 +1,38 @@
 .course-card-image {
     height: 9rem;
 }
-
+.course-avatar{
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    display: none;
+}
+.course-avatar_half{
+    display: block;
+}
+:host-context(.webp) {
+    .course-avatar_half{
+        display: none;
+    }
+    .course-avatar_webp_half{
+        display: block;
+    }
+}
+@media screen and (min-width: 575px){
+    .course-avatar_half,
+    .course-avatar_webp_half{
+        display: none;
+    }
+    .course-avatar_full{
+        display: block;
+    }
+    :host-context(.webp){
+        .course-avatar_full,
+        .course-avatar_webp_half{
+            display: none;
+        }
+        .course-avatar_webp_full{
+            display:block;
+        }
+    }
+}

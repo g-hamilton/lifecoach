@@ -1,0 +1,17 @@
+.webp-photo,
+.default {
+    display: none;
+}
+
+.default {
+    display: inline-block;
+}
+
+:host-context (.webp) .default {
+    display: none;
+}
+
+:host-context (.webp) .webp-photo{
+    display: inline-block;
+}
+

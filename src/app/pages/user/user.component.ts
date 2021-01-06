@@ -253,6 +253,7 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
       ],
       phone: ['', [Validators.pattern('^-?[0-9]+$')]],
       photo: ['', Validators.required],
+      photoPaths: [null],
       city: [null, Validators.required],
       country: [null, Validators.required],
       speciality1: [null, [Validators.required, Validators.minLength(1)]],
@@ -314,6 +315,7 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
   }
 
   loadUserProfileData(p) {
+    console.log(p);
     // Patch user data into the built profile form
     this.userProfile.patchValue({
       firstName: p.firstName,
@@ -368,7 +370,8 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
       website: p.website ? p.website : '',
       selectedProfileVideo: p.selectedProfileVideo ? p.selectedProfileVideo : null,
       isPublic: p.isPublic ? p.isPublic : false,
-      dateCreated: p.dateCreated ? p.dateCreated : Math.round(new Date().getTime() / 1000) // unix timestamp if missing
+      dateCreated: p.dateCreated ? p.dateCreated : Math.round(new Date().getTime() / 1000), // unix timestamp if missing
+      photoPaths: p.photoPaths ? p.photoPaths : null
     });
 
     if (p.selectedProfileVideo) {
@@ -563,13 +566,24 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
     if (!this.profileF.photo.value.includes(this.storageService.getStorageDomain())) {
       // console.log(`Uploading unstored photo to storage...`);
 
-      const url = await this.storageService.storePhotoUpdateDownloadUrl(this.userId, this.profileF.photo.value);
+      // const url = await this.storageService.storePhotoUpdateDownloadUrl(this.userId, this.profileF.photo.value);
+      const response = await this.cloudFunctions
+        .uploadUserAvatar({uid: this.userId, img: this.profileF.photo.value})
+        .catch(e => console.log(e));
+
+      // @ts-ignore
+      const url = await response.original.fullSize || '';
+
+      console.log('value of user`s avatar:', this.profileF.photo.value);
       // const url = await this.cloudFunctions.uploadProgramImage({uid: this.userId, img: this.profileF.photo.value})
       // console.log(`Photo stored successfully. Patching profile form with photo download URL: ${url}`);
       this.userProfile.patchValue({
-        photo: url
+        photo: url,
+        photoPaths: await response
       });
+      console.log('Response is', await response);
       saveProfile.photo = url;
+      saveProfile.photoPaths = await response;
     }
 
     // Save the form to the DB

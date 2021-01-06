@@ -37,5 +37,5 @@ export interface AlgoliaCoachProfile {
     qualCsa: boolean;
     qualSa: boolean;
     profileVideo: string;
-    avatarImagePaths: UserAvatarImagePaths;
+    photoPaths: UserAvatarImagePaths;
 }

@@ -9,4 +9,38 @@
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;
+
+}
+
+.dsaf{ // dont show at first
+    display:none;
+}
+.fasterAvatar_half{
+    display: inline-flex;
+}
+:host-context(.webp) {
+    .fasterAvatar_half{
+        display: none;
+    }
+    .fasterAvatar_webp_half{
+        display: inline-flex;
+    }
+}
+@media screen and (min-width: 991px){
+    .fasterAvatar_half,
+    .fasterAvatar_webp_half{
+        display: none;
+    }
+    .fasterAvatar_full{
+        display: inline-flex;
+    }
+    :host-context(.webp){
+        .fasterAvatar_full,
+        .fasterAvatar_webp_half{
+            display: none;
+        }
+        .fasterAvatar_webp_full{
+            display:inline-flex;
+        }
+    }
 }

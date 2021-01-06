@@ -67,6 +67,7 @@ export class CourseSubmitComponent implements OnInit, OnChanges, OnDestroy {
       coachPhoto: ['', [Validators.required]],
       sections: [null, [Validators.required]],
       lectures: [null, [Validators.required]],
+      imagePaths: [null]
     }, {
       validators: [CourseSectionsValidator('sections'), CourseLecturesValidator('lectures')]
     });
@@ -92,6 +93,7 @@ export class CourseSubmitComponent implements OnInit, OnChanges, OnDestroy {
       coachPhoto: this.course.coachPhoto,
       sections: this.course.sections,
       lectures: this.course.lectures,
+      imagePaths: this.course.imagePaths
     });
     console.dir(this.courseForm.value);
   }

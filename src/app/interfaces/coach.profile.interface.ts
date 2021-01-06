@@ -1,4 +1,5 @@
 import { EmojiCountry } from './emoji.country.interface';
+import {UserAvatarImagePaths} from './image-path.interface';
 
 export interface CoachProfile {
     city: string;
@@ -47,4 +48,5 @@ export interface CoachProfile {
     instagram?: string;
     website?: string;
     selectedProfileVideo?: string;
+    photoPaths?: UserAvatarImagePaths;
 }

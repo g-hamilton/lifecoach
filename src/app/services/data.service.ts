@@ -260,6 +260,7 @@ export class DataService {
     // track
     this.analyticsService.saveCourse();
     // Saves a user's course to a document with matching id
+    console.log('SavePrivateCourse', course);
     return this.db.collection(`users/${uid}/courses`)
       .doc(course.courseId)
       .set(course, {merge: true})
