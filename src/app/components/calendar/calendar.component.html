@@ -93,12 +93,22 @@
               </div>
             </div>
 
+            <!-- program if session is related to a program -->
+            <div class=" row" *ngIf="activeEvent?.type === 'session' && activeEvent?.program">
+              <div class=" col">
+                <label> Program: </label>
+                <p>
+                  {{ getProgram(activeEvent.program).title }}
+                </p>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
       <div class=" modal-footer">
         <button class=" btn btn-danger btn-block mt-3" (click)="onDetailDeleteEvent()">
-          <i class="fas fa-trash mr-2"></i> Delete
+          <i class="fas fa-times"></i> Cancel
         </button>
         <button class=" btn btn-default btn-block mt-3" (click)="onEditEvent()">
           <i class="far fa-edit mr-2"></i> Edit
@@ -359,6 +369,17 @@
                 A cancellation email will be sent to {{ activeEvent.orderedByName }}, advising them to 
                 find another available slot in your calendar and re-book the session but it is likely 
                 they will not re-book with you.
+              </p>
+            </div>
+
+            <!-- ui for coaching sessions -->
+            <div *ngIf="activeEvent?.type === 'session'">
+              <p>
+                <i class="fas fa-question-circle text-muted"></i> Are you sure you want to cancel this coaching session?
+              </p>
+              <p>
+                A cancellation email will be sent to {{ activeEvent.orderedByName }}, advising them that 
+                you will schedule a new session with them.
               </p>
             </div>
 

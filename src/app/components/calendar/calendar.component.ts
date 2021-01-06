@@ -15,6 +15,7 @@ import { CancelCoachSessionRequest } from 'app/interfaces/cancel.coach.session.r
 import { AnalyticsService } from 'app/services/analytics.service';
 import { CrmPeopleService } from 'app/services/crm-people.service';
 import { CRMPerson, EnrolledProgram } from 'app/interfaces/crm.person.interface';
+import { CoachingProgram } from 'app/interfaces/coach.program.interface';
 
 @Component({
   selector: 'app-calendar',
@@ -60,6 +61,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
   startTimes: Date[] | [];
 
   public clients = [] as CRMPerson[]; // an array contining this coach's clients
+  public coachPrograms = [] as CoachingProgram[]; // an array containing this coach's programs
 
   private subscriptions: Subscription = new Subscription();
   public objKeys = Object.keys;
@@ -119,95 +121,120 @@ export class CalendarComponent implements OnInit, OnDestroy {
         if (user) {
           console.log('USER OBJ:', user);
           this.userId = user.uid;
-          this.subscriptions.add(
-            this.dataService.getUserAccount(this.userId).pipe(take(1)).subscribe(userAccount => {
-                this.sessionDuration = userAccount.sessionDuration ? userAccount.sessionDuration : 30;
-                this.breakDuration = userAccount.breakDuration ? userAccount.breakDuration : 0;
-              }
-            )
-          );
-
-          this.subscriptions.add(
-            this.dataService.getUserCalendarEvents(this.userId, this.viewDate)
-            .pipe(
-              map(i => this.filterEvents(i))
-            )
-            .subscribe(events => {
-              if (events) {
-                console.log('events before forEach', events);
-                // important: update date objects as Firebase stores dates as unix string: 't {seconds: 0, nanoseconds: 0}'
-                events.forEach((ev: CustomCalendarEvent) => {
-                  if (ev.start) {
-                    ev.start = new Date((ev.start as any).seconds * 1000);
-                  }
-                  if (ev.end) {
-                    ev.end = new Date((ev.end as any).seconds * 1000);
-                  }
-                  ev.title = this.getTitle(ev);
-                  // ev.title = ev.reserved ? (ev.ordered ? 'ORDERED' : 'RESERVED') : 'FREE';
-                  ev.cssClass = ev.ordered ? 'ordered' : 'free' ;
-                });
-
-                this.events = events;
-                this.refresh.next(); // refresh the view
-
-                // console.log(this.events);
-              }
-            })
-          );
-
-          // monitor this coach's clients
-          this.subscriptions.add(
-            this.crmPeopleService.getUserPeople(this.userId)
-            .subscribe(async people => {
-              if (people) {
-                // note: a person is a client if they have enrolled in a course or program, so check their history...
-                const filledPeople = await this.crmPeopleService.getFilledPeople(this.userId, people);
-                // console.log('filled people', filledPeople);
-                const clients = filledPeople.filter(o => o.history.filter(h => h.action === 'enrolled_in_full_program' ||
-                h.action === 'enrolled_in_program_session' || h.action === 'enrolled_in_self_study_course'));
-                // work out which programs each client is enrolled in
-                clients.forEach(c => {
-                  const programIds = [];
-                  if (c.history) {
-                    c.history.forEach(i => {
-                      if (i.action === 'enrolled_in_program_session' || i.action === 'enrolled_in_full_program') {
-                        programIds.push(i.programId);
-                      }
-                    });
-                    const uniqueProgramIds = [...new Set(programIds)]; // remove any duplicates
-                    // work out how many purchased sessions remain for each program the person is enrolled in
-                    c.enrolledPrograms = [];
-                    uniqueProgramIds.forEach(p => {
-                      this.dataService.getPurchasedProgramSessions(this.userId, c.id, p)
-                      .pipe(take(1))
-                      .subscribe(sessions => {
-                        if (sessions && sessions.length) {
-                          this.dataService.getPublicProgram(p)
-                          .pipe(take(1))
-                          .subscribe(pubProgram => {
-                            if (pubProgram) {
-                              c.enrolledPrograms.push({
-                                id: p,
-                                purchasedSessions: sessions.length,
-                                title: pubProgram.title
-                              });
-                            }
-                          });
-                        }
-                      });
-                    });
-                  }
-                });
-                this.clients = clients;
-                console.log('Clients:', clients);
-              }
-            })
-          );
-
+          this.getUserAccount();
+          this.getCoachCalendarEvents();
+          this.loadCoachClients();
+          this.loadCoachPrograms();
         }
       })
     );
+  }
+
+  getUserAccount() {
+    this.subscriptions.add(
+      this.dataService.getUserAccount(this.userId).pipe(take(1)).subscribe(userAccount => {
+          this.sessionDuration = userAccount.sessionDuration ? userAccount.sessionDuration : 30;
+          this.breakDuration = userAccount.breakDuration ? userAccount.breakDuration : 0;
+        }
+      )
+    );
+  }
+
+  getCoachCalendarEvents() {
+    this.subscriptions.add(
+      this.dataService.getUserCalendarEvents(this.userId, this.viewDate)
+      .pipe(
+        map(i => this.filterEvents(i))
+      )
+      .subscribe(events => {
+        if (events) {
+          console.log('events before forEach', events);
+          // important: update date objects as Firebase stores dates as unix string: 't {seconds: 0, nanoseconds: 0}'
+          events.forEach((ev: CustomCalendarEvent) => {
+            if (ev.start) {
+              ev.start = new Date((ev.start as any).seconds * 1000);
+            }
+            if (ev.end) {
+              ev.end = new Date((ev.end as any).seconds * 1000);
+            }
+            ev.title = this.getTitle(ev);
+            // ev.title = ev.reserved ? (ev.ordered ? 'ORDERED' : 'RESERVED') : 'FREE';
+            ev.cssClass = ev.ordered ? 'ordered' : 'free' ;
+          });
+
+          this.events = events;
+          this.refresh.next(); // refresh the view
+
+          // console.log(this.events);
+        }
+      })
+    );
+  }
+
+  loadCoachClients() {
+    // monitor this coach's clients
+    this.subscriptions.add(
+      this.crmPeopleService.getUserPeople(this.userId)
+      .subscribe(async people => {
+        if (people) {
+          // note: a person is a client if they have enrolled in a course or program, so check their history...
+          const filledPeople = await this.crmPeopleService.getFilledPeople(this.userId, people);
+          // console.log('filled people', filledPeople);
+          const clients = filledPeople.filter(o => o.history.filter(h => h.action === 'enrolled_in_full_program' ||
+          h.action === 'enrolled_in_program_session' || h.action === 'enrolled_in_self_study_course'));
+          // work out which programs each client is enrolled in
+          clients.forEach(c => {
+            const programIds = [];
+            if (c.history) {
+              c.history.forEach(i => {
+                if (i.action === 'enrolled_in_program_session' || i.action === 'enrolled_in_full_program') {
+                  programIds.push(i.programId);
+                }
+              });
+              const uniqueProgramIds = [...new Set(programIds)]; // remove any duplicates
+              // work out how many purchased sessions remain for each program the person is enrolled in
+              c.enrolledPrograms = [];
+              uniqueProgramIds.forEach(p => {
+                this.dataService.getPurchasedProgramSessions(this.userId, c.id, p)
+                .pipe(take(1))
+                .subscribe(sessions => {
+                  if (sessions && sessions.length) {
+                    this.dataService.getPublicProgram(p)
+                    .pipe(take(1))
+                    .subscribe(pubProgram => {
+                      if (pubProgram) {
+                        c.enrolledPrograms.push({
+                          id: p,
+                          purchasedSessions: sessions.length,
+                          title: pubProgram.title
+                        });
+                      }
+                    });
+                  }
+                });
+              });
+            }
+          });
+          this.clients = clients;
+          console.log('Clients:', clients);
+        }
+      })
+    );
+  }
+
+  loadCoachPrograms() {
+    this.subscriptions.add(
+      this.dataService.getPublicProgramsBySeller(this.userId)
+      .subscribe(programs => {
+        if (programs) {
+          this.coachPrograms = programs;
+        }
+      })
+    );
+  }
+
+  getProgram(id: string) {
+    return this.coachPrograms.filter(i => i.programId === id)[0];
   }
 
   filterEvents(arr: CustomCalendarEvent[]) {
