@@ -4084,7 +4084,7 @@ exports.onWriteUserCalendar = functions
       const coachMailEvent = { // send email to the coach
         name: 'coach_scheduled_client_session',
         properties: {
-          start: new Date(event.start).toUTCString(),
+          start: event.start.toDate().toUTCString(),
           client_name: event.orderedByName,
           program_title: program.title,
           program_image: program.image,
@@ -4096,7 +4096,7 @@ exports.onWriteUserCalendar = functions
       const UserMailEvent = { // send email to the regular user
         name: 'coach_scheduled_your_session',
         properties: {
-          start: new Date(event.start).toUTCString(),
+          start: event.start.toDate().toUTCString(),
           coach_name: `${coachProfile ? coachProfile.firstName : 'Lifecoach'} ${coachProfile ? coachProfile.lastName : 'Coach'}`,
           coach_photo: `${coachProfile ? coachProfile.photo : 'https://eu.ui-avatars.com/api/?name=lifecoach+coach&background=00f2c3&color=fff&rounded=true&bold=true'}`,
           program_title: program.title,
