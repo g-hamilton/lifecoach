@@ -181,7 +181,7 @@ export class TwilioService {
       this.roomObj.disconnect();
     }
     this.remoteVideo.nativeElement.innerHTML = `<div *ngIf="this.isVideoLoading" class="loader"></div>
-    <h2 *ngIf="!this.isVideoLoading" class="my-1">Your interlocutor's video</h2>`;
+    <h2 *ngIf="!this.isVideoLoading" class="my-1">Your client's video</h2>`;
     this.localVideo.nativeElement.innerHTML = `<div *ngIf="this.isVideoLoading" class="loader"></div>
     <h2 *ngIf="!this.isVideoLoading" class="my-1">Your video</h2>`    ;
     this.isVideoEnabled = true;

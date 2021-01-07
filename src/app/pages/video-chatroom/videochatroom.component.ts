@@ -145,7 +145,7 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
   timerBeforeSession(startSessionTime: number) {
 
     if (startSessionTime <= Date.now()) {
-      this.timeBeforeSession = ` Session has started `;
+      this.timeBeforeSession = `Session has started`;
       return;
     }
 
@@ -156,7 +156,7 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
       const msLeft: any = endDate - now;
       if (msLeft <= 0) {
         clearInterval(this.timer);
-        this.timeBeforeSession = ` Session has started `;
+        this.timeBeforeSession = `Session has started`;
       } else {
         const res = new Date(msLeft);
         this.timeBeforeSession = `${res.getUTCDate() - 1 < 1 ? ' ' : res.getUTCDate() - 1 + 'day(s)'} ${res.getUTCHours() - 1 < 1 ? ' ' : res.getUTCHours() + ':'}

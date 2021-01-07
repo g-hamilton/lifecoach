@@ -4,38 +4,89 @@
 
 <div class="video-container content">
   <div class="countdown"></div>
-  <div class="remoteVideo col-md-9 mb-2" #remoteVideo>
+
+  <div class="remoteVideo col-md-10 mb-2" #remoteVideo>
     <div *ngIf="this.isVideoLoading" class="loader"></div>
-    <h2 *ngIf="!this.isVideoLoading" class="my-1">Your interlocutor`s video</h2>
+    <h2 *ngIf="!this.isVideoLoading" class="my-1">Your client's video</h2>
   </div>
-  <div *ngIf="this.timeBeforeSession && !(this.sessionHasStarted); else loading"
-       class="row my-2 justify-content-center">{{this.timeBeforeSession}} </div>
+
+  <div 
+  *ngIf="this.timeBeforeSession && !(this.sessionHasStarted); else loading"
+  class="row my-2 justify-content-center">
+    <span>
+    {{ this.timeBeforeSession }} 
+    </span>
+  </div>
   <ng-template #loading>
     <div *ngIf='!(this.sessionHasStarted); else loaded ' class="row my-2 justify-content-center">Loading ...</div>
     <ng-template #loaded class="row my-2 justify-content-center"> ' '</ng-template>
   </ng-template>
+
   <div class="row">
-    <div class="col-md-2"></div>
-    <div class="controls col-md-4">
+    <div class="col-md-1"></div>
+
+    <!-- controls -->
+    <div class="controls col-md-5">
+      <!-- join/end call -->
       <button type="button"
-              [disabled]="(!username || !roomName)"
-              (click)="this.sessionHasStarted ? this.disconnect(): this.newConnect()"
-              class="mx-2">
+      [disabled]="(!username || !roomName)"
+      (click)="this.sessionHasStarted ? this.disconnect(): this.newConnect()"
+      class="mx-2">
         <i  [ngClass]="this.sessionHasStarted ? 'fas fa-phone stop' : 'fas fa-phone play'" ></i>
       </button>
+      <!-- toggle mic -->
       <button type="button" [disabled]="!this.sessionHasStarted" (click)="toggleMic()" class="mx-2">
         <i [ngClass]="!this.isMicActive ? 'fas fa-microphone micro' : 'fas fa-microphone-slash micro_off' "></i>
       </button>
+      <!-- toggle video -->
       <button type="button" [disabled]="!this.sessionHasStarted" (click)="toggleVideo()" class="mx-2">
         <i [ngClass]="this.isVideoActive ? 'fas fa-video-slash stop' : 'fas fa-video play' "></i>
       </button>
+      <!-- more options dropdown -->
+      <div class=" dropdown btn-group" dropdown>
+        <button
+        class="mx-2"
+        data-toggle="dropdown"
+        dropdownToggle
+        type="button"
+        >
+          <i class="fas fa-ellipsis-h text-light"></i>
+        </button>
+        <div class=" dropdown-menu" *dropdownMenu>
+
+          <!--  -->
+          <a *ngIf="true" class=" dropdown-item">
+            Mark this session complete
+          </a>
+
+          <!--  -->
+          <a *ngIf="true" class=" dropdown-item" >
+            Send a resource
+          </a>
+
+          <!--  -->
+          <a *ngIf="true" class=" dropdown-item" >
+            Invite to join a program
+          </a>
+
+          <!--  -->
+          <a *ngIf="true" class=" dropdown-item" >
+            Invite to an eCourse
+          </a>
+
+        </div>
+      </div>
     </div>
+
     <div class="col-md-1"></div>
+
     <div class="localVideo col-md-3" #localVideo>
       <div *ngIf="this.isVideoLoading" class="loader"></div>
       <h2 *ngIf="!this.isVideoLoading" class="my-1">Your video</h2>
     </div>
+
     <div class="col-md-2"></div>
+
   </div>
 
 </div>
