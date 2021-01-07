@@ -11,6 +11,11 @@ import {AlertService} from '../../services/alert.service';
 import {ToastService} from '../../services/toast.service';
 import {connect, createLocalTracks} from 'twilio-video';
 
+import { BsModalService, BsModalRef, ModalOptions } from 'ngx-bootstrap/modal';
+import { CoachInviteComponent } from 'app/components/coach-invite/coach-invite.component';
+import { CustomCalendarEvent } from 'app/interfaces/custom.calendar.event.interface';
+import { take } from 'rxjs/operators';
+
 export interface Answer {
   sessionStatus: 'NOT_STARTED_YET' | 'IS_OVER' | 'IN_PROGRESS';
   timeLeft?: number;
@@ -23,9 +28,13 @@ export interface Answer {
 })
 export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy {
 
+  public bsModalRef: BsModalRef;
+
   sessionId: string;
   userId: string;
   coachId: string;
+  public calendarEvent: CustomCalendarEvent; // the original calendar event object
+  private calendarEventId: string; // the db id of the original calendar event doc in this coach's calendar
 
   message: string;
   accessToken: string;
@@ -61,7 +70,8 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
     public cloudService: CloudFunctionsService,
     private route: ActivatedRoute,
     private toastService: ToastService,
-    private alertService: AlertService
+    private alertService: AlertService,
+    private modalService: BsModalService,
   ) {
     this.twilioService.msgSubject.subscribe(r => {
       console.log('MessageSubject', this.message);
@@ -97,6 +107,8 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
                   this.sessionChecker(this.roomName);
                 }, 60_000);
 
+                this.loadCalendarEvent();
+
               })
               .catch(e => console.log(e));
           }
@@ -113,6 +125,27 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
     this.isVideoActive = !this.isVideoActive;
     this.twilioService.toggleVideo();
   }
+
+  markSessionComplete() {
+    this.alertService.alert('info-message', 'Coming Soon!', `We're still working on this feature.`);
+  }
+
+  sendResource() {
+    this.alertService.alert('info-message', 'Coming Soon!', `We're still working on this feature.`);
+  }
+
+  openInviteModal(type: 'ecourse' | 'program') {
+    // we can send data to the modal & open in a another component via a service
+    // https://valor-software.com/ngx-bootstrap/#/modals#service-component
+    const config: ModalOptions = {
+      initialState: {
+        type,
+        invitee: this.calendarEvent.orderedById
+      }
+    };
+    this.bsModalRef = this.modalService.show(CoachInviteComponent, config);
+  }
+
   sessionChecker(id: string) {
     this.cloudService.getInfoAboutCurrentVideoSession(id)
       .then((answer: Answer) => {
@@ -187,6 +220,8 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
               console.log(this.sessionUserType);
               this.loading = false;
             }
+            // capture the original calendar event id (which will be a timestamp number) and save it here as a string
+            this.calendarEventId = String(this.sessionObject.start.seconds * 1000);
             resolve();
           } else {
             reject();
@@ -196,6 +231,17 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
           this.alertService.alert('warning-message-and-cancel');
           reject();
         });
+    });
+  }
+
+  loadCalendarEvent() {
+    this.dataService.getUserCalendarEventById(this.userId, this.calendarEventId)
+    .pipe(take(1))
+    .subscribe(event => {
+      if (event) {
+        this.calendarEvent = event;
+      }
+      console.log('Calendar event loaded:', this.calendarEvent);
     });
   }
 

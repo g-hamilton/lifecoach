@@ -588,6 +588,12 @@ export class DataService {
       .valueChanges() as Observable<CustomCalendarEvent[]>;
   }
 
+  getUserCalendarEventById(uid: string, eventId: string) {
+    return this.db.collection(`users/${uid}/calendar`)
+    .doc(eventId)
+      .valueChanges() as Observable<CustomCalendarEvent>;
+  }
+
   // This is redundant and it will be reworked in a final version of app, but now we need it to control session duration changes
   hasUserEvents(uid: string) {
     return this.db.collection(`users/${uid}/calendar`)
