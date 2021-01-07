@@ -598,37 +598,33 @@ export class CalendarComponent implements OnInit, OnDestroy {
       // TODO: It will be better to do a Modal with warning;
       // alert('Choose other date!'); // TODO: Modal
       this.saving = false;
-      this.alertService.alert(
-          'warning-message',
-        'Choose other time!',
-          'Our apologizes. System is working in test-mode. Please, choose time which will not across Your other free time events',
-        'ok',
-        'btn btn-round btn-success',
-      ).then(() => console.log('ended'));
+      this.alertService.alert('warning-message', 'Oops', 'Please, choose another time that does not cross another event in your calendar.');
       return;
     }
-    // Make a divider there
-    //
-    // ev.title = `${ev.start.toLocaleTimeString()} - ${ev.end.toLocaleTimeString()}`;
-    this.divideEventIntoSessions(ev)
-      .forEach(i => {
+
+    // safety checks
+    if (!this.userId) {
+      this.alertService.alert('warning-message', 'Oops', `Error: Missing User ID. Please contact support.`);
+      return;
+    }
+
+    if (ev.type === 'discovery') { // If creating discovery session(s)
+      // divide the time period into multiple sessions if required
+      console.log('Dividing discovery type event into sessions and saving...');
+      this.divideEventIntoSessions(ev)
+      .forEach(i => { // save and notify for each individual (divided) event
         this.dataService.saveUserCalendarEvent(this.userId, i.start, i);
         this.eventNotification(ev);
       });
-    console.log(ev);
-    // save the event
-    if (!this.userId) {
-      alert('No user ID'); // TODO: Modal
-      return;
+    } else if (ev.type === 'session') { // If creating a client coaching session
+      this.dataService.saveUserCalendarEvent(this.userId, ev.start, ev); // save and notify this single event
+      this.eventNotification(ev);
     }
-    // this.dataService.saveUserCalendarEvent(this.userId, ev.start, ev);
 
+    // done
     this.saving = false;
     this.saveAttempt = false;
-
-    // dismiss the modal
     this.editEventModal.hide();
-
     // reset the active event
     this.activeEvent = null;
     this.activeEventForm.reset();
