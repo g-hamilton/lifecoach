@@ -61,17 +61,17 @@
 
           <!--  -->
           <a *ngIf="true" class=" dropdown-item" href="javascript:void(0)" (click)="sendResource()">
-            Send a resource
+            Send {{ crmPerson?.firstName }} a resource
           </a>
 
           <!--  -->
           <a *ngIf="true" class=" dropdown-item" href="javascript:void(0)" (click)="openInviteModal('program')">
-            Invite to join a program
+            Invite {{ crmPerson?.firstName }} to join a program
           </a>
 
           <!--  -->
           <a *ngIf="true" class=" dropdown-item" href="javascript:void(0)" (click)="openInviteModal('ecourse')">
-            Invite to an eCourse
+            Invite {{ crmPerson?.firstName }} to an eCourse
           </a>
 
         </div>

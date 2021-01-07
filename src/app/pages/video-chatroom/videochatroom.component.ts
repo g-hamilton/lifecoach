@@ -15,6 +15,8 @@ import { BsModalService, BsModalRef, ModalOptions } from 'ngx-bootstrap/modal';
 import { CoachInviteComponent } from 'app/components/coach-invite/coach-invite.component';
 import { CustomCalendarEvent } from 'app/interfaces/custom.calendar.event.interface';
 import { take } from 'rxjs/operators';
+import { CRMPerson } from 'app/interfaces/crm.person.interface';
+import { CrmPeopleService } from 'app/services/crm-people.service';
 
 export interface Answer {
   sessionStatus: 'NOT_STARTED_YET' | 'IS_OVER' | 'IN_PROGRESS';
@@ -35,6 +37,7 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
   coachId: string;
   public calendarEvent: CustomCalendarEvent; // the original calendar event object
   private calendarEventId: string; // the db id of the original calendar event doc in this coach's calendar
+  public crmPerson: CRMPerson;
 
   message: string;
   accessToken: string;
@@ -72,6 +75,7 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
     private toastService: ToastService,
     private alertService: AlertService,
     private modalService: BsModalService,
+    private crmPeopleService: CrmPeopleService
   ) {
     this.twilioService.msgSubject.subscribe(r => {
       console.log('MessageSubject', this.message);
@@ -140,7 +144,7 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
     const config: ModalOptions = {
       initialState: {
         type,
-        invitee: this.calendarEvent.orderedById
+        invitee: this.crmPerson
       }
     };
     this.bsModalRef = this.modalService.show(CoachInviteComponent, config);
@@ -235,14 +239,30 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   loadCalendarEvent() {
-    this.dataService.getUserCalendarEventById(this.userId, this.calendarEventId)
-    .pipe(take(1))
-    .subscribe(event => {
-      if (event) {
-        this.calendarEvent = event;
-      }
-      console.log('Calendar event loaded:', this.calendarEvent);
-    });
+    this.subscriptions.add(
+      this.dataService.getUserCalendarEventById(this.userId, this.calendarEventId)
+      .pipe(take(1))
+      .subscribe(event => {
+        if (event) {
+          this.calendarEvent = event;
+          this.loadCrmPerson();
+        }
+        console.log('Calendar event loaded:', this.calendarEvent);
+      })
+    );
+  }
+
+  loadCrmPerson() {
+    this.subscriptions.add(
+      this.crmPeopleService.getUserPerson(this.userId, this.calendarEvent.orderedById)
+      .subscribe(async person => {
+        if (person) {
+          const filledPerson = await this.crmPeopleService.getFilledPerson(this.userId, person, this.calendarEvent.orderedById);
+          this.crmPerson = filledPerson;
+        }
+        console.log('CRM person loaded', this.crmPerson);
+      })
+    );
   }
 
   alertAboutSessionEnd( timeLeft: number ) {
