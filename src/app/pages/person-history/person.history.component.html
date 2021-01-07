@@ -147,6 +147,11 @@
                     </div>
                   </div>
                   <div class=" card-footer" *ngIf="program.purchasedSessions?.length > 0">
+                    <div class="pull-right text-success">
+                      <small>
+                        {{ program?.purchasedSessions.length }} purchased sessions
+                      </small>
+                    </div>
                     <button class="btn btn-sm btn-round btn-primary pull-right"
                     [routerLink]="['/calendar']">
                       Schedule Next Session
