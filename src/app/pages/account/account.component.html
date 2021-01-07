@@ -465,13 +465,13 @@
                             <div class="">
                                 <h6 class=" mt-4 pl-4">
                                     Enable Your Payout Account
-                                    <!-- <a href="https://lifecoach.freshdesk.com/a/solutions/articles/47001123913" target="_blank">
-                                        <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> How payouts work</span>
-                                    </a> -->
                                 </h6>
                                 <p class=" small text-muted pl-4 mb-2">
                                     <i class="fas fa-info-circle"></i> To get paid for any of the products & services you promote through the Lifecoach platform, 
-                                    you need a secure payout account. We use Stripe to make sure you get paid on time and to keep your personal payment details secure.
+                                    you need a secure payout account. We use Stripe to make sure you get paid on time and to keep your personal payment details secure. 
+                                    Read more about <a href="https://lifecoach.freshdesk.com/a/solutions/articles/47001123913" target="_blank">
+                                        how payouts work
+                                    </a>.
                                 </p>
                                 <div class=" row highlight-box">
                                     <div class=" col-md-8">
@@ -548,25 +548,22 @@
                             <div class="">
                                 <h6 class=" mt-4 pl-4">
                                     LIFECOACH PROMOTIONS PROGRAM
-                                    <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001140481-how-promotions-work" target="_blank">
-                                        <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> How promotions work</span>
-                                    </a>
                                 </h6>
+                                <p class=" small text-muted pl-4 mb-2">
+                                    <i class="fas fa-info-circle"></i> Opt into our promotions programs to allow the platform to run occasional special 
+                                    offers on your products and services. While you have full control to change your prices at any time and run your own 
+                                    offers, our platform wide promotions allow us to temporarily reduce your prices in order to boost sales volumes at 
+                                    certain times of the year. Need a little more info? 
+                                    Read more about <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001140481-how-promotions-work" target="_blank">
+                                        how promotions work
+                                    </a>.
+                                </p>
                                 <div class=" row">
                                     <div class=" col-md-12">
                                         <form>
                                             <!-- Deals -->
                                             <div class=" form-group mt-3">
                                                 <label> Opt in to the Deals Program </label>
-                                                <span class=" h5 text-light ml-2">
-                                                  <i
-                                                  class="fas fa-info-circle btn-tooltip"
-                                                  data-animation="true"
-                                                  data-container="body"
-                                                  placement="top"
-                                                  tooltip="Set YES to opt in. See guide above for details.">
-                                                  </i>
-                                                </span>
                                                 <br />
                                                 <bSwitch
                                                   [switch-on-color]="'danger'"
@@ -583,15 +580,6 @@
                                               <!-- EPP -->
                                               <div class=" form-group mt-3">
                                                 <label> Opt in to the Extended Promotions Program </label>
-                                                <span class=" h5 text-light ml-2">
-                                                  <i
-                                                  class="fas fa-info-circle btn-tooltip"
-                                                  data-animation="true"
-                                                  data-container="body"
-                                                  placement="top"
-                                                  tooltip="Set YES to opt in. See guide above for details.">
-                                                  </i>
-                                                </span>
                                                 <br />
                                                 <bSwitch
                                                   [switch-on-color]="'danger'"
@@ -632,6 +620,11 @@
                         <tab *ngIf="accountF.accountType.value === 'coach' || accountF.accountType.value === 'regular'" heading="Purchases & Refunds">
                             <!-- Purchases table -->
                             <h6 class=" mt-4"> Purchases </h6>
+                            <p class=" small text-muted pl-4 mb-2">
+                                <i class="fas fa-info-circle"></i> Any purchases that you make through the platform will appear here. 
+                                If you are not 100% happy with a purchase, you can request a refund. Refund requests are handled by our 
+                                Quality Team to promote fairness and improve processing times.
+                            </p>
                             <div *ngIf="successfulPayments" class=" table-responsive">
                                 <table class=" table">
                                 <thead class=" text-primary">
@@ -692,7 +685,7 @@
                                 </table>
                             </div>
                             <div *ngIf="!successfulPayments">
-                                <p>
+                                <p class=" mt-3">
                                     You have not purchased any items yet.
                                 </p>
                             </div>
@@ -738,59 +731,59 @@
             <tab *ngIf="accountF.accountType.value === 'coach'" heading="Session settings">
               <div class="">
                 <h6 class=" mt-4 pl-4">
-                  SELECT YOUR SESSION DURATION AND BREAKS BETWEEN EACH SESSION
+                  SESSION SETTINGS
                 </h6>
-                <div class=" row">
+                <p class=" small text-muted pl-4 mb-2">
+                    <i class="fas fa-info-circle"></i> Your Lifecoach calendar allows you to quickly and easily create coaching sessions 
+                    with your clients and set yourself available to take bookings for discovery video sessions. Discovery sessions allow 
+                    prospective clients to find out more about your products & services, and ensure they are suitable prior to enrolling. 
+                    These default settings are used by your calendar, allowing you to customise settings such as how long you allow for 
+                    each discovery session and whether you want to automatically schedule breaks between your sessions when creating 
+                    multiple sessions on a given day.
+                </p>
+                <div class=" row pl-3 pr-3">
                   <div class=" col-md-12">
                     <form>
                       <!-- Settings -->
                       <div class=" form-group mt-3">
-                        <label> Please, choose Your session duration from 15 to 120 min</label>
-<!--                        <span class=" h5 text-light ml-2">-->
-<!--                                                  <i-->
-<!--                                                    class="fas fa-info-circle btn-tooltip"-->
-<!--                                                    data-animation="true"-->
-<!--                                                    data-container="body"-->
-<!--                                                    placement="top"-->
-<!--                                                    tooltip="Set YES to opt in. See guide above for details.">-->
-<!--                                                  </i>-->
-<!--                                                </span>-->
-                        <br />
+                        <label> My default discovery session duration (15 to 120 min)</label>
+                        <p class=" small text-muted pl-1 mb-2">
+                            <i class="fas fa-info-circle"></i> How long are your (free) discovery sessions?
+                        </p>
                         <input type="range"  min="15" max="120" step="5"
-                               [(ngModel)]="accountF.sessionDuration.value"
-                               [ngModelOptions]="{standalone: true}"
-                               (input)="onSessionDurationInput($event)"
+                        [(ngModel)]="accountF.sessionDuration.value"
+                        [ngModelOptions]="{standalone: true}"
+                        (input)="onSessionDurationInput($event)"
                         />
-                        {{this.accountF.sessionDuration.value || 30}} minutes
+                        <span class=" pl-2">
+                            {{this.accountF.sessionDuration.value || 30}} minutes
+                        </span>
                       </div>
 
                       <!-- EPP -->
                       <div class=" form-group mt-3">
-                        <label> Please, choose duration of the break before next Session start (from 0 to 30 min) </label>
-<!--                        <span class=" h5 text-light ml-2">-->
-<!--                                                  <i-->
-<!--                                                    class="fas fa-info-circle btn-tooltip"-->
-<!--                                                    data-animation="true"-->
-<!--                                                    data-container="body"-->
-<!--                                                    placement="top"-->
-<!--                                                    tooltip="Set YES to opt in. See guide above for details.">-->
-<!--                                                  </i>-->
-<!--                                                </span>-->
-                        <br />
+                        <label> My default discovery session break time (0 to 30 min) </label>
+                        <p class=" small text-muted pl-1 mb-2">
+                            <i class="fas fa-info-circle"></i> Do you want the calendar to automatically schedule breaks between 
+                            discovery sessions when creating multiple sessions? For example, if you set yourself available for 
+                            discovery sessions between 0900 and 1200 hrs with a session time of 30 min and a break time of 30 min, 
+                            the calendar will create 3 x 30 min discovery sessions (0900 - 0930, 1000 - 1030, 1100 - 1130).
+                        </p>
                         <input
-                         type="range"
-                         value="0"
-                         [valueAsNumber]="this.breakBeforeNextSessionLength"
-                         id="range"
-                         min="0"
-                         max="30"
-                         step="5"
-                         [(ngModel)]="accountF.breakDuration.value"
-                         [ngModelOptions]="{standalone: true}"
-                         (input)="onBreakDurationInput($event)"
-
+                        type="range"
+                        value="0"
+                        [valueAsNumber]="this.breakBeforeNextSessionLength"
+                        id="range"
+                        min="0"
+                        max="30"
+                        step="5"
+                        [(ngModel)]="accountF.breakDuration.value"
+                        [ngModelOptions]="{standalone: true}"
+                        (input)="onBreakDurationInput($event)"
                         />
-                        {{this.accountF.breakDuration.value || 0}} minutes
+                        <span class=" pl-2">
+                            {{this.accountF.breakDuration.value || 0}} minutes
+                        </span>
                       </div>
                     </form>
                     <div class=" row mt-3">
