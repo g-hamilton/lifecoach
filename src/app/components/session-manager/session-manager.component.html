@@ -46,7 +46,9 @@
       *ngIf="completing"
       class="spinner-border spinner-border-sm"
       role="status"
-      ></span> {{ completing ? 'Completing...' : 'Mark Complete'}}
+    ></span> 
+    <i *ngIf="!completing" class="fas fa-check"></i>
+    {{ completing ? 'Completing...' : ' Mark Complete'}}
     </button>
 
 </div>
