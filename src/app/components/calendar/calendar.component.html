@@ -107,13 +107,13 @@
         </div>
       </div>
       <div class=" modal-footer">
-        <button class=" btn btn-danger btn-block mt-3" (click)="onDetailDeleteEvent()">
+        <button class=" btn btn-danger btn-round mt-3" (click)="onDetailDeleteEvent()">
           <i class="fas fa-times"></i> Cancel
         </button>
-        <button class=" btn btn-default btn-block mt-3" (click)="onEditEvent()">
+        <button class=" btn btn-default btn-round mt-3" (click)="onEditEvent()">
           <i class="far fa-edit mr-2"></i> Edit
         </button>
-        <button class=" btn btn-primary btn-block mt-3" (click)="onGoToSession()">
+        <button class=" btn btn-primary btn-round mt-3" (click)="onGoToSession()">
           <i class="fas fa-arrow-right"></i> Go to Session
         </button>
       </div>
@@ -314,7 +314,7 @@
 <!--              Cancel Event-->
 <!--            </button>-->
 
-            <button class=" btn btn-primary btn-block mt-3" (click)="onUpdateEvent()"
+            <button class=" btn btn-primary btn-block btn-round mt-3" (click)="onUpdateEvent()"
             [disabled]="activeEventF.client.value && activeEventF.program.value && !this.clientHasPurchasedProgramSessions(activeEventF.client.value, activeEventF.program.value)">
               <span *ngIf="!saving">
                 <i class="fas fa-calendar"></i>
@@ -387,14 +387,14 @@
         </div>
       </div>
       <div class=" modal-footer">
-        <button class=" btn btn-danger btn-block mt-3" (click)="onDeleteEvent()">
+        <button class=" btn btn-danger btn-round mt-3" (click)="onDeleteEvent()">
           <span
             *ngIf="cancelling"
             class="spinner-border spinner-border-sm"
             role="status"
           ></span> {{ cancelling ? 'Cancelling...' : 'Yes - Cancel Session'}}
         </button>
-        <button class=" btn btn-default btn-block mt-3" (click)="onCancelEventModalClose()">
+        <button class=" btn btn-default btn-round mt-3" (click)="onCancelEventModalClose()">
           No - Go Back
         </button>
       </div>
