@@ -188,6 +188,7 @@ export class ScheduleCallComponent implements OnInit {
       this.reservingButtonIndex = null;
       this.bsModalRef.hide();
       this.alertService.alert('warning-message', 'Oops', `Error: ${res.error}. Please contact hello@lifecoach.io for support.`);
+      return;
     }
     // success
     this.reserving = false;

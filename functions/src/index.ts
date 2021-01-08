@@ -2752,6 +2752,64 @@ exports.cancelCoachSession = functions
   }
 });
 
+/*
+  Allows coaches to mark coaching sessions complete.
+  Regular users purchase sessions so it's important that coaches only mark sessions complete
+  when they are happy the user has received the full value of their purchased session.
+*/
+exports.coachMarkSessionComplete = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.https
+.onCall( async (data, context) => {
+
+  // Reject any unauthorised user immediately.
+  if (!context.auth) {
+    return {error: 'Unauthorised!'}
+  }
+
+  const coachUid = data.coachId;
+  const clientUid = data.clientId;
+  const now = Math.round(new Date().getTime() / 1000) // unix timestamp
+
+  const batch = db.batch(); // prepare to execute multiple ops atomically
+
+  try {
+
+    console.group('MARKING SESSION COMPLETE');
+
+    // get a single document from this client's sessions purchased (does not matter which one)
+    const sessionSnap = await db.collection(`users/${coachUid}/people/${clientUid}/sessions-purchased`)
+    .limit(1)
+    .get();
+
+    if (sessionSnap.empty) { // there are no documents in this collection
+      return {error: 'Cannot find a purchased session document'}; // abort
+    }
+
+    const sessionDocSnap = sessionSnap.docs[0]; // document snapshot
+    const sessionDoc = sessionDocSnap.data(); // document data
+
+    // update the session doc with time completed
+    sessionDoc.completedTime = now;
+
+    // copy the document into this client's completed sessions collection
+    const completeRef = db.collection(`users/${coachUid}/people/${clientUid}/sessions-complete`).doc() // id does not matter
+    batch.create(completeRef, sessionDoc);
+
+    // delete the document from the purchased sessions collection
+    batch.delete(sessionDocSnap.ref);
+
+    await batch.commit(); // execute batch ops. Any error should trigger catch.
+
+    // success
+    return { success: true } // success
+
+  } catch (err) {
+    console.error(err);
+    return { error: err }
+  }
+});
+
 exports.getTwilioToken = functions
   .runWith({memory: '1GB', timeoutSeconds: 300})
   .https

@@ -1,7 +1,9 @@
 import { isPlatformBrowser } from '@angular/common';
 import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { AlertService } from 'app/services/alert.service';
 import { AnalyticsService } from 'app/services/analytics.service';
 import { AuthService } from 'app/services/auth.service';
+import { CloudFunctionsService } from 'app/services/cloud-functions.service';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subscription } from 'rxjs';
 
@@ -17,8 +19,9 @@ import { Subscription } from 'rxjs';
 })
 export class SessionManagerComponent implements OnInit {
 
-  // modal config
-  public coachId: string; // pass the data in through the modalOptions
+  // modal config - pass the data in through the modalOptions
+  public coachId: string;
+  public clientId: string;
 
   // component
   public browser: boolean;
@@ -30,13 +33,15 @@ export class SessionManagerComponent implements OnInit {
     @Inject(PLATFORM_ID) private platformId: object,
     public bsModalRef: BsModalRef,
     private authService: AuthService,
+    public cloudService: CloudFunctionsService,
+    private alertService: AlertService,
     private analyticsService: AnalyticsService
   ) { }
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
       this.browser = true;
-      this.getUser();
+      // this.getUser();
     }
   }
 
@@ -52,8 +57,37 @@ export class SessionManagerComponent implements OnInit {
     );
   }
 
-  markComplete() {
-    // todo
+  async markComplete() {
+    this.completing = true;
+
+    // safety checks
+    if (!this.coachId) {
+      this.completing = false;
+      this.alertService.alert('warning-message', 'Oops', 'Error: Missing coach ID. Please contact support');
+      return;
+    }
+
+    if (!this.clientId) {
+      this.completing = false;
+      this.alertService.alert('warning-message', 'Oops', 'Error: Missing client ID. Please contact support');
+      return;
+    }
+
+    const data = {
+      coachId: this.coachId,
+      clientId: this.clientId
+    };
+    const res = await this.cloudService.coachMarkSessionComplete(data) as any;
+    if (res.error) { // error
+      this.completing = false;
+      this.bsModalRef.hide();
+      this.alertService.alert('warning-message', 'Oops', `Error: ${res.error}. Please contact hello@lifecoach.io for support.`);
+      return;
+    }
+    // success
+    this.completing = false;
+    this.bsModalRef.hide();
+    this.alertService.alert('success-message', 'Success!', `Session complete.`);
   }
 
 }

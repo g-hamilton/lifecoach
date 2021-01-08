@@ -484,6 +484,18 @@ export class CloudFunctionsService {
     });
   }
 
+  coachMarkSessionComplete(data: any) {
+    return new Promise(resolve => {
+      const mark = this.cloudFunctions.httpsCallable('coachMarkSessionComplete');
+      const tempSub = mark(data)
+        .pipe(first())
+        .subscribe(res => {
+          resolve(res);
+          tempSub.unsubscribe();
+        });
+    });
+  }
+
   // *** DANGER AREA ***
   // Only call if you know what you're doing!!
   adminTriggerAllProfilesUpdateInSequence() {
