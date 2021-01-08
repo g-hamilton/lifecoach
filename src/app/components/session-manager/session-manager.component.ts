@@ -20,8 +20,9 @@ import { Subscription } from 'rxjs';
 export class SessionManagerComponent implements OnInit {
 
   // modal config - pass the data in through the modalOptions
-  public coachId: string;
-  public clientId: string;
+  private coachId: string;
+  private clientId: string;
+  private programId: string;
 
   // component
   public browser: boolean;
@@ -73,9 +74,16 @@ export class SessionManagerComponent implements OnInit {
       return;
     }
 
+    if (!this.programId) {
+      this.completing = false;
+      this.alertService.alert('warning-message', 'Oops', 'Error: Missing program ID. Please contact support');
+      return;
+    }
+
     const data = {
       coachId: this.coachId,
-      clientId: this.clientId
+      clientId: this.clientId,
+      programId: this.programId
     };
     const res = await this.cloudService.coachMarkSessionComplete(data) as any;
     if (res.error) { // error

@@ -2769,6 +2769,7 @@ exports.coachMarkSessionComplete = functions
 
   const coachUid = data.coachId;
   const clientUid = data.clientId;
+  const programId = data.programId;
   const now = Math.round(new Date().getTime() / 1000) // unix timestamp
 
   const batch = db.batch(); // prepare to execute multiple ops atomically
@@ -2777,8 +2778,9 @@ exports.coachMarkSessionComplete = functions
 
     console.group('MARKING SESSION COMPLETE');
 
-    // get a single document from this client's sessions purchased (does not matter which one)
+    // get a single document from this client's purchased sessions (for the given program)
     const sessionSnap = await db.collection(`users/${coachUid}/people/${clientUid}/sessions-purchased`)
+    .where('programId', '==', programId)
     .limit(1)
     .get();
 

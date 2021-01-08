@@ -136,7 +136,9 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
     // https://valor-software.com/ngx-bootstrap/#/modals#service-component
     const config: ModalOptions = {
       initialState: {
-        coachId: this.userId
+        coachId: this.userId,
+        clientId: this.crmPerson.id,
+        programId: this.calendarEvent.program
       }
     };
     this.bsModalRef = this.modalService.show(SessionManagerComponent, config);
