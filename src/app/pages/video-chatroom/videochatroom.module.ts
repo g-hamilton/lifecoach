@@ -6,7 +6,9 @@ import { VideochatroomComponent } from './videochatroom.component';
 import { VideoChatroomRoutes } from './videochatroom.routing';
 import { ComponentsModule } from '../../components/components.module';
 import { FormsModule } from '@angular/forms';
+
 import { CoachInviteComponent } from 'app/components/coach-invite/coach-invite.component';
+import { SessionManagerComponent } from 'app/components/session-manager/session-manager.component';
 
 @NgModule({
   imports: [
@@ -17,7 +19,8 @@ import { CoachInviteComponent } from 'app/components/coach-invite/coach-invite.c
   ],
   declarations: [VideochatroomComponent],
   entryComponents: [
-    CoachInviteComponent
+    CoachInviteComponent,
+    SessionManagerComponent
   ]
 })
 export class VideochatroomModule {}

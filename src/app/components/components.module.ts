@@ -124,6 +124,7 @@ import { ProgramCardComponent } from './program-card/program-card.component';
 import { ProgramBotlinksComponent } from './program-botlinks/program-botlinks.component';
 import { CoachInviteComponent } from './coach-invite/coach-invite.component';
 import { ScheduleCallComponent } from './schedule-call/schedule-call.component';
+import { SessionManagerComponent } from './session-manager/session-manager.component';
 
 export function momentAdapterFactory() {
   return adapterFactory(moment);
@@ -251,7 +252,8 @@ export function momentAdapterFactory() {
     ProgramCardComponent,
     ProgramBotlinksComponent,
     CoachInviteComponent,
-    ScheduleCallComponent
+    ScheduleCallComponent,
+    SessionManagerComponent
   ],
   exports: [
     TabsModule,
@@ -358,7 +360,8 @@ export function momentAdapterFactory() {
     ProgramBotlinksComponent,
     BsDropdownModule,
     CoachInviteComponent,
-    ScheduleCallComponent
+    ScheduleCallComponent,
+    SessionManagerComponent
   ]
 })
 export class ComponentsModule {}

@@ -17,6 +17,7 @@ import { CustomCalendarEvent } from 'app/interfaces/custom.calendar.event.interf
 import { take } from 'rxjs/operators';
 import { CRMPerson } from 'app/interfaces/crm.person.interface';
 import { CrmPeopleService } from 'app/services/crm-people.service';
+import { SessionManagerComponent } from 'app/components/session-manager/session-manager.component';
 
 export interface Answer {
   sessionStatus: 'NOT_STARTED_YET' | 'IS_OVER' | 'IN_PROGRESS';
@@ -131,7 +132,14 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   markSessionComplete() {
-    this.alertService.alert('info-message', 'Coming Soon!', `We're still working on this feature.`);
+    // we can send data to the modal & open in a another component via a service
+    // https://valor-software.com/ngx-bootstrap/#/modals#service-component
+    const config: ModalOptions = {
+      initialState: {
+        coachId: this.userId
+      }
+    };
+    this.bsModalRef = this.modalService.show(SessionManagerComponent, config);
   }
 
   sendResource() {
