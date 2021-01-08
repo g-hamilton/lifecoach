@@ -2504,7 +2504,7 @@ exports.orderCoachSession = functions
       sessionId,
     }, { merge: true });
 
-    // create the ordered session for the person booking using the session id as the document id
+    // create the ordered session for the person booking using the session id as the document id //
     const orderedSessionRef = db.collection(`users/${uid}/ordered-sessions`).doc(sessionId);
     batch.set(orderedSessionRef, {
       start: event.start,
@@ -4108,10 +4108,14 @@ exports.onWriteUserCalendar = functions
 .firestore
 .document(`users/{uid}/calendar/{eventId}`)
 .onWrite(async (change, context) => {
+
   const userId = context.params.uid; // note only coach users have a calendar so uid will always be a coach
   const event = change.after.data() as any; // will be a CustomCalendarEvent
   const eventBefore = change.before.data() as any; // will not exist on first create
+  const batch = db.batch(); // prepare to execute multiple ops atomically
   const promises = [];
+  const dateNow = Date.now();
+
   // Record Removed.
   if (!event) {
     // do anything?
@@ -4119,6 +4123,30 @@ exports.onWriteUserCalendar = functions
   // Record created
   if (!eventBefore) {
     if (event.type === 'session') { // coach has scheduled a coaching session with a client
+
+      // create the session in the all sessions node using the session id as the doc id
+      const allSessionsRef = db.collection(`ordered-sessions/all/sessions`).doc(event.id);
+      batch.set(allSessionsRef, {
+        coachId: userId,
+        timeOfReserve: dateNow,
+        participants: [userId, event.client],
+        originalEvent: event,
+        start: event.start,
+        end: event.end,
+        testField: 'testField'
+      }, { merge: true });
+  
+      // create the session for the client using the session id as the document id
+      const clientSessionRef = db.collection(`users/${event.client}/ordered-sessions`).doc(event.id);
+      batch.set(clientSessionRef, {
+        start: event.start,
+        end: event.end,
+        sessionId: event.id,
+        type: event.type
+      });
+
+      await batch.commit(); // execute batch ops. Any error should trigger catch.
+
       // send email
 
       const coachProfileSnap = await db.collection(`public-coaches`)
