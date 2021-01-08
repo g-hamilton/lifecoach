@@ -2498,6 +2498,7 @@ exports.orderCoachSession = functions
     batch.set(coachEventRef, { // update the document by merging new data into the event object
       ordered: true,
       orderedById: uid,
+      client: uid,
       orderedByName: userName,
       orderedByPhoto: userPhoto,
       cssClass: 'ordered',

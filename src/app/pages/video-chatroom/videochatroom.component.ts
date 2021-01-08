@@ -36,6 +36,7 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
   sessionId: string;
   userId: string;
   coachId: string;
+  private clientId: string; // the uid of the regular user
   public calendarEvent: CustomCalendarEvent; // the original calendar event object
   private calendarEventId: string; // the db id of the original calendar event doc in this coach's calendar
   public crmPerson: CRMPerson;
@@ -255,6 +256,11 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
       .subscribe(event => {
         if (event) {
           this.calendarEvent = event;
+          if (event.client) { // events should contain a client id
+            this.clientId = event.client;
+          } else if (event.orderedById) { // some older sessions don't have a client id but do have ordered by
+            this.clientId = event.orderedById;
+          }
           this.loadCrmPerson();
         }
         console.log('Calendar event loaded:', this.calendarEvent);
@@ -264,10 +270,10 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
 
   loadCrmPerson() {
     this.subscriptions.add(
-      this.crmPeopleService.getUserPerson(this.userId, this.calendarEvent.orderedById)
+      this.crmPeopleService.getUserPerson(this.userId, this.clientId)
       .subscribe(async person => {
         if (person) {
-          const filledPerson = await this.crmPeopleService.getFilledPerson(this.userId, person, this.calendarEvent.orderedById);
+          const filledPerson = await this.crmPeopleService.getFilledPerson(this.userId, person, this.clientId);
           this.crmPerson = filledPerson;
         }
         console.log('CRM person loaded', this.crmPerson);

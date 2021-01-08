@@ -621,6 +621,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
       ev.ordered = true;
       ev.orderedById = this.userId;
       ev.sessionId = ev.id; // note: session will be created by cloud function monitoring the calendar
+      ev.title = `Coaching session with ${ev.orderedByName}`;
       this.dataService.saveUserCalendarEvent(this.userId, ev.start, ev); // save and notify this single event
       this.eventNotification(ev);
     }
