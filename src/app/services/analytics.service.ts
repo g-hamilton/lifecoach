@@ -395,4 +395,8 @@ export class AnalyticsService {
     });
   }
 
+  markSessionComplete() {
+    mixpanel.track('marked session complete');
+  }
+
 }

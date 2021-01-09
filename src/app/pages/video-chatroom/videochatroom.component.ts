@@ -139,7 +139,8 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
       initialState: {
         coachId: this.userId,
         clientId: this.crmPerson.id,
-        programId: this.calendarEvent.program
+        programId: this.calendarEvent.program,
+        sessionId: this.calendarEvent.id
       }
     };
     this.bsModalRef = this.modalService.show(SessionManagerComponent, config);

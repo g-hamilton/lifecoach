@@ -1,5 +1,6 @@
 import { isPlatformBrowser } from '@angular/common';
 import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
+import { Router } from '@angular/router';
 import { AlertService } from 'app/services/alert.service';
 import { AnalyticsService } from 'app/services/analytics.service';
 import { AuthService } from 'app/services/auth.service';
@@ -23,6 +24,7 @@ export class SessionManagerComponent implements OnInit {
   private coachId: string;
   private clientId: string;
   private programId: string;
+  private sessionId: string;
 
   // component
   public browser: boolean;
@@ -36,7 +38,8 @@ export class SessionManagerComponent implements OnInit {
     private authService: AuthService,
     public cloudService: CloudFunctionsService,
     private alertService: AlertService,
-    private analyticsService: AnalyticsService
+    private analyticsService: AnalyticsService,
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -64,26 +67,37 @@ export class SessionManagerComponent implements OnInit {
     // safety checks
     if (!this.coachId) {
       this.completing = false;
+      this.bsModalRef.hide();
       this.alertService.alert('warning-message', 'Oops', 'Error: Missing coach ID. Please contact support');
       return;
     }
 
     if (!this.clientId) {
       this.completing = false;
+      this.bsModalRef.hide();
       this.alertService.alert('warning-message', 'Oops', 'Error: Missing client ID. Please contact support');
       return;
     }
 
     if (!this.programId) {
       this.completing = false;
+      this.bsModalRef.hide();
       this.alertService.alert('warning-message', 'Oops', 'Error: Missing program ID. Please contact support');
+      return;
+    }
+
+    if (!this.sessionId) {
+      this.completing = false;
+      this.bsModalRef.hide();
+      this.alertService.alert('warning-message', 'Oops', 'Error: Missing session ID. Please contact support');
       return;
     }
 
     const data = {
       coachId: this.coachId,
       clientId: this.clientId,
-      programId: this.programId
+      programId: this.programId,
+      sessionId: this.sessionId
     };
     const res = await this.cloudService.coachMarkSessionComplete(data) as any;
     if (res.error) { // error
@@ -95,7 +109,9 @@ export class SessionManagerComponent implements OnInit {
     // success
     this.completing = false;
     this.bsModalRef.hide();
+    this.analyticsService.markSessionComplete();
     this.alertService.alert('success-message', 'Success!', `Session complete.`);
+    this.router.navigate(['/person-history', this.clientId]);
   }
 
 }
