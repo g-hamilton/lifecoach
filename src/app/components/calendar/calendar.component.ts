@@ -160,8 +160,11 @@ export class CalendarComponent implements OnInit, OnDestroy {
             ev.title = this.getTitle(ev);
 
             // do we need to dynamically update the css class here in the front end?
-            // if event not complete and is in the past set to needs-action
-            // ev.cssClass = ev.ordered ? 'ordered' : 'free' ;
+            // if event has been ordered, is not complete and is in the past - set to needs-action
+            if (ev.ordered && !ev.complete && ev.end < this.dateNow) {
+              ev.cssClass = 'needs-action';
+            }
+
           });
 
           this.events = events;

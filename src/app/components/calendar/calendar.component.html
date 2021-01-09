@@ -55,6 +55,7 @@
         <h4 class="modal-title pull-left"> {{ activeEvent?.title }}
           <span *ngIf="activeEvent?.complete" class=" badge badge-primary ml-3">Complete</span>
           <span *ngIf="activeEvent?.cancelled" class=" badge badge-danger ml-3">Cancelled</span>
+          <span *ngIf="activeEvent?.ordered && activeEvent?.end < dateNow && !activeEvent?.complete && !activeEvent?.cancelled" class=" badge badge-danger ml-3">Needs Action</span>
         </h4>
         <button type="button" class="close pull-right" aria-label="Close" (click)="onEventDetailModalClose()">
           <span aria-hidden="true">&times;</span>
