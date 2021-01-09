@@ -2798,6 +2798,8 @@ exports.coachMarkSessionComplete = functions
       completedTime: now
     });
 
+    // create a history event in the CRM TODO
+
     // get a single document from this client's purchased sessions (for the given program)
     const sessionSnap = await db.collection(`users/${coachUid}/people/${clientUid}/sessions-purchased`)
     .where('programId', '==', programId)

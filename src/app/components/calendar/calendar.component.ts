@@ -668,6 +668,25 @@ export class CalendarComponent implements OnInit, OnDestroy {
     this.router.navigate(['/my-sessions', this.activeEvent.sessionId]);
   }
 
+  onViewSessionNotes() {
+    this.eventDetailModal.hide();
+    console.log('Active event:', this.activeEvent);
+    // this.router.navigate(['/people', this.activeEvent.sessionId]);
+    alert('todo: I should go to person history session now!');
+  }
+
+  onDeleteCancelledEvent() {
+    this.eventDetailModal.hide();
+    console.log('Active event:', this.activeEvent);
+    alert('todo: I should delete the cancelled event now!');
+  }
+
+  onRescheduleSession() {
+    this.eventDetailModal.hide();
+    console.log('Active event:', this.activeEvent);
+    alert('todo: I should allow you to reschedule this session now!');
+  }
+
   onChangeStartTimeHandler(event: any) {
     console.log('Event', event,
       'Times changed', event.target.value );
