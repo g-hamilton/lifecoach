@@ -2771,6 +2771,7 @@ exports.coachMarkSessionComplete = functions
   const coachUid = data.coachId;
   const clientUid = data.clientId;
   const programId = data.programId;
+  const sessionId = data.sessionId;
   const now = Math.round(new Date().getTime() / 1000) // unix timestamp
 
   const batch = db.batch(); // prepare to execute multiple ops atomically
@@ -2778,6 +2779,24 @@ exports.coachMarkSessionComplete = functions
   try {
 
     console.group('MARKING SESSION COMPLETE');
+
+    // update the coach's calendar event
+    const eventSnap = await db.collection(`users/${coachUid}/calendar`)
+    .where('id', '==', sessionId)
+    .limit(1)
+    .get();
+
+    if (eventSnap.empty) { // there are no documents in this collection
+      return {error: 'Cannot find the matching calendar event document'}; // abort
+    }
+
+    const eventDocSnap = eventSnap.docs[0]; // document snapshot
+
+    batch.update(eventDocSnap.ref, {
+      cssClass: 'complete',
+      complete: true,
+      completedTime: now
+    });
 
     // get a single document from this client's purchased sessions (for the given program)
     const sessionSnap = await db.collection(`users/${coachUid}/people/${clientUid}/sessions-purchased`)
@@ -2792,8 +2811,9 @@ exports.coachMarkSessionComplete = functions
     const sessionDocSnap = sessionSnap.docs[0]; // document snapshot
     const sessionDoc = sessionDocSnap.data(); // document data
 
-    // update the session doc with time completed
+    // update the session doc with time completed and linked calendar event (session) ID
     sessionDoc.completedTime = now;
+    sessionDoc.linkedCalEventId = sessionId
 
     // copy the document into this client's completed sessions collection
     const completeRef = db.collection(`users/${coachUid}/people/${clientUid}/sessions-complete`).doc() // id does not matter
