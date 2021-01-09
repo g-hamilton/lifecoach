@@ -239,6 +239,10 @@ export class CalendarComponent implements OnInit, OnDestroy {
     return this.coachPrograms.filter(i => i.programId === id)[0];
   }
 
+  get dateNow() {
+    return new Date();
+  }
+
   filterEvents(arr: CustomCalendarEvent[]) {
     // const noCancelledEvents = arr.filter(i => !i.cancelled);
     // return noCancelledEvents;
@@ -444,14 +448,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
     // });
   }
 
-  onDetailDeleteEvent() {
+  onDetailCancelEvent() {
     this.eventDetailModal.hide();
-
-    // if this is an available discovery slot, no need to confirm or notify other participant. just delete..
-    if (this.activeEvent.type === 'discovery' && !this.activeEvent.reserved && !this.activeEvent.ordered) {
-      this.onDeleteEvent();
-      return;
-    }
 
     // if this is an ordered discovery slot...
     if (this.activeEvent.type === 'discovery' && this.activeEvent.ordered) {
@@ -486,11 +484,18 @@ export class CalendarComponent implements OnInit, OnDestroy {
     this.activeEventForm.reset();
   }
 
-  async onDeleteEvent() {
+  onDeleteEventFromCal() {
+    this.dataService.deleteCalendarEvent(this.userId, this.activeEvent);
+    this.eventDetailModal.hide();
+    this.activeEvent = null;
+    this.activeEventForm.reset();
+  }
+
+  async onCancelEvent() {
 
     this.cancelling = true;
 
-    // delete the event
+    // cancel the event
     const request: CancelCoachSessionRequest = {
       eventId: this.activeEvent.id,
       cancelledById: this.userId
@@ -685,6 +690,12 @@ export class CalendarComponent implements OnInit, OnDestroy {
     this.eventDetailModal.hide();
     console.log('Active event:', this.activeEvent);
     alert('todo: I should allow you to reschedule this session now!');
+  }
+
+  onMarkSessionComplete() {
+    this.eventDetailModal.hide();
+    console.log('Active event:', this.activeEvent);
+    alert('todo: I should mark this session complete now!');
   }
 
   onChangeStartTimeHandler(event: any) {
