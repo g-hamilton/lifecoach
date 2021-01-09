@@ -832,6 +832,13 @@ export class DataService {
       .valueChanges({idField: 'id'}) as Observable<[]>;
   }
 
+  getProgramSessionsComplete(coachId: string, clientId: string, programId: string) {
+    // returns all of the completed sessions for a specific program
+    return this.db.collection(`users/${coachId}/people/${clientId}/sessions-complete`, ref => ref
+      .where('programId', '==', programId))
+      .valueChanges({idField: 'id'}) as Observable<[]>;
+  }
+
   // ================================================================================
   // =====                           COACH SERVICES                            ======
   // ================================================================================
