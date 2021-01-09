@@ -547,8 +547,8 @@ select option {
 }
 
 
-//calendar reserved and ordered styles
-.reserved{
+// calendar styles
+.reserved { // not currently used
   span{
     color: #e14eca!important;
   }
@@ -558,13 +558,33 @@ select option {
   }
 }
 
-.ordered{
+.ordered, .session {
   span{
     color: #1fc22a!important;
   }
   div{
     background: #1fc22a33!important;
     border: 1px solid #1fc22a!important;
+  }
+}
+
+.cancelled, .needs-action {
+  span{
+    color: #8b0000!important;
+  }
+  div{
+    background: #f3c5c5!important;
+    border: 1px solid #8b0000!important;
+  }
+}
+
+.complete {
+  span{
+    color: #e14eca!important;
+  }
+  div{
+    background: #e14eca33!important;
+    border: 1px solid #e14eca!important;
   }
 }
 

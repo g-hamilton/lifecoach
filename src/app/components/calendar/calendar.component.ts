@@ -158,8 +158,10 @@ export class CalendarComponent implements OnInit, OnDestroy {
               ev.end = new Date((ev.end as any).seconds * 1000);
             }
             ev.title = this.getTitle(ev);
-            // ev.title = ev.reserved ? (ev.ordered ? 'ORDERED' : 'RESERVED') : 'FREE';
-            ev.cssClass = ev.ordered ? 'ordered' : 'free' ;
+
+            // do we need to dynamically update the css class here in the front end?
+            // if event not complete and is in the past set to needs-action
+            // ev.cssClass = ev.ordered ? 'ordered' : 'free' ;
           });
 
           this.events = events;
@@ -238,16 +240,27 @@ export class CalendarComponent implements OnInit, OnDestroy {
   }
 
   filterEvents(arr: CustomCalendarEvent[]) {
-    const noCancelledEvents = arr.filter(i => !i.cancelled);
-    return noCancelledEvents;
+    // const noCancelledEvents = arr.filter(i => !i.cancelled);
+    // return noCancelledEvents;
+    return arr; // no filtering at this time
   }
 
   getTitle(ev: CustomCalendarEvent) {
     let title = '';
-    if (ev.type === 'discovery') {
-      title = ev.ordered ? `Discovery with ${ev.orderedByName}` : 'Available';
-    } else if (ev.type === 'session') {
-      title = `${ev.orderedByName}`;
+    if (ev.type === 'discovery') { // discovery sessions
+      if (ev.ordered && !ev.cancelledTime) {
+        title = `Discovery with ${ev.orderedByName}`;
+      } else if (ev.ordered && ev.cancelledTime) {
+        title = `Cancelled: Discovery with ${ev.orderedByName}`;
+      } else {
+        title = 'Available';
+      }
+    } else if (ev.type === 'session') { // coaching sessions
+      if (ev.cancelledTime) {
+        title = `Cancelled: ${ev.orderedByName}`;
+      } else {
+        title = `${ev.orderedByName}`;
+      }
     }
     return title;
   }
