@@ -138,23 +138,27 @@
                       <h4 class="card-title"> {{ program?.title }} </h4>
                       <h6 class="card-subtitle mb-2 text-muted"> {{ program?.subtitle }} </h6>
                       <span class=" badge badge-default"> Program </span>
+                      <div class="pull-right text-success">
+                        <small>
+                          {{ program?.purchasedSessions.length }} sessions remaining
+                        </small>
+                      </div>
                     </a>
                     <div class="progress-container progress-primary mt-2">
-                        <span class="progress-badge"> {{ person.firstName }}'s Progress </span>
+                        <span class="progress-badge"> Progress </span>
                         <progressbar class="progress-bar-primary" [value]="program?.progress">
                           <span class="progress-value"> {{ program?.progress }}% </span>
                         </progressbar>
                     </div>
                   </div>
-                  <div class=" card-footer" *ngIf="program.purchasedSessions?.length > 0">
-                    <div class="pull-right text-success">
-                      <small>
-                        {{ program?.purchasedSessions.length }} purchased sessions
-                      </small>
-                    </div>
-                    <button class="btn btn-sm btn-round btn-primary pull-right"
+                  <div class=" card-footer">
+                    <button class="btn btn-round btn-default">
+                      View Session History
+                    </button>
+                    <!-- schedule a session button if sessions remaining -->
+                    <button *ngIf="program.purchasedSessions?.length > 0" class="btn btn-round btn-primary"
                     [routerLink]="['/calendar']">
-                      Schedule Next Session
+                      Schedule a Session
                     </button>
                   </div>
               </div>
