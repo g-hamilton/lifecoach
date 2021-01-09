@@ -72,7 +72,7 @@ export const ROUTES: RouteInfo[] = [
     rtlTitle: 'التقويم',
     type: 'link',
     icontype: 'tim-icons icon-chat-33',
-    userTypes: ['regular', 'coach']
+    userTypes: ['regular']
   },
   {
     path: '/my-programs',
