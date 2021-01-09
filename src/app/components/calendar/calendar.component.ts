@@ -247,7 +247,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
     if (ev.type === 'discovery') {
       title = ev.ordered ? `Discovery with ${ev.orderedByName}` : 'Available';
     } else if (ev.type === 'session') {
-      title = `Session with ${ev.orderedByName}`;
+      title = `${ev.orderedByName}`;
     }
     return title;
   }
