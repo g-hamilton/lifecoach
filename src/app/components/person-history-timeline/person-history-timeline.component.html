@@ -51,6 +51,9 @@
                 <div *ngIf="item.action === 'cancelled_session'" class=" timeline-badge warning">
                     <i class="fas fa-calendar"></i>
                 </div>
+                <div *ngIf="item.action === 'completed_session'" class=" timeline-badge success">
+                    <i class="fas fa-check"></i>
+                </div>
 
                 <!-- panel -->
                 <div class=" timeline-panel">
@@ -64,6 +67,9 @@
                         <span *ngIf="item.action === 'coach_invited_user'" class=" badge badge-success"> Sent Invite </span>
                         <span *ngIf="item.action === 'booked_session'" class=" badge badge-success"> Booked Session </span>
                         <span *ngIf="item.action === 'cancelled_session'" class=" badge badge-warning"> Cancelled Session </span>
+                        <span *ngIf="item.action === 'completed_session'" class=" badge badge-success"> 
+                            Completed {{ item.programId === 'discovery' ? 'Discovery Session' : 'Session' }} 
+                        </span>
 
                         <!-- time / date of this action -->
                         <span class="pull-right">
@@ -114,6 +120,12 @@
                             {{ person.firstName }} cancelled a {{ person.history[i].event?.type }} session with you. 
                             <a [routerLink]="['/calendar']">
                                 View Calendar
+                            </a>
+                        </p>
+                        <p *ngIf="item.action === 'completed_session'">
+                            You completed a {{ item.programId === 'discovery' ? 'discovery session' : 'session' }} with {{ person.firstName }}. 
+                            <a href="javascript:void(0)">
+                                Invite {{ person.firstName }} to a product or service.
                             </a>
                         </p>
                     </div>
