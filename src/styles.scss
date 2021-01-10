@@ -560,31 +560,31 @@ select option {
 
 .ordered, .session {
   span{
-    color: #1fc22a!important;
+    color: #00f2c3 !important;
   }
   div{
-    background: #1fc22a33!important;
-    border: 1px solid #1fc22a!important;
+    background: #00f2c235 !important;
+    border: 1px solid #00f2c3 !important;
   }
 }
 
 .cancelled, .needs-action {
   span{
-    color: #8b0000!important;
+    color: #fd5d93 !important;
   }
   div{
-    background: #f3c5c5!important;
-    border: 1px solid #8b0000!important;
+    background: #fd5d9230 !important;
+    border: 1px solid #fd5d93 !important;
   }
 }
 
 .complete {
   span{
-    color: #e14eca!important;
+    color: #e14eca !important;
   }
   div{
-    background: #e14eca33!important;
-    border: 1px solid #e14eca!important;
+    background: #e14ecb30 !important;
+    border: 1px solid #e14eca !important;
   }
 }
 
