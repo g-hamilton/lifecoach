@@ -702,7 +702,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
         coachId: this.userId,
         clientId,
         programId,
-        sessionId: this.activeEvent.id
+        sessionId: this.activeEvent.id,
+        eventType: this.activeEvent.type
       }
     };
     this.bsModalRef = this.modalService.show(SessionManagerComponent, config);

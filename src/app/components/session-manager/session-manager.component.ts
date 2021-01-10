@@ -25,6 +25,7 @@ export class SessionManagerComponent implements OnInit {
   private clientId: string;
   private programId: string;
   private sessionId: string;
+  public eventType: 'discovery' | 'session';
 
   // component
   public browser: boolean;
