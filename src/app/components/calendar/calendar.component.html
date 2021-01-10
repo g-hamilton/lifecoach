@@ -56,6 +56,7 @@
           <span *ngIf="activeEvent?.complete" class=" badge badge-primary ml-3">Complete</span>
           <span *ngIf="activeEvent?.cancelled" class=" badge badge-danger ml-3">Cancelled</span>
           <span *ngIf="activeEvent?.ordered && activeEvent?.end < dateNow && !activeEvent?.complete && !activeEvent?.cancelled" class=" badge badge-danger ml-3">Needs Action</span>
+          <span *ngIf="activeEvent?.start < dateNow && activeEvent?.end > dateNow" class=" badge badge-success ml-3">In Progress</span>
         </h4>
         <button type="button" class="close pull-right" aria-label="Close" (click)="onEventDetailModalClose()">
           <span aria-hidden="true">&times;</span>
@@ -131,7 +132,7 @@
               <button class=" btn btn-danger btn-round btn-block" (click)="onDetailCancelEvent()">
                 <i class="fas fa-times"></i> Cancel Session
               </button>
-              <button class=" btn btn-default btn-round btn-block" (click)="onEditEvent()">
+              <button *ngIf="activeEvent.start >= dateNow" class=" btn btn-default btn-round btn-block" (click)="onEditEvent()">
                 <i class="far fa-edit mr-2"></i> Edit Session
               </button>
               <button class=" btn btn-primary btn-round btn-block" (click)="onGoToSession()">
