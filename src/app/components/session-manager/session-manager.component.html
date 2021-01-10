@@ -18,8 +18,8 @@
               <div *ngIf="eventType === 'session'">
                 <p class=" small text-muted pl-2 mb-3">
                   <i class="fas fa-info-circle"></i> Marking this session complete will 
-                  <span class=" text-warning">
-                    deduct 1 paid session
+                  <span class=" text-danger">
+                    <strong>deduct 1 paid session</strong>
                   </span> from 
                   your client's account and add a completed session to your timeline. <br><br>
                   <strong>Important:</strong> Only mark the session complete if you are happy that 
@@ -32,7 +32,7 @@
               </div>
 
               <!-- ui for discovery sessions -->
-              <div *ngIf="eventType === 'session'">
+              <div *ngIf="eventType === 'discovery'">
                 <p class=" small text-muted pl-2 mb-3">
                   <i class="fas fa-info-circle"></i> Marking this discovery session complete will
                   add a completed session to your timeline. <br><br>
