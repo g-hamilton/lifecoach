@@ -651,8 +651,13 @@ export class DataService {
 
     if (date) {
       console.log('for date: ', date);
-      const startTime = new Date(date.setHours(0, 0, 0, 0));
-      const endTime = new Date(date.setHours(24));
+      let startTime: Date;
+      if (this.isSameDay(date, new Date())) {
+        startTime = new Date(date);
+      } else {
+        startTime = new Date(date.setHours(0, 0, 0, 0));
+      }
+      const endTime = new Date(date.setHours(24, 0, 0, 0));
       console.log('Возможно, undefined', startTime, endTime);
       return this.db.collection(`users/${uid}/calendar`, ref => ref
         .where('type', '==', 'discovery')
@@ -904,6 +909,12 @@ export class DataService {
 
   }
 
+
+
+  // date helper
+  isSameDay(a: Date, b: Date) {
+    return (a.getUTCFullYear() === b.getUTCFullYear() && a.getUTCMonth() === b.getUTCMonth() && a.getUTCDate() === b.getUTCDate());
+  }
 
 }
 
