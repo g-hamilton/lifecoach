@@ -8,7 +8,6 @@ import { ComponentsModule } from '../../components/components.module';
 import { FormsModule } from '@angular/forms';
 
 import { CoachInviteComponent } from 'app/components/coach-invite/coach-invite.component';
-import { SessionManagerComponent } from 'app/components/session-manager/session-manager.component';
 
 @NgModule({
   imports: [
@@ -19,8 +18,7 @@ import { SessionManagerComponent } from 'app/components/session-manager/session-
   ],
   declarations: [VideochatroomComponent],
   entryComponents: [
-    CoachInviteComponent,
-    SessionManagerComponent
+    CoachInviteComponent
   ]
 })
 export class VideochatroomModule {}

@@ -1,7 +1,6 @@
 import {Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
 import {CalendarView} from 'angular-calendar';
 import {Subject, Subscription} from 'rxjs';
-import {ModalDirective} from 'ngx-bootstrap/modal';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {CustomCalendarEvent} from '../../interfaces/custom.calendar.event.interface';
 import {DataService} from 'app/services/data.service';
@@ -16,6 +15,8 @@ import { AnalyticsService } from 'app/services/analytics.service';
 import { CrmPeopleService } from 'app/services/crm-people.service';
 import { CRMPerson, EnrolledProgram } from 'app/interfaces/crm.person.interface';
 import { CoachingProgram } from 'app/interfaces/coach.program.interface';
+import { ModalDirective, BsModalService, BsModalRef, ModalOptions } from 'ngx-bootstrap/modal';
+import { SessionManagerComponent } from 'app/components/session-manager/session-manager.component';
 
 @Component({
   selector: 'app-calendar',
@@ -28,6 +29,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
   @ViewChild('eventDetailModal', {static: false}) public eventDetailModal: ModalDirective;
   @ViewChild('editEventModal', {static: false}) public editEventModal: ModalDirective;
   @ViewChild('cancelEventModal', {static: false}) public cancelEventModal: ModalDirective;
+
+  public bsModalRef: BsModalRef;
 
   private userId: string;
 
@@ -81,7 +84,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
     private router: Router,
     private cloudFunctionsService: CloudFunctionsService,
     private analyticsService: AnalyticsService,
-    private crmPeopleService: CrmPeopleService
+    private crmPeopleService: CrmPeopleService,
+    private modalService: BsModalService
   ) {
   }
 
@@ -688,7 +692,18 @@ export class CalendarComponent implements OnInit, OnDestroy {
 
   onMarkSessionComplete() {
     this.eventDetailModal.hide();
-    alert('todo: I should mark this session complete now!');
+
+    // we can send data to the modal & open in a another component via a service
+    // https://valor-software.com/ngx-bootstrap/#/modals#service-component
+    const config: ModalOptions = {
+      initialState: {
+        coachId: this.userId,
+        clientId: this.activeEvent.client,
+        programId: this.activeEvent.program,
+        sessionId: this.activeEvent.id
+      }
+    };
+    this.bsModalRef = this.modalService.show(SessionManagerComponent, config);
   }
 
   onViewPerson() {
