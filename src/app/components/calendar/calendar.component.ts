@@ -539,8 +539,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
       while (expireTime < endTime) {
         const ev = {
           ...ob,
-          // title: `${new Date(expireTime).toLocaleTimeString()} - ${new Date(expireTime + this.sessionDuration * 60000).toLocaleTimeString()}`,
-          title: ob.reservedById ? (ob.ordered ? 'Ordered' : 'reserved') : 'Available',
+          title: 'Available',
           start: new Date(expireTime),
           end: new Date(expireTime + this.sessionDuration * 60000),
           id: Math.random().toString(36).substr(2, 9),
@@ -548,7 +547,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
           reservedById: null,
           ordered: false,
           orderedById: null,
-          cssClass: ob.reservedById ? (ob.ordered ? 'orderedSession' : 'reserved') : 'not',
+          cssClass: 'available',
         };
         console.log(ev);
         result.push(ev);
@@ -559,12 +558,12 @@ export class CalendarComponent implements OnInit, OnDestroy {
       result.push({
         ...ob,
         end: new Date(ob.end.getTime() - this.breakDuration * 60000),
-        title: ob.reservedById ? (ob.ordered ? 'Ordered' : 'reserved') : 'I am free',
+        title: 'Available',
         reserved: false,
         reservedById: null,
         ordered: false,
         orderedById: null,
-        cssClass: ob.reservedById ? (ob.ordered ? 'orderedSession' : 'reserved') : 'not',
+        cssClass: 'available',
       });
     }
     return result;
@@ -634,6 +633,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
     }
 
     if (ev.type === 'discovery') { // If creating discovery session(s)
+      ev.cssClass = 'available';
       // divide the time period into multiple sessions if required
       console.log('Dividing discovery type event into sessions and saving...');
       this.divideEventIntoSessions(ev)
