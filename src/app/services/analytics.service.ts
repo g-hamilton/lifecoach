@@ -395,6 +395,14 @@ export class AnalyticsService {
     });
   }
 
+  createCoachSession(type: 'discovery' | 'session', coachId: string, sessionId: string) {
+    mixpanel.track('created coaching session', {
+      type,
+      coachId,
+      sessionId
+    });
+  }
+
   markSessionComplete() {
     mixpanel.track('marked session complete');
   }

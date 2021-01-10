@@ -640,6 +640,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
       .forEach(i => { // save and notify for each individual (divided) event
         this.dataService.saveUserCalendarEvent(this.userId, i.start, i);
         this.eventNotification(ev);
+        this.analyticsService.createCoachSession(ev.type, this.userId, ev.id);
       });
     } else if (ev.type === 'session') { // If creating a client coaching session
       ev.cssClass = 'session';
@@ -649,6 +650,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
       ev.title = `Coaching session with ${ev.orderedByName}`;
       this.dataService.saveUserCalendarEvent(this.userId, ev.start, ev); // save and notify this single event
       this.eventNotification(ev);
+      this.analyticsService.createCoachSession(ev.type, this.userId, ev.id);
     }
 
     // done
