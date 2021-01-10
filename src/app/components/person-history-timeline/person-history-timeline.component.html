@@ -7,6 +7,23 @@
 
 <!-- person loaded -->
 <div *ngIf="person">
+
+    <!-- sort by dropdown -->
+    <div class=" row">
+        <div class=" col-md-6">
+            <div class=" form-group">
+                <select class="form-control" name="sortby" id="sortby" [(ngModel)]="sortBy" (change)="onSortByHandler($event)">
+                  <option value="newest">
+                    Display newest events first
+                  </option>
+                  <option value="oldest">
+                    Display oldest events first
+                  </option>
+                </select>
+            </div>
+        </div>
+    </div>
+
     <div class=" card card-timeline card-plain">
         <div class=" card-body">
           <ul class=" timeline timeline-simple">
