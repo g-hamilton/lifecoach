@@ -71,7 +71,7 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
   constructor(
     private dataService: DataService,
     private authService: AuthService,
-    public twilioService: TwilioService,
+    public videoService: TwilioService,
     public cloudService: CloudFunctionsService,
     private route: ActivatedRoute,
     private toastService: ToastService,
@@ -79,7 +79,7 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
     private modalService: BsModalService,
     private crmPeopleService: CrmPeopleService
   ) {
-    this.twilioService.msgSubject.subscribe(r => {
+    this.videoService.msgSubject.subscribe(r => {
       console.log('MessageSubject', this.message);
       this.message = r;
     });
@@ -88,8 +88,8 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
 
   ngOnInit() {
     this.loading = true;
-    this.twilioService.localVideo = this.localVideo;
-    this.twilioService.remoteVideo = this.remoteVideo;
+    this.videoService.localVideo = this.localVideo;
+    this.videoService.remoteVideo = this.remoteVideo;
     console.log('LOADED');
 
     this.subscriptions.add(
@@ -124,12 +124,12 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
 
   toggleMic() {
     this.isMicActive = !this.isMicActive;
-    this.twilioService.toggleMicro();
+    this.videoService.toggleMicro();
   }
 
   toggleVideo() {
     this.isVideoActive = !this.isVideoActive;
-    this.twilioService.toggleVideo();
+    this.videoService.toggleVideo();
   }
 
   markSessionComplete() {
@@ -174,7 +174,7 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
             }
             break;
           case 'IS_OVER':
-            this.twilioService.abort();
+            this.videoService.abort();
             this.disconnect();
             try {
               clearInterval(this.sessionEndTimer);
@@ -184,8 +184,11 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
               console.log('error', e);
             }
             break;
+          case 'NOT_STARTED_YET':
+            console.log('session is not started yet');
+            break;
           default:
-            console.log('Not started yet');
+            console.log('dont  know');
 
         }
       });
@@ -291,7 +294,7 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   disconnect() {
-    this.twilioService.disconnect();
+    this.videoService.disconnect();
     this.isVideoLoading = false;
     this.sessionHasStarted = false;
     this.isMicActive = true;
@@ -336,7 +339,7 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
               }
               this.isVideoLoading = true;
             }).then(() => {
-              this.twilioService.connectToRoom(this.isVideoLoading, this.accessToken, {
+              this.videoService.connectToRoom(this.isVideoLoading, this.accessToken, {
               name: this.roomName,
               audio: true,
               video: {width: 640}
@@ -344,23 +347,24 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
               this.sessionHasStarted = true;
               console.log('should be loader');
 
-            }).catch( error => {
-            switch (error) {
-              case 'IS_OVER':
-                this.alertService
-                  .alert('warning-message', 'Too late', 'Unfortunately, Your session is over. But You can reserve one more :)');
-                break;
-              case 'NOT_TIME_YET':
-                this.alertService
-                  .alert('auto-close', 'Your Session is not ready yet', `Your Session will start at ${startOfEvent.toLocaleTimeString()}. You will be able to connect a few minutes before the Session starts`);
-                break;
-              default:
-                console.log('unexpected error', error);
-                break;
-            }
-          });
+            }).catch( er => console.log( er.message ));
 
-        });
+        }).catch( error => {
+        switch (error) {
+          case 'IS_OVER':
+            this.alertService
+              .alert('warning-message', 'Too late', 'Unfortunately, Your session is over. But You can reserve one more :)');
+            break;
+          case 'NOT_TIME_YET':
+            console.log('session didnt not start');
+            this.alertService
+              .alert('info-message', 'Your Session is not ready yet', `Your Session will start at ${startOfEvent.toLocaleTimeString()}. You will be able to connect a few minutes before the Session starts`);
+            break;
+          default:
+            console.log('unexpected error', error);
+            break;
+        }
+      });
     }
 
   }
@@ -426,7 +430,7 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
 
           console.groupEnd();
 
-          this.twilioService.connectToRoom(this.userLoaded, this.accessToken, {
+          this.videoService.connectToRoom(this.userLoaded, this.accessToken, {
             name: this.roomName,
             audio: true,
             video: {width: 640}
@@ -455,7 +459,7 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
   userLoaded() {
   }
   ngOnDestroy() {
-    this.twilioService.disconnect();
+    this.videoService.disconnect();
     this.subscriptions.unsubscribe();
     try {
       clearInterval(this.sessionEndTimer);

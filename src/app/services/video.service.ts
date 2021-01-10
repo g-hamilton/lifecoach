@@ -57,27 +57,13 @@ export class TwilioService {
               });
               this.remoteVideo.nativeElement.innerHTML = null;
               participant.on('trackSubscribed', track => {
-                console.log(track);
-                if (this.remoteVideo.nativeElement.children.length < 3) {
+                // console.log(track);
+                if (!Array.from(this.remoteVideo.nativeElement.children).find( i => track.kind.toUpperCase())) {
                   const attachedElement = track.attach();
                   attachedElement.classList.add('col-md-8');
                   this.remoteVideo.nativeElement.appendChild(attachedElement);
                 }
-                console.log(this.remoteVideo.nativeElement.children);
               });
-
-              // room.on('tokenAboutToExpire', () => {
-              //   // Implement fetchToken() to make a secure request to your backend to retrieve a refreshed access token.
-              //   // Use an authentication mechanism to prevent token exposure to 3rd parties.
-              //   console.log('Token is about to expire in 3 minutes');
-              //   alert('Token is about to expire in 3 minutes');
-              // });
-              // participant.on('tokenAboutToExpire', () => {
-              //   // Implement fetchToken() to make a secure request to your backend to retrieve a refreshed access token.
-              //   // Use an authentication mechanism to prevent token exposure to 3rd parties.
-              //   console.log('Token is about to expire in 3 minutes');
-              //   alert('Token is about to expire in 3 minutes');
-              // });
             });
           }
         });
@@ -99,7 +85,6 @@ export class TwilioService {
             if (publication.track) {
               const attachedElement = publication.track.attach();
               if (this.remoteVideo.nativeElement.children.length < 4) {
-                console.log(attachedElement.classList)
                 this.remoteVideo.nativeElement.appendChild(attachedElement);
               }
             }
