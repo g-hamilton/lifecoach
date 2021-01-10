@@ -52,7 +52,11 @@
   <div class="modal-dialog" style="transform: translate(0,0);">
     <div class="modal-content">
       <div class="modal-header">
-        <h4 class="modal-title pull-left"> {{ activeEvent?.title }} </h4>
+        <h4 class="modal-title pull-left"> {{ activeEvent?.title }}
+          <span *ngIf="activeEvent?.complete" class=" badge badge-primary ml-3">Complete</span>
+          <span *ngIf="activeEvent?.cancelled" class=" badge badge-danger ml-3">Cancelled</span>
+          <span *ngIf="activeEvent?.ordered && activeEvent?.end < dateNow && !activeEvent?.complete && !activeEvent?.cancelled" class=" badge badge-danger ml-3">Needs Action</span>
+        </h4>
         <button type="button" class="close pull-right" aria-label="Close" (click)="onEventDetailModalClose()">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -104,19 +108,76 @@
             </div>
 
           </div>
+          <!-- end card body -->
+
+          <!-- card footer -->
+          <div class=" card-footer">
+
+            <!-- options if event is complete -->
+            <div *ngIf="activeEvent && activeEvent.complete">
+              <button class=" btn btn-default btn-round btn-block" (click)="onViewPerson()">
+                <i class="fas fa-user"></i> View Person
+              </button>
+              <button class=" btn btn-primary btn-round btn-block" (click)="onViewSessionNotes()">
+                <i class="fas fa-arrow-right"></i> View Session Notes
+              </button>
+            </div>
+
+            <!-- options if event tpe is session, not complete and not cancelled and is in the future -->
+            <div *ngIf="activeEvent && activeEvent.type === 'session' && !activeEvent.complete && !activeEvent.cancelled && activeEvent.end >= dateNow">
+              <button class=" btn btn-default btn-round btn-block" (click)="onViewPerson()">
+                <i class="fas fa-user"></i> View Person
+              </button>
+              <button class=" btn btn-danger btn-round btn-block" (click)="onDetailCancelEvent()">
+                <i class="fas fa-times"></i> Cancel Session
+              </button>
+              <button class=" btn btn-default btn-round btn-block" (click)="onEditEvent()">
+                <i class="far fa-edit mr-2"></i> Edit Session
+              </button>
+              <button class=" btn btn-primary btn-round btn-block" (click)="onGoToSession()">
+                <i class="fas fa-arrow-right"></i> Go to Session
+              </button>
+            </div>
+
+            <!-- options if event is not complete but has been cancelled -->
+            <div *ngIf="activeEvent && !activeEvent.complete && activeEvent.cancelled">
+              <button class=" btn btn-default btn-round btn-block" (click)="onViewPerson()">
+                <i class="fas fa-user"></i> View Person
+              </button>
+              <button class=" btn btn-danger btn-round btn-block" (click)="onDeleteEventFromCal()">
+                <i class="fas fa-trash"></i> Delete Session
+              </button>
+              <button class=" btn btn-primary btn-round btn-block" (click)="onRescheduleSession()">
+                <i class="fas fa-calendar"></i> Reschedule Session
+              </button>
+            </div>
+
+            <!-- options if event is ordered, in the past, not cancelled and not marked complete -->
+            <div *ngIf="activeEvent && activeEvent.ordered && !activeEvent.complete && activeEvent.end < dateNow && !activeEvent.cancelled">
+              <button class=" btn btn-default btn-round btn-block" (click)="onViewPerson()">
+                <i class="fas fa-user"></i> View Person
+              </button>
+              <button class=" btn btn-default btn-round btn-block" (click)="onRescheduleSession()">
+                <i class="fas fa-calendar"></i> Reschedule Session
+              </button>
+              <button class=" btn btn-primary btn-round btn-block" (click)="onMarkSessionComplete()">
+                <i class="fas fa-check"></i> Mark Session Complete
+              </button>
+            </div>
+
+            <!-- options if event is discovery session, not ordered -->
+            <div *ngIf="activeEvent && activeEvent.type === 'discovery' && !activeEvent.ordered">
+              <button class=" btn btn-danger btn-round btn-block" (click)="onDeleteEventFromCal()">
+                <i class="fas fa-trash"></i> Delete From Calendar
+              </button>
+            </div>
+
+          </div>
+          <!-- end card footer -->
         </div>
+        <!-- end card -->
       </div>
-      <div class=" modal-footer">
-        <button class=" btn btn-danger btn-round mt-3" (click)="onDetailDeleteEvent()">
-          <i class="fas fa-times"></i> Cancel
-        </button>
-        <button class=" btn btn-default btn-round mt-3" (click)="onEditEvent()">
-          <i class="far fa-edit mr-2"></i> Edit
-        </button>
-        <button class=" btn btn-primary btn-round mt-3" (click)="onGoToSession()">
-          <i class="fas fa-arrow-right"></i> Go to Session
-        </button>
-      </div>
+      <!-- end modal body -->
     </div>
   </div>
 </div>
@@ -387,7 +448,7 @@
         </div>
       </div>
       <div class=" modal-footer">
-        <button class=" btn btn-danger btn-round mt-3" (click)="onDeleteEvent()">
+        <button class=" btn btn-danger btn-round mt-3" (click)="onCancelEvent()">
           <span
             *ngIf="cancelling"
             class="spinner-border spinner-border-sm"

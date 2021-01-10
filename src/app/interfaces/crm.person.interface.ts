@@ -15,8 +15,8 @@ export interface CRMPerson {
 
 export interface CRMPersonHistoryEvent {
     action: 'sent_first_message' | 'enrolled_in_self_study_course' | 'enrolled_in_full_program' | 'enrolled_in_program_session' |
-    'coach_invited_user' | 'booked_session' | 'cancelled_session';
-    id: string; // will be the db record which is also a unix timestamp - NOT the person's lifecoach uid
+    'coach_invited_user' | 'booked_session' | 'cancelled_session' | 'completed_session' | 'coach_created_session';
+    id: string; // will be the db record which is also a unix timestamp doc id - NOT the person's lifecoach uid
     roomId?: string; // if the action relates to a message
     courseId?: string; // if this action relates to an eCourse
     programId?: string; // if this action relates to a program
@@ -26,7 +26,7 @@ export interface CRMPersonHistoryEvent {
 export interface CRMPersonHistoryEventData {
     name?: string;
     properties?: any; // will be an object containing custom properties
-    type?: 'discovery';
+    type?: 'discovery' | 'session';
     id?: string;
 }
 

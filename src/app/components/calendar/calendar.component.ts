@@ -1,7 +1,6 @@
 import {Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
 import {CalendarView} from 'angular-calendar';
 import {Subject, Subscription} from 'rxjs';
-import {ModalDirective} from 'ngx-bootstrap/modal';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {CustomCalendarEvent} from '../../interfaces/custom.calendar.event.interface';
 import {DataService} from 'app/services/data.service';
@@ -16,6 +15,8 @@ import { AnalyticsService } from 'app/services/analytics.service';
 import { CrmPeopleService } from 'app/services/crm-people.service';
 import { CRMPerson, EnrolledProgram } from 'app/interfaces/crm.person.interface';
 import { CoachingProgram } from 'app/interfaces/coach.program.interface';
+import { ModalDirective, BsModalService, BsModalRef, ModalOptions } from 'ngx-bootstrap/modal';
+import { SessionManagerComponent } from 'app/components/session-manager/session-manager.component';
 
 @Component({
   selector: 'app-calendar',
@@ -28,6 +29,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
   @ViewChild('eventDetailModal', {static: false}) public eventDetailModal: ModalDirective;
   @ViewChild('editEventModal', {static: false}) public editEventModal: ModalDirective;
   @ViewChild('cancelEventModal', {static: false}) public cancelEventModal: ModalDirective;
+
+  public bsModalRef: BsModalRef;
 
   private userId: string;
 
@@ -81,7 +84,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
     private router: Router,
     private cloudFunctionsService: CloudFunctionsService,
     private analyticsService: AnalyticsService,
-    private crmPeopleService: CrmPeopleService
+    private crmPeopleService: CrmPeopleService,
+    private modalService: BsModalService
   ) {
   }
 
@@ -160,8 +164,11 @@ export class CalendarComponent implements OnInit, OnDestroy {
             ev.title = this.getTitle(ev);
 
             // do we need to dynamically update the css class here in the front end?
-            // if event not complete and is in the past set to needs-action
-            // ev.cssClass = ev.ordered ? 'ordered' : 'free' ;
+            // if event has been ordered, is not complete and is in the past - set to needs-action
+            if (ev.ordered && !ev.complete && ev.end < this.dateNow) {
+              ev.cssClass = 'needs-action';
+            }
+
           });
 
           this.events = events;
@@ -237,6 +244,10 @@ export class CalendarComponent implements OnInit, OnDestroy {
 
   getProgram(id: string) {
     return this.coachPrograms.filter(i => i.programId === id)[0];
+  }
+
+  get dateNow() {
+    return new Date();
   }
 
   filterEvents(arr: CustomCalendarEvent[]) {
@@ -444,14 +455,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
     // });
   }
 
-  onDetailDeleteEvent() {
+  onDetailCancelEvent() {
     this.eventDetailModal.hide();
-
-    // if this is an available discovery slot, no need to confirm or notify other participant. just delete..
-    if (this.activeEvent.type === 'discovery' && !this.activeEvent.reserved && !this.activeEvent.ordered) {
-      this.onDeleteEvent();
-      return;
-    }
 
     // if this is an ordered discovery slot...
     if (this.activeEvent.type === 'discovery' && this.activeEvent.ordered) {
@@ -486,11 +491,18 @@ export class CalendarComponent implements OnInit, OnDestroy {
     this.activeEventForm.reset();
   }
 
-  async onDeleteEvent() {
+  onDeleteEventFromCal() {
+    this.dataService.deleteCalendarEvent(this.userId, this.activeEvent);
+    this.eventDetailModal.hide();
+    this.activeEvent = null;
+    this.activeEventForm.reset();
+  }
+
+  async onCancelEvent() {
 
     this.cancelling = true;
 
-    // delete the event
+    // cancel the event
     const request: CancelCoachSessionRequest = {
       eventId: this.activeEvent.id,
       cancelledById: this.userId
@@ -664,8 +676,39 @@ export class CalendarComponent implements OnInit, OnDestroy {
 
   onGoToSession() {
     this.eventDetailModal.hide();
-    console.log('Active event:', this.activeEvent);
     this.router.navigate(['/my-sessions', this.activeEvent.sessionId]);
+  }
+
+  onViewSessionNotes() {
+    this.eventDetailModal.hide();
+    // this.router.navigate(['/people', this.activeEvent.sessionId]);
+    alert('todo: I should go to person history session now!');
+  }
+
+  onRescheduleSession() {
+    this.eventDetailModal.hide();
+    alert('todo: I should allow you to reschedule this session now!');
+  }
+
+  onMarkSessionComplete() {
+    this.eventDetailModal.hide();
+
+    // we can send data to the modal & open in a another component via a service
+    // https://valor-software.com/ngx-bootstrap/#/modals#service-component
+    const config: ModalOptions = {
+      initialState: {
+        coachId: this.userId,
+        clientId: this.activeEvent.client,
+        programId: this.activeEvent.program,
+        sessionId: this.activeEvent.id
+      }
+    };
+    this.bsModalRef = this.modalService.show(SessionManagerComponent, config);
+  }
+
+  onViewPerson() {
+    this.eventDetailModal.hide();
+    this.router.navigate(['/person-history', this.activeEvent.client]);
   }
 
   onChangeStartTimeHandler(event: any) {

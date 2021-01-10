@@ -566,6 +566,7 @@ export class DataService {
   // ================================================================================
   // =====                          CALENDAR EVENTS                            ======
   // ================================================================================
+
   dateToKeyHelper(date: Date) { // probably unnecessary function, could be removed
     const temp = new Date(date);
     const today = temp.getDay();
@@ -677,6 +678,15 @@ export class DataService {
   getUserReservedEvents(uid: string) {
     return this.db.collection(`users/${uid}/reserved-events`)
       .valueChanges() as Observable<CustomCalendarEvent[]>;
+  }
+
+  async deleteCalendarEvent(uid: string, event: CustomCalendarEvent) {
+    const querySnap = await this.db.collection(`users/${uid}/calendar`, ref => ref
+      .where('id', '==', event.id)
+      .limit(1))
+      .get()
+      .toPromise();
+    querySnap.forEach(doc => doc.ref.delete());
   }
 
   // ================================================================================
