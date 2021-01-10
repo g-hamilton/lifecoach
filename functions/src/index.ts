@@ -2530,6 +2530,10 @@ exports.orderCoachSession = functions
     const coachCrmRef = db.collection(`users/${coachId}/people/${uid}/history`).doc((Math.round(dateNow / 1000)).toString());
     batch.set(coachCrmRef, { action: 'booked_session', event });
 
+    // create an event in the client's history with the coach
+    const clientHistoryRef = db.collection(`users/${uid}/coaches/${coachId}/history`).doc((Math.round(dateNow / 1000)).toString());
+    batch.set(clientHistoryRef, { action: 'booked_session', event });
+
     await batch.commit(); // execute batch ops. Any error should trigger catch.
 
     // send emails
@@ -2595,7 +2599,7 @@ exports.cancelCoachSession = functions
 
   const eventId = data.eventId; // is a type CustomCalendarEvent
   const cancelledById = data.cancelledById; // who cancelled the session?
-  const dateNow = Date.now();
+  const now = Math.round(new Date().getTime() / 1000) // unix timestamp
 
   const promises = []; // an array of promises to execute
 
@@ -2638,7 +2642,7 @@ exports.cancelCoachSession = functions
     batch.set(coachEventRef, { // update the document by merging new data into the event object
       cancelled: true,
       cancelledById,
-      cancelledTime: (dateNow / 1000),
+      cancelledTime: now,
       cssClass: 'cancelled'
     }, { merge: true });
 
@@ -2647,7 +2651,7 @@ exports.cancelCoachSession = functions
     batch.set(orderedSessionRef, {
       cancelled: true,
       cancelledById,
-      cancelledTime: (dateNow / 1000)
+      cancelledTime: now
     }, { merge: true });
 
     // update the session in the all sessions node
@@ -2655,12 +2659,16 @@ exports.cancelCoachSession = functions
     batch.set(allSessionsRef, {
       cancelled: true,
       cancelledById,
-      cancelledTime: (dateNow / 1000)
+      cancelledTime: now
     }, { merge: true });
 
     // record the crm event in the coach's history
-    const coachCrmRef = db.collection(`users/${coachId}/people/${coachCalEvent.orderedById}/history`).doc((Math.round(dateNow / 1000)).toString());
-    batch.set(coachCrmRef, { action: 'cancelled_session', event: coachCalEvent });
+    const coachCrmRef = db.collection(`users/${coachId}/people/${coachCalEvent.orderedById}/history`).doc(now.toString());
+    batch.set(coachCrmRef, { action: 'cancelled_session', event: coachCalEvent, cancelledById });
+
+    // create an event in the client's history with the coach
+    const clientHistoryRef = db.collection(`users/${coachCalEvent.orderedById}/coaches/${coachId}/history`).doc(now.toString());
+    batch.set(clientHistoryRef, { action: 'cancelled_session', event: coachCalEvent, cancelledById });
 
     await batch.commit(); // execute batch ops. Any error should trigger catch.
 
@@ -2798,7 +2806,13 @@ exports.coachMarkSessionComplete = functions
       completedTime: now
     });
 
-    // create a history event in the CRM TODO
+    // create a history event in the coach CRM
+    const historyRef = db.collection(`users/${coachUid}/people/${clientUid}/history`).doc(now.toString());
+    batch.set(historyRef, { action: 'completed_session', programId, sessionId });
+
+    // create an event in the client's history with the coach
+    const clientHistoryRef = db.collection(`users/${clientUid}/coaches/${coachUid}/history`).doc(now.toString());
+    batch.set(clientHistoryRef, { action: 'completed_session', programId, sessionId });
 
     // get a single document from this client's purchased sessions (for the given program)
     const sessionSnap = await db.collection(`users/${coachUid}/people/${clientUid}/sessions-purchased`)
@@ -4132,7 +4146,7 @@ exports.onWriteUserCalendar = functions
 .document(`users/{uid}/calendar/{eventId}`)
 .onWrite(async (change, context) => {
 
-  const userId = context.params.uid; // note only coach users have a calendar so uid will always be a coach
+  const coachId = context.params.uid; // note only coach users have a calendar so uid will always be a coach
   const event = change.after.data() as any; // will be a CustomCalendarEvent
   const eventBefore = change.before.data() as any; // will not exist on first create
   const batch = db.batch(); // prepare to execute multiple ops atomically
@@ -4150,9 +4164,9 @@ exports.onWriteUserCalendar = functions
       // create the session in the all sessions node using the session id as the doc id
       const allSessionsRef = db.collection(`ordered-sessions/all/sessions`).doc(event.id);
       batch.set(allSessionsRef, {
-        coachId: userId,
+        coachId,
         timeOfReserve: dateNow,
-        participants: [userId, event.client],
+        participants: [coachId, event.client],
         originalEvent: event,
         start: event.start,
         end: event.end,
@@ -4168,12 +4182,20 @@ exports.onWriteUserCalendar = functions
         type: event.type
       });
 
+      // record the crm event in the coach's history
+      const coachCrmRef = db.collection(`users/${coachId}/people/${event.client}/history`).doc((Math.round(dateNow / 1000)).toString());
+      batch.set(coachCrmRef, { action: 'coach_created_session', event });
+
+      // create an event in the client's history with the coach
+      const clientHistoryRef = db.collection(`users/${event.client}/coaches/${coachId}/history`).doc((Math.round(dateNow / 1000)).toString());
+      batch.set(clientHistoryRef, { action: 'coach_created_session', event });
+
       await batch.commit(); // execute batch ops. Any error should trigger catch.
 
       // send email
 
       const coachProfileSnap = await db.collection(`public-coaches`)
-      .doc(userId)
+      .doc(coachId)
       .get();  // lookup coach data for the email
       const coachProfile = coachProfileSnap.data();
 
@@ -4202,7 +4224,7 @@ exports.onWriteUserCalendar = functions
           session_landing_url: `https://lifecoach.io/my-sessions/${event.id}`
         }
       }
-      promises.push(logMailchimpEvent(userId, coachMailEvent));
+      promises.push(logMailchimpEvent(coachId, coachMailEvent));
 
       const UserMailEvent = { // send email to the regular user
         name: 'coach_scheduled_your_session',
