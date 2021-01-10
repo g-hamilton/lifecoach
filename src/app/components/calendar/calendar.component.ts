@@ -692,14 +692,16 @@ export class CalendarComponent implements OnInit, OnDestroy {
 
   onMarkSessionComplete() {
     this.eventDetailModal.hide();
+    const clientId = this.activeEvent.client ? this.activeEvent.client : this.activeEvent.orderedById;
+    const programId = this.activeEvent.type === 'discovery' ? 'discovery' : this.activeEvent.program;
 
     // we can send data to the modal & open in a another component via a service
     // https://valor-software.com/ngx-bootstrap/#/modals#service-component
     const config: ModalOptions = {
       initialState: {
         coachId: this.userId,
-        clientId: this.activeEvent.client,
-        programId: this.activeEvent.program,
+        clientId,
+        programId,
         sessionId: this.activeEvent.id
       }
     };

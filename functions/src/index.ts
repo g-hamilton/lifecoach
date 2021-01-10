@@ -2778,7 +2778,7 @@ exports.coachMarkSessionComplete = functions
 
   const coachUid = data.coachId;
   const clientUid = data.clientId;
-  const programId = data.programId;
+  const programId = data.programId; // will be 'discovery' or program id string
   const sessionId = data.sessionId;
   const now = Math.round(new Date().getTime() / 1000) // unix timestamp
 
@@ -2799,6 +2799,7 @@ exports.coachMarkSessionComplete = functions
     }
 
     const eventDocSnap = eventSnap.docs[0]; // document snapshot
+    const event = eventDocSnap.data(); // document data
 
     batch.update(eventDocSnap.ref, {
       cssClass: 'complete',
@@ -2814,29 +2815,32 @@ exports.coachMarkSessionComplete = functions
     const clientHistoryRef = db.collection(`users/${clientUid}/coaches/${coachUid}/history`).doc(now.toString());
     batch.set(clientHistoryRef, { action: 'completed_session', programId, sessionId });
 
-    // get a single document from this client's purchased sessions (for the given program)
-    const sessionSnap = await db.collection(`users/${coachUid}/people/${clientUid}/sessions-purchased`)
-    .where('programId', '==', programId)
-    .limit(1)
-    .get();
+    // if marking a program session complete we need to deduct a paid session
+    if (event.type === 'session') {
+      // get a single document from this client's purchased sessions (for the given program)
+      const sessionSnap = await db.collection(`users/${coachUid}/people/${clientUid}/sessions-purchased`)
+      .where('programId', '==', programId)
+      .limit(1)
+      .get();
 
-    if (sessionSnap.empty) { // there are no documents in this collection
-      return {error: 'Cannot find a purchased session document'}; // abort
+      if (sessionSnap.empty) { // there are no documents in this collection
+        return {error: 'Cannot find a purchased session document'}; // abort
+      }
+
+      const sessionDocSnap = sessionSnap.docs[0]; // document snapshot
+      const sessionDoc = sessionDocSnap.data(); // document data
+
+      // update the session doc with time completed and linked calendar event (session) ID
+      sessionDoc.completedTime = now;
+      sessionDoc.linkedCalEventId = sessionId
+
+      // copy the document into this client's completed sessions collection
+      const completeRef = db.collection(`users/${coachUid}/people/${clientUid}/sessions-complete`).doc() // id does not matter
+      batch.create(completeRef, sessionDoc);
+
+      // delete the document from the purchased sessions collection
+      batch.delete(sessionDocSnap.ref);
     }
-
-    const sessionDocSnap = sessionSnap.docs[0]; // document snapshot
-    const sessionDoc = sessionDocSnap.data(); // document data
-
-    // update the session doc with time completed and linked calendar event (session) ID
-    sessionDoc.completedTime = now;
-    sessionDoc.linkedCalEventId = sessionId
-
-    // copy the document into this client's completed sessions collection
-    const completeRef = db.collection(`users/${coachUid}/people/${clientUid}/sessions-complete`).doc() // id does not matter
-    batch.create(completeRef, sessionDoc);
-
-    // delete the document from the purchased sessions collection
-    batch.delete(sessionDocSnap.ref);
 
     await batch.commit(); // execute batch ops. Any error should trigger catch.
 

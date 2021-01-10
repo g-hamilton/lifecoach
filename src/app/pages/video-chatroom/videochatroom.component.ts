@@ -133,13 +133,15 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   markSessionComplete() {
+    const programId = this.calendarEvent.type === 'discovery' ? 'discovery' : this.calendarEvent.program;
+
     // we can send data to the modal & open in a another component via a service
     // https://valor-software.com/ngx-bootstrap/#/modals#service-component
     const config: ModalOptions = {
       initialState: {
         coachId: this.userId,
         clientId: this.crmPerson.id,
-        programId: this.calendarEvent.program,
+        programId,
         sessionId: this.calendarEvent.id
       }
     };
