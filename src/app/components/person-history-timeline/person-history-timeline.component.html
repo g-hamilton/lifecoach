@@ -124,8 +124,12 @@
                         </p>
                         <p *ngIf="item.action === 'completed_session'">
                             You completed a {{ item.programId === 'discovery' ? 'discovery session' : 'session' }} with {{ person.firstName }}. 
-                            <a href="javascript:void(0)">
-                                Invite {{ person.firstName }} to a product or service.
+                            Invite {{ person.firstName }} to 
+                            <a href="javascript:void(0)" (click)="openInviteModal('program')">
+                                join a coaching program
+                            </a> or 
+                            <a href="javascript:void(0)" (click)="openInviteModal('ecourse')">
+                                enroll in an eCourse.
                             </a>
                         </p>
                     </div>

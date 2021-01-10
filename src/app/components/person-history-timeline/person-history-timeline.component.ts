@@ -1,5 +1,7 @@
 import { Component, OnInit, Input, OnChanges } from '@angular/core';
 import { CRMPerson } from 'app/interfaces/crm.person.interface';
+import { BsModalService, BsModalRef, ModalOptions } from 'ngx-bootstrap/modal';
+import { CoachInviteComponent } from 'app/components/coach-invite/coach-invite.component';
 
 @Component({
   selector: 'app-person-history-timeline',
@@ -10,9 +12,13 @@ export class PersonHistoryTimelineComponent implements OnInit, OnChanges {
 
   @Input() public person: CRMPerson;
 
+  public bsModalRef: BsModalRef;
+
   public sortBy = 'newest' as 'newest';
 
-  constructor() { }
+  constructor(
+    private modalService: BsModalService
+  ) { }
 
   ngOnInit() {
   }
@@ -44,6 +50,18 @@ export class PersonHistoryTimelineComponent implements OnInit, OnChanges {
     } else {
       this.person.history.sort((a, b) => parseFloat(a.id) - parseFloat(b.id));
     }
+  }
+
+  openInviteModal(type: 'ecourse' | 'program') {
+    // we can send data to the modal & open in a another component via a service
+    // https://valor-software.com/ngx-bootstrap/#/modals#service-component
+    const config: ModalOptions = {
+      initialState: {
+        type,
+        invitee: this.person
+      }
+    };
+    this.bsModalRef = this.modalService.show(CoachInviteComponent, config);
   }
 
 }

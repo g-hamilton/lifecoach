@@ -364,7 +364,8 @@ export function momentAdapterFactory() {
     SessionManagerComponent
   ],
   entryComponents: [
-    SessionManagerComponent
+    SessionManagerComponent,
+    CoachInviteComponent
   ]
 })
 export class ComponentsModule {}
