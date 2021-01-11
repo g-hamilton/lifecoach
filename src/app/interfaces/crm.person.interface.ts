@@ -20,6 +20,7 @@ export interface CRMPersonHistoryEvent {
     roomId?: string; // if the action relates to a message
     courseId?: string; // if this action relates to an eCourse
     programId?: string; // if this action relates to a program
+    sessionId?: string; // the session id which should match the calendar event id
     event?: CRMPersonHistoryEventData;
 }
 
@@ -28,6 +29,8 @@ export interface CRMPersonHistoryEventData {
     properties?: any; // will be an object containing custom properties
     type?: 'discovery' | 'session';
     id?: string;
+    start?: any;
+    end?: any;
 }
 
 export interface EnrolledProgram {

@@ -38,6 +38,14 @@ export class PersonHistoryTimelineComponent implements OnInit, OnChanges {
     return new Date(unix * 1000).toLocaleTimeString();
   }
 
+  getDate(milliseconds: number) {
+    return new Date(milliseconds);
+  }
+
+  get dateNow() {
+    return new Date();
+  }
+
   onSortByHandler(ev: any) {
     console.log('sort by:', ev.target.value);
     this.sortBy = ev.target.value;

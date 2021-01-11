@@ -89,7 +89,7 @@
                         <p *ngIf="item.action === 'sent_first_message'">
                             {{ person.firstName }} first contacted you by message. 
                             <a class=" pl-2" [routerLink]="['/messages', 'rooms', person.history[i].roomId]">
-                                View Messages
+                                View messages
                             </a>
                         </p>
                         <p *ngIf="item.action === 'enrolled_in_self_study_course'">
@@ -116,30 +116,46 @@
                         </p>
                         <p *ngIf="item.action === 'booked_session'">
                             {{ person.firstName }} booked a {{ person.history[i].event?.type }} session with you. 
-                            <a [routerLink]="['/my-sessions', person.history[i].event.id]">
-                                Go to Session
+                            <a *ngIf="dateNow < getDate(item.event.end.seconds * 1000) ; else viewHistory" 
+                                [routerLink]="['/my-sessions', person.history[i].event.id]">
+                                Go to session
                             </a>
+                            <ng-template #viewHistory>
+                                <a [routerLink]="['/my-programs', item.programId, 'clients', person.id, 'sessions', item.sessionId]">
+                                View session notes
+                            </a>
+                            </ng-template>
                         </p>
                         <p *ngIf="item.action === 'cancelled_session'">
                             {{ person.firstName }} cancelled a {{ person.history[i].event?.type }} session with you. 
                             <a [routerLink]="['/calendar']">
-                                View Calendar
+                                View calendar
                             </a>
                         </p>
                         <p *ngIf="item.action === 'completed_session'">
                             You completed a {{ item.programId === 'discovery' ? 'discovery session' : 'session' }} with {{ person.firstName }}. 
-                            Invite {{ person.firstName }} to 
-                            <a href="javascript:void(0)" (click)="openInviteModal('program')">
-                                join a coaching program
-                            </a> or 
-                            <a href="javascript:void(0)" (click)="openInviteModal('ecourse')">
-                                enroll in an eCourse.
-                            </a>
+                            <span *ngIf="item.programId === 'discovery'">
+                                Invite {{ person.firstName }} to 
+                                <a href="javascript:void(0)" (click)="openInviteModal('program')">
+                                    join a coaching program
+                                </a> ,  
+                                <a href="javascript:void(0)" (click)="openInviteModal('ecourse')">
+                                    enroll in an eCourse.
+                                </a> or
+                                <a [routerLink]="['/my-programs', 'discovery', 'clients', person.id, 'sessions', item.sessionId]">
+                                    view session notes
+                                </a>
+                            </span>
+                            <span *ngIf="item.programId !== 'discovery'">
+                                <a [routerLink]="['/my-programs', item.programId, 'clients', person.id, 'sessions', item.sessionId]">
+                                    View session notes
+                                </a>
+                            </span>
                         </p>
                         <p *ngIf="item.action === 'coach_created_session'">
                             You scheduled a new session with {{ person.firstName }}. 
                             <a [routerLink]="['/calendar']">
-                                View Calendar
+                                View calendar
                             </a>
                         </p>
                     </div>
