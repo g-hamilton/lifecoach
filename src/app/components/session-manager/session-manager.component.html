@@ -1,81 +1,82 @@
 <!-- mark session complete modal -->
-<div class="modal-header">
+<div *ngIf="modal === 'complete'">
+  <div class="modal-header">
     <h4 class="modal-title pull-left"> Mark this session complete? </h4>
     <button type="button" class="close pull-right" aria-label="Close" (click)="bsModalRef.hide()">
       <span aria-hidden="true">&times;</span>
     </button>
-</div>
-<div class="modal-body">
+  </div>
+  <div class="modal-body">
 
-    <div *ngIf="browser">
+      <div *ngIf="browser">
 
-      <div class=" card card-white">
-        <div class=" card-body">
-          <div class="row">
-            <div class=" col">
+        <div class=" card card-white">
+          <div class=" card-body">
+            <div class="row">
+              <div class=" col">
 
-              <!-- ui for coach sessions -->
-              <div *ngIf="eventType === 'session'">
-                <p class=" small text-muted pl-2 mb-3">
-                  <i class="fas fa-info-circle"></i> Marking this session complete will 
-                  <span class=" text-danger">
-                    <strong>deduct 1 paid session</strong>
-                  </span> from 
-                  your client's account and add a completed session to your timeline. <br><br>
-                  <strong>Important:</strong> Only mark the session complete if you are happy that 
-                  your client received the full session that they paid for. 
-                  <br><br>
-                  If you experienced any technical difficulties or were unable to 
-                  complete the session in full, do not mark it complete and 
-                  reschedule the session with your client.
-                </p>
+                <!-- ui for coach sessions -->
+                <div *ngIf="eventType === 'session'">
+                  <p class=" small text-muted pl-2 mb-3">
+                    <i class="fas fa-info-circle"></i> Marking this session complete will 
+                    <span class=" text-danger">
+                      <strong>deduct 1 paid session</strong>
+                    </span> from 
+                    your client's account and add a completed session to your timeline. <br><br>
+                    <strong>Important:</strong> Only mark the session complete if you are happy that 
+                    your client received the full session that they paid for. 
+                    <br><br>
+                    If you experienced any technical difficulties or were unable to 
+                    complete the session in full, do not mark it complete and 
+                    reschedule the session with your client.
+                  </p>
+                </div>
+
+                <!-- ui for discovery sessions -->
+                <div *ngIf="eventType === 'discovery'">
+                  <p class=" small text-muted pl-2 mb-3">
+                    <i class="fas fa-info-circle"></i> Marking this discovery session complete will
+                    add a completed session to your timeline. <br><br>
+                    <strong>Important:</strong> Only mark the session complete if you are happy that 
+                    this person completed a full discovery session with you. 
+                    <br><br>
+                    If you experienced any technical difficulties or were unable to 
+                    complete the session in full, do not mark it complete and 
+                    reschedule the session with this person.
+                  </p>
+                </div>
+
               </div>
-
-              <!-- ui for discovery sessions -->
-              <div *ngIf="eventType === 'discovery'">
-                <p class=" small text-muted pl-2 mb-3">
-                  <i class="fas fa-info-circle"></i> Marking this discovery session complete will
-                  add a completed session to your timeline. <br><br>
-                  <strong>Important:</strong> Only mark the session complete if you are happy that 
-                  this person completed a full discovery session with you. 
-                  <br><br>
-                  If you experienced any technical difficulties or were unable to 
-                  complete the session in full, do not mark it complete and 
-                  reschedule the session with this person.
-                </p>
-              </div>
-
             </div>
           </div>
         </div>
+
       </div>
 
-    </div>
+  </div>
 
+  <div class="modal-footer">
+
+      <button type="button" class="btn btn-default btn-round" (click)="bsModalRef.hide()">
+          <i class="fas fa-times"></i>
+          Cancel
+      </button>
+
+      <button
+      class=" btn btn-fill btn-round btn-primary pull-right"
+      type="button"
+      (click)="markComplete()"
+      [disabled]="completing"
+      >
+      <span
+        *ngIf="completing"
+        class="spinner-border spinner-border-sm"
+        role="status"
+      ></span> 
+      <i *ngIf="!completing" class="fas fa-check"></i>
+      {{ completing ? 'Completing...' : ' Mark Complete'}}
+      </button>
+
+  </div>
 </div>
-
-<div class="modal-footer">
-
-    <button type="button" class="btn btn-default btn-round" (click)="bsModalRef.hide()">
-        <i class="fas fa-times"></i>
-        Cancel
-    </button>
-
-    <button
-    class=" btn btn-fill btn-round btn-primary pull-right"
-    type="button"
-    (click)="markComplete()"
-    [disabled]="completing"
-    >
-    <span
-      *ngIf="completing"
-      class="spinner-border spinner-border-sm"
-      role="status"
-    ></span> 
-    <i *ngIf="!completing" class="fas fa-check"></i>
-    {{ completing ? 'Completing...' : ' Mark Complete'}}
-    </button>
-
-</div>
-
 <!-- End of mark session complete modal -->

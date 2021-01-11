@@ -20,7 +20,8 @@ import { Subscription } from 'rxjs';
 })
 export class SessionManagerComponent implements OnInit {
 
-  // modal config - pass the data in through the modalOptions
+  // modal config - pass the data in through the modalOptions - see SessionManagerConfig interface
+  public modal: 'complete' | 'edit';
   private coachId: string;
   private clientId: string;
   private programId: string;

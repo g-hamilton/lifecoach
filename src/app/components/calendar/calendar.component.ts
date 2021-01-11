@@ -17,6 +17,7 @@ import { CRMPerson, EnrolledProgram } from 'app/interfaces/crm.person.interface'
 import { CoachingProgram } from 'app/interfaces/coach.program.interface';
 import { ModalDirective, BsModalService, BsModalRef, ModalOptions } from 'ngx-bootstrap/modal';
 import { SessionManagerComponent } from 'app/components/session-manager/session-manager.component';
+import { SessionManagerConfig } from 'app/interfaces/session.manager.config.interface';
 
 @Component({
   selector: 'app-calendar',
@@ -701,12 +702,13 @@ export class CalendarComponent implements OnInit, OnDestroy {
     // https://valor-software.com/ngx-bootstrap/#/modals#service-component
     const config: ModalOptions = {
       initialState: {
+        modal: 'complete',
         coachId: this.userId,
         clientId,
         programId,
         sessionId: this.activeEvent.id,
         eventType: this.activeEvent.type
-      }
+      } as SessionManagerConfig
     };
     this.bsModalRef = this.modalService.show(SessionManagerComponent, config);
   }

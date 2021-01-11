@@ -18,6 +18,7 @@ import { take } from 'rxjs/operators';
 import { CRMPerson } from 'app/interfaces/crm.person.interface';
 import { CrmPeopleService } from 'app/services/crm-people.service';
 import { SessionManagerComponent } from 'app/components/session-manager/session-manager.component';
+import { SessionManagerConfig } from 'app/interfaces/session.manager.config.interface';
 
 export interface Answer {
   sessionStatus: 'NOT_STARTED_YET' | 'IS_OVER' | 'IN_PROGRESS';
@@ -139,12 +140,13 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
     // https://valor-software.com/ngx-bootstrap/#/modals#service-component
     const config: ModalOptions = {
       initialState: {
+        modal: 'complete',
         coachId: this.userId,
         clientId: this.crmPerson.id,
         programId,
         sessionId: this.calendarEvent.id,
         eventType: this.calendarEvent.type
-      }
+      } as SessionManagerConfig
     };
     this.bsModalRef = this.modalService.show(SessionManagerComponent, config);
   }
