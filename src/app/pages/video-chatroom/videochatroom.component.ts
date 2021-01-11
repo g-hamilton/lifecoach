@@ -14,10 +14,11 @@ import {connect, createLocalTracks} from 'twilio-video';
 import { BsModalService, BsModalRef, ModalOptions } from 'ngx-bootstrap/modal';
 import { CoachInviteComponent } from 'app/components/coach-invite/coach-invite.component';
 import { CustomCalendarEvent } from 'app/interfaces/custom.calendar.event.interface';
-import { take } from 'rxjs/operators';
+import {first, take} from 'rxjs/operators';
 import { CRMPerson } from 'app/interfaces/crm.person.interface';
 import { CrmPeopleService } from 'app/services/crm-people.service';
 import { SessionManagerComponent } from 'app/components/session-manager/session-manager.component';
+import {UserAvatarImagePaths} from "../../interfaces/image-path.interface";
 
 export interface Answer {
   sessionStatus: 'NOT_STARTED_YET' | 'IS_OVER' | 'IN_PROGRESS';
@@ -65,6 +66,9 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
   localVideoStream: any;
   private subscriptions: Subscription = new Subscription();
 
+  photoUrl: string | undefined = undefined;
+  photoPaths: UserAvatarImagePaths | undefined = undefined;
+
   @ViewChild('localVideo', {static: true}) localVideo: ElementRef;
   @ViewChild('remoteVideo', {static: true}) remoteVideo: ElementRef;
 
@@ -77,7 +81,7 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
     private toastService: ToastService,
     private alertService: AlertService,
     private modalService: BsModalService,
-    private crmPeopleService: CrmPeopleService
+    private crmPeopleService: CrmPeopleService,
   ) {
     this.videoService.msgSubject.subscribe(r => {
       console.log('MessageSubject', this.message);
@@ -98,10 +102,10 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
           if (user) {
             this.userId = user.uid;
             this.username = this.userId;
-            console.log('User authenticated ', this.userId);
-            console.log(this.route.params);
+            console.log(user);
             // @ts-ignore
             this.roomName = this.route.params.value.sessionId;
+
             this.checkRoom(this.roomName)
               .then(() => {
 
@@ -115,6 +119,36 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
 
                 this.loadCalendarEvent();
 
+              })
+              .then(() => {
+                const iId = this.sessionObject.participants.find( i => i !== this.userId); // interlocutor id
+                this.subscriptions.add(
+                  this.dataService.getPublicCoachProfile(iId).subscribe(profile => {
+                    if (profile) { // user is a Coach
+                      if (profile.photoPaths) {
+                        this.photoPaths = profile.photoPaths;
+                      } else {
+                        this.photoUrl = profile.photo ? profile.photo :
+                          `https://eu.ui-avatars.com/api/?name=${profile.firstName}+${profile.lastName}`;
+                      }
+                      console.log(this.photoPaths, this.photoUrl);
+                    } else { // user is Regular
+                      this.subscriptions.add(
+                        this.dataService.getRegularProfile(iId).subscribe(regProfile => {
+                          if (regProfile) {
+                            if (regProfile.photoPaths) {
+                              this.photoPaths = regProfile.photoPaths;
+                            } else {
+                              this.photoUrl = regProfile.photo ? regProfile.photo :
+                                `https://eu.ui-avatars.com/api/?name=${regProfile.firstName}+${regProfile.lastName}`;
+                            }
+                            console.log(this.photoPaths, this.photoUrl);
+                          }
+                        })
+                      );
+                    }
+                  })
+                );
               })
               .catch(e => console.log(e));
           }
@@ -230,7 +264,7 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
             console.log(this.sessionObject);
             console.log(this.userId);
             if (this.sessionObject.coachId === this.userId) {
-              this.sessionUserType = 'HOST';
+              this.sessionUserType = 'HOST'; // or we can say 'Coach' of this session
             } else if (this.sessionObject.participants.includes(this.userId)) {
               this.sessionUserType = 'PARTICIPANT';
             } else {
@@ -307,8 +341,6 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   newConnect(): void {
-    const htmlToAdd = '<div class="two">two</div>';
-
     if (this.loading) {
       this.alertService
         .alert('info-message',
@@ -332,7 +364,7 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
             .alert('warning-message-and-confirmation', 'Check before session starts',
               'You can check Your camera and microphone before Session starts', 'Continue', 'Cancel connection',
               null, null, null, null,
-              `<video autoplay width="320" height="240" id ='videoPreview'></video>`, this.modalWasOpened.bind(this), this.modalWasClosed.bind(this))
+              `<video autoplay width="320" height="240" id ='videoPreview' style="transform: scaleX(-1)"></video>`, this.modalWasOpened.bind(this), this.modalWasClosed.bind(this))
             .then( alertResult => {
               console.log('There will be connect', alertResult);
               // @ts-ignore
@@ -341,7 +373,7 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
               }
               this.isVideoLoading = true;
             }).then(() => {
-              this.videoService.connectToRoom(this.isVideoLoading, this.accessToken, {
+              this.videoService.connectToRoom({paths: this.photoPaths, url: this.photoUrl}, this.accessToken, {
               name: this.roomName,
               audio: true,
               video: {width: 640}
@@ -432,7 +464,7 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
 
           console.groupEnd();
 
-          this.videoService.connectToRoom(this.userLoaded, this.accessToken, {
+          this.videoService.connectToRoom({paths: this.photoPaths, url: this.photoUrl}, this.accessToken, {
             name: this.roomName,
             audio: true,
             video: {width: 640}
@@ -458,8 +490,7 @@ export class VideochatroomComponent implements OnInit, AfterViewInit, OnDestroy 
     }
 
   }
-  userLoaded() {
-  }
+
   ngOnDestroy() {
     this.videoService.disconnect();
     this.subscriptions.unsubscribe();
