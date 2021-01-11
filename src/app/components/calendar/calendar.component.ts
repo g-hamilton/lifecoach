@@ -672,8 +672,9 @@ export class CalendarComponent implements OnInit, OnDestroy {
 
   onViewSessionNotes() {
     this.eventDetailModal.hide();
-    // this.router.navigate(['/people', this.activeEvent.sessionId]);
-    alert('todo: I should go to person history session now!');
+    const programId = this.activeEvent.type === 'discovery' ? 'discovery' : this.activeEvent.program;
+    const clientId = this.activeEvent.client ? this.activeEvent.client : this.activeEvent.orderedById;
+    this.router.navigate(['/my-programs', programId, 'clients', clientId, 'sessions', this.activeEvent.sessionId]);
   }
 
   onRescheduleSession() {
