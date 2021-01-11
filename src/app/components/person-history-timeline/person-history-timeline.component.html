@@ -154,9 +154,19 @@
                         </p>
                         <p *ngIf="item.action === 'coach_created_session'">
                             You scheduled a new session with {{ person.firstName }}. 
-                            <a [routerLink]="['/calendar']">
-                                View calendar
+                            <span *ngIf="dateNow < getDate(item.event.end.seconds * 1000) ; else inPast">
+                                <a [routerLink]="['/my-sessions', person.history[i].event.id]">
+                                Go to session
+                                </a> or
+                                <a [routerLink]="['/calendar']">
+                                    View calendar
+                                </a>
+                            </span>
+                            <ng-template #inPast>
+                                <a [routerLink]="['/my-programs', item.programId, 'clients', person.id, 'sessions', item.sessionId]">
+                                View session notes
                             </a>
+                            </ng-template>
                         </p>
                     </div>
 
