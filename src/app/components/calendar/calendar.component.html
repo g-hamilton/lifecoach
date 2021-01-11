@@ -351,30 +351,8 @@
               </div>
               <!-- end row -->
 
-              <!-- description -->
-<!--              <div class="form-group">-->
-<!--                <label for="description">-->
-<!--                  Description-->
-<!--                </label>-->
-<!--                <textarea-->
-<!--                  class="form-control"-->
-<!--                  id="description"-->
-<!--                  rows="3"-->
-<!--                  placeholder="Description..."-->
-<!--                  formControlName="description"-->
-<!--                ></textarea>-->
-<!--              </div>-->
-
             </form>
 
-            <!-- <p>
-              <i class="far fa-calendar-alt"></i>
-              {{ activeEvent?.start }}
-            </p> -->
-
-<!--            <button class=" btn btn-danger btn-block mt-3" (click)="onEditDeleteEvent()">-->
-<!--              Cancel Event-->
-<!--            </button>-->
 
             <button class=" btn btn-primary btn-block btn-round mt-3" (click)="onUpdateEvent()"
             [disabled]="activeEventF.client.value && activeEventF.program.value && !this.clientHasPurchasedProgramSessions(activeEventF.client.value, activeEventF.program.value)">
@@ -464,3 +442,95 @@
   </div>
 </div>
 <!-- cancel event modal -->
+
+<!-- reschedule event modal -->
+<div
+  aria-hidden="true"
+  aria-labelledby="rescheduleEventModalLabel"
+  bsModal
+  class="modal fade"
+  #rescheduleEventModal="bs-modal"
+  id="rescheduleEventModal"
+  role="dialog"
+  tabindex="-1"
+>
+  <div class="modal-dialog" style="transform: translate(0,0);">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title pull-left"> Reschedule this session </h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="onRescheduleEventModalClose()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="card card-login card-white">
+
+          <div class=" card-body">
+
+            <form [formGroup]="activeEventForm">
+
+              <div class=" row" *ngIf="this.activeEventF.start.value && this.activeEventF.end.value">
+                <div class=" col">
+                  <!-- date picker ui -->
+                  <!-- nb: don't use bs-datepicker-inline it is buggy! -->
+                  <input type="text"
+                  placeholder="Pick an available date"
+                  class="form-control"
+                  bsDatepicker
+                  [bsValue]="bsInlineValue"
+                  [datesDisabled]="disabledDates"
+                  (bsValueChange)="onRescheduleDayChange($event)">
+                </div>
+              </div>
+
+              <div class=" row">
+                <!-- start time -->
+                <div class=" col-md-6">
+                  <div class=" form-group">
+                    <label for="reschedulestarttime"> Start </label>
+                    <select class="form-control" name="reschedulestarttime" formControlName="start" id="reschedulestarttime" (change)="onChangeStartTimeHandler($event)">
+                      <option *ngFor="let time of startTimes"
+                              [value]="time"
+                              >
+                        {{time | date:'HH:mm'}}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+                <!-- end time -->
+                <div class=" col-md-6">
+                  <div class=" form-group">
+                    <label for="rescheduleendtime"> End </label>
+                    <select class="form-control" name="rescheduleend" formControlName="end"  id="rescheduleendtime">
+                      <option  *ngFor=" let time of endTimes; let i = index"
+                               [defaultSelected]="time==endTimes[0]"
+                               [ngValue]="time"
+                              >
+                        {{time | date:'HH:mm'}}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <!-- end row -->
+
+            </form>
+
+            <button class=" btn btn-primary btn-block btn-round mt-3" (click)="onUpdateEvent()">
+              <span *ngIf="!saving">
+                <i class="fas fa-calendar"></i>
+              </span>
+              <span
+              *ngIf="saving"
+              class="spinner-border spinner-border-sm"
+              role="status"
+              ></span> {{ saving ? 'Saving...' : 'Save'}}
+            </button>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- reschedule event modal -->

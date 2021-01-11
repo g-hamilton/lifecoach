@@ -18,6 +18,7 @@ import { CoachingProgram } from 'app/interfaces/coach.program.interface';
 import { ModalDirective, BsModalService, BsModalRef, ModalOptions } from 'ngx-bootstrap/modal';
 import { SessionManagerComponent } from 'app/components/session-manager/session-manager.component';
 import { SessionManagerConfig } from 'app/interfaces/session.manager.config.interface';
+import { BsDatepickerConfig } from 'ngx-bootstrap/datepicker';
 
 @Component({
   selector: 'app-calendar',
@@ -30,6 +31,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
   @ViewChild('eventDetailModal', {static: false}) public eventDetailModal: ModalDirective;
   @ViewChild('editEventModal', {static: false}) public editEventModal: ModalDirective;
   @ViewChild('cancelEventModal', {static: false}) public cancelEventModal: ModalDirective;
+  @ViewChild('rescheduleEventModal', {static: false}) public rescheduleEventModal: ModalDirective;
 
   public bsModalRef: BsModalRef;
 
@@ -75,6 +77,11 @@ export class CalendarComponent implements OnInit, OnDestroy {
       required: `Please select a calendar action.`
     }
   };
+
+  // ngx datePicker
+  public bsInlineValue = new Date();
+  public dateSelectConfig = { } as BsDatepickerConfig;
+  public disabledDates: Array<Date> = [];
 
   constructor(
     private authService: AuthService,
@@ -387,10 +394,9 @@ export class CalendarComponent implements OnInit, OnDestroy {
 
   eventClicked({event}: { event: CustomCalendarEvent }): void {
     this.activeEvent = event;
-    console.log(event);
-
+    console.log('Active event:', event);
     this.eventDetailModal.show();
-    console.log('TEST, TEST, TEST', this.activeEventF);
+    console.log('Active event FORM:', this.activeEventF);
   }
 
   onEventDetailModalClose() {
@@ -399,7 +405,6 @@ export class CalendarComponent implements OnInit, OnDestroy {
       id: null,
       start: null,
       end: null,
-      // title: this.activeEvent.start.toLocaleTimeString() + ' - ' + (this.activeEvent.end.toLocaleTimeString() || ' '),
       draggable: false,
       cssClass:  null,
       description: null,
@@ -418,7 +423,6 @@ export class CalendarComponent implements OnInit, OnDestroy {
       id: null,
       start: null,
       end: null,
-      // title: this.activeEvent.start.toLocaleTimeString() + ' - ' + (this.activeEvent.end.toLocaleTimeString() || ' '),
       draggable: false,
       cssClass:  null,
       description: null,
@@ -429,14 +433,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
   }
 
   onEditEvent() {
-
     this.eventDetailModal.hide();
-    console.log('275,', this.activeEvent);
-    if (this.activeEvent.reserved) {
-      alert(`Sorry, this event was already reserved by the user: ${this.activeEvent.reservedById}`); // TODO: Modal
-      return;
-    }
-    // this.activeEvent = null;
     console.log('TEST, TEST, TEST', this.activeEventF);
     this.startTimes = [];
     this.endTimes = [];
@@ -445,15 +442,6 @@ export class CalendarComponent implements OnInit, OnDestroy {
     this.fillEndTimes({ date: this.activeEventF.start}, true);
 
     this.editEventModal.show();
-    // this.activeEventForm.patchValue({
-    //   id: null,
-    //   start: null,
-    //   end: null,
-    //   // title: this.activeEvent.start.toLocaleTimeString() + ' - ' + (this.activeEvent.end.toLocaleTimeString() || ' '),
-    //   draggable: false,
-    //   cssClass:  null,
-    //   description: null
-    // });
   }
 
   onDetailCancelEvent() {
@@ -690,7 +678,37 @@ export class CalendarComponent implements OnInit, OnDestroy {
 
   onRescheduleSession() {
     this.eventDetailModal.hide();
-    alert('todo: I should allow you to reschedule this session now!');
+    this.startTimes = [];
+    this.endTimes = [];
+    this.loadActiveEventFormData();
+    this.fillStartTimes({date: this.activeEventF.start});
+    this.fillEndTimes({ date: this.activeEventF.start}, true);
+    console.log('active event:', this.activeEvent);
+    console.log('active event FORM', this.activeEventF);
+    this.bsInlineValue = this.activeEventF.start.value;
+    this.rescheduleEventModal.show();
+  }
+
+  onRescheduleDayChange(ev: Date) {
+
+    console.log('reschedule date changed:', ev);
+
+  }
+
+  onRescheduleEventModalClose() {
+    this.rescheduleEventModal.hide();
+    this.activeEvent = null;
+    this.activeEventForm.patchValue({
+      id: null,
+      start: null,
+      end: null,
+      draggable: false,
+      cssClass:  null,
+      description: null,
+      reserved: false,
+      reservedById: null,
+    });
+    this.activeEvent = null;
   }
 
   onMarkSessionComplete() {
