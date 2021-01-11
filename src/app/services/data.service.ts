@@ -658,7 +658,6 @@ export class DataService {
       } else {
         startTime = new Date(date.setHours(0, 0, 0, 0));
       }
-      startTime = new Date(date.setHours(0, 0, 0, 0)); // for testing
       const endTime = new Date(date.setHours(24, 0, 0, 0));
       console.log('Возможно, undefined', startTime, endTime);
       return this.db.collection(`users/${uid}/calendar`, ref => ref
@@ -668,9 +667,13 @@ export class DataService {
         .where('start', '<', endTime)
       ).valueChanges() as Observable<CustomCalendarEvent[]>;
     } else {
+      const now = new Date();
+      now.setHours(0, 0, 0, 0);
+      console.log('ELSE');
       return this.db.collection(`users/${uid}/calendar`, ref => ref
         .where('type', '==', 'discovery')
-        .where('ordered', '==', false))
+        .where('ordered', '==', false)
+        .where('start', '>=', now))
         .valueChanges() as Observable<CustomCalendarEvent[]>;
     }
   }
