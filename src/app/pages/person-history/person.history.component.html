@@ -126,7 +126,7 @@
             <!-- enrolled programs -->
             <div *ngFor="let program of enrolledInPrograms ; let p = index" class=" col-md-6">
               <div class=" card">
-                  <a [routerLink]="['/my-programs', program.programId, 'content']">
+                  <a [routerLink]="['/my-programs', program.programId, 'clients', person.id, 'sessions']">
                     <img
                     class="card-img-top"
                     [src]="program.image ? program.image : 'assets/img/image_placeholder.jpg'"
@@ -147,7 +147,7 @@
                     </div>
                   </div>
                   <div class=" card-footer">
-                    <button class="btn btn-round btn-default">
+                    <button class="btn btn-round btn-default" [routerLink]="['/my-programs', program.programId, 'clients', person.id, 'sessions']">
                       View Session History
                     </button>
                     <!-- schedule a session button if sessions remaining -->

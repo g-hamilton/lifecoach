@@ -242,6 +242,11 @@ const routes: Routes = [
         pathMatch: 'full'
       },
       {
+        path: 'my-programs/:programId/clients/:clientId/sessions',
+        loadChildren: () => import('./pages/session-history/session-history.module').then(m => m.SessionHistoryModule),
+        pathMatch: 'full'
+      },
+      {
         path: 'services/new',
         loadChildren: () => import('./pages/edit-coach-service/edit.coach.service.module').then(m => m.EditCoachServiceModule),
         pathMatch: 'full'
