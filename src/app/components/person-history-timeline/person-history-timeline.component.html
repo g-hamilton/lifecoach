@@ -51,8 +51,11 @@
                 <div *ngIf="item.action === 'cancelled_session'" class=" timeline-badge warning">
                     <i class="fas fa-calendar"></i>
                 </div>
-                <div *ngIf="item.action === 'completed_session'" class=" timeline-badge success">
+                <div *ngIf="item.action === 'completed_session'" class=" timeline-badge primary">
                     <i class="fas fa-check"></i>
+                </div>
+                <div *ngIf="item.action === 'coach_created_session'" class=" timeline-badge success">
+                    <i class="fas fa-calendar"></i>
                 </div>
 
                 <!-- panel -->
@@ -67,9 +70,10 @@
                         <span *ngIf="item.action === 'coach_invited_user'" class=" badge badge-success"> Sent Invite </span>
                         <span *ngIf="item.action === 'booked_session'" class=" badge badge-success"> Booked Session </span>
                         <span *ngIf="item.action === 'cancelled_session'" class=" badge badge-warning"> Cancelled Session </span>
-                        <span *ngIf="item.action === 'completed_session'" class=" badge badge-success"> 
+                        <span *ngIf="item.action === 'completed_session'" class=" badge badge-primary"> 
                             Completed {{ item.programId === 'discovery' ? 'Discovery Session' : 'Session' }} 
                         </span>
+                        <span *ngIf="item.action === 'coach_created_session'" class=" badge badge-success"> Scheduled Session </span>
 
                         <!-- time / date of this action -->
                         <span class="pull-right">
@@ -130,6 +134,12 @@
                             </a> or 
                             <a href="javascript:void(0)" (click)="openInviteModal('ecourse')">
                                 enroll in an eCourse.
+                            </a>
+                        </p>
+                        <p *ngIf="item.action === 'coach_created_session'">
+                            You scheduled a new session with {{ person.firstName }}. 
+                            <a [routerLink]="['/calendar']">
+                                View Calendar
                             </a>
                         </p>
                     </div>
