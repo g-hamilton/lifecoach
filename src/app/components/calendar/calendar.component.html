@@ -437,7 +437,7 @@
         <button class=" btn btn-default btn-round mt-3" (click)="onCancelEventModalClose()">
           No - Go Back
         </button>
-      </div>
+      </div> Reschedule Session
     </div>
   </div>
 </div>
@@ -478,7 +478,7 @@
                   class="form-control"
                   bsDatepicker
                   [bsValue]="bsInlineValue"
-                  [datesDisabled]="disabledDates"
+                  [datesDisabled]="this.disabledDates"
                   (bsValueChange)="onRescheduleDayChange($event)">
                 </div>
               </div>

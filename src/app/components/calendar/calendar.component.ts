@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
+import {ChangeDetectionStrategy, Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
 import {CalendarView} from 'angular-calendar';
 import {Subject, Subscription} from 'rxjs';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
@@ -21,9 +21,10 @@ import { SessionManagerConfig } from 'app/interfaces/session.manager.config.inte
 import { BsDatepickerConfig } from 'ngx-bootstrap/datepicker';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-calendar',
   encapsulation: ViewEncapsulation.None,
-  templateUrl: './calendar.component.html',
+  templateUrl: './calendar.component.html'
 })
 
 export class CalendarComponent implements OnInit, OnDestroy {
@@ -46,6 +47,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
   public saveAttempt: boolean;
   public saving: boolean;
   public cancelling: boolean;
+  public isReschedulingMode: true | false = false;
 
   public focus: boolean;
   public focus1: boolean;
@@ -93,7 +95,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
     private cloudFunctionsService: CloudFunctionsService,
     private analyticsService: AnalyticsService,
     private crmPeopleService: CrmPeopleService,
-    private modalService: BsModalService
+    private modalService: BsModalService,
+
   ) {
   }
 
@@ -513,7 +516,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
   }
 
   isTheSameDay(a: Date, b: Date): boolean {
-    return (a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDay() === b.getDay());
+    return (a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate());
   }
 
   divideEventIntoSessions(ob: CustomCalendarEvent): Array<CustomCalendarEvent> {
@@ -681,22 +684,65 @@ export class CalendarComponent implements OnInit, OnDestroy {
     this.eventDetailModal.hide();
     this.startTimes = [];
     this.endTimes = [];
+
+    this.isReschedulingMode = true;
+    const millisecondPerDay = 24 * 60 * 60 * 1000;
+    const now = new Date();
+    let startDate: Date = new Date(now.setFullYear(now.getFullYear() - 1));
+    const endDate: Date = new Date(now.setFullYear(now.getFullYear() + 2));
+    now.setFullYear(now.getFullYear() - 1);
+    console.log('NOW OBJECT', now);
+    this.disabledDates = [];
+    do { // check every date in the enabled array between the start and end point
+      let disable = true; // disable by default
+
+      if (startDate > now) {
+        disable = this.isTheSameDay(startDate, now);
+
+      }
+      if (disable) {
+        this.disabledDates.push(startDate);
+      }
+      startDate = new Date((startDate.getTime() + millisecondPerDay));
+    } while (startDate <= endDate);
+
     this.loadActiveEventFormData();
-    this.fillStartTimes({date: this.activeEventF.start});
-    this.fillEndTimes({ date: this.activeEventF.start}, true);
+    const timeNow =  new Date();
+    timeNow.setHours(0, 0, 0, 0);
+    if ( this.activeEventF.start < timeNow) {
+      this.fillStartTimes({date: timeNow});
+      // this.fillEndTimes({ date: timeNow}, true);
+    } else {
+      this.fillStartTimes({date: this.activeEventF.start});
+      // this.fillEndTimes({ date: this.activeEventF.start}, true);
+    }
+
     console.log('active event:', this.activeEvent);
     console.log('active event FORM', this.activeEventF);
-    this.bsInlineValue = this.activeEventF.start.value;
+    // this.bsInlineValue = this.activeEventF.start.value;
+    this.bsInlineValue = new Date();
     this.rescheduleEventModal.show();
   }
 
   onRescheduleDayChange(ev: Date) {
 
     console.log('reschedule date changed:', ev);
-
+    if (this.isTheSameDay(ev, new Date())) {
+      this.fillStartTimes({date: ev});
+      // this.fillEndTimes({ date: ev}, true);
+      this.endTimes = [];
+      this.endTimes = [new Date(ev.getTime() + this.sessionDuration * 600 * 100)];
+    } else {
+      this.fillStartTimes({date: new Date(ev.setHours(0, 0, 0, 0))});
+      this.endTimes = [];
+      this.endTimes = [new Date(ev.getTime() + this.sessionDuration * 600 * 100)];
+    }
+    // ev.setHours(0, 0, 0, 0);
+    // this.fillStartTimes({date: ev});
   }
 
   onRescheduleEventModalClose() {
+    this.isReschedulingMode = false;
     this.rescheduleEventModal.hide();
     this.activeEvent = null;
     this.activeEventForm.patchValue({
@@ -741,10 +787,14 @@ export class CalendarComponent implements OnInit, OnDestroy {
     console.log('Event', event,
       'Times changed', event.target.value );
     this.fillEndTimes({date: new Date(Date.parse(event.target.value))});
+    if (this.isReschedulingMode) {
+      this.endTimes = [new Date(new Date (Date.parse(event.target.value)).getTime() + this.sessionDuration * 600 * 100)];
+    }
 
   }
 
   fillStartTimes(event: any) {
+    console.log('eventetete', event);
     this.startTimes = [];
     console.log('EVENT', event);
     const oldTime: Date = event.date instanceof Date ? event.date : event.date.value ;
