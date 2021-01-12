@@ -512,14 +512,14 @@ export class CloudFunctionsService {
 
   // Image services functions
   uploadProgramImage( data: any) {
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
       const trigger = this.cloudFunctions.httpsCallable('uploadProgramImage');
       const tempSub = trigger(data)
         .pipe(first())
         .subscribe(res => {
           resolve(res);
           tempSub.unsubscribe();
-        });
+        }, error => reject(error));
     });
   }
 

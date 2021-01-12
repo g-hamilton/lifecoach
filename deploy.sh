@@ -5,6 +5,7 @@ case "$1" in
 *)PROD=false
 esac
 if $PROD;
+then
 firebase use lifecoach-6ab28;
 echo "Use dev environment...";
 git checkout master;
