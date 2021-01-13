@@ -3035,7 +3035,8 @@ exports.onWriteUserProfileNode = functions
       const p1 = db.collection('public-coaches')
       .doc(userId)
       .get()
-      .then(docSnapshot => {
+      // @ts-ignore
+      .then( docSnapshot => {
         if (docSnapshot.exists) {
           // Doc does exist. Delete it.
           return db.collection(`public-coaches`)
@@ -3045,7 +3046,8 @@ exports.onWriteUserProfileNode = functions
         }
         return null;
       })
-      .catch(err => console.error(err));
+      // @ts-ignore
+      .catch( err => console.error(err));
 
       return Promise.all([p1]);
     }
@@ -3953,6 +3955,7 @@ exports.onWritePublicPrograms = functions
     coachPhoto: program.coachPhoto,
     isTest: program.isTest, // will only be true if this program is a test (admin created)
     approved: program.approved,
+    imagePaths: program.imagePaths
   };
   // Update Algolia.
   return index.saveObject(recordToSend);
@@ -4058,6 +4061,8 @@ exports.onWritePrivateUserProgram = functions
       requirements: program.requirements ? program.requirements : null,
       targets: program.targets ? program.targets : null,
       isTest: program.isTest ? true : false, // will only be true if this program is a test (admin created)
+      // this field will replaced image field in future
+      imagePaths: program.imagePaths ? program.imagePaths : null
     };
     const publicRef = db.collection(`public-programs`).doc(programId);
     batch.set(publicRef, publicData, { merge: true });
@@ -4380,39 +4385,6 @@ exports.abortVideoSession = functions
 
 
 // Image srvices
-exports.uploadProgramImage = functions
-  .runWith({memory: '1GB', timeoutSeconds: 300})
-  .https
-  .onCall(async (data: any, context?) => { // uid: string, img: string
-    try {
-      const storage = firebase.storage();
-      const generateRandomImgID = () => Math.random().toString(36).substr(2, 9);
-
-      /*
-        1. Stores an image at a given path in Firebase Storage with an auto assigned ID
-        2. Replaces the dataURL with the storage URL
-        3. Returns the newly assigned updated storage URL
-        4. If unable to store the image, returns the original dataURL as a fallback.
-        */
-      const original = data.img;
-      const imgId = generateRandomImgID()+'test'; // After getting ID we should create
-      // different versions of file and add extension mark for each format
-      // (like test_file_id.webp/test_file_id.jpg);
-      const path = `users/${data.uid}/profilePics/${imgId}`;
-
-        console.log(`Attempting storage upload for user ${data.uid}`);
-        // @ts-ignore
-      const destination = storage.ref(path);
-        const snap = await destination.putString(original, 'data_url');
-        const storagePath = await snap.ref.getDownloadURL();
-        console.log(`Profile img stored & download URL ${storagePath} captured successfully.`);
-        return storagePath;
-      } catch (err) {
-        console.error(err);
-    }
-
-  })
-
 exports.uploadCourseImage = functions
   .runWith({memory: '1GB', timeoutSeconds: 300})
   .https
@@ -4613,6 +4585,108 @@ exports.uploadUserAvatar = functions
         }};
       return result;
     }catch (e) {
+      return {err: e.message};
+    }
+  });
+
+//programUploadingService
+exports.uploadProgramImage = functions
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
+  .onCall(async (data: any, context?) => { // uid: string, img: string
+
+    const bucketName = 'livecoach-dev.appspot.com';
+    const generateRandomImgID = () => Math.random().toString(36).substr(2, 9);
+    const imgId = generateRandomImgID(); // imgId in cloud storage
+    const path = `users/${data.uid}/programImages/${imgId}`; // test jpg but we can save it as original
+
+    const base64Text = data.img.split(';base64,').pop();
+    const imageBuffer = Buffer.from(base64Text, 'base64'); // original image buffer
+    const contentType = data.img.split(';base64,')[0].split(':')[1];
+
+    try{
+      const webpBuffer = await sharp(imageBuffer).toFormat('webp').toBuffer(); // webp image
+      // xs = 124px s = 248px m = 372px l = 496px || full. Getting resizing image w - webp
+
+      const xs = sharp(imageBuffer).resize(575,null).toBuffer();
+      const s = sharp(imageBuffer).resize(768,null).toBuffer();
+      const m = sharp(imageBuffer).resize(991,null).toBuffer();
+      const l = sharp(imageBuffer).resize(1200,null).toBuffer();
+
+      const xsw = sharp(webpBuffer).resize(575,null).toBuffer();
+      const sw = sharp(webpBuffer).resize(768,null).toBuffer();
+      const mw = sharp(webpBuffer).resize(991,null).toBuffer();
+      const lw = sharp(webpBuffer).resize(1200,null).toBuffer();
+
+      const resizingPromises = [];
+      resizingPromises.push(xs, s, m , l, xsw, sw, mw , lw);
+
+      const resized = await Promise.all(resizingPromises); // all Buffers! of images resized.
+
+      //configs for webp && original
+      const webpConfig:any =  {
+        'public': true,
+        gzip: true,
+        predefinedAcl:'publicRead',
+        metadata: {
+          contentType: 'image/webp',
+          cacheControl: 'public, max-age=31536000',
+        }};
+      const originalConfig:any ={
+        public: true,
+        gzip: true,
+        predefinedAcl:'publicRead',
+        metadata: {
+          contentType,
+          cacheControl: 'public, max-age=31536000',
+        }}
+
+      //Uploading promises
+      const uw1 = admin.storage(firebase).bucket(bucketName).file(path+'.webp').save(webpBuffer, webpConfig);
+      const uw2 = admin.storage(firebase).bucket(bucketName).file(path+'xs.webp').save(await resized[4], webpConfig);
+      const uw3 = admin.storage(firebase).bucket(bucketName).file(path+'s.webp').save(await resized[5], webpConfig);
+      const uw4 = admin.storage(firebase).bucket(bucketName).file(path+'m.webp').save(await resized[6], webpConfig);
+      const uw5 = admin.storage(firebase).bucket(bucketName).file(path+'l.webp').save(await resized[7], webpConfig);
+
+      const u1 = admin.storage(firebase).bucket(bucketName).file(path+'.jpg').save(imageBuffer, originalConfig);
+      const u2 = admin.storage(firebase).bucket(bucketName).file(path+'xs.jpg').save(await resized[0], originalConfig);
+      const u3 = admin.storage(firebase).bucket(bucketName).file(path+'s.jpg').save(await resized[1], originalConfig);
+      const u4 = admin.storage(firebase).bucket(bucketName).file(path+'m.jpg').save(await resized[2], originalConfig);
+      const u5 = admin.storage(firebase).bucket(bucketName).file(path+'l.jpg').save(await resized[3], originalConfig);
+
+      const uploadingPromises = [];
+      uploadingPromises.push(u1, u2, u3, u4, u5, uw1, uw2, uw3, uw4, uw5);
+      await Promise.all(uploadingPromises);
+
+      const makePublicPromises:Array<any> = [];
+      const sizes = ['xs', 's', 'm', 'l', ''];
+      for(let i=0; i<5; i++) {
+        makePublicPromises.push(admin.storage(firebase).bucket(bucketName).file(path+sizes[i]+'.jpg').makePublic())
+      }
+      for(let i=0; i<5; i++) {
+        makePublicPromises.push(admin.storage(firebase).bucket(bucketName).file(path+sizes[i]+'.webp').makePublic())
+      }
+      const response = await Promise.all(makePublicPromises);
+
+      const urls = response.map( i => `https://storage.googleapis.com/${bucketName}/${i[0].object}`);
+
+      const result = {
+        original: {
+          575: urls[0],
+          768: urls[1],
+          991: urls[2],
+          1200: urls[3],
+          fullSize: urls[4],
+        },
+        webp: {
+          575: urls[5],
+          768: urls[6],
+          991: urls[7],
+          1200: urls[8],
+          fullSize: urls[9],
+        }};
+      return result;
+    } catch (e) {
       return {err: e.message};
     }
   });

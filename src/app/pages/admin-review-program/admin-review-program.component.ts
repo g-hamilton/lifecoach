@@ -42,7 +42,8 @@ export class AdminReviewProgramComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private cloudFunctionsService: CloudFunctionsService,
     private analyticsService: AnalyticsService,
-    private storageService: StorageService
+    private storageService: StorageService,
+    private cloudFunctions: CloudFunctionsService
   ) {
   }
 
@@ -121,7 +122,7 @@ export class AdminReviewProgramComponent implements OnInit, OnDestroy {
     /*
       Triggered by the 'messageEvent' listener on the component template.
       The child 'picture-upload-component' will emit a chosen image as
-      a base64 string when an image is chosen. We'll listen for that change 
+      a base64 string when an image is chosen. We'll listen for that change
       here and grab the string for saving to storage & patching into the program.
     */
     // console.log(`received base64 image string: ${$event}`);
@@ -131,8 +132,21 @@ export class AdminReviewProgramComponent implements OnInit, OnDestroy {
     }
 
     // auto save any new image to storage
-    const url = await this.storageService.storeProgramImageUpdateDownloadUrl(this.program.sellerUid, this.uploadedImage);
-    this.program.image = url; // assigns a storage downloadURL string
+
+    // old version
+    // const url = await this.storageService.storeProgramImageUpdateDownloadUrl(this.program.sellerUid, this.uploadedImage);
+    // this.program.image = url; // assigns a storage downloadURL string
+
+    // new version (optimized)
+    const response = await this.cloudFunctions
+      .uploadProgramImage({uid: this.program.sellerUid, img: this.uploadedImage})
+      .catch(e => console.log(e));
+
+    // @ts-ignore
+    const url = await response.original.fullSize || '';
+    this.program.image = url;
+    // @ts-ignore
+    this.program.imagePaths = await response;
 
     // auto save the program now that it has a new image
     this.dataService.savePrivateProgram(this.program.sellerUid, this.program);

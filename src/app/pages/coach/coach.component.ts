@@ -15,7 +15,6 @@ import { CoachingService } from 'app/interfaces/coaching.service.interface';
 import { Subscription } from 'rxjs';
 import { CustomCalendarEvent } from '../../interfaces/custom.calendar.event.interface';
 import { AuthService } from '../../services/auth.service';
-import { first, take } from 'rxjs/operators';
 import { ModalDirective } from 'ngx-bootstrap/modal';
 import { ToastrService } from 'ngx-toastr';
 import { CoachingProgram } from 'app/interfaces/coach.program.interface';
@@ -28,7 +27,6 @@ import { ScheduleCallComponent } from 'app/components/schedule-call/schedule-cal
 @Component({
   selector: 'app-coach',
   templateUrl: 'coach.component.html',
-  encapsulation: ViewEncapsulation.None,
   styleUrls: ['./coach.component.scss']
 })
 export class CoachComponent implements OnInit, OnDestroy {

@@ -18,6 +18,7 @@ export class TwilioService {
   localVideoTrackToRemove: any;
   isVideoEnabled = true;
   isAudioEnabled = true;
+  photos: any | undefined = undefined;
 
   constructor(
     private http: HttpClient,
@@ -25,121 +26,171 @@ export class TwilioService {
   ) {
   }
 
-  connectToRoom(userLoaded: any, accessToken: string, options): void {
+  connectToRoom(photos: any, accessToken: string, options): void {
+    console.log(photos);
+    this.photos = photos;
     connect(accessToken, {...options})
       .then(room => {
         this.roomObj = room;
         console.log('Successfully joined a Room: ', this.roomObj);
         this.localVideo.nativeElement.innerHTML = null;
         this.roomObj.localParticipant.tracks.forEach((track) => {
-          // hide camera after 5 seconds
           console.log(track);
           // this.roomObj.localParticiant.publish(track);
           if (track.kind === 'video') {
             const attachedElement = track.track.attach();
             if (attachedElement.tagName === 'VIDEO') {
               attachedElement.classList.add('col');
+              attachedElement.style.transform = 'scaleX(-1)'; // for mirroring user's video
             }
             this.localVideo.nativeElement.appendChild(attachedElement);
+            console.log(this.localVideo.nativeElement.children);
           }
 
           if (this.roomObj.participants.size > 0) {
 
-
-            console.log('Tut bol`sche chem 0', this.roomObj);
-
-
+            console.log('There is more than 0 users in this room', this.roomObj);
             room.participants.forEach(participant => {
-              participant.tracks.forEach(publication => {
-                if (publication.track) {
-                  // this.remoteVideo.nativeElement.appendChild(publication.track.attach());
-                }
-              });
               this.remoteVideo.nativeElement.innerHTML = null;
+              participant.tracks.forEach(publication => {
+
+                // if (publication.isSubscribed) {
+                //   this.handleTrackEnabled(publication.track);
+                // }
+                // if (!publication.isSubscribed) {
+                //   this.handleTrackDisabled(publication.track);
+                // }
+                // publication.on('subscribed', this.handleTrackEnabled);
+                // publication.on('subscribed', this.handleTrackDisabled);
+              });
+
               participant.on('trackSubscribed', track => {
-                console.log(track);
-                if (this.remoteVideo.nativeElement.children.length < 3) {
+                track.on('enabled', this.enableTrack.bind(this));
+                track.on('disabled', this.disableTrack.bind(this));
+                // @ts-ignore
+                if (!Array.from(this.remoteVideo.nativeElement.children).find( i => i.nodeName === track.kind.toUpperCase())) {
                   const attachedElement = track.attach();
                   attachedElement.classList.add('col-md-8');
                   this.remoteVideo.nativeElement.appendChild(attachedElement);
                 }
-                console.log(this.remoteVideo.nativeElement.children);
               });
-
-              // room.on('tokenAboutToExpire', () => {
-              //   // Implement fetchToken() to make a secure request to your backend to retrieve a refreshed access token.
-              //   // Use an authentication mechanism to prevent token exposure to 3rd parties.
-              //   console.log('Token is about to expire in 3 minutes');
-              //   alert('Token is about to expire in 3 minutes');
-              // });
-              // participant.on('tokenAboutToExpire', () => {
-              //   // Implement fetchToken() to make a secure request to your backend to retrieve a refreshed access token.
-              //   // Use an authentication mechanism to prevent token exposure to 3rd parties.
-              //   console.log('Token is about to expire in 3 minutes');
-              //   alert('Token is about to expire in 3 minutes');
-              // });
             });
           }
         });
 
         room.on('participantDisconnected', participant => {
-          console.log(`${participant.identity} left the Room`);
-          console.log(participant);
           participant.tracks.forEach((publication, value) => {
-            console.log(publication, value);
+            // console.log(publication, value);
           });
-          console.log(participant);
-          this.remoteVideo.nativeElement.innerHTML = null;
+          this.remoteVideo.nativeElement.innerHTML = `<h1>Your interlocutor left the room</h1>`;
         });
 
         room.on('participantConnected', participant => {
-          console.log('A remote Participant connected: ', participant);
-
           participant.videoTracks.forEach(publication => {
             if (publication.track) {
               const attachedElement = publication.track.attach();
               if (this.remoteVideo.nativeElement.children.length < 4) {
-                console.log(attachedElement.classList)
-                this.remoteVideo.nativeElement.appendChild(attachedElement);
+              this.remoteVideo.nativeElement.appendChild(attachedElement);
               }
             }
           });
           this.remoteVideo.nativeElement.innerHTML = null;
           participant.on('trackSubscribed', track => {
-
+            track.on('enabled', this.enableTrack.bind(this));
+            track.on('disabled', this.disableTrack.bind(this));
             const attachedElement = track.attach();
-
-            console.log(attachedElement.tagName);
             if (attachedElement.tagName === 'VIDEO') {
               attachedElement.classList.add('col-md-8');
             }
             this.remoteVideo.nativeElement.appendChild(attachedElement);
           });
         });
-        // this.remoteVideo.nativeElement.appendChild(participant)
 
-        // room.participants.forEach(participant => {
-        //   participant.tracks.forEach(publication => {
-        //     if (publication.track) {
-        //       document.getElementById('remote-media-div').appendChild(publication.track.attach());
-        //     }
-        //   });
-        //
-        //   participant.on('trackSubscribed', track => {
-        //     document.getElementById('remote-media-div').appendChild(track.attach());
-        //   });
-        // });
-        //
-        //
-        // this.remoteVideo
       }, error => {
         alert('Unable to connect to Room: ' + error.message);
       });
-    userLoaded = true;
+
+  }
+
+  enableTrack(track) {
+    if (track.kind === 'audio') { // audio IS UNMUTED
+      console.log('AUDIO IS UNMUTED');
+      this.remoteVideo.nativeElement.removeChild(this.remoteVideo.nativeElement.querySelector('#micro_icon'));
+    } else {
+      console.log('VIDEO IS UNMUTED'); // video IS UNMUTED
+      this.remoteVideo.nativeElement.removeChild(this.remoteVideo.nativeElement.querySelector('#user_icon'));
+    }
+  }
+
+  disableTrack(track) {
+    console.log(this.photos);
+    if (track.kind === 'audio') {
+      console.log('AUDIO IS MUTED'); // audio IS MUTED
+      const styles = {
+        position: 'absolute',
+        bottom: '5px',
+        zIndex: '5',
+        paddingTop: '10px',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        backgroundColor: `#1e1e2f`,
+        border: '1px solid rgba(0, 0, 0, 0)',
+        color: 'red',
+        borderRadius: '50px',
+        width: '50px',
+        height: '50px',
+        fontSize: '1.5em',
+        textAlign: 'center'
+      };
+      const el = document.createElement('div');
+      Object.assign(el.style, styles);
+      el.id = 'micro_icon';
+      const icon = document.createElement('i');
+      icon.classList.add('fas', 'fa-microphone-slash', 'micro_off');
+      el.appendChild(icon);
+
+      this.remoteVideo.nativeElement.appendChild(el);
+    } else {
+      console.log(this.photos);
+      const styles = {
+        position: 'absolute',
+        top: '0',
+        left: '0',
+        right: '0',
+        bottom: '0',
+        backgroundColor: '#27293d',
+        borderRadius: '5px',
+      };
+      const photoStyles = {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        zIndex: '3',
+        paddingTop: '10px',
+        transform: 'translate(-50%,-50%)',
+        backgroundColor: `#27293d`,
+        color: 'red',
+        borderRadius: '100px',
+        width: '100px',
+        height: '100px',
+        fontSize: '1.5em',
+        textAlign: 'center',
+        backgroundPosition: 'center',
+        backgroundSize: 'cover',
+        backgroundRepeat: 'no-repeat',
+        backgroundImage: `url(${this.photos.paths ? this.photos.paths.original['248'] : this.photos.url})`
+      };
+      const el = document.createElement('div');
+      Object.assign(el.style, styles);
+      el.id = 'user_icon';
+      const photo = document.createElement('div');
+      Object.assign(photo.style, photoStyles);
+      el.appendChild(photo);
+      this.remoteVideo.nativeElement.appendChild(el);
+    }
   }
 
   abort() {
-    // console.log('trying to abort');
     if (this.roomObj) {
       this.cloudFunctions.abortVideoSession(this.roomObj.sid).then(answer => console.log(answer));
     } else {
@@ -148,6 +199,8 @@ export class TwilioService {
     this.isVideoEnabled = true;
     this.isAudioEnabled = true;
   }
+
+
 
   toggleMicro() {
     if (this.isAudioEnabled) {
@@ -210,118 +263,5 @@ export class TwilioService {
     //  // this.localVideo.nativeElement = ();
 
   }
-
-
-  //
-  // connectToRoom(accessToken: string, options): void {
-  //   console.log(this.remoteVideo);
-  //   connect(accessToken, {...options, })
-  //     .then(room => {
-  //       console.log('CONNECTED!', room);
-  //
-  //       this.roomObj = room;
-  //
-  //       console.log('Room object ', this.roomObj);
-  //
-  //       if (!this.previewing && options.video) {
-  //       this.startLocalVideo();
-  //       // this.previewing = true;
-  //       }
-  //
-  //       room.participants.forEach(participant => {
-  //       this.msgSubject.next(`Already in Room: ${participant.identity}`);
-  //       console.log(`Already in Room: ${participant.identity}`);
-  //       this.attachParticipantTracks(participant);
-  //       });
-  //
-  //       room.on('participantConnected',  (participant) => {
-  //         console.log(participant);
-  //         participant.tracks.forEach(track => {
-  //           console.log('participantConnected - track', track);
-  //           if (track) {
-  //             this.remoteVideo.nativeElement.appendChild(track.attach());
-  //           }
-  //         });
-  //
-  //         participant.on('trackAdded', track => {
-  //           console.log('track added');
-  //           if (track) {
-  //             this.remoteVideo.nativeElement.appendChild(track.attach());
-  //           }
-  //           document.getElementById('remote-media-div').appendChild(track.attach());
-  //         });
-  //       });
-  //
-  //       room.on('participantDisconnected', (participant) => {
-  //       this.msgSubject.next(`Participant ${participant.identity} left the room`);
-  //       console.log(`Participant ${participant.identity} left the room`);
-  //
-  //       this.detachParticipantTracks(participant);
-  //     });
-  //
-  //     // When a Participant adds a Track, attach it to the DOM.
-  //       room.on('trackAdded', (track, participant) => {
-  //       console.log(participant.identity + ' added track: ' + track.kind);
-  //       this.attachTracks([track]);
-  //     });
-  //
-  //     // When a Participant removes a Track, detach it from the DOM.
-  //       room.on('trackRemoved', (track, participant) => {
-  //       console.log(participant.identity + ' removed track: ' + track.kind);
-  //       this.detachTracks([track]);
-  //     });
-  //
-  //       room.once('disconnected',  i => {
-  //       this.msgSubject.next('You left the Room:' + i.name);
-  //       // this.localVideo.nativeElement.removeChild();
-  //       i.localParticipant.tracks.forEach(track => {
-  //         console.log('Trying to disconnect');
-  //         console.log(track);
-  //         const attachedElements = track.detach();
-  //         attachedElements.forEach(element => element.remove());
-  //       });
-  //     });
-  //   })
-  //     .catch(e => console.log(e));
-  // }
-  //
-  // attachParticipantTracks(participant): void {
-  //   const tracks = Array.from(participant.tracks.values());
-  //   console.log(participant);
-  //   this.attachTracks([tracks]);
-  // }
-  //
-  // attachTracks(tracks) {
-  //   tracks.forEach(track => {
-  //     this.remoteVideo.nativeElement.appendChild(track.attach());
-  //   });
-  // }
-  //
-  // startLocalVideo(): void {
-  //   createLocalVideoTrack().then(track => {
-  //     this.localVideo.nativeElement.appendChild(track.attach());
-  //   });
-  // }
-  //
-  // localPreview(): void {
-  //   createLocalVideoTrack().then(track => {
-  //     this.localVideo.nativeElement.appendChild(track.attach());
-  //   });
-  // }
-  //
-  // detachParticipantTracks(participant) {
-  //   console.log('Tracks', participant);
-  //   const tracks = Array.from(participant.tracks.values());
-  //   this.detachTracks(tracks);
-  // }
-  //
-  // detachTracks(tracks): void {
-  //   console.log('Tracks', tracks);
-  //   tracks.forEach( (track) => {
-  //     track.detach().forEach( (detachedElement) => {
-  //       detachedElement.remove();
-  //     });
-  //   });
-  // }
 
 }

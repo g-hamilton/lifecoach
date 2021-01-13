@@ -143,16 +143,19 @@ export class ScheduleCallComponent implements OnInit {
 
       }
       if (disable) {
-        this.disabledDates.push(startDate);
+        const local = new Date(startDate);
+        local.setUTCDate(local.getUTCDate() + 1);
+        // console.log(local);
+        this.disabledDates.push(local);
       }
       startDate = new Date((startDate.getTime() + millisecondPerDay));
     } while (startDate <= endDate);
-    console.log('Calculated disabled dates number: ' + this.disabledDates.length);
+    // console.log('Calculated disabled dates number: ' + this.disabledDates.length);
     // console.log('Calculated disabled dates: ', this.disabledDates);
   }
 
   onDayChange(value: Date) {
-    console.log('day changed', value);
+    // console.log('day changed', value);
     this.subscriptions.add(
       this.dataService.getUserAvailableDiscoveryEvents(this.coachId, new Date(value))
         .subscribe(next => {
