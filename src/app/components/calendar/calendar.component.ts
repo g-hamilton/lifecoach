@@ -48,6 +48,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
   public saving: boolean;
   public cancelling: boolean;
   public isReschedulingMode: true | false = false;
+  public oldEventID: | undefined = undefined;
 
   public focus: boolean;
   public focus1: boolean;
@@ -163,7 +164,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
       )
       .subscribe(events => {
         if (events) {
-          console.log('events before forEach', events);
+          // console.log('events before forEach', events);
           // important: update date objects as Firebase stores dates as unix string: 't {seconds: 0, nanoseconds: 0}'
           events.forEach((ev: CustomCalendarEvent) => {
             if (ev.start) {
@@ -339,8 +340,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
     //   return;
     // }
     this.createEvent(event.date);
-    this.fillEndTimes(event);
     this.fillStartTimes(event);
+    this.fillEndTimes(event);
   }
   toTimeStampFromStr(strDate: string): number {
     return Date.parse(strDate) / 1000;
@@ -490,29 +491,52 @@ export class CalendarComponent implements OnInit, OnDestroy {
     this.activeEventForm.reset();
   }
 
-  async onCancelEvent() {
+  async onCancelEvent(id?: string) {
+    if (!id) {
+      this.cancelling = true;
 
-    this.cancelling = true;
+      // cancel the event
+      const request: CancelCoachSessionRequest = {
+        eventId: this.activeEvent.id,
+        cancelledById: this.userId
+      };
+      const res = await this.cloudFunctionsService.cancelCoachSession(request) as any;
 
-    // cancel the event
-    const request: CancelCoachSessionRequest = {
-      eventId: this.activeEvent.id,
-      cancelledById: this.userId
-    };
-    const res = await this.cloudFunctionsService.cancelCoachSession(request) as any;
+      if (res.error) { // error
+        this.cancelling = false;
+        this.alertService.alert('warning-message', 'Oops', `Error: ${JSON.stringify(res.error)}. Please contact hello@lifecoach.io for support.`);
+      }
 
-    if (res.error) { // error
+      // success
+
       this.cancelling = false;
-      this.alertService.alert('warning-message', 'Oops', `Error: ${JSON.stringify(res.error)}. Please contact hello@lifecoach.io for support.`);
+      this.cancelEventModal.hide();
+      this.activeEvent = null;
+      this.activeEventForm.reset();
+      // this.analyticsService.cancelCoachSession(this.activeEvent.type, this.activeEvent.id, this.userId);
+    } else {
+      this.cancelling = true;
+
+      // cancel the event
+      const request: CancelCoachSessionRequest = {
+        eventId: id,
+        cancelledById: this.userId
+      };
+      const res = await this.cloudFunctionsService.cancelCoachSession(request) as any;
+
+      if (res.error) { // error
+        console.log(res.error);
+        this.cancelling = false;
+        this.alertService.alert('warning-message', 'Oops', `Error: ${JSON.stringify(res.error)}. Please contact hello@lifecoach.io for support.`);
+      }
+
+      // success
+
+      this.cancelling = false;
+      this.cancelEventModal.hide();
+      this.activeEvent = null;
+      this.activeEventForm.reset();
     }
-
-    // success
-
-    this.cancelling = false;
-    this.cancelEventModal.hide();
-    this.activeEvent = null;
-    this.activeEventForm.reset();
-    this.analyticsService.cancelCoachSession(this.activeEvent.type, this.activeEvent.id, this.userId);
   }
 
   isTheSameDay(a: Date, b: Date): boolean {
@@ -541,12 +565,12 @@ export class CalendarComponent implements OnInit, OnDestroy {
           orderedById: null,
           cssClass: 'available',
         };
-        console.log(ev);
+        // console.log(ev);
         result.push(ev);
         expireTime += this.sessionDuration * 60000 + this.breakDuration * 60000;
       }
     } else {
-      console.log('соло ивент');
+      // console.log('Not array of events');
       result.push({
         ...ob,
         end: new Date(ob.end.getTime() - this.breakDuration * 60000),
@@ -560,6 +584,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
     }
     return result;
   }
+
   onUpdateEvent() {
     this.saveAttempt = true;
     this.saving = true;
@@ -597,6 +622,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
         .filter( item => this.isTheSameDay(item.start, ev.start))
         : undefined;
     console.log(thisDayEvents);
+    console.log(ev);
     let error = false;
     if (thisDayEvents.length) {
       // tslint:disable-next-line: prefer-for-of
@@ -609,10 +635,9 @@ export class CalendarComponent implements OnInit, OnDestroy {
         }
 
       }
+
     }
     if (error) {
-      // TODO: It will be better to do a Modal with warning;
-      // alert('Choose other date!'); // TODO: Modal
       this.saving = false;
       this.alertService.alert('warning-message', 'Oops', 'Please, choose another time that does not cross another event in your calendar.');
       return;
@@ -652,6 +677,21 @@ export class CalendarComponent implements OnInit, OnDestroy {
     // reset the active event
     this.activeEvent = null;
     this.activeEventForm.reset();
+
+    // if this is rescheduling - we should close it
+    if (this.rescheduleEventModal.isShown) {
+      this.rescheduleEventModal.hide();
+    }
+
+    // check if that rescheduling
+    if (this.oldEventID) {
+      this.onCancelEvent(this.oldEventID)
+        .then( () => {
+          console.log('previous event succesfully deleted');
+          this.oldEventID = undefined;
+        })
+        .catch(e => console.log(e));
+    }
   }
 
   eventNotification( ev: any ) {
@@ -707,6 +747,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
     } while (startDate <= endDate);
 
     this.loadActiveEventFormData();
+    this.oldEventID = this.activeEventF.id.value;
+    console.log(this.oldEventID);
     const timeNow =  new Date();
     timeNow.setHours(0, 0, 0, 0);
     if ( this.activeEventF.start < timeNow) {
@@ -718,7 +760,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
     }
 
     console.log('active event:', this.activeEvent);
-    console.log('active event FORM', this.activeEventF);
+    // console.log('active event FORM', this.activeEventF);
     // this.bsInlineValue = this.activeEventF.start.value;
     this.bsInlineValue = new Date();
     this.rescheduleEventModal.show();
@@ -726,7 +768,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
 
   onRescheduleDayChange(ev: Date) {
 
-    console.log('reschedule date changed:', ev);
+    // console.log('reschedule date changed:', ev);
     if (this.isTheSameDay(ev, new Date())) {
       this.fillStartTimes({date: ev});
       // this.fillEndTimes({ date: ev}, true);
@@ -794,9 +836,9 @@ export class CalendarComponent implements OnInit, OnDestroy {
   }
 
   fillStartTimes(event: any) {
-    console.log('eventetete', event);
+    // console.log('eventetete', event);
     this.startTimes = [];
-    console.log('EVENT', event);
+    // console.log('EVENT', event);
     const oldTime: Date = event.date instanceof Date ? event.date : event.date.value ;
     let newTime = new Date(oldTime);
     this.startTimes = [oldTime, ...this.startTimes];
@@ -804,14 +846,14 @@ export class CalendarComponent implements OnInit, OnDestroy {
     while ( isOneDay ) {
       // newTime = new Date(newTime.setMinutes(newTime.getMinutes() + this.sessionDuration));
       newTime = new Date(newTime.getTime() + this.sessionDuration * 60000);
-      console.log(newTime + '\n');
+      // console.log(newTime + '\n');
       if (newTime.getDay() !== oldTime.getDay()) {
         console.log('BREAKED');
         isOneDay = false;
       }
       this.startTimes =  [...this.startTimes, newTime ];
     }
-    console.log('This,startTimes', this.startTimes);
+    // console.log('This,startTimes', this.startTimes);
     this.activeEventForm.patchValue({
       start: this.startTimes[0]
     });
