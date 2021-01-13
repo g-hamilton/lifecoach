@@ -28,7 +28,7 @@ export class AppComponent implements OnInit {
       const ua = this.request.headers['user-agent'];
       console.log('User Agent\n', ua);
       let browserName = '';
-      if (/MSIE (\d+\.\d+);/.test(ua) || (ua.lastIndexOf('Trident/') && ua.lastIndexOf('Edg/') > 0 )) {
+      if (/Trident\/|MSIE/.test(ua)) {
         browserName = 'IE';
       } else if (/Firefox[\/\s](\d+\.\d+)/.test(ua)) {
         browserName = 'Firefox';
