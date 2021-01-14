@@ -4393,8 +4393,7 @@ exports.uploadCourseImage = functions
     const uploadingPromises = [];
 
 
-    // const bucketName = 'livecoach-dev.appspot.com'; // dev
-    const bucketName = 'lifecoach-6ab28.appspot.com'; // prod
+    const bucketName = functions.config().bucket.name;
     const generateRandomImgID = () => Math.random().toString(36).substr(2, 9);
     const imgId = generateRandomImgID(); // imgId in cloud storage
     const path = `users/${data.uid}/coursePics/${imgId}`; // test jpg but we can save it as original
@@ -4494,8 +4493,7 @@ exports.uploadUserAvatar = functions
   .runWith({memory: '1GB', timeoutSeconds: 300})
   .https
   .onCall(async (data: any, context?)=> {
-    // const bucketName = 'livecoach-dev.appspot.com'; // dev
-    const bucketName = 'lifecoach-6ab28.appspot.com'; // prod
+    const bucketName = functions.config().bucket.name;
     const generateRandomImgID = () => Math.random().toString(36).substr(2, 9);
     const imgId = generateRandomImgID(); // imgId in cloud storage
     const path = `users/${data.uid}/profilePics/${imgId}`; // test jpg but we can save it as original
@@ -4597,8 +4595,7 @@ exports.uploadProgramImage = functions
   .https
   .onCall(async (data: any, context?) => { // uid: string, img: string
 
-    // const bucketName = 'livecoach-dev.appspot.com'; // dev
-    const bucketName = 'lifecoach-6ab28.appspot.com'; // prod
+    const bucketName = functions.config().bucket.name;
     const generateRandomImgID = () => Math.random().toString(36).substr(2, 9);
     const imgId = generateRandomImgID(); // imgId in cloud storage
     const path = `users/${data.uid}/programImages/${imgId}`; // test jpg but we can save it as original
