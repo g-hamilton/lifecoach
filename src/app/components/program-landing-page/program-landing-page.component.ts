@@ -32,7 +32,7 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
   public focus2Touched: boolean;
 
   public titleMinLength = 10;
-  public titleMaxLength = 40;
+  public titleMaxLength = 60;
   public titleActualLength = 0;
 
   public subTitleMinLength = 20;
