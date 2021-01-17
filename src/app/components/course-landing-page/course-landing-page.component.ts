@@ -171,9 +171,9 @@ export class CourseLandingPageComponent implements OnInit, OnChanges, AfterViewI
       subject: this.course.subject ? this.course.subject : '',
       mainImage: this.course.image ? this.course.image : null,
       promoVideo: this.course.promoVideo ? this.course.promoVideo : null,
-      learningPoints: this.course.learningPoints ? this.loadLpoints() : this.formBuilder.array([new FormControl('', Validators.maxLength(this.learningPointsMaxLength))], Validators.maxLength(this.learningPointsMax)),
-      requirements: this.course.requirements ? this.loadRequirements() : this.formBuilder.array([new FormControl('', Validators.maxLength(this.requirementsMaxLength))], Validators.maxLength(this.requirementsMax)),
-      targets: this.course.targets ? this.loadTargets() : this.formBuilder.array([new FormControl('', Validators.maxLength(this.targetsMaxLength))], Validators.maxLength(this.targetsMax)),
+      learningPoints: this.course.learningPoints ? this.loadLpoints() : this.formBuilder.array([], Validators.maxLength(this.learningPointsMax)),
+      requirements: this.course.requirements ? this.loadRequirements() : this.formBuilder.array([], Validators.maxLength(this.requirementsMax)),
+      targets: this.course.targets ? this.loadTargets() : this.formBuilder.array([], Validators.maxLength(this.targetsMax)),
       // field below should replace image field in future
       imagePaths: this.course.imagePaths ? this.course.imagePaths : null
     });
@@ -203,6 +203,10 @@ export class CourseLandingPageComponent implements OnInit, OnChanges, AfterViewI
     this.landingF.learningPoints.value.controls.push(control);
   }
 
+  deleteLearningPoint(index: number) {
+    this.landingF.learningPoints.value.controls.splice(index, 1);
+  }
+
   loadRequirements() {
     const reqArray = this.formBuilder.array([], Validators.maxLength(this.requirementsMax));
     this.course.requirements.forEach(req => {
@@ -216,6 +220,10 @@ export class CourseLandingPageComponent implements OnInit, OnChanges, AfterViewI
     this.landingF.requirements.value.controls.push(control);
   }
 
+  deleteRequirement(index: number) {
+    this.landingF.requirements.value.controls.splice(index, 1);
+  }
+
   loadTargets() {
     const targetArray = this.formBuilder.array([], Validators.maxLength(this.targetsMax));
     this.course.targets.forEach(target => {
@@ -227,6 +235,10 @@ export class CourseLandingPageComponent implements OnInit, OnChanges, AfterViewI
   addTarget() {
     const control = new FormControl('', Validators.maxLength(this.targetsMaxLength));
     this.landingF.targets.value.controls.push(control);
+  }
+
+  deleteTarget(index: number) {
+    this.landingF.targets.value.controls.splice(index, 1);
   }
 
   get landingF(): any {
