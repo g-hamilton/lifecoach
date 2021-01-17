@@ -479,7 +479,7 @@
               
                         <ul class=" list-group">
                           <li class=" list-group-item">Buy the full program</li>
-                          <li class=" list-group-item text-danger">Save {{ ((program.fullPrice / (program.numSessions * program.pricePerSession)) * 100).toFixed() }}%</li>
+                          <li class=" list-group-item text-danger">Save {{ calcDiscount() }}%</li>
                         </ul>
                         <div class=" card-prices pl-3 pr-3">
                           <h3 class=" text-on-front">{{ currencySymbol + displayFullPrice }}</h3>

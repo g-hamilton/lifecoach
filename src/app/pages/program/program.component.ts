@@ -678,6 +678,22 @@ export class ProgramComponent implements OnInit, OnDestroy {
       .subscribe(() => this.router.navigate(['/reserved-sessions']));
   }
 
+  calcDiscount() {
+    if (!this.program.fullPrice) {
+      return 0;
+    }
+    if (!this.program.numSessions) {
+      return 0;
+    }
+    if (!this.program.pricePerSession) {
+      return 0;
+    }
+    if ((this.program.numSessions * this.program.pricePerSession) <= this.program.fullPrice) {
+      return 0;
+    }
+    return (100 - (this.program.fullPrice / (this.program.numSessions * this.program.pricePerSession)) * 100).toFixed();
+  }
+
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
 
