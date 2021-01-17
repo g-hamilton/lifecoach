@@ -162,9 +162,9 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
       subject: this.program.subject ? this.program.subject : '',
       image: this.program.image ? this.program.image : null,
       promoVideo: this.program.promoVideo ? this.program.promoVideo : null,
-      learningPoints: this.program.learningPoints ? this.loadLpoints() : this.formBuilder.array([new FormControl('', Validators.maxLength(this.learningPointsMaxLength))], Validators.maxLength(this.learningPointsMax)),
-      requirements: this.program.requirements ? this.loadRequirements() : this.formBuilder.array([new FormControl('', Validators.maxLength(this.requirementsMaxLength))], Validators.maxLength(this.requirementsMax)),
-      targets: this.program.targets ? this.loadTargets() : this.formBuilder.array([new FormControl('', Validators.maxLength(this.targetsMaxLength))], Validators.maxLength(this.targetsMax))
+      learningPoints: this.program.learningPoints ? this.loadLpoints() : this.formBuilder.array([], Validators.maxLength(this.learningPointsMax)),
+      requirements: this.program.requirements ? this.loadRequirements() : this.formBuilder.array([], Validators.maxLength(this.requirementsMax)),
+      targets: this.program.targets ? this.loadTargets() : this.formBuilder.array([], Validators.maxLength(this.targetsMax))
     });
     // init the character counts (before user input detected)
     this.titleActualLength = this.landingF.title.value.length;
@@ -185,6 +185,10 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
     this.landingF.learningPoints.value.controls.push(control);
   }
 
+  deleteLearningPoint(index: number) {
+    this.landingF.learningPoints.value.controls.splice(index, 1);
+  }
+
   loadRequirements() {
     const reqArray = this.formBuilder.array([], Validators.maxLength(this.requirementsMax));
     this.program.requirements.forEach(req => {
@@ -198,6 +202,10 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
     this.landingF.requirements.value.controls.push(control);
   }
 
+  deleteRequirement(index: number) {
+    this.landingF.requirements.value.controls.splice(index, 1);
+  }
+
   loadTargets() {
     const targetArray = this.formBuilder.array([], Validators.maxLength(this.targetsMax));
     this.program.targets.forEach(target => {
@@ -209,6 +217,10 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
   addTarget() {
     const control = new FormControl('', Validators.maxLength(this.targetsMaxLength));
     this.landingF.targets.value.controls.push(control);
+  }
+
+  deleteTarget(index: number) {
+    this.landingF.targets.value.controls.splice(index, 1);
   }
 
   get landingF(): any {
