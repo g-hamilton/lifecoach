@@ -30,11 +30,6 @@
                                 <h4 class="card-title"> {{ service.title }} </h4>
                                 <h6 class="card-subtitle mb-2 text-muted"> {{ service.subtitle }} </h6>
 
-                                <span
-                                *ngIf="service.serviceType === 'live 1:1'"
-                                class=" badge badge-primary mt-3">
-                                    <i class="far fa-comments"></i> Live 1:1 Session
-                                </span>
 
                                 <p class=" mt-3" [innerHTML]="service.description"></p>
 

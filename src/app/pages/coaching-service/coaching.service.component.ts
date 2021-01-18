@@ -44,7 +44,7 @@ export class CoachingServiceComponent implements OnInit {
 
   getServiceData() {
     this.loading = true;
-    this.dataService.getPublicCoachServiceById(this.serviceId).pipe(first()).subscribe(service => {
+    this.dataService.getPublicService(this.serviceId).pipe(first()).subscribe(service => {
       if (service) {
         this.service = service;
         console.log(this.service);

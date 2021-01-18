@@ -125,6 +125,12 @@ import { ProgramBotlinksComponent } from './program-botlinks/program-botlinks.co
 import { CoachInviteComponent } from './coach-invite/coach-invite.component';
 import { ScheduleCallComponent } from './schedule-call/schedule-call.component';
 import { SessionManagerComponent } from './session-manager/session-manager.component';
+import { NewServiceComponent } from './new-service/new-service.component';
+import { ServiceLandingPageComponent } from './service-landing-page/service-landing-page.component';
+import { ServiceOutlineComponent } from './service-outline/service-outline.component';
+import { ServiceSubmitComponent } from './service-submit/service-submit.component';
+import { ServicePromoteComponent } from './service-promote/service-promote.component';
+import { ServiceMoreComponent } from './service-more/service-more.component';
 
 export function momentAdapterFactory() {
   return adapterFactory(moment);
@@ -253,7 +259,13 @@ export function momentAdapterFactory() {
     ProgramBotlinksComponent,
     CoachInviteComponent,
     ScheduleCallComponent,
-    SessionManagerComponent
+    SessionManagerComponent,
+    NewServiceComponent,
+    ServiceLandingPageComponent,
+    ServiceOutlineComponent,
+    ServiceSubmitComponent,
+    ServicePromoteComponent,
+    ServiceMoreComponent
   ],
   exports: [
     TabsModule,
@@ -361,7 +373,13 @@ export function momentAdapterFactory() {
     BsDropdownModule,
     CoachInviteComponent,
     ScheduleCallComponent,
-    SessionManagerComponent
+    SessionManagerComponent,
+    NewServiceComponent,
+    ServiceLandingPageComponent,
+    ServiceOutlineComponent,
+    ServiceSubmitComponent,
+    ServicePromoteComponent,
+    ServiceMoreComponent
   ],
   entryComponents: [
     SessionManagerComponent,

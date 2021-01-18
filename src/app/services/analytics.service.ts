@@ -312,6 +312,26 @@ export class AnalyticsService {
     mixpanel.track('saved service');
   }
 
+  editServiceOutline() {
+    mixpanel.track('Edited service outline');
+  }
+
+  editServiceLanding() {
+    mixpanel.track('Edited service landing page');
+  }
+
+  startServicePromoVideoUpload() {
+    mixpanel.track('started service promotional video upload');
+  }
+
+  completeServicePromoVideoUpload() {
+    mixpanel.track('completed service promotional video upload');
+  }
+
+  submitServiceForReview() {
+    mixpanel.track('Submitted service for review');
+  }
+
   clickCreateProgram() {
     mixpanel.track('clicked create program');
   }

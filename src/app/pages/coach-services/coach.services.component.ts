@@ -199,7 +199,7 @@ export class CoachServicesComponent implements OnInit, OnDestroy {
 
           // check coach services
           this.subscriptions.add(
-            this.dataService.getCoachServices(this.userId).subscribe(services => {
+            this.dataService.getPrivateServices(this.userId).subscribe(services => {
               if (services) {
                 this.publishedServices = services;
               }
