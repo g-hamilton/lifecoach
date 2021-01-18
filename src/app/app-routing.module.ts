@@ -247,12 +247,12 @@ const routes: Routes = [
         pathMatch: 'full'
       },
       {
-        path: 'services/new',
+        path: 'my-services/new-service',
         loadChildren: () => import('./pages/edit-coach-service/edit.coach.service.module').then(m => m.EditCoachServiceModule),
         pathMatch: 'full'
       },
       {
-        path: 'services/:id/edit',
+        path: 'my-services/:serviceId/content',
         loadChildren: () => import('./pages/edit-coach-service/edit.coach.service.module').then(m => m.EditCoachServiceModule),
         pathMatch: 'full'
       },

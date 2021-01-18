@@ -864,13 +864,13 @@ export class DataService {
 
   saveCoachService(uid: string, service: CoachingService) {
     return this.db.collection(`users/${uid}/services`)
-      .doc(service.id)
+      .doc(service.serviceId)
       .set(service, {merge: true});
   }
 
   getCoachServices(uid: string) {
     return this.db.collection(`users/${uid}/services`)
-      .valueChanges({idField: 'id'}) as Observable<CoachingService[]>;
+      .valueChanges() as Observable<CoachingService[]>;
   }
 
   getCoachServiceById(uid: string, serviceId: string) {

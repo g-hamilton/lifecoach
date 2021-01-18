@@ -50,8 +50,8 @@ export class EditCoachServiceComponent implements OnInit, AfterViewInit, OnDestr
   private baseMinPrice = 1;
   private baseMaxPrice = 10000;
   private baseCurrency = 'GBP';
-  private minPrice: number;
-  private maxPrice: number;
+  private minPrice = 1;
+  private maxPrice = 10000;
 
   public errorMessages = {
     title: {
@@ -185,14 +185,10 @@ export class EditCoachServiceComponent implements OnInit, AfterViewInit, OnDestr
 
           // patch service data into form data
           this.serviceForm.patchValue({
-            id: service.id,
-            coachUid: service.coachUid,
+            id: service.serviceId,
+            coachUid: service.sellerUid,
             title: service.title,
             subtitle: service.subtitle,
-            duration: service.duration,
-            serviceType: service.serviceType,
-            pricingStrategy: service.pricingStrategy,
-            price: service.price,
             currency: service.currency,
             image: service.image,
             description: service.description
@@ -330,13 +326,12 @@ export class EditCoachServiceComponent implements OnInit, AfterViewInit, OnDestr
 
     // if this is a new service
     if (this.isNewService) {
-      if (!service.id) {
-        service.id = Math.random().toString(36).substr(2, 9); // generate semi-random id
+      if (!service.serviceId) {
+        service.serviceId = Math.random().toString(36).substr(2, 9); // generate semi-random id
       }
-      if (!service.coachUid) {
-        service.coachUid = this.userId;
+      if (!service.sellerUid) {
+        service.sellerUid = this.userId;
       }
-      this.analyticsService.addNewCoachingService(service.id);
     }
 
     // save to DB
@@ -344,7 +339,7 @@ export class EditCoachServiceComponent implements OnInit, AfterViewInit, OnDestr
 
     this.alertService.alert('auto-close', 'Success!', 'Service saved.');
 
-    this.analyticsService.updateCoachingService(service.id);
+    this.analyticsService.saveService();
 
     this.saving = false;
 

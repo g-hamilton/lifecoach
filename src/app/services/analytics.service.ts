@@ -304,16 +304,12 @@ export class AnalyticsService {
     });
   }
 
-  addNewCoachingService(serviceId: string) {
-    mixpanel.track('added new coaching service', {
-      serviceId
-    });
+  clickCreateService() {
+    mixpanel.track('clicked create service');
   }
 
-  updateCoachingService(serviceId: string) {
-    mixpanel.track('updated coaching service', {
-      serviceId
-    });
+  saveService() {
+    mixpanel.track('saved service');
   }
 
   clickCreateProgram() {

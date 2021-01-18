@@ -22,7 +22,7 @@ export class CoachServicesComponent implements OnInit, OnDestroy {
   private userId: string;
   public publishedPrograms: CoachingProgram[]; // programs created as coach
   public publishedCourses: CoachingCourse[]; // ecourses created as coach
-  public publishedServices: CoachingService[]; // TODO
+  public publishedServices: CoachingService[]; // services created as coach
   private subscriptions: Subscription = new Subscription();
   public objKeys = Object.keys;
   public currencies: any;
@@ -220,8 +220,9 @@ export class CoachServicesComponent implements OnInit, OnDestroy {
     this.router.navigate(['my-courses', 'new-course']); // navigate to new course page
   }
 
-  onAddCoachingService() {
-    //
+  async createService() {
+    this.analyticsService.clickCreateService();
+    this.router.navigate(['my-services', 'new-service']); // navigate to new service page
   }
 
   ngOnDestroy() {
