@@ -131,6 +131,8 @@ import { ServiceOutlineComponent } from './service-outline/service-outline.compo
 import { ServiceSubmitComponent } from './service-submit/service-submit.component';
 import { ServicePromoteComponent } from './service-promote/service-promote.component';
 import { ServiceMoreComponent } from './service-more/service-more.component';
+import { ServicePromoVideoUploaderComponent } from './service-promo-video-uploader/service-promo-video-uploader.component';
+import { ServicePromoVideoUploadTaskComponent } from './service-promo-video-upload-task/service-promo-video-upload-task.component';
 
 export function momentAdapterFactory() {
   return adapterFactory(moment);
@@ -265,7 +267,9 @@ export function momentAdapterFactory() {
     ServiceOutlineComponent,
     ServiceSubmitComponent,
     ServicePromoteComponent,
-    ServiceMoreComponent
+    ServiceMoreComponent,
+    ServicePromoVideoUploaderComponent,
+    ServicePromoVideoUploadTaskComponent
   ],
   exports: [
     TabsModule,

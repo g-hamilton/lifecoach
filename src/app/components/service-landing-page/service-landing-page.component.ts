@@ -82,9 +82,6 @@ export class ServiceLandingPageComponent implements OnInit, OnChanges, OnDestroy
     category: {
       required: 'Please select the closest matching service category.'
     },
-    level: {
-      required: 'Please select an appropriate level for your service.'
-    },
     subject: {
       minlength: `This summary should be at least ${this.subjectMinLength} characters.`,
       maxlength: `This summary should be at less than ${this.subjectMaxLength} characters.`,
@@ -140,7 +137,6 @@ export class ServiceLandingPageComponent implements OnInit, OnChanges, OnDestroy
       description: ['', [Validators.required]],
       language: [null, [Validators.required]],
       category: [null, [Validators.required]],
-      level: [null, [Validators.required]],
       subject: ['', [Validators.required, Validators.minLength(this.subjectMinLength), Validators.maxLength(this.subjectMaxLength)]],
       image: [null],
       promoVideo: [null],
@@ -158,7 +154,6 @@ export class ServiceLandingPageComponent implements OnInit, OnChanges, OnDestroy
       description: this.service.description ? this.service.description : '',
       language: this.service.language ? this.service.language : 'en',
       category: this.service.category ? this.service.category : null,
-      level: this.service.level ? this.service.level : null,
       subject: this.service.subject ? this.service.subject : '',
       image: this.service.image ? this.service.image : null,
       promoVideo: this.service.promoVideo ? this.service.promoVideo : null,
@@ -325,7 +320,6 @@ export class ServiceLandingPageComponent implements OnInit, OnChanges, OnDestroy
     this.service.description = this.landingF.description.value;
     this.service.language = this.landingF.language.value;
     this.service.category = this.landingF.category.value;
-    this.service.level = this.landingF.level.value;
     this.service.subject = this.landingF.subject.value;
     this.service.image = this.landingF.image.value;
     this.service.promoVideo = this.landingF.promoVideo.value;
