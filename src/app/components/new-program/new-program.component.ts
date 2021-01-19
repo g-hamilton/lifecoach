@@ -26,7 +26,7 @@ export class NewProgramComponent implements OnInit, OnChanges, OnDestroy {
   public focus: boolean;
   public focusTouched: boolean;
   public titleMinLength = 10;
-  public titleMaxLength = 40;
+  public titleMaxLength = 60;
   public titleActualLength = 0;
 
   public errorMessages = {
