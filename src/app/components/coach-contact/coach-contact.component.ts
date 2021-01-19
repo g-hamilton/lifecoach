@@ -125,11 +125,11 @@ export class CoachContactComponent implements OnInit, OnDestroy {
         if (res.success) {
           this.submitted = false;
           await this.alertService.alert('success-message', 'Success!', `
-          Message sent successfully! 
-          If this Coach takes a little while to respond, we'll send you an email as soon as they reply. 
-          Be sure to add 'hello@lifecoach.io' to the list of trusted email senders in your email program.`);
+          Message sent successfully!
+          If this Coach takes a little while to respond, we'll send you an email as soon as they reply.
+          Be sure to add 'hello@lifecoach.io' to your address book so that you don't miss any important emails.`);
           this.resetForm();
-          this.router.navigate(['/messages'])
+          this.router.navigate(['/messages']);
         } else if (res.error) {
           this.submitted = false;
           await this.alertService.alert('warning-message', 'Oops', `
@@ -158,9 +158,9 @@ export class CoachContactComponent implements OnInit, OnDestroy {
       if (res.success) { // message sent successfully
         this.submitted = false;
         await this.alertService.alert('success-message', 'Success!', `
-        Message sent successfully! 
-        If this Coach takes a little while to respond, we'll send you an email as soon as they reply. 
-          Be sure to add 'hello@lifecoach.io' to the list of trusted email senders in your email program.`);
+        Message sent successfully!
+        If this Coach takes a little while to respond, we'll send you an email as soon as they reply.
+        Be sure to add 'hello@lifecoach.io' to your address book so that you don't miss any important emails.`);
         this.resetForm();
         this.router.navigate(['/messages']);
       } else if (res.error) { // error sending message

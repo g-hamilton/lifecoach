@@ -1,1 +1,120 @@
-<p>service-submit works!</p>
+<!-- Loading spinner -->
+<div *ngIf="!service" class="text-center">
+    <div class="spinner-border" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+</div>
+
+<!-- service loaded -->
+<div *ngIf="service" class=" card">
+    <div class=" card-body">
+        <div class=" mb-3">
+
+            <h5>Service Review
+                <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001170643-help-with-the-service-review-process" target="_blank">
+                    <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> Help with the service review process </span>
+                </a>
+            </h5>
+
+            <p class=" small text-muted pl-2 mb-2">
+                <i class="fas fa-info-circle"></i> Be sure to add 'hello@lifecoach.io' to your address book  
+                so that you don't miss any important status update emails. Failure to do this may result in important emails 
+                ending up in your junk mail folder.
+            </p>
+
+            <div class=" mt-4">
+                <div class=" pl-2">
+                    <label> Service Status </label>
+                    <span *ngIf="service.reviewRequest?.status === 'submitted'" class=" text-info"> Submitted for review: {{ getDisplayDate(service.reviewRequest.requested) }} </span>
+                    <div *ngIf="service.reviewRequest?.status === 'approved'">
+                        <span class=" text-success"> Approved: {{ getDisplayDate(service.reviewRequest.requested) }} </span>
+                        - Published.
+                    </div>
+                    <div *ngIf="!service.reviewRequest && serviceForm.invalid" class=" text-warning">
+                        In draft
+                    </div>
+                    <div *ngIf="!service.reviewRequest && serviceForm.valid" class=" text-warning">
+                        In draft - Ready to submit for review
+                    </div>
+                    <div *ngIf="service.reviewRequest?.status === 'rejected'">
+                        <span class=" text-danger"> Needs action </span>
+                        - Our Quality Team noticed the following issue(s) with your service:
+                        <div class=" row highlight-box">
+                            <div class=" col">
+                                {{ service.reviewRequest.rejectData.reason }}
+                            </div>
+                        </div>
+                        <div>
+                            <strong>Important:</strong> Please only re-submit your service when you have read through the issues above carefully and actioned any
+                            recommended changes appropriately.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advise user of any issues that prevent submission for review -->
+            <div class=" mt-4" *ngIf="serviceForm.invalid">
+                <div class="">
+                    <label> <i class="tim-icons icon-alert-circle-exc text-danger ml-2"> </i>
+                        Please fix the following issues before you can submit this service for review: 
+                    </label>
+                    <ul class=" mt-3 small">
+                        <!-- Profile items -->
+                        <li *ngIf="!service.coachName || !service.coachPhoto">
+                            Services require a public coach profile. Please visit the 'Profile' tab now to 
+                            complete your coach profile.
+                        </li>
+                        <!-- Stripe items -->
+                        <li *ngIf="!service.stripeId">
+                            In order to accept paid bookings, you must enable your coach payout account. Visit 
+                            the 'Account' tab and select 'Payout Settings' to enable your payout account.
+                        </li>
+                        <!-- landing page items -->
+                        <li *ngIf="!service.title">
+                            Service title is missing
+                        </li>
+                        <li *ngIf="!service.subtitle">
+                            Service subtitle is missing
+                        </li>
+                        <li *ngIf="!service.description">
+                            Service description is missing
+                        </li>
+                        <li *ngIf="!service.language">
+                            Service language is missing
+                        </li>
+                        <li *ngIf="!service.category">
+                            Service category is missing
+                        </li>
+                        <li *ngIf="!service.subject">
+                            Service primary subject is missing
+                        </li>
+                        <li *ngIf="!service.currency">
+                            Service currency is missing
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Submit button -->
+            <div class=" pull-right">
+                <button
+                type="button"
+                class=" btn btn-primary btn-round btn-fill mt-4"
+                (click)="onSubmit()"
+                [disabled]="serviceForm.invalid || service.reviewRequest && service.reviewRequest.status === 'submitted' ||
+                service.reviewRequest && service.reviewRequest.status === 'in-review' || 
+                service.reviewRequest && service.reviewRequest.status === 'approved'">
+                    <span *ngIf="!requesting">
+                        <i class="fas fa-flag-checkered"></i>
+                      </span>
+                      <span
+                      *ngIf="requesting"
+                      class="spinner-border spinner-border-sm"
+                      role="status"
+                      ></span> {{ requesting ? 'Submitting...' : service.reviewRequest?.status === 'rejected' ? 'Re-submit Service' : 'Submit Service'}}
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
