@@ -4690,6 +4690,30 @@ exports.uploadProgramImage = functions
       return {err: e.message};
     }
   });
+
+//admin resizing function
+
+exports.resizeProfileAvatars = functions
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
+  .onCall(async (data?: any, context?) => { // uid: string, img: string
+  try {
+    const cfg = JSON.parse(data);
+    const bucketName = functions.config().bucket.name;
+
+    const [files, nextQuery, apiResponse] = await admin.storage(firebase).bucket(bucketName).getFiles(cfg);
+
+    return {
+      result: files? files.map(i => i.name) : undefined,
+      nxt: nextQuery,
+      apiResponse: apiResponse ? apiResponse.prefixes : 'none'
+    }
+
+  } catch (e) {
+
+    return {err: e.message};
+  }
+  });
 // Image services - end
 
 // *** TEMP TEMP TEMP ***

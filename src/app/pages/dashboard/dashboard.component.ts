@@ -9,6 +9,7 @@ import { SsoService } from 'app/services/sso.service';
 
 import { UserTask } from '../../interfaces/user.tasks.interface';
 import { Subscription } from 'rxjs';
+import {CloudFunctionsService} from '../../services/cloud-functions.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -51,7 +52,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private dataService: DataService,
     private analyticsService: AnalyticsService,
     private searchService: SearchService,
-    private ssoService: SsoService
+    private ssoService: SsoService,
+    private cloudFunctions: CloudFunctionsService,
   ) {
   }
 
@@ -218,4 +220,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
+  resizeImage() {
+    console.log('Clicked');
+    this.cloudFunctions.resizeProfileAvatarsManager()
+      .then( resp => {
+        console.log('responded');
+        console.log(resp);
+      })
+      .catch( e => console.log(e));
+
+  }
 }

@@ -20,6 +20,9 @@ import { CancelCoachSessionRequest } from 'app/interfaces/cancel.coach.session.r
 })
 export class CloudFunctionsService {
 
+  nextPageToken: string;
+  uniqueUsers: any = [];
+  goNext: true | false = true;
   constructor(
     private cloudFunctions: AngularFireFunctions,
     private toastService: ToastService
@@ -546,6 +549,62 @@ export class CloudFunctionsService {
         .pipe(first())
         .subscribe(res => {
           console.log(res);
+          resolve(res);
+          tempSub.unsubscribe();
+        }, error => {
+          console.log('Getting Error', error);
+        });
+    });
+  }
+
+  async resizeProfileAvatarsManager() {
+    do {
+      await this.resizeProfileAvatars();
+    } while (this.goNext);
+    return [...new Set(this.uniqueUsers)];
+  }
+
+  resizeProfileAvatars( data?: any) {
+    const cfg: any = {
+      autoPaginate: false,
+      directory: `users/`,
+      delimiter: `/`,
+      prefix: `users/`,
+      maxResults: 1,
+      startOffset: `users/`
+    };
+
+    if (this.nextPageToken) {
+      cfg.pageToken = this.nextPageToken;
+    }
+
+    // console.log(cfg);
+    return new Promise(resolve => {
+      const trigger = this.cloudFunctions.httpsCallable('resizeProfileAvatars');
+      const tempSub = trigger(JSON.stringify(cfg)) // options
+        .pipe(first())
+        .subscribe(res => {
+          if (this.nextPageToken && res.apiResponse) {
+            this.uniqueUsers.push(res.apiResponse[0].split('/')[1]);
+          }
+          if (this.nextPageToken && !res.apiResponse) {
+            console.log('count ended. Your users:', );
+            this.goNext = false;
+          }
+          if (res.nxt) {
+            // console.log('nxt object is here');
+            this.nextPageToken = res.nxt.pageToken;
+          } else {
+            this.nextPageToken = '';
+          }
+
+
+          const files = res.result;
+          // console.log(res.result);
+          const filtered = files.filter( i => i.split('/')[1].length); // excluding directory and some files
+          const mapped = filtered.map( i => i.split('/')[1]);
+
+          // console.log('Unique users', new Set(mapped));
           resolve(res);
           tempSub.unsubscribe();
         }, error => {
