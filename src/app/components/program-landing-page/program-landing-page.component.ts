@@ -82,9 +82,6 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
     category: {
       required: 'Please select the closest matching program category.'
     },
-    level: {
-      required: 'Please select an appropriate level for your program.'
-    },
     subject: {
       minlength: `This summary should be at least ${this.subjectMinLength} characters.`,
       maxlength: `This summary should be at less than ${this.subjectMaxLength} characters.`,
@@ -140,7 +137,6 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
       description: ['', [Validators.required]],
       language: [null, [Validators.required]],
       category: [null, [Validators.required]],
-      level: [null, [Validators.required]],
       subject: ['', [Validators.required, Validators.minLength(this.subjectMinLength), Validators.maxLength(this.subjectMaxLength)]],
       image: [null],
       promoVideo: [null],
@@ -158,7 +154,6 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
       description: this.program.description ? this.program.description : '',
       language: this.program.language ? this.program.language : 'en',
       category: this.program.category ? this.program.category : null,
-      level: this.program.level ? this.program.level : null,
       subject: this.program.subject ? this.program.subject : '',
       image: this.program.image ? this.program.image : null,
       promoVideo: this.program.promoVideo ? this.program.promoVideo : null,
@@ -325,7 +320,6 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
     this.program.description = this.landingF.description.value;
     this.program.language = this.landingF.language.value;
     this.program.category = this.landingF.category.value;
-    this.program.level = this.landingF.level.value;
     this.program.subject = this.landingF.subject.value;
     this.program.image = this.landingF.image.value;
     this.program.promoVideo = this.landingF.promoVideo.value;
