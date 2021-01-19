@@ -1,1 +1,63 @@
-<p>service-promote works!</p>
+<div class=" card">
+    <div class=" card-body">
+        <!-- Promote form -->
+        <form *ngIf="promoteForm" [formGroup]="promoteForm">
+
+            <h5>Promote Your Service
+                <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001170649-help-with-promoting-your-coaching-service-through-lifecoach" target="_blank">
+                    <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> Help with promoting your service </span>
+                </a>
+            </h5>
+
+            <p class=" small text-muted pl-2 mb-2">
+                <i class="fas fa-info-circle"></i> Promote your service as widely as you can using this unique link. 
+                Clients will be able to schedule discovery calls with you and purchase your coaching sessions by following your link. 
+                You also pay a lower commission on all session purchases when you use this link.
+                    Learn more about <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001170649-help-with-promoting-your-coaching-service-through-lifecoach" target="_blank">
+                        promoting your service
+                    </a> and the <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001167919-everything-you-need-to-know-about-the-shared-payment-model" target="_blank">
+                        shared payment model
+                    </a>.
+            </p>
+
+            <!-- Referral code -->
+            <div class=" row">
+                <div class=" col">
+                    <div class=" mt-4">
+                        <div class="form-group">
+                            <label for="referral-code"> Use this link to promote your service:
+                            </label>
+                            <input #referralCode type="text" class="form-control" id="referral-code" formControlName="referralCode">
+                        </div>
+                    </div>
+                    <button 
+                    *ngIf="browser"
+                    type="button"
+                    class=" btn btn-primary btn-round btn-fill pull-right"
+                    (click)="copyReferralCode(referralCode)">
+                        Copy Link
+                    </button>
+                </div>
+            </div>
+
+            <!-- Preview service landing page -->
+            <div>
+                <div>
+                    <div *ngIf="service?.serviceId">
+                        <a
+                        [routerLink]="['/service', service.serviceId]"
+                        target="_blank">
+                            <button
+                            type="button"
+                            class="btn btn-default btn-round">
+                                <i class="fas fa-eye"></i> Preview Link Landing Page
+                            </button>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+        <!-- end promote form -->
+    </div>
+</div>
