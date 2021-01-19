@@ -77,14 +77,6 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
       this.minPrice = this.baseMinPrice;
       this.maxPrice = this.baseMaxPrice;
       this.buildOutlineForm();
-      this.subscriptions.add(
-        this.outlineForm.get('pricingStrategy').valueChanges
-          .subscribe(value => {
-            this.outlineForm.get('fullPrice').updateValueAndValidity();
-            this.outlineForm.get('pricePerSession').updateValueAndValidity();
-            this.outlineForm.get('currency').updateValueAndValidity();
-          })
-      );
       this.updateLocalPriceLimits();
     }
   }
