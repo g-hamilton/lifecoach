@@ -147,19 +147,32 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
       ], Validators.maxLength(this.pricingPointsMax)),
     );
 
-    console.log('outlineF.pricing:', this.outlineF.pricing);
+    // console.log('outlineF.pricing:', this.outlineF.pricing);
   }
 
   loadPricing() {
     const pricingArray = this.formBuilder.array([], Validators.maxLength(this.pricingPointsMax));
     console.log('service pricing from DB', this.service.pricing);
-    // this.service.pricing.forEach(price => {
-    //   pricingArray.push(
-    //     // load sessions/price group
-    //     this.formBuilder.group({
-    //       numSessions: [null, [Validators.required, Validators.min(this.minPrice), Validators.max(this.maxPrice)]]
-    //     }));
-    // });
+    Object.keys(this.service.pricing).forEach(key => {
+      if (key === '1') {
+        pricingArray.push(
+          this.formBuilder.group({
+            numSessions: [{
+              value: 1,
+              disabled: true // disable single session by default (clients must always be allowed to buy 1 session)
+            }],
+            price: [this.service.pricing[key].price, [Validators.required, Validators.min(this.minPrice), Validators.max(this.maxPrice)]]
+          })
+        );
+      } else {
+        pricingArray.push(
+          // load sessions/price group
+          this.formBuilder.group({
+            numSessions: [this.service.pricing[key].numSessions, [Validators.required, Validators.min(this.minSessions), Validators.max(this.maxSessions)]],
+            price: [this.service.pricing[key].price, [Validators.required, Validators.min(this.minPrice), Validators.max(this.maxPrice)]]
+          }));
+      }
+    });
     return pricingArray;
   }
 
@@ -205,7 +218,6 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   showError(control: string, error: string) {
-    console.log('control', control, 'error', error);
     if (this.errorMessages[control][error]) {
       return this.errorMessages[control][error];
     }
@@ -254,8 +266,6 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
 
     // console.log(this.outlineForm.value);
     console.log('Saving service:', this.service);
-
-    return;
 
     await this.dataService.savePrivateService(this.userId, this.service);
 
