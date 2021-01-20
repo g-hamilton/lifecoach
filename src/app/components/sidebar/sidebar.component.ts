@@ -216,10 +216,9 @@ export class SidebarComponent implements OnInit, OnChanges {
   constructor() {}
 
   ngOnInit() {
-    this.menuItems = ROUTES.filter(menuItem => menuItem);
   }
 
-  ngOnChanges() {
+  ngOnChanges() { // starts when props incoming (userClaims)
     // console.log('Sidebar user claims:', this.userClaims);
 
     if (this.userClaims) { // we know the type of user now
