@@ -44,12 +44,18 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
   public pricingPointsMax = 10;
 
   public errorMessages = {
-    // price: {
-    //   required: `Please set a price for this service.`,
-    //   notNumber: `Price must be a number`,
-    //   belowMin: `Please enter a price above ${this.minPrice}.`,
-    //   aboveMax: `Price enter a price below ${this.maxPrice}`
-    // }
+    price: {
+      required: `Please set a price.`,
+      notNumber: `Price must be a number`,
+      min: `Please enter a price above ${this.minPrice}.`,
+      max: `Price enter a price below ${this.maxPrice}`
+    },
+    numSessions: {
+      required: `Please set a number of sessions.`,
+      notNumber: `Must be a number`,
+      min: `Please enter a number above ${this.minSessions - 1}.`,
+      max: `Price enter a number below ${this.maxSessions}`
+    }
   };
 
   constructor(
@@ -141,7 +147,7 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
       ], Validators.maxLength(this.pricingPointsMax)),
     );
 
-    console.log('PRICING:', this.outlineF.pricing);
+    console.log('outlineF.pricing:', this.outlineF.pricing);
   }
 
   loadPricing() {
@@ -199,6 +205,7 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   showError(control: string, error: string) {
+    console.log('control', control, 'error', error);
     if (this.errorMessages[control][error]) {
       return this.errorMessages[control][error];
     }

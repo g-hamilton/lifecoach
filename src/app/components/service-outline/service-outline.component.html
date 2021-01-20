@@ -69,9 +69,9 @@
                         class="no-symbol"
                         [ngClass]="{
                             'has-danger':
-                            (( (outlineF.pricing.controls[i].touched && outlineF.pricing.controls[i].value != '') || saveAttempt) &&  
-                            outlineF.pricing.controls[i].errors),
-                            'has-success': !outlineF.pricing.controls[i].errors
+                            (( !outlineF.pricing.controls[i].controls.numSessions.pristine || saveAttempt) &&  
+                            outlineF.pricing.controls[i].controls.numSessions.errors),
+                            'has-success': !outlineF.pricing.controls[i].controls.numSessions.errors
                         }">
                             <input
                             type="number"
@@ -79,12 +79,12 @@
                             formControlName="numSessions"
                             placeholder="eg. 3">
                         </div>
-                        <div *ngIf="(( (outlineF.pricing.controls[i].touched && outlineF.pricing.controls[i].value != '') || saveAttempt) && 
-                            outlineF.pricing.controls[i].errors)">
+                        <div *ngIf="(( !outlineF.pricing.controls[i].controls.numSessions.pristine || saveAttempt) && 
+                            outlineF.pricing.controls[i].controls.numSessions.errors)">
                             <label
-                            *ngFor="let error of objKeys(outlineF.pricing.controls[i].errors)"
+                            *ngFor="let error of objKeys(outlineF.pricing.controls[i].controls.numSessions.errors)"
                             class="error custom-error-label"
-                            >{{ showError('pricing', error) }}
+                            >{{ showError('numSessions', error) }}
                             </label>
                         </div>
                     </div>
@@ -96,9 +96,9 @@
                         class="no-symbol"
                         [ngClass]="{
                             'has-danger':
-                            (( (outlineF.pricing.controls[i].touched && outlineF.pricing.controls[i].value != '') || saveAttempt) &&  
-                            outlineF.pricing.controls[i].errors),
-                            'has-success': !outlineF.pricing.controls[i].errors
+                            (( !outlineF.pricing.controls[i].controls.price.pristine || saveAttempt) &&  
+                            outlineF.pricing.controls[i].controls.price.errors),
+                            'has-success': !outlineF.pricing.controls[i].controls.price.errors
                         }">
                             <input
                             type="number"
@@ -107,12 +107,12 @@
                             [placeholder]="i === 0 ? 'eg. 39.00' : 'eg. 99.99'">
 
                         </div>
-                        <div *ngIf="(( (outlineF.pricing.controls[i].touched && outlineF.pricing.controls[i].value != '') || saveAttempt) && 
-                            outlineF.pricing.controls[i].errors)">
+                        <div *ngIf="(( !outlineF.pricing.controls[i].controls.price.pristine || saveAttempt) && 
+                            outlineF.pricing.controls[i].controls.price.errors)">
                             <label
-                            *ngFor="let error of objKeys(outlineF.pricing.controls[i].errors)"
+                            *ngFor="let error of objKeys(outlineF.pricing.controls[i].controls.price.errors)"
                             class="error custom-error-label"
-                            >{{ showError('pricing', error) }}
+                            >{{ showError('price', error) }}
                             </label>
                         </div>
                     </div>
