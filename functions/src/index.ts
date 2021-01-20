@@ -67,6 +67,8 @@ const ecourseAppFeeDecimal = 0.5; // our std application fee percentage for ecou
 const ecourseAppFeeReferralDecimal = 0.1; // our reduced ecourse app fee percentage expressed as a decimal.
 const programAppFeeDecimal = 0.05;
 const programAppFeeReferralDecimal = 0.025;
+const serviceAppFeeDecimal = 0.05;
+const serviceAppFeeReferralDecimal = 0.025;
 
 // ================================================================================
 // =====                                                                     ======
@@ -423,7 +425,7 @@ firstName: string | null, lastName: string | null) {
     batch.set(ref4, {
       id: 'taskDefault003',
       title: 'Add your products & services',
-      description: `Promote your coaching programs, take bookings, run live 1-to-1 video sessions & sell eCourses. We'll help every step of the way.`,
+      description: `Promote your bespoke coaching services & programs, take bookings, run live 1-to-1 video sessions & sell eCourses. We'll help every step of the way.`,
       action: 'coach-products-services'
     });
 
@@ -1121,7 +1123,7 @@ exports.stripeCreatePaymentIntent = functions
 .onCall( async (data, context) => {
 
   const saleItemId: string = data.saleItemId;
-  const saleItemType: 'ecourse' | 'fullProgram' | 'programSession' = data.saleItemType;
+  const saleItemType: 'ecourse' | 'fullProgram' | 'programSession' | 'service' = data.saleItemType;
   const clientPrice = Number(data.salePrice);
   const clientCurrency = (data.currency as string).toUpperCase();
   const clientUid = data.buyerUid;
@@ -1154,6 +1156,8 @@ exports.stripeCreatePaymentIntent = functions
       lookupPath = `public-courses`;
     } else if (saleItemType === 'fullProgram' || saleItemType === 'programSession') {
       lookupPath = `public-programs`;
+    } else if (saleItemType === 'service') {
+      lookupPath = `public-services`;
     }
 
     const itemSnapshot = await db.collection(lookupPath)
@@ -1166,7 +1170,7 @@ exports.stripeCreatePaymentIntent = functions
 
     const saleItem = itemSnapshot.data() as any;
 
-    // as pricing variable data differs between ecourses and programs, make sure we get the correct server side price of the sale item
+    // as pricing variable data differs between ecourses, services and programs, make sure we get the correct server side price of the sale item
     let saleItemPrice = -1;
     if (saleItemType === 'ecourse') {
       saleItemPrice = saleItem.price;
@@ -1174,6 +1178,8 @@ exports.stripeCreatePaymentIntent = functions
       saleItemPrice = saleItem.fullPrice;
     } else if (saleItemType === 'programSession') {
       saleItemPrice = saleItem.pricePerSession;
+    } else if (saleItemType === 'service') {
+      saleItemPrice = saleItem.price;
     }
 
     if (!saleItemPrice || !saleItem.currency || !saleItem.stripeId || !saleItem.sellerUid || !saleItem.title) { // valid item data must exist
@@ -1233,6 +1239,8 @@ exports.stripeCreatePaymentIntent = functions
         feeDecimal = ecourseAppFeeReferralDecimal;
       } else if (saleItemType === 'fullProgram' || saleItemType === 'programSession') {
         feeDecimal = programAppFeeReferralDecimal;
+      } else if (saleItemType === 'service') {
+        feeDecimal = serviceAppFeeReferralDecimal;
       }
     } else {
       // the seller did not refer the sale
@@ -1240,6 +1248,8 @@ exports.stripeCreatePaymentIntent = functions
         feeDecimal = ecourseAppFeeDecimal;
       } else if (saleItemType === 'fullProgram' || saleItemType === 'programSession') {
         feeDecimal = programAppFeeDecimal;
+      } else if (saleItemType === 'service') {
+        feeDecimal = serviceAppFeeDecimal;
       }
     }
     console.log('Platform fee calculated with multiplier:', feeDecimal);
@@ -1350,6 +1360,9 @@ exports.stripeWebhookEvent = functions
         } else if (saleItemType === 'fullProgram' || saleItemType === 'programSession') {
           const promise3 = recordProgramEnrollmentForClient(saleItemType, clientUid, saleItemId, paymentIntent.metadata.sale_item_title, paymentIntent.metadata.sale_item_image);
           promises.push(promise3);
+        } else if (saleItemType === 'service') {
+          const promise3 = recordServicePurchaseForClient(clientUid, saleItemId, paymentIntent.metadata.sale_item_title, paymentIntent.metadata.sale_item_image);
+          promises.push(promise3);
         }
 
         return Promise.all(promises);
@@ -1419,12 +1432,20 @@ exports.stripeWebhookEvent = functions
             const promise2 = updateCourseEnrollmentCounts(originalSellerUid, originalSaleItemId, customTransferObj, originalClientUid);
             promises.concat(await promise2)
 
-            // if the transfer is related to a program sale (full program or single session purchase)
+          // if the transfer is related to a program sale (full program or single session purchase)
           } else if (originalSaleItemType === 'fullProgram' || originalSaleItemType === 'programSession') {
             const promise1 = recordProgramEnrollmentForCreator(originalSaleItemType, originalSellerUid, originalSaleItemId, customTransferObj, originalClientUid, originalSaleItemTitle, originalSaleItemImage, originalNumSessions);
             promises.push(promise1);
 
             const promise2 = updateProgramEnrollmentCounts(originalSellerUid, originalSaleItemId, customTransferObj, originalClientUid);
+            promises.concat(await promise2)
+
+          // if the transfer is related to a service sale
+          } else if (originalSaleItemType === 'service') {
+            const promise1 = recordServicePurchaseForCreator(originalSellerUid, originalSaleItemId, customTransferObj, originalClientUid, originalSaleItemTitle, originalSaleItemImage, originalNumSessions);
+            promises.push(promise1);
+
+            const promise2 = updateServiceEnrollmentCounts(originalSellerUid, originalSaleItemId, customTransferObj, originalClientUid);
             promises.concat(await promise2)
           }
 
@@ -1845,6 +1866,148 @@ async function updateProgramEnrollmentCounts(creatorUid: string, programId:strin
 }
 
 // ================================================================================
+// =====                      SERVICE PURCHASE FUNCTIONS                     ======
+// ================================================================================
+
+async function recordServicePurchaseForCreator(sellerUid: string, serviceId: string, obj: any, clientUid: string, serviceTitle: string, serviceImg: string, numSessions: string) {
+  // Save the custom transfer object to the seller account to record the enrollment
+
+  const saleDate = new Date(obj.created * 1000);
+  const saleMonth = saleDate.getMonth() + 1; // go from zero index to jan === 1
+  const saleYear = saleDate.getFullYear();
+  const timestampNow = Math.round(new Date().getTime() / 1000);
+
+  const sessionsPurchased = Number(numSessions)
+
+  const promises = [];
+
+  // send email
+
+  const event = {
+    name: 'coach_service_purchase',
+    properties: {
+      service_id: serviceId,
+      service_title: serviceTitle,
+      service_image: serviceImg,
+      client_url: `https://lifecoach.io/person-history/${clientUid}`
+    }
+  }
+  const emailPromise = logMailchimpEvent(sellerUid, event); // log event
+  promises.push(emailPromise);
+
+  await db.collection(`users/${sellerUid}/service-sales/${saleMonth}-${saleYear}/${serviceId}`)
+  .doc(obj.id)
+  .create(obj);
+
+  // save the person to the recipient's people (create if doesn't exist yet - it might)
+  await db.collection(`users/${sellerUid}/people`)
+  .doc(clientUid)
+  .set({ lastUpdated: timestampNow }, { merge: true }) // creates a real (not virtual) doc
+  .catch(err => console.log(err));
+
+  // update this person's session data (allows the coach to see how many paid sessions this person has purchased/remaining)
+  let i = 0;
+  while (i < sessionsPurchased) {
+    await db.collection(`users/${sellerUid}/people/${clientUid}/sessions-purchased`)
+    .doc()
+    .create({
+      sellerUid,
+      clientUid,
+      serviceId,
+      saleDate,
+      relatedStripeTransferId: obj.id
+    });
+    i++;
+  }
+
+  // save the action to this person's history for the coach
+  await db.collection(`users/${sellerUid}/people/${clientUid}/history`)
+  .doc(timestampNow.toString())
+  .set({ action: 'service_purchase', serviceId, sessionsPurchased });
+
+  // save the action to this person's history with the coach
+  return db.collection(`users/${clientUid}/coaches/${sellerUid}/history`)
+  .doc(timestampNow.toString())
+  .set({ action: 'service_purchase', serviceId, sessionsPurchased });
+}
+
+async function recordServicePurchaseForClient(studentUid: string, serviceId: string, serviceTitle: string, serviceImg: string) {
+
+  // Add the service ID to the client's own purchased services node.
+  // We can monitor this with a client side subscription to notify the user of the completed purchase.
+
+  await db.collection(`users/${studentUid}/purchased-services`)
+  .doc(serviceId)
+  .set({
+    serviceId
+  }, { merge: true });
+
+  // send email
+
+  const event = {
+    name: 'service_enrollment',
+    properties: {
+      service_id: serviceId,
+      service_title: serviceTitle,
+      service_image: serviceImg,
+      landing_url: `https://lifecoach.io/my-services/${serviceId}`
+    }
+  }
+  return logMailchimpEvent(studentUid, event); // log event
+}
+
+async function updateServiceEnrollmentCounts(creatorUid: string, serviceId:string, obj: any, clientUid: string) {
+  // Accepts a custom transfer object
+  // Promises an array of Firebase write result promises
+
+  const incrementCount = admin.firestore.FieldValue.increment(1);
+  const incrementAmount = admin.firestore.FieldValue.increment(obj.amount);
+  const incrementCurrency = obj.currency;
+  const timestampNow = Math.round(new Date().getTime() / 1000);
+
+  const promises = [];
+
+  // Increment the total sales number & total lifetime sales amount for this creator
+  const promise1 = db.collection(`users/${creatorUid}/service-sales/total-lifetime-service-sales/services`)
+  .doc(serviceId)
+  .set({
+    [incrementCurrency]: {
+      lifetimeTotalSales: incrementCount,
+      lifetimeTotalAmount: incrementAmount
+    }
+  }, { merge: true });
+  promises.push(promise1);
+
+  // Increment public enrollment count (counts total purchases for a specific service)
+  const promise2 = db.collection(`service-enrollments`)
+  .doc(serviceId)
+  .set({
+    totalEnrollments: incrementCount
+  }, { merge: true });
+  promises.push(promise2);
+
+  // Increment public seller enrollment count (counts purchases across all seller programs)
+  const promise3 = db.collection(`seller-service-enrollments`)
+  .doc(creatorUid)
+  .set({
+    totalEnrollments: incrementCount
+  }, { merge: true });
+  promises.push(promise3);
+
+  // update this client on the coach's enrollments (clients) by service node
+  // allows coaches to see which (and how many) clients are enrolled on each service
+  const promise4 = db.collection(`coach-enrollments-by-service/${creatorUid}/services/${serviceId}/enrolled`)
+  .doc(clientUid)
+  .set({
+    timeOfLastEnrollment: timestampNow.toString(),
+    clientUid
+  }, { merge: true });
+  promises.push(promise4);
+
+  return promises;
+}
+
+// ================================================================================
 // =====                              REFUNDS                                ======
 // ================================================================================
 
@@ -1999,7 +2162,7 @@ exports.approveRefund = functions
         }, { merge: true });
         promises.push(promise6);
 
-      // If refunding a full program...
+      // If refunding a program or program session...
       } else if (pI.metadata.sale_item_type === 'fullProgram' || pI.metadata.sale_item_type === 'programSession') {
         const promise5 = db.collection(`users/${sellerUid}/program-sales/${month}-${year}/${pI.metadata.sale_item_id}`)
         .doc((refund.transfer_reversal as any).transfer)
@@ -2009,6 +2172,26 @@ exports.approveRefund = functions
         promises.push(promise5);
 
         const promise6 = db.collection(`users/${sellerUid}/program-sales`)
+        .doc('totals')
+        .set({
+          [pI.metadata.sale_item_id]: {
+            [(refund.transfer_reversal as any).currency]: {
+              lifetimeTotalAmount: decrementAmount // decrement lifetime total sales by refunded amount
+            }
+          }
+        }, { merge: true });
+        promises.push(promise6);
+
+      // if refunding a service purchase
+      } else if (pI.metadata.sale_item_type === 'service') {
+        const promise5 = db.collection(`users/${sellerUid}/service-sales/${month}-${year}/${pI.metadata.sale_item_id}`)
+        .doc((refund.transfer_reversal as any).transfer)
+        .set({
+          amount_reversed: (refund.transfer_reversal as any).amount // update the amount reversed on the original transfer object
+        }, { merge: true });
+        promises.push(promise5);
+
+        const promise6 = db.collection(`users/${sellerUid}/service-sales`)
         .doc('totals')
         .set({
           [pI.metadata.sale_item_id]: {
@@ -2376,6 +2559,173 @@ exports.adminRejectProgramReview = functions
   }
 });
 
+/*
+  Attempts to approve a coaching service in review.
+*/
+exports.adminApproveServiceReview = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.https
+.onCall( async (data, context) => {
+
+  const serviceId = data.serviceId;
+  const userId = data.userId; // reviewer not seller!
+  const reviewRequest = data.reviewRequest;
+  const approvedDate = Math.round(new Date().getTime() / 1000); // unix timestamp in seconds
+
+  // safety checks
+  if (!serviceId) {
+    return { error: 'Cloud function adminApproveServiceReview error: missing service ID' }
+  }
+  if (!userId) {
+    return { error: 'Cloud function adminApproveServiceReview error: missing user ID' }
+  }
+  if (!reviewRequest) {
+    return { error: 'Cloud function adminApproveServiceReview error: missing review request' }
+  }
+  if (!reviewRequest.sellerUid) {
+    return { error: 'Cloud function adminApproveServiceReview error: missing review request seller UID' }
+  }
+
+  try {
+
+    // attempt to read service data
+    const serviceSnap = await db.collection(`users/${reviewRequest.sellerUid}/services`)
+    .doc(serviceId)
+    .get();
+
+    if (!serviceSnap.exists) {
+      console.error('Cloud function onNewProgramReviewApproved error: Unable to read service.')
+      return {error: 'Unable to read service data. Operation failed.'};
+    }
+
+    const service = serviceSnap.data() as any;
+
+    // create an approved service doc to ensure only admin approved services get updated by creators
+    // Important! Do this before writing to the user's private services node to ensure correct
+    // data gets copied to public & paywall protected areas on update of the private node.
+    await db.collection(`approved-services`)
+    .doc(serviceId)
+    .create({
+      serviceId,
+      approved: approvedDate,
+      reviewerUid: userId
+    });
+
+    const batch = db.batch(); // prepare to execute multiple ops atomically
+
+    // update user's private services node with updated service object
+    const privateServiceCopy = JSON.parse(JSON.stringify(service));
+    const privateReviewRequest = JSON.parse(JSON.stringify(reviewRequest));
+    privateReviewRequest.status = 'approved';
+    privateReviewRequest.approved = approvedDate;
+    privateReviewRequest.reviewerUid = userId;
+    privateServiceCopy.adminApproved = true;
+    privateServiceCopy.reviewRequest = privateReviewRequest;
+    privateServiceCopy.lastUpdated = approvedDate;
+    const privateServiceRef = db.collection(`users/${reviewRequest.sellerUid}/services`).doc(serviceId);
+    batch.set(privateServiceRef, privateServiceCopy, { merge: true });
+
+
+    // delete review request from the admin collection
+    const adminRef = db.collection(`admin/review-requests/services`).doc(serviceId);
+    batch.delete(adminRef) // triggers onDelete monitor function to update count
+
+    await batch.commit(); // execute batch ops. Any error should trigger catch.
+
+    // add the service id to the seller's custom claims so they can access the service
+    await addCustomUserClaims(service.sellerUid, { [serviceId]: true });
+
+    // delete the draft service record in Algolia
+    const index = algolia.initIndex('prod_DRAFT_SERVICES');
+    await index.deleteObject(serviceId);
+
+    // trigger a mailchimp event to log service going live
+    const event = {
+      name: 'admin_approved_service',
+      properties: {
+        service_title: service.title
+      }
+    }
+    await logMailchimpEvent(service.sellerUid, event); // log event
+
+    return { success: true } // success if we got this far!
+
+  } catch (err) {
+    console.error(err);
+    return { error: err }
+  }
+});
+
+/*
+  Attempts to reject a coaching service in review.
+*/
+exports.adminRejectServiceReview = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.https
+.onCall( async (data, context) => {
+
+  const serviceId = data.serviceId;
+  const userId = data.userId; // reviewer not seller!
+  const reviewRequest = data.reviewRequest;
+  const rejectedDate = Math.round(new Date().getTime() / 1000); // unix timestamp in seconds
+
+  // safety checks
+  if (!serviceId) {
+    return { error: 'Cloud function adminRejectServiceReview error: missing service ID' }
+  }
+  if (!userId) {
+    return { error: 'Cloud function adminRejectServiceReview error: missing user ID' }
+  }
+  if (!reviewRequest) {
+    return { error: 'Cloud function adminRejectServiceReview error: missing review request' }
+  }
+  if (!reviewRequest.sellerUid) {
+    return { error: 'Cloud function adminRejectServiceReview error: missing review request seller UID' }
+  }
+
+  // update the review request object
+  reviewRequest.status = 'rejected';
+  reviewRequest.rejected = rejectedDate;
+  reviewRequest.reviewerUid = userId;
+
+  try {
+
+    const batch = db.batch(); // prepare to execute multiple ops atomically
+
+    // update user's private services node
+    const privateRef = db.collection(`users/${reviewRequest.sellerUid}/services`).doc(serviceId);
+    batch.set(privateRef, { reviewRequest }, { merge: true });
+
+    // delete review request from the admin collection (user must make alterations and re-submit for review)
+    const adminRef = db.collection(`admin/review-requests/services`).doc(serviceId);
+    batch.delete(adminRef) // triggers onDelete monitor function to update count
+
+    await batch.commit(); // execute batch ops. Any error should trigger catch.
+
+    // attempt to read service data
+    const serviceSnap = await db.collection(`users/${reviewRequest.sellerUid}/services`)
+    .doc(serviceId)
+    .get();
+
+    // log mailchimp event
+    const service = serviceSnap.data() as any;
+    const event = {
+      name: 'admin_rejected_service',
+      properties: {
+        service_title: service.title,
+        reject_reason: reviewRequest.rejectData.reason
+      }
+    }
+    await logMailchimpEvent(reviewRequest.sellerUid, event); // log event
+
+    return { success: true } // success
+
+  } catch (err) {
+    console.error(err);
+    return { error: err }
+  }
+});
+
 // ================================================================================
 // =====                            COACH INVITES                            ======
 // ================================================================================
@@ -2402,6 +2752,8 @@ exports.sendCoachInvite = functions
     landingUrl = `${baseUrl}/program/${data.item.programId}`;
   } else if (data.type === 'ecourse') {
     landingUrl = `${baseUrl}/course/${data.item.courseId}`;
+  } else if (data.type === 'service') {
+    landingUrl = `${baseUrl}/service/${data.item.serviceId}`;
   }
 
   try {
@@ -3412,7 +3764,6 @@ exports.onWritePrivateUserCourse = functions
     const recordToSend = {
       objectID: courseId,
       sellerUid: course.sellerUid,
-      isTest: course.isTest ? true : false
     }
     await index.saveObject(recordToSend);
 
@@ -3805,60 +4156,6 @@ exports.onNewCrmPersonCreate = functions
 });
 
 /*
-  Monitor private coach services.
-  Sync with public nodes & Algolia.
-*/
-exports.onWritePrivateServices = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.firestore
-.document(`/users/{userId}/services/{serviceId}`)
-.onWrite( async (change, context) => {
-
-  const userId = context.params.userId;
-  const serviceId = context.params.serviceId;
-  // const before = change.before.data() as any;
-  const after = change.after.data() as any;
-
-  // Public DB sync
-
-  const batch = db.batch(); // prepare to execute multiple ops atomically
-
-  const publicAllRef = db.collection(`public-services`).doc(serviceId);
-  batch.set(publicAllRef, after, { merge: true });
-
-  const publicByCoachRef = db.collection(`public-services-by-coach/${userId}/services`).doc(serviceId);
-  batch.set(publicByCoachRef, after, { merge: true });
-
-  await batch.commit(); // execute batch ops
-
-  // Algolia sync
-
-  const index = algolia.initIndex('prod_SERVICES');
-
-  // Record Removed.
-  if (!after) {
-    return index.deleteObject(serviceId);
-  }
-  // Record added/updated.
-  const recordToSend = {
-    objectID: serviceId,
-    id: after.id,
-    coachUid: userId,
-    title: after.title,
-    subtitle: after.subtitle,
-    duration: after.duration,
-    serviceType: after.serviceType,
-    pricingStrategy: after.pricingStrategy,
-    image: after.image,
-    description: after.description,
-    price: after.price,
-    currency: after.currency
-  };
-  // Update Algolia.
-  return index.saveObject(recordToSend);
-});
-
-/*
   Monitor new admin programs in review (review requests).
 */
 exports.onNewAdminProgramReviewRequest = functions
@@ -3980,8 +4277,7 @@ exports.onWritePrivateUserProgram = functions
     const index = algolia.initIndex('prod_DRAFT_PROGRAMS');
     const recordToSend = {
       objectID: programId,
-      sellerUid: program.sellerUid,
-      isTest: program.isTest ? true : false
+      sellerUid: program.sellerUid
     }
     await index.saveObject(recordToSend);
 
@@ -4052,7 +4348,6 @@ exports.onWritePrivateUserProgram = functions
       description: program.description,
       language: program.language,
       category: program.category,
-      level: program.level,
       subject: program.subject,
       image: program.image,
       promoVideo: program.promoVideo ? program.promoVideo : null,
@@ -4132,6 +4427,281 @@ exports.onWriteProgramReview = functions
   const recordToSend = {
     objectID: reviewId,
     programId: review.programId,
+    lastUpdated: review.lastUpdated,
+    reviewerUid: review.reviewerUid,
+    reviewerFirstName: review.reviewerFirstName,
+    reviewerLastName: review.reviewerLastName,
+    reviewerPhoto: review.reviewerPhoto ? review.reviewerPhoto : null,
+    sellerUid: review.sellerUid,
+    starValue: review.starValue,
+    summary: review.summary ? review.summary : null,
+    summaryExists: review.summary ? true : false,
+  };
+  // Update Algolia.
+  return index.saveObject(recordToSend);
+});
+
+/*
+  Monitor new admin servicess in review (review requests).
+*/
+exports.onNewAdminServiceReviewRequest = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.firestore
+.document(`admin/review-requests/services/{serviceId}`)
+.onCreate( async (snap, context) => {
+
+  const reviewRequest = snap.data() as any
+
+  const increment = admin.firestore.FieldValue.increment(1);
+
+  db.collection(`admin`)
+  .doc('totalServicesInReview')
+  .set({
+    totalRecords: increment
+  }, { merge: true })
+  .catch(err => console.error(err));
+
+  // attempt to read service data
+  if (reviewRequest) {
+    const serviceSnap = await db.collection(`users/${reviewRequest.sellerUid}/services`)
+    .doc(reviewRequest.serviceId)
+    .get();
+
+    const service = serviceSnap.data() as any;
+
+    if (service) {
+      // record a mailchimp event
+      const event = {
+        name: 'service_submitted_for_review',
+        properties: {
+          service_title: service.title,
+        }
+      }
+      return logMailchimpEvent(service.sellerUid, event); // log event
+    }
+
+  }
+
+});
+
+/*
+  Monitor deleted admin services in review (review requests).
+*/
+exports.onDeleteAdminServiceReviewRequest = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.firestore
+.document(`admin/review-requests/services/{serviceId}`)
+.onDelete((snap, context) => {
+  const decrement = admin.firestore.FieldValue.increment(-1);
+  return db.collection(`admin`)
+  .doc('totalServicesInReview')
+  .set({
+    totalRecords: decrement
+  }, { merge: true })
+  .catch(err => console.error(err));
+});
+
+/*
+  Monitor public services node.
+  Sync with Algolia DB.
+*/
+exports.onWritePublicServices = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.firestore
+.document(`/public-services/{serviceId}`)
+.onWrite((change, context) => {
+  const index = algolia.initIndex('prod_SERVICES');
+  const serviceId = context.params.serviceId;
+  const service = change.after.data() as any;
+  // Record Removed.
+  if (!service) {
+    return index.deleteObject(serviceId);
+  }
+  // Record added/updated.
+  const recordToSend = {
+    objectID: serviceId,
+    title: service.title,
+    subtitle: service.subtitle,
+    category: service.category,
+    language: service.language,
+    subject: service.subject,
+    pricing: service.pricing,
+    currency: service.currency,
+    image: service.image,
+    promoVideo: service.promoVideo,
+    coachName: service.coachName,
+    coachPhoto: service.coachPhoto,
+    approved: service.approved,
+    imagePaths: service.imagePaths
+  };
+  // Update Algolia.
+  return index.saveObject(recordToSend);
+});
+
+/*
+  Monitor users' private services node.
+  If service is admin approved, sync with public services.
+*/
+exports.onWritePrivateUserService = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.firestore
+.document(`/users/{userId}/services/{serviceId}`)
+.onWrite( async (change, context) => {
+  const serviceId = context.params.serviceId;
+  const service = change.after.data() as any;
+  const serviceBefore = change.before.data() as any;
+
+  // Record created
+  if (service && !serviceBefore) {
+    // sync with Algolia draft services index
+    const index = algolia.initIndex('prod_DRAFT_SERVICES');
+    const recordToSend = {
+      objectID: serviceId,
+      sellerUid: service.sellerUid
+    }
+    await index.saveObject(recordToSend);
+
+    // record a mailchimp event
+    const event = {
+      name: 'new_service_created',
+      properties: {
+        service_title: service.title,
+      }
+    }
+    await logMailchimpEvent(service.sellerUid, event); // log event
+  }
+
+  // Record Removed.
+  if (!service) {
+    // remove service from sale but leave service data behind the paywall as users have paid for it
+    // and shouldn't lose access.
+    await db.collection('public-services')
+    .doc(serviceId)
+    .delete()
+    .catch(err => console.error(err));
+
+    // if review request still waiting, delete it
+    await db.collection('admin/review-requests/services')
+    .doc(serviceId)
+    .delete();
+
+    // delete the draft service record in Algolia (if it exists)
+    const index = algolia.initIndex('prod_DRAFT_SERVICES');
+    return index.deleteObject(serviceId);
+  }
+
+  // Record added/updated.
+  if (!service.adminApproved) { // check if admin approved
+    return;
+  }
+
+  const adminSnap = await db.collection(`approved-services`)
+  .doc(serviceId)
+  .get();
+
+  if (!adminSnap.exists) { // double check if admin approved (this doc can't be tampered with client side)
+    return;
+  }
+
+  // optional: remove any paywall protected data now. (NOT currently used)
+
+  try {
+    // Sync with public-services.
+    const batch = db.batch(); // prepare to execute multiple ops atomically
+
+    // copy non-paywall protected service data in public services node (to allow browse & purchase)
+    const publicData = {
+      serviceId,
+      approved: service.reviewRequest.approved ? service.reviewRequest.approved : null,
+      currency: service.currency ? service.currency : null,
+      pricing: service.pricing ? service.pricing : null,
+      sellerUid: service.sellerUid,
+      coachName: service.coachName,
+      coachPhoto: service.coachPhoto,
+      stripeId: service.stripeId ? service.stripeId : null,
+      title: service.title,
+      subtitle: service.subtitle,
+      description: service.description,
+      language: service.language,
+      category: service.category,
+      subject: service.subject,
+      image: service.image,
+      promoVideo: service.promoVideo ? service.promoVideo : null,
+      lastUpdated: service.lastUpdated,
+      learningPoints: service.learningPoints ? service.learningPoints : null,
+      requirements: service.requirements ? service.requirements : null,
+      targets: service.targets ? service.targets : null,
+      // this field will replaced image field in future
+      imagePaths: service.imagePaths ? service.imagePaths : null
+    };
+    const publicRef = db.collection(`public-services`).doc(serviceId);
+    batch.set(publicRef, publicData, { merge: true });
+
+    // copy service object as is into paywall protected node (will be available when purchased!)
+    const lockedRef = db.collection(`locked-service-content`).doc(serviceId);
+    batch.set(lockedRef, service, { merge: true });
+
+    return batch.commit(); // execute batch ops. Any error should trigger catch.
+  } catch (err) {
+    console.error(err);
+    return;
+  }
+
+});
+
+/*
+  Monitor service user reviews.
+*/
+exports.onWriteServiceReview = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.firestore
+.document(`service-reviews/{reviewId}`)
+.onWrite( async (change, context) => {
+
+  const index = algolia.initIndex('prod_SERVICE_REVIEWS');
+  const reviewId = context.params.reviewId;
+  const before = change.before.data() as any;
+  const review = change.after.data() as any;
+
+  // Record Removed.
+
+  if (!review) {
+
+    // decrement total review count
+    if (before) {
+      const decrementCount = admin.firestore.FieldValue.increment(-1);
+      await db.collection(`public-services`)
+      .doc(review.serviceId)
+      .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: decrementCount }, { merge: true })
+      .catch(err => console.error(err));
+    }
+
+    // sync with Algolia
+    return index.deleteObject(reviewId);
+  }
+
+  // Record added/updated
+
+  // if rating has been updated, decrement the old value before incrementing the new value
+  if (before && before.starValue && review && review.starValue && (before.starValue !== review.starValue)) {
+    const decrementCount = admin.firestore.FieldValue.increment(-1);
+    await db.collection(`public-services`)
+    .doc(review.serviceId)
+    .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: decrementCount }, { merge: true })
+    .catch(err => console.error(err));
+  }
+
+  // increment total review count to allow cheaper lookups
+  const incrementCount = admin.firestore.FieldValue.increment(1);
+  await db.collection(`public-services`)
+  .doc(review.serviceId)
+  .set({ [`total${getRatingAsText(review.starValue)}StarReviews`]: incrementCount }, { merge: true })
+  .catch(err => console.error(err));
+
+  // sync with Algolia
+  const recordToSend = {
+    objectID: reviewId,
+    serviceId: review.serviceId,
     lastUpdated: review.lastUpdated,
     reviewerUid: review.reviewerUid,
     reviewerFirstName: review.reviewerFirstName,

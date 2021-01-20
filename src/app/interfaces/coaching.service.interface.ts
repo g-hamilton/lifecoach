@@ -7,13 +7,12 @@ export interface CoachingService {
     sellerUid: string;
     reviewRequest?: AdminProgramReviewRequest;
     subtitle?: string;
-    pricePerSession?: number;
+    pricing?: any;
     currency?: string;
     stripeId?: string;
     description?: string;
     language?: string;
     category?: string;
-    level?: string;
     subject?: string;
     image?: string;
     promoVideo?: any;
@@ -22,7 +21,6 @@ export interface CoachingService {
     targets?: string[];
     coachName?: string;
     coachPhoto?: string;
-    isTest?: boolean;
     lastUpdated?: number; // unix timestamp
     monthlyEarnings?: any;
     lifetimeTotals?: any;

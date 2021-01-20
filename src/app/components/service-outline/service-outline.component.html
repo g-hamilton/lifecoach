@@ -32,37 +32,9 @@
             <!-- Service pricing -->
             <div class=" row mt-4">
 
-                <!-- per session price (if flexible strategy selected) -->
                 <div class=" col-6">
-                    <div class="">
-                        <label> Price Per Session </label>
-                    </div>
-                    <p class=" small text-muted pl-2 mb-2">
-                        <i class="fas fa-info-circle"></i> Price per session.
-                    </p>
-                    <div
-                    class="form-group"
-                    [ngClass]="{
-                        'has-danger':
-                        (((focus1Touched && outlineF.pricePerSession.value !== null) || saveAttempt) && outlineF.pricePerSession.errors),
-                        'has-success': !outlineF.pricePerSession.errors
-                    }">
-                        <input
-                        type="number"
-                        class="form-control"
-                        formControlName="pricePerSession"
-                        placeholder="eg. 39.99"
-                        (focus)="focus1Touched = true">
-                    </div>
-                    <div *ngIf="(((focus1Touched && outlineF.pricePerSession.value !== null) || saveAttempt) && outlineF.pricePerSession.errors)">
-                        <label
-                        *ngFor="let error of objKeys(outlineF.pricePerSession.errors)"
-                        class="error custom-error-label"
-                        >{{ showError('pricePerSession', error) }}
-                        </label>
-                    </div>
+                    TODO
                 </div>
-                <!-- End of price per session -->
 
             </div>
             <!-- End of row -->

@@ -43,24 +43,12 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
   private maxPricePerSession = 10000;
 
   public errorMessages = {
-    fullPrice: {
-      required: `Please set a price for this service.`,
-      notNumber: `Price must be a number`,
-      belowMin: `Please enter a price above ${this.minPrice}.`,
-      aboveMax: `Price enter a price below ${this.maxPrice}`
-    },
-    pricePerSession: {
-      required: `Please set a price per session or de-select Pay As You Go as an option.`,
-      notNumber: `Price must be a number`,
-      belowMin: `Please enter a price above ${this.minPricePerSession}.`,
-      aboveMax: `Price enter a price below ${this.maxPricePerSession}`
-    },
-    numSessions: {
-      required: `Please enter a number`
-    },
-    duration: {
-      required: `Please enter a number (in weeks)`
-    }
+    // price: {
+    //   required: `Please set a price for this service.`,
+    //   notNumber: `Price must be a number`,
+    //   belowMin: `Please enter a price above ${this.minPrice}.`,
+    //   aboveMax: `Price enter a price below ${this.maxPrice}`
+    // }
   };
 
   constructor(
@@ -105,7 +93,7 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
   buildOutlineForm() {
     this.outlineForm = this.formBuilder.group({
       serviceId: ['', [Validators.required]],
-      pricePerSession: [null, [Validators.required]],
+      pricing: [null, [Validators.required]],
       currency: ['USD', [Validators.required]]
     });
   }
@@ -127,7 +115,7 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
 
     this.outlineForm.patchValue({
       serviceId: this.service.serviceId,
-      pricePerSession: this.service.pricePerSession ? this.service.pricePerSession : null,
+      pricing: this.service.pricing ? this.service.pricing : null,
       currency: this.service.currency ? this.service.currency : defaultCurrency
     });
   }
@@ -179,7 +167,7 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     // Merge outline form data into service data & save the service object
-    this.service.pricePerSession = this.outlineF.pricePerSession.value;
+    this.service.pricing = this.outlineF.pricing.value;
     this.service.currency = this.outlineF.currency.value;
     this.service.stripeId = this.account.stripeUid; // Important! Without this the creator cannot be paid!
 
