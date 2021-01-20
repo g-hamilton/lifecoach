@@ -16,6 +16,7 @@ import { ToastService } from '../../services/toast.service';
 import { UserAccount } from '../../interfaces/user.account.interface';
 import { Subscription } from 'rxjs';
 import { environment } from 'environments/environment';
+import {CloudFunctionsService} from '../../services/cloud-functions.service';
 
 @Component({
   selector: 'app-profile-wizard',
@@ -99,7 +100,8 @@ export class ProfileWizardComponent implements OnInit, OnDestroy {
     private specialitiesService: CoachingSpecialitiesService,
     private dataService: DataService,
     private analyticsService: AnalyticsService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private cloudFunctions: CloudFunctionsService
   ) {
   }
 
@@ -136,7 +138,8 @@ export class ProfileWizardComponent implements OnInit, OnDestroy {
 
         // Group 1
         this.formBuilder.group({
-          photo: ['', Validators.required]
+          photo: ['', Validators.required],
+          photoPaths: [null],
         }),
 
         // Group 2
@@ -301,8 +304,14 @@ export class ProfileWizardComponent implements OnInit, OnDestroy {
     */
     const currentImg: string = this.group1.photo.value;
     if (!currentImg.includes(this.storageService.getStorageDomain())) {
-      const downloadUrl = await this.storageService.storePhotoUpdateDownloadUrl(this.userId, currentImg);
-      ((this.formWizard.controls.formArray as FormArray).controls[1] as FormGroup).patchValue({photo: downloadUrl});
+
+      const response = await this.cloudFunctions
+        .uploadUserAvatar({uid: this.userId, img: currentImg})
+        .catch(e => console.log(e));
+
+      // @ts-ignore
+      const url = await response.original.fullSize || '';
+      ((this.formWizard.controls.formArray as FormArray).controls[1] as FormGroup).patchValue({photo: url, photoPaths: await response});
       // console.log('Form updated with photo storage download URL:', this.group1.photo.value);
     }
 

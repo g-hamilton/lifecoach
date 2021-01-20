@@ -6,7 +6,7 @@ import { ToastService } from './toast.service';
 import { CoachProfile } from '../interfaces/coach.profile.interface';
 import { UserAccount } from '../interfaces/user.account.interface';
 import { AdminCourseReviewRequest } from 'app/interfaces/adminCourseReviewRequest';
-import { first } from 'rxjs/operators';
+import {first, take} from 'rxjs/operators';
 import { StripePaymentIntentRequest } from 'app/interfaces/stripe.payment.intent.request';
 import { RefundRequest } from 'app/interfaces/refund.request.interface';
 import {Answer} from '../pages/video-chatroom/videochatroom.component';
@@ -14,6 +14,7 @@ import { AdminProgramReviewRequest } from 'app/interfaces/admin.program.review.i
 import { CoachInvite } from 'app/interfaces/coach.invite.interface';
 import { OrderCoachSessionRequest } from 'app/interfaces/order.coach.session.request.interface';
 import { CancelCoachSessionRequest } from 'app/interfaces/cancel.coach.session.request.interface';
+import {DataService} from './data.service';
 
 @Injectable({
   providedIn: 'root'
@@ -25,7 +26,8 @@ export class CloudFunctionsService {
   goNext: true | false = true;
   constructor(
     private cloudFunctions: AngularFireFunctions,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private dataService: DataService
   ) {
   }
 
@@ -558,10 +560,30 @@ export class CloudFunctionsService {
   }
 
   async resizeProfileAvatarsManager() {
-    do {
-      await this.resizeProfileAvatars();
-    } while (this.goNext);
-    return [...new Set(this.uniqueUsers)];
+    try {
+      const reflect = p => p.then(v => ({v, status: 'fulfilled' }),
+        e => ({e, status: 'rejected' }));
+
+      do {
+        await this.resizeProfileAvatars();
+      } while (this.goNext);
+      const unique =  [...new Set(this.uniqueUsers)];
+
+      // @ts-ignore // TODO: dont know why, but getCoachProfile function return both coach and regular profiles;
+      const profilePromises = unique.map( i => this.dataService.getCoachProfile(i).pipe(take(1)).toPromise());
+
+      const uniqueProfiles = await Promise.all(profilePromises.map(reflect)); // This is realization os Promise.allSettled, because is natively not supported
+
+      // const coachProfiles = uniqueProfiles.filter()
+      console.log(uniqueProfiles);
+
+
+      return {uniqueProfiles};
+
+    } catch (e) {
+      return {e};
+    }
+
   }
 
   resizeProfileAvatars( data?: any) {
