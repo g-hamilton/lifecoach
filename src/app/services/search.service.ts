@@ -220,7 +220,7 @@ export class SearchService {
   // =====                         SEARCHING COURSES                           ======
   // ================================================================================
 
-  private buildAlgoliaCourseFilters(filters: any, includeTestData?: boolean) {
+  private buildAlgoliaCourseFilters(filters: any) {
     /*
     Accepts an object containing search filters that we capture from the route params, eg:
     {"0":"category","params":{"category":"business&career"}}
@@ -244,10 +244,6 @@ export class SearchService {
         }
       }
     }
-    // *** FOR TESTING ***
-    if (!includeTestData) {
-      andArray.push(`isTest:false`); // excludes all test data (production). Otherwise allows a mix of real & test data.
-    }
 
     const builtAndString = andArray.join(' AND ');
     // console.log('Algolia filters string constructed:', builtAndString);
@@ -259,7 +255,7 @@ export class SearchService {
     this.analyticsService.searchCourses(filters, query);
   }
 
-  async searchCourses(hitsPerPage?: number, page?: number, filters?: any, includeTestData?: boolean) {
+  async searchCourses(hitsPerPage?: number, page?: number, filters?: any) {
     // console.log('filters:', filters);
 
     // Init search index & default params
@@ -269,7 +265,7 @@ export class SearchService {
       query: (filters && filters.params && filters.params.q) ? filters.params.q : '',
       hitsPerPage: hitsPerPage ? hitsPerPage : 6,
       page: page ? page - 1 : 0, // because Algolia is zero indexed but we always start at 1
-      filters: filters ? this.buildAlgoliaCourseFilters(filters, includeTestData) : ''
+      filters: filters ? this.buildAlgoliaCourseFilters(filters) : ''
     };
     // console.log('Algolia query params constructed:', params);
 
@@ -284,7 +280,7 @@ export class SearchService {
     }
   }
 
-  async searchDraftCourses(hitsPerPage?: number, page?: number, filters?: any, includeTestData?: boolean) {
+  async searchDraftCourses(hitsPerPage?: number, page?: number, filters?: any) {
     // console.log('filters:', filters);
 
     // Init search index & default params
@@ -294,7 +290,7 @@ export class SearchService {
       query: (filters && filters.params && filters.params.q) ? filters.params.q : '',
       hitsPerPage: hitsPerPage ? hitsPerPage : 6,
       page: page ? page - 1 : 0, // because Algolia is zero indexed but we always start at 1
-      filters: filters ? this.buildAlgoliaCourseFilters(filters, includeTestData) : ''
+      filters: filters ? this.buildAlgoliaCourseFilters(filters) : ''
     };
     // console.log('Algolia query params constructed:', params);
 

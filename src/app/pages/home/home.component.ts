@@ -22,8 +22,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   public newestCourses: AlgoliaPublishedCourse[];
   public searchTerm: string;
 
-  public includeTestData: boolean;
-
   public clientCurrency: string;
   public clientCountry: string;
   public rates: any;
@@ -142,7 +140,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async getNewestCourses() {
-    const res = await this.searchService.searchCourses(8, 0, {}, this.includeTestData);
+    const res = await this.searchService.searchCourses(8, 0, {});
     this.newestCourses = res.hits; // so we can update the view
     return res.hits; // so we can save the state
   }

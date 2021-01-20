@@ -121,11 +121,6 @@ export class ProgramSubmitComponent implements OnInit, OnChanges {
       return;
     }
 
-    // ***** ADMIN ONLY for testing *****
-    // mark program as test
-    // run this locally - remember to comment out before releasing!!!
-    // this.program.isTest = true;
-
     // autosave the program now that we've added additional seller profile data
     await this.dataService.savePrivateProgram(this.program.sellerUid, this.program);
 

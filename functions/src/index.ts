@@ -3735,7 +3735,6 @@ exports.onWritePublicCourses = functions
     promoVideo: course.promoVideo,
     coachName: course.coachName,
     coachPhoto: course.coachPhoto,
-    isTest: course.isTest, // will only be true if this course is a test (admin created)
     approved: course.approved,
     includeInCoachingForCoaches: course.includeInCoachingForCoaches,
     imagePaths: course.imagePaths ? course.imagePaths : undefined
@@ -3859,7 +3858,6 @@ exports.onWritePrivateUserCourse = functions
       sections: course.sections,
       lectures: publicLectures, // Caution! Don't add lecture data here without removing paywall protected content!
       includeInCoachingForCoaches: course.includeInCoachingForCoaches ? course.includeInCoachingForCoaches : null,
-      isTest: course.isTest ? true : false, // will only be true if this course is a test (admin created),
       imagePaths: course.imagePaths ? course.imagePaths : undefined
     };
     const publicRef = db.collection(`public-courses`).doc(courseId);
@@ -4250,7 +4248,6 @@ exports.onWritePublicPrograms = functions
     promoVideo: program.promoVideo,
     coachName: program.coachName,
     coachPhoto: program.coachPhoto,
-    isTest: program.isTest, // will only be true if this program is a test (admin created)
     approved: program.approved,
     imagePaths: program.imagePaths
   };
@@ -4355,7 +4352,6 @@ exports.onWritePrivateUserProgram = functions
       learningPoints: program.learningPoints ? program.learningPoints : null,
       requirements: program.requirements ? program.requirements : null,
       targets: program.targets ? program.targets : null,
-      isTest: program.isTest ? true : false, // will only be true if this program is a test (admin created)
       // this field will replaced image field in future
       imagePaths: program.imagePaths ? program.imagePaths : null
     };

@@ -153,10 +153,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const adminUsers = await this.searchService.searchUsers(1, 1, {params: {accountType: 'admin'}});
     this.adminCountAdminUsers = adminUsers.nbHits;
 
-    const draftCourses = await this.searchService.searchDraftCourses(1, 1, {}, false);
+    const draftCourses = await this.searchService.searchDraftCourses(1, 1, {});
     this.adminDraftCoursesCount = draftCourses.nbHits;
 
-    const coursesCount = await this.searchService.searchCourses(1, 1, {}, false);
+    const coursesCount = await this.searchService.searchCourses(1, 1, {});
     this.adminPublishedCoursesCount = coursesCount.nbHits;
 
     this.subscriptions.add(

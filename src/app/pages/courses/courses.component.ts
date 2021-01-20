@@ -41,7 +41,6 @@ export class CoursesComponent implements OnInit, OnDestroy {
     'Productivity & Personal Organisation'
   ];
 
-  public includeTestData = false; // option: true if testing. False in production.
   private subscriptions: Subscription = new Subscription();
 
   constructor(
@@ -174,7 +173,7 @@ export class CoursesComponent implements OnInit, OnDestroy {
   }
 
   async getSearchResults() {
-    const res = await this.searchService.searchCourses(this.hitsPerPage, this.page, this.filters, this.includeTestData);
+    const res = await this.searchService.searchCourses(this.hitsPerPage, this.page, this.filters);
     // console.log('Search results:', res);
     this.totalHits = res.nbHits;
     this.hits = res.hits; // so we can update the view
