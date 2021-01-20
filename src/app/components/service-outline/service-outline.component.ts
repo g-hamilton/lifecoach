@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Inject, PLATFORM_ID, OnChanges, OnDestroy } from '@angular/core';
-import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators, AbstractControl, FormControl, FormArray } from '@angular/forms';
 import { isPlatformBrowser } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { CoachingService } from 'app/interfaces/coaching.service.interface';
@@ -37,10 +37,11 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
   private baseMinPrice = 1;
   private baseMaxPrice = 10000;
   private baseCurrency = 'GBP';
+  private minSessions = 2; // should be 2 or above
+  private maxSessions = 100;
   private minPrice = 1;
   private maxPrice = 10000;
-  private minPricePerSession = 1;
-  private maxPricePerSession = 10000;
+  public pricingPointsMax = 10;
 
   public errorMessages = {
     // price: {
@@ -93,9 +94,19 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
   buildOutlineForm() {
     this.outlineForm = this.formBuilder.group({
       serviceId: ['', [Validators.required]],
-      pricing: [null, [Validators.required]],
+      pricing: this.formBuilder.array([
+        // sessions/price group
+        this.formBuilder.group({
+          numSessions: [{
+            value: 1,
+            disabled: true // disable single session by default (clients must always be allowed to buy 1 session)
+          }],
+          price: [null, [Validators.required, Validators.min(this.minPrice), Validators.max(this.maxPrice)]]
+        })
+      ]),
       currency: ['USD', [Validators.required]]
     });
+
   }
 
   updateLocalPriceLimits() {
@@ -115,9 +126,72 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
 
     this.outlineForm.patchValue({
       serviceId: this.service.serviceId,
-      pricing: this.service.pricing ? this.service.pricing : null,
       currency: this.service.currency ? this.service.currency : defaultCurrency
     });
+
+    this.outlineForm.setControl('pricing', this.service.pricing ? this.loadPricing() : this.formBuilder.array([
+        // sessions/price group
+        this.formBuilder.group({
+          numSessions: [{
+            value: 1,
+            disabled: true // disable single session by default (clients must always be allowed to buy 1 session)
+          }],
+          price: [null, [Validators.required, Validators.min(this.minPrice), Validators.max(this.maxPrice)]]
+        })
+      ], Validators.maxLength(this.pricingPointsMax)),
+    );
+
+    console.log('PRICING:', this.outlineF.pricing);
+  }
+
+  loadPricing() {
+    const pricingArray = this.formBuilder.array([], Validators.maxLength(this.pricingPointsMax));
+    console.log('service pricing from DB', this.service.pricing);
+    // this.service.pricing.forEach(price => {
+    //   pricingArray.push(
+    //     // load sessions/price group
+    //     this.formBuilder.group({
+    //       numSessions: [null, [Validators.required, Validators.min(this.minPrice), Validators.max(this.maxPrice)]]
+    //     }));
+    // });
+    return pricingArray;
+  }
+
+  addPricingPoint() {
+    // add sessions/price group
+    const control = this.formBuilder.group({
+      numSessions: [null, [Validators.required, Validators.min(this.minSessions), Validators.max(this.maxSessions)]],
+      price: [null, [Validators.required, Validators.min(this.minPrice), Validators.max(this.maxPrice)]]
+    });
+    this.outlineF.pricing.controls.push(control);
+  }
+
+  deletePricingPoint(index: number) {
+    this.outlineF.pricing.controls.splice(index, 1);
+  }
+
+  buildPricing() {
+    /*
+    returns a pricing object.
+    each key in the objet should be a unique number of sessions with a value that contains the number of sessions and a price
+    eg. {1: {numSessions: 1, price: 30}}
+    a client can purchase 1 session for 30 units of currency
+    */
+    const obj = {};
+    (this.outlineF.pricing as FormArray).controls.forEach(control => {
+      if (control.errors) {
+        return;
+      }
+      if (!control.value.numSessions) {
+        obj[1] = { numSessions: 1, price: control.value.price};
+        return;
+      }
+      obj[control.value.numSessions] = control.value;
+    });
+    if (Object.keys(obj).length === 0) {
+      return null;
+    }
+    return obj;
   }
 
   get outlineF(): any {
@@ -167,12 +241,14 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     // Merge outline form data into service data & save the service object
-    this.service.pricing = this.outlineF.pricing.value;
+    this.service.pricing = this.buildPricing();
     this.service.currency = this.outlineF.currency.value;
     this.service.stripeId = this.account.stripeUid; // Important! Without this the creator cannot be paid!
 
     // console.log(this.outlineForm.value);
     console.log('Saving service:', this.service);
+
+    return;
 
     await this.dataService.savePrivateService(this.userId, this.service);
 

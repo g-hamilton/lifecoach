@@ -91,7 +91,9 @@
                         <li *ngIf="!service.currency">
                             Service currency is missing
                         </li>
-                        <!-- TODO check pricing -->
+                        <li *ngIf="!service.pricing">
+                            Service pricing is missing
+                        </li>
                     </ul>
                 </div>
             </div>

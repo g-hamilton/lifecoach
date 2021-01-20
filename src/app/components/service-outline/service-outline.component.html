@@ -11,8 +11,7 @@
             <!-- Service currency -->
             <div class=" row mt-3">
 
-                <!-- Currency -->
-                <div class=" col-6">
+                <div class=" col-12">
                     <label> Your Local Currency </label>
                     <p class=" small text-muted pl-2 mb-2">
                         <i class="fas fa-info-circle"></i> Set your local currency here. We use this in conjunction with 
@@ -20,6 +19,10 @@
                         across all supported international territories. This makes your service available all over the world 
                         in local prices, without you having to worry about currency conversion.
                     </p>
+                </div>
+
+                <!-- Currency -->
+                <div class=" col-md-4 mt-3">
                     <app-select-currency
                     [currency]="outlineF?.currency?.value"
                     (currencyEvent)="onCurrencyEvent($event)">
@@ -29,15 +32,113 @@
             </div>
             <!-- End of row -->
 
-            <!-- Service pricing -->
+            <!-- Service pricing intro -->
             <div class=" row mt-4">
 
-                <div class=" col-6">
-                    TODO
+                <div class=" col">
+                    <div class="">
+                        <label> Set pricing </label>
+                        <p class=" small text-muted pl-2 mb-2">
+                            <i class="fas fa-info-circle"></i> Set your price for a single coaching session. 
+                            Optional: Add packages so that clients can purchase session bundles at a discount.
+                        </p>
+                    </div>
                 </div>
 
             </div>
-            <!-- End of row -->
+            <!-- End of pricing intro -->
+
+            <!-- labels -->
+            <div class=" row mt-3">
+                <div class="col-md-3">
+                    <label> Number of sessions </label>
+                </div>
+                <div class="col-md-3">
+                    <label> Your price </label>
+                </div>
+            </div>
+
+            <!-- pricing packages -->
+            <div formArrayName="pricing">
+                <div class=" row mb-3" *ngFor="let item of outlineF.pricing.controls ; let i = index">
+
+                    <!-- number of sessions in this package -->
+                    <div class=" col-md-3">
+                        <div
+                        [formGroupName]="i"
+                        class="no-symbol"
+                        [ngClass]="{
+                            'has-danger':
+                            (( (outlineF.pricing.controls[i].touched && outlineF.pricing.controls[i].value != '') || saveAttempt) &&  
+                            outlineF.pricing.controls[i].errors),
+                            'has-success': !outlineF.pricing.controls[i].errors
+                        }">
+                            <input
+                            type="number"
+                            class="form-control"
+                            formControlName="numSessions"
+                            placeholder="eg. 3">
+                        </div>
+                        <div *ngIf="(( (outlineF.pricing.controls[i].touched && outlineF.pricing.controls[i].value != '') || saveAttempt) && 
+                            outlineF.pricing.controls[i].errors)">
+                            <label
+                            *ngFor="let error of objKeys(outlineF.pricing.controls[i].errors)"
+                            class="error custom-error-label"
+                            >{{ showError('pricing', error) }}
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- price for this number of sessions -->
+                    <div class=" col-md-3">
+                        <div
+                        [formGroupName]="i"
+                        class="no-symbol"
+                        [ngClass]="{
+                            'has-danger':
+                            (( (outlineF.pricing.controls[i].touched && outlineF.pricing.controls[i].value != '') || saveAttempt) &&  
+                            outlineF.pricing.controls[i].errors),
+                            'has-success': !outlineF.pricing.controls[i].errors
+                        }">
+                            <input
+                            type="number"
+                            class="form-control"
+                            formControlName="price"
+                            [placeholder]="i === 0 ? 'eg. 39.00' : 'eg. 99.99'">
+
+                        </div>
+                        <div *ngIf="(( (outlineF.pricing.controls[i].touched && outlineF.pricing.controls[i].value != '') || saveAttempt) && 
+                            outlineF.pricing.controls[i].errors)">
+                            <label
+                            *ngFor="let error of objKeys(outlineF.pricing.controls[i].errors)"
+                            class="error custom-error-label"
+                            >{{ showError('pricing', error) }}
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-3 pl-0">
+                        <button 
+                        [ngClass]="{'hide': i === 0}"
+                        class="input-group-append ml-2 btn btn-danger btn-fab btn-icon"
+                        (click)="deletePricingPoint(i)">
+                            <i class="tim-icons icon-trash-simple"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class=" row">
+                <div class=" col-md-6">
+                    <button
+                    type="button"
+                    class=" btn btn-primary btn-link"
+                    (click)="addPricingPoint()"
+                    [disabled]="outlineF.pricing.controls.length >= pricingPointsMax">
+                        <i class="fas fa-plus"></i> Add a pricing package
+                    </button>
+                </div>
+            </div>
+            <!-- end of pricing packages -->
 
             <!-- Promotions reminder -->
             <p class=" mt-4 small">
