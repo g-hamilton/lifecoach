@@ -3763,6 +3763,8 @@ exports.onWritePrivateUserCourse = functions
     const recordToSend = {
       objectID: courseId,
       sellerUid: course.sellerUid,
+      title: course.title,
+      sellerName: course.coachName ? course.coachName : ''
     }
     await index.saveObject(recordToSend);
 
@@ -4274,7 +4276,9 @@ exports.onWritePrivateUserProgram = functions
     const index = algolia.initIndex('prod_DRAFT_PROGRAMS');
     const recordToSend = {
       objectID: programId,
-      sellerUid: program.sellerUid
+      sellerUid: program.sellerUid,
+      title: program.title,
+      coachName: program.coachName ? program.coachName : ''
     }
     await index.saveObject(recordToSend);
 
@@ -4553,7 +4557,9 @@ exports.onWritePrivateUserService = functions
     const index = algolia.initIndex('prod_DRAFT_SERVICES');
     const recordToSend = {
       objectID: serviceId,
-      sellerUid: service.sellerUid
+      sellerUid: service.sellerUid,
+      title: service.title,
+      coachName: service.coachName ? service.coachName : ''
     }
     await index.saveObject(recordToSend);
 
