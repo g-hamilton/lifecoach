@@ -339,6 +339,18 @@ export class AnalyticsService {
     });
   }
 
+  adminApproveService(serviceId: string) {
+    mixpanel.track('admin approved service', {
+      serviceId
+    });
+  }
+
+  adminRejectService(serviceId: string) {
+    mixpanel.track('admin rejected service', {
+      serviceId
+    });
+  }
+
   clickCreateProgram() {
     mixpanel.track('clicked create program');
   }

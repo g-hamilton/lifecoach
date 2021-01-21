@@ -14,6 +14,7 @@ import { AdminProgramReviewRequest } from 'app/interfaces/admin.program.review.i
 import { CoachInvite } from 'app/interfaces/coach.invite.interface';
 import { OrderCoachSessionRequest } from 'app/interfaces/order.coach.session.request.interface';
 import { CancelCoachSessionRequest } from 'app/interfaces/cancel.coach.session.request.interface';
+import { AdminServiceReviewRequest } from 'app/interfaces/admin.service.review.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -448,6 +449,38 @@ export class CloudFunctionsService {
     });
   }
 
+  adminApproveServiceReview(serviceId: string, userId: string, reviewRequest: AdminServiceReviewRequest) {
+    return new Promise(resolve => {
+      const approve = this.cloudFunctions.httpsCallable('adminApproveServiceReview');
+      const tempSub = approve({
+        serviceId,
+        userId,
+        reviewRequest
+      })
+        .pipe(first())
+        .subscribe(res => {
+          resolve(res);
+          tempSub.unsubscribe();
+        });
+    });
+  }
+
+  adminRejectServiceReview(serviceId: string, userId: string, reviewRequest: AdminServiceReviewRequest) {
+    return new Promise(resolve => {
+      const reject = this.cloudFunctions.httpsCallable('adminRejectServiceReview');
+      const tempSub = reject({
+        serviceId,
+        userId,
+        reviewRequest
+      })
+        .pipe(first())
+        .subscribe(res => {
+          resolve(res);
+          tempSub.unsubscribe();
+        });
+    });
+  }
+
   sendCoachInvite(data: CoachInvite) {
     return new Promise(resolve => {
       const invite = this.cloudFunctions.httpsCallable('sendCoachInvite');
@@ -536,6 +569,18 @@ export class CloudFunctionsService {
 
           console.log('Getting Error', error);
         });
+    });
+  }
+
+  uploadServiceImage( data: any) {
+    return new Promise((resolve, reject) => {
+      const trigger = this.cloudFunctions.httpsCallable('uploadServiceImage');
+      const tempSub = trigger(data)
+        .pipe(first())
+        .subscribe(res => {
+          resolve(res);
+          tempSub.unsubscribe();
+        }, error => reject(error));
     });
   }
 
