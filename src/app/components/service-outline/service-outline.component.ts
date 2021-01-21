@@ -41,7 +41,7 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
   private maxSessions = 100;
   private minPrice = 1;
   private maxPrice = 10000;
-  public pricingPointsMax = 10;
+  public pricingPointsMax = 3; // keep to max 3 for the purchase UI (3 cards + discovery card)
 
   public errorMessages = {
     price: {
