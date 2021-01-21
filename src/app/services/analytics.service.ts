@@ -332,6 +332,13 @@ export class AnalyticsService {
     mixpanel.track('Submitted service for review');
   }
 
+  searchServices(filters: any, query?: string, ) {
+    mixpanel.track('searched services', {
+      searchTerm: query ? query : '',
+      searchFilters: filters
+    });
+  }
+
   clickCreateProgram() {
     mixpanel.track('clicked create program');
   }

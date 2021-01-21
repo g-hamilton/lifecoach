@@ -27,14 +27,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
   public adminPublicCoachesCount: number;
   public adminCountAdminUsers: number;
   public adminNewestUsers: any;
+
   public adminPublishedCoursesCount: number;
   public adminDraftCoursesCount: number;
   public adminCourseReviewRequests: number;
   public adminCourseRefundRequests: number;
+
   public adminPublishedProgramsCount: number;
   public adminDraftProgramsCount: number;
   public adminProgramReviewRequests: number;
   public adminProgramRefundRequests: number;
+
+  public adminPublishedServicesCount: number;
+  public adminDraftServicesCount: number;
+  public adminServiceReviewRequests: number;
+  public adminServiceRefundRequests: number;
+
   public adminNewestLeads: any;
   public adminTotalLeads: number;
 
@@ -130,6 +138,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   async loadAdminData() {
+
+    // users
+
     const publicCoaches = await this.searchService.searchCoaches(1, 1);
     this.adminPublicCoachesCount = publicCoaches.nbHits;
 
@@ -153,6 +164,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const adminUsers = await this.searchService.searchUsers(1, 1, {params: {accountType: 'admin'}});
     this.adminCountAdminUsers = adminUsers.nbHits;
 
+    // ecourses
+
     const draftCourses = await this.searchService.searchDraftCourses(1, 1, {});
     this.adminDraftCoursesCount = draftCourses.nbHits;
 
@@ -168,6 +181,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const courseRefundRequestCount = await this.searchService.searchCourseRefundRequests(1, 1, {});
     this.adminCourseRefundRequests = courseRefundRequestCount.nbHits;
 
+    // programs
+
     const draftPrograms = await this.searchService.searchDraftPrograms(1, 1, {});
     this.adminDraftProgramsCount = draftPrograms.nbHits;
 
@@ -182,6 +197,25 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     const programRefundRequestCount = await this.searchService.searchProgramRefundRequests(1, 1, {});
     this.adminProgramRefundRequests = programRefundRequestCount.nbHits;
+
+    // services
+
+    const draftServices = await this.searchService.searchDraftServices(1, 1, {});
+    this.adminDraftServicesCount = draftServices.nbHits;
+
+    const servicesCount = await this.searchService.searchServices(1, 1, {});
+    this.adminPublishedServicesCount = servicesCount.nbHits;
+
+    this.subscriptions.add(
+      this.dataService.getTotalAdminServicesInReview().subscribe(total => {
+        total ? this.adminServiceReviewRequests = total.totalRecords : this.adminServiceReviewRequests = 0;
+      })
+    );
+
+    const serviceRefundRequestCount = await this.searchService.searchServiceRefundRequests(1, 1, {});
+    this.adminServiceRefundRequests = serviceRefundRequestCount.nbHits;
+
+    // leads
 
     const leads = await this.searchService.searchCoachLeads(10, 1, {});
     this.adminTotalLeads = leads.nbHits;
