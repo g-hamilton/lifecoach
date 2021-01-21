@@ -108,7 +108,7 @@ const routes: Routes = [
     pathMatch: 'full'
   },
   {
-    path: 'coaching-service/:serviceId',
+    path: 'coaching-service/:id',
     loadChildren: () => import('./pages/coaching-service/coaching.service.module').then(m => m.CoachingServiceModule),
     pathMatch: 'full'
   },
