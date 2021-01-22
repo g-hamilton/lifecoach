@@ -248,7 +248,7 @@
                 <!-- we've got all the info we need for pricing -->
                 <div *ngIf="service && service.pricing && service.pricing['1'].price && service.currency" class=" row mt-5">
                   <div class=" col-md-6 ml-auto mr-auto text-center">
-                    <h1 class=" title">1-to-1 Coaching</h1>
+                    <h1 class=" title">Get Private 1-to-1 Coaching</h1>
                     <h4 class=" description">
                       Got questions? Schedule a free discovery session with your coach before you get started.
                     </h4>
@@ -259,10 +259,10 @@
                 <div *ngIf="service && service.pricing && service.pricing['1'].price && service.currency" class=" row">
 
                   <!-- discover col -->
-                  <div class=" col-lg-4 col-xs-12">
+                  <div class=" col-lg-3 col-xs-12">
                     <div class=" card card-pricing card-primary card-raised">
                       <div class=" card-body">
-                        <h1 class=" card-title">discover</h1>
+                        <h1 class=" card-title" style="font-size: 3.2em;">discover</h1>
                         <img
                           alt="Image"
                           class=" card-img"
@@ -293,57 +293,66 @@
                   <!--  end discover col -->
 
                   <!-- pricing packages cols -->
-                  <div *ngIf="service?.currency && service?.pricing">
-                    <div *ngFor="let package of objKeys(service.pricing) ; let i = index" class=" col-lg-4 col-xs-12">
-                        <div class=" card card-pricing card-success card-white">
-                          <div class=" card-body">
-                            <h1 class=" card-title">{{ package }} Session{{package === '1' ? '' : 's'}}</h1>
-                            <img
-                                  alt="Image"
-                                  class=" card-img"
-                                  src="assets/img/card-success.png"
-                            />
-                  
-                            <ul class=" list-group">
-                              <li class=" list-group-item">Buy {{ package }} Session{{package === '1' ? '' : 's'}}</li>
-                              <li *ngIf="package !== '1'" class=" list-group-item text-danger">Save {{ calcDiscount() }}%</li>
-                            </ul>
-                            <div class=" card-prices pl-3 pr-3">
-                              <h3 class=" text-on-front">{{ currencySymbol + calcDisplayPrice(service.pricing[package].price) }}</h3>
-                              <h5 class=" text-on-back">{{ currencySymbol + calcDisplayPrice(service.pricing[package].price) }}</h5>
-                              <p class=" plan">Get full access</p>
-                            </div>
-                          </div>
-                          <div class=" card-footer text-center mb-3 mt-3">
-                            <!-- purchase button -->
-                            <!-- disabled for service seller or if already purchased -->
-                            <!-- userId === service.sellerUid || userClaims && userClaims[service.serviceId] -->
-                            <button
-                            class=" btn btn-round btn-success"
-                            id="buynowfull"
-                            type="button"
-                            data-target="#payModal"
-                            (click)="purchaseDisplayPrice = calcDisplayPrice(service.pricing[package].price) ; pricingSessions = package ; userId ? payModal.show() : registerModal.show()"
-                            [disabled]="userId === service.sellerUid || userClaims && userClaims[service.serviceId]">
-                              <span
-                              *ngIf="purchasingService"
-                              class="spinner-border spinner-border-sm"
-                              role="status"
-                              ></span> {{ purchasingService ? 'Purchasing...' : 'Buy Now'}} 
-                            </button>
-                            <div class="mt-2">
-                              <small>
-                                28-Day Money-Back Guarantee.
-                                <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001123378-refunds" taget="_blank">
-                                  Info
-                                </a>
-                              </small>
-                            </div>
-                          </div>
+                  <div *ngFor="let package of objKeys(service.pricing) ; let i = index" class=" col-lg-3 col-xs-12">
+                    <div class=" card card-pricing card-white"
+                    [ngClass]="{
+                      'card-success': i === 0,
+                      'card-warning': i === 1,
+                      'card-danger': i === 2
+                    }">
+                      <div class=" card-body">
+                        <h1 class=" card-title" style="font-size: 3em;">{{ package }} Session{{package === '1' ? '' : 's'}}</h1>
+                        <img
+                        alt="Image"
+                        class=" card-img"
+                        [src]="i === 0 ? 'assets/img/card-success.png' :
+                        i === 1 ? 'assets/img/card-warning.png' : 'assets/img/card-danger.png'"
+                        />
+              
+                        <ul class=" list-group">
+                          <li class=" list-group-item">Buy {{ package }} Session{{package === '1' ? '' : 's'}}</li>
+                          <li *ngIf="package !== '1'" class=" list-group-item text-success">Save {{ calcDiscount(package) }}%</li>
+                        </ul>
+                        <div class=" card-prices pl-3 pr-3">
+                          <h3 class=" text-on-front">{{ currencySymbol + calcDisplayPrice(service.pricing[package].price) }}</h3>
+                          <h5 class=" text-on-back" style="font-size: 4em;">{{ currencySymbol + calcDisplayPrice(service.pricing[package].price) }}</h5>
+                          <p class=" plan" style="margin-top: 0;">Get full access</p>
                         </div>
                       </div>
-                      <!-- end pricing packages cols -->
+                      <div class=" card-footer text-center mb-3 mt-3">
+                        <!-- purchase button -->
+                        <!-- disabled for service seller or if already purchased -->
+                        <!-- userId === service.sellerUid || userClaims && userClaims[service.serviceId] -->
+                        <button
+                        class=" btn btn-round"
+                        [ngClass]="{
+                          'btn-success': i === 0,
+                          'btn-warning': i === 1,
+                          'btn-danger': i === 2
+                        }"
+                        id="buynowfull"
+                        type="button"
+                        data-target="#payModal"
+                        (click)="purchaseDisplayPrice = calcDisplayPrice(service.pricing[package].price) ; pricingSessions = package ; userId ? payModal.show() : registerModal.show()"
+                        [disabled]="userId === service.sellerUid || userClaims && userClaims[service.serviceId]">
+                          <span
+                          *ngIf="purchasingService"
+                          class="spinner-border spinner-border-sm"
+                          role="status"
+                          ></span> {{ purchasingService ? 'Purchasing...' : 'Buy Now'}} 
+                        </button>
+                        <div class="mt-2">
+                          <small>
+                            28-Day Money-Back Guarantee.
+                            <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001123378-refunds" taget="_blank">
+                              Info
+                            </a>
+                          </small>
+                        </div>
+                      </div>
+                    </div>
                   </div>
+                  <!-- end pricing packages cols -->
 
                 </div>
                 <!-- end payment options row -->

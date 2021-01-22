@@ -667,21 +667,27 @@ export class CoachingServiceComponent implements OnInit, OnDestroy {
       .subscribe(() => this.router.navigate(['/reserved-sessions']));
   }
 
-  calcDiscount() {
-    // if (!this.service.fullPrice) {
-    //   return 0;
-    // }
-    // if (!this.service.numSessions) {
-    //   return 0;
-    // }
-    // if (!this.service.pricePerSession) {
-    //   return 0;
-    // }
-    // if ((this.service.numSessions * this.service.pricePerSession) <= this.service.fullPrice) {
-    //   return 0;
-    // }
-    // return (100 - (this.service.fullPrice / (this.service.numSessions * this.service.pricePerSession)) * 100).toFixed();
-    return 0;
+  calcDiscount(pricingObjKey: string) {
+    // check that prices exist on the db object
+    if (!this.service.pricing) {
+      return 0;
+    }
+    if (!this.service.pricing['1'].price) {
+      return 0;
+    }
+    if (!this.service.pricing[pricingObjKey].price) {
+      return 0;
+    }
+    // convert the db prices into local prices
+    const singleSessionPrice = this.calcDisplayPrice(this.service.pricing['1'].price);
+    const packageTotalPrice = this.calcDisplayPrice(this.service.pricing[pricingObjKey].price);
+    const packagePricePerSession = packageTotalPrice / Number(pricingObjKey);
+    // don't apply a discount if the package price per session is more than or equal to the single session price
+    if (singleSessionPrice <= packagePricePerSession) {
+      return 0;
+    }
+    // it's discount time!
+    return (100 - ((packagePricePerSession  / singleSessionPrice) * 100)).toFixed();
   }
 
   ngOnDestroy() {
