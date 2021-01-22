@@ -78,7 +78,6 @@ import { CourseCardComponent } from './course-card/course-card.component';
 import { StarReviewComponent } from './star-review/star-review.component';
 import { StarsComponent } from './stars/stars.component';
 import { CourseContentsComponent } from './course-contents/course-contents.component';
-import { CourseCoachComponent } from './course-coach/course-coach.component';
 import { CourseFeedbackComponent } from './course-feedback/course-feedback.component';
 import { CourseBrowseReviewsComponent } from './course-browse-reviews/course-browse-reviews.component';
 import { LearnLecturesNavigatorComponent } from './learn-lectures-navigator/learn-lectures-navigator.component';
@@ -112,7 +111,6 @@ import { ProgramPromoVideoUploadTaskComponent } from './program-promo-video-uplo
 import { ProgramSubmitComponent } from './program-submit/program-submit.component';
 import { ProgramPromoteComponent } from './program-promote/program-promote.component';
 import { ProgramStarsComponent } from './program-stars/program-stars.component';
-import { ProgramCoachComponent } from './program-coach/program-coach.component';
 import { ProgramFeedbackComponent } from './program-feedback/program-feedback.component';
 import { ProgramBrowseReviewsComponent } from './program-browse-reviews/program-browse-reviews.component';
 import { ProgramContentComponent } from './program-content/program-content.component';
@@ -133,6 +131,7 @@ import { ServicePromoteComponent } from './service-promote/service-promote.compo
 import { ServiceMoreComponent } from './service-more/service-more.component';
 import { ServicePromoVideoUploaderComponent } from './service-promo-video-uploader/service-promo-video-uploader.component';
 import { ServicePromoVideoUploadTaskComponent } from './service-promo-video-upload-task/service-promo-video-upload-task.component';
+import { CoachMiniProfileComponent } from './coach-mini-profile/coach-mini-profile.component';
 
 export function momentAdapterFactory() {
   return adapterFactory(moment);
@@ -218,7 +217,6 @@ export function momentAdapterFactory() {
     StarReviewComponent,
     StarsComponent,
     CourseContentsComponent,
-    CourseCoachComponent,
     CourseFeedbackComponent,
     CourseBrowseReviewsComponent,
     LearnLecturesNavigatorComponent,
@@ -250,7 +248,6 @@ export function momentAdapterFactory() {
     ProgramSubmitComponent,
     ProgramPromoteComponent,
     ProgramStarsComponent,
-    ProgramCoachComponent,
     ProgramFeedbackComponent,
     ProgramBrowseReviewsComponent,
     ProgramContentComponent,
@@ -269,7 +266,8 @@ export function momentAdapterFactory() {
     ServicePromoteComponent,
     ServiceMoreComponent,
     ServicePromoVideoUploaderComponent,
-    ServicePromoVideoUploadTaskComponent
+    ServicePromoVideoUploadTaskComponent,
+    CoachMiniProfileComponent
   ],
   exports: [
     TabsModule,
@@ -331,7 +329,6 @@ export function momentAdapterFactory() {
     StarReviewComponent,
     StarsComponent,
     CourseContentsComponent,
-    CourseCoachComponent,
     CourseFeedbackComponent,
     CourseBrowseReviewsComponent,
     LearnLecturesNavigatorComponent,
@@ -365,7 +362,6 @@ export function momentAdapterFactory() {
     ProgramSubmitComponent,
     ProgramPromoteComponent,
     ProgramStarsComponent,
-    ProgramCoachComponent,
     ProgramFeedbackComponent,
     ProgramBrowseReviewsComponent,
     ProgramContentComponent,
@@ -383,7 +379,8 @@ export function momentAdapterFactory() {
     ServiceOutlineComponent,
     ServiceSubmitComponent,
     ServicePromoteComponent,
-    ServiceMoreComponent
+    ServiceMoreComponent,
+    CoachMiniProfileComponent
   ],
   entryComponents: [
     SessionManagerComponent,
