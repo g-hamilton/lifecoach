@@ -316,7 +316,7 @@
                         <div class=" card-prices pl-3 pr-3">
                           <h3 class=" text-on-front">{{ currencySymbol + calcDisplayPrice(service.pricing[package].price) }}</h3>
                           <h5 class=" text-on-back" style="font-size: 4em;">{{ currencySymbol + calcDisplayPrice(service.pricing[package].price) }}</h5>
-                          <p class=" plan" style="margin-top: 0;">Get full access</p>
+                          <p class=" plan" style="margin-top: 0;">{{ package }} private 1-to-1 coaching session{{package === '1' ? '' : 's'}}</p>
                         </div>
                       </div>
                       <div class=" card-footer text-center mb-3 mt-3">

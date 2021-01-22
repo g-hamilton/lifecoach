@@ -1123,14 +1123,19 @@ exports.stripeCreatePaymentIntent = functions
 .onCall( async (data, context) => {
 
   const saleItemId: string = data.saleItemId;
-  const saleItemType: 'ecourse' | 'fullProgram' | 'programSession' | 'service' = data.saleItemType;
+  const saleItemType: 'ecourse' | 'fullProgram' | 'programSession' | 'coachingPackage' = data.saleItemType;
   const clientPrice = Number(data.salePrice);
   const clientCurrency = (data.currency as string).toUpperCase();
   const clientUid = data.buyerUid;
   const referralCode = data.referralCode; // may be null
+  const packageSessions = data.pricingSessions; // may be null. Only if purchasing a coachingPackage.
 
   if (!saleItemId) { // ensure we have a valid sale item ID string
     return { error: 'No sale item ID! Valid sale item ID is required to proceed' }
+  }
+
+  if (!saleItemType) { // ensure we have a valid sale item ID string
+    return { error: 'No sale item type! Valid sale item type is required to proceed' }
   }
 
   if (!clientCurrency) { // ensure we have a valid client currency
@@ -1144,6 +1149,9 @@ exports.stripeCreatePaymentIntent = functions
   if (!clientUid) { // ensure we have a valid client user ID
     return { error: 'No client UID! Valid client user ID required to proceed' }
   }
+  if (saleItemType === 'coachingPackage' && !packageSessions) { // ensure we have a number of sessions purchased if purchasing a coaching package
+    return { error: 'No number of sessions purchased for the coaching package!' }
+  }
 
   try {
 
@@ -1156,7 +1164,7 @@ exports.stripeCreatePaymentIntent = functions
       lookupPath = `public-courses`;
     } else if (saleItemType === 'fullProgram' || saleItemType === 'programSession') {
       lookupPath = `public-programs`;
-    } else if (saleItemType === 'service') {
+    } else if (saleItemType === 'coachingPackage') {
       lookupPath = `public-services`;
     }
 
@@ -1178,8 +1186,8 @@ exports.stripeCreatePaymentIntent = functions
       saleItemPrice = saleItem.fullPrice;
     } else if (saleItemType === 'programSession') {
       saleItemPrice = saleItem.pricePerSession;
-    } else if (saleItemType === 'service') {
-      saleItemPrice = saleItem.price;
+    } else if (saleItemType === 'coachingPackage') {
+      saleItemPrice = saleItem.pricing[packageSessions].price;
     }
 
     if (!saleItemPrice || !saleItem.currency || !saleItem.stripeId || !saleItem.sellerUid || !saleItem.title) { // valid item data must exist
@@ -1239,7 +1247,7 @@ exports.stripeCreatePaymentIntent = functions
         feeDecimal = ecourseAppFeeReferralDecimal;
       } else if (saleItemType === 'fullProgram' || saleItemType === 'programSession') {
         feeDecimal = programAppFeeReferralDecimal;
-      } else if (saleItemType === 'service') {
+      } else if (saleItemType === 'coachingPackage') {
         feeDecimal = serviceAppFeeReferralDecimal;
       }
     } else {
@@ -1248,7 +1256,7 @@ exports.stripeCreatePaymentIntent = functions
         feeDecimal = ecourseAppFeeDecimal;
       } else if (saleItemType === 'fullProgram' || saleItemType === 'programSession') {
         feeDecimal = programAppFeeDecimal;
-      } else if (saleItemType === 'service') {
+      } else if (saleItemType === 'coachingPackage') {
         feeDecimal = serviceAppFeeDecimal;
       }
     }
@@ -1279,7 +1287,9 @@ exports.stripeCreatePaymentIntent = functions
         seller_UID: saleItem.sellerUid,
         payment_type: 'lifecoach.io WEB',
         seller_referred: referralCode ? 'true' : 'false', // note: string as cannot be a boolean here
-        num_sessions: saleItem.numSessions ? saleItem.numSessions : null // if purchasing a program numSessions will be the number of sessions in the program
+        // if purchasing a program numSessions will be the number of sessions in the program
+        // if purchasing a coachingPackage (service), will be the number of sessions in the package
+        num_sessions: saleItem.numSessions ? saleItem.numSessions : saleItemType === 'coachingPackage' ? packageSessions : null
       }
     });
 
@@ -1360,8 +1370,8 @@ exports.stripeWebhookEvent = functions
         } else if (saleItemType === 'fullProgram' || saleItemType === 'programSession') {
           const promise3 = recordProgramEnrollmentForClient(saleItemType, clientUid, saleItemId, paymentIntent.metadata.sale_item_title, paymentIntent.metadata.sale_item_image);
           promises.push(promise3);
-        } else if (saleItemType === 'service') {
-          const promise3 = recordServicePurchaseForClient(clientUid, saleItemId, paymentIntent.metadata.sale_item_title, paymentIntent.metadata.sale_item_image);
+        } else if (saleItemType === 'coachingPackage') {
+          const promise3 = recordServicePurchaseForClient(clientUid, saleItemId, paymentIntent.metadata.sale_item_title, paymentIntent.metadata.sale_item_image, paymentIntent.metadata.num_sessions);
           promises.push(promise3);
         }
 
@@ -1402,7 +1412,7 @@ exports.stripeWebhookEvent = functions
           const originalSaleItemImage = originalCharge.metadata.sale_item_image;
           const originalClientUid = originalCharge.metadata.client_UID;
           const originalSellerReferred = originalCharge.metadata.seller_referred; // will be string 'true' | 'false'
-          const originalNumSessions = originalCharge.metadata.num_sessions // if purchasing program will be the number of sessions in the program, otherwise null
+          const originalNumSessions = originalCharge.metadata.num_sessions // if purchase related to program or coaching package, will be the number of sessions purchased
 
           // Check for required metadata on the original charge
           if (!originalSaleItemId) {
@@ -1441,7 +1451,7 @@ exports.stripeWebhookEvent = functions
             promises.concat(await promise2)
 
           // if the transfer is related to a service sale
-          } else if (originalSaleItemType === 'service') {
+          } else if (originalSaleItemType === 'coachingPackage') {
             const promise1 = recordServicePurchaseForCreator(originalSellerUid, originalSaleItemId, customTransferObj, originalClientUid, originalSaleItemTitle, originalSaleItemImage, originalNumSessions);
             promises.push(promise1);
 
@@ -1664,30 +1674,14 @@ async function updateCourseEnrollmentCounts(creatorUid: string, courseId:string,
   }, { merge: true });
   promises.push(promise1);
 
-  // Increment public course enrollment count (counts total enrollments for a specific course)
-  const promise2 = db.collection(`course-enrollments`)
-  .doc(courseId)
-  .set({
-    totalEnrollments: incrementCount
-  }, { merge: true });
-  promises.push(promise2);
-
-  // Increment public seller course enrollment count (counts enrollments across all seller courses)
-  const promise3 = db.collection(`seller-course-enrollments`)
-  .doc(creatorUid)
-  .set({
-    totalEnrollments: incrementCount
-  }, { merge: true });
-  promises.push(promise3);
-
   // update this client on the seller's enrollments by course node
-  const promise4 = db.collection(`seller-enrollments-by-course/${creatorUid}/courses/${courseId}/enrolled`)
+  const promise2 = db.collection(`seller-enrollments-by-course/${creatorUid}/courses/${courseId}/enrolled`)
   .doc(clientUid)
   .set({
     timeOfLastEnrollment: timestampNow.toString(),
     clientUid
   }, { merge: true });
-  promises.push(promise4);
+  promises.push(promise2);
 
   return promises;
 }
@@ -1836,31 +1830,15 @@ async function updateProgramEnrollmentCounts(creatorUid: string, programId:strin
   }, { merge: true });
   promises.push(promise1);
 
-  // Increment public program enrollment count (counts total enrollments for a specific program)
-  const promise2 = db.collection(`program-enrollments`)
-  .doc(programId)
-  .set({
-    totalEnrollments: incrementCount
-  }, { merge: true });
-  promises.push(promise2);
-
-  // Increment public seller program enrollment count (counts enrollments across all seller programs)
-  const promise3 = db.collection(`seller-program-enrollments`)
-  .doc(creatorUid)
-  .set({
-    totalEnrollments: incrementCount
-  }, { merge: true });
-  promises.push(promise3);
-
   // update this client on the coach's enrollments (clients) by program node
-  // allows coaches to see which (and how many) clients are enrolled on each program
-  const promise4 = db.collection(`coach-enrollments-by-program/${creatorUid}/programs/${programId}/enrolled`)
+  // allows us & coaches to see which (and how many) clients are enrolled on each program
+  const promise2 = db.collection(`coach-enrollments-by-program/${creatorUid}/programs/${programId}/enrolled`)
   .doc(clientUid)
   .set({
     timeOfLastEnrollment: timestampNow.toString(),
     clientUid
   }, { merge: true });
-  promises.push(promise4);
+  promises.push(promise2);
 
   return promises;
 }
@@ -1889,6 +1867,7 @@ async function recordServicePurchaseForCreator(sellerUid: string, serviceId: str
       service_id: serviceId,
       service_title: serviceTitle,
       service_image: serviceImg,
+      num_sessions_purchased: numSessions,
       client_url: `https://lifecoach.io/person-history/${clientUid}`
     }
   }
@@ -1931,7 +1910,7 @@ async function recordServicePurchaseForCreator(sellerUid: string, serviceId: str
   .set({ action: 'service_purchase', serviceId, sessionsPurchased });
 }
 
-async function recordServicePurchaseForClient(studentUid: string, serviceId: string, serviceTitle: string, serviceImg: string) {
+async function recordServicePurchaseForClient(studentUid: string, serviceId: string, serviceTitle: string, serviceImg: string, sessionsPurchased: string) {
 
   // Add the service ID to the client's own purchased services node.
   // We can monitor this with a client side subscription to notify the user of the completed purchase.
@@ -1939,7 +1918,7 @@ async function recordServicePurchaseForClient(studentUid: string, serviceId: str
   await db.collection(`users/${studentUid}/purchased-services`)
   .doc(serviceId)
   .set({
-    serviceId
+    serviceId,
   }, { merge: true });
 
   // send email
@@ -1950,6 +1929,7 @@ async function recordServicePurchaseForClient(studentUid: string, serviceId: str
       service_id: serviceId,
       service_title: serviceTitle,
       service_image: serviceImg,
+      num_sessions_purchased: sessionsPurchased,
       landing_url: `https://lifecoach.io/my-services/${serviceId}`
     }
   }
@@ -1978,31 +1958,15 @@ async function updateServiceEnrollmentCounts(creatorUid: string, serviceId:strin
   }, { merge: true });
   promises.push(promise1);
 
-  // Increment public enrollment count (counts total purchases for a specific service)
-  const promise2 = db.collection(`service-enrollments`)
-  .doc(serviceId)
-  .set({
-    totalEnrollments: incrementCount
-  }, { merge: true });
-  promises.push(promise2);
-
-  // Increment public seller enrollment count (counts purchases across all seller programs)
-  const promise3 = db.collection(`seller-service-enrollments`)
-  .doc(creatorUid)
-  .set({
-    totalEnrollments: incrementCount
-  }, { merge: true });
-  promises.push(promise3);
-
   // update this client on the coach's enrollments (clients) by service node
-  // allows coaches to see which (and how many) clients are enrolled on each service
-  const promise4 = db.collection(`coach-enrollments-by-service/${creatorUid}/services/${serviceId}/enrolled`)
+  // allows us & coaches to see which (and how many) clients are enrolled on each service
+  const promise2 = db.collection(`coach-enrollments-by-service/${creatorUid}/services/${serviceId}/enrolled`)
   .doc(clientUid)
   .set({
     timeOfLastEnrollment: timestampNow.toString(),
     clientUid
   }, { merge: true });
-  promises.push(promise4);
+  promises.push(promise2);
 
   return promises;
 }
