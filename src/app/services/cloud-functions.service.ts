@@ -598,4 +598,17 @@ export class CloudFunctionsService {
         });
     });
   }
+
+  getSubCollections(docPath: string) {
+    return new Promise(resolve => {
+      const trigger = this.cloudFunctions.httpsCallable('getSubCollections');
+      const tempSub = trigger(docPath)
+        .pipe(first())
+        .subscribe(res => {
+          resolve(res);
+          tempSub.unsubscribe();
+        });
+    });
+  }
+
 }

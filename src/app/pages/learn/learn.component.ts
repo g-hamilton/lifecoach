@@ -10,7 +10,7 @@ import { AuthService } from 'app/services/auth.service';
 import { CourseBookmark } from 'app/interfaces/course.bookmark.interface';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { ModalDirective } from 'ngx-bootstrap/modal';
-import { CourseReviewsService } from 'app/services/course-reviews.service';
+import { ReviewsService } from 'app/services/reviews.service';
 import { CourseReview } from 'app/interfaces/course-review';
 import { Subscription } from 'rxjs';
 
@@ -56,7 +56,7 @@ export class LearnComponent implements OnInit, OnDestroy {
     private alertService: AlertService,
     private route: ActivatedRoute,
     private router: Router,
-    private courseReviewsService: CourseReviewsService
+    private reviewsService: ReviewsService
   ) {
   }
 
@@ -138,7 +138,7 @@ export class LearnComponent implements OnInit, OnDestroy {
 
   fetchUserCourseReviews() {
     this.subscriptions.add(
-      this.courseReviewsService.getReviewerCourseReviews(this.userId).subscribe(reviews => {
+      this.reviewsService.getReviewerCourseReviews(this.userId).subscribe(reviews => {
         if (reviews) {
           // console.log(reviews);
           this.userCourseReviews = reviews;
@@ -190,7 +190,7 @@ export class LearnComponent implements OnInit, OnDestroy {
 
   fetchReviewPrompts() {
     this.subscriptions.add(
-      this.courseReviewsService.fetchUserCourseReviewPrompts(this.userId).subscribe(data => {
+      this.reviewsService.fetchUserCourseReviewPrompts(this.userId).subscribe(data => {
         if (data) {
           this.courseReviewPrompts = data;
           const promptArr = this.courseReviewPrompts.map(i => i.id);
@@ -401,7 +401,7 @@ export class LearnComponent implements OnInit, OnDestroy {
   markAsReviewPrompted() {
     // mark that the user does not wish to leave a review now, and shouldn't be prompted again until
     // reaching a defined point (eg end of course)
-    this.courseReviewsService.markUserCourseReviewPrompted(this.userId, this.courseId);
+    this.reviewsService.markUserCourseReviewPrompted(this.userId, this.courseId);
   }
 
   markCourseCompleted() {

@@ -5333,6 +5333,23 @@ exports.uploadServiceImage = functions
 });
 // Image services - end
 
+exports.getSubCollections = functions
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
+  .onCall(async (data: any, context?) => {
+
+    // function to get all of the sub collections in a document
+    // provide a document path
+    // returns an object contianing an array of collection document ids
+
+    const docPath = data.docPath;
+
+    const collections = await admin.firestore().doc(docPath).listCollections();
+    const collectionIds = collections.map(col => col.id);
+
+    return { collections: collectionIds };
+  });
+
 // *** TEMP TEMP TEMP ***
 function specialities() {
   return [

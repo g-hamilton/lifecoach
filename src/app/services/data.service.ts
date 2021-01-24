@@ -17,6 +17,7 @@ import { first } from 'rxjs/operators';
 import { CoachingProgram } from 'app/interfaces/coach.program.interface';
 import { AdminProgramReviewRequest } from 'app/interfaces/admin.program.review.interface';
 import { AdminServiceReviewRequest } from 'app/interfaces/admin.service.review.interface';
+import { CloudFunctionsService } from './cloud-functions.service';
 
 @Injectable({
   providedIn: 'root'
@@ -25,7 +26,8 @@ export class DataService {
 
   constructor(
     private db: AngularFirestore,
-    private analyticsService: AnalyticsService
+    private analyticsService: AnalyticsService,
+    private cloudService: CloudFunctionsService
   ) {
   }
 
@@ -250,11 +252,26 @@ export class DataService {
       .valueChanges() as Observable<any>;
   }
 
-  getTotalPublicEnrollmentsByCourseSeller(sellerUid: string) {
-    // Returns a document containing a coach's total lifetime course enrollments (across all courses)
-    return this.db.collection(`seller-course-enrollments`)
-      .doc(sellerUid)
-      .valueChanges() as Observable<any>;
+  async getTotalPublicEnrollmentsByCourseSeller(sellerUid: string) {
+    // returns a total number of unique clients across all seller courses
+    const docPath = `seller-enrollments-by-course/${sellerUid}/courses`;
+    const res = await this.cloudService.getSubCollections(docPath) as any;
+    if (res.collections) {
+      console.log(`collections for docPath: seller-enrollments-by-course/${sellerUid}/courses`, res.collections);
+      // the path has subcollection(s)
+      let total = 0;
+      for (const docId of res.collections) {
+        const res1 = await this.cloudService.getSubCollections(`seller-enrollments-by-course/${sellerUid}/courses/${docId}/enrolled`) as any;
+        if (res1.collections) {
+          console.log(`collections for docPath: seller-enrollments-by-course/${sellerUid}/courses/${docId}/enrolled`, res1.collections);
+          // the path has subcollection(s)
+          total += res1.collections.length;
+        }
+      }
+      return total;
+    } else { // the path has no subcollections
+      return 0;
+    }
   }
 
   async savePrivateCourse(uid: string, course: CoachingCourse) {
@@ -783,11 +800,26 @@ export class DataService {
       .valueChanges() as Observable<any>;
   }
 
-  getTotalPublicProgramEnrollmentsBySeller(sellerUid: string) {
-    // Returns a document containing a coach's total lifetime program enrollments (across all programs)
-    return this.db.collection(`seller-program-enrollments`)
-      .doc(sellerUid)
-      .valueChanges() as Observable<any>;
+  async getTotalPublicProgramEnrollmentsBySeller(sellerUid: string) {
+    // returns a total number of unique clients across all seller programs
+    const docPath = `coach-enrollments-by-program/${sellerUid}/programs`;
+    const res = await this.cloudService.getSubCollections(docPath) as any;
+    if (res.collections) {
+      console.log(`collections for docPath: coach-enrollments-by-program/${sellerUid}/programs`, res.collections);
+      // the path has subcollection(s)
+      let total = 0;
+      for (const docId of res.collections) {
+        const res1 = await this.cloudService.getSubCollections(`coach-enrollments-by-program/${sellerUid}/programs/${docId}/enrolled`) as any;
+        if (res1.collections) {
+          console.log(`collections for docPath: coach-enrollments-by-program/${sellerUid}/programs/${docId}/enrolled`, res1.collections);
+          // the path has subcollection(s)
+          total += res1.collections.length;
+        }
+      }
+      return total;
+    } else { // the path has no subcollections
+      return 0;
+    }
   }
 
   getPublicProgramsBySeller(sellerUid: string) {
@@ -948,11 +980,26 @@ export class DataService {
       .valueChanges() as Observable<any>;
   }
 
-  getTotalPublicServiceEnrollmentsBySeller(sellerUid: string) {
-    // Returns a document containing a coach's total lifetime service enrollments (across all services)
-    return this.db.collection(`seller-service-enrollments`)
-      .doc(sellerUid)
-      .valueChanges() as Observable<any>;
+  async getTotalPublicServiceEnrollmentsBySeller(sellerUid: string) {
+    // returns a total number of unique clients across all seller services
+    const docPath = `coach-enrollments-by-service/${sellerUid}/services`;
+    const res = await this.cloudService.getSubCollections(docPath) as any;
+    if (res.collections) {
+      console.log(`collections for docPath: coach-enrollments-by-service/${sellerUid}/services`, res.collections);
+      // the path has subcollection(s)
+      let total = 0;
+      for (const docId of res.collections) {
+        const res1 = await this.cloudService.getSubCollections(`coach-enrollments-by-service/${sellerUid}/services/${docId}/enrolled`) as any;
+        if (res1.collections) {
+          console.log(`collections for docPath: coach-enrollments-by-service/${sellerUid}/services/${docId}/enrolled`, res1.collections);
+          // the path has subcollection(s)
+          total += res1.collections.length;
+        }
+      }
+      return total;
+    } else { // the path has no subcollections
+      return 0;
+    }
   }
 
   getPublicServicesBySeller(sellerUid: string) {

@@ -51,9 +51,9 @@
               <i class="fas fa-user ml-4 mr-1"></i>
             </span> 
             <strong>
-              {{ ((sellerCourseEnrollments | async)?.totalEnrollments) + ((sellerProgramEnrollments | async)?.totalEnrollments) }} 
+              {{ sellerCourseEnrollments + sellerProgramEnrollments }} 
             </strong>
-            {{ ((sellerCourseEnrollments | async)?.totalEnrollments) + ((sellerProgramEnrollments | async)?.totalEnrollments) === 1 ? 'Coachee' : 'Coachees' }}
+            {{ sellerCourseEnrollments + sellerProgramEnrollments === 1 ? 'Happy Client' : 'Happy Clients' }}
             <span>
               <i class="fas fa-graduation-cap ml-4 mr-1"></i>
             </span> 

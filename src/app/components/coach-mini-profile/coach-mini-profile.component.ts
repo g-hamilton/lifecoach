@@ -1,8 +1,6 @@
 import { Component, OnInit, Input, Inject, PLATFORM_ID, OnChanges, OnDestroy } from '@angular/core';
 import { CoachingCourse } from 'app/interfaces/course.interface';
-import { CourseReviewsService } from 'app/services/course-reviews.service';
-import { ProgramReviewsService } from 'app/services/program-reviews.service';
-import { isPlatformBrowser, isPlatformServer } from '@angular/common';
+import { isPlatformServer } from '@angular/common';
 import { makeStateKey, TransferState } from '@angular/platform-browser';
 import { Observable, Subscription } from 'rxjs';
 import { CourseReview } from 'app/interfaces/course-review';
@@ -10,6 +8,9 @@ import { ProgramReview } from 'app/interfaces/program-review';
 import { DataService } from 'app/services/data.service';
 import { CoachingProgram } from 'app/interfaces/coach.program.interface';
 import { CoachProfile } from 'app/interfaces/coach.profile.interface';
+import { ReviewsService } from 'app/services/reviews.service';
+import { ServiceReview } from 'app/interfaces/service.review.interface';
+import { CoachingService } from 'app/interfaces/coaching.service.interface';
 
 
 @Component({
@@ -27,19 +28,22 @@ export class CoachMiniProfileComponent implements OnInit, OnChanges, OnDestroy {
 
   public courseReviews: CourseReview[];
   public programReviews: ProgramReview[];
+  public serviceReviews: ServiceReview[];
   public avgCourseRating: number;
   public avgProgramRating: number;
-  public sellerCourseEnrollments: Observable<any>;
-  public sellerProgramEnrollments: Observable<any>;
+  public avgServiceRating: number;
+  public sellerCourseEnrollments: number;
+  public sellerProgramEnrollments: number;
+  public sellerServiceEnrollments: number;
   public sellerCourses: Observable<CoachingCourse[]>;
   public sellerPrograms: Observable<CoachingProgram[]>;
+  public sellerServices: Observable<CoachingService[]>;
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
     private transferState: TransferState,
-    private courseReviewsService: CourseReviewsService,
-    private programReviewsService: ProgramReviewsService,
-    private dataService: DataService
+    private dataService: DataService,
+    private reviewsService: ReviewsService
   ) { }
 
   ngOnInit() {
@@ -50,10 +54,13 @@ export class CoachMiniProfileComponent implements OnInit, OnChanges, OnDestroy {
       this.fetchCoachProfile();
       this.fetchCourseReviewsData();
       this.fetchProgramReviewsData();
+      this.fetchServiceReviewsData();
       this.fetchSellerCourseEnrollmentsData();
       this.fetchSellerProgramEnrollmentsData();
+      this.fetchSellerServiceEnrollmentsData();
       this.fetchSellerCoursesData();
       this.fetchSellerProgramsData();
+      this.fetchSellerServicesData();
     }
   }
 
@@ -91,7 +98,7 @@ export class CoachMiniProfileComponent implements OnInit, OnChanges, OnDestroy {
 
       // get this coach's course reviews
       this.subscriptions.add(
-        this.courseReviewsService.getSellerCourseReviews(this.coachId).subscribe(data => {
+        this.reviewsService.getSellerCourseReviews(this.coachId).subscribe(data => {
           this.courseReviews = data;
 
           // calc avg rating for this coach's courses
@@ -120,7 +127,7 @@ export class CoachMiniProfileComponent implements OnInit, OnChanges, OnDestroy {
 
       // get this coach's program reviews
       this.subscriptions.add(
-        this.programReviewsService.getSellerProgramReviews(this.coachId).subscribe(data => {
+        this.reviewsService.getSellerProgramReviews(this.coachId).subscribe(data => {
           this.programReviews = data;
 
           // calc avg rating for this coach's programs
@@ -140,22 +147,45 @@ export class CoachMiniProfileComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  fetchSellerCourseEnrollmentsData() {
+  fetchServiceReviewsData() {
+    const REVIEWS_KEY = makeStateKey<any>('service-reviews'); // create a key for saving/retrieving state
+
+    const reviewsData = this.transferState.get(REVIEWS_KEY, null as any); // checking if data in the storage exists
+
+    if (reviewsData === null) { // if state data does not exist - retrieve it from the api
+
+      // get this coach's service reviews
+      this.subscriptions.add(
+        this.reviewsService.getSellerServiceReviews(this.coachId).subscribe(data => {
+          this.serviceReviews = data;
+
+          // calc avg rating for this coach's services
+          const ratings = this.serviceReviews.map(v => v.starValue);
+          this.avgServiceRating = ratings.length ? ratings.reduce((total, val) => total + val) / ratings.length : null;
+
+          if (isPlatformServer(this.platformId)) { // if we're server side, store the retrieved data as a state
+            this.transferState.set(REVIEWS_KEY, this.serviceReviews);
+          }
+        })
+      );
+
+    } else { // if reviews state data exists retrieve it from the state storage
+      this.programReviews = reviewsData;
+      // console.log('Program reviews data for user:', reviewsData);
+      this.transferState.remove(REVIEWS_KEY);
+    }
+  }
+
+  async fetchSellerCourseEnrollmentsData() {
     const ENROLLMENTS_KEY = makeStateKey<any>('course-enrollments'); // create a key for saving/retrieving state
 
     const enrollmentsData = this.transferState.get(ENROLLMENTS_KEY, null as any); // checking if data in the storage exists
 
     if (enrollmentsData === null) { // if state data does not exist - retrieve it from the api
-      this.sellerCourseEnrollments = this.dataService.getTotalPublicEnrollmentsByCourseSeller(this.coachId);
+      this.sellerCourseEnrollments = await this.dataService.getTotalPublicEnrollmentsByCourseSeller(this.coachId);
 
       if (isPlatformServer(this.platformId)) { // if we're server side, store the retrieved data as a state
-        this.subscriptions.add(
-          this.sellerCourseEnrollments.subscribe(data => {
-            if (data) {
-              this.transferState.set(ENROLLMENTS_KEY, data as any);
-            }
-          })
-        );
+        this.transferState.set(ENROLLMENTS_KEY, this.sellerCourseEnrollments);
       }
 
     } else { // if state data exists retrieve it from the state storage
@@ -164,26 +194,38 @@ export class CoachMiniProfileComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  fetchSellerProgramEnrollmentsData() {
+  async fetchSellerProgramEnrollmentsData() {
     const ENROLLMENTS_KEY = makeStateKey<any>('program-enrollments'); // create a key for saving/retrieving state
 
     const enrollmentsData = this.transferState.get(ENROLLMENTS_KEY, null as any); // checking if data in the storage exists
 
     if (enrollmentsData === null) { // if state data does not exist - retrieve it from the api
-      this.sellerProgramEnrollments = this.dataService.getTotalPublicProgramEnrollmentsBySeller(this.coachId);
+      this.sellerProgramEnrollments = await this.dataService.getTotalPublicProgramEnrollmentsBySeller(this.coachId);
 
       if (isPlatformServer(this.platformId)) { // if we're server side, store the retrieved data as a state
-        this.subscriptions.add(
-          this.sellerProgramEnrollments.subscribe(data => {
-            if (data) {
-              this.transferState.set(ENROLLMENTS_KEY, data as any);
-            }
-          })
-        );
+        this.transferState.set(ENROLLMENTS_KEY, this.sellerProgramEnrollments);
       }
 
     } else { // if state data exists retrieve it from the state storage
       this.sellerProgramEnrollments = enrollmentsData;
+      this.transferState.remove(ENROLLMENTS_KEY);
+    }
+  }
+
+  async fetchSellerServiceEnrollmentsData() {
+    const ENROLLMENTS_KEY = makeStateKey<any>('service-enrollments'); // create a key for saving/retrieving state
+
+    const enrollmentsData = this.transferState.get(ENROLLMENTS_KEY, null as any); // checking if data in the storage exists
+
+    if (enrollmentsData === null) { // if state data does not exist - retrieve it from the api
+      this.sellerServiceEnrollments = await this.dataService.getTotalPublicServiceEnrollmentsBySeller(this.coachId);
+
+      if (isPlatformServer(this.platformId)) { // if we're server side, store the retrieved data as a state
+        this.transferState.set(ENROLLMENTS_KEY, this.sellerServiceEnrollments);
+      }
+
+    } else { // if state data exists retrieve it from the state storage
+      this.sellerServiceEnrollments = enrollmentsData;
       this.transferState.remove(ENROLLMENTS_KEY);
     }
   }
@@ -233,6 +275,30 @@ export class CoachMiniProfileComponent implements OnInit, OnChanges, OnDestroy {
     } else { // if state data exists retrieve it from the state storage
       this.sellerPrograms = programsData;
       this.transferState.remove(PROGRAMS_KEY);
+    }
+  }
+
+  fetchSellerServicesData() {
+    const SERVICES_KEY = makeStateKey<any>('services'); // create a key for saving/retrieving state
+
+    const servicesData = this.transferState.get(SERVICES_KEY, null as any); // checking if data in the storage exists
+
+    if (servicesData === null) { // if state data does not exist - retrieve it from the api
+      this.sellerServices = this.dataService.getPublicServicesBySeller(this.coachId);
+
+      if (isPlatformServer(this.platformId)) { // if we're server side, store the retrieved data as a state
+        this.subscriptions.add(
+          this.sellerServices.subscribe(data => {
+            if (data) {
+              this.transferState.set(SERVICES_KEY, data as any);
+            }
+          })
+        );
+      }
+
+    } else { // if state data exists retrieve it from the state storage
+      this.sellerServices = servicesData;
+      this.transferState.remove(SERVICES_KEY);
     }
   }
 
