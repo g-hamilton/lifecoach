@@ -257,13 +257,13 @@ export class DataService {
     const docPath = `seller-enrollments-by-course/${sellerUid}/courses`;
     const res = await this.cloudService.getCollectionDocIds(docPath) as any;
     if (res.docs) {
-      console.log(`collections for docPath: seller-enrollments-by-course/${sellerUid}/courses`, res.docs);
+      // console.log(`collections for docPath: seller-enrollments-by-course/${sellerUid}/courses`, res.docs);
       // the path has subcollection(s)
       let total = 0;
       for (const docId of res.docs) {
         const res1 = await this.cloudService.getCollectionDocIds(`seller-enrollments-by-course/${sellerUid}/courses/${docId}/enrolled`) as any;
         if (res1.docs) {
-          console.log(`collections for docPath: seller-enrollments-by-course/${sellerUid}/courses/${docId}/enrolled`, res1.docs);
+          // console.log(`collections for docPath: seller-enrollments-by-course/${sellerUid}/courses/${docId}/enrolled`, res1.docs);
           // the path has subcollection(s)
           total += res1.docs.length;
         }
@@ -805,13 +805,13 @@ export class DataService {
     const docPath = `coach-enrollments-by-program/${sellerUid}/programs`;
     const res = await this.cloudService.getCollectionDocIds(docPath) as any;
     if (res.docs) {
-      console.log(`collections for docPath: coach-enrollments-by-program/${sellerUid}/programs`, res.docs);
+      // console.log(`collections for docPath: coach-enrollments-by-program/${sellerUid}/programs`, res.docs);
       // the path has subcollection(s)
       let total = 0;
       for (const docId of res.docs) {
         const res1 = await this.cloudService.getCollectionDocIds(`coach-enrollments-by-program/${sellerUid}/programs/${docId}/enrolled`) as any;
         if (res1.docs) {
-          console.log(`collections for docPath: coach-enrollments-by-program/${sellerUid}/programs/${docId}/enrolled`, res1.docs);
+          // console.log(`collections for docPath: coach-enrollments-by-program/${sellerUid}/programs/${docId}/enrolled`, res1.docs);
           // the path has subcollection(s)
           total += res1.docs.length;
         }
@@ -985,13 +985,13 @@ export class DataService {
     const docPath = `coach-enrollments-by-service/${sellerUid}/services`;
     const res = await this.cloudService.getCollectionDocIds(docPath) as any;
     if (res.docs) {
-      console.log(`collections for docPath: coach-enrollments-by-service/${sellerUid}/services`, res.docs);
+      // console.log(`collections for docPath: coach-enrollments-by-service/${sellerUid}/services`, res.docs);
       // the path has subcollection(s)
       let total = 0;
       for (const docId of res.docs) {
         const res1 = await this.cloudService.getCollectionDocIds(`coach-enrollments-by-service/${sellerUid}/services/${docId}/enrolled`) as any;
         if (res1.docs) {
-          console.log(`collections for docPath: coach-enrollments-by-service/${sellerUid}/services/${docId}/enrolled`, res1.docs);
+          // console.log(`collections for docPath: coach-enrollments-by-service/${sellerUid}/services/${docId}/enrolled`, res1.docs);
           // the path has subcollection(s)
           total += res1.docs.length;
         }

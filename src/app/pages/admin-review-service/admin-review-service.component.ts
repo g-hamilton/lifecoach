@@ -166,6 +166,7 @@ export class AdminReviewServiceComponent implements OnInit, OnDestroy {
       .uploadServiceImage({uid: this.service.sellerUid, img: this.uploadedImage})
       .catch(e => console.log(e));
 
+    console.log('Image Upload Response', response);
     // @ts-ignore
     const url = await response.original.fullSize || '';
     this.service.image = url;
