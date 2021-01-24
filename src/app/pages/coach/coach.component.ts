@@ -105,7 +105,7 @@ export class CoachComponent implements OnInit, OnDestroy {
       this.getCoachProfile();
       this.getCoachCourses();
       this.getCoachPrograms();
-      // this.getCoachServices();
+      this.getCoachServices();
 
     });
   }
