@@ -31,6 +31,7 @@ export class AdminReviewServiceComponent implements OnInit, OnDestroy {
   public approving: boolean;
   public rejecting: boolean;
   private subscriptions: Subscription = new Subscription();
+  public objKeys = Object.keys;
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
@@ -116,6 +117,29 @@ export class AdminReviewServiceComponent implements OnInit, OnDestroy {
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const day = days[date.getDay()];
     return `${day} ${date.toLocaleDateString()}`;
+  }
+
+  calcDiscount(pricingObjKey: string) {
+    // check that prices exist on the db object
+    if (!this.service.pricing) {
+      return 0;
+    }
+    if (!this.service.pricing['1'].price) {
+      return 0;
+    }
+    if (!this.service.pricing[pricingObjKey].price) {
+      return 0;
+    }
+    // convert the db prices into local prices
+    const singleSessionPrice = this.service.pricing['1'].price;
+    const packageTotalPrice = this.service.pricing[pricingObjKey].price;
+    const packagePricePerSession = packageTotalPrice / Number(pricingObjKey);
+    // don't apply a discount if the package price per session is more than or equal to the single session price
+    if (singleSessionPrice <= packagePricePerSession) {
+      return 0;
+    }
+    // it's discount time!
+    return (100 - ((packagePricePerSession  / singleSessionPrice) * 100)).toFixed();
   }
 
   async onImageUpload($event: any) {
