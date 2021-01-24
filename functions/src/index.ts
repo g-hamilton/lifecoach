@@ -5354,21 +5354,18 @@ exports.uploadServiceImage = functions
 });
 // Image services - end
 
-exports.getSubCollections = functions
+exports.getCollectionDocIds = functions
   .runWith({memory: '1GB', timeoutSeconds: 300})
   .https
-  .onCall(async (data: any, context?) => {
+  .onCall(async (path: string, context?) => {
 
-    // function to get all of the sub collections in a document
-    // provide a document path
+    // function to get all of the document IDs in a collection
+    // provide a path to a COLLECTION as a string
     // returns an object contianing an array of collection document ids
 
-    const docPath = data.docPath;
-
-    const collections = await admin.firestore().doc(docPath).listCollections();
-    const collectionIds = collections.map(col => col.id);
-
-    return { collections: collectionIds };
+    const docs = await admin.firestore().collection(path).listDocuments();
+    const docIds = docs.map(doc => doc.id);
+    return { docs: docIds };
   });
 
 // *** TEMP TEMP TEMP ***

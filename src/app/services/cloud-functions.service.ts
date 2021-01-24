@@ -658,10 +658,10 @@ export class CloudFunctionsService {
     });
   }
 
-  getSubCollections(docPath: string) {
+  getCollectionDocIds(path: string) {
     return new Promise(resolve => {
-      const trigger = this.cloudFunctions.httpsCallable('getSubCollections');
-      const tempSub = trigger(docPath)
+      const trigger = this.cloudFunctions.httpsCallable('getCollectionDocIds');
+      const tempSub = trigger(path)
         .pipe(first())
         .subscribe(res => {
           resolve(res);
