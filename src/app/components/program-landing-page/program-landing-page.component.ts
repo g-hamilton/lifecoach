@@ -32,7 +32,7 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
   public focus2Touched: boolean;
 
   public titleMinLength = 10;
-  public titleMaxLength = 40;
+  public titleMaxLength = 60;
   public titleActualLength = 0;
 
   public subTitleMinLength = 20;
@@ -81,9 +81,6 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
     },
     category: {
       required: 'Please select the closest matching program category.'
-    },
-    level: {
-      required: 'Please select an appropriate level for your program.'
     },
     subject: {
       minlength: `This summary should be at least ${this.subjectMinLength} characters.`,
@@ -140,7 +137,6 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
       description: ['', [Validators.required]],
       language: [null, [Validators.required]],
       category: [null, [Validators.required]],
-      level: [null, [Validators.required]],
       subject: ['', [Validators.required, Validators.minLength(this.subjectMinLength), Validators.maxLength(this.subjectMaxLength)]],
       image: [null],
       promoVideo: [null],
@@ -158,13 +154,12 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
       description: this.program.description ? this.program.description : '',
       language: this.program.language ? this.program.language : 'en',
       category: this.program.category ? this.program.category : null,
-      level: this.program.level ? this.program.level : null,
       subject: this.program.subject ? this.program.subject : '',
       image: this.program.image ? this.program.image : null,
       promoVideo: this.program.promoVideo ? this.program.promoVideo : null,
-      learningPoints: this.program.learningPoints ? this.loadLpoints() : this.formBuilder.array([new FormControl('', Validators.maxLength(this.learningPointsMaxLength))], Validators.maxLength(this.learningPointsMax)),
-      requirements: this.program.requirements ? this.loadRequirements() : this.formBuilder.array([new FormControl('', Validators.maxLength(this.requirementsMaxLength))], Validators.maxLength(this.requirementsMax)),
-      targets: this.program.targets ? this.loadTargets() : this.formBuilder.array([new FormControl('', Validators.maxLength(this.targetsMaxLength))], Validators.maxLength(this.targetsMax))
+      learningPoints: this.program.learningPoints ? this.loadLpoints() : this.formBuilder.array([], Validators.maxLength(this.learningPointsMax)),
+      requirements: this.program.requirements ? this.loadRequirements() : this.formBuilder.array([], Validators.maxLength(this.requirementsMax)),
+      targets: this.program.targets ? this.loadTargets() : this.formBuilder.array([], Validators.maxLength(this.targetsMax))
     });
     // init the character counts (before user input detected)
     this.titleActualLength = this.landingF.title.value.length;
@@ -185,6 +180,10 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
     this.landingF.learningPoints.value.controls.push(control);
   }
 
+  deleteLearningPoint(index: number) {
+    this.landingF.learningPoints.value.controls.splice(index, 1);
+  }
+
   loadRequirements() {
     const reqArray = this.formBuilder.array([], Validators.maxLength(this.requirementsMax));
     this.program.requirements.forEach(req => {
@@ -198,6 +197,10 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
     this.landingF.requirements.value.controls.push(control);
   }
 
+  deleteRequirement(index: number) {
+    this.landingF.requirements.value.controls.splice(index, 1);
+  }
+
   loadTargets() {
     const targetArray = this.formBuilder.array([], Validators.maxLength(this.targetsMax));
     this.program.targets.forEach(target => {
@@ -209,6 +212,10 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
   addTarget() {
     const control = new FormControl('', Validators.maxLength(this.targetsMaxLength));
     this.landingF.targets.value.controls.push(control);
+  }
+
+  deleteTarget(index: number) {
+    this.landingF.targets.value.controls.splice(index, 1);
   }
 
   get landingF(): any {
@@ -313,7 +320,6 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
     this.program.description = this.landingF.description.value;
     this.program.language = this.landingF.language.value;
     this.program.category = this.landingF.category.value;
-    this.program.level = this.landingF.level.value;
     this.program.subject = this.landingF.subject.value;
     this.program.image = this.landingF.image.value;
     this.program.promoVideo = this.landingF.promoVideo.value;

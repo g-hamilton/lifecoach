@@ -235,6 +235,22 @@ export class ProgramOutlineComponent implements OnInit, OnChanges, OnDestroy {
     this.analyticsService.editProgramOutline();
   }
 
+  calcDiscount() {
+    if (!this.outlineF.fullPrice.value) {
+      return 0;
+    }
+    if (!this.outlineF.numSessions.value) {
+      return 0;
+    }
+    if (!this.outlineF.pricePerSession.value) {
+      return 0;
+    }
+    if ((this.outlineF.numSessions.value * this.outlineF.pricePerSession.value) <= this.outlineF.fullPrice.value) {
+      return 0;
+    }
+    return (100 - (this.outlineF.fullPrice.value / (this.outlineF.numSessions.value * this.outlineF.pricePerSession.value)) * 100).toFixed();
+  }
+
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
   }

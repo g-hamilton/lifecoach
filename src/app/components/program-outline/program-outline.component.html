@@ -163,7 +163,7 @@
                     <!-- real-time calculation of discount to clients if paying in full -->
                     <div class=" float-right" *ngIf="outlineF.numSessions.value && outlineF.pricePerSession.value && outlineF.fullPrice.value">
                         <p class=" small text-success">
-                            {{ ((outlineF.fullPrice.value / (outlineF.numSessions.value * outlineF.pricePerSession.value)) * 100).toFixed() }}% discount compared to 'Pay As You Go'
+                            {{ calcDiscount() }}% discount compared to 'Pay As You Go'
                         </p>
                     </div>
                 </div>

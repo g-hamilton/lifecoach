@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CoachingCourse } from 'app/interfaces/course.interface';
-import { CourseReviewsService } from 'app/services/course-reviews.service';
+import { ReviewsService } from 'app/services/reviews.service';
 import { DataService } from 'app/services/data.service';
 import { CourseReview } from 'app/interfaces/course-review';
 import { SearchService } from 'app/services/search.service';
@@ -33,7 +33,7 @@ export class StarReviewComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     public formBuilder: FormBuilder,
-    private courseReviewService: CourseReviewsService,
+    private reviewService: ReviewsService,
     private dataService: DataService,
     private searchService: SearchService,
     private alertService: AlertService
@@ -150,7 +150,7 @@ export class StarReviewComponent implements OnInit, OnDestroy {
       lastUpdated: Math.round(new Date().getTime() / 1000)
     };
 
-    await this.courseReviewService.setReview(data);
+    await this.reviewService.setCourseReview(data);
 
     this.savedRatingEvent.emit(true);
   }

@@ -17,7 +17,6 @@ export interface CoachingProgram {
     description?: string;
     language?: string;
     category?: string;
-    level?: string;
     subject?: string;
     image?: string;
     promoVideo?: any;
@@ -26,7 +25,6 @@ export interface CoachingProgram {
     targets?: string[];
     coachName?: string;
     coachPhoto?: string;
-    isTest?: boolean;
     lastUpdated?: number; // unix timestamp
     monthlyEarnings?: any;
     lifetimeTotals?: any;

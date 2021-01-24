@@ -200,12 +200,6 @@ export class SearchService {
     // console.log('Algolia query params constructed:', params);
 
     try {
-      // Record the search if we're in the browser (not SSR)
-      if (isPlatformBrowser(this.platformId)) {
-        const p = (filters && filters.params) ? filters.params : null;
-        this.recordCoursesSearch(p, params.query);
-      }
-
       // Run the search
       const res = await index.search(params);
       // console.log('Algolia search hit results:', res);
@@ -220,7 +214,7 @@ export class SearchService {
   // =====                         SEARCHING COURSES                           ======
   // ================================================================================
 
-  private buildAlgoliaCourseFilters(filters: any, includeTestData?: boolean) {
+  private buildAlgoliaCourseFilters(filters: any) {
     /*
     Accepts an object containing search filters that we capture from the route params, eg:
     {"0":"category","params":{"category":"business&career"}}
@@ -244,10 +238,6 @@ export class SearchService {
         }
       }
     }
-    // *** FOR TESTING ***
-    if (!includeTestData) {
-      andArray.push(`isTest:false`); // excludes all test data (production). Otherwise allows a mix of real & test data.
-    }
 
     const builtAndString = andArray.join(' AND ');
     // console.log('Algolia filters string constructed:', builtAndString);
@@ -259,7 +249,7 @@ export class SearchService {
     this.analyticsService.searchCourses(filters, query);
   }
 
-  async searchCourses(hitsPerPage?: number, page?: number, filters?: any, includeTestData?: boolean) {
+  async searchCourses(hitsPerPage?: number, page?: number, filters?: any) {
     // console.log('filters:', filters);
 
     // Init search index & default params
@@ -269,11 +259,16 @@ export class SearchService {
       query: (filters && filters.params && filters.params.q) ? filters.params.q : '',
       hitsPerPage: hitsPerPage ? hitsPerPage : 6,
       page: page ? page - 1 : 0, // because Algolia is zero indexed but we always start at 1
-      filters: filters ? this.buildAlgoliaCourseFilters(filters, includeTestData) : ''
+      filters: filters ? this.buildAlgoliaCourseFilters(filters) : ''
     };
     // console.log('Algolia query params constructed:', params);
 
     try {
+      // Record the search if we're in the browser (not SSR)
+      if (isPlatformBrowser(this.platformId)) {
+        const p = (filters && filters.params) ? filters.params : null;
+        this.recordCoursesSearch(p, params.query);
+      }
       // Run the search
       const res = await index.search(params);
       // console.log('Algolia search hit results:', res);
@@ -284,7 +279,7 @@ export class SearchService {
     }
   }
 
-  async searchDraftCourses(hitsPerPage?: number, page?: number, filters?: any, includeTestData?: boolean) {
+  async searchDraftCourses(hitsPerPage?: number, page?: number, filters?: any) {
     // console.log('filters:', filters);
 
     // Init search index & default params
@@ -294,7 +289,7 @@ export class SearchService {
       query: (filters && filters.params && filters.params.q) ? filters.params.q : '',
       hitsPerPage: hitsPerPage ? hitsPerPage : 6,
       page: page ? page - 1 : 0, // because Algolia is zero indexed but we always start at 1
-      filters: filters ? this.buildAlgoliaCourseFilters(filters, includeTestData) : ''
+      filters: filters ? this.buildAlgoliaCourseFilters(filters) : ''
     };
     // console.log('Algolia query params constructed:', params);
 
@@ -555,6 +550,11 @@ export class SearchService {
     // console.log('Algolia query params constructed:', params);
 
     try {
+      // Record the search if we're in the browser (not SSR)
+      if (isPlatformBrowser(this.platformId)) {
+        const p = (filters && filters.params) ? filters.params : null;
+        this.recordProgramsSearch(p, params.query);
+      }
       // Run the search
       const res = await index.search(params);
       // console.log('Algolia search hit results:', res);
@@ -672,6 +672,196 @@ export class SearchService {
       hitsPerPage,
       page: page - 1, // because Algolia is zero indexed but we always start at 1
       filters: filters.facets ? this.buildAlgoliaProgramRefundRequestFilters(filters.facets) : ''
+    };
+    // console.log('Algolia query params constructed:', params);
+
+    try {
+      // Run the search
+      const res = await index.search(params);
+      // console.log('Algolia search hit results:', res);
+      return res;
+
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  // ================================================================================
+  // =====                         SEARCHING SERVICES                          ======
+  // ================================================================================
+
+  private buildAlgoliaServiceFilters(filters: any) {
+    /*
+    Accepts an object containing search filters that we capture from the route params, eg:
+    {"0":"category","params":{"category":"business&career"}}
+    Builds and returns a 'filters' query string from that object using Algolia rules.
+    https://www.algolia.com/doc/api-reference/api-parameters/filters/
+    We should end up with a string like:
+    'category:business&career'
+    */
+    const andArray = [];
+    if (filters && filters.params) {
+      for (const p of Object.keys(filters.params)) {
+        // Map each param to an Algolia defined facet in the relevant index
+        let facetKey: string;
+        const str: string = filters.params[p];
+        if (p === 'category') {
+          facetKey = 'category';
+        }
+        if (p !== 'page' && p !== 'q') { // skip the query & page params as we deal with them higher up
+          // Add facet to the AND array
+          andArray.push(`${facetKey}:'${str}'`);
+        }
+      }
+    }
+
+    const builtAndString = andArray.join(' AND ');
+    // console.log('Algolia filters string constructed:', builtAndString);
+
+    return builtAndString;
+  }
+
+  private recordServicesSearch(filters: any, query?: string) {
+    this.analyticsService.searchServices(filters, query);
+  }
+
+  async searchServices(hitsPerPage?: number, page?: number, filters?: any) {
+    // console.log('filters:', filters);
+
+    // Init search index & default params
+    const searchIndex = 'prod_SERVICES';
+    const index = this.searchClient.initIndex(searchIndex);
+    const params: algoliasearch.QueryParameters = {
+      query: (filters && filters.params && filters.params.q) ? filters.params.q : '',
+      hitsPerPage: hitsPerPage ? hitsPerPage : 6,
+      page: page ? page - 1 : 0, // because Algolia is zero indexed but we always start at 1
+      filters: filters ? this.buildAlgoliaServiceFilters(filters) : ''
+    };
+    // console.log('Algolia query params constructed:', params);
+
+    try {
+      // Record the search if we're in the browser (not SSR)
+      if (isPlatformBrowser(this.platformId)) {
+        const p = (filters && filters.params) ? filters.params : null;
+        this.recordServicesSearch(p, params.query);
+      }
+      // Run the search
+      const res = await index.search(params);
+      // console.log('Algolia search hit results:', res);
+      return res;
+
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async searchDraftServices(hitsPerPage?: number, page?: number, filters?: any) {
+    // console.log('filters:', filters);
+
+    // Init search index & default params
+    const searchIndex = 'prod_DRAFT_SERVICES';
+    const index = this.searchClient.initIndex(searchIndex);
+    const params: algoliasearch.QueryParameters = {
+      query: (filters && filters.params && filters.params.q) ? filters.params.q : '',
+      hitsPerPage: hitsPerPage ? hitsPerPage : 6,
+      page: page ? page - 1 : 0, // because Algolia is zero indexed but we always start at 1
+      filters: filters ? this.buildAlgoliaServiceFilters(filters) : ''
+    };
+    // console.log('Algolia query params constructed:', params);
+
+    try {
+      // Run the search
+      const res = await index.search(params);
+      // console.log('Algolia search hit results:', res);
+      return res;
+
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  // ================================================================================
+  // =====                      SEARCHING PROGRAM REVIEWS                      ======
+  // ================================================================================
+
+  private buildAlgoliaServiceReviewFilters(facets: any) {
+    /*
+    Accepts an object containing search filters, eg.
+    { courseId: abc, starValue: 5 }
+    Builds and returns a 'filters' query string from that object using Algolia rules.
+    https://www.algolia.com/doc/api-reference/api-parameters/filters/
+    We should end up with a string like:
+    'courseId:abc AND starValue:5'
+    */
+    const andArray = [];
+    Object.keys(facets).forEach(key => {
+      andArray.push(`${key}:${facets[key]}`);
+    });
+    const builtAndString = andArray.join(' AND ');
+    // console.log('Algolia filters string constructed:', builtAndString);
+
+    return builtAndString;
+  }
+
+  async searchServiceReviews(hitsPerPage: number, page: number, filters: any) {
+    // console.log('filters:', filters);
+
+    // Init search index & default params
+    const searchIndex = 'prod_SERVICE_REVIEWS';
+    const index = this.searchClient.initIndex(searchIndex);
+    const params: algoliasearch.QueryParameters = {
+      query: filters.query ? filters.query : '',
+      hitsPerPage,
+      page: page - 1, // because Algolia is zero indexed but we always start at 1
+      filters: filters.facets ? this.buildAlgoliaProgramReviewFilters(filters.facets) : ''
+    };
+    // console.log('Algolia query params constructed:', params);
+
+    try {
+      // Run the search
+      const res = await index.search(params);
+      // console.log('Algolia search hit results:', res);
+      return res;
+
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  // ================================================================================
+  // =====                   SEARCHING PROGRAM REFUND REQUESTS                 ======
+  // ================================================================================
+
+  private buildAlgoliaServiceRefundRequestFilters(facets: any) {
+    /*
+    Accepts an object containing search filters, eg.
+    { courseId: abc, lectureId: xyz }
+    Builds and returns a 'filters' query string from that object using Algolia rules.
+    https://www.algolia.com/doc/api-reference/api-parameters/filters/
+    We should end up with a string like:
+    'courseId:abc AND lectureId:xyz'
+    */
+    const andArray = [];
+    Object.keys(facets).forEach(key => {
+      andArray.push(`${key}:${facets[key]}`);
+    });
+    const builtAndString = andArray.join(' AND ');
+    // console.log('Algolia filters string constructed:', builtAndString);
+
+    return builtAndString;
+  }
+
+  async searchServiceRefundRequests(hitsPerPage: number, page: number, filters: any) {
+    // console.log('filters:', filters);
+
+    // Init search index & default params
+    const searchIndex = 'prod_REFUNDS';
+    const index = this.searchClient.initIndex(searchIndex);
+    const params: algoliasearch.QueryParameters = {
+      query: filters.query ? filters.query : '',
+      hitsPerPage,
+      page: page - 1, // because Algolia is zero indexed but we always start at 1
+      filters: filters.facets ? this.buildAlgoliaServiceRefundRequestFilters(filters.facets) : ''
     };
     // console.log('Algolia query params constructed:', params);
 

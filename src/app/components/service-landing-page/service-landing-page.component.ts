@@ -1,0 +1,347 @@
+import { Component, OnInit, Input, Inject, PLATFORM_ID, OnChanges, OnDestroy, AfterViewInit } from '@angular/core';
+import { FormGroup, FormBuilder, Validators, FormControl, FormArray } from '@angular/forms';
+import { isPlatformBrowser } from '@angular/common';
+import { Subscription } from 'rxjs';
+import { CoachingService } from 'app/interfaces/coaching.service.interface';
+import { DataService } from 'app/services/data.service';
+import { AlertService } from 'app/services/alert.service';
+import { AnalyticsService } from 'app/services/analytics.service';
+import { CoachingSpecialitiesService } from 'app/services/coaching.specialities.service';
+import { IsoLanguagesService } from 'app/services/iso-languages.service';
+
+@Component({
+  selector: 'app-service-landing-page',
+  templateUrl: './service-landing-page.component.html',
+  styleUrls: ['./service-landing-page.component.scss']
+})
+export class ServiceLandingPageComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
+
+  @Input() userId: string;
+  @Input() service: CoachingService;
+
+  public browser: boolean;
+  public viewLoaded: boolean;
+
+  public landingForm: FormGroup;
+
+  public focus: boolean;
+  public focus1: boolean;
+  public focus2: boolean;
+  public focusTouched: boolean;
+  public focus1Touched: boolean;
+  public focus2Touched: boolean;
+
+  public titleMinLength = 10;
+  public titleMaxLength = 60;
+  public titleActualLength = 0;
+
+  public subTitleMinLength = 20;
+  public subTitleMaxLength = 120;
+  public subTitleActualLength = 0;
+
+  public subjectMinLength = 6;
+  public subjectMaxLength = 120;
+  public subjectActualLength = 0;
+
+  public learningPointsMaxLength = 120;
+  public learningPointsMax = 6; // max number of service learning points allowed
+
+  public requirementsMaxLength = 120;
+  public requirementsMax = 6; // max number of service requirements allowed
+
+  public targetsMaxLength = 120;
+  public targetsMax = 6; // max number of service target students allowed
+
+  public saving: boolean;
+  public saveAttempt: boolean;
+  public objKeys = Object.keys;
+  private subscriptions: Subscription = new Subscription();
+
+  public specialities: any;
+  public languages: any;
+
+  public videoSources = [] as any;
+
+  public errorMessages = {
+    title: {
+      minlength: `Your service title should be at least ${this.titleMinLength} characters.`,
+      maxlength: `Your service title should be at less than ${this.titleMaxLength} characters.`,
+      required: 'Please enter a service title.'
+    },
+    subtitle: {
+      minlength: `Your service sub-title should be at least ${this.subTitleMinLength} characters.`,
+      maxlength: `Your service sub-title should be at less than ${this.subTitleMaxLength} characters.`,
+      required: 'Please enter a service sub-title.'
+    },
+    description: {
+      required: 'Please enter a service description.'
+    },
+    language: {
+      required: 'Please select a service language.'
+    },
+    category: {
+      required: 'Please select the closest matching service category.'
+    },
+    subject: {
+      minlength: `This summary should be at least ${this.subjectMinLength} characters.`,
+      maxlength: `This summary should be at less than ${this.subjectMaxLength} characters.`,
+      required: 'Please be specific about what your service is about.'
+    },
+    learningPoints: {
+      maxlength: `Key learning points should be at less than ${this.learningPointsMaxLength} characters.`
+    },
+    requirements: {
+      maxlength: `Requirements should be at less than ${this.requirementsMaxLength} characters.`
+    },
+    targets: {
+      maxlength: `Target student descriptions should be at less than ${this.targetsMaxLength} characters.`
+    }
+  };
+
+  constructor(
+    @Inject(PLATFORM_ID) public platformId: object,
+    public formBuilder: FormBuilder,
+    private dataService: DataService,
+    private alertService: AlertService,
+    private analyticsService: AnalyticsService,
+    private specialitiesService: CoachingSpecialitiesService,
+    private languagesService: IsoLanguagesService
+  ) { }
+
+  ngOnInit() {
+    if (isPlatformBrowser(this.platformId)) {
+      this.browser = true;
+      this.buildLandingForm();
+      this.specialities = this.specialitiesService.getSpecialityList();
+      this.languages = this.languagesService.getLanguagesJson();
+    }
+  }
+
+  ngAfterViewInit() {
+    setTimeout(() => {
+      this.viewLoaded = true;
+    }, 100);
+  }
+
+  ngOnChanges() {
+    if (this.service) {
+      this.importServiceData();
+    }
+  }
+
+  buildLandingForm() {
+    this.landingForm = this.formBuilder.group({
+      serviceId: ['', [Validators.required]],
+      title: ['', [Validators.required, Validators.minLength(this.titleMinLength), Validators.maxLength(this.titleMaxLength)]],
+      subtitle: ['', [Validators.required, Validators.minLength(this.subTitleMinLength), Validators.maxLength(this.subTitleMaxLength)]],
+      description: ['', [Validators.required]],
+      language: [null, [Validators.required]],
+      category: [null, [Validators.required]],
+      subject: ['', [Validators.required, Validators.minLength(this.subjectMinLength), Validators.maxLength(this.subjectMaxLength)]],
+      image: [null],
+      promoVideo: [null],
+      learningPoints: [this.formBuilder.array([])],
+      requirements: [this.formBuilder.array([])],
+      targets: [this.formBuilder.array([])]
+    });
+  }
+
+  importServiceData() {
+    this.landingForm.patchValue({
+      serviceId: this.service.serviceId,
+      title: this.service.title ? this.service.title : '',
+      subtitle: this.service.subtitle ? this.service.subtitle : '',
+      description: this.service.description ? this.service.description : '',
+      language: this.service.language ? this.service.language : 'en',
+      category: this.service.category ? this.service.category : null,
+      subject: this.service.subject ? this.service.subject : '',
+      image: this.service.image ? this.service.image : null,
+      promoVideo: this.service.promoVideo ? this.service.promoVideo : null,
+      learningPoints: this.service.learningPoints ? this.loadLpoints() : this.formBuilder.array([], Validators.maxLength(this.learningPointsMax)),
+      requirements: this.service.requirements ? this.loadRequirements() : this.formBuilder.array([], Validators.maxLength(this.requirementsMax)),
+      targets: this.service.targets ? this.loadTargets() : this.formBuilder.array([], Validators.maxLength(this.targetsMax))
+    });
+    // init the character counts (before user input detected)
+    this.titleActualLength = this.landingF.title.value.length;
+    this.subTitleActualLength = this.landingF.subtitle.value.length;
+    this.subjectActualLength = this.landingF.subject.value.length;
+  }
+
+  loadLpoints() {
+    const lpArray = this.formBuilder.array([], Validators.maxLength(this.learningPointsMax));
+    this.service.learningPoints.forEach(lp => {
+      lpArray.push(new FormControl(lp, Validators.maxLength(this.learningPointsMaxLength)));
+    });
+    return lpArray;
+  }
+
+  addLearningPoint() {
+    const control = new FormControl('', Validators.maxLength(this.learningPointsMaxLength));
+    this.landingF.learningPoints.value.controls.push(control);
+  }
+
+  deleteLearningPoint(index: number) {
+    this.landingF.learningPoints.value.controls.splice(index, 1);
+  }
+
+  loadRequirements() {
+    const reqArray = this.formBuilder.array([], Validators.maxLength(this.requirementsMax));
+    this.service.requirements.forEach(req => {
+      reqArray.push(new FormControl(req, Validators.maxLength(this.requirementsMaxLength)));
+    });
+    return reqArray;
+  }
+
+  addRequirement() {
+    const control = new FormControl('', Validators.maxLength(this.requirementsMaxLength));
+    this.landingF.requirements.value.controls.push(control);
+  }
+
+  deleteRequirement(index: number) {
+    this.landingF.requirements.value.controls.splice(index, 1);
+  }
+
+  loadTargets() {
+    const targetArray = this.formBuilder.array([], Validators.maxLength(this.targetsMax));
+    this.service.targets.forEach(target => {
+      targetArray.push(new FormControl(target, Validators.maxLength(this.targetsMaxLength)));
+    });
+    return targetArray;
+  }
+
+  addTarget() {
+    const control = new FormControl('', Validators.maxLength(this.targetsMaxLength));
+    this.landingF.targets.value.controls.push(control);
+  }
+
+  deleteTarget(index: number) {
+    this.landingF.targets.value.controls.splice(index, 1);
+  }
+
+  get landingF(): any {
+    return this.landingForm.controls;
+  }
+
+  showError(control: string, error: string) {
+    if (this.errorMessages[control][error]) {
+      return this.errorMessages[control][error];
+    }
+    return 'Invalid input';
+  }
+
+  onTitleInput(ev: any) {
+    this.titleActualLength = (ev.target.value as string).length;
+  }
+
+  onSubTitleInput(ev: any) {
+    this.subTitleActualLength = (ev.target.value as string).length;
+  }
+
+  onSubjectInput(ev: any) {
+    this.subjectActualLength = (ev.target.value as string).length;
+  }
+
+  onPromoVideoUploadEvent(event: any) {
+    // event should be a promo video object. We can now save this into the service object.
+    console.log('Promo video uploaded event:', event);
+    this.landingForm.patchValue({
+      promoVideo: event
+    });
+    this.videoSources = []; // reset
+    this.videoSources.push({ // use the array method for reloading a videoGular video as simple [src] binding does not reload on the fly
+      src: event.downloadURL
+    });
+  }
+
+  buildLpArray() {
+    const arr = [];
+    (this.landingF.learningPoints.value as FormArray).controls.forEach(control => {
+      if (control.errors) {
+        return;
+      }
+      arr.push(control.value);
+    });
+    if (arr.length === 0 || (arr.length === 1 && arr[0] === '')) {
+      return null;
+    }
+    return arr;
+  }
+
+  buildReqArray() {
+    const arr = [];
+    (this.landingF.requirements.value as FormArray).controls.forEach(control => {
+      if (control.errors) {
+        return;
+      }
+      arr.push(control.value);
+    });
+    if (arr.length === 0 || (arr.length === 1 && arr[0] === '')) {
+      return null;
+    }
+    return arr;
+  }
+
+  buildTargetArray() {
+    const arr = [];
+    (this.landingF.targets.value as FormArray).controls.forEach(control => {
+      if (control.errors) {
+        return;
+      }
+      arr.push(control.value);
+    });
+    if (arr.length === 0 || (arr.length === 1 && arr[0] === '')) {
+      return null;
+    }
+    return arr;
+  }
+
+  async onSubmit() {
+    this.saveAttempt = true;
+    this.saving = true;
+
+    // safety checks
+
+    if (this.landingForm.invalid) {
+      console.log(this.landingForm.value);
+      this.alertService.alert('warning-message', 'Oops', 'Please complete all required fields before saving.');
+      this.saving = false;
+      return;
+    }
+
+    if (!this.userId) {
+      this.alertService.alert('warning-message', 'Oops', 'Error: No user ID. Cannot save data.');
+      this.saving = false;
+      return;
+    }
+
+    // Merge landing form data into service data & save the service object
+    this.service.title = this.landingF.title.value;
+    this.service.subtitle = this.landingF.subtitle.value;
+    this.service.description = this.landingF.description.value;
+    this.service.language = this.landingF.language.value;
+    this.service.category = this.landingF.category.value;
+    this.service.subject = this.landingF.subject.value;
+    this.service.image = this.landingF.image.value;
+    this.service.promoVideo = this.landingF.promoVideo.value;
+    this.service.learningPoints = this.buildLpArray();
+    this.service.requirements = this.buildReqArray();
+    this.service.targets = this.buildTargetArray();
+
+    // console.log(this.outlineForm.value);
+    // console.log('Saving service:', this.service);
+
+    await this.dataService.savePrivateService(this.userId, this.service);
+
+    this.alertService.alert('auto-close', 'Success!', 'Service saved.');
+
+    this.saving = false;
+    this.saveAttempt = false;
+
+    this.analyticsService.editServiceLanding();
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
+  }
+
+}
