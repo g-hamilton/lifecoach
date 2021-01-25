@@ -3707,7 +3707,7 @@ exports.onWritePublicCourses = functions
     coachPhoto: course.coachPhoto,
     approved: course.approved,
     includeInCoachingForCoaches: course.includeInCoachingForCoaches,
-    imagePaths: course.imagePaths ? course.imagePaths : undefined
+    imagePaths: course.imagePaths ? course.imagePaths : null
   };
   // Update Algolia.
   return index.saveObject(recordToSend);
@@ -3830,7 +3830,7 @@ exports.onWritePrivateUserCourse = functions
       sections: course.sections,
       lectures: publicLectures, // Caution! Don't add lecture data here without removing paywall protected content!
       includeInCoachingForCoaches: course.includeInCoachingForCoaches ? course.includeInCoachingForCoaches : null,
-      imagePaths: course.imagePaths ? course.imagePaths : undefined
+      imagePaths: course.imagePaths ? course.imagePaths : null
     };
     const publicRef = db.collection(`public-courses`).doc(courseId);
     batch.set(publicRef, publicData, { merge: true });
