@@ -580,9 +580,17 @@ exports.recursiveDeleteUserData = functions
   });
   console.log(`Storage - profileVideos deleted for user ${context.auth.uid}`);
 
+  console.log(`Storage bucket cleanup complete for user ${context.auth.uid}. Commencing cleanup of mailing list...`);
+
   // Cleanup Mailing List.
   console.log(`Removing user ${userEmail} from Mailchimp...`);
   archiveMailchimpUser(accountType, userEmail);
+
+  console.log(`Mailing list cleanup complete for user ${context.auth.uid}. Commencing cleanup of Algolia...`);
+
+  // TODO - query Algolia for any draft courses, programs or services created by this user. Delete records if found.
+  // use "sellerUid" as a facet value.
+  // note: max facet results is 10 so if user has any more drafts, only 10 records will be returned.
 
   console.log(`User data deleted successfully!`);
 
