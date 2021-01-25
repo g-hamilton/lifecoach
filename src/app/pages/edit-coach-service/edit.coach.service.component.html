@@ -30,7 +30,7 @@
                 <span
                 *ngIf="service?.reviewRequest?.status === 'approved'"
                 class=" badge badge-success ml-2">
-                    PROGRAM PUBLISHED
+                    SERVICE PUBLISHED
                 </span>
                 <span
                 *ngIf="service?.reviewRequest?.status === 'rejected'"
@@ -38,7 +38,7 @@
                     NEEDS ACTION
                 </span>
                 <span *ngIf="!service?.reviewRequest?.status" class=" badge badge-warning ml-2">
-                    DRAFT PROGRAM
+                    DRAFT SERVICE
                 </span>
             </h4>
 
