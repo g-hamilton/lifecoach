@@ -728,10 +728,12 @@ export class CalendarComponent implements OnInit, OnDestroy {
     this.isReschedulingMode = true;
     const millisecondPerDay = 24 * 60 * 60 * 1000;
     const now = new Date();
+    // now.setHours(now.getHours() + 1, 0, 0, 0);
+    // console.log('Date', now);
     let startDate: Date = new Date(now.setFullYear(now.getFullYear() - 1));
     const endDate: Date = new Date(now.setFullYear(now.getFullYear() + 2));
     now.setFullYear(now.getFullYear() - 1);
-    console.log('NOW OBJECT', now);
+    // console.log('NOW OBJECT', now);
     this.disabledDates = [];
     do { // check every date in the enabled array between the start and end point
       let disable = true; // disable by default
@@ -748,11 +750,12 @@ export class CalendarComponent implements OnInit, OnDestroy {
 
     this.loadActiveEventFormData();
     this.oldEventID = this.activeEventF.id.value;
-    console.log(this.oldEventID);
+    // console.log(this.oldEventID);
     const timeNow =  new Date();
     timeNow.setHours(0, 0, 0, 0);
+    console.log('TimeNow', timeNow);
     if ( this.activeEventF.start < timeNow) {
-      this.fillStartTimes({date: timeNow});
+      this.fillStartTimes({date: new Date(timeNow).setHours(timeNow.getHours() + 1, 0, 0, 0)});
       // this.fillEndTimes({ date: timeNow}, true);
     } else {
       this.fillStartTimes({date: this.activeEventF.start});
@@ -839,8 +842,15 @@ export class CalendarComponent implements OnInit, OnDestroy {
     // console.log('eventetete', event);
     this.startTimes = [];
     // console.log('EVENT', event);
-    const oldTime: Date = event.date instanceof Date ? event.date : event.date.value ;
+    let oldTime: Date = event.date instanceof Date ? event.date : event.date.value ;
+    if (this.isReschedulingMode) {
+      oldTime.setHours(oldTime.getHours() + 1, 0, 0, 0);
+    }
     let newTime = new Date(oldTime);
+    if (this.isReschedulingMode) {
+      newTime.setHours(newTime.getHours() + 1, 0, 0, 0);
+      // console.log('newwTime is', newTime);
+    }
     this.startTimes = [oldTime, ...this.startTimes];
     let isOneDay = true;
     while ( isOneDay ) {
