@@ -6,6 +6,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { CoachingServiceComponent } from './coaching.service.component';
 import { CoachingServiceRoutes } from './coaching.service.routing';
+import { ScheduleCallComponent } from 'app/components/schedule-call/schedule-call.component';
 
 @NgModule({
   imports: [
@@ -16,6 +17,9 @@ import { CoachingServiceRoutes } from './coaching.service.routing';
   ],
   declarations: [
     CoachingServiceComponent
+  ],
+  entryComponents: [
+    ScheduleCallComponent
   ]
 })
 export class CoachingServiceModule {}

@@ -2273,7 +2273,8 @@ exports.adminApproveCourseReview = functions
     const event = {
       name: 'admin_approved_course',
       properties: {
-        course_title: course.title
+        course_title: course.title,
+        goto_url: `https://lifecoach.io/my-courses/${courseId}/content`
       }
     }
     await logMailchimpEvent(course.sellerUid, event); // log event
@@ -2343,7 +2344,8 @@ exports.adminRejectCourseReview = functions
       name: 'admin_rejected_course',
       properties: {
         course_title: course.title,
-        reject_reason: reviewRequest.rejectData.reason
+        reject_reason: reviewRequest.rejectData.reason,
+        goto_url: `https://lifecoach.io/my-courses/${courseId}/content`
       }
     }
     await logMailchimpEvent(reviewRequest.sellerUid, event); // log event
@@ -2440,7 +2442,8 @@ exports.adminApproveProgramReview = functions
     const event = {
       name: 'admin_approved_program',
       properties: {
-        program_title: program.title
+        program_title: program.title,
+        goto_url: `https://lifecoach.io/my-programs/${programId}/content`
       }
     }
     await logMailchimpEvent(program.sellerUid, event); // log event
@@ -2510,7 +2513,8 @@ exports.adminRejectProgramReview = functions
       name: 'admin_rejected_program',
       properties: {
         program_title: program.title,
-        reject_reason: reviewRequest.rejectData.reason
+        reject_reason: reviewRequest.rejectData.reason,
+        goto_url: `https://lifecoach.io/my-programs/${programId}/content`
       }
     }
     await logMailchimpEvent(reviewRequest.sellerUid, event); // log event
@@ -2607,7 +2611,8 @@ exports.adminApproveServiceReview = functions
     const event = {
       name: 'admin_approved_service',
       properties: {
-        service_title: service.title
+        service_title: service.title,
+        goto_url: `https://lifecoach.io/my-services/${serviceId}/content`
       }
     }
     await logMailchimpEvent(service.sellerUid, event); // log event
@@ -2677,7 +2682,8 @@ exports.adminRejectServiceReview = functions
       name: 'admin_rejected_service',
       properties: {
         service_title: service.title,
-        reject_reason: reviewRequest.rejectData.reason
+        reject_reason: reviewRequest.rejectData.reason,
+        goto_url: `https://lifecoach.io/my-services/${serviceId}/content`
       }
     }
     await logMailchimpEvent(reviewRequest.sellerUid, event); // log event
