@@ -159,36 +159,36 @@ export class CalendarComponent implements OnInit, OnDestroy {
   getCoachCalendarEvents() {
     this.subscriptions.add(
       this.dataService.getUserCalendarEvents(this.userId, this.viewDate)
-      .pipe(
-        map(i => this.filterEvents(i))
-      )
-      .subscribe(events => {
-        if (events) {
-          // console.log('events before forEach', events);
-          // important: update date objects as Firebase stores dates as unix string: 't {seconds: 0, nanoseconds: 0}'
-          events.forEach((ev: CustomCalendarEvent) => {
-            if (ev.start) {
-              ev.start = new Date((ev.start as any).seconds * 1000);
-            }
-            if (ev.end) {
-              ev.end = new Date((ev.end as any).seconds * 1000);
-            }
-            ev.title = this.getTitle(ev);
+        .pipe(
+          map(i => this.filterEvents(i))
+        )
+        .subscribe(events => {
+          if (events) {
+            // console.log('events before forEach', events);
+            // important: update date objects as Firebase stores dates as unix string: 't {seconds: 0, nanoseconds: 0}'
+            events.forEach((ev: CustomCalendarEvent) => {
+              if (ev.start) {
+                ev.start = new Date((ev.start as any).seconds * 1000);
+              }
+              if (ev.end) {
+                ev.end = new Date((ev.end as any).seconds * 1000);
+              }
+              ev.title = this.getTitle(ev);
 
-            // do we need to dynamically update the css class here in the front end?
-            // if event has been ordered, is not complete and is in the past - set to needs-action
-            if (ev.ordered && !ev.complete && ev.end < this.dateNow) {
-              ev.cssClass = 'needs-action';
-            }
+              // do we need to dynamically update the css class here in the front end?
+              // if event has been ordered, is not complete and is in the past - set to needs-action
+              if (ev.ordered && !ev.complete && ev.end < this.dateNow) {
+                ev.cssClass = 'needs-action';
+              }
 
-          });
+            });
 
-          this.events = events;
-          this.refresh.next(); // refresh the view
+            this.events = events;
+            this.refresh.next(); // refresh the view
 
-          // console.log(this.events);
-        }
-      })
+            // console.log(this.events);
+          }
+        })
     );
   }
 
@@ -196,61 +196,61 @@ export class CalendarComponent implements OnInit, OnDestroy {
     // monitor this coach's clients
     this.subscriptions.add(
       this.crmPeopleService.getUserPeople(this.userId)
-      .subscribe(async people => {
-        if (people) {
-          // note: a person is a client if they have enrolled in a course or program, so check their history...
-          const filledPeople = await this.crmPeopleService.getFilledPeople(this.userId, people);
-          // console.log('filled people', filledPeople);
-          const clients = filledPeople.filter(o => o.history.filter(h => h.action === 'enrolled_in_full_program' ||
-          h.action === 'enrolled_in_program_session' || h.action === 'enrolled_in_self_study_course'));
-          // work out which programs each client is enrolled in
-          clients.forEach(c => {
-            const programIds = [];
-            if (c.history) {
-              c.history.forEach(i => {
-                if (i.action === 'enrolled_in_program_session' || i.action === 'enrolled_in_full_program') {
-                  programIds.push(i.programId);
-                }
-              });
-              const uniqueProgramIds = [...new Set(programIds)]; // remove any duplicates
-              // work out how many purchased sessions remain for each program the person is enrolled in
-              c.enrolledPrograms = [];
-              uniqueProgramIds.forEach(p => {
-                this.dataService.getPurchasedProgramSessions(this.userId, c.id, p)
-                .pipe(take(1))
-                .subscribe(sessions => {
-                  if (sessions && sessions.length) {
-                    this.dataService.getPublicProgram(p)
-                    .pipe(take(1))
-                    .subscribe(pubProgram => {
-                      if (pubProgram) {
-                        c.enrolledPrograms.push({
-                          id: p,
-                          purchasedSessions: sessions.length,
-                          title: pubProgram.title
-                        });
-                      }
-                    });
+        .subscribe(async people => {
+          if (people) {
+            // note: a person is a client if they have enrolled in a course or program, so check their history...
+            const filledPeople = await this.crmPeopleService.getFilledPeople(this.userId, people);
+            // console.log('filled people', filledPeople);
+            const clients = filledPeople.filter(o => o.history.filter(h => h.action === 'enrolled_in_full_program' ||
+              h.action === 'enrolled_in_program_session' || h.action === 'enrolled_in_self_study_course'));
+            // work out which programs each client is enrolled in
+            clients.forEach(c => {
+              const programIds = [];
+              if (c.history) {
+                c.history.forEach(i => {
+                  if (i.action === 'enrolled_in_program_session' || i.action === 'enrolled_in_full_program') {
+                    programIds.push(i.programId);
                   }
                 });
-              });
-            }
-          });
-          this.clients = clients;
-          console.log('Clients:', clients);
-        }
-      })
+                const uniqueProgramIds = [...new Set(programIds)]; // remove any duplicates
+                // work out how many purchased sessions remain for each program the person is enrolled in
+                c.enrolledPrograms = [];
+                uniqueProgramIds.forEach(p => {
+                  this.dataService.getPurchasedProgramSessions(this.userId, c.id, p)
+                    .pipe(take(1))
+                    .subscribe(sessions => {
+                      if (sessions && sessions.length) {
+                        this.dataService.getPublicProgram(p)
+                          .pipe(take(1))
+                          .subscribe(pubProgram => {
+                            if (pubProgram) {
+                              c.enrolledPrograms.push({
+                                id: p,
+                                purchasedSessions: sessions.length,
+                                title: pubProgram.title
+                              });
+                            }
+                          });
+                      }
+                    });
+                });
+              }
+            });
+            this.clients = clients;
+            console.log('Clients:', clients);
+          }
+        })
     );
   }
 
   loadCoachPrograms() {
     this.subscriptions.add(
       this.dataService.getPublicProgramsBySeller(this.userId)
-      .subscribe(programs => {
-        if (programs) {
-          this.coachPrograms = programs;
-        }
-      })
+        .subscribe(programs => {
+          if (programs) {
+            this.coachPrograms = programs;
+          }
+        })
     );
   }
 
@@ -339,6 +339,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
     //   alert('You can`t pick date, which has already been'); // TODO: Modal
     //   return;
     // }
+    console.log('Кликнули на', event.date);
     this.createEvent(event.date);
     this.fillStartTimes(event);
     this.fillEndTimes(event);
@@ -620,7 +621,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
     const thisDayEvents = this.events !== undefined ?
       this.events
         .filter( item => this.isTheSameDay(item.start, ev.start))
-        : undefined;
+      : undefined;
     console.log(thisDayEvents);
     console.log(ev);
     let error = false;
@@ -654,11 +655,11 @@ export class CalendarComponent implements OnInit, OnDestroy {
       // divide the time period into multiple sessions if required
       console.log('Dividing discovery type event into sessions and saving...');
       this.divideEventIntoSessions(ev)
-      .forEach(i => { // save and notify for each individual (divided) event
-        this.dataService.saveUserCalendarEvent(this.userId, i.start, i);
-        this.eventNotification(ev);
-        this.analyticsService.createCoachSession(ev.type, this.userId, ev.id);
-      });
+        .forEach(i => { // save and notify for each individual (divided) event
+          this.dataService.saveUserCalendarEvent(this.userId, i.start, i);
+          this.eventNotification(ev);
+          this.analyticsService.createCoachSession(ev.type, this.userId, ev.id);
+        });
     } else if (ev.type === 'session') { // If creating a client coaching session
       ev.cssClass = 'session';
       ev.ordered = true;
@@ -721,6 +722,8 @@ export class CalendarComponent implements OnInit, OnDestroy {
   }
 
   onRescheduleSession() {
+
+
     this.eventDetailModal.hide();
     this.startTimes = [];
     this.endTimes = [];
@@ -755,11 +758,10 @@ export class CalendarComponent implements OnInit, OnDestroy {
     timeNow.setHours(0, 0, 0, 0);
     console.log('TimeNow', timeNow);
     if ( this.activeEventF.start < timeNow) {
+      console.log('Вот тут я вызываюсь второй раз', timeNow);
       this.fillStartTimes({date: new Date(timeNow).setHours(timeNow.getHours() + 1, 0, 0, 0)});
-      // this.fillEndTimes({ date: timeNow}, true);
     } else {
       this.fillStartTimes({date: this.activeEventF.start});
-      // this.fillEndTimes({ date: this.activeEventF.start}, true);
     }
 
     console.log('active event:', this.activeEvent);
@@ -770,17 +772,19 @@ export class CalendarComponent implements OnInit, OnDestroy {
   }
 
   onRescheduleDayChange(ev: Date) {
-
+// tslint:disable-next-line:no-console
+    console.trace('Valhalla');
     // console.log('reschedule date changed:', ev);
-    if (this.isTheSameDay(ev, new Date())) {
-      this.fillStartTimes({date: ev});
-      // this.fillEndTimes({ date: ev}, true);
-      this.endTimes = [];
-      this.endTimes = [new Date(ev.getTime() + this.sessionDuration * 600 * 100)];
-    } else {
-      this.fillStartTimes({date: new Date(ev.setHours(0, 0, 0, 0))});
-      this.endTimes = [];
-      this.endTimes = [new Date(ev.getTime() + this.sessionDuration * 600 * 100)];
+    if (this.isReschedulingMode) {
+      if (this.isTheSameDay(ev, new Date())) {
+        this.fillStartTimes({date: ev});
+        this.endTimes = [];
+        this.endTimes = [new Date(ev.getTime() + this.sessionDuration * 600 * 100)];
+      } else {
+        this.fillStartTimes({date: new Date(ev.setHours(0, 0, 0, 0))});
+        this.endTimes = [];
+        this.endTimes = [new Date(ev.getTime() + this.sessionDuration * 600 * 100)];
+      }
     }
     // ev.setHours(0, 0, 0, 0);
     // this.fillStartTimes({date: ev});
@@ -833,20 +837,28 @@ export class CalendarComponent implements OnInit, OnDestroy {
       'Times changed', event.target.value );
     this.fillEndTimes({date: new Date(Date.parse(event.target.value))});
     if (this.isReschedulingMode) {
+      console.log('Event', event,
+        'Times changed', event.target.value );
       this.endTimes = [new Date(new Date (Date.parse(event.target.value)).getTime() + this.sessionDuration * 600 * 100)];
     }
 
   }
 
   fillStartTimes(event: any) {
-    // console.log('eventetete', event);
+    // tslint:disable-next-line:no-console
+    console.trace('test');
+    console.log('Сюда пришло ', event);
     this.startTimes = [];
     // console.log('EVENT', event);
-    let oldTime: Date = event.date instanceof Date ? event.date : event.date.value ;
+    const oldTime: Date = event.date instanceof Date ? event.date : event.date.value ;
+    console.log('Старое время ', oldTime);
+
     if (this.isReschedulingMode) {
+      console.log('Rescheduling');
       oldTime.setHours(oldTime.getHours() + 1, 0, 0, 0);
     }
     let newTime = new Date(oldTime);
+    console.log('Всё ещё старое время', oldTime);
     if (this.isReschedulingMode) {
       newTime.setHours(newTime.getHours() + 1, 0, 0, 0);
       // console.log('newwTime is', newTime);
@@ -858,12 +870,12 @@ export class CalendarComponent implements OnInit, OnDestroy {
       newTime = new Date(newTime.getTime() + this.sessionDuration * 60000);
       // console.log(newTime + '\n');
       if (newTime.getDay() !== oldTime.getDay()) {
-        console.log('BREAKED');
+        // console.log('BREAKED');
         isOneDay = false;
       }
       this.startTimes =  [...this.startTimes, newTime ];
     }
-    // console.log('This,startTimes', this.startTimes);
+    console.log('This,startTimes', this.startTimes);
     this.activeEventForm.patchValue({
       start: this.startTimes[0]
     });
