@@ -14,8 +14,8 @@ import { AdminProgramReviewRequest } from 'app/interfaces/admin.program.review.i
 import { CoachInvite } from 'app/interfaces/coach.invite.interface';
 import { OrderCoachSessionRequest } from 'app/interfaces/order.coach.session.request.interface';
 import { CancelCoachSessionRequest } from 'app/interfaces/cancel.coach.session.request.interface';
-import {DataService} from './data.service';
 import {AdminServiceReviewRequest} from '../interfaces/admin.service.review.interface';
+import {AngularFirestore} from '@angular/fire/firestore';
 
 @Injectable({
   providedIn: 'root'
@@ -28,7 +28,7 @@ export class CloudFunctionsService {
   constructor(
     private cloudFunctions: AngularFireFunctions,
     private toastService: ToastService,
-    private dataService: DataService
+    private db: AngularFirestore,
   ) {
   }
 
@@ -716,8 +716,9 @@ export class CloudFunctionsService {
           photo: responsesWithUrls[index].original.fullSize || ''}));
 
       // @ts-ignore
-      const updateUsersPromiese = toDownload.map( (i, index) => this.dataService.saveCoachProfile(i.profileUid, newProfileObjects[index]));
-      const response = await Promise.all(updateUsersPromiese);
+      const updateUsersPromises = toDownload.map( (i, index) => this.saveCoachProfile(i.profileUid, newProfileObjects[index]));
+
+      const response = await Promise.all(updateUsersPromises);
       console.log('FINALLY DONE');
 
       return {response};
@@ -789,4 +790,13 @@ export class CloudFunctionsService {
     });
   }
 
+
+  // duplicate from 'data.service' to prevent circular dependency injection
+  async saveCoachProfile(uid: string, profile: CoachProfile) {
+    return this.db.collection(`users/${uid}/profile`)
+      .doc(`profile${uid}`)
+      .set(profile, {merge: true})
+      .catch(err => console.error(err));
+  }
+  //
 }
