@@ -6,7 +6,7 @@ import { ToastService } from './toast.service';
 import { CoachProfile } from '../interfaces/coach.profile.interface';
 import { UserAccount } from '../interfaces/user.account.interface';
 import { AdminCourseReviewRequest } from 'app/interfaces/adminCourseReviewRequest';
-import { first } from 'rxjs/operators';
+import {first, take} from 'rxjs/operators';
 import { StripePaymentIntentRequest } from 'app/interfaces/stripe.payment.intent.request';
 import { RefundRequest } from 'app/interfaces/refund.request.interface';
 import {Answer} from '../pages/video-chatroom/videochatroom.component';
@@ -14,6 +14,7 @@ import { AdminProgramReviewRequest } from 'app/interfaces/admin.program.review.i
 import { CoachInvite } from 'app/interfaces/coach.invite.interface';
 import { OrderCoachSessionRequest } from 'app/interfaces/order.coach.session.request.interface';
 import { CancelCoachSessionRequest } from 'app/interfaces/cancel.coach.session.request.interface';
+import {DataService} from './data.service';
 
 @Injectable({
   providedIn: 'root'
@@ -25,7 +26,8 @@ export class CloudFunctionsService {
   goNext: true | false = true;
   constructor(
     private cloudFunctions: AngularFireFunctions,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private dataService: DataService
   ) {
   }
 
@@ -558,10 +560,127 @@ export class CloudFunctionsService {
   }
 
   async resizeProfileAvatarsManager() {
-    do {
-      await this.resizeProfileAvatars();
-    } while (this.goNext);
-    return [...new Set(this.uniqueUsers)];
+    try {
+      const reflect = p => p.then(v => ({v, status: 'fulfilled' }),
+        e => ({e, status: 'rejected' }));
+
+      do {
+        await this.resizeProfileAvatars();
+      } while (this.goNext);
+      const unique =  [...new Set(this.uniqueUsers)]; // Unique users
+
+      console.log('DONE WITH UNIQUE', unique);
+      // @ts-ignore // TODO: don't know why, but getCoachProfile function return both coach and regular profiles;
+      const profilePromises = unique.map( i => this.dataService.getCoachProfile(i).pipe(take(1)).toPromise());
+
+      const uniqueProfiles = await Promise.all(profilePromises.map(reflect)); // This is realization os Promise.allSettled, because is natively not supported
+
+      const coachProfiles = uniqueProfiles.map( (item, index) => ({data: item.v, profileUid: unique[index]})).filter( i => !i.data.photoPaths); // Profiles without 'paths' object
+      console.log('DONE WITH UNIQUE COACHES PROFILES without photo.paths', coachProfiles);
+      /*
+       check image url (photo = link?)
+       if no - that mean user has no photo
+       if yes - add to array.
+       This array will be used as marker (where we should upload our photo urls)
+      */
+      const toDownload = coachProfiles.filter( i => i.data.photo);
+      // console.log(toDownload);
+      const photoUrls = toDownload.map( i => i.data.photo);
+      // if exist = try to download
+      console.log(photoUrls);
+      if (photoUrls.length === 0) {
+        console.log('there is no profiles without paths object');
+        return;
+      }
+      const imagePromises = photoUrls.map( i => (new Promise(resolve => {
+        const trigger = this.cloudFunctions.httpsCallable('getUserPhoto');
+        const tempSub = trigger({ url: i })
+          .pipe(first())
+          .subscribe(res => {
+            resolve(res);
+            tempSub.unsubscribe();
+          }, error => {
+            console.log(error);
+          });
+      })));
+      const allPhotos = await Promise.all(imagePromises);
+      console.log('GOT ALL PHOTOS');
+      /*
+        file().download() - return in unit8 array which should be converted to base64.
+      */
+
+
+      // Functions for converting
+
+      const base64abc = [
+        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+        'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+        'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'
+      ];
+      function bytesToBase64(bytes) {
+        let result = '';
+        let i;
+        const l = bytes.length;
+        for (i = 2; i < l; i += 3) {
+          result += base64abc[bytes[i - 2] >> 2];
+          result += base64abc[((bytes[i - 2] & 0x03) << 4) | (bytes[i - 1] >> 4)];
+          result += base64abc[((bytes[i - 1] & 0x0F) << 2) | (bytes[i] >> 6)];
+          result += base64abc[bytes[i] & 0x3F];
+        }
+        if (i === l + 1) { // 1 octet yet to write
+          result += base64abc[bytes[i - 2] >> 2];
+          result += base64abc[(bytes[i - 2] & 0x03) << 4];
+          result += '==';
+        }
+        if (i === l) { // 2 octets yet to write
+          result += base64abc[bytes[i - 2] >> 2];
+          result += base64abc[((bytes[i - 2] & 0x03) << 4) | (bytes[i - 1] >> 4)];
+          result += base64abc[(bytes[i - 1] & 0x0F) << 2];
+          result += '=';
+        }
+        return result;
+      }
+      // END of functions for converting
+
+
+      // @ts-ignore
+      console.log(bytesToBase64(Object.values(allPhotos[0].file).map( i => +i)));
+
+      // @ts-ignore
+      const userImages = allPhotos.map( i => Object.values(i.file).map( x => +x)); // in binary
+      const inBase64 = userImages.map( i => ('data:image/jpeg;base64,' + bytesToBase64(i)));
+      console.log('ENCODED');
+
+      console.log(userImages);
+
+      // then reshape on different sizes and formats
+      // upload to gcp bucket
+      // get url back
+
+      // @ts-ignore
+      const promisesToUpload = toDownload.map( (i, index) => this.uploadUserAvatar({uid: i.profileUid, img: inBase64[index]}));
+      const responsesWithUrls = await Promise.all(promisesToUpload);
+        // write url to coach object
+      console.log('UPLOADED IN DIF SIZES');
+      const newProfileObjects = toDownload
+        .map( (i, index) => ({...i.data,
+          photoPaths: responsesWithUrls[index],
+      // @ts-ignore
+          photo: responsesWithUrls[index].original.fullSize || ''}));
+
+      // @ts-ignore
+      const updateUsersPromiese = toDownload.map( (i, index) => this.dataService.saveCoachProfile(i.profileUid, newProfileObjects[index]));
+      const response = await Promise.all(updateUsersPromiese);
+      console.log('FINALLY DONE');
+
+      return {response};
+
+    } catch (e) {
+      return {e};
+    }
+
   }
 
   resizeProfileAvatars( data?: any) {
@@ -570,7 +689,7 @@ export class CloudFunctionsService {
       directory: `users/`,
       delimiter: `/`,
       prefix: `users/`,
-      maxResults: 1,
+      maxResults: 5,
       startOffset: `users/`
     };
 
@@ -602,7 +721,7 @@ export class CloudFunctionsService {
           const files = res.result;
           // console.log(res.result);
           const filtered = files.filter( i => i.split('/')[1].length); // excluding directory and some files
-          const mapped = filtered.map( i => i.split('/')[1]);
+          // const mapped = filtered.map( i => i.split('/')[1]);
 
           // console.log('Unique users', new Set(mapped));
           resolve(res);

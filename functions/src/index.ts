@@ -4714,6 +4714,25 @@ exports.resizeProfileAvatars = functions
     return {err: e.message};
   }
   });
+
+exports.getUserPhoto = functions
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
+  .onCall( async ({url}, context?) => {
+    try {
+      const bucketName = functions.config().bucket.name;
+      const start = url.lastIndexOf(`/`) + 1;
+      const end = url.lastIndexOf(`?`);
+      const path = url.slice(start, end).replace(/%2F/g,'/');
+      const [file] = await admin.storage(firebase).bucket(bucketName).file(path).download();
+
+      return {file};
+    } catch (e) {
+      console.log(e);
+      return { err: e.message }
+    }
+  });
+
 // Image services - end
 
 // *** TEMP TEMP TEMP ***
