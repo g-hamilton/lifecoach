@@ -6,7 +6,7 @@ import { ToastService } from './toast.service';
 import { CoachProfile } from '../interfaces/coach.profile.interface';
 import { UserAccount } from '../interfaces/user.account.interface';
 import { AdminCourseReviewRequest } from 'app/interfaces/adminCourseReviewRequest';
-import {first, take} from 'rxjs/operators';
+import { first } from 'rxjs/operators';
 import { StripePaymentIntentRequest } from 'app/interfaces/stripe.payment.intent.request';
 import { RefundRequest } from 'app/interfaces/refund.request.interface';
 import {Answer} from '../pages/video-chatroom/videochatroom.component';
@@ -14,7 +14,6 @@ import { AdminProgramReviewRequest } from 'app/interfaces/admin.program.review.i
 import { CoachInvite } from 'app/interfaces/coach.invite.interface';
 import { OrderCoachSessionRequest } from 'app/interfaces/order.coach.session.request.interface';
 import { CancelCoachSessionRequest } from 'app/interfaces/cancel.coach.session.request.interface';
-import {DataService} from './data.service';
 
 @Injectable({
   providedIn: 'root'
@@ -453,6 +452,38 @@ export class CloudFunctionsService {
     });
   }
 
+  adminApproveServiceReview(serviceId: string, userId: string, reviewRequest: AdminServiceReviewRequest) {
+    return new Promise(resolve => {
+      const approve = this.cloudFunctions.httpsCallable('adminApproveServiceReview');
+      const tempSub = approve({
+        serviceId,
+        userId,
+        reviewRequest
+      })
+        .pipe(first())
+        .subscribe(res => {
+          resolve(res);
+          tempSub.unsubscribe();
+        });
+    });
+  }
+
+  adminRejectServiceReview(serviceId: string, userId: string, reviewRequest: AdminServiceReviewRequest) {
+    return new Promise(resolve => {
+      const reject = this.cloudFunctions.httpsCallable('adminRejectServiceReview');
+      const tempSub = reject({
+        serviceId,
+        userId,
+        reviewRequest
+      })
+        .pipe(first())
+        .subscribe(res => {
+          resolve(res);
+          tempSub.unsubscribe();
+        });
+    });
+  }
+
   sendCoachInvite(data: CoachInvite) {
     return new Promise(resolve => {
       const invite = this.cloudFunctions.httpsCallable('sendCoachInvite');
@@ -541,6 +572,18 @@ export class CloudFunctionsService {
 
           console.log('Getting Error', error);
         });
+    });
+  }
+
+  uploadServiceImage( data: any) {
+    return new Promise((resolve, reject) => {
+      const trigger = this.cloudFunctions.httpsCallable('uploadServiceImage');
+      const tempSub = trigger(data)
+        .pipe(first())
+        .subscribe(res => {
+          resolve(res);
+          tempSub.unsubscribe();
+        }, error => reject(error));
     });
   }
 
@@ -731,4 +774,17 @@ export class CloudFunctionsService {
         });
     });
   }
+
+  getCollectionDocIds(path: string) {
+    return new Promise(resolve => {
+      const trigger = this.cloudFunctions.httpsCallable('getCollectionDocIds');
+      const tempSub = trigger(path)
+        .pipe(first())
+        .subscribe(res => {
+          resolve(res);
+          tempSub.unsubscribe();
+        });
+    });
+  }
+
 }

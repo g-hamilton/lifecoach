@@ -8,6 +8,7 @@ import { CoachingCourseLecture, CoachingCourse } from 'app/interfaces/course.int
 import { CourseQuestion, CourseQuestionReply } from 'app/interfaces/q&a.interface';
 import { CoachProfile } from 'app/interfaces/coach.profile.interface';
 import { CoachingProgram } from 'app/interfaces/coach.program.interface';
+import { CoachingService } from 'app/interfaces/coaching.service.interface';
 
 /*
   Using Mixpanel analytics
@@ -304,15 +305,58 @@ export class AnalyticsService {
     });
   }
 
-  addNewCoachingService(serviceId: string) {
-    mixpanel.track('added new coaching service', {
+  clickCreateService() {
+    mixpanel.track('clicked create service');
+  }
+
+  saveService() {
+    mixpanel.track('saved service');
+  }
+
+  editServiceOutline() {
+    mixpanel.track('Edited service outline');
+  }
+
+  editServiceLanding() {
+    mixpanel.track('Edited service landing page');
+  }
+
+  startServicePromoVideoUpload() {
+    mixpanel.track('started service promotional video upload');
+  }
+
+  completeServicePromoVideoUpload() {
+    mixpanel.track('completed service promotional video upload');
+  }
+
+  submitServiceForReview() {
+    mixpanel.track('Submitted service for review');
+  }
+
+  searchServices(filters: any, query?: string, ) {
+    mixpanel.track('searched services', {
+      searchTerm: query ? query : '',
+      searchFilters: filters
+    });
+  }
+
+  adminApproveService(serviceId: string) {
+    mixpanel.track('admin approved service', {
       serviceId
     });
   }
 
-  updateCoachingService(serviceId: string) {
-    mixpanel.track('updated coaching service', {
+  adminRejectService(serviceId: string) {
+    mixpanel.track('admin rejected service', {
       serviceId
+    });
+  }
+
+  purchaseService(service: CoachingService, purchasedSessions: number) {
+    mixpanel.track('purchased service', {
+      serviceId: service.serviceId,
+      coachId: service.sellerUid,
+      purchasedSessions
     });
   }
 

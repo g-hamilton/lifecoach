@@ -1,56 +1,869 @@
 <app-auth-navbar></app-auth-navbar>
 
-<div class=" full-page coaching-service-page">
-    <div class=" content">
-        <div class=" container">
+<div class="full-page pricing-page">
 
-            <!-- loading -->
-            <div *ngIf="!service || loading" class="text-center">
-                <div class="spinner-border" role="status">
-                    <span class="sr-only">Loading...</span>
+
+<!--  <div *ngIf="service && service.image"-->
+<!--  class="jumbotron jumbotron-fluid"-->
+<!--  [ngStyle]="{'background-image': 'url(' + service.image +')'}"-->
+<!--  style="margin-top: 60px; height: 75vh; background-position: center; background-size: cover; background-repeat: no-repeat;">-->
+<!--  </div>-->
+
+<!--  jumbotron jumbotron-fluid test image-->
+
+
+  <!-- Service cover img if service loaded and image exists -->
+  <ng-container *ngIf="service && (service.imagePaths?.original || service.imagePaths?.webp)">
+    <div class="jumbotron jumbotron-fluid test test-575-jpg"
+         [ngStyle]="{'background-image': 'url(' + service.imagePaths.original['575'] +')'}"></div>
+    <div class="jumbotron jumbotron-fluid test test-768-jpg"
+         [ngStyle]="{'background-image': 'url(' + service.imagePaths.original['768'] +')'}"></div>
+    <div class="jumbotron jumbotron-fluid test test-991-jpg"
+         [ngStyle]="{'background-image': 'url(' + service.imagePaths.original['991'] +')'}"></div>
+    <div class="jumbotron jumbotron-fluid test test-1200-jpg"
+         [ngStyle]="{'background-image': 'url(' + service.imagePaths.original['1200'] +')'}"></div>
+    <div class="jumbotron jumbotron-fluid test test-original-jpg"
+         [ngStyle]="{'background-image': 'url(' + service.imagePaths.original.fullSize +')'}"></div>
+    <div class="jumbotron jumbotron-fluid test test-575-webp"
+         [ngStyle]="{'background-image': 'url(' + service.imagePaths.webp['575'] +')'}"></div>
+    <div class="jumbotron jumbotron-fluid test test-768-webp"
+         [ngStyle]="{'background-image': 'url(' + service.imagePaths.webp['768'] +')'}"></div>
+    <div class="jumbotron jumbotron-fluid test test-991-webp"
+         [ngStyle]="{'background-image': 'url(' + service.imagePaths.webp['991'] +')'}"></div>
+    <div class="jumbotron jumbotron-fluid test test-1200-webp"
+         [ngStyle]="{'background-image': 'url(' + service.imagePaths.webp['1200'] +')'}"></div>
+    <div class="jumbotron jumbotron-fluid test test-original-webp"
+         [ngStyle]="{'background-image': 'url(' + service.imagePaths.webp.fullSize +')'}"></div>
+  </ng-container>
+
+<!--  jumbotron jumbotron-fluid test images-->
+
+  <!-- Placeholder cover img if service loaded and no image exists -->
+  <div *ngIf="service && !service.image"
+  class="jumbotron jumbotron-fluid" 
+  style="margin-top: 60px; height: 75vh; background-color: white;">
+    <div class="container">
+      <div class="row justify-content-center text-center">
+        <div class="col-md-10">
+          <img
+          class=" mt-5"
+          [src]="'assets/img/awaiting-image.png'"
+          [alt]="service.title"
+          style="height: 300px;" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="">
+    <div class=" container">
+        
+        <!-- Service loaded into view - keeps stripe element loaded in the dom but hides until service loaded -->
+        <div class="hide" [ngClass]="{'show': service}">
+
+          <div *ngIf="service" class=" row">
+            <div class=" col-md-6 ml-auto mr-auto text-center">
+              <h1 class=" title">{{ service.title }}</h1>
+              <h4>
+                {{ service.subtitle }}
+              </h4>
+              <!-- service duration -->
+              <div class=" mb-5">
+                <!-- if zero enrollments -->
+                <span *ngIf="!serviceEnrollments?.totalEnrollments" class=" badge badge-danger">
+                  🔥 New Coaching Service
+                </span>
+                <!-- if 1 enrollment -->
+                <span *ngIf="serviceEnrollments?.totalEnrollments && serviceEnrollments?.totalEnrollments == 1" class="">
+                  1 person enrolled
+                </span>
+                <!-- if more than 1 enrollment -->
+                <span *ngIf="serviceEnrollments?.totalEnrollments && serviceEnrollments?.totalEnrollments > 1" class="">
+                  {{ serviceEnrollments.totalEnrollments }} people enrolled
+                </span>
+                <!-- is coach viewing own service? -->
+                <div *ngIf="userId === service.sellerUid">
+                  <p class=" text-success text-center mt-3">
+                    You created this service
+                  </p>
                 </div>
+                <!-- has user already purcahsed? -->
+                <div *ngIf="(userId !== service.sellerUid) && userClaims && userClaims[service.serviceId]">
+                  <p class=" text-success text-center mt-3">
+                    You purchased this service
+                  </p>
+                </div>
+              </div>
             </div>
+          </div>
 
-            <!-- service loaded -->
-            <div *ngIf="service">
-                <div class=" row">
+          <!-- service promo video? -->
+          <div *ngIf="service && service.promoVideo && service.promoVideo.downloadURL" class="">
+            <div class=" row">
+              <div class=" col-md-6 ml-auto mr-auto text-center">
+                <vg-player>
+                  <vg-controls>
+                      <vg-play-pause></vg-play-pause>
+                      <vg-playback-button></vg-playback-button>
+                
+                      <vg-time-display vgProperty="current" vgFormat="mm:ss"></vg-time-display>
+                
+                      <vg-scrub-bar>
+                          <vg-scrub-bar-current-time></vg-scrub-bar-current-time>
+                          <vg-scrub-bar-buffering-time></vg-scrub-bar-buffering-time>
+                      </vg-scrub-bar>
+                
+                      <vg-time-display vgProperty="total" vgFormat="mm:ss"></vg-time-display>
+                
+                      <vg-mute></vg-mute>
+                      <vg-volume></vg-volume>
+                
+                      <vg-fullscreen></vg-fullscreen>
+                  </vg-controls>
+                
+                  <video #media [vgMedia]="media" id="singleVideo" preload="auto">
+                      <source [src]="service.promoVideo.downloadURL">
+                  </video>
+                </vg-player>
+              </div>
+            </div>
+          </div>
 
-                    <!-- left col -->
-                    <div class=" col-md-6">
-                        <div class=" card">
+          <!-- service description & info -->
+          <div *ngIf="service" class=" row pb-5">
+            <div class=" col-12">
+              <div class=" card">
+                <div class=" card-body p-5">
 
-                            <!-- Card image -->
-                            <img
-                            class="card-img-top"
-                            [src]="service.image ? service.image : 'assets/img/image_placeholder.jpg'"
-                            [alt]="service.title" />
+                  <!-- description -->
+                  <div *ngIf="service.description ; else noDescription">
+                    <div id="test" class=" card-description" [innerHTML]="service.description"></div>
+                  </div>
+                  <ng-template #noDescription>
+                    <div id="no-description" class=" card-description">
+                      Awaiting description
+                    </div>
+                  </ng-template>
 
-                            <!-- Card body -->
-                            <div class=" card-body">
-                                <h4 class="card-title"> {{ service.title }} </h4>
-                                <h6 class="card-subtitle mb-2 text-muted"> {{ service.subtitle }} </h6>
+                  <hr>
 
-                                <span
-                                *ngIf="service.serviceType === 'live 1:1'"
-                                class=" badge badge-primary mt-3">
-                                    <i class="far fa-comments"></i> Live 1:1 Session
-                                </span>
+                  <!-- learning points -->
+                  <div *ngIf="service.learningPoints" class=" mt-4">
+                    <h5 class=" card-title"> What you'll learn </h5>
+                    <div *ngIf="service.learningPoints" class=" mt-4">
+                      <ul>
+                        <li *ngFor="let item of service.learningPoints" style="color: rgba(255, 255, 255, 0.7);">
+                          {{ item }}
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
 
-                                <p class=" mt-3" [innerHTML]="service.description"></p>
+                  <!-- requirements -->
+                  <div class=" mt-5">
+                    <h5 class=" card-title"> Requirements </h5>
+                    <div *ngIf="!service.requirements">
+                      <ul>
+                        <li style="color: rgba(255, 255, 255, 0.7);"> No special requirements or prerequisites </li>
+                      </ul>
+                    </div>
+                    <div *ngIf="service.requirements">
+                      <ul>
+                        <li *ngFor="let item of service.requirements" style="color: rgba(255, 255, 255, 0.7);">
+                          {{ item }}
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
 
-                            </div>
+                  <!-- ideal clients -->
+                  <div *ngIf="service.targets" class=" mt-5">
+                    <h5 class=" card-title"> The perfect coaching service for: </h5>
+                    <div *ngIf="service.targets" class=" mt-4">
+                      <ul>
+                        <li *ngFor="let item of service.targets" style="color: rgba(255, 255, 255, 0.7);">
+                          {{ item }}
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
 
+                  <hr>
+
+                  <!-- service language -->
+                  <div *ngIf="service?.language ; else noLanguage" class=" mt-5">
+                    <h5 class=" card-title"> Service language: </h5>
+                    <h6 class="text-muted">
+                      <i class="fas fa-comment"></i> {{ languages[service.language]?.nativeName }}
+                    </h6>
+                  </div>
+                  <ng-template #noLanguage>
+                    <div class=" card-description mt-5">
+                      Awaiting language
+                    </div>
+                  </ng-template>
+
+                </div>
+              </div>
+              <!-- end card -->
+
+              <!-- coach card -->
+              <div class=" mt-5"></div>
+              <app-coach-mini-profile [coachId]="service.sellerUid"></app-coach-mini-profile>
+              <!-- end coach card -->
+
+              <!-- service feedback *BROWSER ONLY* -->
+              <div *ngIf="browser">
+                <div class=" col-md-6 ml-auto mr-auto text-center mt-5">
+                  <h2 class=" title"> What others are saying </h2>
+                </div>
+                <div class=" card">
+                  <div class=" card-body mr-3">
+                    <h4 class=" card-title d-inline-block"> Service Feedback </h4>
+                    <div>
+                      <!-- <app-service-feedback
+                      [service]="service">
+                      </app-service-feedback> -->
+                    </div>
+  
+                    <!-- browse reviews -->
+                    <!-- <app-service-browse-reviews
+                    [service]="service">
+                    </app-service-browse-reviews> -->
+                  </div>
+                </div>
+              </div>
+              <!-- end service feedback -->
+
+              <!-- service pricing & call booking -->
+              <div class=" mt-5">
+                <!-- if were still waiting for pricing -->
+                <div *ngIf="!service || !service.pricing || !service.pricing['1'].price || !service.currency"
+                >
+                  <p>
+                    Awaiting pricing & session information
+                  </p>
+                </div>
+
+                <!-- we've got all the info we need for pricing -->
+                <div *ngIf="service && service.pricing && service.pricing['1'].price && service.currency" class=" row mt-5">
+                  <div class=" col-md-6 ml-auto mr-auto text-center">
+                    <h1 class=" title">Get Private 1-to-1 Coaching</h1>
+                    <h4 class=" description">
+                      Got questions? Schedule a free discovery session with your coach before you get started.
+                    </h4>
+                  </div>
+                </div>
+
+                <!-- payment options row -->
+                <div *ngIf="service && service.pricing && service.pricing['1'].price && service.currency" class=" row">
+
+                  <!-- discover col -->
+                  <div class=" col-lg-3 col-xs-12">
+                    <div class=" card card-pricing card-primary card-raised">
+                      <div class=" card-body">
+                        <h1 class=" card-title" style="font-size: 3.2em;">discover</h1>
+                        <img
+                          alt="Image"
+                          class=" card-img"
+                          src="assets/img/card-primary.png"
+                        />
+          
+                        <ul class=" list-group">
+                          <li class=" list-group-item mt-4">Schedule a discovery session</li>
+                        </ul>
+                        <div class=" card-prices pl-3 pr-3">
+                          <h3 class=" text-on-front">FREE</h3>
+                          <h5 class=" text-on-back">FREE</h5>
+                          <p class=" plan">Check this coaching is right for you. <br>Ask your coach anything you like prior to starting.</p>
                         </div>
+                      </div>
+                      <div class=" card-footer text-center mb-3 mt-3">
+                        <!-- schedule call button -->
+                        <!-- disabled for service seller -->
+                        <!-- userId === service.sellerUid -->
+                        <button class=" btn btn-round btn-just-icon btn-primary"
+                        [disabled]="userId === service.sellerUid"
+                        (click)="this.userId ? openScheduleCallModal() : registerModal.show()">
+                         Schedule a Session
+                        </button>
+                      </div>
                     </div>
+                  </div>
+                  <!--  end discover col -->
 
-                    <!-- right col -->
-                    <div class=" col-md-6">
-                        schedule
+                  <!-- pricing packages cols -->
+                  <div *ngFor="let package of objKeys(service.pricing) ; let i = index" class=" col-lg-3 col-xs-12">
+                    <div class=" card card-pricing card-white"
+                    [ngClass]="{
+                      'card-success': i === 0,
+                      'card-warning': i === 1,
+                      'card-danger': i === 2
+                    }">
+                      <div class=" card-body">
+                        <h1 class=" card-title" style="font-size: 3em;">{{ package }} Session{{package === '1' ? '' : 's'}}</h1>
+                        <img
+                        alt="Image"
+                        class=" card-img"
+                        [src]="i === 0 ? 'assets/img/card-success.png' :
+                        i === 1 ? 'assets/img/card-warning.png' : 'assets/img/card-danger.png'"
+                        />
+              
+                        <ul class=" list-group">
+                          <li class=" list-group-item">Buy {{ package }} Session{{package === '1' ? '' : 's'}}</li>
+                          <li *ngIf="package !== '1'" class=" list-group-item text-success">Save {{ calcDiscount(package) }}%</li>
+                        </ul>
+                        <div class=" card-prices pl-3 pr-3">
+                          <h3 class=" text-on-front">{{ currencySymbol + calcDisplayPrice(service.pricing[package].price) }}</h3>
+                          <h5 class=" text-on-back" style="font-size: 4em;">{{ currencySymbol + calcDisplayPrice(service.pricing[package].price) }}</h5>
+                          <p class=" plan" style="margin-top: 0;">{{ package }} private 1-to-1 coaching session{{package === '1' ? '' : 's'}}</p>
+                        </div>
+                      </div>
+                      <div class=" card-footer text-center mb-3 mt-3">
+                        <!-- purchase button -->
+                        <!-- disabled for service seller or if already purchased -->
+                        <!-- userId === service.sellerUid || userClaims && userClaims[service.serviceId] -->
+                        <button
+                        class=" btn btn-round"
+                        [ngClass]="{
+                          'btn-success': i === 0,
+                          'btn-warning': i === 1,
+                          'btn-danger': i === 2
+                        }"
+                        id="buynowfull"
+                        type="button"
+                        data-target="#payModal"
+                        (click)="purchaseDisplayPrice = calcDisplayPrice(service.pricing[package].price) ; pricingSessions = package ; userId ? payModal.show() : registerModal.show()"
+                        [disabled]="userId === service.sellerUid || userClaims && userClaims[service.serviceId]">
+                          <span
+                          *ngIf="purchasingService"
+                          class="spinner-border spinner-border-sm"
+                          role="status"
+                          ></span> {{ purchasingService ? 'Purchasing...' : 'Buy Now'}} 
+                        </button>
+                        <div class="mt-2">
+                          <small>
+                            28-Day Money-Back Guarantee.
+                            <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001123378-refunds" taget="_blank">
+                              Info
+                            </a>
+                          </small>
+                        </div>
+                      </div>
                     </div>
+                  </div>
+                  <!-- end pricing packages cols -->
 
+                </div>
+                <!-- end payment options row -->
+
+                <!-- Currency picker row -->
+                <div *ngIf="service && service.pricing && service.pricing['1'].price && service.currency" class=" row">
+                  <div class=" col-md-4 ml-auto mr-auto">
+                    <div>
+                      <label> Show prices in </label>
+                    </div>
+                    <app-select-currency
+                    [currency]="clientCurrency"
+                    (currencyEvent)="onManualCurrencyChange($event)">
+                    </app-select-currency>
+                  </div>
+                </div>
+                <!-- end currency picker row -->
+
+            </div>
+            <!-- end pricing -->
+
+            </div>
+            <!-- end col -->
+          </div>
+          <!-- End row -->
+
+        </div>
+        <!-- end of service loaded into view -->
+
+        <!-- Pay Modal -->
+        <div
+            aria-hidden="true"
+            aria-labelledby="payModalLabel"
+            bsModal
+            class="modal fade"
+            #payModal="bs-modal"
+            id="payModal"
+            role="dialog"
+            tabindex="-1"
+        >
+            <div class="modal-dialog payment-modal-dialogue">
+                <div class="modal-content payment-modal-content">
+                    <div class="modal-body payment-modal-body">
+                        <div class="ElementsModal--top-banner ElementsModal--top-banner-overlay" [style.background-image]="'url(' + service?.image + ')'">
+                            <div class="ElementsModal--sales-info">
+                              <div class="ElementsModal--top">
+                                <div *ngIf="service && service.title" class="ElementsModal--company"> {{ service.title }} </div>
+                                <button class="ElementsModal--close" (click)="payModal.hide()">
+                                  <svg
+                                    width="20px"
+                                    height="20px"
+                                    viewBox="0 0 20 20"
+                                    version="1.1"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    xmlns:xlink="http://www.w3.org/1999/xlink"
+                                  >
+                                    <defs>
+                                      <path
+                                        d="M10,8.8766862 L13.6440403,5.2326459 C13.9542348,4.92245137 14.4571596,4.92245137 14.7673541,5.2326459 C15.0775486,5.54284044 15.0775486,6.04576516 14.7673541,6.3559597 L11.1238333,9.99948051 L14.7673541,13.6430016 C15.0775486,13.9531961 15.0775486,14.4561209 14.7673541,14.7663154 C14.4571596,15.0765099 13.9542348,15.0765099 13.6440403,14.7663154 L10,11.1222751 L6.3559597,14.7663154 C6.04576516,15.0765099 5.54284044,15.0765099 5.2326459,14.7663154 C4.92245137,14.4561209 4.92245137,13.9531961 5.2326459,13.6430016 L8.87616671,9.99948051 L5.2326459,6.3559597 C4.92245137,6.04576516 4.92245137,5.54284044 5.2326459,5.2326459 C5.54284044,4.92245137 6.04576516,4.92245137 6.3559597,5.2326459 L10,8.8766862 Z"
+                                        id="path-1"
+                                      ></path>
+                                    </defs>
+                                    <g
+                                      id="Payment-recipes"
+                                      stroke="none"
+                                      stroke-width="1"
+                                      fill="none"
+                                      fill-rule="evenodd"
+                                    >
+                                      <g
+                                        id="Elements-Popup"
+                                        transform="translate(-816.000000, -97.000000)"
+                                      >
+                                        <g id="close-btn" transform="translate(816.000000, 97.000000)">
+                                          <circle
+                                            id="Oval"
+                                            fill-opacity="0.3"
+                                            fill="#AEAEAE"
+                                            cx="10"
+                                            cy="10"
+                                            r="10"
+                                          ></circle>
+                                          <mask id="mask-2" fill="white">
+                                            <use xlink:href="#path-1"></use>
+                                          </mask>
+                                          <use
+                                            id="Mask"
+                                            fill-opacity="0.5"
+                                            fill="#FFFFFF"
+                                            opacity="0.5"
+                                            xlink:href="#path-1"
+                                          ></use>
+                                        </g>
+                                      </g>
+                                    </g>
+                                  </svg>
+                                </button>
+                              </div>
+                              <div class="ElementsModal--product ElementsModal--details"> Private 1-to-1 Coaching: {{ pricingSessions }} Session{{pricingSessions === '1' ? '' : 's'}} </div>
+                              <div *ngIf="service" class="ElementsModal--price ElementsModal--details"> 
+                                {{ currencySymbol + '' + purchaseDisplayPrice }}
+                              </div>
+                              <div *ngIf="account && account.accountEmail" class="ElementsModal--email ElementsModal--details"> {{ account.accountEmail }} </div>
+                            </div>
+                          </div>
+                        <div class="ElementsModal--payment-details">
+                            <form
+                              class="ElementsModal--payment-form"
+                              id="payment-form"
+                            >
+                              <div class="form-row">
+                                <div class="ElementsModal--forms" style="width: 80%;">
+                                  <div class="ElementsModal--form">
+                                    <label for="ElementsModal--card-element">
+                                      <span class="ElementsModal--form-label spacer"
+                                        >Card details</span
+                                      >
+                                      <div class="StripeElement" id="card-element">
+                                        <!-- A Stripe Element will be inserted here. -->
+                                      </div>
+                                    </label>
+                                    <!-- Used to display form errors. -->
+                                    <div
+                                      id="card-errors"
+                                      class="ElementsModal--error-message"
+                                      role="alert"
+                                    ></div>
+                                  </div>
+                                  <!-- <div class="ElementsModal--form">
+                                    <label class="select">
+                                      <span class="ElementsModal--form-label spacer"
+                                        >Country or region</span
+                                      >
+                                      <div id="country" class="ElementsModal--form-select">
+                                        <select
+                                        name="country"
+                                        autocomplete="billing country"
+                                        aria-label="Country or region"
+                                        [(ngModel)]="clientCountry"
+                                        [ngModelOptions]="{standalone: true}"
+                                        >
+                                        <option
+                                        *ngFor="let country of countries" [value]="country.code">
+                                        {{ country.emoji + ' ' + country.name }}
+                                        </option>
+                                        </select>
+                                      </div>
+                                    </label>
+                                  </div> -->
+                                  <div class="ElementsModal--form" *ngIf="service">
+                                    <input
+                                      type="hidden"
+                                      name="amount"
+                                      [value]="purchaseDisplayPrice"
+                                    />
+                                    <input
+                                      type="hidden"
+                                      name="currency"
+                                      [value]="clientCurrency"
+                                    />
+                                    <input
+                                      type="hidden"
+                                      name="description"
+                                      [value]="service.title"
+                                    />
+                                    <button
+                                      type="submit"
+                                      class="btn btn-success btn-fill btn-round btn-block mt-4"
+                                    >
+                                    <span
+                                      *ngIf="purchasingService"
+                                      class="spinner-border spinner-border-sm"
+                                      role="status"
+                                      ></span> {{ purchasingService ? 'Processing...' : currencySymbol + '' + purchaseDisplayPrice }}
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </form>
+                          </div>
+                    </div>
+                    <div class="modal-footer ElementsModal--footer-text">
+                        By purchasing this service, you agree to Lifecoach’s
+                        <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47000883660"
+                          >Terms and Conditions.</a
+                        >
+                    </div>
                 </div>
             </div>
         </div>
+        <!-- End of pay modal -->
 
+        <!-- Login modal -->
+        <div
+        aria-hidden="true"
+        aria-labelledby="loginModalLabel"
+        bsModal
+        class="modal fade"
+        #loginModal="bs-modal"
+        id="loginModal"
+        role="dialog"
+        tabindex="-1"
+        >
+        <div class="modal-dialog" style="transform: translate(0,0);">
+            <div class="modal-content">
+            <div class="modal-body login-page">
+                <form
+                class=" form"
+                id="loginValidation"
+                [formGroup]="loginForm"
+                (ngSubmit)="onLogin()"
+                >
+                <div class="card card-login card-white">
+                    <div class=" card-header">
+                    <img alt="" class="card-img" style="width: 72%;" src="assets/img/card-primary.png" />
+                    <h1 class=" card-title"> Log in </h1>
+                    </div>
+                    <div class=" card-body">
+
+                    <!-- Email -->
+                    <div
+                        class=" input-group"
+                        [ngClass]="{
+                        'has-danger': (((lfocusTouched && loginF.email.value != '') || loginAttempt) && loginF.email.errors),
+                        'has-success': !loginF.email.errors
+                        }"
+                    >
+                        <div class=" input-group-prepend">
+                        <div class=" input-group-text">
+                            <i class=" tim-icons icon-email-85"> </i>
+                        </div>
+                        </div>
+                        <input
+                        class=" form-control"
+                        name="email"
+                        formControlName="email"
+                        placeholder="Email"
+                        type="email"
+                        (focus)="lfocusTouched = true"
+                        required=""
+                        />
+                    </div>
+                    <div
+                        class="error custom-error-label"
+                        *ngIf="(((lfocusTouched && loginF.email.value != '') || loginAttempt) && loginF.email.errors)"
+                        > Please enter your login email address.
+                    </div>
+
+                    <!-- Password -->
+                    <div
+                        class=" input-group"
+                        [ngClass]="{
+                        'has-danger': (((lfocusTouched1 && loginF.password.value != '') || loginAttempt) && loginF.password.errors),
+                        'has-success': !loginF.password.errors
+                        }"
+                    >
+                        <div class=" input-group-prepend">
+                        <div class=" input-group-text">
+                            <i class=" tim-icons icon-lock-circle"> </i>
+                        </div>
+                        </div>
+                        <input
+                        class=" form-control"
+                        name="password"
+                        formControlName="password"
+                        placeholder="Password"
+                        type="password"
+                        (focus)="lfocusTouched1 = true"
+                        required=""
+                        />
+                    </div>
+                    <div
+                        class="error custom-error-label"
+                        *ngIf="(((lfocusTouched1 && loginF.password.value != '') || loginAttempt) && loginF.password.errors)"
+                        > Your password has at least 6 characters.
+                    </div>
+
+                    <!-- Login Submit Button -->
+                    <button
+                    class=" btn btn-primary btn-lg btn-block btn-round mt-4 mb-3"
+                    type="submit"
+                    >
+                        <span
+                        *ngIf="login"
+                        class="spinner-border spinner-border-sm"
+                        role="status"
+                        ></span> {{ login ? 'Logging in...' : 'Login' }}
+                    </button>
+                    <div class=" pull-left">
+                        <h5>
+                        <a class=" link footer-link" href="javascript:void(0)" (click)="forgotPassword()">
+                            Forgotten Password? 
+                        </a>
+                        </h5>
+                    </div>
+                    <div class=" pull-right">
+                        <h5>
+                        <a class=" link footer-link" href="https://lifecoach.freshdesk.com/support/home" target="_blank">
+                            Need Help?
+                        </a>
+                        </h5>
+                    </div>
+
+                    </div>
+                    
+                    <div class=" card-footer">
+                    <hr>
+                    <div class=" text-center">
+                        Don't have an account? <a href="javascript:void(0)" (click)="loginModal.hide ; registerModal.show()">Sign Up</a>
+                    </div>
+                    </div>
+                </div>
+                </form>
+            </div>
+            </div>
+        </div>
+        </div>
+        <!-- End of login modal -->
+
+        <!-- Register modal -->
+        <div
+            aria-hidden="true"
+            aria-labelledby="registerModalLabel"
+            bsModal
+            class="modal fade"
+            #registerModal="bs-modal"
+            id="registerModal"
+            role="dialog"
+            tabindex="-1"
+        >
+        <div class="modal-dialog" style="transform: translate(0,0);">
+            <div class="modal-content">
+            <div class="modal-body">
+                <form
+                class=" form"
+                id="RegisterValidation"
+                [formGroup]="registerForm"
+                (ngSubmit)="onRegister()"
+                >
+                <div class="card card-register card-white">
+                    <div class=" card-header">
+                    <img class="card-img" style="width: 86%;" alt="" src="assets/img/card-primary.png" />
+                    <h1 class=" card-title"> Sign Up </h1>
+                    </div>
+                    <div class=" card-body">
+
+                        <div class=" row">
+                            <div class=" col">
+                              <p> Just a second! You need a Lifecoach account to continue. 
+                                Joining Lifecoach is free and only takes seconds!
+                              </p>
+                            </div>
+                        </div>
+
+                    <div class=" row mt-3">
+
+                        <!-- First Name -->
+                        <div class=" col-sm-12 col-md-6 pr-2">
+                        <div
+                        class=" input-group"
+                        [ngClass]="{
+                            'has-danger': (((rfocusTouched && registerF.firstName.value != '') || registerAttempt) && registerF.firstName.errors),
+                            'has-success': !registerF.firstName.errors
+                        }"
+                        >
+                            <div class=" input-group-prepend">
+                            <div class=" input-group-text">
+                                <i class=" tim-icons icon-single-02"> </i>
+                            </div>
+                            </div>
+                            <input
+                            class=" form-control"
+                            name="firstName"
+                            formControlName="firstName"
+                            placeholder="First Name"
+                            type="text"
+                            (focus)="rfocusTouched = true"
+                            required=""
+                            />
+                            <label
+                            class="error custom-error-label"
+                            *ngIf="(((rfocusTouched && registerF.firstName.value != '') || registerAttempt) && registerF.firstName.errors)"
+                            > Please enter your first name.
+                            </label>
+                        </div>
+                        </div>
+
+                        <!-- Last Name -->
+                        <div class=" col-sm-12 col-md-6">
+                        <div
+                        class=" input-group"
+                        [ngClass]="{
+                            'has-danger': (((rfocusTouched3 && registerF.lastName.value != '') || registerAttempt) && registerF.lastName.errors),
+                            'has-success': !registerF.lastName.errors
+                        }"
+                        >
+                            <div class=" input-group-prepend">
+                            <div class=" input-group-text">
+                                <i class=" tim-icons icon-single-02"> </i>
+                            </div>
+                            </div>
+                            <input
+                            class=" form-control"
+                            name="lastName"
+                            formControlName="lastName"
+                            placeholder="Last Name"
+                            type="text"
+                            (focus)="rfocusTouched3 = true"
+                            required=""
+                            />
+                            <label
+                            class="error custom-error-label"
+                            *ngIf="(((rfocusTouched3 && registerF.lastName.value != '') || registerAttempt) && registerF.lastName.errors)"
+                            > Please enter your last name.
+                        </label>
+                        </div>
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div
+                        class=" input-group"
+                        [ngClass]="{
+                        'has-danger': (((rfocusTouched1 && registerF.email.value != '') || registerAttempt) && registerF.email.errors),
+                        'has-success': !registerF.email.errors
+                        }"
+                    >
+                        <div class=" input-group-prepend">
+                        <div class=" input-group-text">
+                            <i class=" tim-icons icon-email-85"> </i>
+                        </div>
+                        </div>
+                        <input
+                        class=" form-control"
+                        name="email"
+                        formControlName="email"
+                        placeholder="Email"
+                        type="email"
+                        (focus)="rfocusTouched1 = true"
+                        required=""
+                        />
+                        <label
+                        class="error custom-error-label"
+                        *ngIf="(((rfocusTouched1 && registerF.email.value != '') || registerAttempt) && registerF.email.errors)"
+                        > We will never share your email address without your permission.
+                        </label>
+                    </div>
+
+                    <!-- Create Password -->
+                    <div
+                        class=" input-group"
+                        [ngClass]="{
+                        'has-danger': (((rfocusTouched2 && registerF.password.value != '') || registerAttempt) && registerF.password.errors),
+                        'has-success': registerF.password.value != '' && !registerF.password.errors
+                        }"
+                    >
+                        <div class=" input-group-prepend">
+                        <div class=" input-group-text">
+                            <i class=" tim-icons icon-lock-circle"> </i>
+                        </div>
+                        </div>
+                        <input
+                        class=" form-control"
+                        name="password"
+                        formControlName="password"
+                        placeholder="Create Password"
+                        type="password"
+                        (focus)="rfocusTouched2 = true"
+                        required=""
+                        />
+                        <label
+                        class="error custom-error-label"
+                        *ngIf="(((rfocusTouched2 && registerF.password.value != '') || registerAttempt) && registerF.password.errors)"
+                        > Password must be at least 6 characters.
+                    </label>
+                    </div>
+
+                    <!-- Form Submit Button -->
+                    <button
+                    class=" btn btn-primary btn-round btn-block mt-4"
+                    type="submit"
+                    >
+                        <span
+                        *ngIf="register"
+                        class="spinner-border spinner-border-sm"
+                        role="status"
+                        ></span> {{ register ? 'Creating Account...' : 'Sign Up'}} 
+                    </button>
+
+                    <!-- Terms & Conditions -->
+                    <div class=" text-center text-muted mt-3">
+                        By signing up, you agree to our
+                        <a href="https://lifecoach.freshdesk.com/a/solutions/articles/47000883660" target="_blank"> 
+                        terms and conditions. 
+                        </a>
+                    </div>
+
+                    </div>
+                    <div class=" card-footer">
+                    <hr>
+                    <div class=" text-center">
+                        Already have an account? <a href="javascript:void(0)" (click)="registerModal.hide() ; loginModal.show()">Log in</a>
+                    </div>
+                    </div>
+                </div>
+                </form>
+            </div>
+            </div>
+        </div>
+        </div>
+        <!-- End of register modal -->
     </div>
+  </div>
 </div>

@@ -347,10 +347,15 @@
                     [formControl]="landingF.learningPoints.value.controls[i]"
                     placeholder="eg. Self-control">
                     <div class="input-group-append">
-                    <span class="input-group-text">
-                        {{ landingF.learningPoints.value.controls[i].value.length + '/' + learningPointsMaxLength }}
-                    </span>
+                        <span class="input-group-text">
+                            {{ landingF.learningPoints.value.controls[i].value.length + '/' + learningPointsMaxLength }}
+                        </span>
                     </div>
+                    <button 
+                    class="input-group-append ml-2 btn btn-danger btn-fab btn-icon"
+                    (click)="deleteLearningPoint(i)">
+                        <i class="tim-icons icon-trash-simple"></i>
+                    </button>
                 </div>
                 <div *ngIf="(( (landingF.learningPoints.value.controls[i].touched && landingF.learningPoints.value.controls[i].value != '') || saveAttempt) && 
                 landingF.learningPoints.value.controls[i].errors)">
@@ -395,10 +400,15 @@
                     [formControl]="landingF.requirements.value.controls[i]"
                     placeholder="eg. Completed the beginner course">
                     <div class="input-group-append">
-                    <span class="input-group-text">
-                        {{ landingF.requirements.value.controls[i].value.length + '/' + requirementsMaxLength }}
-                    </span>
+                        <span class="input-group-text">
+                            {{ landingF.requirements.value.controls[i].value.length + '/' + requirementsMaxLength }}
+                        </span>
                     </div>
+                    <button 
+                    class="input-group-append ml-2 btn btn-danger btn-fab btn-icon"
+                    (click)="deleteRequirement(i)">
+                        <i class="tim-icons icon-trash-simple"></i>
+                    </button>
                 </div>
                 <div *ngIf="(( (landingF.requirements.value.controls[i].touched && landingF.requirements.value.controls[i].value != '') || saveAttempt) && 
                 landingF.requirements.value.controls[i].errors)">
@@ -441,10 +451,15 @@
                     [formControl]="landingF.targets.value.controls[i]"
                     placeholder="eg. Female Entreprenuers">
                     <div class="input-group-append">
-                    <span class="input-group-text">
-                        {{ landingF.targets.value.controls[i].value.length + '/' + targetsMaxLength }}
-                    </span>
+                        <span class="input-group-text">
+                            {{ landingF.targets.value.controls[i].value.length + '/' + targetsMaxLength }}
+                        </span>
                     </div>
+                    <button 
+                    class="input-group-append ml-2 btn btn-danger btn-fab btn-icon"
+                    (click)="deleteTarget(i)">
+                        <i class="tim-icons icon-trash-simple"></i>
+                    </button>
                 </div>
                 <div *ngIf="(( (landingF.targets.value.controls[i].touched && landingF.targets.value.controls[i].value != '') || saveAttempt) && 
                 landingF.targets.value.controls[i].errors)">

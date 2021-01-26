@@ -1,0 +1,481 @@
+<div class=" card">
+    <div class=" card-body">
+        <form *ngIf="landingForm" [formGroup]="landingForm" (submit)="onSubmit()">
+
+            <h5>Service Landing Page
+                <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001170595-help-with-your-bespoke-coaching-service-landing-page" target="_blank">
+                    <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> Help with your service landing page </span>
+                </a>
+            </h5>
+
+            <!-- Service title -->
+            <div class="mt-4">
+                <label> Service Title </label>
+                <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> Keep your title short, so that it fits inside your service image.
+                </p>
+            </div>
+            <div
+            class="input-group no-symbol"
+            [ngClass]="{
+                'has-danger':
+                (( (focusTouched && landingF.title.value != '') || saveAttempt) && landingF.title.errors),
+                'has-success': !landingF.title.errors
+            }">
+                <input
+                type="text"
+                class="form-control"
+                formControlName="title"
+                placeholder="eg. Master Your Anxiety"
+                (focus)="focus = true; focusTouched = true"
+                (blur)="focus =false"
+                (input)="onTitleInput($event)">
+                <div class="input-group-append">
+                <span class="input-group-text">
+                    {{ titleActualLength + '/' + titleMaxLength }}
+                </span>
+                </div>
+            </div>
+            <div *ngIf="(( (focusTouched && landingF.title.value != '') || saveAttempt) && landingF.title.errors)">
+                <label
+                *ngFor="let error of objKeys(landingF.title.errors)"
+                class="error custom-error-label"
+                >{{ showError('title', error) }}
+                </label>
+            </div>
+            <!-- End of service title -->
+
+            <!-- Service subtitle -->
+            <div class=" mt-4">
+                <label> Service Subtitle </label>
+                <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> Expand on your title and entice prospective clients by telling them what you can help them to achieve.
+                </p>
+            </div>
+            <div
+            class="input-group no-symbol"
+            [ngClass]="{
+                'has-danger':
+                (( (focusTouched && landingF.subtitle.value != '') || saveAttempt) && landingF.subtitle.errors),
+                'has-success': !landingF.subtitle.errors
+            }">
+                <input
+                type="text"
+                class="form-control"
+                formControlName="subtitle"
+                placeholder="eg. Overcome Your Anxiety in 90 Days"
+                (focus)="focus1 = true; focus1Touched = true"
+                (blur)="focus1 = false"
+                (input)="onSubTitleInput($event)">
+                <div class="input-group-append">
+                <span class="input-group-text">
+                    {{ subTitleActualLength + '/' + subTitleMaxLength }}
+                </span>
+                </div>
+            </div>
+            <div *ngIf="(( (focus1Touched && landingF.subtitle.value != '') || saveAttempt) && landingF.subtitle.errors)">
+                <label
+                *ngFor="let error of objKeys(landingF.subtitle.errors)"
+                class="error custom-error-label"
+                >{{ showError('subtitle', error) }}
+                </label>
+            </div>
+            <!-- End service subtitle -->
+
+            <!-- Service description -->
+            <div class=" mt-4">
+                <label> Service Description </label>
+                <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> Describe what's unique about this bespoke service, what clients can expect and how you can help them to achieve their goals/desired outcomes with a personal & tailored approach.
+                </p>
+            </div>
+            <editor
+            *ngIf="viewLoaded"
+            apiKey="swb6l7gw85zcl8aw2dh7551jt3t5ydravtthultgf8fo3w2l" 
+            [init]="{
+                height: 300,
+                menubar: false,
+                plugins: 'link lists paste',
+                toolbar: 'undo redo | formatselect | paste | bold italic backcolor link| alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat'
+            }"
+            formControlName="description"
+            >
+            </editor>
+            <div *ngIf="((saveAttempt) && landingF.description.errors) ||
+                (landingF.description.value != '' && landingF.description.errors)">
+                <label
+                *ngFor="let error of objKeys(landingF.description.errors)"
+                class="error custom-error-label"
+                >{{ showError('description', error) }}
+                </label>
+            </div>
+            <!-- End service description -->
+
+            <!-- Service language -->
+            <div class=" mt-4">
+                <label> Service Language </label>
+                <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> Marketing is more effective when targeting a single primary language. 
+                    If you coach in more than one language, consider creating duplicate services.
+                </p>
+            </div>
+            <div class="form-group">
+                <select class="form-control" formControlName="language">
+                    <option [value]="null">Select a language</option>
+                    <option *ngFor="let item of objKeys(languages)" [value]="item">
+                        {{ languages[item].nativeName }}
+                    </option>
+                </select>
+            </div>
+            <div *ngIf="saveAttempt && landingF.language.errors || landingF.language.value != null && landingF.language.errors">
+                <label
+                *ngFor="let error of objKeys(landingF.language.errors)"
+                class="error custom-error-label"
+                >{{ showError('language', error) }}
+                </label>
+            </div>
+            <!-- End service language -->
+
+            <!-- Service category -->
+            <div class=" mt-4">
+                <label> Service Category </label>
+                <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> Select the closest matching high level coaching category for this service.
+                </p>
+            </div>
+            <div class="form-group">
+                <select class="form-control" formControlName="category">
+                    <option [value]="null">Select a category</option>
+                    <option *ngFor="let item of specialities" [value]="item.itemName">
+                        {{ item.itemName }}
+                    </option>
+                </select>
+            </div>
+            <div *ngIf="saveAttempt && landingF.category.errors || landingF.category.value != null && landingF.category.errors">
+                <label
+                *ngFor="let error of objKeys(landingF.category.errors)"
+                class="error custom-error-label"
+                >{{ showError('category', error) }}
+                </label>
+            </div>
+            <!-- End service category -->
+
+            <!-- Service subject -->
+            <div class=" mt-4">
+                <label> What is the <strong>Primary</strong> subject you address in this service? </label>
+                <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> This helps you to attract the most suitable clients using search.
+                </p>
+            </div>
+            <div
+            class="input-group no-symbol"
+            [ngClass]="{
+                'has-danger':
+                (( (focus2Touched && landingF.subject.value != '') || saveAttempt) && landingF.subject.errors),
+                'has-success': !landingF.subject.errors
+            }">
+                <input
+                type="text"
+                class="form-control"
+                formControlName="subject"
+                placeholder="eg. Dealing with anxiety"
+                (focus)="focus2 = true; focus2Touched = true"
+                (blur)="focus2 = false"
+                (input)="onSubjectInput($event)">
+                <div class="input-group-append">
+                <span class="input-group-text">
+                    {{ subjectActualLength + '/' + subjectMaxLength }}
+                </span>
+                </div>
+            </div>
+            <div *ngIf="(( (focus2Touched && landingF.subject.value != '') || saveAttempt) && landingF.subject.errors)">
+                <label
+                *ngFor="let error of objKeys(landingF.subject.errors)"
+                class="error custom-error-label"
+                >{{ showError('subject', error) }}
+                </label>
+            </div>
+            <!-- End of service subject -->
+
+            <!-- Service image -->
+            <div class=" mt-4">
+                <label> Service Cover Image </label>
+            </div>
+            <div *ngIf="service?.image ; else noImage">
+                <img [src]="service.image" style="height: 200px;">
+            </div>
+            <ng-template #noImage>
+                <p class=" text-success">
+                    Get a free, professional service cover image!
+                </p>
+                <p class=" small text-muted">
+                    Our design team will get to work creating an attractive cover image as soon as you 
+                    submit your service for review.
+                </p>
+            </ng-template>
+
+            <!-- <div>
+                <p class="lead text-muted">Make your service stand out with a great cover image!</p>
+                <p class="lead text-muted">Images <strong>MUST</strong> meet our
+                    <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001126534-your-service-landing-page" target="_blank">
+                        image guidelines
+                    </a>
+                    to be accepted.
+                </p>
+                <p class="lead text-muted">Important guidelines: At least 750 x 422 pixels; .jpg, .jpeg,. gif, or .png. Avoid text on your image.</p>
+            </div>
+            <div class=" mt-3">
+                <app-picture-upload
+                [inputImg]="landingF.mainImage.value"
+                (messageEvent)="onPictureUpload($event)">
+                </app-picture-upload>
+            </div> -->
+            <!-- End service image -->
+
+            <!-- Service promotional video -->
+            <div class=" mt-4">
+                <label> Service Promotional Video </label>
+                <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> Optional. Upload a short (90sec max.) promotional video to promote your service. Clients 
+                    who watch a well-made promo video are 5-10X more likely to enrol! Need a little help? Click  
+                    <a href="" target="_blank">
+                        here
+                    </a> to learn how to make a great promo video. Video files must be at least 720p and less than 4.0GB
+                </p>
+            </div>
+
+            <!-- Video upload -->
+            <div>
+                <!-- Video drop / upload -->
+                <app-service-promo-video-uploader
+                [uid]="userId"
+                [service]="service"
+                (promoVidUploadedEvent)="onPromoVideoUploadEvent($event)">
+                </app-service-promo-video-uploader>
+            </div>
+
+            <!-- Video player -->
+            <div *ngIf="landingF.promoVideo.value && landingF.promoVideo.value.downloadURL" class=" mt-3">
+                <vg-player>
+                <vg-controls>
+                    <vg-play-pause></vg-play-pause>
+                    <vg-playback-button></vg-playback-button>
+                
+                    <vg-time-display vgProperty="current" vgFormat="mm:ss"></vg-time-display>
+                
+                    <vg-scrub-bar>
+                        <vg-scrub-bar-current-time></vg-scrub-bar-current-time>
+                        <vg-scrub-bar-buffering-time></vg-scrub-bar-buffering-time>
+                    </vg-scrub-bar>
+                
+                    <vg-time-display vgProperty="total" vgFormat="mm:ss"></vg-time-display>
+                
+                    <vg-mute></vg-mute>
+                    <vg-volume></vg-volume>
+                
+                    <vg-fullscreen></vg-fullscreen>
+                </vg-controls>
+                
+                <video #media [vgMedia]="media" id="singleVideo" preload="auto">
+                    <source *ngFor="let video of videoSources" [src]="video.src">
+                </video>
+                </vg-player>
+            </div>
+            <!-- End video player -->
+            <!-- End service promotional video -->
+
+            <!-- Service learning points -->
+            <div class=" mt-4">
+                <label> What are the main outcomes for your clients? </label>
+                <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> Optional. These outcomes will be highlighted on your landing page & help 
+                    to attract the right clients.
+                </p>
+            </div>
+            <div formArrayName="learningPoints" *ngFor="let item of landingF.learningPoints.value.controls ; let i = index">
+                <div
+                class="input-group no-symbol"
+                [ngClass]="{
+                    'has-danger':
+                    (( (landingF.learningPoints.value.controls[i].touched && landingF.learningPoints.value.controls[i].value != '') || saveAttempt) &&  
+                    landingF.learningPoints.value.controls[i].errors),
+                    'has-success': !landingF.learningPoints.value.controls[i].errors
+                }">
+                    <input
+                    type="text"
+                    class="form-control"
+                    [formControl]="landingF.learningPoints.value.controls[i]"
+                    placeholder="eg. Learn self-belief">
+                    <div class="input-group-append">
+                        <span class="input-group-text">
+                            {{ landingF.learningPoints.value.controls[i].value.length + '/' + learningPointsMaxLength }}
+                        </span>
+                    </div>
+                    <button 
+                    class="input-group-append ml-2 btn btn-danger btn-fab btn-icon"
+                    (click)="deleteLearningPoint(i)">
+                        <i class="tim-icons icon-trash-simple"></i>
+                    </button>
+                </div>
+                <div *ngIf="(( (landingF.learningPoints.value.controls[i].touched && landingF.learningPoints.value.controls[i].value != '') || saveAttempt) && 
+                    landingF.learningPoints.value.controls[i].errors)">
+                    <label
+                    *ngFor="let error of objKeys(landingF.learningPoints.value.controls[i].errors)"
+                    class="error custom-error-label"
+                    >{{ showError('learningPoints', error) }}
+                    </label>
+                </div>
+            </div>
+            <button
+            type="button"
+            class=" btn btn-primary btn-link"
+            (click)="addLearningPoint()"
+            [disabled]="landingF.learningPoints.value.controls.length >= learningPointsMax">
+                <i class="fas fa-plus"></i> Add an outcome
+            </button>
+            <!-- End service learning points -->
+
+            <!-- Service requirements -->
+            <div class=" mt-4">
+                <label> Are there any special requirements or prerequisites for your clients? </label>
+                <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> Optional. If you require any specific conditions to be met 
+                    before clients begin their coaching with you, mention them here. Any requirements or prerequisites will 
+                    be highlighted on your landing page & help 
+                    to attract the right clients.
+                </p>
+            </div>
+            <div formArrayName="requirements" *ngFor="let item of landingF.requirements.value?.controls ; let i = index">
+                <div
+                class="input-group no-symbol"
+                [ngClass]="{
+                    'has-danger':
+                    (( (landingF.requirements.value.controls[i].touched && landingF.requirements.value.controls[i].value != '') || saveAttempt) &&  
+                    landingF.requirements.value.controls[i].errors),
+                    'has-success': !landingF.requirements.value.controls[i].errors
+                }">
+                    <input
+                    type="text"
+                    class="form-control"
+                    [formControl]="landingF.requirements.value.controls[i]"
+                    placeholder="eg. Completed the beginner service">
+                    <div class="input-group-append">
+                        <span class="input-group-text">
+                            {{ landingF.requirements.value.controls[i].value.length + '/' + requirementsMaxLength }}
+                        </span>
+                    </div>
+                    <button 
+                    class="input-group-append ml-2 btn btn-danger btn-fab btn-icon"
+                    (click)="deleteRequirement(i)">
+                        <i class="tim-icons icon-trash-simple"></i>
+                    </button>
+                </div>
+                <div *ngIf="(( (landingF.requirements.value.controls[i].touched && landingF.requirements.value.controls[i].value != '') || saveAttempt) && 
+                    landingF.requirements.value.controls[i].errors)">
+                    <label
+                    *ngFor="let error of objKeys(landingF.requirements.value.controls[i].errors)"
+                    class="error custom-error-label"
+                    >{{ showError('requirements', error) }}
+                    </label>
+                </div>
+            </div>
+            <button
+            type="button"
+            class=" btn btn-primary btn-link"
+            (click)="addRequirement()"
+            [disabled]="landingF.requirements.value?.controls.length >= requirementsMax">
+                <i class="fas fa-plus"></i> Add a requirement
+            </button>
+            <!-- End service requirements -->
+
+            <!-- Service target clients -->
+            <div class=" mt-4">
+                <label> Who are your ideal target clients for this service? </label>
+                <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> Optional. If you have a typical client persona in mind, add these 
+                    details here. Clients who see themselves on the list are much more likely to connect with you.
+                </p>
+            </div>
+            <div formArrayName="targets" *ngFor="let item of landingF.targets.value.controls ; let i = index">
+                <div
+                class="input-group no-symbol"
+                [ngClass]="{
+                    'has-danger':
+                    (( (landingF.targets.value.controls[i].touched && landingF.targets.value.controls[i].value != '') || saveAttempt) &&  
+                    landingF.targets.value.controls[i].errors),
+                    'has-success': !landingF.targets.value.controls[i].errors
+                }">
+                    <input
+                    type="text"
+                    class="form-control"
+                    [formControl]="landingF.targets.value.controls[i]"
+                    placeholder="eg. Female Entreprenuers">
+                    <div class="input-group-append">
+                        <span class="input-group-text">
+                            {{ landingF.targets.value.controls[i].value.length + '/' + targetsMaxLength }}
+                        </span>
+                    </div>
+                    <button 
+                    class="input-group-append ml-2 btn btn-danger btn-fab btn-icon"
+                    (click)="deleteTarget(i)">
+                        <i class="tim-icons icon-trash-simple"></i>
+                    </button>
+                </div>
+                <div *ngIf="(( (landingF.targets.value.controls[i].touched && landingF.targets.value.controls[i].value != '') || saveAttempt) && 
+                    landingF.targets.value.controls[i].errors)">
+                    <label
+                    *ngFor="let error of objKeys(landingF.targets.value.controls[i].errors)"
+                    class="error custom-error-label"
+                    >{{ showError('targets', error) }}
+                    </label>
+                </div>
+            </div>
+            <button
+            type="button"
+            class=" btn btn-primary btn-link"
+            (click)="addTarget()"
+            [disabled]="landingF.targets.value.controls.length >= targetsMax">
+                <i class="fas fa-plus"></i> Add a target client
+            </button>
+            <!-- End service target clients -->
+
+            <hr>
+
+            <div class=" row mt-4">
+                <div class="col-md-6">
+                    <p class=" small text-warning pl-2 mb-2">
+                        <i class="fas fa-info-circle"></i> Don't forget to save your changes before you preview.
+                    </p>
+                    <!-- Preview service -->
+                    <div *ngIf="service?.serviceId">
+                        <a
+                        [routerLink]="['/coaching-service', service.serviceId]"
+                        target="_blank">
+                            <button
+                            type="button"
+                            class="btn btn-default btn-round">
+                                <i class="fas fa-eye"></i> Preview Landing Page
+                            </button>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <!-- Form submit button -->
+                    <div class=" pull-right">
+                        <button type="submit" class=" btn btn-primary btn-round btn-fill">
+                            <span *ngIf="!saving">
+                                <i class="fas fa-save"></i>
+                            </span>
+                            <span
+                            *ngIf="saving"
+                            class="spinner-border spinner-border-sm"
+                            role="status"
+                            ></span> {{ saving ? 'Saving...' : 'Save'}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>

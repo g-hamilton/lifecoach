@@ -1,0 +1,155 @@
+.highlight-box .table {
+    margin-bottom: 0;
+  }
+  
+  .modalContainer {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  
+  }
+  
+  .modalContent {
+    width: 40vw;
+    height: 40vh;
+    background-color: white;
+    padding: 30px 20px;
+    border-radius: 5px;
+  
+  }
+  
+  .sessions {
+    width: 100%;
+    overflow: auto;
+    overflow-scrolling: touch;
+    height: 30vh;
+  }
+  
+  .closeButton {
+    color: rgb(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0);
+    border: none;
+    display: block;
+    float: right;
+    margin-bottom: 10px;
+  }
+  
+  .session {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  
+    &Title {
+      color: #344675;
+    }
+  
+  }
+  
+  
+  // testing --test_feature
+  
+  .test {
+    margin-top: 60px;
+    height: 75vh;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    display: none;
+  }
+  
+  .test-575-jpg {
+    display: block;
+  }
+  
+  :host-context(.webp) {
+    .test-575-jpg {
+      display: none;
+    }
+  
+    .test-575-webp {
+      display: block;
+    }
+  }
+  
+  @media screen and (min-width: 575px) {
+    .test-575-jpg,
+    .test-575-webp {
+      display: none!important;
+    }
+    .test-768-jpg {
+      display: block;
+    }
+    :host-context(.webp) {
+      .test-768-jpg {
+        display: none;
+      }
+      .test-768-webp {
+        display: block !important;
+      }
+    }
+  }
+  
+  @media screen and (min-width: 768px) {
+    .test-768-jpg,
+    .test-768-webp  {
+      display: none!important;
+    }
+    .test-991-jpg {
+      display: block;
+    }
+    :host-context(.webp) {
+      .test-991-jpg,
+      .test-768-webp {
+        display: none!important;
+      }
+        .test-991-webp {
+        display: block;
+      }
+    }
+  }
+  
+  @media screen and (min-width: 991px) {
+    .test-991-jpg,.test-991-webp  {
+      display: none!important;
+    }
+    .test-1200-jpg {
+      display: block;
+    }
+    :host-context(.webp) {
+      .test-1200-jpg {
+        display: none!important;
+      }
+      .test-1200-webp {
+        display: block;
+      }
+    }
+  }
+  
+  @media screen and (min-width: 1200px) {
+    .test-1200-jpg,.test-1200-webp {
+      display: none;
+    }
+    .test-original-jpg {
+      display: block;
+    }
+    :host-context(.webp) {
+      .test-1200-webp,
+      .test-original-jpg{
+        display: none;
+      }
+  
+      .test-original-webp {
+        display: block;
+      }
+    }
+  }
+  
+  

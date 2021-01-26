@@ -222,7 +222,7 @@
 
                     <!-- coach card -->
                     <div class=" mt-5"></div>
-                    <app-program-coach [program]="program"></app-program-coach>
+                    <app-coach-mini-profile [coachId]="program.sellerUid"></app-coach-mini-profile>
                     <!-- end coach card -->
 
                     <!-- program pricing & call booking -->
@@ -234,7 +234,7 @@
                         <div class=" col-md-6 ml-auto mr-auto text-center">
                             <h1 class=" title">Join the program</h1>
                             <h4 class=" description">
-                            Got questions? Schedule a free discovery call with your coach before you get started.
+                            Got questions? Schedule a free discovery video session with your coach before you get started.
                             </h4>
                         </div>
                         </div>
@@ -257,7 +257,7 @@
                                 />
                 
                                 <ul class=" list-group">
-                                <li class=" list-group-item">Schedule a discovery call</li>
+                                <li class=" list-group-item">Schedule a discovery session</li>
                                 </ul>
                                 <div class=" card-prices pl-3 pr-3">
                                 <h3 class=" text-on-front">FREE</h3>
@@ -270,7 +270,7 @@
                                 <!-- disabled by default -->
                                 <button class=" btn btn-round btn-just-icon btn-primary"
                                 [disabled]="true">
-                                <i class="fas fa-phone"></i> Schedule a Call
+                                <i class="fas fa-phone"></i> Schedule a Session
                                 </button>
                             </div>
                             </div>

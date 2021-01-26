@@ -16,6 +16,8 @@ import { CoachingService } from 'app/interfaces/coaching.service.interface';
 import { first } from 'rxjs/operators';
 import { CoachingProgram } from 'app/interfaces/coach.program.interface';
 import { AdminProgramReviewRequest } from 'app/interfaces/admin.program.review.interface';
+import { AdminServiceReviewRequest } from 'app/interfaces/admin.service.review.interface';
+import { CloudFunctionsService } from './cloud-functions.service';
 
 @Injectable({
   providedIn: 'root'
@@ -24,7 +26,8 @@ export class DataService {
 
   constructor(
     private db: AngularFirestore,
-    private analyticsService: AnalyticsService
+    private analyticsService: AnalyticsService,
+    private cloudService: CloudFunctionsService
   ) {
   }
 
@@ -249,11 +252,26 @@ export class DataService {
       .valueChanges() as Observable<any>;
   }
 
-  getTotalPublicEnrollmentsByCourseSeller(sellerUid: string) {
-    // Returns a document containing a coach's total lifetime course enrollments (across all courses)
-    return this.db.collection(`seller-course-enrollments`)
-      .doc(sellerUid)
-      .valueChanges() as Observable<any>;
+  async getTotalPublicEnrollmentsByCourseSeller(sellerUid: string) {
+    // returns a total number of unique clients across all seller courses
+    const docPath = `seller-enrollments-by-course/${sellerUid}/courses`;
+    const res = await this.cloudService.getCollectionDocIds(docPath) as any;
+    if (res.docs) {
+      // console.log(`collections for docPath: seller-enrollments-by-course/${sellerUid}/courses`, res.docs);
+      // the path has subcollection(s)
+      let total = 0;
+      for (const docId of res.docs) {
+        const res1 = await this.cloudService.getCollectionDocIds(`seller-enrollments-by-course/${sellerUid}/courses/${docId}/enrolled`) as any;
+        if (res1.docs) {
+          // console.log(`collections for docPath: seller-enrollments-by-course/${sellerUid}/courses/${docId}/enrolled`, res1.docs);
+          // the path has subcollection(s)
+          total += res1.docs.length;
+        }
+      }
+      return total;
+    } else { // the path has no subcollections
+      return 0;
+    }
   }
 
   async savePrivateCourse(uid: string, course: CoachingCourse) {
@@ -782,11 +800,26 @@ export class DataService {
       .valueChanges() as Observable<any>;
   }
 
-  getTotalPublicProgramEnrollmentsBySeller(sellerUid: string) {
-    // Returns a document containing a coach's total lifetime program enrollments (across all programs)
-    return this.db.collection(`seller-program-enrollments`)
-      .doc(sellerUid)
-      .valueChanges() as Observable<any>;
+  async getTotalPublicProgramEnrollmentsBySeller(sellerUid: string) {
+    // returns a total number of unique clients across all seller programs
+    const docPath = `coach-enrollments-by-program/${sellerUid}/programs`;
+    const res = await this.cloudService.getCollectionDocIds(docPath) as any;
+    if (res.docs) {
+      // console.log(`collections for docPath: coach-enrollments-by-program/${sellerUid}/programs`, res.docs);
+      // the path has subcollection(s)
+      let total = 0;
+      for (const docId of res.docs) {
+        const res1 = await this.cloudService.getCollectionDocIds(`coach-enrollments-by-program/${sellerUid}/programs/${docId}/enrolled`) as any;
+        if (res1.docs) {
+          // console.log(`collections for docPath: coach-enrollments-by-program/${sellerUid}/programs/${docId}/enrolled`, res1.docs);
+          // the path has subcollection(s)
+          total += res1.docs.length;
+        }
+      }
+      return total;
+    } else { // the path has no subcollections
+      return 0;
+    }
   }
 
   getPublicProgramsBySeller(sellerUid: string) {
@@ -862,27 +895,179 @@ export class DataService {
   // =====                           COACH SERVICES                            ======
   // ================================================================================
 
-  saveCoachService(uid: string, service: CoachingService) {
-    return this.db.collection(`users/${uid}/services`)
-      .doc(service.id)
-      .set(service, {merge: true});
-  }
-
-  getCoachServices(uid: string) {
-    return this.db.collection(`users/${uid}/services`)
-      .valueChanges({idField: 'id'}) as Observable<CoachingService[]>;
-  }
-
-  getCoachServiceById(uid: string, serviceId: string) {
-    return this.db.collection(`users/${uid}/services`)
+  getPrivateService(userId: string, serviceId: string) {
+    // Returns a coaching service document.
+    return this.db.collection(`users/${userId}/services`)
       .doc(serviceId)
       .valueChanges() as Observable<CoachingService>;
   }
 
-  getPublicCoachServiceById(serviceId: string) {
+  getServiceReviewRequest(serviceId: string) {
+    return this.db.collection(`admin/review-requests/services`)
+      .doc(serviceId)
+      .valueChanges() as Observable<AdminServiceReviewRequest>;
+  }
+
+  async savePrivateService(uid: string, service: CoachingService) {
+    // track
+    this.analyticsService.saveService();
+    // Saves a user's program to a document with matching id
+    return this.db.collection(`users/${uid}/services`)
+      .doc(service.serviceId)
+      .set(service, {merge: true})
+      .catch(err => console.error(err));
+  }
+
+  async requestServiceReview(service: CoachingService) {
+    if (!service.sellerUid) {
+      console.error('Unable to request review: no seller UID');
+      return;
+    }
+    if (!service.serviceId) {
+      console.error('Unable to request review: no service ID');
+      return;
+    }
+
+    const requestDate = Math.round(new Date().getTime() / 1000); // set unix timestamp in seconds
+    const reviewRequest: AdminServiceReviewRequest = {
+      serviceId: service.serviceId,
+      sellerUid: service.sellerUid,
+      requested: requestDate,
+      status: 'submitted'
+    };
+
+    await this.db.collection(`admin/review-requests/services`)
+      .doc(service.serviceId)
+      .set(reviewRequest, {merge: true})
+      .catch(err => console.error(err));
+
+    return this.db.collection(`users/${service.sellerUid}/services`)
+      .doc(service.serviceId)
+      .set({reviewRequest}, {merge: true})
+      .catch(err => console.error(err));
+  }
+
+  getPublicService(serviceId: string) {
+    // Returns a service document.
     return this.db.collection(`public-services`)
       .doc(serviceId)
       .valueChanges() as Observable<CoachingService>;
+  }
+
+  getTotalPublicEnrollmentsByService(serviceId: string) {
+    // Returns a document containing a service's total lifetime enrollments
+    return this.db.collection(`service-enrollments`)
+      .doc(serviceId)
+      .valueChanges() as Observable<any>;
+  }
+
+  getPrivateServices(uid: string) {
+    // Returns all the user's created service (as seller) documents.
+    return this.db.collection(`users/${uid}/services`)
+      .valueChanges() as Observable<CoachingService[]>;
+  }
+
+  getServiceSalesByMonth(uid: string, month: number, year: number, serviceId: string) {
+    // Returns all the user's service sales documents for month and year, along with the doc IDs.
+    return this.db.collection(`users/${uid}/service-sales/${month}-${year}/${serviceId}`)
+      .valueChanges({idField: 'id'}) as Observable<any[]>;
+  }
+
+  getLifetimeTotalServiceSales(uid: string, serviceId: string) {
+    // Returns a document containing lifetime sales totals.
+    return this.db.collection(`users/${uid}/service-sales/total-lifetime-service-sales/services`)
+      .doc(serviceId)
+      .valueChanges() as Observable<any>;
+  }
+
+  async getTotalPublicServiceEnrollmentsBySeller(sellerUid: string) {
+    // returns a total number of unique clients across all seller services
+    const docPath = `coach-enrollments-by-service/${sellerUid}/services`;
+    const res = await this.cloudService.getCollectionDocIds(docPath) as any;
+    if (res.docs) {
+      // console.log(`collections for docPath: coach-enrollments-by-service/${sellerUid}/services`, res.docs);
+      // the path has subcollection(s)
+      let total = 0;
+      for (const docId of res.docs) {
+        const res1 = await this.cloudService.getCollectionDocIds(`coach-enrollments-by-service/${sellerUid}/services/${docId}/enrolled`) as any;
+        if (res1.docs) {
+          // console.log(`collections for docPath: coach-enrollments-by-service/${sellerUid}/services/${docId}/enrolled`, res1.docs);
+          // the path has subcollection(s)
+          total += res1.docs.length;
+        }
+      }
+      return total;
+    } else { // the path has no subcollections
+      return 0;
+    }
+  }
+
+  getPublicServicesBySeller(sellerUid: string) {
+    const servicesRef = this.db.collection('public-services', ref => ref.where('sellerUid', '==', sellerUid));
+    return servicesRef.valueChanges() as Observable<CoachingService[]>;
+  }
+
+  async deletePrivateService(userId: string, serviceId: string) {
+    return this.db.collection(`users/${userId}/services`)
+      .doc(serviceId)
+      .delete()
+      .catch(err => console.error(err));
+  }
+
+  getTotalAdminServicesInReview() {
+    return this.db.collection(`admin`)
+      .doc('totalServicesInReview')
+      .valueChanges() as Observable<any>;
+  }
+
+  getInitialAdminServicesInReview(limitTo: number) {
+    return this.db.collection(`admin/review-requests/services`, ref => ref
+      .orderBy('requested', 'asc')
+      .limit(limitTo))
+      .valueChanges({idField: 'id'}) as Observable<AdminServiceReviewRequest[]>;
+  }
+
+  getNextAdminServicesInReview(limitTo: number, lastDoc: any) {
+    return this.db.collection(`admin/review-requests/services`, ref => ref
+      .orderBy('requested', 'asc')
+      .startAfter(lastDoc.requested) // must match the .orderBy field!
+      .limit(limitTo))
+      .valueChanges({idField: 'id'}) as Observable<AdminServiceReviewRequest[]>;
+  }
+
+  getPreviousAdminServicesInReview(limitTo: number, firstDoc: any) {
+    return this.db.collection(`admin/review-requests/services`, ref => ref
+      .orderBy('requested', 'asc')
+      .endBefore(firstDoc.requested) // must match the .orderBy field!
+      .limitToLast(limitTo))
+      .valueChanges({idField: 'id'}) as Observable<AdminServiceReviewRequest[]>;
+  }
+
+  getPurchasedServices(uid: string) {
+    // Returns all the user's purchased service documents along with the doc IDs.
+    return this.db.collection(`users/${uid}/purchased-services`)
+      .valueChanges({idField: 'id'}) as Observable<[]>;
+  }
+
+  getUnlockedPublicService(serviceId: string) {
+    // Returns a service document.
+    return this.db.collection(`locked-service-content`)
+      .doc(serviceId)
+      .valueChanges() as Observable<CoachingService>;
+  }
+
+  getPurchasedServiceSessions(coachId: string, clientId: string, serviceId: string) {
+    // returns all of the purchased sessions for a specific service
+    return this.db.collection(`users/${coachId}/people/${clientId}/sessions-purchased`, ref => ref
+      .where('serviceId', '==', serviceId))
+      .valueChanges({idField: 'id'}) as Observable<[]>;
+  }
+
+  getServiceSessionsComplete(coachId: string, clientId: string, serviceId: string) {
+    // returns all of the completed sessions for a specific service
+    return this.db.collection(`users/${coachId}/people/${clientId}/sessions-complete`, ref => ref
+      .where('serviceId', '==', serviceId))
+      .valueChanges({idField: 'id'}) as Observable<[]>;
   }
 
 // ================================================================================

@@ -48,7 +48,6 @@ export interface CoachingCourse {
     totalOneStarReviews?: number;
     totalZeroPointFiveStarReviews?: number;
     totalZeroStarReviews?: number;
-    isTest?: boolean;
     imagePaths?: CourseImagePaths;
 }
 

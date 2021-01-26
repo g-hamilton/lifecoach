@@ -162,6 +162,14 @@ export const ROUTES: RouteInfo[] = [
         title: 'Program Review',
         type: 'link',
         smallTitle: 'PR'
+      },
+      {
+        path: 'admin-service-review',
+        rtlTitle: 'دعم رتل ',
+        rtlSmallTitle: 'ص',
+        title: 'Service Review',
+        type: 'link',
+        smallTitle: 'SR'
       }
     ]
   },

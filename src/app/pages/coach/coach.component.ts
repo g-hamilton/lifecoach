@@ -105,7 +105,7 @@ export class CoachComponent implements OnInit, OnDestroy {
       this.getCoachProfile();
       this.getCoachCourses();
       this.getCoachPrograms();
-      // this.getCoachServices();
+      this.getCoachServices();
 
     });
   }
@@ -267,7 +267,7 @@ export class CoachComponent implements OnInit, OnDestroy {
 
     if (servicesData === null) { // if state data does not exist - retrieve it from the api
       this.subscriptions.add(
-        this.dataService.getCoachServices(this.coachId).subscribe(services => {
+        this.dataService.getPublicServicesBySeller(this.coachId).subscribe(services => {
           if (services) { // The coach has at least one published service
             this.publishedServices = services;
             if (isPlatformServer(this.platformId)) {

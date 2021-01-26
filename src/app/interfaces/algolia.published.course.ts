@@ -7,7 +7,6 @@ export interface AlgoliaPublishedCourse {
     subtitle: string;
     category: string;
     subject: string;
-    isTest: boolean;
     language: string;
     level: string;
     pricingStrategy: string;

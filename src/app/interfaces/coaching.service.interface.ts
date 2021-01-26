@@ -1,13 +1,46 @@
+import { AdminProgramReviewRequest } from './admin.program.review.interface';
+import { ProgramImagePaths } from './image-path.interface';
+
 export interface CoachingService {
-    id: string;
-    coachUid: string;
+    serviceId: string;
     title: string;
-    subtitle: string;
-    duration: number;
-    serviceType: 'live 1:1';
-    pricingStrategy: 'free' | 'paid';
-    image: string;
-    description: string;
-    price?: number; // if paid strategy
-    currency?: string; // if paid strategy
+    sellerUid: string;
+    reviewRequest?: AdminProgramReviewRequest;
+    subtitle?: string;
+    pricing?: any;
+    currency?: string;
+    stripeId?: string;
+    description?: string;
+    language?: string;
+    category?: string;
+    subject?: string;
+    image?: string;
+    promoVideo?: any;
+    learningPoints?: string[];
+    requirements?: string[];
+    targets?: string[];
+    coachName?: string;
+    coachPhoto?: string;
+    lastUpdated?: number; // unix timestamp
+    monthlyEarnings?: any;
+    lifetimeTotals?: any;
+    lifetimeTotalSales?: number;
+    totalFiveStarReviews?: number;
+    totalFourPointFiveStarReviews?: number;
+    totalFourStarReviews?: number;
+    totalThreePointFiveStarReviews?: number;
+    totalThreeStarReviews?: number;
+    totalTwoPointFiveStarReviews?: number;
+    totalTwoStarReviews?: number;
+    totalOnePointFiveStarReviews?: number;
+    totalOneStarReviews?: number;
+    totalZeroPointFiveStarReviews?: number;
+    totalZeroStarReviews?: number;
+    adminApproved?: boolean;
+    approved?: number; // unix timestamp
+    progress?: number;
+    purchasedSessions?: any[];
+    sessionsComplete?: any[];
+    imagePaths?: ProgramImagePaths;
+    // for different image to speed up first render --test_feature
 }

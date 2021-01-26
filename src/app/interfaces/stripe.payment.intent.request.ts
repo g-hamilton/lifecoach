@@ -4,10 +4,11 @@
 */
 
 export interface StripePaymentIntentRequest {
-    saleItemId: string; // can be a 'courseId' or 'programId'
-    saleItemType: 'ecourse' | 'fullProgram' | 'programSession';
+    saleItemId: string; // can be a 'serviceId', 'courseId' or 'programId'
+    saleItemType: 'ecourse' | 'fullProgram' | 'programSession' | 'coachingPackage';
     salePrice: number;
     currency: string;
     buyerUid: string; // the Lifecoach UID of the purchaser
     referralCode?: string; // optional. if a referral / tracking code is used to make the purchase
+    pricingSessions?: number; // optional. if purchasing a coaching service package, how many sessions (which package) is being purchased?
 }
