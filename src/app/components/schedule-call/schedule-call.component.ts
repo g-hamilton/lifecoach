@@ -101,7 +101,8 @@ export class ScheduleCallComponent implements OnInit {
           this.discoveryAvailableEvents.forEach( i => {
             // @ts-ignore
             const startDate = new Date(i.start.seconds * 1000);
-            const day = new Date(startDate.getUTCFullYear(), startDate.getUTCMonth(), startDate.getUTCDate());
+            console.log('startDate', startDate);
+            const day = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
             if (!this.uniqueEnabledDays.some( (date) => this.isSameDay(date, day))) {
               this.uniqueEnabledDays.push(day);
             }
@@ -124,7 +125,7 @@ export class ScheduleCallComponent implements OnInit {
       will populate an array of dates to disable.
     */
     const millisecondPerDay = 24 * 60 * 60 * 1000;
-    const now = new Date();
+    const now = new Date(new Date().toUTCString());
     let startDate: Date = new Date(now.setFullYear(now.getFullYear() - 1));
     const endDate: Date = new Date(now.setFullYear(now.getFullYear() + 2)); // change as per need
     console.log('get disabled dates start:', startDate);
@@ -144,7 +145,7 @@ export class ScheduleCallComponent implements OnInit {
       }
       if (disable) {
         const local = new Date(startDate);
-        local.setUTCDate(local.getUTCDate() + 1);
+        // local.setUTCDate(local.getUTCDate() + 1);
         // console.log(local);
         this.disabledDates.push(local);
       }
@@ -155,9 +156,8 @@ export class ScheduleCallComponent implements OnInit {
   }
 
   onDayChange(value: Date) {
-    // console.log('day changed', value);
     this.subscriptions.add(
-      this.dataService.getUserAvailableDiscoveryEvents(this.coachId, new Date(value))
+      this.dataService.getUserAvailableDiscoveryEvents(this.coachId, new Date(value.toUTCString()))
         .subscribe(next => {
         this.availableSlotsToday = next;
       })
@@ -165,7 +165,7 @@ export class ScheduleCallComponent implements OnInit {
   }
 
   isSameDay(a: Date, b: Date) {
-    return (a.getUTCFullYear() === b.getUTCFullYear() && a.getUTCMonth() === b.getUTCMonth() && a.getUTCDate() === b.getUTCDate());
+    return (a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate());
   }
 
   async reserveSession(ev: CustomCalendarEvent, index: number) {

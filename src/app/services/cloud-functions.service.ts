@@ -22,6 +22,7 @@ import {AngularFirestore} from '@angular/fire/firestore';
 })
 export class CloudFunctionsService {
 
+  unique: any = [];
   nextPageToken: string;
   uniqueUsers: any = [];
   goNext: true | false = true;
@@ -380,14 +381,14 @@ export class CloudFunctionsService {
     }
     console.log(ttl);
     return new Promise( resolve => {
-          const res = this.cloudFunctions.httpsCallable('getTwilioToken');
-          const tempSub = res({uid, room, ttl})
-            .pipe(first())
-            .subscribe(r => {
-              resolve(r.json);
-              console.log('Cloud Function Service', r.json);
-              tempSub.unsubscribe();
-            });
+        const res = this.cloudFunctions.httpsCallable('getTwilioToken');
+        const tempSub = res({uid, room, ttl})
+          .pipe(first())
+          .subscribe(r => {
+            resolve(r.json);
+            console.log('Cloud Function Service', r.json);
+            tempSub.unsubscribe();
+          });
       }
     );
   }
@@ -606,37 +607,50 @@ export class CloudFunctionsService {
 
   async resizeProfileAvatarsManager() {
     try {
-      const reflect = p => p.then(v => ({v, status: 'fulfilled' }),
-        e => ({e, status: 'rejected' }));
+      const reflect = p => p.then(v => ({v, status: 'fulfilled' }), e => ({e, status: 'rejected' }));
 
+      // console.log('cloud - service');
+      let photoUrls = [];
+      let toDownload = [];
       do {
         await this.resizeProfileAvatars();
-      } while (this.goNext);
-      const unique =  [...new Set(this.uniqueUsers)]; // Unique users
+        // console.log('working');
 
-      console.log('DONE WITH UNIQUE', unique);
-      // @ts-ignore // TODO: don't know why, but getCoachProfile function return both coach and regular profiles;
-      const profilePromises = unique.map( i => this.dataService.getCoachProfile(i).pipe(take(1)).toPromise());
+        this.unique =  [...new Set(this.uniqueUsers)]; // Unique users
 
-      const uniqueProfiles = await Promise.all(profilePromises.map(reflect)); // This is realization os Promise.allSettled, because is natively not supported
+        // console.log('DONE WITH UNIQUE', this.unique);
+        // @ts-ignore // TODO: don't know why, but getCoachProfile function return both coach and regular profiles;
+        const profilePromises = this.unique.map( i => this.dataService.getCoachProfile(i).pipe(take(1)).toPromise());
 
-      const coachProfiles = uniqueProfiles.map( (item, index) => ({data: item.v, profileUid: unique[index]})).filter( i => !i.data.photoPaths); // Profiles without 'paths' object
-      console.log('DONE WITH UNIQUE COACHES PROFILES without photo.paths', coachProfiles);
-      /*
-       check image url (photo = link?)
-       if no - that mean user has no photo
-       if yes - add to array.
-       This array will be used as marker (where we should upload our photo urls)
-      */
-      const toDownload = coachProfiles.filter( i => i.data.photo);
-      // console.log(toDownload);
-      const photoUrls = toDownload.map( i => i.data.photo);
-      // if exist = try to download
-      console.log(photoUrls);
-      if (photoUrls.length === 0) {
-        console.log('there is no profiles without paths object');
+        const uniqueProfiles = await Promise.all(profilePromises.map(reflect)); // This is realization os Promise.allSettled, because is natively not supported
+
+        const coachProfiles = uniqueProfiles.map( ({v}, index) => ({data: v, profileUid: this.unique[index]})).filter(i => !i.data.photoPaths); // Profiles without 'paths' object
+        // console.log('DONE WITH UNIQUE COACHES PROFILES without photo.paths', coachProfiles);
+
+        /*
+         check image url (photo = link?)
+         if no - that mean user has no photo
+         if yes - add to array.
+         This array will be used as marker (where we should upload our photo urls)
+        */
+        toDownload = coachProfiles.filter( i => i.data.photo);
+        // console.log(toDownload);
+        photoUrls = toDownload.map( i => i.data.photo);
+        // if exist = try to download
+        // console.log('', photoUrls);
+        console.log('before out');
+        if (photoUrls.length === 0) {
+          // console.log('there is no profiles without paths object');
+          return;
+        }
         return;
-      }
+
+      } while ( this.goNext);
+
+      console.log(`There are ${this.unique.length} users without paths object, so we can move next to resize their images`);
+      return;
+
+
       const imagePromises = photoUrls.map( i => (new Promise(resolve => {
         const trigger = this.cloudFunctions.httpsCallable('getUserPhoto');
         const tempSub = trigger({ url: i })
@@ -707,12 +721,12 @@ export class CloudFunctionsService {
       // @ts-ignore
       const promisesToUpload = toDownload.map( (i, index) => this.uploadUserAvatar({uid: i.profileUid, img: inBase64[index]}));
       const responsesWithUrls = await Promise.all(promisesToUpload);
-        // write url to coach object
+      // write url to coach object
       console.log('UPLOADED IN DIF SIZES');
       const newProfileObjects = toDownload
         .map( (i, index) => ({...i.data,
           photoPaths: responsesWithUrls[index],
-      // @ts-ignore
+          // @ts-ignore
           photo: responsesWithUrls[index].original.fullSize || ''}));
 
       // @ts-ignore
@@ -735,7 +749,7 @@ export class CloudFunctionsService {
       directory: `users/`,
       delimiter: `/`,
       prefix: `users/`,
-      maxResults: 5,
+      maxResults: 1,
       startOffset: `users/`
     };
 
