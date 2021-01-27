@@ -686,8 +686,8 @@ export class DataService {
       ).valueChanges() as Observable<CustomCalendarEvent[]>;
     } else {
       const now = new Date();
-      now.setHours(0, 0, 0, 0);
-      console.log('ELSE');
+      now.setUTCHours(0, 0, 0, 0);
+      console.log('ELSE', now.getTime());
       return this.db.collection(`users/${uid}/calendar`, ref => ref
         .where('type', '==', 'discovery')
         .where('ordered', '==', false)
