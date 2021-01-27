@@ -4,255 +4,217 @@
 <div class="full-page home-page">
 
     <!-- Hero -->
-    <section id="section-hero">
-        <div class="jumbotron jumbotron-fluid custom-jumbotron" id="home-jumbotron">
-            <div class="container">
+    <div id="section-hero">
+        <div class=" row">
+
+            <!-- text col -->
+            <div id="hero-text-col" class=" col-md-4">
+                <h1 class=" display-1">
+                    Unleash Your Potential
+                </h1>
+                <h2>
+                    Overcome your obstacles & reach your goals.
+                </h2>
+                <h4>
+                    Get coached by the best professional coaches in the world, for every area of life, 
+                    on a platform that defies borders.
+                </h4>
+                <button class="btn btn-round btn-primary">
+                    Get Started
+                </button>
+            </div>
+
+            <!-- vid col -->
+            <div id="hero-vid-col" class=" col-md-8">
+                vid
+            </div>
+        </div>
+    </div>
+    <!-- end of hero section -->
+
+    <!-- banners section -->
+    <div id="section-banners">
+        <div class=" row">
+            <div id="banners-col" class=" col">
+                <div class=" container text-center">
+                    <h2 class=" display-4 mb-1">
+                        Lifecoach Coaching
+                    </h2>
+                    <h3 class=" display-2">
+                        Discover The Best Version of You
+                    </h3>
+                    <h4>
+                        Lifecoach brings you the best private coaching for every area of personal transformation. <br> 
+                        Whatever your goal, our coaches can help you to discover the very best version of yourself.
+                    </h4>
+                </div>
+                <div id="banners-image" class=" text-center">
+                    <p>
+                        banners image
+                    </p>
+                </div>
+                <div class=" container text-center">
+                    <button class="btn btn-round btn-info">
+                        Browse Coaching
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- end of banners section -->
+
+    <!-- goals section -->
+    <section id="section-goals" class=" top-section-margin">
+        <div class=" content">
+            <div class=" container">
                 <div class="row justify-content-center text-center">
-                    <div class="col-md-10">
-
-                        <!-- SSR -->
-                        <h1 *ngIf="!browser" class="display-1"> Find Your Life Coach </h1>
-                        <!-- Browser -->
-                        <h1 *ngIf="browser" class="display-1 title-changed"> Find Your <br class="d-block d-lg-none"><span class="green-word">{{words[wordIndex]}} </span><br class="d-block d-lg-none">Coach </h1>
-<!--                        <h1 *ngIf="browser" class="display-1 title-changed"> Find Your <br class="d-block d-sm-none"><span id="coach-rotator"></span><br class="d-block d-sm-none">  Coach </h1>-->
-
-
-                        <h3>
-                            Connect to professional coaching for every area of life.
+                    <div class="col">
+                        <h2 class=" display-4 mb-1">
+                            Succeed. Overcome. Heal. Thrive.
+                        </h2>
+                        <h3 class=" display-2">
+                            Professional Coaching For Every Goal
                         </h3>
 
-                        <div class=" row">
-                            <div class=" col-md-2">
-                                <!-- empty col as spacer to center search content -->
+                        <div id="goal-tags" class="d-flex flex-wrap justify-content-center">
+                            <div *ngFor="let item of goals ; let i = index">
+                                <p class=" border custom-goal-tag mr-2 pl-4 pr-4 pt-1 pb-1"
+                                [ngClass]="{
+                                    'border-primary': tagsToHighlight.includes(i),
+                                    'text-primary': tagsToHighlight.includes(i),
+                                    'border-default': !tagsToHighlight.includes(i),
+                                    'text-default': !tagsToHighlight.includes(i)
+                                }">
+                                    {{ item }}
+                                </p>
                             </div>
-                            <div class=" col-md-8">
-                                <div class=" row">
-                                    <div class=" col-md-10">
-                                        <div class="input-group input-group-lg" id="hero-search">
-                                            <div class="input-group-prepend">
-                                            <span class="input-group-text" id="inputGroup-sizing-lg">
-                                                <i class=" tim-icons icon-zoom-split mr-3"></i>
-                                            </span>
-                                            </div>
-                                            <input
-                                            type="text"
-                                            class="form-control"
-                                            aria-label="Large"
-                                            aria-describedby="inputGroup-sizing-sm"
-                                            placeholder="Search coaches & eCourses"
-                                            [(ngModel)]="searchTerm"
-                                            >
-                                        </div>
-                                    </div>
-                                    <div class=" col-md-2">
-                                        <a
-                                        class="btn btn-primary btn-lg btn-round"
-                                        [routerLink]="['/search-results']"
-                                        [queryParams]="{q: searchTerm}"
-                                        role="button"> Go! </a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class=" col-md-2">
-                                <!-- empty col as spacer to center search content -->
-                            </div>
+                        </div>
+
+                        <h4 class=" mt-4">
+                            And hundreds more areas of personal transformation.
+                        </h4>
+        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- end of goals section -->
+
+    <!-- how it works section -->
+    <div id="section-how-it-works" class="top-section-margin">
+        <div class=" content">
+            <div class=" container">
+                <div class="row">
+                    <div class="col text-center">
+                        <h2 class=" display-2 mb-1">
+                            How Lifecoach Works
+                        </h2>
+                    </div>
+                </div>
+
+                <!-- step 1 row -->
+                <div class=" row mt-4">
+                    <div class=" col-6">
+                        <h4 class=" display-4 mb-1 pt-5">
+                            1. Explore
+                        </h4>
+                        <h4 class=" display-3">
+                            Discover the best coaching
+                        </h4>
+                        <h4>
+                            Explore hundreds of private coaching services and programs from the world's best coaches.
+                        </h4>
+                    </div>
+                    <div class=" col-6">
+                        <img src="../../../assets/img/explore-coaching-on-lifecoach.png">
+                    </div>
+                </div>
+
+                <!-- step 2 row -->
+                <div class=" row">
+                    <div class=" col-6">
+                        image
+                    </div>
+                    <div class=" col-6">
+                        <h3 class=" display-4 mb-1 pt-5">
+                            2. Connect
+                        </h3>
+                        <h4 class=" display-3">
+                            With coaches
+                        </h4>
+                        <h4>
+                            Schedule free discovery video sessions to make sure coaches are right for you.
+                        </h4>
+                    </div>
+                </div>
+
+                <!-- step 3 row -->
+                <div class=" row">
+                    <div class=" col-6">
+                        <h3 class=" display-4 mb-1 pt-5">
+                            3. Transform
+                        </h3>
+                        <h4 class=" display-3">
+                            One session at a time
+                        </h4>
+                        <h4>
+                            Purchase private video sessions and get coached online.
+                        </h4>
+                    </div>
+                    <div class=" col-6">
+                        image
+                    </div>
+                </div>
+
+                <!-- step 4 row -->
+                <div class=" row">
+                    <div class=" col-6">
+                        <h3 class=" display-4 mb-1 pt-5">
+                            Prefer Self-Study?
+                        </h3>
+                        <h4 class=" display-3">
+                            Enrol in an eCourse
+                        </h4>
+                        <div class=" text-center">
+                            <button class="btn btn-round btn-info">
+                                Browse eCourses
+                            </button>
+                        </div>
+                    </div>
+                    <div clas=" col-6">
+                        image
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!-- end of how it works section -->
+
+    <!-- begin section -->
+    <div id="section-begin" class="top-section-margin bottom-section-margin">
+        <div class=" content">
+            <div class=" container">
+                <div class="row">
+                    <div class="col text-center">
+                        <h2 class=" display-2 mb-1">
+                            Begin.
+                        </h2>
+                        <h3 class=" display-4">
+                            Your transformation starts now
+                        </h3>
+                        <div class=" text-center">
+                            <button class="btn btn-round btn-primary">
+                                Get Started
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Hero strip -->
-        <div id="hero-bottom-strip" class="row">
-            <div class=" col-4 text-center">
-                <h4><i class="far fa-user"></i> 600+ Coaches</h4>
-            </div>
-            <div class=" col-4 text-center">
-                <h4><i class="far fa-play-circle"></i> 80+ <span class="text-lowercase">e</span>Courses</h4>
-            </div>
-            <div class=" col-4 text-center">
-                <h4><i class="fas fa-map-marker-alt"></i> 20+ Countries</h4>
-            </div>
-        </div>
-
-    </section>
-
-    <!-- Section 3 -->
-    <section id="section-three" class=" padded-section">
-        <div class=" content">
-            <div class=" container">
-                <div class="row justify-content-center text-center mb-5">
-                    <div class="col-md-12">
-                    <h2 class="display-3"> Newest Coaches </h2>
-
-                    <app-results [results]="newestCoaches"></app-results>
-
-                    <p>
-                        <a
-                        class="btn btn-primary btn-lg btn-round btn-simple"
-                        [routerLink]="['/coaches']"
-                        role="button"> Browse Coaches 
-                        </a>
-                    </p>
-        
-                    </div>
-                </div>
-                <div class="row justify-content-center text-center mt-5">
-                    <div class="col-md-12">
-                    <h2 class="display-3"> Newest eCourses </h2>
-
-                    <h4>
-                        <strong>Looking for self-study?</strong> Try a Coach led eCourse & progress completely at your own pace.
-                        
-                    </h4>
-
-                    <div class=" mt-5 text-left">
-                        <app-course-results
-                            [results]="newestCourses"
-                            [rates]="rates"
-                            [clientCurrency]="clientCurrency">
-                        </app-course-results>
-                    </div>
-
-                    <p>
-                        <a
-                        class="btn btn-primary btn-lg btn-round btn-simple"
-                        [routerLink]="['/courses']"
-                        role="button"> Browse eCourses 
-                        </a>
-                    </p>
-        
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Section 2 -->
-    <section id="section-two" class=" padded-section">
-        <div class=" content">
-            <div class=" container">
-                <div class="row justify-content-center text-center">
-                    <div class="col-md-10 col-lg-8">
-                    <h2 class="display-3"> The Best Coaching, Wherever You Are </h2>
-
-                    <h4>
-                        Your perfect coach may not live in your city. Use Lifecoach
-                        to connect with remote coaches or level up with self-study courses anywhere in the world.
-                    </h4>
-
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Section 1 -->
-    <section id="section-one" class=" padded-section">
-        <div class=" content">
-            <div class=" container">
-                <div class="row justify-content-center text-center">
-                    <div class="col-md-10 col-lg-8">
-                    <h2 class="display-3"> Whatever Your Goal... </h2>
-
-                    <h3>
-                        <span class=" text-primary">
-                            #succeed
-                        </span>
-                        <span class=" text-default">
-                            #overcome
-                        </span>
-                        <span class=" text-success">
-                            #advance
-                        </span>
-                        <span class=" text-default">
-                            #getunstuck
-                        </span>
-                        <span class=" text-primary">
-                            #accelerate
-                        </span>
-                        <span class=" text-default">
-                            #win
-                        </span>
-                        <span class=" text-success">
-                            #careersuccess
-                        </span>
-                        <span class=" text-default">
-                            #financialfreedom
-                        </span>
-                        <span class=" text-primary">
-                            #betterrelationships
-                        </span>
-                        <span class=" text-default">
-                            #happyretirement
-                        </span>
-                        <span class=" text-success">
-                            #health
-                        </span>
-                        <span class=" text-default">
-                            #fitness
-                        </span>
-                        <span class=" text-primary">
-                            #self-confidence
-                        </span>
-                    </h3>
-        
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Section 4 -->
-    <section id="section-four" class=" padded-section">
-        <div class=" content">
-            <div class=" container">
-                <div class="row justify-content-center text-center">
-                    <div class="col-md-10">
-                    <h2 class="display-3"> Request a Coach </h2>
-
-                    <h4>
-                        It's often best to talk to a few coaches to find the best fit for you.
-                        We make that easy... Submit a coaching request and get introductions
-                        from available coaches we match for you.
-                    </h4>
-
-                    <p class="lead">
-                        <!-- <a class="btn btn-primary btn-lg btn-round" [routerLink]="['/register', 'regular']" role="button"> Request a Coach </a> -->
-                        <a
-                        class="btn btn-primary btn-lg btn-round"
-                        href="javascript:void(0)"
-                        role="button"> Coming Soon
-                        </a>
-                    </p>
-
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Section 5 -->
-    <section id="section-five" class=" padded-section">
-        <div class=" content">
-            <div class=" container">
-                <div class="row justify-content-center text-center">
-                    <div class="col-md-10 col-lg-8">
-                    <h2 class="display-3"> New To Coaching? </h2>
-
-                    <p>
-                        <a
-                        class="btn btn-primary btn-lg btn-round"
-                        [routerLink]="['/about']"
-                        role="button"> Read more 
-                        </a>
-                    </p>
-        
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+    </div>
+    <!-- end of begin section -->
 
 </div>
 

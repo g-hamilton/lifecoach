@@ -1,103 +1,36 @@
 
-#home-jumbotron { // see styles.scss for other styles
-    margin-bottom: 0;
-    background: url('/assets/img/homepage/lifecoach-life-coach-hero.jpg') no-repeat bottom center / cover;
-    @media screen and (max-width: 992px) {
-        background: url('/assets/img/homepage/lifecoach-life-coach-hero1200-.jpg') no-repeat bottom center / cover;
-    }
-    @media screen and (max-width: 768px) {
-        background: url('/assets/img/homepage/lifecoach-life-coach-hero991.jpg') no-repeat bottom center / cover;
-    }
-    @media screen and (max-width: 575px) {
-        background: url('/assets/img/homepage/lifecoach-life-coach-hero768.jpg') no-repeat bottom center / cover;
-    }
-    @media screen and (max-width: 380px) {
-        background: url('/assets/img/homepage/lifecoach-life-coach-hero575.jpg') no-repeat bottom center / cover;
-    }
-}
-:host-context(.webp) #home-jumbotron{
-    margin-bottom: 0;
-    background: url('/assets/img/lifecoach-life-coach-hero60.webp') no-repeat bottom center / cover;
-    @media screen and (max-width: 992px) {
-        background: url('/assets/img/homepage/lifecoach-life-coach-hero1200-.webp') no-repeat bottom center / cover;
-    }
-    @media screen and (max-width: 768px) {
-        background: url('/assets/img/homepage/lifecoach-life-coach-hero991.webp') no-repeat bottom center / cover;
-    }
-    @media screen and (max-width: 575px) {
-        background: url('/assets/img/homepage/lifecoach-life-coach-hero768.webp') no-repeat bottom center / cover;
-    }
-    @media screen and (max-width: 380px) {
-        background: url('/assets/img/homepage/lifecoach-life-coach-hero575.webp') no-repeat bottom center / cover;
-    }
-}
-.green-word {
-    color: #00f2c3;
-}
-//#coach-rotator:before {
-//    content: 'Life';
-//    animation: animate infinite 40s;
-//    color: #00f2c3;
-//}
-//@keyframes animate {
-//    5% {
-//        content: 'Academic';
-//    }
-//    10% {
-//        content: 'Business';
-//    }
-//    15% {
-//        content: 'Career';
-//    }
-//    20% {
-//        content: 'Family';
-//    }
-//    25% {
-//        content: 'Financial';
-//    }
-//    30% {
-//        content: 'Fitness';
-//    }
-//    35% {
-//        content: 'Health';
-//    }
-//    40% {
-//        content: 'Holistic';
-//    }
-//    45% {
-//        content: 'Management';
-//    }
-//    50% {
-//        content: 'Mindset';
-//    }
-//    55% {
-//        content: 'Parenting';
-//    }
-//    60% {
-//        content: 'Productivity';
-//    }
-//    65% {
-//        content: 'Relationship';
-//    }
-//    70% {
-//        content: 'Relocation';
-//    }
-//    75% {
-//        content: 'Retirement';
-//    }
-//    80% {
-//        content: 'Spiritual';
-//    }
-//    85% {
-//        content: 'Sports';
-//    }
-//    90% {
-//        content: 'Transformation';
-//    }
-//    95% {
-//        content: 'Wellness';
-//    }
-//}
+// #home-jumbotron { // see styles.scss for other styles
+//     margin-bottom: 0;
+//     background: url('/assets/img/homepage/lifecoach-life-coach-hero.jpg') no-repeat bottom center / cover;
+//     @media screen and (max-width: 992px) {
+//         background: url('/assets/img/homepage/lifecoach-life-coach-hero1200-.jpg') no-repeat bottom center / cover;
+//     }
+//     @media screen and (max-width: 768px) {
+//         background: url('/assets/img/homepage/lifecoach-life-coach-hero991.jpg') no-repeat bottom center / cover;
+//     }
+//     @media screen and (max-width: 575px) {
+//         background: url('/assets/img/homepage/lifecoach-life-coach-hero768.jpg') no-repeat bottom center / cover;
+//     }
+//     @media screen and (max-width: 380px) {
+//         background: url('/assets/img/homepage/lifecoach-life-coach-hero575.jpg') no-repeat bottom center / cover;
+//     }
+// }
+// :host-context(.webp) #home-jumbotron{
+//     margin-bottom: 0;
+//     background: url('/assets/img/lifecoach-life-coach-hero60.webp') no-repeat bottom center / cover;
+//     @media screen and (max-width: 992px) {
+//         background: url('/assets/img/homepage/lifecoach-life-coach-hero1200-.webp') no-repeat bottom center / cover;
+//     }
+//     @media screen and (max-width: 768px) {
+//         background: url('/assets/img/homepage/lifecoach-life-coach-hero991.webp') no-repeat bottom center / cover;
+//     }
+//     @media screen and (max-width: 575px) {
+//         background: url('/assets/img/homepage/lifecoach-life-coach-hero768.webp') no-repeat bottom center / cover;
+//     }
+//     @media screen and (max-width: 380px) {
+//         background: url('/assets/img/homepage/lifecoach-life-coach-hero575.webp') no-repeat bottom center / cover;
+//     }
+// }
 
 #hero-search {
     input {
@@ -119,9 +52,12 @@
     }
 }
 
-.padded-section {
-    padding-top: 100px;
-    padding-bottom: 100px;
+.top-section-margin {
+    margin-top: 100px;
+}
+
+.bottom-section-margin {
+    margin-bottom: 100px;
 }
 
 .custom-badge {
@@ -130,23 +66,28 @@
     margin-right: 5px;
 }
 
-#section-one {
-    .container {
-        padding-top: 10vh;
-        padding-bottom: 10vh;
-    }
+#section-hero {
+    padding: 6vh 2rem 2rem 10vh;
 }
 
-#section-two {
-    background: linear-gradient(rgba(0,0,0,.3), rgba(0,0,0,.3)), url('/assets/img/lifecoach-remote-life-coaches.png') no-repeat bottom center / cover;
-    .container {
-        padding-top: 20vh;
-        padding-bottom: 20vh;
-    }
+#hero-text-col {
+    padding-top: 10em;
 }
 
-:host-context(.webp) #section-two {
-    background: linear-gradient(rgba(0,0,0,.3), rgba(0,0,0,.3)), url('/assets/img/lifecoach-remote-life-coaches60.webp') no-repeat bottom center / cover;
+#hero-vid-col {
+    padding-top: 1em;
+}
+
+#section-banners {
+    padding: 8vh 0 0 0;
+}
+
+#goal-tags {
+    .custom-goal-tag {
+        border-radius: 9999px;
+        font-size: 1.2em;
+        font-weight: 600;
+    }
 }
 
 #section-four {
