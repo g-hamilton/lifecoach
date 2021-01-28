@@ -10,6 +10,8 @@ import { AlgoliaPublishedCourse } from 'app/interfaces/algolia.published.course'
 import { DataService } from 'app/services/data.service';
 import { Subscription } from 'rxjs';
 
+import { VgAPI } from 'videogular2/compiled/core';
+
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
@@ -31,7 +33,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   public goals = ['Life', 'Academic', 'Business', 'Career', 'Family', 'Financial', 'Fitness', 'Health', 'Holistic', 'Management', 'Mindset', 'Parenting', 'Productivity', 'Relationship', 'Relocation', 'Retirement', 'Spiritual', 'Sports', 'Transformation', 'Wellness'];
   public tagsToHighlight = [0, 3, 7, 10];
 
-  public videoSrc: string;
+  private vgApi: VgAPI; // http://www.videogular.com/tutorials/videogular-api/
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
@@ -52,7 +54,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (isPlatformBrowser(this.platformId)) {
       this.browser = true;
       this.analyticsService.pageView();
-      this.videoSrc = 'https://firebasestorage.googleapis.com/v0/b/lifecoach-6ab28.appspot.com/o/platform%2FLifecoach%20Hero%20Web%20Optimized.mp4_1611826950?alt=media&token=d3f48f25-4fa3-4dfc-bef8-c5d0bfc1b4d8';
       // this.checkSavedClientCurrencyAndCountry();
     }
 
@@ -60,6 +61,30 @@ export class HomeComponent implements OnInit, OnDestroy {
     // this.fetchNewestCoaches();
     // this.fetchNewestCourses();
 
+  }
+
+  onPlayerReady(api: VgAPI) {
+    // fires when the videoGular player is ready
+    console.log('onPlayerReady');
+
+    this.vgApi = api;
+
+    // listen for the data loaded event
+
+    this.vgApi.getDefaultMedia().subscriptions.loadedData.subscribe($event => {
+      console.log('Video loaded data', $event);
+    });
+
+    this.vgApi.getDefaultMedia().subscriptions.canPlay.subscribe($event => {
+      console.log('Video can play', $event);
+      this.vgApi.play();
+    });
+
+    // listen for the video ended event
+    this.vgApi.getDefaultMedia().subscriptions.ended.subscribe($event => {
+      console.log('Video ended:', $event);
+    });
+    // end video ended event listener
   }
 
   checkSavedClientCurrencyAndCountry() {

@@ -26,10 +26,10 @@
 
             <!-- vid col -->
             <div id="hero-vid-col" class=" col-md-8">
-                <div *ngIf="this.videoSrc">
-                    <vg-player>
-                        <video #media [vgMedia]="media" id="singleVideo" preload="auto" autoplay="true" loop="true">
-                            <source [src]="videoSrc">
+                <div>
+                    <vg-player (onPlayerReady)="onPlayerReady($event)">
+                        <video [vgMedia]="media" #media id="singleVideo" preload="auto" [muted]="true" autoplay loop>
+                            <source src="https://firebasestorage.googleapis.com/v0/b/lifecoach-6ab28.appspot.com/o/platform%2FLifecoach%20Hero%20Web%20Optimized.mp4_1611826950?alt=media&token=d3f48f25-4fa3-4dfc-bef8-c5d0bfc1b4d8" type="video/mp4">
                         </video>
                       </vg-player>
                   </div>
