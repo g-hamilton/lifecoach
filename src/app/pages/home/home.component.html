@@ -217,16 +217,18 @@
                     <h3 class=" display-4">
                         At your fingertips
                     </h3>
-                    <div class=" text-center">
-                        <button class="btn btn-round btn-primary" [routerLink]="['/coaches']" (click)="onGoCoaches()">
+                </div>
+            </div>
+            <div class=" row mt-4">
+                <div class=" col">
+                    <div class=" container">
+                        <app-results [results]="newestCoaches"></app-results>
+                    </div>
+                    <div class=" text-center mt-3">
+                        <button class="btn btn-round btn-default" [routerLink]="['/coaches']" (click)="onGoCoaches()">
                             Browse All Coaches
                         </button>
                     </div>
-                </div>
-            </div>
-            <div class=" row">
-                <div class=" col">
-                    <app-results [results]="newestCoaches"></app-results>
                 </div>
             </div>
         </div>
@@ -246,8 +248,8 @@
                             Your transformation starts now
                         </h3>
                         <div class=" text-center">
-                            <button class="btn btn-round btn-primary" [routerLink]="['/coaches']" (click)="onGoCoaches()">
-                                Find Your Coach
+                            <button class="btn btn-round btn-primary" [routerLink]="['/programs']" (click)="onGoPrograms()">
+                                Explore Coaching
                             </button>
                         </div>
                     </div>

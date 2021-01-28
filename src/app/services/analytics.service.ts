@@ -141,7 +141,7 @@ export class AnalyticsService {
   }
 
   clickBrowseCoaches() {
-    mixpanel.track('clicked browse courses');
+    mixpanel.track('clicked browse coaches');
   }
 
   sendChatMessage() {
