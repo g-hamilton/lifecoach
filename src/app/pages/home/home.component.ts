@@ -31,6 +31,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   public goals = ['Life', 'Academic', 'Business', 'Career', 'Family', 'Financial', 'Fitness', 'Health', 'Holistic', 'Management', 'Mindset', 'Parenting', 'Productivity', 'Relationship', 'Relocation', 'Retirement', 'Spiritual', 'Sports', 'Transformation', 'Wellness'];
   public tagsToHighlight = [0, 3, 7, 10];
 
+  public videoSrc: string;
+
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
     private analyticsService: AnalyticsService,
@@ -50,6 +52,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (isPlatformBrowser(this.platformId)) {
       this.browser = true;
       this.analyticsService.pageView();
+      this.videoSrc = 'https://firebasestorage.googleapis.com/v0/b/lifecoach-6ab28.appspot.com/o/platform%2FLifecoach%20Hero%20Web%20Optimized.mp4_1611826950?alt=media&token=d3f48f25-4fa3-4dfc-bef8-c5d0bfc1b4d8';
       // this.checkSavedClientCurrencyAndCountry();
     }
 

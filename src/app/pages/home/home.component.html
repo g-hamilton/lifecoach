@@ -26,7 +26,13 @@
 
             <!-- vid col -->
             <div id="hero-vid-col" class=" col-md-8">
-                vid
+                <div *ngIf="this.videoSrc">
+                    <vg-player>
+                        <video #media [vgMedia]="media" id="singleVideo" preload="auto" autoplay="true" loop="true">
+                            <source [src]="videoSrc">
+                        </video>
+                      </vg-player>
+                  </div>
             </div>
         </div>
     </div>
