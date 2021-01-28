@@ -43,6 +43,7 @@
 #section-hero {
     margin-top: 60px;
     padding: 6vh 2rem 2rem 10vh;
+    background-color: rgb(19, 2, 43); // before bg image loads / backup
 
     margin-bottom: 0;
         background: linear-gradient(rgba(0,0,0,.8), rgba(0,0,0,.6)), url('/assets/img/homepage/lifecoach-life-coach-hero.jpg') no-repeat bottom center / cover;
