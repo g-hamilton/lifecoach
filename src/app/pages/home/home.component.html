@@ -210,6 +210,24 @@
     <div id="section-coaches" class="top-section-margin">
         <div class=" content">
             <div class="row">
+                <div class="col text-center">
+                    <h2 class=" display-2 mb-1">
+                        Incredible Coaches
+                    </h2>
+                    <h3 class=" display-4">
+                        At your fingertips
+                    </h3>
+                    <div class=" text-center">
+                        <button class="btn btn-round btn-primary" [routerLink]="['/coaches']" (click)="onGoCoaches()">
+                            Browse All Coaches
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class=" row">
+                <div class=" col">
+                    <app-results [results]="newestCoaches"></app-results>
+                </div>
             </div>
         </div>
     </div>

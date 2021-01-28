@@ -21,6 +21,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   public browser: boolean;
 
   public newestCoaches: AlgoliaCoachProfile[];
+  public loadingCoaches: boolean;
   public newestCourses: AlgoliaPublishedCourse[];
   public searchTerm: string;
 
@@ -66,7 +67,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
 
     // this.monitorPlatformRates();
-    // this.fetchNewestCoaches();
+    this.fetchNewestCoaches();
     // this.fetchNewestCourses();
 
   }
@@ -120,6 +121,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   fetchNewestCoaches() {
+    this.loadingCoaches = true;
     // Fetch newest coaches data, checking state to avoid duplicate calls
     const STATE_KEY_COACHES = makeStateKey<any>('newest_coaches'); // create a key for saving/retrieving a state
     const StateDataCoaches = this.transferState.get(STATE_KEY_COACHES, null as any); // checking if data in the storage exists
