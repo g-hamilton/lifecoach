@@ -19,7 +19,7 @@
                     Get coached by the best professional coaches in the world, for every area of life, 
                     on a platform that defies borders.
                 </h4>
-                <button class="btn btn-round btn-primary mt-4">
+                <button class="btn btn-round btn-primary mt-4" [routerLink]="['/programs']" (click)="onGoPrograms()">
                     Explore Coaching
                 </button>
             </div>
@@ -60,7 +60,7 @@
                     </p>
                 </div>
                 <div class=" container text-center">
-                    <button class="btn btn-round btn-default">
+                    <button class="btn btn-round btn-default" [routerLink]="['/programs']" (click)="onGoPrograms()">
                         See What's Possible
                     </button>
                 </div>
@@ -191,7 +191,7 @@
                             Learn personal transformation skills, completely on your own schedule.
                         </h4>
                         <div class="">
-                            <button class="btn btn-round btn-default">
+                            <button class="btn btn-round btn-default" [routerLink]="['/courses']" (click)="onGoCourses()">
                                 Browse eCourses
                             </button>
                         </div>
@@ -219,7 +219,7 @@
                             Your transformation starts now
                         </h3>
                         <div class=" text-center">
-                            <button class="btn btn-round btn-primary">
+                            <button class="btn btn-round btn-primary" [routerLink]="['/coaches']" (click)="onGoCoaches()">
                                 Find Your Coach
                             </button>
                         </div>

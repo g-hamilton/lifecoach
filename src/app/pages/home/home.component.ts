@@ -181,6 +181,17 @@ export class HomeComponent implements OnInit, OnDestroy {
     return res.hits; // so we can save the state
   }
 
+  onGoPrograms() {
+    this.analyticsService.clickBrowsePrograms();
+  }
+
+  onGoCourses() {
+    this.analyticsService.clickBrowseCourses();
+  }
+
+  onGoCoaches() {
+    this.analyticsService.clickBrowseCoaches();
+  }
 
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
