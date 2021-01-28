@@ -1,56 +1,22 @@
+// #hero-search {
+//     input {
+//         background-color: rgba(255, 255, 255, 0.9);
+//         border-color: rgba(255, 255, 255, 0.9);
+//         color: black;
+//     }
+//     .input-group-prepend {
+//         background-color: #E14ECA;
+//         border-radius: 6px 0 0 6px;
 
-// #home-jumbotron { // see styles.scss for other styles
-//     margin-bottom: 0;
-//     background: url('/assets/img/homepage/lifecoach-life-coach-hero.jpg') no-repeat bottom center / cover;
-//     @media screen and (max-width: 992px) {
-//         background: url('/assets/img/homepage/lifecoach-life-coach-hero1200-.jpg') no-repeat bottom center / cover;
-//     }
-//     @media screen and (max-width: 768px) {
-//         background: url('/assets/img/homepage/lifecoach-life-coach-hero991.jpg') no-repeat bottom center / cover;
-//     }
-//     @media screen and (max-width: 575px) {
-//         background: url('/assets/img/homepage/lifecoach-life-coach-hero768.jpg') no-repeat bottom center / cover;
-//     }
-//     @media screen and (max-width: 380px) {
-//         background: url('/assets/img/homepage/lifecoach-life-coach-hero575.jpg') no-repeat bottom center / cover;
+//         .input-group-text {
+//             border: 0;
+
+//             i {
+//                 opacity: 1;
+//             }
+//         }
 //     }
 // }
-// :host-context(.webp) #home-jumbotron{
-//     margin-bottom: 0;
-//     background: url('/assets/img/lifecoach-life-coach-hero60.webp') no-repeat bottom center / cover;
-//     @media screen and (max-width: 992px) {
-//         background: url('/assets/img/homepage/lifecoach-life-coach-hero1200-.webp') no-repeat bottom center / cover;
-//     }
-//     @media screen and (max-width: 768px) {
-//         background: url('/assets/img/homepage/lifecoach-life-coach-hero991.webp') no-repeat bottom center / cover;
-//     }
-//     @media screen and (max-width: 575px) {
-//         background: url('/assets/img/homepage/lifecoach-life-coach-hero768.webp') no-repeat bottom center / cover;
-//     }
-//     @media screen and (max-width: 380px) {
-//         background: url('/assets/img/homepage/lifecoach-life-coach-hero575.webp') no-repeat bottom center / cover;
-//     }
-// }
-
-#hero-search {
-    input {
-        background-color: rgba(255, 255, 255, 0.9);
-        border-color: rgba(255, 255, 255, 0.9);
-        color: black;
-    }
-    .input-group-prepend {
-        background-color: #E14ECA;
-        border-radius: 6px 0 0 6px;
-
-        .input-group-text {
-            border: 0;
-
-            i {
-                opacity: 1;
-            }
-        }
-    }
-}
 
 .top-section-margin {
     margin-top: 100px;
@@ -75,7 +41,39 @@
 }
 
 #section-hero {
+    margin-top: 60px;
     padding: 6vh 2rem 2rem 10vh;
+
+    margin-bottom: 0;
+        background: linear-gradient(rgba(0,0,0,.8), rgba(0,0,0,.6)), url('/assets/img/homepage/lifecoach-life-coach-hero.jpg') no-repeat bottom center / cover;
+        @media screen and (max-width: 992px) {
+            background: linear-gradient(rgba(0,0,0,.8), rgba(0,0,0,.6)), url('/assets/img/homepage/lifecoach-life-coach-hero-1200.jpg') no-repeat bottom center / cover;
+        }
+        @media screen and (max-width: 768px) {
+            background: linear-gradient(rgba(0,0,0,.8), rgba(0,0,0,.6)), url('/assets/img/homepage/lifecoach-life-coach-hero991.jpg') no-repeat bottom center / cover;
+        }
+        @media screen and (max-width: 575px) {
+            background: linear-gradient(rgba(0,0,0,.8), rgba(0,0,0,.6)), url('/assets/img/homepage/lifecoach-life-coach-hero768.jpg') no-repeat bottom center / cover;
+        }
+        @media screen and (max-width: 380px) {
+            background: linear-gradient(rgba(0,0,0,.8), rgba(0,0,0,.6)), url('/assets/img/homepage/lifecoach-life-coach-hero575.jpg') no-repeat bottom center / cover;
+        }
+    }
+    :host-context(.webp) #section-hero {
+        margin-bottom: 0;
+        background: linear-gradient(rgba(0,0,0,.8), rgba(0,0,0,.6)), url('/assets/img/homepage/lifecoach-life-coach-hero.webp') no-repeat bottom center / cover;
+        @media screen and (max-width: 992px) {
+            background: linear-gradient(rgba(0,0,0,.8), rgba(0,0,0,.6)), url('/assets/img/homepage/lifecoach-life-coach-hero-1200.webp') no-repeat bottom center / cover;
+        }
+        @media screen and (max-width: 768px) {
+            background: linear-gradient(rgba(0,0,0,.8), rgba(0,0,0,.6)), url('/assets/img/homepage/lifecoach-life-coach-hero991.webp') no-repeat bottom center / cover;
+        }
+        @media screen and (max-width: 575px) {
+            background: linear-gradient(rgba(0,0,0,.8), rgba(0,0,0,.6)), url('/assets/img/homepage/lifecoach-life-coach-hero768.webp') no-repeat bottom center / cover;
+        }
+        @media screen and (max-width: 380px) {
+            background: linear-gradient(rgba(0,0,0,.8), rgba(0,0,0,.6)), url('/assets/img/homepage/lifecoach-life-coach-hero575.webp') no-repeat bottom center / cover;
+        }
 }
 
 #hero-text-col {
@@ -95,23 +93,5 @@
         border-radius: 9999px;
         font-size: 1.2em;
         font-weight: 600;
-    }
-}
-
-#section-four {
-    background: linear-gradient(rgba(0,0,0,.5), rgba(0,0,0,.5)), url('/assets/img/lifecoach-request-life-coaching.png') no-repeat bottom center / cover;
-    .container {
-        padding-top: 20vh;
-        padding-bottom: 20vh;
-    }
-}
-
-:host-context(.webp) #section-four{
-    background: linear-gradient(rgba(0,0,0,.5), rgba(0,0,0,.5)), url('/assets/img/lifecoach-request-life-coaching60.webp') no-repeat bottom center / cover;
-}
-
-.title-changed {
-    @media (max-width: 426px) {
-        font-size: 42px!important;
     }
 }
