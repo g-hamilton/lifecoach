@@ -2,200 +2,315 @@
 
 <div class="full-page pricing-page">
 
-  <!-- Hero -->
+  <!-- hero section -->
   <section id="section-hero">
       <div class="jumbotron jumbotron-fluid custom-jumbotron" id="pricing-jumbotron">
           <div class="container">
             <div class="row justify-content-center text-center">
               <div class="col-md-10">
-              <h1 class="display-1"> Join The World's Fastest Growing Online Coaching Community </h1>
+              <h1 class="display-1"> Join The World's Fastest Growing Online Coaching Platform </h1>
 
               <h3>
-                Promote your coaching programs. Publish eCourses. Take bookings. Coach online. Get paid.
+                Promote your coaching. Take bookings. Coach online. Get paid seamlessly.
               </h3>
 
               <h6>
                 Join FREE. No monthly fees. No hidden charges.
               </h6>
   
-              <p class="lead">
-                  <a class="btn btn-primary btn-lg btn-round" [routerLink]="['/register', 'coach']" role="button">
+              <p class=" mt-4">
+                  <button class="btn btn-primary btn-round" [routerLink]="['/register', 'coach']" (click)="onGetStarted()" role="button">
                     Get Started
-                  </a>
+                  </button>
               </p>
               </div>
           </div>
           </div>
       </div>
   </section>
+  <!-- end of hero section -->
 
-  <!-- Section 1 -->
-  <section id="section-one" class=" padded-section">
-      <div class=" content">
-          <div class=" container">
-              <div class="row justify-content-center text-center">
-                  <div class="col-md-6 pt-4 pr-5">
-                    <h2 class="display-3">
-                      Your <span class="text-info">Global</span> Coaching Platform
-                    </h2>
-
-                    <h4>
-                      We don't believe amazing Coaches should be limited by geography. <br><br>
-                      Lifecoach is an all-in one global coaching platform. 
-                      <a [routerLink]="['/register', 'coach']">Join free today</a> to expand your reach and connect 
-                      with new clients all over the world.
-                    </h4>
-                  </div>
-                  <div class="col-md-6">
-                    <!-- video -->
-                    <div>
-                      <vg-player>
-                        <vg-controls>
-                            <vg-play-pause></vg-play-pause>
-                            <vg-playback-button></vg-playback-button>
-                      
-                            <vg-time-display vgProperty="current" vgFormat="mm:ss"></vg-time-display>
-                      
-                            <vg-scrub-bar>
-                                <vg-scrub-bar-current-time></vg-scrub-bar-current-time>
-                                <vg-scrub-bar-buffering-time></vg-scrub-bar-buffering-time>
-                            </vg-scrub-bar>
-                      
-                            <vg-time-display vgProperty="total" vgFormat="mm:ss"></vg-time-display>
-                      
-                            <vg-mute></vg-mute>
-                            <vg-volume></vg-volume>
-                      
-                            <vg-fullscreen></vg-fullscreen>
-                        </vg-controls>
-
-                        <video *ngIf="browser" #media [vgMedia]="media" id="singleVideo" preload="auto">
-                            <source src="https://firebasestorage.googleapis.com/v0/b/lifecoach-6ab28.appspot.com/o/platform%2FLifecoach%203.mp4_1594235284?alt=media&token=5bd8c67c-3499-4a9e-84f1-c855dd60f053">
-                        </video>
-                      </vg-player>
-                    </div>
-                  </div>
-              </div>
-          </div>
-      </div>
-  </section>
-
-  <!-- Section 2 -->
-  <section id="section-two" class=" padded-section">
-    <div class=" content">
-      <div class=" container">
-        <div class="row justify-content-center text-center">
-          <div class="col-md-10">
-            <h2 class="display-3">
-              Start With Your FREE <span class="text-success">Profile</span>
-            </h2>
-
-            <h4>
-              Here at Lifecoach, everything starts with your profile. Your profile allows you to make a great first impression and start collecting leads immediately.
-            </h4>
-
-            <div class=" row mt-5">
-              <div class=" col-4">
-                  <div class=" text-success display-2 mb-3"><i class="fab fa-searchengin"></i></div>
-                  <p class=" pl-3 pr-3">
-                    Highly Search Engine Optimised for local & global search
-                  </p>
-              </div>
-              <div class=" col-4">
-                  <div class=" text-success display-2 mb-3"><i class="fas fa-play-circle"></i></div>
-                  <p class=" pl-3 pr-3">
-                    Add a personal video introduction to boost engagement by up to 5X
-                  </p>
-              </div>
-              <div class=" col-4">
-                  <div class=" text-success display-2 mb-3"><i class="fas fa-user"></i></div>
-                  <p class=" pl-3 pr-3">
-                    Collect leads directly through your profile
-                  </p>
-              </div>
-          </div>
-
-            <p class="lead mt-5">
-              <a class="btn btn-primary btn-lg btn-round btn-simple" [routerLink]="['/register', 'coach']" role="button">
-                Create My Free Coach Profile 
-              </a>
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Section 4 -->
-  <section id="section-four" class=" padded-section">
-    <div class=" content">
-      <div class=" container">
-        <div class="row justify-content-center text-center">
-          <div class="col-md-10">
-            <h2 class="display-3">
-              Publish <span class="text-danger"> eCourses</span>
-            </h2>
-
-            <h4>
-              Ever thought about turning your coaching material into an eCourse?
-              Impact thousands of students per month with a hosted Lifecoach eCourse.
-              Use our friendly online course builder to create, publish & sell eCourses to students all over the world 
-              with full support for selling in local currencies. Start creating yours today!
-            </h4>
-
-            <p class="lead mt-5">
-              <a class="btn btn-primary btn-lg btn-round btn-simple" [routerLink]="['/sell-coaching-ecourses']" role="button">
-                Learn More
-              </a>
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Section 5 -->
-  <section id="section-five" class=" padded-section">
-    <div class=" content">
-        <div class=" container">
-            <div class="row justify-content-center text-center">
-                <div class="col-md-10">
-                <h2 class="display-3">
-                  Coaching for <span class="text-info">Coaches</span>
+  <!-- mission section -->
+  <div id="section-mission" class=" top-section-margin">
+    <div class=" row">
+        <div id="mission-col" class=" col">
+            <div class=" container text-center">
+                <h2 class=" display-4 mb-1">
+                    Empower. Enable. Encourage.
                 </h2>
-
+                <h3 class=" display-2">
+                    Calling All Coaches
+                </h3>
                 <h4>
-                  Access fellow Coaches, find the specialists in your field and enroll in online courses 
-                  aimed specifically at helping you to grow as a Coach.
+                  We don't believe that the best coaches should be limited by geography. Lifecoach is an all-in-one 
+                  global online coaching platform with a vision to empower the world through access to high quality 
+                  coaching across all areas of personal transformation.
                 </h4>
-    
+                <p class=" mt-4">
+                  <button class="btn btn-default btn-round" [routerLink]="['/register', 'coach']" (click)="onGetStarted()" role="button">
+                    Join FREE today
+                  </button>
+              </p>
+            </div>
+        </div>
+    </div>
+  </div>
+  <!-- end of mission section -->
+
+  <!-- benefits section -->
+  <div id="section-benefits" class=" top-section-margin">
+    <div class=" row">
+        <div id="benefits-col" class=" col">
+            <div class=" container text-center">
+                <h2 class=" display-4 mb-1">
+                    Discover The Benefits
+                </h2>
+                <h3 class=" display-2">
+                    Why Join Lifecoach?
+                </h3>
+                <div class=" row mt-5">
+                  <div class=" col-4">
+                      IMAGE HERE
+                      <p class=" pl-3 pr-3">
+                        <strong>A better coach profile:</strong> Search engine optimised. Video intro. Links to all of your products & services. 
+                        Integrated booking form (synced with your calendar). Integrated messenger for taking client enquiries.
+                      </p>
+                  </div>
+                  <div class=" col-4">
+                      IMAGE HERE
+                      <p class=" pl-3 pr-3">
+                        <strong>Simpler promotion:</strong> Add all of your bespoke coaching services. Create coaching programs and 
+                        turn existing coaching material into eCourses. Share your product landing pages via social media.
+                      </p>
+                  </div>
+                  <div class=" col-4">
+                      IMAGE HERE
+                      <p class=" pl-3 pr-3">
+                        <strong>Faster bookings:</strong> Skip the email back and forth. Book discovert sessions while clients browse.
+                        Sync your calendar and take scheduled client bookings directly from your profile and product landing pages.
+                      </p>
+                  </div>
+                </div>
+                <div class=" row mt-5">
+                  <div class=" col-4">
+                      IMAGE HERE
+                      <p class=" pl-3 pr-3">
+                        <strong>Seamless payments:</strong> Take secure payments through a highly trusted payment provider 
+                        directly from your landing pages. Clients trust our Stripe powered payment system & impartial refund guarantee.
+                      </p>
+                  </div>
+                  <div class=" col-4">
+                      IMAGE HERE
+                      <p class=" pl-3 pr-3">
+                        <strong>Borderless coaching:</strong> Expand your reach with truly borderless coaching. 
+                        Coach clients all over the world through our video platform while maintaining your normal working hours.
+                      </p>
+                  </div>
+                  <div class=" col-4">
+                      IMAGE HERE
+                      <p class=" pl-3 pr-3">
+                        <strong>Keep track:</strong> Spend less time on admin and more time coaching. Our lightweight CRM 
+                        (Customer Relationship Manager) helps you keep track of all your clients, leads and their histories.
+                      </p>
+                  </div>
                 </div>
             </div>
         </div>
     </div>
-  </section>
+  </div>
+  <!-- end of benefits section -->
 
-  <!-- Section 6 -->
-  <section id="section-six" class=" padded-section">
+  <!-- how it works section -->
+  <div id="section-how-it-works" class=" top-section-margin">
     <div class=" content">
         <div class=" container">
-            <div class="row justify-content-center text-center">
-                <div class="col-md-10 col-lg-8">
-                <h2 class="display-3"> Heard Enough? </h2>
+            <div class="row">
+                <div class="col text-center">
+                    <h2 class=" display-2 mb-1">
+                        How Lifecoach Works
+                    </h2>
+                </div>
+            </div>
 
-                <h4>
-                  Start with a profile and go from there. We'll help you every step of the way.
-                </h4>
+            <!-- step 1 row -->
+            <div class=" row mt-4">
+                <div class=" col-6">
+                    <h4 class=" display-4 mb-1 pt-5">
+                        1. Profile
+                    </h4>
+                    <h4 class=" display-3">
+                        Start with a free profile
+                    </h4>
+                    <h4>
+                        Lorem.
+                    </h4>
+                </div>
+                <div class=" col-6">
+                    <img src="../../../assets/img/homepage/explore-coaching-on-lifecoach.png" alt="Explore coaching programs and courses from Lifecoach Coaches">
+                </div>
+            </div>
 
-                <p><a class="btn btn-primary btn-lg btn-round" [routerLink]="['/register', 'coach']" role="button">
-                  Let's go!
-                </a></p>
-    
+            <!-- step 2 row -->
+            <div class=" row top-row-margin">
+                <div class=" col-6">
+                    <img src="../../../assets/img/homepage/connect-with-coaches-through-lifecoach-coaching.png" alt="Connect with Coaches through Lifecoach Coaching">
+                </div>
+                <div class=" col-6">
+                    <h3 class=" display-4 mb-1 pt-5">
+                        2. Products & Services
+                    </h3>
+                    <h4 class=" display-3">
+                        Add your products and services
+                    </h4>
+                    <h4>
+                        Create bespoke coaching services, coaching programs and even eCourses. We'll guide you 
+                        every step of the way through creation, publishing & promotion.
+                    </h4>
+                </div>
+            </div>
+
+            <!-- step 3 row -->
+            <div class=" row top-row-margin">
+                <div class=" col-6">
+                    <h3 class=" display-4 mb-1 pt-5">
+                        3. Discovery
+                    </h3>
+                    <h4 class=" display-3">
+                        Convert your leads
+                    </h4>
+                    <h4>
+                        Prospective clients book discovery video sessions directly on your calendar or message you from 
+                        your landing pages. See all your leads in one place, answer questions and ensure clients are right for you 
+                        before inviting them to enrol. When they do enrol, we make payment a breeze.
+                    </h4>
+                </div>
+                <div class=" col-6">
+                    <img src="../../../assets/img/homepage/get-online-video-coaching-through-lifecoach.png" alt="Get online video coaching through Lifecoach">
+                </div>
+            </div>
+
+            <!-- step 4 row -->
+            <div class=" row top-row-margin">
+              <div class=" col-6">
+                <img src="../../../assets/img/homepage/connect-with-coaches-through-lifecoach-coaching.png" alt="Connect with Coaches through Lifecoach Coaching">
+                </div>
+                <div class=" col-6">
+                    <h3 class=" display-4 mb-1 pt-5">
+                        4. Coach
+                    </h3>
+                    <h4 class=" display-3">
+                        Coach your clients
+                    </h4>
+                    <h4>
+                        Coach clients online through the Lifecoach video platform. Schedule sessions, send payment requests, 
+                        share resources and take notes. Keep track of every interaction between client sessions with our 
+                        lightweight CRM.
+                    </h4>
+                </div>
+            </div>
+
+            <div class=" row mt-3">
+              <div class=" col">
+                <div class=" text-center">
+                  <button class="btn btn-round btn-primary" [routerLink]="['/register', 'coach']" (click)="onGetStarted()">
+                      Create My Profile
+                  </button>
+              </div>
+              </div>
+            </div>
+
+        </div>
+    </div>
+  </div>
+  <!-- end of how it works section -->
+
+  <!-- features section -->
+  <div id="section-features" class=" top-section-margin">
+    <div class=" row">
+        <div id="features-col" class=" col">
+            <div class=" container text-center">
+                <h2 class=" display-4 mb-1">
+                    Made for Coaches
+                </h2>
+                <h3 class=" display-2">
+                    Summary of Features
+                </h3>
+                <div class=" row mt-5">
+                  <div class=" col-3">
+                      <div class=" text-success display-2 mb-3"><i class="fab fa-searchengin"></i></div>
+                      <p class=" pl-3 pr-3">
+                        1
+                      </p>
+                  </div>
+                  <div class=" col-3">
+                      <div class=" text-success display-2 mb-3"><i class="fas fa-play-circle"></i></div>
+                      <p class=" pl-3 pr-3">
+                        2
+                      </p>
+                  </div>
+                  <div class=" col-3">
+                      <div class=" text-success display-2 mb-3"><i class="fas fa-user"></i></div>
+                      <p class=" pl-3 pr-3">
+                        3
+                      </p>
+                  </div>
+                  <div class=" col-3">
+                    <div class=" text-success display-2 mb-3"><i class="fas fa-user"></i></div>
+                    <p class=" pl-3 pr-3">
+                      4
+                    </p>
+                </div>
                 </div>
             </div>
         </div>
     </div>
-  </section>
+  </div>
+  <!-- end of features section -->
+
+  <!-- pricing section -->
+  <div id="section-pricing" class=" top-section-margin">
+    <div class=" row">
+        <div id="pricing-col" class=" col">
+            <div class=" container text-center">
+                <h2 class=" display-4 mb-1">
+                    Pay on Success
+                </h2>
+                <h3 class=" display-2">
+                    Simple Pricing. No Hidden Fees.
+                </h3>
+                <h4>
+                    With Lifecoach you only pay a small platform commission when you make a sale through the platform. 
+                    There are no fixed monthly fees and no hidden pricing.
+                </h4>
+            </div>
+        </div>
+    </div>
+  </div>
+  <!-- end of pricing section -->
+
+  <!-- get started section -->
+  <div id="section-get-started" class="top-section-margin bottom-section-margin">
+    <div class=" content">
+        <div class=" container">
+            <div class="row">
+                <div class="col text-center">
+                    <h2 class=" display-2 mb-1">
+                        Heard Enough?
+                    </h2>
+                    <h4 class="">
+                        Join Lifecoach free today and get started with your coach profile.
+                    </h4>
+                    <div class=" text-center">
+                        <button class="btn btn-round btn-primary" [routerLink]="['/register', 'coach']" (click)="onGetStarted()">
+                            Join Free
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+  <!-- end of get started section -->
 
 </div>
 

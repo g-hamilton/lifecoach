@@ -455,4 +455,8 @@ export class AnalyticsService {
     mixpanel.track('marked session complete');
   }
 
+  clickGetStarted() {
+    mixpanel.track('clicked get started');
+  }
+
 }

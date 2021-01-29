@@ -16,49 +16,6 @@
   height: 27px;
 }
 
-// Jumbotrons
-.custom-jumbotron {
-
-  padding: 24px !important;
-  height: 100vh;
-
-  &:before {
-    position: absolute;
-    content: '';
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    background: rgba(0, 0, 0, .5);
-  }
-
-  .container {
-    padding: 134px 0 0 0;
-  }
-
-  h1, .lead {
-    color: #fff;
-  }
-
-}
-
-#hero-bottom-strip {
-  background-color: #1c253b;
-  width: 100%;
-  margin: auto;
-
-  i {
-    font-size: 1.2rem;
-  }
-
-  h4 {
-    padding-top: 1rem;
-    text-transform: uppercase;
-    font-weight: 600;
-    color: white;
-  }
-}
-
 .bs-stepper-header {
   // Stop click navigation on the bs-stepper header. Forces user to use buttons and progress in steps.
   pointer-events: none !important;
