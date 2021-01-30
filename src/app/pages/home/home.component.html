@@ -16,7 +16,7 @@
                     Overcome your obstacles & reach your goals.
                 </h2>
                 <h4>
-                    Get coached by the best professional coaches in the world, for every area of life, 
+                    Get coached by the best professional coaches in the world, for every area of life,
                     on a platform that defies borders.
                 </h4>
                 <button class="btn btn-round btn-primary mt-4" [routerLink]="['/programs']" (click)="onGoPrograms()">
@@ -27,12 +27,12 @@
             <!-- vid col -->
             <div id="hero-vid-col" class=" col-md-8">
                 <div>
-                    <vg-player (onPlayerReady)="onPlayerReady($event)">
+                    <vg-player (onPlayerReady)="onPlayerReady($event)" *ngIf="browser">
                         <video [vgMedia]="media" #media id="singleVideo" preload="auto" [muted]="true" autoplay loop>
                             <source src="https://firebasestorage.googleapis.com/v0/b/lifecoach-6ab28.appspot.com/o/platform%2FLifecoach%20Hero%20Web%20Optimized.mp4_1611826950?alt=media&token=d3f48f25-4fa3-4dfc-bef8-c5d0bfc1b4d8" type="video/mp4">
                         </video>
-                      </vg-player>
-                  </div>
+                    </vg-player>
+                </div>
             </div>
         </div>
     </div>
@@ -50,7 +50,7 @@
                         Discover The Best Version of You
                     </h3>
                     <h4>
-                        Lifecoach brings you the best private coaching for every area of personal transformation. <br> 
+                        Lifecoach brings you the best private coaching for every area of personal transformation. <br>
                         Whatever your goal, our coaches can help you to discover the very best version of yourself.
                     </h4>
                 </div>
@@ -99,7 +99,7 @@
                         <h4 class=" mt-4">
                             And hundreds more areas of personal transformation.
                         </h4>
-        
+
                     </div>
                 </div>
             </div>
@@ -129,7 +129,7 @@
                             Discover the best coaching
                         </h4>
                         <h4>
-                            Explore hundreds of private coaching services and programs from the world's best coaches. 
+                            Explore hundreds of private coaching services and programs from the world's best coaches.
                             Whatever your goal, coaching can help you get there.
                         </h4>
                     </div>
@@ -151,7 +151,7 @@
                             With coaches
                         </h4>
                         <h4>
-                            Schedule free discovery video sessions to make sure coaches are right for you. 
+                            Schedule free discovery video sessions to make sure coaches are right for you.
                             Ask coaches anything you like before getting started.
                         </h4>
                     </div>
@@ -167,9 +167,9 @@
                             One session at a time
                         </h4>
                         <h4>
-                            Enrol in bespoke coaching services, 
+                            Enrol in bespoke coaching services,
                             coaching programs and even self-study eCourses.
-                            Get coached online through live 1-to-1 video sessions. 
+                            Get coached online through live 1-to-1 video sessions.
                             Imagine where you could be in just a few sessions!
                         </h4>
                     </div>
