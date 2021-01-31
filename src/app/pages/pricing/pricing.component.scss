@@ -5,7 +5,7 @@
         background: linear-gradient(rgba(0,0,0,.5), rgba(0,0,0,.6)), url('../../../assets/img/become-a-life-coach-lifecoach.png') no-repeat bottom center / cover;
 
         .container {
-            padding-top: 190px;
+            padding-top: 100px;
         }
     }
 }
@@ -20,6 +20,14 @@
 
 .top-row-margin {
     margin-top: 50px;
+}
+
+.card-pricing .card-body img {
+    z-index: -99;
+}
+
+.explainer-text {
+    color: #263148;
 }
 
 // #section-four {

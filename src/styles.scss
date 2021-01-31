@@ -117,54 +117,6 @@
   padding: 0;
 }
 
-// Small devices (landscape phones, 576px and up)
-@media (min-width: 576px) {
-  .custom-jumbotron {
-    height: 200vh;
-
-    &:before {
-      height: 200%;
-    }
-  }
-  .custom-jumbotron .container {
-    padding: 204px 0 0 0;
-  }
-  .wizard-container .mat-horizontal-content-container {
-    padding: 0 24px 24px 24px;
-  }
-}
-
-// Medium devices (tablets, 768px and up)
-@media (min-width: 768px) {
-  .custom-jumbotron {
-    height: 120vh;
-
-    &:before {
-      height: 120%;
-    }
-  }
-  .custom-jumbotron .container {
-    padding: 140px 0 0 0;
-  }
-}
-
-// Large devices (desktops, 992px and up)
-@media (min-width: 992px) {
-  .custom-jumbotron {
-    height: 92vh;
-
-    &:before {
-      height: 92vh;
-    }
-  }
-  .custom-jumbotron .container {
-    padding: 274px 0 0 0;
-  }
-  #hero-bottom-strip {
-    height: 8vh;
-  }
-}
-
 // Videogular overrides
 
 vg-player {
