@@ -279,26 +279,6 @@ export class CoachComponent implements OnInit, OnDestroy {
     this.bsModalRef = this.modalService.show(ScheduleCallComponent, config);
   }
 
-  async forgotPassword() {
-    const res = await this.alertService.alert('input-field', 'Forgot your password?',
-      'No problem! Simply request a password reset email...') as any;
-    if (res.complete && res.data) {
-      const email = (res.data as string).toLowerCase().trim();
-      const response = await this.authService.resetPassword(email) as any;
-      // console.log(response);
-      if (response.result !== 'error') {
-        this.alertService.alert('success-message', 'Success!', `Your password reset email is on the way. Please check your inbox.`);
-      } else {
-        // console.log(response.msg);
-        if (response.msg === 'auth/user-not-found') {
-          this.alertService.alert('warning-message', 'Oops!', 'That email address has not been found. Please check it and try again.');
-        } else {
-          this.alertService.alert('warning-message', 'Oops!', 'Something went wrong. Please contact hello@lifecoach.io for help.');
-        }
-      }
-    }
-  }
-
   onRegister() {
     // pop register modal
     // we can send data to the modal & open in a another component via a service
