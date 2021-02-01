@@ -11,7 +11,7 @@ import { AuthService } from 'app/services/auth.service';
 import { CurrenciesService } from 'app/services/currencies.service';
 import { CountryService } from 'app/services/country.service';
 import { EmojiCountry } from 'app/interfaces/emoji.country.interface';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { FormGroup, FormBuilder } from '@angular/forms';
 import { UserAccount } from 'app/interfaces/user.account.interface';
 import { CoachingService } from 'app/interfaces/coaching.service.interface';
 import { IsoLanguagesService } from 'app/services/iso-languages.service';
@@ -22,6 +22,7 @@ import { BsModalService, BsModalRef, ModalOptions } from 'ngx-bootstrap/modal';
 import { ScheduleCallComponent } from 'app/components/schedule-call/schedule-call.component';
 import {take} from 'rxjs/operators';
 import {ToastrService} from 'ngx-toastr';
+import { RegisterModalComponent } from 'app/components/register-modal/register-modal.component';
 
 declare var Stripe: any;
 
@@ -33,8 +34,6 @@ declare var Stripe: any;
 })
 export class CoachingServiceComponent implements OnInit, OnDestroy {
 
-  @ViewChild('loginModal', {static: false}) public loginModal: ModalDirective;
-  @ViewChild('registerModal', {static: false}) public registerModal: ModalDirective;
   @ViewChild('payModal', {static: false}) public payModal: ModalDirective;
 
   public bsModalRef: BsModalRef;
@@ -246,24 +245,6 @@ export class CoachingServiceComponent implements OnInit, OnDestroy {
       } else {
         this.getClientCurrencyAndCountryFromIP();
       }
-
-      // Build the register form
-      this.registerForm = this.formBuilder.group(
-        {
-          firstName: ['', [Validators.required]],
-          lastName: ['', [Validators.required]],
-          email: ['', [Validators.required, Validators.pattern(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)]],
-          password: ['', [Validators.required, Validators.minLength(6)]]
-        }
-      );
-
-      // Build the login form
-      this.loginForm = this.formBuilder.group(
-        {
-          email: ['', [Validators.required, Validators.email]],
-          password: ['', [Validators.required, Validators.minLength(6)]],
-        }
-      );
     }
     // End of platform browser check
 
@@ -533,89 +514,16 @@ export class CoachingServiceComponent implements OnInit, OnDestroy {
     }
   }
 
-  async onRegister() {
-    this.registerAttempt = true;
-    // Check we have captured a user type
-    console.log('User type to register:', this.userType);
-    if (!this.userType) {
-      alert('Invalid user type');
-      return;
-    }
-    // Check form validity
-    if (this.registerForm.valid) {
-      this.register = true;
-      // Create new account object
-      const newUserAccount: UserAccount = {
-        accountEmail: this.registerF.email.value,
-        password: this.registerF.password.value,
-        accountType: this.userType as any,
-        firstName: this.registerF.firstName.value,
-        lastName: this.registerF.lastName.value
-      };
-      const firstName = this.registerF.firstName.value;
-      // Check account type & attempt registration
-      const response = await this.authService.createUserWithEmailAndPassword(newUserAccount);
-      if (!response.error) {
-        // Success
-        this.register = false;
-        console.log('Registration successful:', response.result.user);
-        this.userId = response.result.user.uid; // update the component userId to allow user to purchase
-        this.analyticsService.registerUser(response.result.user.uid, 'email&password', newUserAccount);
-        this.registerModal.hide();
-        this.alertService.alert('success-message', 'Success!', `Welcome to Lifecoach ${firstName}. Click 'Buy Now' again to complete your enrollment...`);
-      } else {
-        // Error
-        this.register = false;
-        if (response.error.code === 'auth/email-already-in-use') {
-          this.alertService.alert('warning-message', 'Oops', 'That email is already registered. Please log in.');
-        } else if (response.error.code === 'auth/invalid-email') {
-          this.alertService.alert('warning-message', 'Oops', 'Invalid email address. Please try a different email.');
-        } else if (response.error.code === 'auth/weak-password') {
-          this.alertService.alert('warning-message', 'Oops', 'Password is too weak. Please use a stronger password.');
-        } else {
-          this.alertService.alert('warning-message', 'Oops', 'Something went wrong. Please contact hello@lifecoach.io for help');
-        }
-      }
-      this.registerAttempt = false;
-    } else {
-      this.alertService.alert('warning-message', 'Oops', 'Please complete all required fields.');
-    }
-  }
-
-  async onLogin() {
-    this.loginAttempt = true;
-    // Log the user in
-    if (this.loginForm.valid) {
-      this.login = true;
-      const account: UserAccount = {
-        accountEmail: this.loginF.email.value,
-        password: this.loginF.password.value,
-        accountType: null
-      };
-      const res = await this.authService.signInWithEmailAndPassword(account);
-      if (!res.error) {
-        // Login successful.
-        this.userId = res.result.user.uid; // update the component userId to allow user to purchase
-        this.loginModal.hide();
-        this.alertService.alert('success-message', 'Login Successful', `You can now continue...`);
-        this.analyticsService.signIn(res.result.user.uid, 'email&password', account.accountEmail);
-      } else {
-        // Login error.
-        this.login = false;
-        // Check auth provider error codes.
-        if (res.error.code === 'auth/wrong-password') {
-          this.alertService.alert('warning-message', 'Oops', 'Incorrect password. Please try again.');
-        } else if (res.error.code === 'auth/user-not-found') {
-          this.alertService.alert('warning-message', 'Oops', 'Email address not found. Please check your login email address is correct.');
-        } else {
-          // Fall back for unknown / no error code
-          this.alertService.alert('warning-message', 'Oops', 'Something went wrong. Please try again or contact hello@lifecoach.io for assistance.');
-        }
-      }
-      this.loginAttempt = false;
-    } else {
-      this.alertService.alert('warning-message', 'Oops', 'Please complete all required fields.');
-    }
+  onRegister() {
+    // pop register modal
+    // we can send data to the modal & open in a another component via a service
+    // https://valor-software.com/ngx-bootstrap/#/modals#service-component
+    const config: ModalOptions = {
+      initialState: {
+        anyData: null
+      } as any
+    };
+    this.bsModalRef = this.modalService.show(RegisterModalComponent, config);
   }
 
   onAvgRatingEvent(event: number) {
