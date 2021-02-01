@@ -2,11 +2,12 @@ import { Component, Inject, OnInit, PLATFORM_ID, Input, ViewChild, OnDestroy } f
 import { ROUTES } from '../sidebar/sidebar.component';
 import { DOCUMENT, isPlatformBrowser, Location } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
-import { ModalDirective } from 'ngx-bootstrap/modal';
 import { AuthService } from '../../services/auth.service';
 import { CoachingCourse } from 'app/interfaces/course.interface';
 import { AlertService } from 'app/services/alert.service';
 import { Subscription } from 'rxjs';
+import { ModalDirective, BsModalService, BsModalRef, ModalOptions } from 'ngx-bootstrap/modal';
+import { LoginComponent } from 'app/components/login/login.component';
 
 const misc: any = {
   sidebar_mini_active: true
@@ -24,6 +25,8 @@ export class AuthCourseNavbarComponent implements OnInit, OnDestroy {
   @Input() course: CoachingCourse;
   @Input() lecturesComplete: string[];
 
+  public bsModalRef: BsModalRef;
+
   public userId: string;
   public isCollapsed = true;
   private listTitles: any[];
@@ -37,7 +40,8 @@ export class AuthCourseNavbarComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     @Inject(DOCUMENT) private document: any,
     @Inject(PLATFORM_ID) private platformId: object,
-    private alertService: AlertService
+    private alertService: AlertService,
+    private modalService: BsModalService
   ) {
     this.location = location;
     // Monitor the user's auth state
@@ -133,6 +137,18 @@ export class AuthCourseNavbarComponent implements OnInit, OnDestroy {
     this.reviewModal.hide();
 
     this.alertService.alert('success-message', 'Success!', `Thanks for leaving feedback! You can update your feedback at any time.`);
+  }
+
+  login() {
+    // pop login modal
+    // we can send data to the modal & open in a another component via a service
+    // https://valor-software.com/ngx-bootstrap/#/modals#service-component
+    const config: ModalOptions = {
+      initialState: {
+        anyData: null
+      } as any
+    };
+    this.bsModalRef = this.modalService.show(LoginComponent, config);
   }
 
   ngOnDestroy() {

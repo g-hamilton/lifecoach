@@ -48,6 +48,7 @@ import { ChatroomsComponent } from './chatrooms/chatrooms.component';
 import { ChatConversationComponent } from './chat-conversation/chat-conversation.component';
 import { ChatFeedComponent } from './chat-feed/chat-feed.component';
 import { ChatMsgComponent } from './chat-msg/chat-msg.component';
+import { LoginComponent } from './login/login.component';
 import { LoginInFlowComponent } from './login-in-flow/login-in-flow.component';
 import { ChatFormComponent } from './chat-form/chat-form.component';
 import { ProfileVideoUploaderComponent } from '../components/profile-video-uploader/profile-video-uploader.component';
@@ -190,6 +191,7 @@ export function momentAdapterFactory() {
     ChatConversationComponent,
     ChatFeedComponent,
     ChatMsgComponent,
+    LoginComponent,
     LoginInFlowComponent,
     ChatFormComponent,
     ScrollableDirective,
@@ -297,6 +299,7 @@ export function momentAdapterFactory() {
     ChatFeedComponent,
     ChatMsgComponent,
     ChatFormComponent,
+    LoginComponent,
     LoginInFlowComponent,
     ScrollableDirective,
     DropzoneDirective,
@@ -383,6 +386,7 @@ export function momentAdapterFactory() {
     CoachMiniProfileComponent
   ],
   entryComponents: [
+    LoginComponent,
     SessionManagerComponent,
     CoachInviteComponent
   ]

@@ -11,12 +11,16 @@ import { AnalyticsService } from '../../services/analytics.service';
 
 import { UserAccount } from '../../interfaces/user.account.interface';
 
+import { ModalDirective, BsModalService, BsModalRef, ModalOptions } from 'ngx-bootstrap/modal';
+import { LoginComponent } from 'app/components/login/login.component';
+
 @Component({
   selector: 'app-register',
   templateUrl: 'register.component.html'
 })
 export class RegisterComponent implements OnInit, OnDestroy {
 
+  public bsModalRef: BsModalRef;
   public registerForm: FormGroup;
   public register = false;
   public focusTouched = false;
@@ -40,6 +44,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private titleService: Title,
     private metaTagService: Meta,
+    private modalService: BsModalService,
     @Inject(DOCUMENT) private document: any,
     @Inject(PLATFORM_ID) private platformId: object
   ) {
@@ -129,5 +134,17 @@ export class RegisterComponent implements OnInit, OnDestroy {
     } else {
       this.alertService.alert('warning-message', 'Oops', 'Please complete all required fields.');
     }
+  }
+
+  login() {
+    // pop login modal
+    // we can send data to the modal & open in a another component via a service
+    // https://valor-software.com/ngx-bootstrap/#/modals#service-component
+    const config: ModalOptions = {
+      initialState: {
+        anyData: null
+      } as any
+    };
+    this.bsModalRef = this.modalService.show(LoginComponent, config);
   }
 }

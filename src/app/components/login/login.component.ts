@@ -1,51 +1,59 @@
-import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Title, Meta } from '@angular/platform-browser';
-import { isPlatformBrowser } from '@angular/common';
+
+import { BsModalRef } from 'ngx-bootstrap/modal';
 
 import { AuthService } from '../../services/auth.service';
 import { AnalyticsService } from '../../services/analytics.service';
 import { AlertService } from '../../services/alert.service';
 
 import { UserAccount } from '../../interfaces/user.account.interface';
-import { DOCUMENT } from '@angular/common';
 
+/*
+  This component is designed to be a re-usable modal.
+  Allows users to log in from multiple places in the app's UI
+*/
 
 @Component({
   selector: 'app-login',
-  templateUrl: 'login.component.html'
+  templateUrl: 'login.component.html',
+  styleUrls: ['./login.component.scss']
 })
-export class LoginComponent implements OnInit, OnDestroy {
+export class LoginComponent implements OnInit {
 
+  // modal config - pass any data in through the modalOptions
+  public configData: any; // not using
+
+  // component
   public loginForm: FormGroup;
   public login = false;
   public focusTouched = false;
   public focusTouched1 = false;
 
+  public objKeys = Object.keys;
+
+  public errorMessages = {
+    email: {
+      required: 'Please enter your login email',
+      email: `Please enter a valid email address`
+    },
+    password: {
+      required: 'Please enter your password',
+      minlength: `Passwords are at least 6 characters`
+    }
+  };
+
   constructor(
-    @Inject(DOCUMENT) private document: any,
-    @Inject(PLATFORM_ID) private platformId: object,
+    public bsModalRef: BsModalRef,
     public formBuilder: FormBuilder,
     private authService: AuthService,
     private router: Router,
     private analyticsService: AnalyticsService,
-    private alertService: AlertService,
-    private titleService: Title,
-    private metaTagService: Meta
+    private alertService: AlertService
     ) {}
 
   ngOnInit() {
-    this.titleService.setTitle('Login to Lifecoach');
-    this.metaTagService.updateTag({name: 'description', content: 'Log into your Lifecoach account'});
-    const body = this.document.getElementsByTagName('body')[0];
-    body.classList.add('login-page');
-
-    // Register a page view if we're in the browser (not SSR)
-    if (isPlatformBrowser(this.platformId)) {
-      this.analyticsService.pageView();
-    }
-
     // Build the login form
     this.loginForm = this.formBuilder.group(
       {
@@ -53,15 +61,18 @@ export class LoginComponent implements OnInit, OnDestroy {
         password: ['', [Validators.required, Validators.minLength(6)]],
       }
     );
-  }
-
-  ngOnDestroy() {
-    const body = this.document.getElementsByTagName('body')[0];
-    body.classList.remove('login-page');
+    console.log(this.errorMessages.password.minlength);
   }
 
   get loginF(): any {
     return this.loginForm.controls;
+  }
+
+  showError(control: string, error: string) {
+    if (this.errorMessages[control][error]) {
+      return this.errorMessages[control][error];
+    }
+    return 'Invalid input';
   }
 
   async forgotPassword() {
@@ -96,6 +107,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       const res = await this.authService.signInWithEmailAndPassword(account);
       if (!res.error) {
         // Login successful.
+        this.bsModalRef.hide();
         this.router.navigate(['/dashboard']);
         this.alertService.alert('auto-close', 'Login Successful', 'Welcome back!');
         this.analyticsService.signIn(res.result.user.uid, 'email&password', account.accountEmail);
@@ -106,11 +118,9 @@ export class LoginComponent implements OnInit, OnDestroy {
         if (res.error.code === 'auth/wrong-password') {
           this.alertService.alert('warning-message', 'Oops', 'Incorrect password. Please try again.');
         } else if (res.error.code === 'auth/user-not-found') {
-          // tslint:disable-next-line: max-line-length
           this.alertService.alert('warning-message', 'Oops', 'Email address not found. Please check your login email address is correct.');
         } else {
           // Fall back for unknown / no error code
-          // tslint:disable-next-line: max-line-length
           this.alertService.alert('warning-message', 'Oops', 'Something went wrong. Please try again or contact hello@lifecoach.io for assistance.');
         }
       }

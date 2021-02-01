@@ -1,0 +1,123 @@
+<!-- login modal -->
+<div id="login-modal" class=" login-modal">
+  <!-- <div class="modal-header">
+    <h4 class="modal-title pull-left"> Login </h4>
+    <button type="button" class="close pull-right" aria-label="Close" (click)="bsModalRef.hide()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div> -->
+  <div class="modal-body">
+    <form
+    class=" form"
+    id="loginValidation"
+    [formGroup]="loginForm"
+    (ngSubmit)="onLogin()"
+    >
+      <div class=" card card-login card-white">
+        <div class=" card-header">
+          <img alt="" src="assets/img/card-primary.png" />
+
+          <h1 id="title"> Log in </h1>
+        </div>
+        <div class=" card-body">
+
+          <!-- Email -->
+          <div
+            class=" input-group"
+            [ngClass]="{
+              'has-danger': (((focusTouched && loginF.email.value != '') || login) && loginF.email.errors),
+              'has-success': !loginF.email.errors
+            }"
+          >
+            <div class=" input-group-prepend">
+              <div class=" input-group-text">
+                <i class=" tim-icons icon-email-85"> </i>
+              </div>
+            </div>
+            <input
+              class=" form-control"
+              name="email"
+              formControlName="email"
+              placeholder="Email"
+              type="email"
+              (focus)="focusTouched = true"
+              required=""
+            />
+          </div>
+          <div *ngIf="(((focusTouched && loginF.email.value != '') || login) && loginF.email.errors)">
+            <label
+            *ngFor="let error of objKeys(loginF.email.errors)"
+            class="error custom-error-label"
+            >{{ showError('email', error) }}
+            </label>
+          </div>
+
+          <!-- Password -->
+          <div
+            class=" input-group"
+            [ngClass]="{
+              'has-danger': (((focusTouched1 && loginF.password.value != '') || login) && loginF.password.errors),
+              'has-success': !loginF.password.errors
+            }"
+          >
+            <div class=" input-group-prepend">
+              <div class=" input-group-text">
+                <i class=" tim-icons icon-lock-circle"> </i>
+              </div>
+            </div>
+            <input
+              class=" form-control"
+              name="password"
+              formControlName="password"
+              placeholder="Password"
+              type="password"
+              (focus)="focusTouched1 = true"
+              required=""
+            />
+          </div>
+          <div *ngIf="(((focusTouched1 && loginF.password.value != '') || login) && loginF.password.errors)">
+            <label
+            *ngFor="let error of objKeys(loginF.password.errors)"
+            class="error custom-error-label"
+            >{{ showError('password', error) }}
+            </label>
+          </div>
+
+        </div>
+        <div class=" card-footer">
+          <!-- Login Submit Button -->
+          <button
+          class=" btn btn-primary btn-lg btn-block btn-round mb-3"
+          type="submit"
+          [disabled]="loginForm.invalid"
+          >
+            <span
+            *ngIf="login"
+            class="spinner-border spinner-border-sm"
+            role="status"
+            ></span> {{ login ? 'Logging in...' : 'Login' }}
+          </button>
+          <div class=" pull-left">
+            <h6>
+              <a class=" link footer-link" href="javascript:void(0)" (click)="forgotPassword()">
+                Forgotten Password? 
+              </a>
+            </h6>
+          </div>
+          <div class=" pull-right">
+            <h6>
+              <a class=" link footer-link" href="https://lifecoach.freshdesk.com/support/home" target="_blank">
+                Need Help?
+              </a>
+            </h6>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- <div class="modal-footer">
+
+  </div> -->
+</div>
+<!-- End of login modal -->
