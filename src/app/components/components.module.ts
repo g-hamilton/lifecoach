@@ -133,6 +133,7 @@ import { ServiceMoreComponent } from './service-more/service-more.component';
 import { ServicePromoVideoUploaderComponent } from './service-promo-video-uploader/service-promo-video-uploader.component';
 import { ServicePromoVideoUploadTaskComponent } from './service-promo-video-upload-task/service-promo-video-upload-task.component';
 import { CoachMiniProfileComponent } from './coach-mini-profile/coach-mini-profile.component';
+import { RegisterModalComponent } from './register-modal/register-modal.component';
 
 export function momentAdapterFactory() {
   return adapterFactory(moment);
@@ -269,7 +270,8 @@ export function momentAdapterFactory() {
     ServiceMoreComponent,
     ServicePromoVideoUploaderComponent,
     ServicePromoVideoUploadTaskComponent,
-    CoachMiniProfileComponent
+    CoachMiniProfileComponent,
+    RegisterModalComponent
   ],
   exports: [
     TabsModule,
@@ -387,6 +389,7 @@ export function momentAdapterFactory() {
   ],
   entryComponents: [
     LoginComponent,
+    RegisterModalComponent,
     SessionManagerComponent,
     CoachInviteComponent
   ]
