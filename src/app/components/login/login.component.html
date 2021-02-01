@@ -15,11 +15,19 @@
     >
       <div class=" card card-login card-white">
         <div class=" card-header">
-          <img alt="" src="assets/img/card-primary.png" />
+          <img id="login-image" alt="" src="assets/img/card-primary.png" />
 
           <h1 id="title"> Log in </h1>
         </div>
         <div class=" card-body">
+
+          <div *ngIf="message" class=" row">
+            <div class=" col">
+                <p>
+                    {{ message }}
+                </p>
+            </div>
+          </div>
 
           <!-- Email -->
           <div

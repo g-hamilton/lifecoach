@@ -328,7 +328,7 @@
                         <!-- userId === program.sellerUid -->
                         <button class=" btn btn-round btn-just-icon btn-primary"
                         [disabled]="userId === program.sellerUid"
-                        (click)="this.userId ? openScheduleCallModal() : onRegister()">
+                        (click)="this.userId ? openScheduleCallModal() : registerToDiscover()">
                          Schedule a Session
                         </button>
                       </div>
@@ -365,7 +365,7 @@
                         id="buynowfull"
                         type="button"
                         data-target="#payModal"
-                        (click)="purchaseType = 'full' ; userId ? payModal.show() : onRegister()"
+                        (click)="purchaseType = 'full' ; userId ? payModal.show() : registerToPurchase()"
                         [disabled]="userId === program.sellerUid || userClaims && userClaims[program.programId]">
                           <span
                           *ngIf="purchasingProgram"
@@ -458,7 +458,7 @@
                         <!-- userId === program.sellerUid -->
                         <button class=" btn btn-round btn-just-icon btn-primary"
                         [disabled]="userId === program.sellerUid"
-                        (click)="this.userId ? openScheduleCallModal() : onRegister()">
+                        (click)="this.userId ? openScheduleCallModal() : registerToDiscover()">
                          Schedule a Session
                         </button>
                       </div>
@@ -496,7 +496,7 @@
                         id="buynowfull"
                         type="button"
                         data-target="#payModal"
-                        (click)="purchaseType = 'full' ; userId ? payModal.show() : onRegister()"
+                        (click)="purchaseType = 'full' ; userId ? payModal.show() : registerToPurchase()"
                         [disabled]="userId === program.sellerUid || userClaims && userClaims[program.programId]">
                           <span
                           *ngIf="purchasingProgram"
@@ -546,7 +546,7 @@
                         id="buynowfull"
                         type="button"
                         data-target="#payModal"
-                        (click)="purchaseType = 'session' ; userId ? payModal.show() : onRegister()"
+                        (click)="purchaseType = 'session' ; userId ? payModal.show() : registerToPurchase()"
                         [disabled]="userId === program.sellerUid || userClaims && userClaims[program.programId]">
                           <span
                           *ngIf="purchasingProgram"

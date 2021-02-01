@@ -23,7 +23,9 @@ import { UserAccount } from '../../interfaces/user.account.interface';
 export class LoginComponent implements OnInit {
 
   // modal config - pass any data in through the modalOptions
-  public configData: any; // not using
+  public message: string; // any message to display on the UI?
+  private successMessage: string; // any message to display after successful register?
+  private redirectUrl: any[]; // if we need to redirect the user, pass nav commands
 
   // component
   public loginForm: FormGroup;
@@ -108,8 +110,14 @@ export class LoginComponent implements OnInit {
       if (!res.error) {
         // Login successful.
         this.bsModalRef.hide();
-        this.router.navigate(['/dashboard']);
-        this.alertService.alert('auto-close', 'Login Successful', 'Welcome back!');
+        if (this.redirectUrl) {
+          this.router.navigate(this.redirectUrl);
+        }
+        if (this.successMessage) {
+          this.alertService.alert('auto-close', 'Login Successful', this.successMessage);
+        } else {
+          this.alertService.alert('auto-close', 'Login Successful', 'Welcome back!');
+        }
         this.analyticsService.signIn(res.result.user.uid, 'email&password', account.accountEmail);
       } else {
         // Login error.

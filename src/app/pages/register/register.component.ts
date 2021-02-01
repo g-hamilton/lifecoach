@@ -142,7 +142,9 @@ export class RegisterComponent implements OnInit, OnDestroy {
     // https://valor-software.com/ngx-bootstrap/#/modals#service-component
     const config: ModalOptions = {
       initialState: {
-        anyData: null
+        message: null,
+        successMessage: null,
+        redirectUrl: ['/dashboard']
       } as any
     };
     this.bsModalRef = this.modalService.show(LoginComponent, config);

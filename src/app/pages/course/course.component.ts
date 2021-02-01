@@ -460,7 +460,9 @@ export class CourseComponent implements OnInit, OnDestroy {
     // https://valor-software.com/ngx-bootstrap/#/modals#service-component
     const config: ModalOptions = {
       initialState: {
-        anyData: null
+        message: `Just a second! You need a Lifecoach account to purchase & watch eCourses. Joining Lifecoach is free and only takes seconds!`,
+        successMessage: `Click Buy Now again to complete your purchase.`,
+        redirectUrl: null
       } as any
     };
     this.bsModalRef = this.modalService.show(RegisterModalComponent, config);

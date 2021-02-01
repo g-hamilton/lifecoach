@@ -20,7 +20,9 @@ import { LoginComponent } from '../login/login.component';
 export class RegisterModalComponent implements OnInit {
 
   // modal config - pass any data in through the modalOptions
-  public configData: any; // not using
+  public message: string; // any message to display on the UI?
+  private successMessage: string; // any message to display after successful register?
+  private redirectUrl: string; // if we need to redirect the user, pass a full/partial url
 
   // component
   private userId: string;
@@ -91,7 +93,7 @@ export class RegisterModalComponent implements OnInit {
         this.userId = response.result.user.uid;
         this.analyticsService.registerUser(response.result.user.uid, 'email&password', newUserAccount);
         this.bsModalRef.hide();
-        this.alertService.alert('success-message', 'Success!', `Welcome to Lifecoach ${firstName}. You can now schedule a call with this Coach.`);
+        this.alertService.alert('success-message', 'Success!', `Welcome to Lifecoach ${firstName}. ${this.successMessage}`);
       } else {
         // Error
         this.register = false;
@@ -117,7 +119,9 @@ export class RegisterModalComponent implements OnInit {
     // https://valor-software.com/ngx-bootstrap/#/modals#service-component
     const config: ModalOptions = {
       initialState: {
-        anyData: null
+        message: null,
+        successMessage: null,
+        redirectUrl: null
       } as any
     };
     this.bsModalRef = this.modalService.show(LoginComponent, config);

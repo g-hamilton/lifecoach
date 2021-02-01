@@ -470,13 +470,29 @@ export class CoachingServiceComponent implements OnInit, OnDestroy {
     this.bsModalRef = this.modalService.show(ScheduleCallComponent, config);
   }
 
-  onRegister() {
+  registerToDiscover() {
     // pop register modal
     // we can send data to the modal & open in a another component via a service
     // https://valor-software.com/ngx-bootstrap/#/modals#service-component
     const config: ModalOptions = {
       initialState: {
-        anyData: null
+        message: `Just a second! You need a Lifecoach account to schedule Discovery sessions with coaches. Joining Lifecoach is free and only takes seconds!`,
+        successMessage: `Click Schedule a Session again to continue.`,
+        redirectUrl: null
+      } as any
+    };
+    this.bsModalRef = this.modalService.show(RegisterModalComponent, config);
+  }
+
+  registerToPurchase() {
+    // pop register modal
+    // we can send data to the modal & open in a another component via a service
+    // https://valor-software.com/ngx-bootstrap/#/modals#service-component
+    const config: ModalOptions = {
+      initialState: {
+        message: `Just a second! You need a Lifecoach account to purchase coaching sessions. Joining Lifecoach is free and only takes seconds!`,
+        successMessage: `Click Buy Now again to complete your purchase.`,
+        redirectUrl: null
       } as any
     };
     this.bsModalRef = this.modalService.show(RegisterModalComponent, config);

@@ -284,7 +284,7 @@
                         <!-- userId === service.sellerUid -->
                         <button class=" btn btn-round btn-just-icon btn-primary"
                         [disabled]="userId === service.sellerUid"
-                        (click)="this.userId ? openScheduleCallModal() : onRegister()">
+                        (click)="this.userId ? openScheduleCallModal() : registerToDiscover()">
                          Schedule a Session
                         </button>
                       </div>
@@ -333,7 +333,7 @@
                         id="buynowfull"
                         type="button"
                         data-target="#payModal"
-                        (click)="purchaseDisplayPrice = calcDisplayPrice(service.pricing[package].price) ; pricingSessions = package ; userId ? payModal.show() : onRegister()"
+                        (click)="purchaseDisplayPrice = calcDisplayPrice(service.pricing[package].price) ; pricingSessions = package ; userId ? payModal.show() : registerToPurchase()"
                         [disabled]="userId === service.sellerUid || userClaims && userClaims[service.serviceId]">
                           <span
                           *ngIf="purchasingService"
