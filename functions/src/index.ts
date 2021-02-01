@@ -5375,7 +5375,7 @@ exports.getCollectionDocIds = functions
     // provide a path to a COLLECTION as a string
     // returns an object contianing an array of collection document ids
 
-    const docs = await admin.firestore().collection(path).listDocuments();
+    const docs = await db.collection(path).listDocuments();
     const docIds = docs.map(doc => doc.id);
     return { docs: docIds };
   });
