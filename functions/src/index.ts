@@ -1,7 +1,18 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 const firebase_tools = require('firebase-tools');
-const firebase = admin.initializeApp();
+
+const firebaseConfig = {
+  apiKey: 'AIzaSyADUNrRkAQSclYoRhi_9y-sb1FDEHCmuE8',
+  authDomain: 'livecoach-dev.firebaseapp.com',
+  databaseURL: 'https://livecoach-dev.firebaseio.com',
+  projectId: 'livecoach-dev',
+  storageBucket: 'livecoach-dev.appspot.com',
+  messagingSenderId: '1000559055215',
+  appId: '1:1000559055215:web:33ebbc33ff1f23c203189a',
+  measurementId: 'G-S4801FLL5M',
+}
+const firebase = admin.initializeApp(firebaseConfig);
 const db = admin.firestore();
 const client = require('twilio')(functions.config().twilio.accountsid, functions.config().twilio.authtoken);
 import * as sharp from 'sharp';
@@ -59,7 +70,7 @@ const shortUrlEndpoint = 'https://api.rebrandly.com/v1/links'
 // See Stripe keys here: https://dashboard.stripe.com/account/apikeys
 
 import { Stripe } from 'stripe';
-const config: Stripe.StripeConfig = { apiVersion: '2020-03-02', typescript: true }
+const config: Stripe.StripeConfig = { apiVersion: '2020-08-27', typescript: true }
 const stripe = new Stripe(functions.config().stripe.prod.secretkey, config); // prod secret key
 const stripeWebhookSecret = functions.config().stripe.prod.webhooksecret; // prod secret webhook key
 const stripeWebhookConnectSecret = functions.config().stripe.prod.webhookconnectsecret // prod secret webhook key
