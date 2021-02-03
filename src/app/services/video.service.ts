@@ -38,6 +38,7 @@ export class TwilioService {
           console.log(track);
           // this.roomObj.localParticiant.publish(track);
           if (track.kind === 'video') {
+            // @ts-ignore
             const attachedElement = track.track.attach();
             if (attachedElement.tagName === 'VIDEO') {
               attachedElement.classList.add('col');
@@ -69,6 +70,7 @@ export class TwilioService {
                 track.on('disabled', this.disableTrack.bind(this));
                 // @ts-ignore
                 if (!Array.from(this.remoteVideo.nativeElement.children).find( i => i.nodeName === track.kind.toUpperCase())) {
+                  // @ts-ignore
                   const attachedElement = track.attach();
                   attachedElement.classList.add('col-md-8');
                   this.remoteVideo.nativeElement.appendChild(attachedElement);
@@ -98,6 +100,7 @@ export class TwilioService {
           participant.on('trackSubscribed', track => {
             track.on('enabled', this.enableTrack.bind(this));
             track.on('disabled', this.disableTrack.bind(this));
+            // @ts-ignore
             const attachedElement = track.attach();
             if (attachedElement.tagName === 'VIDEO') {
               attachedElement.classList.add('col-md-8');
