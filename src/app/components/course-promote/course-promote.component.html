@@ -10,8 +10,10 @@
             </h5>
 
             <p class=" small text-muted pl-2 mb-2">
-                <i class="fas fa-info-circle"></i> Promote your eCourse as widely as you can using this unique link. 
-                This link will take clients to your course landing page where they will be able to enroll in this eCourse. 
+                <i class="fas fa-info-circle"></i> Promote your eCourse as widely as you can!
+                Hit the share button to share your eCourse landing page on social media, or copy the link and 
+                paste it into your website or any of your promotional posts or emails. 
+                This link will take clients to your eCourse landing page where they will be able to enroll in this eCourse. 
                 You also pay a lower commission (earn a higher % per sale) on all enrollments when you use this link.
                     Learn more about <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001127721-how-to-promote-your-newly-published-course" target="_blank">
                         promoting your eCourse
@@ -30,13 +32,16 @@
                             <input #referralCode type="text" class="form-control" id="referral-code" formControlName="referralCode">
                         </div>
                     </div>
+                    <!-- copy button -->
                     <button 
                     *ngIf="browser"
                     type="button"
-                    class=" btn btn-primary btn-round btn-fill pull-right"
+                    class=" btn btn-default btn-round btn-fill"
                     (click)="copyReferralCode(referralCode)">
                         Copy Link
                     </button>
+
+                    <!-- share button -->
                     <app-social-media-share [id]="this.userId"></app-social-media-share>
                 </div>
             </div>
@@ -50,7 +55,7 @@
                         target="_blank">
                             <button
                             type="button"
-                            class="btn btn-default btn-round">
+                            class="btn btn-default btn-round mt-3">
                                 <i class="fas fa-eye"></i> Preview Link Landing Page
                             </button>
                         </a>
