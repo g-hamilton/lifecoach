@@ -2,17 +2,7 @@ import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 const firebase_tools = require('firebase-tools');
 
-const firebaseConfig = {
-  apiKey: 'AIzaSyADUNrRkAQSclYoRhi_9y-sb1FDEHCmuE8',
-  authDomain: 'livecoach-dev.firebaseapp.com',
-  databaseURL: 'https://livecoach-dev.firebaseio.com',
-  projectId: 'livecoach-dev',
-  storageBucket: 'livecoach-dev.appspot.com',
-  messagingSenderId: '1000559055215',
-  appId: '1:1000559055215:web:33ebbc33ff1f23c203189a',
-  measurementId: 'G-S4801FLL5M',
-}
-const firebase = admin.initializeApp(firebaseConfig);
+const firebase = admin.initializeApp();
 const db = admin.firestore();
 const client = require('twilio')(functions.config().twilio.accountsid, functions.config().twilio.authtoken);
 import * as sharp from 'sharp';
@@ -1619,7 +1609,7 @@ exports.completeFreeCourseEnrollment = functions
 // ================================================================================
 
 async function recordCourseEnrollmentForCreator(sellerUid: string, courseId: string, obj: any, clientUid: string) {
-  // Save either the custom transfer object (paid courses) or the free enrollment object 
+  // Save either the custom transfer object (paid courses) or the free enrollment object
   // (free courses) to the seller account to record the enrollment
 
   const saleDate = new Date(obj.created * 1000);
@@ -4742,7 +4732,7 @@ exports.onWriteUserCalendar = functions
         end: event.end,
         testField: 'testField'
       }, { merge: true });
-  
+
       // create the session for the client using the session id as the document id
       const clientSessionRef = db.collection(`users/${event.client}/ordered-sessions`).doc(event.id);
       batch.set(clientSessionRef, {
