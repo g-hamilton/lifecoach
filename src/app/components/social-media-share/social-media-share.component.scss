@@ -1,0 +1,60 @@
+.test{
+  background-color: rgba(0, 0, 0, 0.75);
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+}
+
+.custom{
+  position:relative;
+}
+.customContent{
+  display: flex;
+  justify-content: space-evenly;
+  position: absolute;
+  border-radius: 0.4285rem;
+  padding: 0.7rem;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  box-shadow: 0 15px 35px rgb(50 50 93 / 20%), 0 5px 15px rgb(0 0 0 / 17%);
+}
+.share-icon{
+  width: 50px;
+  height: 50px;
+  display: flex;
+  border-radius: 50%;
+  justify-content: center;
+  align-items: center;
+  font-size: 25px;
+  margin: 0 0.12em;
+  &:hover{
+   cursor: pointer;
+  }
+}
+
+.fb{
+  background-color: rgb(59, 89, 152);
+  color: white;
+}
+.tw{
+  background-color: rgb(29, 161, 242);
+  color: white;
+}
+.linked{
+  background-color: #0073b1;
+  color: white;
+}
+.tr{
+  background-color: #001935;
+  color: white;
+}
+.rd{
+  background-color: #FF4500;
+  color: white;
+}
+.pn{
+  background-color: #e60023;
+  color: white;
+}

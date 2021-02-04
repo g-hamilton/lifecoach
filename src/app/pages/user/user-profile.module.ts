@@ -18,6 +18,7 @@ import { MatChipsModule } from '@angular/material/chips';
     ComponentsModule,
     MatFormFieldModule,
     MatChipsModule,
+
   ],
   declarations: [UserComponent]
 })

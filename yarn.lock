@@ -6599,6 +6599,13 @@ ngx-bootstrap@5.6.2:
   resolved "https://registry.yarnpkg.com/ngx-bootstrap/-/ngx-bootstrap-5.6.2.tgz#e648f826d303c29255c16772676efd30695740d1"
   integrity sha512-6YHXtdXkGH3w0NQoaUgNYAcrj064Lv5RTO284ha/hvpNTrh55yQz2cVh0VvwBk3MjyY2tdmLH4SuCJDszYdYiw==
 
+ngx-social-share@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/ngx-social-share/-/ngx-social-share-1.0.0.tgz#6d7082ed1edee971d7b37cdf447d37a5f06e5b77"
+  integrity sha512-gP/uCJ2OEMVc4Kg9poA7qelOL5XK6mgDXTZ9ZLDXB6VW2rgexj2N9MBaNL1vlP0R+ghXNm26ZSpSLxFASewaHw==
+  dependencies:
+    tslib "^1.9.0"
+
 ngx-toastr@11.1.0:
   version "11.1.0"
   resolved "https://registry.yarnpkg.com/ngx-toastr/-/ngx-toastr-11.1.0.tgz#b001ca7f2ce398faef728e9c30307375a4049c8e"

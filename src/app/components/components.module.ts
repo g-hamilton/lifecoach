@@ -134,6 +134,8 @@ import { ServicePromoVideoUploaderComponent } from './service-promo-video-upload
 import { ServicePromoVideoUploadTaskComponent } from './service-promo-video-upload-task/service-promo-video-upload-task.component';
 import { CoachMiniProfileComponent } from './coach-mini-profile/coach-mini-profile.component';
 import { RegisterModalComponent } from './register-modal/register-modal.component';
+import { SocialMediaShareComponent } from './social-media-share/social-media-share.component';
+import { NgxSocialShareModule } from 'ngx-social-share';
 
 export function momentAdapterFactory() {
   return adapterFactory(moment);
@@ -170,6 +172,7 @@ export function momentAdapterFactory() {
     VgControlsModule,
     DragDropModule,
     CalendarModule.forRoot({ provide: DateAdapter, useFactory: momentAdapterFactory }),
+    NgxSocialShareModule,
   ],
   declarations: [
     FooterComponent,
@@ -271,7 +274,8 @@ export function momentAdapterFactory() {
     ServicePromoVideoUploaderComponent,
     ServicePromoVideoUploadTaskComponent,
     CoachMiniProfileComponent,
-    RegisterModalComponent
+    RegisterModalComponent,
+    SocialMediaShareComponent
   ],
   exports: [
     TabsModule,
@@ -385,7 +389,8 @@ export function momentAdapterFactory() {
     ServiceSubmitComponent,
     ServicePromoteComponent,
     ServiceMoreComponent,
-    CoachMiniProfileComponent
+    CoachMiniProfileComponent,
+    SocialMediaShareComponent
   ],
   entryComponents: [
     LoginComponent,

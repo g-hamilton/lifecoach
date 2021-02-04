@@ -1,0 +1,31 @@
+
+<button
+        *ngIf="browser"
+        type="button"
+        class=" btn btn-primary btn-round btn-fill pull-right"
+        (click)="this.share()">
+    Share...
+</button>
+
+<div
+        aria-hidden="true"
+        aria-labelledby="loginModalLabel"
+        bsModal
+        class="modal fade test"
+        #shareModal="bs-modal"
+        id="loginModal"
+        role="dialog"
+        tabindex="-1"
+        (onHide)="this.fixLink()"
+        (onShow)="this.addRefId()"
+        (mwlClick)="this.shareModal.hide()"
+>
+    <div class="customContent">
+        <div [socialShare]="'fb'" class="share-icon fb"><i class="fab fa-facebook-f"></i></div>
+        <div [socialShare]="'tw'" class="share-icon tw"><i class="fab fa-twitter"></i></div>
+        <div [socialShare]="'in'" class="share-icon linked"><i class="fab fa-linkedin-in"></i></div>
+        <div [socialShare]="'tr'" class="share-icon tr"><i class="fab fa-tumblr"></i></div>
+        <div [socialShare]="'rd'" class="share-icon rd"><i class="fab fa-reddit-alien"></i></div>
+        <div [socialShare]="'pn'" class="share-icon pn"><i class="fab fa-pinterest-p"></i></div>
+    </div>
+</div>
