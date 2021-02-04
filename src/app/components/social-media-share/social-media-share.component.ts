@@ -34,7 +34,7 @@ export class SocialMediaShareComponent implements OnInit {
     const url = this.router.createUrlTree([],
       {
         relativeTo: this.activatedRoute,
-        queryParams: {referralCode: 1}
+        queryParams: {referralCode: this.id ? this.id : ''}
       }).toString();
     this.location.go(url);
   }
