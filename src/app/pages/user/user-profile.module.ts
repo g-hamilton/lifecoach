@@ -8,6 +8,7 @@ import { UserComponent } from './user.component';
 import { UserRoutes } from './user-profile.routing';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatChipsModule } from '@angular/material/chips';
+import {NgxSocialShareModule} from 'ngx-social-share';
 
 @NgModule({
   imports: [
@@ -18,6 +19,7 @@ import { MatChipsModule } from '@angular/material/chips';
     ComponentsModule,
     MatFormFieldModule,
     MatChipsModule,
+    NgxSocialShareModule,
   ],
   declarations: [UserComponent]
 })
