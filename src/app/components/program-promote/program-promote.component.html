@@ -30,13 +30,15 @@
                             <input #referralCode type="text" class="form-control" id="referral-code" formControlName="referralCode">
                         </div>
                     </div>
-                    <button 
+                    <button
                     *ngIf="browser"
                     type="button"
                     class=" btn btn-primary btn-round btn-fill pull-right"
                     (click)="copyReferralCode(referralCode)">
                         Copy Link
                     </button>
+                    <app-social-media-share [id]="this.userId"></app-social-media-share>
+
                 </div>
             </div>
 
