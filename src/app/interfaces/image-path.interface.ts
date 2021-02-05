@@ -1,3 +1,20 @@
+export interface ServiceImagePaths {
+  original: {
+    575: string;
+    768: string;
+    991: string;
+    1200: string;
+    fullSize: string;
+  };
+  webp: {
+    575: string;
+    768: string;
+    991: string;
+    1200: string;
+    fullSize: string;
+  };
+  other?: any;
+}
 export interface ProgramImagePaths {
   original: {
     575: string;

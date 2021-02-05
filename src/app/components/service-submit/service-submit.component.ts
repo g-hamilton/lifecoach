@@ -50,6 +50,9 @@ export class ServiceSubmitComponent implements OnInit, OnChanges {
       language: [null, [Validators.required]],
       category: [null, [Validators.required]],
       subject: ['', [Validators.required]],
+      imageOption: [null, [Validators.required]],
+      image: [null],
+      imagePaths: [null],
       pricing: [null, [Validators.required]],
       currency: ['USD', [Validators.required]],
       sellerUid: ['', [Validators.required]],
@@ -68,6 +71,9 @@ export class ServiceSubmitComponent implements OnInit, OnChanges {
       language: this.service.language,
       category: this.service.category,
       subject: this.service.subject,
+      image: this.service.image,
+      imagePaths: this.service.imagePaths,
+      imageOption: this.service.imageOption,
       pricing: this.service.pricing,
       currency: this.service.currency,
       coachName: this.service.coachName,
@@ -75,6 +81,18 @@ export class ServiceSubmitComponent implements OnInit, OnChanges {
       stripeId: this.service.stripeId,
       sellerUid: this.service.sellerUid
     });
+  }
+
+  // https://medium.com/ngx/3-ways-to-implement-conditional-validation-of-reactive-forms-c59ed6fc3325
+  conditionallyRequiredValidator(formControl: AbstractControl) {
+    if (!formControl.parent) {
+      return null;
+    }
+
+    if (formControl.parent.get('imageOption').value === 'upload') {
+      return Validators.required(formControl);
+    }
+    return null;
   }
 
   getDisplayDate(unix: number) {
