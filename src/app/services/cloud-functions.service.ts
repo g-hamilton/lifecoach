@@ -16,7 +16,7 @@ import { OrderCoachSessionRequest } from 'app/interfaces/order.coach.session.req
 import { CancelCoachSessionRequest } from 'app/interfaces/cancel.coach.session.request.interface';
 import {AdminServiceReviewRequest} from '../interfaces/admin.service.review.interface';
 import {AngularFirestore} from '@angular/fire/firestore';
-import {Observable} from "rxjs";
+import {Observable} from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -33,6 +33,59 @@ export class CloudFunctionsService {
     private db: AngularFirestore,
   ) {
   }
+
+
+  resizeProfileAvatars( data?: any) {
+    // console.log('Token for next page', this.nextPageToken);
+    const cfg: any = {
+      autoPaginate: false,
+      directory: `users/`,
+      delimiter: `/`,
+      prefix: `users/`,
+      maxResults: 1,
+      startOffset: `users/`
+    };
+
+    if (this.nextPageToken) {
+      cfg.pageToken = this.nextPageToken;
+      data.token = this.nextPageToken;
+      // console.log('DATA TOKEN', data);
+    }
+    // console.log(cfg);
+    return new Promise(resolve => {
+      const trigger = this.cloudFunctions.httpsCallable('resizeProfileAvatars');
+      const tempSub = trigger(JSON.stringify(cfg)) // options
+        .pipe(first())
+        .subscribe(res => {
+          // console.log(res);
+          if (this.nextPageToken && res.apiResponse) {
+            this.uniqueUsers.push(res.apiResponse[0].split('/')[1]);
+          }
+          if (this.nextPageToken && !res.apiResponse) {
+            console.log('count ended. Your users:', );
+            this.goNext = false;
+          }
+          if (res.nxt) {
+            this.nextPageToken = res.nxt.pageToken;
+          } else {
+            this.nextPageToken = '';
+          }
+
+
+          const files = res.result;
+          // console.log(res.result);
+          const filtered = files.filter( i => i.split('/')[1].length); // excluding directory and some files
+          // const mapped = filtered.map( i => i.split('/')[1]);
+
+          // console.log('Unique users', new Set(mapped));
+          resolve(res);
+          tempSub.unsubscribe();
+        }, error => {
+          console.log('Getting Error', error);
+        });
+    });
+  }
+
 
   cloudSaveCoachProfile(profile: CoachProfile): Promise<boolean> {
     /*
@@ -606,22 +659,27 @@ export class CloudFunctionsService {
     });
   }
 
-  async resizeProfileAvatarsManager() {
+  async resizeProfileAvatarsManager(data) {
     console.log('----------------');
     console.log('STARTING PROCESS');
     console.log('----------------');
-
+    console.log('Data', data);
+    this.nextPageToken = data.token ? data.token : '';
+    console.log('Started with token:', this.nextPageToken);
+    this.uniqueUsers = [];
+    this.unique = [];
+    const reflect = p => p.then(v => ({v, status: 'fulfilled' }), e => ({e, status: 'rejected' }));
     try {
-      const reflect = p => p.then(v => ({v, status: 'fulfilled' }), e => ({e, status: 'rejected' }));
 
       // console.log('cloud - service');
       let photoUrls = [];
       let toDownload = [];
       let userProfilesWithID = [];
+      this.goNext = true;
       let counter = 5;
       do {
-        await this.resizeProfileAvatars();
-        // console.log('working');
+        await this.resizeProfileAvatars(data);
+        console.log('working');
 
         this.unique =  [...new Set(this.uniqueUsers)]; // Unique users
 
@@ -642,9 +700,9 @@ export class CloudFunctionsService {
 
           const usersAndCoaches = [...coachProfiles, ...userProfilesWithID].filter(i => i.data);
 
-          console.log(coachProfiles);
-          console.log(userProfilesWithID);
-          console.log(usersAndCoaches);
+          // console.log(coachProfiles);
+          // console.log(userProfilesWithID);
+          // console.log(usersAndCoaches);
             // .filter(i => !i.data.photoPaths); // Profiles without 'paths' object
           // console.log('DONE WITH UNIQUE COACHES PROFILES without photo.paths', coachProfiles);
 
@@ -659,7 +717,7 @@ export class CloudFunctionsService {
           photoUrls = toDownload.map( i => i.data.photo);
           // if exist = try to download
           // console.log('', photoUrls);
-          console.log('before out');
+          // console.log('before out');
           if ( counter === 0 && photoUrls.length === 0) {
             console.log('there is no profiles without paths object');
             return;
@@ -668,11 +726,10 @@ export class CloudFunctionsService {
         }
       } while ( this.goNext && counter > -5);
 
-      // console.log(`There are ${this.unique.filter( i=>).length} users without paths object, so we can move next to resize their images`);
-      // console.log(photoUrls);
       console.log('This users will be updated: ');
-      console.table(photoUrls);
-      console.log(toDownload);
+      // console.table(photoUrls);
+      // console.log(toDownload);
+      console.log('Пытаюсь вернуть вот это', data.token);
       const imagePromises = photoUrls.map( i => (new Promise(resolve => {
         const trigger = this.cloudFunctions.httpsCallable('getUserPhoto');
         const tempSub = trigger({ url: i })
@@ -684,7 +741,7 @@ export class CloudFunctionsService {
             console.log(error);
           });
       })));
-      const allPhotos = await Promise.all(imagePromises);
+      const allPhotos = await Promise.all(imagePromises.map(reflect));
       console.log('GOT ALL PHOTOS');
       /*
         file().download() - return in unit8 array which should be converted to base64.
@@ -727,14 +784,12 @@ export class CloudFunctionsService {
 
 
       // @ts-ignore
-      console.log(bytesToBase64(Object.values(allPhotos[0].file).map( i => +i)));
+      // console.log(bytesToBase64(Object.values(allPhotos[0].file).map( i => +i)));
 
-      // @ts-ignore
-      const userImages = allPhotos.map( i => Object.values(i.file).map( x => +x)); // in binary
+      console.log(allPhotos);
+      const userImages = allPhotos.map( i => Object.values(i.v.file).map( x => +x)); // in binary
       const inBase64 = userImages.map( i => ('data:image/jpeg;base64,' + bytesToBase64(i)));
-      console.log('ENCODED');
-
-      console.log(userImages);
+      // console.log(userImages);
 
       // then reshape on different sizes and formats
       // upload to gcp bucket
@@ -767,61 +822,12 @@ export class CloudFunctionsService {
       console.log('----------------');
       console.log('END OF PROCESS');
       console.log('----------------');
-      return {response};
+      return {response, token: data.token};
 
     } catch (e) {
       return {e};
     }
 
-  }
-
-  resizeProfileAvatars( data?: any) {
-    const cfg: any = {
-      autoPaginate: false,
-      directory: `users/`,
-      delimiter: `/`,
-      prefix: `users/`,
-      maxResults: 1,
-      startOffset: `users/`
-    };
-
-    if (this.nextPageToken) {
-      cfg.pageToken = this.nextPageToken;
-    }
-
-    // console.log(cfg);
-    return new Promise(resolve => {
-      const trigger = this.cloudFunctions.httpsCallable('resizeProfileAvatars');
-      const tempSub = trigger(JSON.stringify(cfg)) // options
-        .pipe(first())
-        .subscribe(res => {
-          if (this.nextPageToken && res.apiResponse) {
-            this.uniqueUsers.push(res.apiResponse[0].split('/')[1]);
-          }
-          if (this.nextPageToken && !res.apiResponse) {
-            console.log('count ended. Your users:', );
-            this.goNext = false;
-          }
-          if (res.nxt) {
-            // console.log('nxt object is here');
-            this.nextPageToken = res.nxt.pageToken;
-          } else {
-            this.nextPageToken = '';
-          }
-
-
-          const files = res.result;
-          // console.log(res.result);
-          const filtered = files.filter( i => i.split('/')[1].length); // excluding directory and some files
-          // const mapped = filtered.map( i => i.split('/')[1]);
-
-          // console.log('Unique users', new Set(mapped));
-          resolve(res);
-          tempSub.unsubscribe();
-        }, error => {
-          console.log('Getting Error', error);
-        });
-    });
   }
 
   getCollectionDocIds(path: string) {
