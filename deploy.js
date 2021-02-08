@@ -175,28 +175,26 @@ const deployHost = () =>{
     })
 }
 const main = async () =>{
-    let ans = prompt('Would you like to deploy prod? If prod - type [p/P], default value - dev >');
-    console.log(ans);
+    let ans = prompt('Would you like to deploy prod? If prod - type [p/P], default value - dev > ');
+    // console.log(ans);
     if (ans.trim().toLowerCase() === 'p'){
         options = {...options, isProd: true, projectID: 'lifecoach-6ab28'}
-
     } else {
         options = {...options, isProd: false, projectID: 'livecoach-dev'}
     }
-    console.log(options);
     try{
-        // await firebaseUse();
-        // console.log('Project selected');
-        // await gitUse();
-        // console.log('Git checkouted');
-        // await deletingDist();
-        // console.log('dist/ deleted');
-        // await yarnBuild();
-        // console.log('Project built');
-        // await npmRunBuild();
-        // console.log('Functions built');
-        // await deployFunc();
-        // console.log('Functions deployed');
+        await firebaseUse();
+        console.log('Project selected');
+        await gitUse();
+        console.log('Git checkouted');
+        await deletingDist();
+        console.log('dist/ deleted');
+        await yarnBuild();
+        console.log('Project built');
+        await npmRunBuild();
+        console.log('Functions built');
+        await deployFunc();
+        console.log('Functions deployed');
         await deployHost();
         console.log('Hosting deployed');
     } catch (e) {
