@@ -402,15 +402,7 @@ firstName: string | null, lastName: string | null) {
     batch.set(ref1, {
       id: 'taskDefault001',
       title: 'Complete your coach profile',
-      description: 'Everything at Lifecoach starts with your Coach profile. Start creating yours now.',
-      action: 'profile'
-    });
-
-    const ref2 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault002');
-    batch.set(ref2, {
-      id: 'taskDefault002',
-      title: 'Go public with your profile',
-      description: 'Make your profile public & promote it everywhere to start collecting leads.',
+      description: 'Everything at Lifecoach starts with your public Coach profile. Start creating yours now.',
       action: 'profile'
     });
 

@@ -590,9 +590,9 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
     // console.log(`Saving profile form to DB:`, saveProfile);
 
     await this.dataService.saveCoachProfile(this.userId, saveProfile);
-    if (this.profileF.isPublic.value) {
-      this.dataService.completeUserTask(this.userId, 'taskDefault002');
-    }
+    // if (this.profileF.isPublic.value) {
+    //   this.dataService.completeUserTask(this.userId, 'taskDefault002'); // this is done by default now
+    // }
 
     this.alertService.alert('success-message', 'Success!', 'Profile updated successfully.');
     this.analyticsService.saveUserProfile(saveProfile);

@@ -175,7 +175,7 @@ export class ProfileWizardComponent implements OnInit, OnDestroy {
           qualSa: [false],
           proSummary: ['', [Validators.required, Validators.minLength(90), Validators.minLength(this.summaryMinLength), Validators.maxLength(this.summaryMaxLength)]],
           goalTags: [this.formBuilder.array([new FormControl('', Validators.maxLength(this.goalTagMaxLength))]), Validators.compose([Validators.required, Validators.maxLength(this.goalTagsMax)])],
-          isPublic: [false],
+          isPublic: [true], // default to public display on
           profileUrl: [''],
           dateCreated: [Math.round(new Date().getTime() / 1000)] // unix timestamp
         })
@@ -353,8 +353,7 @@ export class ProfileWizardComponent implements OnInit, OnDestroy {
     // console.log(merged);
 
     // alert
-    await this.alertService.alert('success-message', 'Nice Work!', `Your basic profile is ready. Feel free to keep building on it and
-    don't forget to make it public when you're ready to start generating leads.`);
+    await this.alertService.alert('success-message', 'Nice Work!', `Your basic profile is live on Lifecoach & ready to start capturing leads. Feel free to keep building on your profile. As you add products & services they will automatically be linked to your profile page.`);
 
     // Save the profile
     await this.dataService.saveCoachProfile(this.userId, merged);
