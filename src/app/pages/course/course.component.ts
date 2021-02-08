@@ -83,6 +83,8 @@ export class CourseComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    console.log(this.router);
+
     const body = this.document.getElementsByTagName('body')[0];
     body.classList.add('course-page');
     this.now = Math.round(new Date().getTime() / 1000); // set now as a unix timestamp
@@ -353,6 +355,7 @@ export class CourseComponent implements OnInit, OnDestroy {
         this.course = courseData;
         this.transferState.remove(COURSE_KEY);
       }
+      // console.log(this.course);
     });
 
   } // end of onInit

@@ -309,9 +309,27 @@ export class ProfileWizardComponent implements OnInit, OnDestroy {
         .uploadUserAvatar({uid: this.userId, img: currentImg})
         .catch(e => console.log(e));
 
+
+      /*
+         New version
+      */
       // @ts-ignore
       const url = await response.original.fullSize || '';
       ((this.formWizard.controls.formArray as FormArray).controls[1] as FormGroup).patchValue({photo: url, photoPaths: await response});
+      /*
+         End of new version
+      */
+
+      /*
+        Old Version for tests
+       */
+
+      // const downloadUrl = await this.storageService.storePhotoUpdateDownloadUrl(this.userId, currentImg);
+      // ((this.formWizard.controls.formArray as FormArray).controls[1] as FormGroup).patchValue({photo: downloadUrl});
+
+      /*
+      End of old version
+       */
       // console.log('Form updated with photo storage download URL:', this.group1.photo.value);
     }
 

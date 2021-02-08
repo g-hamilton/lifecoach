@@ -54,6 +54,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   private subscriptions: Subscription = new Subscription();
 
+  private pageToken: string;
+  public uniqUsers: Array<any>;
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
     private authService: AuthService,
@@ -256,10 +258,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   resizeImage() {
     console.log('Clicked');
-    this.cloudFunctions.resizeProfileAvatarsManager()
+    this.cloudFunctions.resizeProfileAvatarsManager({token: this.pageToken})
       .then( resp => {
         console.log('responded');
         console.log(resp);
+        this.pageToken = resp.token;
       })
       .catch( e => console.log(e));
 

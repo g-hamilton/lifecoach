@@ -1601,7 +1601,7 @@ exports.completeFreeCourseEnrollment = functions
 // ================================================================================
 
 async function recordCourseEnrollmentForCreator(sellerUid: string, courseId: string, obj: any, clientUid: string) {
-  // Save either the custom transfer object (paid courses) or the free enrollment object 
+  // Save either the custom transfer object (paid courses) or the free enrollment object
   // (free courses) to the seller account to record the enrollment
 
   const saleDate = new Date(obj.created * 1000);
@@ -4724,7 +4724,7 @@ exports.onWriteUserCalendar = functions
         end: event.end,
         testField: 'testField'
       }, { merge: true });
-  
+
       // create the session for the client using the session id as the document id
       const clientSessionRef = db.collection(`users/${event.client}/ordered-sessions`).doc(event.id);
       batch.set(clientSessionRef, {
