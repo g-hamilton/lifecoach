@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Inject, PLATFORM_ID, OnChanges, OnDestroy, AfterViewInit } from '@angular/core';
+import { Component, OnInit, Input, Inject, PLATFORM_ID, OnChanges, OnDestroy, AfterViewInit, Output, EventEmitter } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, FormControl, FormArray, AbstractControl } from '@angular/forms';
 import { isPlatformBrowser } from '@angular/common';
 import { Subscription } from 'rxjs';
@@ -20,6 +20,8 @@ export class ServiceLandingPageComponent implements OnInit, OnChanges, OnDestroy
 
   @Input() userId: string;
   @Input() service: CoachingService;
+
+  @Output() goNextEvent = new EventEmitter<any>();
 
   public browser: boolean;
   public viewLoaded: boolean;
@@ -294,6 +296,7 @@ export class ServiceLandingPageComponent implements OnInit, OnChanges, OnDestroy
     // if account stripe id continue otherwise divert to setup stripe first
     if (ev.target.value === 'pro') {
       console.log('Pro image selected');
+      this.landingF.image.setErrors(null); // manually remove the error if it has already been triggered by previous save
     } else {
       console.log('Self upload image selected');
     }
@@ -349,7 +352,7 @@ export class ServiceLandingPageComponent implements OnInit, OnChanges, OnDestroy
 
     if (this.landingForm.invalid) {
       console.log(this.landingForm.value);
-      this.alertService.alert('warning-message', 'Oops', 'Please complete all required fields before saving.');
+      this.alertService.alert('warning-message', 'Oops', 'Please complete all required fields to continue.');
       this.saving = false;
       return;
     }
@@ -398,12 +401,24 @@ export class ServiceLandingPageComponent implements OnInit, OnChanges, OnDestroy
 
     await this.dataService.savePrivateService(this.userId, this.service);
 
-    this.alertService.alert('auto-close', 'Success!', 'Service saved.');
-
     this.saving = false;
     this.saveAttempt = false;
 
     this.analyticsService.editServiceLanding();
+  }
+
+  async saveProgress() {
+    await this.onSubmit(); // attempt to save
+    this.alertService.alert('auto-close', 'Success!', 'Changes saved.');
+  }
+
+  async goNext() {
+    await this.onSubmit(); // attempt to autosave
+    if (this.landingForm.invalid) {
+      return;
+    }
+    // safe to proceed to next tab so emit the event to the parent component
+    this.goNextEvent.emit(1); // emit zero indexed tab id number
   }
 
   ngOnDestroy() {

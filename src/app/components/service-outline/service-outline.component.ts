@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Inject, PLATFORM_ID, OnChanges, OnDestroy } from '@angular/core';
+import { Component, OnInit, Input, Inject, PLATFORM_ID, OnChanges, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, AbstractControl, FormControl, FormArray } from '@angular/forms';
 import { isPlatformBrowser } from '@angular/common';
 import { Subscription } from 'rxjs';
@@ -17,6 +17,8 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input() userId: string;
   @Input() service: CoachingService;
+
+  @Output() goNextEvent = new EventEmitter<any>();
 
   public browser: boolean;
 
@@ -269,8 +271,6 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
 
     await this.dataService.savePrivateService(this.userId, this.service);
 
-    this.alertService.alert('auto-close', 'Success!', 'service saved.');
-
     this.saving = false;
     this.saveAttempt = false;
 
@@ -279,6 +279,20 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
 
   calcDiscount() {
     return 0;
+  }
+
+  async saveProgress() {
+    await this.onSubmit(); // attempt to save
+    this.alertService.alert('auto-close', 'Success!', 'Changes saved.');
+  }
+
+  async goNext() {
+    await this.onSubmit(); // attempt to autosave
+    if (this.outlineForm.invalid) {
+      return;
+    }
+    // safe to proceed to next tab so emit the event to the parent component
+    this.goNextEvent.emit(2); // emit zero indexed tab id number
   }
 
   ngOnDestroy() {

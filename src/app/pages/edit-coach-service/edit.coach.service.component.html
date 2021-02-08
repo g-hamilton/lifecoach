@@ -45,14 +45,14 @@
             <!-- Tabs -->
             <div class="card card-plain">
                 <div class="card-header">
-                  <tabset class="nav-tabs-primary">
+                  <tabset #staticTabs class="nav-tabs-primary">
 
                     <tab heading="1. Design Landing Page">
-                      <app-service-landing-page [userId]="userId" [service]="service"></app-service-landing-page>
+                      <app-service-landing-page [userId]="userId" [service]="service" (goNextEvent)="onGoNextEvent($event)"></app-service-landing-page>
                     </tab>
 
                     <tab heading="2. Set Pricing">
-                        <app-service-outline [userId]="userId" [service]="service"></app-service-outline>
+                        <app-service-outline [userId]="userId" [service]="service" (goNextEvent)="onGoNextEvent($event)"></app-service-outline>
                     </tab>
 
                     <tab heading="3. Submit For Review">
