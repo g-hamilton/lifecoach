@@ -5,13 +5,12 @@ import { Title, Meta } from '@angular/platform-browser';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 
 import { AuthService } from '../../services/auth.service';
-import { ToastService } from '../../services/toast.service';
 import { AlertService } from '../../services/alert.service';
 import { AnalyticsService } from '../../services/analytics.service';
 
 import { UserAccount } from '../../interfaces/user.account.interface';
 
-import { ModalDirective, BsModalService, BsModalRef, ModalOptions } from 'ngx-bootstrap/modal';
+import { BsModalService, BsModalRef, ModalOptions } from 'ngx-bootstrap/modal';
 import { LoginComponent } from 'app/components/login/login.component';
 
 @Component({
@@ -34,10 +33,28 @@ export class RegisterComponent implements OnInit, OnDestroy {
     {id: '004', itemName: 'Blaze', price: 49}
   ]; // Not using these yet but if a selector is needed they're ready!
 
+  public objKeys = Object.keys;
+
+  public errorMessages = {
+    firstName: {
+      required: 'Please enter your first name'
+    },
+    lastName: {
+      required: 'Please enter your first name'
+    },
+    email: {
+      required: 'Please enter your email address',
+      pattern: `Please enter a valid email address`
+    },
+    password: {
+      required: 'Please create a password',
+      minlength: `Passwords must be at least 6 characters`
+    }
+  };
+
   constructor(
     public formBuilder: FormBuilder,
     private authService: AuthService,
-    private toastService: ToastService,
     private alertService: AlertService,
     private analyticsService: AnalyticsService,
     private router: Router,
@@ -91,6 +108,13 @@ export class RegisterComponent implements OnInit, OnDestroy {
 
   get registerF(): any {
     return this.registerForm.controls;
+  }
+
+  showError(control: string, error: string) {
+    if (this.errorMessages[control][error]) {
+      return this.errorMessages[control][error];
+    }
+    return 'Invalid input';
   }
 
   async onRegister() {

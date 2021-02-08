@@ -32,64 +32,69 @@
 
                     <!-- First Name -->
                     <div class=" col-sm-12 col-md-6">
-                    <div
-                    class=" input-group"
-                    [ngClass]="{
-                        'has-danger': (((rfocusTouched && registerF.firstName.value != '') || registerAttempt) && registerF.firstName.errors),
-                        'has-success': !registerF.firstName.errors
-                    }"
-                    >
-                        <div class=" input-group-prepend">
-                        <div class=" input-group-text">
-                            <i class=" tim-icons icon-single-02"> </i>
+                        <div
+                        class=" input-group"
+                        [ngClass]="{
+                            'has-danger': (((rfocusTouched && registerF.firstName.value != '') || registerAttempt) && registerF.firstName.errors),
+                            'has-success': !registerF.firstName.errors
+                        }"
+                        >
+                            <div class=" input-group-prepend">
+                                <div class=" input-group-text">
+                                    <i class=" tim-icons icon-single-02"> </i>
+                                </div>
+                            </div>
+                            <input
+                            class=" form-control"
+                            name="firstName"
+                            formControlName="firstName"
+                            placeholder="First Name"
+                            type="text"
+                            (focus)="rfocusTouched = true"
+                            required=""
+                            />
                         </div>
+                        <div *ngIf="(((rfocusTouched && registerF.firstName.value != '') || registerAttempt) && registerF.firstName.errors)">
+                            <label
+                            *ngFor="let error of objKeys(registerF.firstName.errors)"
+                            class="error custom-error-label"
+                            >{{ showError('firstName', error) }}
+                            </label>
                         </div>
-                        <input
-                        class=" form-control"
-                        name="firstName"
-                        formControlName="firstName"
-                        placeholder="First Name"
-                        type="text"
-                        (focus)="rfocusTouched = true"
-                        required=""
-                        />
-                        <label
-                        class="error custom-error-label"
-                        *ngIf="(((rfocusTouched && registerF.firstName.value != '') || registerAttempt) && registerF.firstName.errors)"
-                        > Please enter your first name.
-                        </label>
-                    </div>
                     </div>
 
                     <!-- Last Name -->
                     <div class=" col-sm-12 col-md-6">
-                    <div
-                    class=" input-group"
-                    [ngClass]="{
-                        'has-danger': (((rfocusTouched3 && registerF.lastName.value != '') || registerAttempt) && registerF.lastName.errors),
-                        'has-success': !registerF.lastName.errors
-                    }"
-                    >
-                        <div class=" input-group-prepend">
-                        <div class=" input-group-text">
-                            <i class=" tim-icons icon-single-02"> </i>
+                        <div
+                        class=" input-group"
+                        [ngClass]="{
+                            'has-danger': (((rfocusTouched3 && registerF.lastName.value != '') || registerAttempt) && registerF.lastName.errors),
+                            'has-success': !registerF.lastName.errors
+                        }"
+                        >
+                            <div class=" input-group-prepend">
+                                <div class=" input-group-text">
+                                    <i class=" tim-icons icon-single-02"> </i>
+                                </div>
+                            </div>
+                            <input
+                            class=" form-control"
+                            name="lastName"
+                            formControlName="lastName"
+                            placeholder="Last Name"
+                            type="text"
+                            (focus)="rfocusTouched3 = true"
+                            required=""
+                            />
+                            
                         </div>
+                        <div *ngIf="(((rfocusTouched3 && registerF.lastName.value != '') || registerAttempt) && registerF.lastName.errors)">
+                            <label
+                            *ngFor="let error of objKeys(registerF.lastName.errors)"
+                            class="error custom-error-label"
+                            >{{ showError('lastName', error) }}
+                            </label>
                         </div>
-                        <input
-                        class=" form-control"
-                        name="lastName"
-                        formControlName="lastName"
-                        placeholder="Last Name"
-                        type="text"
-                        (focus)="rfocusTouched3 = true"
-                        required=""
-                        />
-                        <label
-                        class="error custom-error-label"
-                        *ngIf="(((rfocusTouched3 && registerF.lastName.value != '') || registerAttempt) && registerF.lastName.errors)"
-                        > Please enter your last name.
-                    </label>
-                    </div>
                     </div>
                 </div>
 
@@ -115,10 +120,12 @@
                     (focus)="rfocusTouched1 = true"
                     required=""
                     />
+                </div>
+                <div *ngIf="(((rfocusTouched1 && registerF.email.value != '') || registerAttempt) && registerF.email.errors)">
                     <label
+                    *ngFor="let error of objKeys(registerF.email.errors)"
                     class="error custom-error-label"
-                    *ngIf="(((rfocusTouched1 && registerF.email.value != '') || registerAttempt) && registerF.email.errors)"
-                    > We will never share your email address without your permission.
+                    >{{ showError('email', error) }}
                     </label>
                 </div>
 
@@ -144,11 +151,13 @@
                     (focus)="rfocusTouched2 = true"
                     required=""
                     />
+                </div>
+                <div *ngIf="(((rfocusTouched2 && registerF.password.value != '') || registerAttempt) && registerF.password.errors)">
                     <label
+                    *ngFor="let error of objKeys(registerF.password.errors)"
                     class="error custom-error-label"
-                    *ngIf="(((rfocusTouched2 && registerF.password.value != '') || registerAttempt) && registerF.password.errors)"
-                    > Password must be at least 6 characters.
-                </label>
+                    >{{ showError('password', error) }}
+                    </label>
                 </div>
 
                 <!-- Form Submit Button -->

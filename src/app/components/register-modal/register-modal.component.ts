@@ -35,6 +35,25 @@ export class RegisterModalComponent implements OnInit {
   public rfocusTouched3 = false;
   public registerAttempt: boolean;
 
+  public objKeys = Object.keys;
+
+  public errorMessages = {
+    firstName: {
+      required: 'Please enter your first name'
+    },
+    lastName: {
+      required: 'Please enter your first name'
+    },
+    email: {
+      required: 'Please enter your email address',
+      pattern: `Please enter a valid email address`
+    },
+    password: {
+      required: 'Please create a password',
+      minlength: `Passwords must be at least 6 characters`
+    }
+  };
+
   constructor(
     public bsModalRef: BsModalRef,
     public formBuilder: FormBuilder,
@@ -62,6 +81,13 @@ export class RegisterModalComponent implements OnInit {
 
   get registerF(): any {
     return this.registerForm.controls;
+  }
+
+  showError(control: string, error: string) {
+    if (this.errorMessages[control][error]) {
+      return this.errorMessages[control][error];
+    }
+    return 'Invalid input';
   }
 
   async onRegister() {
