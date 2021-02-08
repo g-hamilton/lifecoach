@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Inject, PLATFORM_ID, OnChanges, AfterViewInit, ViewChild} from '@angular/core';
+import { Component, OnInit, Input, Inject, PLATFORM_ID, OnChanges, AfterViewInit, ViewChild, Output, EventEmitter} from '@angular/core';
 import { CoachingCourse, CoachingCourseLecture, CoachingCourseVideo, CoachingCourseResource } from 'app/interfaces/course.interface';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { DataService } from 'app/services/data.service';
@@ -21,6 +21,8 @@ export class CourseLectureComponent implements OnInit, OnChanges, AfterViewInit 
   @Input() activatedSectionId: string;
   @Input() activatedLectureId: string;
   @Input() course: CoachingCourse;
+
+  @Output() goNextEvent = new EventEmitter<any>();
 
   @ViewChild('lectureTypeTabs', { static: false }) lectureTypeTabs: TabsetComponent;
 
@@ -171,11 +173,11 @@ export class CourseLectureComponent implements OnInit, OnChanges, AfterViewInit 
   }
 
   onIncludeResourcesChange(event) {
-    this.onSubmit(true); // autosave
+    this.onSubmit(); // autosave
   }
 
   onPreviewChange(event) {
-    this.onSubmit(true); // autosave
+    this.onSubmit(); // autosave
   }
 
   onLibraryItemSelectVideo(event: CoachingCourseVideo) {
@@ -197,13 +199,13 @@ export class CourseLectureComponent implements OnInit, OnChanges, AfterViewInit 
 
     if (!resArray) { // no resources. init new array with selected element
       this.lectureForm.patchValue({ resources: [event] });
-      this.onSubmit(true); // autosave
+      this.onSubmit(); // autosave
       return;
     }
 
     resArray.push(event); // add the selected element to the resources array
     this.lectureForm.patchValue({ resources: resArray });
-    this.onSubmit(true); // autosave
+    this.onSubmit(); // autosave
   }
 
   removeResource(index: number) {
@@ -212,7 +214,7 @@ export class CourseLectureComponent implements OnInit, OnChanges, AfterViewInit 
     this.lectureForm.patchValue({ resources: JSON.parse(JSON.stringify(resArray))});
   }
 
-  async onSubmit(silenceSuccessAlert?: boolean) {
+  async onSubmit() {
     this.saveAttempt = true;
     this.saving = true;
 
@@ -274,13 +276,24 @@ export class CourseLectureComponent implements OnInit, OnChanges, AfterViewInit 
 
     this.saving = false;
     this.saveAttempt = false;
+  }
 
-    if (!silenceSuccessAlert) {
-      this.alertService.alert('auto-close', 'Success!', 'Your lecture has been saved successfully!');
-    }
-
-    // Navigate to relevant section url
+  async saveProgress() {
+    await this.onSubmit(); // attempt to save
+    // this.alertService.alert('auto-close', 'Success!', 'Changes saved.');
+    if (this.isNewLecture) {
+      // Navigate to relevant lecture url
     this.router.navigate(['my-courses', this.course.courseId, 'content', 'section', this.activatedSectionId, 'lecture', this.lectureF.id.value], { queryParams: { targetUser: this.userId }});
+    }
+  }
+
+  async goNext() {
+    await this.onSubmit(); // attempt to autosave
+    if (this.lectureForm.invalid) {
+      return;
+    }
+    // safe to proceed to next tab so emit the event to the parent component
+    this.goNextEvent.emit(1); // emit zero indexed tab id number
   }
 
 }
