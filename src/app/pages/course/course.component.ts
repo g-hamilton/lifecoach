@@ -22,6 +22,8 @@ import { Subscription } from 'rxjs';
 import { StripePaymentIntentRequest } from 'app/interfaces/stripe.payment.intent.request';
 import {environment} from '../../../environments/environment';
 
+import {SeoService} from '../../services/seo.service';
+
 @Component({
   selector: 'app-course',
   templateUrl: 'course.component.html',
@@ -88,11 +90,14 @@ export class CourseComponent implements OnInit, OnDestroy {
     private currenciesService: CurrenciesService,
     private countryService: CountryService,
     public formBuilder: FormBuilder,
-    private languagesService: IsoLanguagesService
+    private languagesService: IsoLanguagesService,
+    private meta: SeoService
   ) {
   }
 
   ngOnInit() {
+    console.log(this.router);
+
     const body = this.document.getElementsByTagName('body')[0];
     body.classList.add('course-page');
     this.userType = 'regular'; // set the default user type to regular. We could let users select if required.
@@ -382,6 +387,11 @@ export class CourseComponent implements OnInit, OnDestroy {
         this.course = courseData;
         this.transferState.remove(COURSE_KEY);
       }
+      console.log(this.course);
+      // this.meta.setFacebookTags(`${environment.baseUrl}/${this.router.url.replace(/(\\?.*)/g)}`,
+      //     "aAALALLALALLA",
+      //     "Your Page Description",
+      //     "Your Page Image URL");
     });
 
   } // end of onInit

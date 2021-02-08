@@ -37,7 +37,7 @@
                     (click)="copyReferralCode(referralCode)">
                         Copy Link
                     </button>
-                    <app-social-media-share [id]="this.userId"></app-social-media-share>
+                    <app-social-media-share [id]="this.userId" [sharingType]="'course'" [sharingObject]="this.course"></app-social-media-share>
                 </div>
             </div>
 

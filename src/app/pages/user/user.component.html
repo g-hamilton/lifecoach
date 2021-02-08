@@ -948,7 +948,7 @@
               (click)="copyShareUrl(shareUrl)">
                   Copy Link
               </button>
-              <app-social-media-share [id]="this.userId"></app-social-media-share>
+              <app-social-media-share [id]="this.userId" [sharingType]="'profile'" [sharingObject]="this.shareProfile"></app-social-media-share>
             </form>
           </div>
         </div>
