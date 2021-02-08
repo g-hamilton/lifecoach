@@ -401,7 +401,7 @@ firstName: string | null, lastName: string | null) {
     const ref1 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault001');
     batch.set(ref1, {
       id: 'taskDefault001',
-      title: 'Complete your profile',
+      title: 'Complete your coach profile',
       description: 'Everything at Lifecoach starts with your Coach profile. Start creating yours now.',
       action: 'profile'
     });
@@ -426,7 +426,7 @@ firstName: string | null, lastName: string | null) {
     batch.set(ref4, {
       id: 'taskDefault003',
       title: 'Add your products & services',
-      description: `Promote your bespoke coaching services & programs, take bookings, run live 1-to-1 video sessions & sell eCourses. We'll help every step of the way.`,
+      description: `Promote your coaching services, take bookings, run live 1-to-1 video sessions & sell eCourses. We'll help every step of the way.`,
       action: 'coach-products-services'
     });
 
