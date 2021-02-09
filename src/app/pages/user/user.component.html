@@ -941,14 +941,16 @@
                     <input #shareUrl type="text" class="form-control" id="share-url" formControlName="shareUrl">
                 </div>
               </div>
-              <button 
-              *ngIf="browser"
-              type="button"
-              class=" btn btn-primary btn-round btn-fill pull-right"
-              (click)="copyShareUrl(shareUrl)">
-                  Copy Link
-              </button>
-              <app-social-media-share [id]="this.userId" [sharingType]="'profile'" [sharingObject]="this.shareProfile"></app-social-media-share>
+              <div class=" pull-right">
+                <button 
+                *ngIf="browser"
+                type="button"
+                class=" btn btn-default btn-round btn-fill mr-3"
+                (click)="copyShareUrl(shareUrl)">
+                    Copy Link
+                </button>
+                <app-social-media-share [id]="this.userId" [sharingType]="'profile'" [sharingObject]="this.shareProfile"></app-social-media-share>
+              </div>
             </form>
           </div>
         </div>
