@@ -3285,12 +3285,13 @@ exports.onWriteUserProfileNode = functions
           is_public: profile.isPublic
         }
       }
-      return logMailchimpEvent(userId, event); // log event
+      await logMailchimpEvent(userId, event); // log event
     }
 
   }
   if (profile) {
     // Record has been updated
+    console.log('Profile data exists. Updating profile...');
 
     // *** TEMP TEMP TEMP ***
 
@@ -3347,7 +3348,7 @@ exports.onWriteUserProfileNode = functions
 
     if (profile.isPublic) {
       // Profile is set to public. Sync with public node.
-      // console.log('User profile is marked public. Syncing with public data...')
+      console.log('User profile is marked public. Syncing with public data...')
       return db.collection(`public-coaches`)
       .doc(userId)
       .set(profile, {merge: true})

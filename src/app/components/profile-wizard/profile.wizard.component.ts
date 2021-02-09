@@ -370,11 +370,10 @@ export class ProfileWizardComponent implements OnInit, OnDestroy {
 
     // console.log(merged);
 
-    // alert
-    await this.alertService.alert('success-message', 'Nice Work!', `Your basic profile is live on Lifecoach & ready to start capturing leads. Feel free to keep building on your profile. As you add products & services they will automatically be linked to your profile page.`);
-
     // Save the profile
     await this.dataService.saveCoachProfile(this.userId, merged);
+    // alert
+    await this.alertService.alert('success-message', 'Nice Work!', `Your basic profile is live on Lifecoach & ready to start capturing leads. Feel free to keep building on your profile. As you add products & services they will automatically be linked to your profile page.`);
     this.dataService.completeUserTask(this.userId, 'taskDefault001'); // mark the 'create profile' todo as done
     this.analyticsService.saveUserProfile(merged);
     this.saving = false;
