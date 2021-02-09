@@ -724,9 +724,9 @@ export class CloudFunctionsService {
           }
           console.log(counter--);
         }
-      } while ( this.goNext && counter > -5);
+      } while ( this.goNext && counter > 0);
 
-      console.log('This users will be updated: ');
+      console.log('This users will be updated: ', this.uniqueUsers);
       // console.table(photoUrls);
       // console.log(toDownload);
       console.log('Пытаюсь вернуть вот это', data.token);
@@ -742,6 +742,7 @@ export class CloudFunctionsService {
           });
       })));
       const allPhotos = await Promise.all(imagePromises.map(reflect));
+
       console.log('GOT ALL PHOTOS');
       /*
         file().download() - return in unit8 array which should be converted to base64.
@@ -750,45 +751,12 @@ export class CloudFunctionsService {
 
       // Functions for converting
 
-      const base64abc = [
-        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
-        'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
-        'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'
-      ];
-      function bytesToBase64(bytes) {
-        let result = '';
-        let i;
-        const l = bytes.length;
-        for (i = 2; i < l; i += 3) {
-          result += base64abc[bytes[i - 2] >> 2];
-          result += base64abc[((bytes[i - 2] & 0x03) << 4) | (bytes[i - 1] >> 4)];
-          result += base64abc[((bytes[i - 1] & 0x0F) << 2) | (bytes[i] >> 6)];
-          result += base64abc[bytes[i] & 0x3F];
-        }
-        if (i === l + 1) { // 1 octet yet to write
-          result += base64abc[bytes[i - 2] >> 2];
-          result += base64abc[(bytes[i - 2] & 0x03) << 4];
-          result += '==';
-        }
-        if (i === l) { // 2 octets yet to write
-          result += base64abc[bytes[i - 2] >> 2];
-          result += base64abc[((bytes[i - 2] & 0x03) << 4) | (bytes[i - 1] >> 4)];
-          result += base64abc[(bytes[i - 1] & 0x0F) << 2];
-          result += '=';
-        }
-        return result;
-      }
       // END of functions for converting
 
 
       // @ts-ignore
-      // console.log(bytesToBase64(Object.values(allPhotos[0].file).map( i => +i)));
-
-      console.log(allPhotos);
       const userImages = allPhotos.map( i => Object.values(i.v.file).map( x => +x)); // in binary
-      const inBase64 = userImages.map( i => ('data:image/jpeg;base64,' + bytesToBase64(i)));
+      const inBase64 = userImages.map( i => ('data:image/jpeg;base64,' + i));
       // console.log(userImages);
 
       // then reshape on different sizes and formats
