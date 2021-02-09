@@ -3285,7 +3285,7 @@ exports.onWriteUserProfileNode = functions
           is_public: profile.isPublic
         }
       }
-      return logMailchimpEvent(userId, event); // log event
+      await logMailchimpEvent(userId, event); // log event
     }
 
   }
