@@ -37,7 +37,7 @@
             <div class=" description">
               <h3 class=" info-title"> Grow Your Business </h3>
               <p class=" description">
-                Promote your coaching programs, take bookings, run sessions & sell eCourses.
+                Promote your coaching services, take bookings, run online video coaching sessions & sell eCourses through our commission based platform.
               </p>
             </div>
           </div>
@@ -182,10 +182,8 @@
                     <div
                     class=" input-group"
                     [ngClass]="{
-                      'has-danger':
-                        ((focusTouched || register) && registerF.firstName.errors) ||
-                        (registerF.firstName.value != '' && registerF.firstName.errors),
-                      'has-success': registerF.firstName.value != '' && !registerF.firstName.errors
+                      'has-danger': ((focusTouched && registerF.firstName.value != '' || register) && registerF.firstName.errors),
+                      'has-success': !registerF.firstName.errors
                     }"
                     >
                       <div class=" input-group-prepend">
@@ -202,13 +200,12 @@
                         (focus)="focusTouched = true"
                         required=""
                       />
+                    </div>
+                    <div *ngIf="((focusTouched && registerF.firstName.value != '' || register) && registerF.firstName.errors)">
                       <label
+                      *ngFor="let error of objKeys(registerF.firstName.errors)"
                       class="error custom-error-label"
-                      *ngIf="
-                        ((focusTouched || register) && registerF.firstName.errors) ||
-                        (registerF.firstName.value != '' && registerF.firstName.errors)
-                      "
-                      > Please enter your first name.
+                      >{{ showError('firstName', error) }}
                       </label>
                     </div>
                   </div>
@@ -218,10 +215,8 @@
                     <div
                     class=" input-group"
                     [ngClass]="{
-                      'has-danger':
-                        ((focusTouched3 || register) && registerF.lastName.errors) ||
-                        (registerF.lastName.value != '' && registerF.lastName.errors),
-                      'has-success': registerF.lastName.value != '' && !registerF.lastName.errors
+                      'has-danger': ((focusTouched3 && registerF.lastName.value != '' || register) && registerF.lastName.errors),
+                      'has-success': !registerF.lastName.errors
                     }"
                     >
                       <div class=" input-group-prepend">
@@ -238,14 +233,13 @@
                         (focus)="focusTouched3 = true"
                         required=""
                       />
+                    </div>
+                    <div *ngIf="((focusTouched3 && registerF.lastName.value != '' || register) && registerF.lastName.errors)">
                       <label
+                      *ngFor="let error of objKeys(registerF.lastName.errors)"
                       class="error custom-error-label"
-                      *ngIf="
-                        ((focusTouched3 || register) && registerF.lastName.errors) ||
-                        (registerF.lastName.value != '' && registerF.lastName.errors)
-                      "
-                      > Please enter your last name.
-                    </label>
+                      >{{ showError('lastName', error) }}
+                      </label>
                     </div>
                   </div>
                 </div>
@@ -256,10 +250,8 @@
                     <div
                     class=" input-group"
                     [ngClass]="{
-                      'has-danger':
-                        ((focusTouched1 || register) && registerF.email.errors) ||
-                        (registerF.email.value != '' && registerF.email.errors),
-                      'has-success': registerF.email.value != '' && !registerF.email.errors
+                      'has-danger': ((focusTouched1 && registerF.email.value != '' || register) && registerF.email.errors),
+                      'has-success': !registerF.email.errors
                     }"
                     >
                       <div class=" input-group-prepend">
@@ -276,13 +268,12 @@
                         (focus)="focusTouched1 = true"
                         required=""
                       />
+                    </div>
+                    <div *ngIf="((focusTouched1 && registerF.email.value != '' || register) && registerF.email.errors)">
                       <label
+                      *ngFor="let error of objKeys(registerF.email.errors)"
                       class="error custom-error-label"
-                      *ngIf="
-                        ((focusTouched1 || register) && registerF.email.errors) ||
-                        (registerF.email.value != '' && registerF.email.errors)
-                      "
-                      > We will never share your email address without your permission.
+                      >{{ showError('email', error) }}
                       </label>
                     </div>
                   </div>
@@ -292,10 +283,8 @@
                     <div
                     class=" input-group"
                     [ngClass]="{
-                      'has-danger':
-                        ((focusTouched2 || register) && registerF.password.errors) ||
-                        (registerF.password.value != '' && registerF.password.errors),
-                      'has-success': registerF.password.value != '' && !registerF.password.errors
+                      'has-danger': ((focusTouched2 && registerF.password.value != '' || register) && registerF.password.errors),
+                      'has-success': !registerF.password.errors
                     }"
                     >
                       <div class=" input-group-prepend">
@@ -312,13 +301,12 @@
                         (focus)="focusTouched2 = true"
                         required=""
                       />
+                    </div>
+                    <div *ngIf="((focusTouched2 && registerF.password.value != '' || register) && registerF.password.errors)">
                       <label
+                      *ngFor="let error of objKeys(registerF.password.errors)"
                       class="error custom-error-label"
-                      *ngIf="
-                        ((focusTouched2 || register) && registerF.password.errors) ||
-                        (registerF.password.value != '' && registerF.password.errors)
-                      "
-                      > Password must be at least 6 characters.
+                      >{{ showError('password', error) }}
                       </label>
                     </div>
                   </div>
@@ -358,7 +346,7 @@
                 <!-- Got an account? -->
                 <div class=" pull-right mr-3 text-right">
                   <small> Already got an account? 
-                    <a [routerLink]="['/login']" target="_self"> 
+                    <a href="javascript:void(0)" (click)="login()"> 
                       Log in
                     </a> <br>
                     <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47000880610-support-options" target="_blank"> 

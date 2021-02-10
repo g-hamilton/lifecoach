@@ -10,7 +10,9 @@
             </h5>
 
             <p class=" small text-muted pl-2 mb-2">
-                <i class="fas fa-info-circle"></i> Promote your program as widely as you can using this unique link. 
+                <i class="fas fa-info-circle"></i> Promote your program as widely as you can!
+                Hit the share button to share your program landing page on social media or copy the link and 
+                paste it into your website or any of your promotional posts or emails.
                 Clients will be able to schedule discovery calls with you and enroll in this program by following your link. 
                 You also pay a lower commission on all enrollments when you use this link.
                     Learn more about <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001167917-help-with-promoting-your-coaching-program-through-lifecoach" target="_blank">
@@ -30,14 +32,15 @@
                             <input #referralCode type="text" class="form-control" id="referral-code" formControlName="referralCode">
                         </div>
                     </div>
+                    <!-- copy link button -->
                     <button
                     *ngIf="browser"
                     type="button"
-                    class=" btn btn-primary btn-round btn-fill pull-right"
+                    class=" btn btn-default btn-round btn-fill"
                     (click)="copyReferralCode(referralCode)">
                         Copy Link
                     </button>
-                    <app-social-media-share [id]="this.userId"></app-social-media-share>
+                    <app-social-media-share [id]="this.userId" [sharingType]="'program'" [sharingObject]="this.program"></app-social-media-share>
 
                 </div>
             </div>
@@ -51,7 +54,7 @@
                         target="_blank">
                             <button
                             type="button"
-                            class="btn btn-default btn-round">
+                            class="btn btn-default btn-round mt-3">
                                 <i class="fas fa-eye"></i> Preview Link Landing Page
                             </button>
                         </a>

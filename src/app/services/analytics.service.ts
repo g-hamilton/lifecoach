@@ -140,6 +140,10 @@ export class AnalyticsService {
     });
   }
 
+  clickBrowseCoaches() {
+    mixpanel.track('clicked browse coaches');
+  }
+
   sendChatMessage() {
     mixpanel.track('sent chat message');
   }
@@ -449,6 +453,10 @@ export class AnalyticsService {
 
   markSessionComplete() {
     mixpanel.track('marked session complete');
+  }
+
+  clickGetStarted() {
+    mixpanel.track('clicked get started');
   }
 
 }

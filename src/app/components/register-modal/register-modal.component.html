@@ -1,0 +1,201 @@
+<!-- login modal -->
+<div id="login-modal" class=" login-modal">
+    <!-- <div class="modal-header">
+      <h4 class="modal-title pull-left"> Register </h4>
+      <button type="button" class="close pull-right" aria-label="Close" (click)="bsModalRef.hide()">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div> -->
+    <div class="modal-body">
+        <form
+        class=" form"
+        id="RegisterValidation"
+        [formGroup]="registerForm"
+        (ngSubmit)="onRegister()"
+        >
+            <div class="card card-register card-white">
+                <div class=" card-header">
+                <img class="card-img" style="width: 86%;" alt="" src="assets/img/card-primary.png" />
+                <h1 class=" card-title"> Sign Up </h1>
+                </div>
+                <div class=" card-body">
+
+                    <div class=" row">
+                        <div class=" col">
+                            <p>
+                                {{ message }}
+                            </p>
+                        </div>
+                    </div>
+
+                <div class=" row mt-3">
+
+                    <!-- First Name -->
+                    <div class=" col-sm-12 col-md-6">
+                        <div
+                        class=" input-group"
+                        [ngClass]="{
+                            'has-danger': (((rfocusTouched && registerF.firstName.value != '') || registerAttempt) && registerF.firstName.errors),
+                            'has-success': !registerF.firstName.errors
+                        }"
+                        >
+                            <div class=" input-group-prepend">
+                                <div class=" input-group-text">
+                                    <i class=" tim-icons icon-single-02"> </i>
+                                </div>
+                            </div>
+                            <input
+                            class=" form-control"
+                            name="firstName"
+                            formControlName="firstName"
+                            placeholder="First Name"
+                            type="text"
+                            (focus)="rfocusTouched = true"
+                            required=""
+                            />
+                        </div>
+                        <div *ngIf="(((rfocusTouched && registerF.firstName.value != '') || registerAttempt) && registerF.firstName.errors)">
+                            <label
+                            *ngFor="let error of objKeys(registerF.firstName.errors)"
+                            class="error custom-error-label"
+                            >{{ showError('firstName', error) }}
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Last Name -->
+                    <div class=" col-sm-12 col-md-6">
+                        <div
+                        class=" input-group"
+                        [ngClass]="{
+                            'has-danger': (((rfocusTouched3 && registerF.lastName.value != '') || registerAttempt) && registerF.lastName.errors),
+                            'has-success': !registerF.lastName.errors
+                        }"
+                        >
+                            <div class=" input-group-prepend">
+                                <div class=" input-group-text">
+                                    <i class=" tim-icons icon-single-02"> </i>
+                                </div>
+                            </div>
+                            <input
+                            class=" form-control"
+                            name="lastName"
+                            formControlName="lastName"
+                            placeholder="Last Name"
+                            type="text"
+                            (focus)="rfocusTouched3 = true"
+                            required=""
+                            />
+                            
+                        </div>
+                        <div *ngIf="(((rfocusTouched3 && registerF.lastName.value != '') || registerAttempt) && registerF.lastName.errors)">
+                            <label
+                            *ngFor="let error of objKeys(registerF.lastName.errors)"
+                            class="error custom-error-label"
+                            >{{ showError('lastName', error) }}
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div
+                    class=" input-group"
+                    [ngClass]="{
+                    'has-danger': (((rfocusTouched1 && registerF.email.value != '') || registerAttempt) && registerF.email.errors),
+                    'has-success': !registerF.email.errors
+                    }"
+                >
+                    <div class=" input-group-prepend">
+                    <div class=" input-group-text">
+                        <i class=" tim-icons icon-email-85"> </i>
+                    </div>
+                    </div>
+                    <input
+                    class=" form-control"
+                    name="email"
+                    formControlName="email"
+                    placeholder="Email"
+                    type="email"
+                    (focus)="rfocusTouched1 = true"
+                    required=""
+                    />
+                </div>
+                <div *ngIf="(((rfocusTouched1 && registerF.email.value != '') || registerAttempt) && registerF.email.errors)">
+                    <label
+                    *ngFor="let error of objKeys(registerF.email.errors)"
+                    class="error custom-error-label"
+                    >{{ showError('email', error) }}
+                    </label>
+                </div>
+
+                <!-- Create Password -->
+                <div
+                    class=" input-group"
+                    [ngClass]="{
+                    'has-danger': (((rfocusTouched2 && registerF.password.value != '') || registerAttempt) && registerF.password.errors),
+                    'has-success': registerF.password.value != '' && !registerF.password.errors
+                    }"
+                >
+                    <div class=" input-group-prepend">
+                    <div class=" input-group-text">
+                        <i class=" tim-icons icon-lock-circle"> </i>
+                    </div>
+                    </div>
+                    <input
+                    class=" form-control"
+                    name="password"
+                    formControlName="password"
+                    placeholder="Create Password"
+                    type="password"
+                    (focus)="rfocusTouched2 = true"
+                    required=""
+                    />
+                </div>
+                <div *ngIf="(((rfocusTouched2 && registerF.password.value != '') || registerAttempt) && registerF.password.errors)">
+                    <label
+                    *ngFor="let error of objKeys(registerF.password.errors)"
+                    class="error custom-error-label"
+                    >{{ showError('password', error) }}
+                    </label>
+                </div>
+
+                <!-- Form Submit Button -->
+                <button
+                class=" btn btn-primary btn-round btn-block mt-4"
+                type="submit"
+                >
+                    <span
+                    *ngIf="register"
+                    class="spinner-border spinner-border-sm"
+                    role="status"
+                    ></span> {{ register ? 'Creating Account...' : 'Sign Up'}} 
+                </button>
+
+                <!-- Terms & Conditions -->
+                <div class=" text-center text-muted mt-3">
+                    By signing up, you agree to our
+                    <a href="https://lifecoach.freshdesk.com/a/solutions/articles/47000883660" target="_blank"> 
+                    terms and conditions. 
+                    </a>
+                </div>
+
+                <hr>
+                <div class=" text-center">
+                    <strong>Already have an account? <a href="javascript:void(0)" (click)="bsModalRef.hide() ; login()">Log in</a></strong>
+                </div>
+
+                </div>
+                <!-- <div class=" card-footer">
+                
+                </div> -->
+            </div>
+        </form>
+    </div>
+  
+    <!-- <div class="modal-footer">
+  
+    </div> -->
+  </div>
+  <!-- End of register modal -->
+  

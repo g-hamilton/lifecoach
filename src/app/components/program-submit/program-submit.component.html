@@ -88,6 +88,9 @@
                         <li *ngIf="!program.subject">
                             Program primary subject is missing
                         </li>
+                        <li *ngIf="!program.imageOption || (program.imageOption === 'upload' && !program.image)">
+                            Program cover image is missing
+                        </li>
                         <!-- sessions & pricing items -->
                         <li *ngIf="!program.numSessions">
                             Program session information is missing

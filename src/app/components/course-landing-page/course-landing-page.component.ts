@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Inject, PLATFORM_ID, OnChanges, AfterViewInit } from '@angular/core';
+import { Component, OnInit, Input, Inject, PLATFORM_ID, OnChanges, AfterViewInit, Output, EventEmitter } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, FormControl, FormArray } from '@angular/forms';
 import { isPlatformBrowser } from '@angular/common';
 
@@ -22,6 +22,8 @@ export class CourseLandingPageComponent implements OnInit, OnChanges, AfterViewI
 
   @Input() userId: string;
   @Input() course: CoachingCourse;
+
+  @Output() goNextEvent = new EventEmitter<any>();
 
   public browser: boolean;
 
@@ -404,11 +406,23 @@ export class CourseLandingPageComponent implements OnInit, OnChanges, AfterViewI
 
     await this.dataService.savePrivateCourse(this.userId, this.course);
 
-    this.alertService.alert('auto-close', 'Success!', 'eCourse saved.');
-
     this.saving = false;
     this.saveAttempt = false;
 
     this.analyticsService.editCourseLandingPage();
+  }
+
+  async saveProgress() {
+    await this.onSubmit(); // attempt to save
+    this.alertService.alert('auto-close', 'Success!', 'Changes saved.');
+  }
+
+  async goNext() {
+    await this.onSubmit(); // attempt to autosave
+    if (this.landingForm.invalid) {
+      return;
+    }
+    // safe to proceed to next tab so emit the event to the parent component
+    this.goNextEvent.emit(2); // emit zero indexed tab id number
   }
 }

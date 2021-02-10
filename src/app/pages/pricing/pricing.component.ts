@@ -33,6 +33,10 @@ export class PricingComponent implements OnInit, OnDestroy {
     }
   }
 
+  onGetStarted() {
+    this.analyticsService.clickGetStarted();
+  }
+
   ngOnDestroy() {
     const body = this.document.getElementsByTagName('body')[0];
     body.classList.remove('pricing-page');

@@ -32,14 +32,14 @@
                                     <div class="form-group">
                                         <label for="account-email"> Account Email
                                         </label>
-                                        <input type="email" class="form-control" id="account-email" [value]="account.accountEmail">
+                                        <input type="email" class="form-control" id="account-email" [value]="account?.accountEmail">
                                     </div>
                                 </div>
                             </div>
                             <div class=" row">
                                 <div class=" col-md-6">
                                     <label> Account Type </label>
-                                    <p> {{ accountType.toUpperCase() }} 
+                                    <p> {{ accountType?.toUpperCase() }} 
                                         <button
                                         type="button"
                                         class="btn btn-default btn-sm ml-3"

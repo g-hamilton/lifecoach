@@ -45,7 +45,7 @@
             <!-- Tabs -->
             <div class="card card-plain">
                 <div class="card-header">
-                  <tabset class="nav-tabs-primary">
+                  <tabset #staticTabs class="nav-tabs-primary">
                     <tab heading="1. Edit Sections & Lectures">
                         <div class=" row">
                             <div class=" col-4">
@@ -61,10 +61,10 @@
                         </div>
                     </tab>
                     <tab heading="2. Design Landing Page">
-                        <app-course-landing-page [userId]="userId" [course]="course"></app-course-landing-page>
+                        <app-course-landing-page [userId]="userId" [course]="course" (goNextEvent)="onGoNextEvent($event)"></app-course-landing-page>
                     </tab>
-                    <tab heading="3. Set Pricing & Options">
-                        <app-course-pricing [userId]="userId" [course]="course"></app-course-pricing>
+                    <tab heading="3. Set Pricing">
+                        <app-course-pricing [userId]="userId" [course]="course" (goNextEvent)="onGoNextEvent($event)"></app-course-pricing>
                     </tab>
                     <tab heading="4. Submit For Review">
                         <ng-template *ngIf="course?.reviewRequest?.status === 'rejected'" tabHeading>
@@ -117,7 +117,7 @@
             <!-- Tabs -->
             <div class="card card-plain">
                 <div class="card-header">
-                  <tabset class="nav-tabs-primary">
+                  <tabset #staticTabs class="nav-tabs-primary">
                     <tab heading="1. Edit Sections & Lectures">
                         <div class=" row">
                             <div class=" col-4">
@@ -129,16 +129,17 @@
                                 [isNewLecture]="isNewLecture"
                                 [activatedSectionId]="activeRouteSectionId"
                                 [activatedLectureId]="activeRouteLectureId"
-                                [course]="course">
+                                [course]="course"
+                                (goNextEvent)="onGoNextEvent($event)">
                                 </app-course-lecture>
                             </div>
                         </div>
                     </tab>
                     <tab heading="2. Design Landing Page">
-                        <app-course-landing-page [userId]="userId" [course]="course"></app-course-landing-page>
+                        <app-course-landing-page [userId]="userId" [course]="course" (goNextEvent)="onGoNextEvent($event)"></app-course-landing-page>
                     </tab>
-                    <tab heading="3. Set Pricing & Options">
-                      <app-course-pricing [userId]="userId" [course]="course"></app-course-pricing>
+                    <tab heading="3. Set Pricing">
+                      <app-course-pricing [userId]="userId" [course]="course" (goNextEvent)="onGoNextEvent($event)"></app-course-pricing>
                     </tab>
                     <tab heading="4. Submit For Review">
                         <ng-template *ngIf="course?.reviewRequest?.status === 'rejected'" tabHeading>
@@ -191,7 +192,7 @@
             <!-- Tabs -->
             <div class="card card-plain">
                 <div class="card-header">
-                  <tabset class="nav-tabs-primary">
+                  <tabset #staticTabs class="nav-tabs-primary">
                     <tab heading="1. Edit Sections & Lectures">
                         <div class=" row">
                             <!-- Lectures navigator -->
@@ -209,10 +210,10 @@
                         </div>
                     </tab>
                     <tab heading="2. Design Landing Page">
-                      <app-course-landing-page [userId]="userId" [course]="course"></app-course-landing-page>
+                      <app-course-landing-page [userId]="userId" [course]="course" (goNextEvent)="onGoNextEvent($event)"></app-course-landing-page>
                     </tab>
-                    <tab heading="3. Set Pricing & Options">
-                        <app-course-pricing [userId]="userId" [course]="course"></app-course-pricing>
+                    <tab heading="3. Set Pricing">
+                        <app-course-pricing [userId]="userId" [course]="course" (goNextEvent)="onGoNextEvent($event)"></app-course-pricing>
                     </tab>
                     <tab heading="4. Submit For Review">
                         <ng-template *ngIf="course?.reviewRequest?.status === 'rejected'" tabHeading>

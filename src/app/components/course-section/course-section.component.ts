@@ -157,8 +157,12 @@ export class CourseSectionComponent implements OnInit, OnChanges {
     this.saving = false;
     this.saveAttempt = false;
 
-    // Navigate to relevant section url
-    this.router.navigate(['my-courses', this.course.courseId, 'content', 'section', this.sectionF.id.value], { queryParams: { targetUser: this.targetUserUid }});
+    if (this.isNewSection) { // create a new lecture
+      this.router.navigate(['my-courses', this.course.courseId, 'content', 'section', this.sectionF.id.value, 'lecture', 'new'], { queryParams: { targetUser: this.targetUserUid }});
+    } else { //
+      this.router.navigate(['my-courses', this.course.courseId, 'content', 'section', this.sectionF.id.value], { queryParams: { targetUser: this.targetUserUid }});
+    }
+
   }
 
 }

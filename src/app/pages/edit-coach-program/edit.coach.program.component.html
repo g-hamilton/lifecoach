@@ -45,14 +45,14 @@
             <!-- Tabs -->
             <div class="card card-plain">
                 <div class="card-header">
-                  <tabset class="nav-tabs-primary">
+                  <tabset #staticTabs class="nav-tabs-primary">
 
                     <tab heading="1. Design Landing Page">
-                      <app-program-landing-page [userId]="userId" [program]="program"></app-program-landing-page>
+                      <app-program-landing-page [userId]="userId" [program]="program" (goNextEvent)="onGoNextEvent($event)"></app-program-landing-page>
                     </tab>
 
                     <tab heading="2. Set Sessions & Pricing">
-                        <app-program-outline [userId]="userId" [program]="program"></app-program-outline>
+                        <app-program-outline [userId]="userId" [program]="program" (goNextEvent)="onGoNextEvent($event)"></app-program-outline>
                     </tab>
 
                     <tab heading="3. Submit For Review">

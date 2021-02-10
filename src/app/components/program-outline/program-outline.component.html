@@ -211,17 +211,27 @@
                 to join our platform wide promotions programs. Discover more about these programs <a href="" target="_blank">here</a>.
             </p>
 
-            <!-- Form submit button -->
+            <!-- buttons -->
             <div class=" pull-right">
-                <button type="submit" class=" btn btn-primary btn-round btn-fill mt-4">
+                <button type="button" class=" btn btn-default btn-round btn-fill" (click)="saveProgress()">
                     <span *ngIf="!saving">
                         <i class="fas fa-save"></i>
-                      </span>
-                      <span
-                      *ngIf="saving"
-                      class="spinner-border spinner-border-sm"
-                      role="status"
-                      ></span> {{ saving ? 'Saving...' : 'Save'}}
+                    </span>
+                    <span
+                    *ngIf="saving"
+                    class="spinner-border spinner-border-sm"
+                    role="status"
+                    ></span> {{ saving ? 'Saving...' : 'Save'}}
+                </button>
+                <button type="button" class=" btn btn-primary btn-round btn-fill ml-3" (click)="goNext()">
+                    <span *ngIf="!saving">
+                        <i class="fas fa-arrow-right"></i>
+                    </span>
+                    <span
+                    *ngIf="saving"
+                    class="spinner-border spinner-border-sm"
+                    role="status"
+                    ></span> {{ saving ? 'Saving...' : 'Next'}}
                 </button>
             </div>
 

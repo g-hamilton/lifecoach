@@ -375,23 +375,45 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class=" row">
+                                <div class=" col">
+                                    <!-- save button -->
+                                    <div class=" pull-right">
+                                        <button type="button" class=" btn btn-primary btn-round btn-fill mt-3" (click)="saveProgress()">
+                                            <span *ngIf="!saving">
+                                                <i class="fas fa-save"></i>
+                                            </span>
+                                            <span
+                                            *ngIf="saving"
+                                            class="spinner-border spinner-border-sm"
+                                            role="status"
+                                            ></span> {{ saving ? 'Saving...' : isNewLecture ? 'Save & Continue' : 'Save'}} 
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
 
-                            <!-- Form submit button -->
-                            <div class=" pull-right">
-                                <button type="submit" class=" btn btn-primary btn-round btn-fill mt-3">
-                                    <span *ngIf="!saving">
-                                        <i class="fas fa-save"></i>
-                                      </span>
-                                      <span
-                                      *ngIf="saving"
-                                      class="spinner-border spinner-border-sm"
-                                      role="status"
-                                      ></span> {{ saving ? 'Saving...' : 'Save'}} 
-                                </button>
+                            <div *ngIf="!isNewLecture" class=" row mt-3">
+                                <div class=" col">
+                                    <div class=" pull-right">
+                                        <!-- go to next tab button -->
+                                        <button type="button" class=" btn btn-primary btn-round btn-fill ml-3" (click)="goNext()">
+                                            <span *ngIf="!saving">
+                                                <i class="fas fa-arrow-right"></i>
+                                            </span>
+                                            <span
+                                            *ngIf="saving"
+                                            class="spinner-border spinner-border-sm"
+                                            role="status"
+                                            ></span> {{ saving ? 'Saving...' : 'Next: Design Landing Page'}}
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                             
                         </form>
                     </div>
+
                 </div>
             </div>
         </div>

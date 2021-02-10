@@ -5,11 +5,13 @@ import { Title, Meta } from '@angular/platform-browser';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 
 import { AuthService } from '../../services/auth.service';
-import { ToastService } from '../../services/toast.service';
 import { AlertService } from '../../services/alert.service';
 import { AnalyticsService } from '../../services/analytics.service';
 
 import { UserAccount } from '../../interfaces/user.account.interface';
+
+import { BsModalService, BsModalRef, ModalOptions } from 'ngx-bootstrap/modal';
+import { LoginComponent } from 'app/components/login/login.component';
 
 @Component({
   selector: 'app-register',
@@ -17,6 +19,7 @@ import { UserAccount } from '../../interfaces/user.account.interface';
 })
 export class RegisterComponent implements OnInit, OnDestroy {
 
+  public bsModalRef: BsModalRef;
   public registerForm: FormGroup;
   public register = false;
   public focusTouched = false;
@@ -30,16 +33,35 @@ export class RegisterComponent implements OnInit, OnDestroy {
     {id: '004', itemName: 'Blaze', price: 49}
   ]; // Not using these yet but if a selector is needed they're ready!
 
+  public objKeys = Object.keys;
+
+  public errorMessages = {
+    firstName: {
+      required: 'Please enter your first name'
+    },
+    lastName: {
+      required: 'Please enter your first name'
+    },
+    email: {
+      required: 'Please enter your email address',
+      pattern: `Please enter a valid email address`
+    },
+    password: {
+      required: 'Please create a password',
+      minlength: `Passwords must be at least 6 characters`
+    }
+  };
+
   constructor(
     public formBuilder: FormBuilder,
     private authService: AuthService,
-    private toastService: ToastService,
     private alertService: AlertService,
     private analyticsService: AnalyticsService,
     private router: Router,
     private route: ActivatedRoute,
     private titleService: Title,
     private metaTagService: Meta,
+    private modalService: BsModalService,
     @Inject(DOCUMENT) private document: any,
     @Inject(PLATFORM_ID) private platformId: object
   ) {
@@ -88,6 +110,13 @@ export class RegisterComponent implements OnInit, OnDestroy {
     return this.registerForm.controls;
   }
 
+  showError(control: string, error: string) {
+    if (this.errorMessages[control][error]) {
+      return this.errorMessages[control][error];
+    }
+    return 'Invalid input';
+  }
+
   async onRegister() {
 
     // Check form validity
@@ -129,5 +158,19 @@ export class RegisterComponent implements OnInit, OnDestroy {
     } else {
       this.alertService.alert('warning-message', 'Oops', 'Please complete all required fields.');
     }
+  }
+
+  login() {
+    // pop login modal
+    // we can send data to the modal & open in a another component via a service
+    // https://valor-software.com/ngx-bootstrap/#/modals#service-component
+    const config: ModalOptions = {
+      initialState: {
+        message: null,
+        successMessage: null,
+        redirectUrl: ['/dashboard']
+      } as any
+    };
+    this.bsModalRef = this.modalService.show(LoginComponent, config);
   }
 }

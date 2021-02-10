@@ -12,7 +12,7 @@ export class StorageService {
   ) { }
 
   getStorageDomain() {
-    return 'https://firebasestorage.googleapis.com';
+    return 'storage.googleapis.com';
   }
 
   generateRandomImgID() {

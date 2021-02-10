@@ -88,6 +88,9 @@
                         <li *ngIf="!service.subject">
                             Service primary subject is missing
                         </li>
+                        <li *ngIf="!service.imageOption || (service.imageOption === 'upload' && !service.image)">
+                            Service cover image is missing
+                        </li>
                         <li *ngIf="!service.currency">
                             Service currency is missing
                         </li>

@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID, Input, OnDestroy } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, Input, OnDestroy, ViewChild } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 
@@ -9,11 +9,15 @@ import { DataService } from '../../services/data.service';
 import { AuthService } from 'app/services/auth.service';
 import { Subscription } from 'rxjs';
 
+import { TabsetComponent } from 'ngx-bootstrap/tabs';
+
 @Component({
   selector: 'app-edit-course-lectures',
   templateUrl: 'edit.course.lectures.component.html'
 })
 export class EditCourseLecturesComponent implements OnInit, OnDestroy {
+
+  @ViewChild('staticTabs', { static: false }) staticTabs: TabsetComponent;
 
   public browser: boolean;
   public activeRouteCourseId: string;
@@ -128,6 +132,15 @@ export class EditCourseLecturesComponent implements OnInit, OnDestroy {
         })
       );
     }
+  }
+
+  selectTab(tabId: number) {
+    this.staticTabs.tabs[tabId].active = true;
+  }
+
+  onGoNextEvent(id: number) {
+    // console.log('onGoNextEvent:', id);
+    this.selectTab(id);
   }
 
   ngOnDestroy() {

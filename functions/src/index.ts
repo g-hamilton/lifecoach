@@ -401,16 +401,8 @@ firstName: string | null, lastName: string | null) {
     const ref1 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault001');
     batch.set(ref1, {
       id: 'taskDefault001',
-      title: 'Complete your profile',
-      description: 'Everything at Lifecoach starts with your Coach profile. Start creating yours now.',
-      action: 'profile'
-    });
-
-    const ref2 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault002');
-    batch.set(ref2, {
-      id: 'taskDefault002',
-      title: 'Go public with your profile',
-      description: 'Make your profile public & promote it everywhere to start collecting leads.',
+      title: 'Complete your coach profile',
+      description: 'Everything at Lifecoach starts with your public Coach profile. Start creating yours now.',
       action: 'profile'
     });
 
@@ -426,7 +418,7 @@ firstName: string | null, lastName: string | null) {
     batch.set(ref4, {
       id: 'taskDefault003',
       title: 'Add your products & services',
-      description: `Promote your bespoke coaching services & programs, take bookings, run live 1-to-1 video sessions & sell eCourses. We'll help every step of the way.`,
+      description: `Promote your coaching services, take bookings, run live 1-to-1 video sessions & sell eCourses. We'll help every step of the way.`,
       action: 'coach-products-services'
     });
 
@@ -3293,12 +3285,13 @@ exports.onWriteUserProfileNode = functions
           is_public: profile.isPublic
         }
       }
-      return logMailchimpEvent(userId, event); // log event
+      await logMailchimpEvent(userId, event); // log event
     }
 
   }
   if (profile) {
     // Record has been updated
+    console.log('Profile data exists. Updating profile...');
 
     // *** TEMP TEMP TEMP ***
 
@@ -3355,7 +3348,7 @@ exports.onWriteUserProfileNode = functions
 
     if (profile.isPublic) {
       // Profile is set to public. Sync with public node.
-      // console.log('User profile is marked public. Syncing with public data...')
+      console.log('User profile is marked public. Syncing with public data...')
       return db.collection(`public-coaches`)
       .doc(userId)
       .set(profile, {merge: true})

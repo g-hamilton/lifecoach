@@ -1,5 +1,5 @@
-import { Component, OnInit, Input, Inject, PLATFORM_ID, OnChanges, OnDestroy, AfterViewInit } from '@angular/core';
-import { FormGroup, FormBuilder, Validators, FormControl, FormArray } from '@angular/forms';
+import { Component, OnInit, Input, Inject, PLATFORM_ID, OnChanges, OnDestroy, AfterViewInit, Output, EventEmitter } from '@angular/core';
+import { FormGroup, FormBuilder, Validators, FormControl, FormArray, AbstractControl } from '@angular/forms';
 import { isPlatformBrowser } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { CoachingProgram } from 'app/interfaces/coach.program.interface';
@@ -8,6 +8,8 @@ import { AlertService } from 'app/services/alert.service';
 import { AnalyticsService } from 'app/services/analytics.service';
 import { CoachingSpecialitiesService } from 'app/services/coaching.specialities.service';
 import { IsoLanguagesService } from 'app/services/iso-languages.service';
+import { StorageService } from 'app/services/storage.service';
+import { CloudFunctionsService } from 'app/services/cloud-functions.service';
 
 @Component({
   selector: 'app-program-landing-page',
@@ -18,6 +20,8 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
 
   @Input() userId: string;
   @Input() program: CoachingProgram;
+
+  @Output() goNextEvent = new EventEmitter<any>();
 
   public browser: boolean;
   public viewLoaded: boolean;
@@ -87,6 +91,9 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
       maxlength: `This summary should be at less than ${this.subjectMaxLength} characters.`,
       required: 'Please be specific about what your program is about.'
     },
+    image: {
+      required: 'Please upload a cover image'
+    },
     learningPoints: {
       maxlength: `Key learning points should be at less than ${this.learningPointsMaxLength} characters.`
     },
@@ -105,7 +112,9 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
     private alertService: AlertService,
     private analyticsService: AnalyticsService,
     private specialitiesService: CoachingSpecialitiesService,
-    private languagesService: IsoLanguagesService
+    private languagesService: IsoLanguagesService,
+    private storageService: StorageService,
+    private cloudFunctions: CloudFunctionsService
   ) { }
 
   ngOnInit() {
@@ -138,7 +147,9 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
       language: [null, [Validators.required]],
       category: [null, [Validators.required]],
       subject: ['', [Validators.required, Validators.minLength(this.subjectMinLength), Validators.maxLength(this.subjectMaxLength)]],
-      image: [null],
+      imageOption: [null, [Validators.required]],
+      image: [null, [this.conditionallyRequiredValidator]],
+      imagePaths: [null],
       promoVideo: [null],
       learningPoints: [this.formBuilder.array([])],
       requirements: [this.formBuilder.array([])],
@@ -155,7 +166,9 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
       language: this.program.language ? this.program.language : 'en',
       category: this.program.category ? this.program.category : null,
       subject: this.program.subject ? this.program.subject : '',
+      imageOption: this.program.imageOption ? this.program.imageOption : 'upload',
       image: this.program.image ? this.program.image : null,
+      imagePaths: this.program.imagePaths ? this.program.imagePaths : null,
       promoVideo: this.program.promoVideo ? this.program.promoVideo : null,
       learningPoints: this.program.learningPoints ? this.loadLpoints() : this.formBuilder.array([], Validators.maxLength(this.learningPointsMax)),
       requirements: this.program.requirements ? this.loadRequirements() : this.formBuilder.array([], Validators.maxLength(this.requirementsMax)),
@@ -165,6 +178,18 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
     this.titleActualLength = this.landingF.title.value.length;
     this.subTitleActualLength = this.landingF.subtitle.value.length;
     this.subjectActualLength = this.landingF.subject.value.length;
+  }
+
+  // https://medium.com/ngx/3-ways-to-implement-conditional-validation-of-reactive-forms-c59ed6fc3325
+  conditionallyRequiredValidator(formControl: AbstractControl) {
+    if (!formControl.parent) {
+      return null;
+    }
+
+    if (formControl.parent.get('imageOption').value === 'upload') {
+      return Validators.required(formControl);
+    }
+    return null;
   }
 
   loadLpoints() {
@@ -253,6 +278,30 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
     });
   }
 
+  onPictureUpload(event: any) {
+    /*
+      Triggered by the 'messageEvent' listener on the component template.
+      The child 'picture-upload-component' will emit a chosen file when
+      an image is chosen. We'll listen for that change here and grab the
+      selected file for saving to storage & patching into our form control.
+    */
+    console.log(`Patching base64 cover image into form data`);
+    this.landingForm.patchValue({
+      image: event
+    });
+    this.analyticsService.uploadCourseImage();
+  }
+
+  async onImageOptionChange(ev: any) {
+    // if account stripe id continue otherwise divert to setup stripe first
+    if (ev.target.value === 'pro') {
+      console.log('Pro image selected');
+      this.landingF.image.setErrors(null); // manually remove the error if it has already been triggered by previous save
+    } else {
+      console.log('Self upload image selected');
+    }
+  }
+
   buildLpArray() {
     const arr = [];
     (this.landingF.learningPoints.value as FormArray).controls.forEach(control => {
@@ -314,6 +363,24 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
       return;
     }
 
+    // Handle image upload to storage if required.
+    if (this.landingF.image.value && !this.landingF.image.value.includes(this.storageService.getStorageDomain())) {
+      console.log(`Uploading unstored image to storage...`);
+
+      const imagePaths = await this.cloudFunctions
+        .uploadProgramImage({uid: this.userId, img: this.landingF.image.value})
+        .catch(e => console.log(e));
+
+      // @ts-ignore
+      const url = await imagePaths.original.fullSize || '';
+      console.log(`Img stored successfully. Patching landing form with img download URL: ${url}`);
+      this.landingForm.patchValue({
+        image: url,
+        imagePaths: await imagePaths // should replace image field in future
+      });
+      console.log('IMAGE PATHS PATCHED');
+    }
+
     // Merge landing form data into program data & save the program object
     this.program.title = this.landingF.title.value;
     this.program.subtitle = this.landingF.subtitle.value;
@@ -321,7 +388,9 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
     this.program.language = this.landingF.language.value;
     this.program.category = this.landingF.category.value;
     this.program.subject = this.landingF.subject.value;
+    this.program.imageOption = this.landingF.imageOption.value;
     this.program.image = this.landingF.image.value;
+    this.program.imagePaths = this.landingF.imagePaths.value;
     this.program.promoVideo = this.landingF.promoVideo.value;
     this.program.learningPoints = this.buildLpArray();
     this.program.requirements = this.buildReqArray();
@@ -332,12 +401,24 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
 
     await this.dataService.savePrivateProgram(this.userId, this.program);
 
-    this.alertService.alert('auto-close', 'Success!', 'Program saved.');
-
     this.saving = false;
     this.saveAttempt = false;
 
     this.analyticsService.editProgramLanding();
+  }
+
+  async saveProgress() {
+    await this.onSubmit(); // attempt to save
+    this.alertService.alert('auto-close', 'Success!', 'Changes saved.');
+  }
+
+  async goNext() {
+    await this.onSubmit(); // attempt to autosave
+    if (this.landingForm.invalid) {
+      return;
+    }
+    // safe to proceed to next tab so emit the event to the parent component
+    this.goNextEvent.emit(1); // emit zero indexed tab id number
   }
 
   ngOnDestroy() {

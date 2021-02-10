@@ -48,6 +48,7 @@ import { ChatroomsComponent } from './chatrooms/chatrooms.component';
 import { ChatConversationComponent } from './chat-conversation/chat-conversation.component';
 import { ChatFeedComponent } from './chat-feed/chat-feed.component';
 import { ChatMsgComponent } from './chat-msg/chat-msg.component';
+import { LoginComponent } from './login/login.component';
 import { LoginInFlowComponent } from './login-in-flow/login-in-flow.component';
 import { ChatFormComponent } from './chat-form/chat-form.component';
 import { ProfileVideoUploaderComponent } from '../components/profile-video-uploader/profile-video-uploader.component';
@@ -132,8 +133,9 @@ import { ServiceMoreComponent } from './service-more/service-more.component';
 import { ServicePromoVideoUploaderComponent } from './service-promo-video-uploader/service-promo-video-uploader.component';
 import { ServicePromoVideoUploadTaskComponent } from './service-promo-video-upload-task/service-promo-video-upload-task.component';
 import { CoachMiniProfileComponent } from './coach-mini-profile/coach-mini-profile.component';
-import {SocialMediaShareComponent} from './social-media-share/social-media-share.component';
-import {NgxSocialShareModule} from 'ngx-social-share';
+import { RegisterModalComponent } from './register-modal/register-modal.component';
+import { SocialMediaShareComponent } from './social-media-share/social-media-share.component';
+import { NgxSocialShareModule } from 'ngx-social-share';
 
 export function momentAdapterFactory() {
   return adapterFactory(moment);
@@ -193,6 +195,7 @@ export function momentAdapterFactory() {
     ChatConversationComponent,
     ChatFeedComponent,
     ChatMsgComponent,
+    LoginComponent,
     LoginInFlowComponent,
     ChatFormComponent,
     ScrollableDirective,
@@ -271,6 +274,7 @@ export function momentAdapterFactory() {
     ServicePromoVideoUploaderComponent,
     ServicePromoVideoUploadTaskComponent,
     CoachMiniProfileComponent,
+    RegisterModalComponent,
     SocialMediaShareComponent
   ],
   exports: [
@@ -301,6 +305,7 @@ export function momentAdapterFactory() {
     ChatFeedComponent,
     ChatMsgComponent,
     ChatFormComponent,
+    LoginComponent,
     LoginInFlowComponent,
     ScrollableDirective,
     DropzoneDirective,
@@ -388,6 +393,8 @@ export function momentAdapterFactory() {
     SocialMediaShareComponent
   ],
   entryComponents: [
+    LoginComponent,
+    RegisterModalComponent,
     SessionManagerComponent,
     CoachInviteComponent
   ]

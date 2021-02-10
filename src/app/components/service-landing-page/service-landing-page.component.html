@@ -63,7 +63,7 @@
                 type="text"
                 class="form-control"
                 formControlName="subtitle"
-                placeholder="eg. Overcome Your Anxiety in 90 Days"
+                placeholder="eg. Life & Productivity Coaching. I help people get great results."
                 (focus)="focus1 = true; focus1Touched = true"
                 (blur)="focus1 = false"
                 (input)="onSubTitleInput($event)">
@@ -162,7 +162,7 @@
 
             <!-- Service subject -->
             <div class=" mt-4">
-                <label> What is the <strong>Primary</strong> subject you address in this service? </label>
+                <label> What is your <strong>Primary</strong> area of focus as a coach? </label>
                 <p class=" small text-muted pl-2 mb-2">
                     <i class="fas fa-info-circle"></i> This helps you to attract the most suitable clients using search.
                 </p>
@@ -199,37 +199,58 @@
 
             <!-- Service image -->
             <div class=" mt-4">
-                <label> Service Cover Image </label>
-            </div>
-            <div *ngIf="service?.image ; else noImage">
-                <img [src]="service.image" style="height: 200px;">
-            </div>
-            <ng-template #noImage>
-                <p class=" text-success">
-                    Get a free, professional service cover image!
+                <label> Cover Image </label>
+                <p class="lead text-muted">Make your coaching service stand out with a great cover image!
+                    Upload your own if you have an image that meets our 
+                    <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001126534-your-service-landing-page" target="_blank">
+                        guidelines
+                    </a>
+                    , or request a 
+                    professionally designed cover image from our design team 
+                    <span class=" text-success">FREE for a limited time!</span>
                 </p>
-                <p class=" small text-muted">
-                    Our design team will get to work creating an attractive cover image as soon as you 
-                    submit your service for review.
-                </p>
-            </ng-template>
-
-            <!-- <div>
-                <p class="lead text-muted">Make your service stand out with a great cover image!</p>
-                <p class="lead text-muted">Images <strong>MUST</strong> meet our
+                
+                <div class="form-check form-check-radio mt-4">
+                    <label class="form-check-label">
+                        <input class="form-check-input" type="radio" id="image-radio-upload" value="upload" formControlName="imageOption" (change)="onImageOptionChange($event)">
+                        Upload my own cover image
+                        <span class="form-check-sign"></span>
+                    </label>
+                </div>
+                <div class="form-check form-check-radio">
+                    <label class="form-check-label">
+                        <input class="form-check-input" type="radio" id="image-radio-pro" value="pro" formControlName="imageOption" (change)="onImageOptionChange($event)">
+                        Get a professionally designed cover image (Currently FREE!)
+                        <span class="form-check-sign"></span>
+                    </label>
+                </div>
+                
+                <p *ngIf="landingF.imageOption.value === 'upload'" class="lead text-muted mt-4">Note: Images <strong>MUST</strong> meet our
                     <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001126534-your-service-landing-page" target="_blank">
                         image guidelines
                     </a>
                     to be accepted.
                 </p>
-                <p class="lead text-muted">Important guidelines: At least 750 x 422 pixels; .jpg, .jpeg,. gif, or .png. Avoid text on your image.</p>
+
+                <p *ngIf="landingF.imageOption.value === 'pro'" class="lead text-success mt-4">
+                    Great! Our design team will get to work when you submit your service for review
+                </p>
+                
             </div>
-            <div class=" mt-3">
+            <div *ngIf="landingF.imageOption.value === 'upload'" class=" mt-3">
                 <app-picture-upload
-                [inputImg]="landingF.mainImage.value"
+                [inputImg]="landingF.image.value"
                 (messageEvent)="onPictureUpload($event)">
                 </app-picture-upload>
-            </div> -->
+            </div>
+            <!-- if image errors -->
+            <div *ngIf="(saveAttempt && landingF.image.errors)">
+                <label
+                *ngFor="let error of objKeys(landingF.image.errors)"
+                class="error custom-error-label"
+                >{{ showError('image', error) }}
+                </label>
+            </div>
             <!-- End service image -->
 
             <!-- Service promotional video -->
@@ -460,9 +481,9 @@
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <!-- Form submit button -->
+                    <!-- buttons -->
                     <div class=" pull-right">
-                        <button type="submit" class=" btn btn-primary btn-round btn-fill">
+                        <button type="button" class=" btn btn-default btn-round btn-fill" (click)="saveProgress()">
                             <span *ngIf="!saving">
                                 <i class="fas fa-save"></i>
                             </span>
@@ -471,6 +492,16 @@
                             class="spinner-border spinner-border-sm"
                             role="status"
                             ></span> {{ saving ? 'Saving...' : 'Save'}}
+                        </button>
+                        <button type="button" class=" btn btn-primary btn-round btn-fill ml-3" (click)="goNext()">
+                            <span *ngIf="!saving">
+                                <i class="fas fa-arrow-right"></i>
+                            </span>
+                            <span
+                            *ngIf="saving"
+                            class="spinner-border spinner-border-sm"
+                            role="status"
+                            ></span> {{ saving ? 'Saving...' : 'Next'}}
                         </button>
                     </div>
                 </div>

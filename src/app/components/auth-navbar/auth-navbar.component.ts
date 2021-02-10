@@ -4,6 +4,8 @@ import { DOCUMENT, isPlatformBrowser, Location } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
 import { AuthService } from '../../services/auth.service';
 import { Subscription } from 'rxjs';
+import { BsModalService, BsModalRef, ModalOptions } from 'ngx-bootstrap/modal';
+import { LoginComponent } from 'app/components/login/login.component';
 
 const misc: any = {
   sidebar_mini_active: true
@@ -16,6 +18,7 @@ const misc: any = {
 })
 export class AuthNavbarComponent implements OnInit, OnDestroy {
 
+  public bsModalRef: BsModalRef;
   public isCollapsed = true;
   private listTitles: any[];
   private location: Location;
@@ -28,6 +31,7 @@ export class AuthNavbarComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     @Inject(DOCUMENT) private document: any,
     @Inject(PLATFORM_ID) private platformId: object,
+    private modalService: BsModalService,
   ) {
     this.location = location;
     // Monitor the user's auth state
@@ -109,6 +113,20 @@ export class AuthNavbarComponent implements OnInit, OnDestroy {
     }
 
     return 'Lifecoach';
+  }
+
+  login() {
+    // pop login modal
+    // we can send data to the modal & open in a another component via a service
+    // https://valor-software.com/ngx-bootstrap/#/modals#service-component
+    const config: ModalOptions = {
+      initialState: {
+        message: null,
+        successMessage: null,
+        redirectUrl: ['/dashboard']
+      } as any
+    };
+    this.bsModalRef = this.modalService.show(LoginComponent, config);
   }
 
   ngOnDestroy() {

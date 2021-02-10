@@ -10,12 +10,14 @@
             </h5>
 
             <p class=" small text-muted pl-2 mb-2">
-                <i class="fas fa-info-circle"></i> Promote your service as widely as you can using this unique link. 
+                <i class="fas fa-info-circle"></i> Promote your service as widely as you can!
+                Hit the share button to share your service landing page on social media, or copy the link and 
+                paste it into your website or any of your promotional posts or emails. 
                 Clients will be able to schedule discovery calls with you and purchase your coaching sessions by following your link. 
-                You also pay a lower commission on all session purchases when you use this link.
+                You also pay a lower commission on all session purchases when you use this link so it pays to get creative!
                     Learn more about <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001170649-help-with-promoting-your-coaching-service-through-lifecoach" target="_blank">
                         promoting your service
-                    </a> and the <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001167919-everything-you-need-to-know-about-the-shared-payment-model" target="_blank">
+                    </a> and the <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001172822-everything-you-need-to-know-about-the-shared-payment-model" target="_blank">
                         shared payment model
                     </a>.
             </p>
@@ -30,13 +32,17 @@
                             <input #referralCode type="text" class="form-control" id="referral-code" formControlName="referralCode">
                         </div>
                     </div>
+                    <!-- copy button -->
                     <button 
                     *ngIf="browser"
                     type="button"
-                    class=" btn btn-primary btn-round btn-fill pull-right"
+                    class=" btn btn-default btn-round btn-fill"
                     (click)="copyReferralCode(referralCode)">
                         Copy Link
                     </button>
+
+                    <!-- share button -->
+                    <app-social-media-share [id]="this.userId" [sharingType]="'service'" [sharingObject]="this.service"></app-social-media-share>
                 </div>
             </div>
 
@@ -49,7 +55,7 @@
                         target="_blank">
                             <button
                             type="button"
-                            class="btn btn-default btn-round">
+                            class="btn btn-default btn-round mt-3">
                                 <i class="fas fa-eye"></i> Preview Link Landing Page
                             </button>
                         </a>

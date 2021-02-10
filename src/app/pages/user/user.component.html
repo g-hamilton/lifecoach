@@ -941,14 +941,16 @@
                     <input #shareUrl type="text" class="form-control" id="share-url" formControlName="shareUrl">
                 </div>
               </div>
-              <button 
-              *ngIf="browser"
-              type="button"
-              class=" btn btn-primary btn-round btn-fill pull-right"
-              (click)="copyShareUrl(shareUrl)">
-                  Copy Link
-              </button>
-              <app-social-media-share [id]="this.userId"></app-social-media-share>
+              <div class=" pull-right">
+                <button 
+                *ngIf="browser"
+                type="button"
+                class=" btn btn-default btn-round btn-fill mr-3"
+                (click)="copyShareUrl(shareUrl)">
+                    Copy Link
+                </button>
+                <app-social-media-share [id]="this.userId" [sharingType]="'profile'" [sharingObject]="this.shareProfile"></app-social-media-share>
+              </div>
             </form>
           </div>
         </div>
@@ -1100,8 +1102,8 @@
                 <div class=" form-group">
                   <label> Public Display </label>
                   <p class=" small text-muted pl-2 mb-2">
-                    <i class="fas fa-info-circle"></i> Ensure this is switched on to make your profile public & discoverable to search 
-                    engines. Switch off if you need to temporarily hide your profile for any reason.
+                    <i class="fas fa-info-circle"></i> Ensure this is switched on to keep your profile public & discoverable to search 
+                    engines. Switch off if you need to temporarily disable your profile for any reason.
                   </p>
                   <bSwitch
                     [switch-on-color]="'danger'"

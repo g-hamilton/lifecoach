@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID, OnDestroy } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, OnDestroy, ViewChild } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 
@@ -9,11 +9,15 @@ import { AuthService } from 'app/services/auth.service';
 import { Subscription } from 'rxjs';
 import { CoachingService } from 'app/interfaces/coaching.service.interface';
 
+import { TabsetComponent } from 'ngx-bootstrap/tabs';
+
 @Component({
   selector: 'app-edit-coach-service',
   templateUrl: 'edit.coach.service.component.html'
 })
 export class EditCoachServiceComponent implements OnInit, OnDestroy {
+
+  @ViewChild('staticTabs', { static: false }) staticTabs: TabsetComponent;
 
   public browser: boolean;
   public activeRouteServiceId: string;
@@ -107,6 +111,15 @@ export class EditCoachServiceComponent implements OnInit, OnDestroy {
         })
       );
     }
+  }
+
+  selectTab(tabId: number) {
+    this.staticTabs.tabs[tabId].active = true;
+  }
+
+  onGoNextEvent(id: number) {
+    // console.log('onGoNextEvent:', id);
+    this.selectTab(id);
   }
 
   ngOnDestroy() {
