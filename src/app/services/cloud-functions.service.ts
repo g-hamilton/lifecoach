@@ -676,7 +676,7 @@ export class CloudFunctionsService {
       let toDownload = [];
       let userProfilesWithID = [];
       this.goNext = true;
-      let counter = 5;
+      let counter = 10;
       do {
         await this.resizeProfileAvatars(data);
         console.log('working');
@@ -755,7 +755,7 @@ export class CloudFunctionsService {
 
 
       // @ts-ignore
-      const userImages = allPhotos.map( i => Object.values(i.v.file).map( x => +x)); // in binary
+      const userImages = allPhotos.map( i => Object.values(i.v.file ? i.v.file : i.v.file )); // in binary
       const inBase64 = userImages.map( i => ('data:image/jpeg;base64,' + i));
       // console.log(userImages);
 
@@ -830,7 +830,7 @@ export class CloudFunctionsService {
       .doc(`profile${uid}`)
       .valueChanges() as Observable<any>;
   }
-
+ // token CiN1c2Vycy9LNzNwamNDaWV2Z1phaDhRczRLcUhMb2lHdkcyLw==
   async updateUserAccount(uid: string, partial: {}) {
     return this.db.collection(`users/${uid}/account`)
       .doc(`account${uid}`)

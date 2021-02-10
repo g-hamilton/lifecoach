@@ -54,7 +54,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   private subscriptions: Subscription = new Subscription();
 
-  private pageToken: string;
+  pageToken: string;
   public uniqUsers: Array<any>;
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
