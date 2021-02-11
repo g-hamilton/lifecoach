@@ -60,6 +60,7 @@
         <div class="">
             <div class=" container">
 
+                <!-- title & subtitle & duration & sessions -->
                 <div *ngIf="program" class=" row">
                     <div class=" col-md-6 ml-auto mr-auto text-center">
                         <h1 class=" title">{{ program.title }}</h1>
@@ -79,40 +80,39 @@
                             </h6>
                         </div>
                     </div>
-
-                    <!-- program promo video? -->
-                    <div *ngIf="program && program.promoVideo && program.promoVideo.downloadURL" class="">
-                        <div class=" row">
-                            <div class=" col-md-6 ml-auto mr-auto text-center">
-                                <vg-player>
-                                <vg-controls>
-                                    <vg-play-pause></vg-play-pause>
-                                    <vg-playback-button></vg-playback-button>
-                                
-                                    <vg-time-display vgProperty="current" vgFormat="mm:ss"></vg-time-display>
-                                
-                                    <vg-scrub-bar>
-                                        <vg-scrub-bar-current-time></vg-scrub-bar-current-time>
-                                        <vg-scrub-bar-buffering-time></vg-scrub-bar-buffering-time>
-                                    </vg-scrub-bar>
-                                
-                                    <vg-time-display vgProperty="total" vgFormat="mm:ss"></vg-time-display>
-                                
-                                    <vg-mute></vg-mute>
-                                    <vg-volume></vg-volume>
-                                
-                                    <vg-fullscreen></vg-fullscreen>
-                                </vg-controls>
-                                
-                                <video #media [vgMedia]="media" id="singleVideo" preload="auto">
-                                    <source [src]="program.promoVideo.downloadURL">
-                                </video>
-                                </vg-player>
-                            </div>
+                </div>
+                
+                <!-- promo video? -->
+                <div *ngIf="program && program.promoVideo && program.promoVideo.downloadURL" class="">
+                    <div class=" row">
+                        <div class=" col-md-6 ml-auto mr-auto text-center">
+                            <vg-player>
+                            <vg-controls>
+                                <vg-play-pause></vg-play-pause>
+                                <vg-playback-button></vg-playback-button>
+                            
+                                <vg-time-display vgProperty="current" vgFormat="mm:ss"></vg-time-display>
+                            
+                                <vg-scrub-bar>
+                                    <vg-scrub-bar-current-time></vg-scrub-bar-current-time>
+                                    <vg-scrub-bar-buffering-time></vg-scrub-bar-buffering-time>
+                                </vg-scrub-bar>
+                            
+                                <vg-time-display vgProperty="total" vgFormat="mm:ss"></vg-time-display>
+                            
+                                <vg-mute></vg-mute>
+                                <vg-volume></vg-volume>
+                            
+                                <vg-fullscreen></vg-fullscreen>
+                            </vg-controls>
+                            
+                            <video #media [vgMedia]="media" id="singleVideo" preload="auto">
+                                <source [src]="program.promoVideo.downloadURL">
+                            </video>
+                            </vg-player>
                         </div>
                     </div>
                 </div>
-                <!-- end of row -->
 
                 <!-- program description & info -->
                 <div *ngIf="program" class=" pricing-page row mt-5 pb-5">
