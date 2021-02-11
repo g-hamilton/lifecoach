@@ -9,6 +9,7 @@ import { TooltipModule } from 'ngx-bootstrap/tooltip';
 import { DashboardRoutes } from './dashboard.routing';
 
 import { DashboardComponent } from './dashboard.component';
+import {FormsModule} from '@angular/forms';
 
 @NgModule({
   imports: [
@@ -17,7 +18,8 @@ import { DashboardComponent } from './dashboard.component';
     BsDropdownModule.forRoot(),
     ComponentsModule,
     ProgressbarModule.forRoot(),
-    TooltipModule.forRoot()
+    TooltipModule.forRoot(),
+    FormsModule
   ],
   declarations: [DashboardComponent],
   exports: [DashboardComponent]
