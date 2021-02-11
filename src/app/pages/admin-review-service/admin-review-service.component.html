@@ -176,6 +176,16 @@
                             </div>
                         </ng-template>
 
+                        <hr>
+
+                        <!-- image option -->
+                        <div *ngIf="service?.imageOption" class=" mt-5">
+                            <h5 class=" card-title"> Image Option: </h5>
+                            <h6 class="text-muted">
+                            <i class="fas fa-comment"></i> {{ service.imageOption }}
+                            </h6>
+                        </div>
+
                         </div>
                     </div>
                     <!-- end card -->
