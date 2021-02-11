@@ -60,6 +60,48 @@
         <div class="">
             <div class=" container">
 
+                <!-- title & subtitle -->
+                <div *ngIf="service" class=" row">
+                    <div class=" col-md-6 ml-auto mr-auto text-center">
+                        <h1 class=" title">{{ service.title }}</h1>
+                        <h4>
+                            {{ service.subtitle }}
+                        </h4>
+                    </div>
+                </div>
+
+                <!-- promo video -->
+                <div *ngIf="service && service.promoVideo && service.promoVideo.downloadURL" class="">
+                    <div class=" row">
+                        <div class=" col-md-6 ml-auto mr-auto text-center">
+                            <vg-player>
+                            <vg-controls>
+                                <vg-play-pause></vg-play-pause>
+                                <vg-playback-button></vg-playback-button>
+                            
+                                <vg-time-display vgProperty="current" vgFormat="mm:ss"></vg-time-display>
+                            
+                                <vg-scrub-bar>
+                                    <vg-scrub-bar-current-time></vg-scrub-bar-current-time>
+                                    <vg-scrub-bar-buffering-time></vg-scrub-bar-buffering-time>
+                                </vg-scrub-bar>
+                            
+                                <vg-time-display vgProperty="total" vgFormat="mm:ss"></vg-time-display>
+                            
+                                <vg-mute></vg-mute>
+                                <vg-volume></vg-volume>
+                            
+                                <vg-fullscreen></vg-fullscreen>
+                            </vg-controls>
+                            
+                            <video #media [vgMedia]="media" id="singleVideo" preload="auto">
+                                <source [src]="service.promoVideo.downloadURL">
+                            </video>
+                            </vg-player>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- service description & info -->
                 <div *ngIf="service" class=" row pb-5">
                     <div class=" col-12">
