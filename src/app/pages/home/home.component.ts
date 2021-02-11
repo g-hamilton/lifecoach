@@ -56,7 +56,15 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.titleService.setTitle('Lifecoach | The Premier Personal Coaching & Transformation Platform');
-    this.metaTagService.updateTag({name: 'description', content: 'Find professional coaching for every area of life with Lifecoach.io'});
+    this.metaTagService.updateTag({name: 'description', content: `Get coached online by the world's best personal development & transformation coaches. Find your coach today!`});
+    this.metaTagService.updateTag({property: 'og:title', content: 'Lifecoach | The Premier Personal Coaching & Transformation Platform'});
+    this.metaTagService.updateTag({property: 'og:description', content: `Get coached online by the world's best personal development & transformation coaches. Find your coach today!`});
+    this.metaTagService.updateTag({property: 'og:type', content: 'website'});
+    this.metaTagService.updateTag({property: 'og:site_name', content: 'lifecoach.io'});
+    this.metaTagService.updateTag({property: 'og:image:url', content: 'https://lifecoach.io/assets/img/homepage/lifecoach-online-coaching-programs-coaches-courses.jpg'});
+    this.metaTagService.updateTag({property: 'og:image:width', content: '1063px'});
+    this.metaTagService.updateTag({property: 'og:image:height', content: '496px'});
+    this.metaTagService.updateTag({property: 'og:video', content: 'https://firebasestorage.googleapis.com/v0/b/lifecoach-6ab28.appspot.com/o/platform%2FLifecoach%20Hero%20Web%20Optimized.mp4_1611826950?alt=media&token=d3f48f25-4fa3-4dfc-bef8-c5d0bfc1b4d8'});
 
     // Register a page view if we're in the browser (not SSR)
     if (isPlatformBrowser(this.platformId)) {
