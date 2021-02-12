@@ -267,4 +267,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
       .catch( e => console.log(e));
 
   }
+  async resizeCoursesImage() {
+    try {
+      const resp = await this.cloudFunctions.courseImagesManager({token: this.pageToken});
+      console.log(resp);
+
+      // @ts-ignore
+      this.pageToken = resp.token;
+      // const uploadingPromises = resp.info()
+
+    } catch (e) {
+      console.log(e);
+    }
+  }
 }

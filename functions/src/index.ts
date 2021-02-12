@@ -4933,20 +4933,19 @@ exports.uploadCourseImage = functions
   .runWith({memory: '1GB', timeoutSeconds: 300})
   .https
   .onCall(async (data: any, context?) => { // uid: string, img: string
-
-    const uploadingPromises = [];
-
-
-    const bucketName = functions.config().bucket.name;
-    const generateRandomImgID = () => Math.random().toString(36).substr(2, 9);
-    const imgId = generateRandomImgID(); // imgId in cloud storage
-    const path = `users/${data.uid}/coursePics/${imgId}`; // test jpg but we can save it as original
-
-    const base64Text = data.img.split(';base64,').pop();
-    const imageBuffer = Buffer.from(base64Text, 'base64'); // original image buffer
-    const contentType = data.img.split(';base64,')[0].split(':')[1];
-
     try{
+      const uploadingPromises = [];
+
+      const bucketName = functions.config().bucket.name;
+      const generateRandomImgID = () => Math.random().toString(36).substr(2, 9);
+      const imgId = generateRandomImgID(); // imgId in cloud storage
+      const path = `users/${data.uid}/coursePics/${imgId}`; // test jpg but we can save it as original
+
+      const base64Text = data.img.split(';base64,').pop();
+      const imageBuffer = Buffer.from(base64Text, 'base64'); // original image buffer
+      const contentType = data.img.split(';base64,')[0].split(':')[1];
+
+
       const resizedBuffer = await sharp(imageBuffer).resize(991,null).toBuffer(); // Getting resizing image
       const webpBuffer = await sharp(imageBuffer).toFormat('webp').toBuffer(); // webp image
       const resizedWebpBuffer = await sharp(resizedBuffer).toFormat('webp').toBuffer(); // resized webp image
@@ -5026,8 +5025,10 @@ exports.uploadCourseImage = functions
           fullSize: await webpUrl
         }
       };
-      return await result;
+      return result;
     } catch (e) {
+      functions.logger.log('this url was broken', data.uid);
+      functions.logger.log('this img was broken', data.img)
       return {err: e.message};
     }
   });
@@ -5235,8 +5236,8 @@ exports.uploadProgramImage = functions
     }
   });
 
-  // service image uploading service
-  exports.uploadServiceImage = functions
+// service image uploading service
+exports.uploadServiceImage = functions
   .runWith({memory: '1GB', timeoutSeconds: 300})
   .https
   .onCall(async (data: any, context?) => { // uid: string, img: string
@@ -5383,6 +5384,130 @@ exports.getUserPhoto = functions
       const start = url.lastIndexOf(`/`) + 1;
       const end = url.lastIndexOf(`?`);
       const path = url.slice(start, end).replace(/%2F/g,'/');
+      const [file] = await admin.storage(firebase).bucket(bucketName).file(path).download();
+
+
+      const base64abc = [
+        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+        'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+        'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'
+      ];
+      function bytesToBase64(bytes:any) {
+        let result = '';
+        let i;
+        const l = bytes.length;
+        for (i = 2; i < l; i += 3) {
+          result += base64abc[bytes[i - 2] >> 2];
+          result += base64abc[((bytes[i - 2] & 0x03) << 4) | (bytes[i - 1] >> 4)];
+          result += base64abc[((bytes[i - 1] & 0x0F) << 2) | (bytes[i] >> 6)];
+          result += base64abc[bytes[i] & 0x3F];
+        }
+        if (i === l + 1) { // 1 octet yet to write
+          result += base64abc[bytes[i - 2] >> 2];
+          result += base64abc[(bytes[i - 2] & 0x03) << 4];
+          result += '==';
+        }
+        if (i === l) { // 2 octets yet to write
+          result += base64abc[bytes[i - 2] >> 2];
+          result += base64abc[((bytes[i - 2] & 0x03) << 4) | (bytes[i - 1] >> 4)];
+          result += base64abc[(bytes[i - 1] & 0x0F) << 2];
+          result += '=';
+        }
+        return result;
+      }
+
+      return {file:bytesToBase64(file)};
+    } catch (e) {
+      console.log(e);
+      return { err: e.message }
+    }
+  });
+
+
+exports.getCoursePhotos = functions
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
+  .onCall( async (data?: any, context?) =>{
+  try{
+      functions.logger.log(data);
+      let snapshot: any;
+      if (data.token) {
+        snapshot = await db.collection('public-courses')
+          .orderBy('courseId')
+          .startAfter(data.token)
+          .limit(5).get();
+      }  else {
+        snapshot = await db.collection('public-courses').limit(5).get();
+      }
+    // const lastDocument = snapshot.docs[snapshot.docs.length-1];
+    const coursesArray = snapshot.docs.map( (doc:any) => doc.data());
+
+    // https://firebasestorage.googleapis.com/v0/b/lifecoach-6ab28.appspot.com/
+    // o/users%2F14DrtN48vBXuqRlmhRJGCekp71w1%2FcoursePics%2Flhlnqvpdy?alt=media&token=0451fdea-76ad-4db9-9b2b-75d2faefb9ec
+
+    const getCoachID = (url:string) => {
+      functions.logger.log('URL in function', url);
+
+      const suburl = url.match(/users\%2F(.*)\%2FcoursePics/gi);
+      if (suburl !== null) {
+        return suburl[0].split('%2F')[1];
+      }else{
+        // @ts-ignore
+        return url.match(/users\/(.*)\/coursePics/gi)[0].split('/')[1];
+      }
+    }
+    const getImagePath = (url:string) => {
+
+      const imagePath = url.match(/users\%2F(.*)\%2FcoursePics\%2F(.*)\?/gi);
+      if( imagePath !== null) {
+        functions.logger.log('readyurl', imagePath[0].split('?')[0].replace(/%2F/g,'/'))
+        return imagePath[0].split('?')[0].replace(/%2F/g,'/');
+      } else {
+        // @ts-ignore
+        functions.logger.log('readyurl', url.match(/users\/(.*)\/coursePics\/(.*)/gi)[0])
+        // @ts-ignore
+        return url.match(/users\/(.*)\/coursePics\/(.*)/gi)[0];
+      }
+    }
+    const info = coursesArray.map((course:any) =>
+      ({courseId: course.courseId,
+        image: getImagePath(course.image),
+        coachId: getCoachID(course.image)}));
+
+
+    functions.logger.log(coursesArray);
+    functions.logger.log(coursesArray[coursesArray.length - 1]);
+    // const coursesObject = snapshot.docs.reduce(function (acc:{[key: string]: any}, doc, i) {
+    //   acc[doc.id] = doc.data();
+    //   return acc;
+    // }, {});
+    info.forEach( (i:any, index:number) =>{
+      if(i.image.lenth<3){
+        functions.logger.log(i);
+      }
+      functions.logger.log(`Item number ${index} is ${i.image.length ? 'not': ''} empty`);
+    })
+    return {
+      info,
+      token: coursesArray[coursesArray.length - 1].courseId
+    };
+
+
+  } catch (e) {
+    return {err: e.message};
+  }
+  })
+
+exports.getCoursePhoto = functions
+  .runWith({memory: '1GB', timeoutSeconds: 300})
+  .https
+  .onCall( async (data?:any, context?) => {
+    try {
+      const bucketName = functions.config().bucket.name;
+
+      const path = data.path ? data.path : '';
       const [file] = await admin.storage(firebase).bucket(bucketName).file(path).download();
 
 

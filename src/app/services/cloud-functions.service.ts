@@ -17,6 +17,8 @@ import { CancelCoachSessionRequest } from 'app/interfaces/cancel.coach.session.r
 import {AdminServiceReviewRequest} from '../interfaces/admin.service.review.interface';
 import {AngularFirestore} from '@angular/fire/firestore';
 import {Observable} from 'rxjs';
+import {CoachingCourse} from '../interfaces/course.interface';
+import {AnalyticsService} from './analytics.service';
 
 @Injectable({
   providedIn: 'root'
@@ -31,6 +33,7 @@ export class CloudFunctionsService {
     private cloudFunctions: AngularFireFunctions,
     private toastService: ToastService,
     private db: AngularFirestore,
+    private analyticsService: AnalyticsService
   ) {
   }
 
@@ -86,6 +89,20 @@ export class CloudFunctionsService {
     });
   }
 
+resizeCourseImage(data) {
+  return new Promise(resolve => {
+    const trigger = this.cloudFunctions.httpsCallable('getCoursePhotos');
+    const tempSub = trigger(data ? data : {}) // options
+      .pipe(first())
+      .subscribe(res => {
+        console.log(res);
+        resolve(res);
+        tempSub.unsubscribe();
+      }, error => {
+        console.log('Getting Error', error);
+      });
+  });
+}
 
   cloudSaveCoachProfile(profile: CoachProfile): Promise<boolean> {
     /*
@@ -830,6 +847,12 @@ export class CloudFunctionsService {
       .doc(`profile${uid}`)
       .valueChanges() as Observable<any>;
   }
+
+  getPrivateCourse(userId: string, courseId: string) {
+    // Returns a course document.
+    return this.db.collection(`users/${userId}/courses`)
+      .doc(courseId).get().pipe(take(1)).toPromise();
+  }
  // token CiN1c2Vycy9LNzNwamNDaWV2Z1phaDhRczRLcUhMb2lHdkcyLw==
   async updateUserAccount(uid: string, partial: {}) {
     return this.db.collection(`users/${uid}/account`)
@@ -839,4 +862,67 @@ export class CloudFunctionsService {
   }
 
   //
+  async courseImagesManager(data) {
+    this.nextPageToken = data.token ? data.token : '';
+    try {
+      console.log('------------------------------');
+
+      const resp = await this.resizeCourseImage(data);
+      console.log('Response', resp);
+      console.log('А вот тут произойдет ресайз');
+      // @ts-ignore
+      const photoPromises = resp.info.map( i => (new Promise(resolve => {
+        const trigger = this.cloudFunctions.httpsCallable('getCoursePhoto');
+        const tempSub = trigger({ path: i.image })
+          .pipe(first())
+          .subscribe(res => {
+            resolve(res);
+            tempSub.unsubscribe();
+          }, error => {
+            console.log(error);
+          });
+      })));
+      console.log('Starting loading photos...');
+      const photos = await Promise.all(photoPromises);
+      console.log('got all photos');
+      console.log('Resize started');
+      // @ts-ignore
+      const uploadPromises = resp.info.map( (i: any, index) => this.uploadCourseImage({uid: i.coachId, img: 'data:image/jpeg;base64,' + photos[index].file}));
+
+      const urls = await Promise.all(uploadPromises);
+      console.log('uploadeed new photos');
+
+      // @ts-ignore
+      const oldCoursesPromises = resp.info.map(i => this.getPrivateCourse(i.coachId, i.courseId));
+      const oldCoursesSnapshots = await Promise.all(oldCoursesPromises);
+      console.log('Got old courses');
+      const oldCourses = oldCoursesSnapshots.map((i: any) => i.data());
+
+      // @ts-ignore
+      const newCourses = oldCourses.map( (i: any, index: number ) => ({...i, image: urls[index].original.fullSize, imagePaths: urls[index]}));
+      console.log('Made new courses');
+      // @ts-ignore
+      const uploadCoursesPromises = newCourses.map( (i: any, index: number) => this.savePrivateCourse(resp.info[index].coachId, newCourses[index]));
+
+      const newCoursesUploaded = await Promise.all(uploadCoursesPromises);
+
+      // await this.dataService.savePrivateCourse(this.course.sellerUid, saveCourse); this.course.sellerUid = i.coachId, saveCourse =
+      console.log('Done', newCoursesUploaded);
+      console.log('------------------------------');
+      // @ts-ignore
+      return {token: resp.token};
+    } catch (e) {
+      return {err: e.meessage};
+    }
+  }
+  async savePrivateCourse(uid: string, course: CoachingCourse) {
+    // track
+    this.analyticsService.saveCourse();
+    // Saves a user's course to a document with matching id
+    console.log('SavePrivateCourse', course);
+    return this.db.collection(`users/${uid}/courses`)
+      .doc(course.courseId)
+      .set(course, {merge: true})
+      .catch(err => console.error(err));
+  }
 }
