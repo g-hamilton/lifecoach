@@ -120,7 +120,7 @@ const deployFunc = () =>{
                 const command = "firebase.cmd";
                 sync = spawnSync(command, functionsToDeploy ?
                     ["deploy","--only", functionsToDeploy.replace('firebase deploy --only ', '')]
-                    :["deploy","--only","functions"]);
+                    :["deploy","--only","functions"], {stdio:'pipe'});
             } else {
              sync = spawnSync(`${functionsToDeploy ? functionsToDeploy : 'firebase '}`, {stdio:'pipe'});
             }
