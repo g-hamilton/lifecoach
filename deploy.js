@@ -33,11 +33,13 @@ const gitUse = () =>{
         exec(`git checkout ${options.isProd ? 'master' : 'development'}`, (error, stdout, stderr) => {
             if (error) {
                 console.log(`error: ${error.message}`);
-                reject()
+                reject();
                 return;
             }
             if (stderr) {
-                stderr.includes('Already on') ? resolve():reject();
+                stderr.includes('Already on') ? resolve(): '';
+                stderr.includes('Switched to branch') ? resolve():reject();
+                console.log(stderr)
                 return;
             }
             console.log(`stdout: ${stdout}`);
@@ -120,12 +122,13 @@ const deployFunc = () =>{
                 const command = "firebase.cmd";
                 sync = spawnSync(command, functionsToDeploy ?
                     ["deploy","--only", functionsToDeploy.replace('firebase deploy --only ', '')]
-                    :["deploy","--only","functions"]);
+                    :["deploy","--only","functions"], {stdio:'pipe'});
             } else {
              sync = spawnSync(`${functionsToDeploy ? functionsToDeploy : 'firebase '}`, {stdio:'pipe'});
             }
             const result = sync.stdout.toString();
-
+            const test = sync.stderr.toString();
+            console.log('\n\n\n\n\nTEST\n\n\n\n\n', test)
             if( result.match(/firebase deploy --only "[\s\S]+?"+/gi) === null){
                 finished = true;
             } else {
@@ -182,6 +185,7 @@ const main = async () =>{
     } else {
         options = {...options, isProd: false, projectID: 'livecoach-dev'}
     }
+    console.log(options);
     try{
         await firebaseUse();
         console.log('Project selected');

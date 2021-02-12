@@ -6,7 +6,7 @@ case "$1" in
 esac
 if $PROD;
 then
-firebase use lifecoach-6ab28;
+firebase use lifecoach-6ab28 || exit;
 echo "Use dev environment...";
 git checkout master;
 echo "Checkout master";
