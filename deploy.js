@@ -125,7 +125,8 @@ const deployFunc = () =>{
              sync = spawnSync(`${functionsToDeploy ? functionsToDeploy : 'firebase '}`, {stdio:'pipe'});
             }
             const result = sync.stdout.toString();
-
+            const test = sync.stdout.toString();
+            console.log('\n\n\n\n\ntestTESTtest\n\n\n\n', test);
             if( result.match(/firebase deploy --only "[\s\S]+?"+/gi) === null){
                 finished = true;
             } else {
