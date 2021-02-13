@@ -132,17 +132,17 @@ const crypto = require('crypto');
 
 const listIdCoach = 'e76f517709';
 const listIdRegular = '69574927c8';
-const listIdPublisher = '7c802ca01f';
+const listIdPartner = '7c802ca01f';
 const listIdProvider = '512b33c527';
 
-function getMcListId(userType: 'regular' | 'coach' | 'publisher' | 'provider') {
+function getMcListId(userType: 'regular' | 'coach' | 'partner' | 'provider') {
   switch(userType) {
     case 'regular':
       return listIdRegular;
     case 'coach':
       return listIdCoach;
-    case 'publisher':
-      return listIdPublisher;
+    case 'partner':
+      return listIdPartner;
     case 'provider':
       return listIdProvider;
     default:
@@ -150,7 +150,7 @@ function getMcListId(userType: 'regular' | 'coach' | 'publisher' | 'provider') {
   }
 }
 
-function addUserToMailchimp(email: string, firstName: string, lastName: string, type: 'regular' | 'coach' | 'publisher' | 'provider') {
+function addUserToMailchimp(email: string, firstName: string, lastName: string, type: 'regular' | 'coach' | 'partner' | 'provider') {
 
   // Assign the correct Mailchimp list (audience) ID
   const listID = getMcListId(type);
@@ -174,7 +174,7 @@ function addUserToMailchimp(email: string, firstName: string, lastName: string, 
   });
 }
 
-function patchMailchimpUserEmail(accountType: 'regular' | 'coach' | 'publisher' | 'provider', oldEmail: string, newEmail: string) {
+function patchMailchimpUserEmail(accountType: 'regular' | 'coach' | 'partner' | 'provider', oldEmail: string, newEmail: string) {
 
   // Which list is the member subscribed to?
   const listId = getMcListId(accountType);
@@ -193,7 +193,7 @@ function patchMailchimpUserEmail(accountType: 'regular' | 'coach' | 'publisher' 
   });
 }
 
-function patchMailchimpUserName(accountType: 'regular' | 'coach' | 'publisher' | 'provider', email: string, firstName: string, lastName: string) {
+function patchMailchimpUserName(accountType: 'regular' | 'coach' | 'partner' | 'provider', email: string, firstName: string, lastName: string) {
   // Which list is the member subscribed to?
   const listId = getMcListId(accountType);
 
@@ -214,7 +214,7 @@ function patchMailchimpUserName(accountType: 'regular' | 'coach' | 'publisher' |
   });
 }
 
-function archiveMailchimpUser(accountType: 'regular' | 'coach' | 'publisher' | 'provider', email: string) {
+function archiveMailchimpUser(accountType: 'regular' | 'coach' | 'partner' | 'provider', email: string) {
   // Which list is the member subscribed to?
   const listId = getMcListId(accountType);
 
@@ -376,7 +376,7 @@ async function removeCustomUserClaims(uid: string, claims: any) {
   }
 }
 
-async function createUserNode(uid: string, email: string, type: 'regular' | 'coach' | 'publisher' | 'provider' | 'admin',
+async function createUserNode(uid: string, email: string, type: 'regular' | 'coach' | 'partner' | 'provider' | 'admin',
 firstName: string | null, lastName: string | null) {
 
   // Initialise account data
@@ -436,9 +436,9 @@ firstName: string | null, lastName: string | null) {
     })
     .catch(err => console.error(err));
 
-  } else if (type === 'publisher') { // publisher account
+  } else if (type === 'partner') { // partner account
 
-    // Default tasks for publishers
+    // Default tasks for partners
     const ref1 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault004');
     batch.set(ref1, {
       id: 'taskDefault004',

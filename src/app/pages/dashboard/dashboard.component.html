@@ -186,8 +186,8 @@
   </div>
 </div>
 
-<!-- PUBLISHER USERS -->
-<div *ngIf="userType === 'publisher'" class=" content">
+<!-- PROMOTIONAL PARTNER USERS -->
+<div *ngIf="userType === 'partner'" class=" content">
   <div class=" row">
     <div class=" col-lg-4">
       <div class=" card card-tasks">
@@ -359,7 +359,7 @@
         </div>
       </div>
     </div>
-    <!-- Total Publishers -->
+    <!-- Total Promotional Partners -->
     <div class=" col-lg-3 col-md-4">
       <div class=" card card-stats">
         <div class=" card-body">
@@ -372,10 +372,10 @@
             <div class=" col-7">
               <div class=" numbers">
                 <p class=" card-category">
-                  Publishers
+                  Partners
                 </p>
                 <h3 class="card-title">
-                  {{ adminCountPublisherUsers ? adminCountPublisherUsers : '0' }}
+                  {{ adminCountPartnerUsers ? adminCountPartnerUsers : '0' }}
                 </h3>
               </div>
             </div>
@@ -384,7 +384,7 @@
         <div class=" card-footer">
           <hr>
           <div class=" stats">
-            <i class=" tim-icons icon-alert-circle-exc"></i> Total Publishers
+            <i class=" tim-icons icon-alert-circle-exc"></i> Total Promotional Partners
           </div>
         </div>
       </div>
