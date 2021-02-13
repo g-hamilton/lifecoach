@@ -1,5 +1,5 @@
 #partner-jumbotron {
-    background: url('../../../assets/img/lifecoach-coaching-partners.png') no-repeat bottom center / cover;
+    background: linear-gradient(rgba(0,0,0,.5), rgba(0,0,0,.6)), url('../../../assets/img/lifecoach-coaching-partners.png') no-repeat bottom center / cover;
 
     .container {
         padding-top: 190px;
@@ -11,40 +11,47 @@
     padding-bottom: 100px;
 }
 
-#section-one {
-    .container {
-        padding-top: 10vh;
-        padding-bottom: 10vh;
-    }
+#section-banner {
+    padding: 2vh 0 0 0;
 }
 
-#section-two {
-    background-color: #161515;
-    .container {
-        padding-top: 10vh;
-        padding-bottom: 10vh;
-    }
+.scroll-fix{
+    margin-right:0;
+    padding-right: 0;
 }
 
-#section-four {
-    .container {
-        padding-top: 10vh;
-        padding-bottom: 10vh;
+.main-banner {
+    background: url('/assets/img/homepage/lifecoach-online-coaching-programs-coaches-courses.jpg') no-repeat center/contain;
+    width:100%;
+    min-height: 47vw;
+    border-radius: .2857rem;
+    text-align: center!important;
+    @media screen and (max-width: 992px) {
+        background: url('/assets/img/homepage/lifecoach-online-coaching-programs-coaches-courses-80.jpg') no-repeat bottom center / contain;
+    }
+    @media screen and (max-width: 768px) {
+        background: url('/assets/img/homepage/lifecoach-online-coaching-programs-coaches-courses-50.jpg') no-repeat bottom center / contain;
+    }
+    @media screen and (max-width: 575px) {
+        background: url('/assets/img/homepage/lifecoach-online-coaching-programs-coaches-courses-30.jpg') no-repeat bottom center / contain;
+    }
+    @media screen and (max-width: 380px) {
+        background: url('/assets/img/homepage/lifecoach-online-coaching-programs-coaches-courses-15.jpg') no-repeat center/contain;
     }
 }
-
-#section-five {
-    background-color: #161515;
-    .container {
-        padding-top: 10vh;
-        padding-bottom: 10vh;
+:host-context(.webp) .main-banner {
+    background: url('/assets/img/homepage/lifecoach-online-coaching-programs-coaches-courses.webp') no-repeat center/contain;
+    @media screen and (max-width: 992px) {
+        background: url('/assets/img/homepage/lifecoach-online-coaching-programs-coaches-courses-80.webp') no-repeat bottom center / contain;
     }
-}
+    @media screen and (max-width: 768px) {
+        background: url('/assets/img/homepage/lifecoach-online-coaching-programs-coaches-courses-50.webp') no-repeat bottom center / contain;
+    }
+    @media screen and (max-width: 575px) {
+        background: url('/assets/img/homepage/lifecoach-online-coaching-programs-coaches-courses-30.webp') no-repeat bottom center / contain;
+    }
+    @media screen and (max-width: 380px) {
+        background: url('/assets/img/homepage/lifecoach-online-coaching-programs-coaches-courses-15.webp') no-repeat center/contain;
 
-#section-six {
-    padding-bottom: 0;
-    .container {
-        padding-top: 10vh;
-        padding-bottom: 20vh;
     }
 }
