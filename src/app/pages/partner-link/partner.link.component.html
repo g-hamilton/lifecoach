@@ -10,7 +10,26 @@
                         <h3 class=" card-title"> Earn Commission By Promoting Lifecoach </h3>
                     </div>
                     <div class=" card-body">
-                        <p>body</p>
+                        <form [formGroup]="partnerForm">
+                            <div class="">
+                              <div class="form-group">
+                                  <label for="tracking-code">
+                                      Your unique tracking link:
+                                  </label>
+                                  <input #trackingCode type="text" class="form-control" id="tracking-code" formControlName="trackingCode">
+                              </div>
+                            </div>
+                            <div class=" pull-right">
+                              <button 
+                              *ngIf="browser"
+                              type="button"
+                              class=" btn btn-default btn-round btn-fill mr-3"
+                              (click)="copyTrackingCode(trackingCode)">
+                                  Copy Code
+                              </button>
+                              <!-- <app-social-media-share [id]="this.userId" [sharingType]="'profile'" [sharingObject]="this.shareProfile"></app-social-media-share> -->
+                            </div>
+                          </form>
                     </div>
                 </div>
             </div>
