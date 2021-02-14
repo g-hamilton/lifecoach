@@ -12,7 +12,11 @@
                     <div class=" card-body">
 
                         <p>
-                            body
+                            There are many ways to promote the Lifecoach platform in a way that 
+                            rewards you for getting the word out to your audience. 
+                            Generate your own links to send people to a specific page 
+                            of your choosing, or share our ready-made links that take 
+                            people to our most popular pages.
                         </p>
 
                     </div>
@@ -25,7 +29,7 @@
             <div class=" col">
                 <div class=" card">
                     <div class=" card-header">
-                        <h3 class=" card-title"> Build Your Own Links </h3>
+                        <h4 class=" card-title"> Method 1: Build Your Own Links </h4>
                     </div>
                     <div class=" card-body">
                         <div class=" row mt-4 pb-4">
@@ -132,7 +136,10 @@
                                 <p>
                                     It doesn't matter where your audience go after 
                                     visiting your initial link, we will attempt to track them over single 
-                                    or multiple visits & credit you with any successful sale.
+                                    or multiple visits & credit you with any successful sale. 
+                                    Why not share our link(s) on your website, emails, newsletters, 
+                                    social media & blog posts. Every share is an opportunity to transform 
+                                    lives & boost your earnings!
                                 </p>
                             </div>
                         </div>
@@ -144,21 +151,33 @@
 
         <div class=" row">
             <div class=" col">
+                <h4> Method 2: Share Our Ready Made Links </h4>
+                <p>
+                    Get the links below to share them anywhere you like, or click share to 
+                    share them on social media with 1 click.
+                </p>
+            </div>
+        </div>
+        <!-- end row -->
+
+        <!-- row -->
+        <div class=" row mt-4">
+            <div class=" col-md-4">
                 <div class=" card">
-                    <div class=" card-header">
-                        <h3 class=" card-title"> Share These Ready Made Links </h3>
-                    </div>
+                    <img class=" card-img-top" [src]="shareObjectHome.image" alt="Share the Lifecoach home page" />
                     <div class=" card-body">
-
-                        <div class=" row">
-                            <div class=" col-md-4">
-                                <p>
-                                    home page
-                                </p>
-                                <app-social-media-share [id]="userId" [sharingType]="'partner-link'" [sharingObject]="shareObjectHome"></app-social-media-share>
-                            </div>
-                        </div>
-
+                      <h4 class=" card-title">{{ shareObjectHome.title }}</h4>
+                      <p class=" card-text">
+                          <i class=" tim-icons icon-link-72"></i> 
+                          Send your audience to the Lifecoach home page with this link:</p>
+                      <p>
+                        <a [href]="'lifecoach.io' + partnerF.trackingCode.value" target="_blank">
+                            lifecoach.io{{ partnerF.trackingCode.value }}
+                        </a>
+                      </p>
+                      <div class=" mt-3">
+                        <app-social-media-share [id]="userId" [sharingType]="'partner-link'" [sharingObject]="shareObjectHome"></app-social-media-share>
+                      </div>
                     </div>
                 </div>
             </div>
