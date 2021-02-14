@@ -45,6 +45,10 @@ export class PartnerLinkComponent implements OnInit, OnDestroy {
     });
   }
 
+  get partnerF() {
+    return this.partnerForm.controls;
+  }
+
   getUserData() {
     this.subscriptions.add(
       this.authService.getAuthUser().subscribe(user => {

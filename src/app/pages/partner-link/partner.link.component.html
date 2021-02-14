@@ -10,30 +10,174 @@
                         <h3 class=" card-title"> Earn Commission By Promoting Lifecoach </h3>
                     </div>
                     <div class=" card-body">
-                        <form [formGroup]="partnerForm">
-                            <div class="">
-                              <div class="form-group">
-                                  <label for="tracking-code">
-                                      Your unique tracking link:
-                                  </label>
-                                  <input #trackingCode type="text" class="form-control" id="tracking-code" formControlName="trackingCode">
-                              </div>
-                            </div>
-                            <div class=" pull-right">
-                              <button 
-                              *ngIf="browser"
-                              type="button"
-                              class=" btn btn-default btn-round btn-fill mr-3"
-                              (click)="copyTrackingCode(trackingCode)">
-                                  Copy Code
-                              </button>
-                              <!-- <app-social-media-share [id]="this.userId" [sharingType]="'profile'" [sharingObject]="this.shareProfile"></app-social-media-share> -->
-                            </div>
-                          </form>
+
+                        <p>
+                            body
+                        </p>
+
                     </div>
                 </div>
             </div>
         </div>
+        <!-- end row -->
+
+        <div class=" row">
+            <div class=" col">
+                <div class=" card">
+                    <div class=" card-header">
+                        <h3 class=" card-title"> Build Your Own Links </h3>
+                    </div>
+                    <div class=" card-body">
+                        <div class=" row mt-4">
+                            <div class=" col-md-4">
+                                <h5 class=" text-success">
+                                    Step 1:
+                                </h5>
+                                <h6>
+                                    Prepare a link to Lifecoach
+                                </h6>
+                                <p>
+                                    Prepare to share any Lifecoach link. You can choose to link 
+                                    to any page on Lifecoach, including our home page, individual 
+                                    coach pages, search pages or product & service pages.
+                                </p>
+                                <h5 class=" mt-4">
+                                    Notes:
+                                </h5>
+                                <p>
+                                    Be sure that your chosen link includes the lifecoach.io domain. 
+                                    For example:
+                                    <span class=" text-success">
+                                        https://lifecoach.io
+                                    </span> or 
+                                    <span class=" text-success">
+                                        https://lifecoach.io/programs
+                                    </span> 
+                                    can both be shared.
+                                </p>
+                            </div>
+                            <div class=" col-md-4">
+                                <h5 class=" text-success">
+                                    Step 2:
+                                </h5>
+                                <h6>
+                                    Add your code
+                                </h6>
+                                <p>
+                                    Add your unique tracking code to the end of your chosen link.
+                                </p>
+                                <!-- unique tracking link -->
+                                <div class=" row mt-5">
+                                    <div class=" col">
+                                        <div>
+                                            <!-- form -->
+                                            <form [formGroup]="partnerForm">
+                                                <div class="">
+                                                    <div class="form-group">
+                                                        <label for="tracking-code">
+                                                            Your unique tracking code:
+                                                        </label>
+                                                        <input #trackingCode type="text" class="form-control" id="tracking-code" formControlName="trackingCode">
+                                                    </div>
+                                                </div>
+                                                <div class="">
+                                                    <button 
+                                                    *ngIf="browser"
+                                                    type="button"
+                                                    class=" btn btn-default btn-round btn-fill mr-3"
+                                                    (click)="copyTrackingCode(trackingCode)">
+                                                        Copy Code
+                                                    </button>
+                                                    <!-- <app-social-media-share [id]="this.userId" [sharingType]="'profile'" [sharingObject]="this.shareProfile"></app-social-media-share> -->
+                                                </div>
+                                            </form>
+                                            <!-- end form -->
+                                        </div>
+
+                                        <h5 class=" mt-4">
+                                            Notes:
+                                        </h5>
+                                        <p>
+                                            For example, if you want to send your audience to the page 
+                                            <span class=" text-success">
+                                                lifecoach.io/programs
+                                            </span>
+                                            and your unique tracking code is 
+                                            <span class=" text-success">
+                                                {{ partnerF.trackingCode.value }}
+                                            </span>
+                                            , you would share the 
+                                            following full link: 
+                                            <span class=" text-success">
+                                                lifecoach.io/programs{{ partnerF.trackingCode.value }}
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <!-- end tracking link -->
+                            </div>
+                            <div class=" col-md-4">
+                                <h5 class=" text-success">
+                                    Step 3:
+                                </h5>
+                                <h6>
+                                    Share anywhere
+                                </h6>
+                                <p>
+                                    Share your full link anywhere.
+                                </p>
+                                <h5 class=" mt-4">
+                                    Notes:
+                                </h5>
+                                <p>
+                                    It doesn't matter where your audience go after 
+                                    visiting your initial link, we will attempt to track them over single 
+                                    or multiple visits & credit you with any successful sale.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- end row -->
+
+        <div class=" row">
+            <div class=" col">
+                <div class=" card">
+                    <div class=" card-header">
+                        <h3 class=" card-title"> Share These Ready Made Links </h3>
+                    </div>
+                    <div class=" card-body">
+
+                        <p>
+                            body
+                        </p>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- end row -->
+
+        <div class=" row">
+            <div class=" col">
+                <div class=" card">
+                    <div class=" card-header">
+                        <h3 class=" card-title"> Share Via Your Social Channels </h3>
+                    </div>
+                    <div class=" card-body">
+
+                        <p>
+                            body
+                        </p>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- end row -->
+
     </div>
 
     <!-- template if payouts not enabled -->
