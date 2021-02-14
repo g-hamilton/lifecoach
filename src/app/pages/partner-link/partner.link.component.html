@@ -1,5 +1,13 @@
 <div class=" content">
-    <p>
-        Works!
-    </p>
+    
+    <!-- template if user has enabled payouts -->
+    <div *ngIf="account?.stripeUid ; else noPayout">
+        <p>payouts enabled!</p>
+    </div>
+
+    <!-- template if payouts not enabled -->
+    <ng-template #noPayout>
+        <p>no payouts!</p>
+    </ng-template>
+
 </div>
