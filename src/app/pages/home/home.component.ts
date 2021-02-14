@@ -11,7 +11,6 @@ import { DataService } from 'app/services/data.service';
 import { Subscription } from 'rxjs';
 
 import { VgAPI } from 'videogular2/compiled/core';
-import { PartnerTrackingService } from 'app/services/partner-tracking.service';
 
 @Component({
   selector: 'app-home',
@@ -51,8 +50,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     private metaTagService: Meta,
     private transferState: TransferState,
     private searchService: SearchService,
-    private dataService: DataService,
-    private partnerTrackingService: PartnerTrackingService
+    private dataService: DataService
   ) {
   }
 
@@ -72,7 +70,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (isPlatformBrowser(this.platformId)) {
       this.browser = true;
       this.analyticsService.pageView();
-      this.partnerTrackingService.checkAndSavePartnerTrackingCode();
       // this.checkSavedClientCurrencyAndCountry();
     }
 
@@ -84,7 +81,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   onPlayerReady(api: VgAPI) {
     // fires when the videoGular player is ready
-    console.log('onPlayerReady');
+    // console.log('onPlayerReady');
 
     this.vgApi = api;
 

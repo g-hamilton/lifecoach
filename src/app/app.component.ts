@@ -4,7 +4,8 @@ import {AuthService} from './services/auth.service';
 import {AnalyticsService} from './services/analytics.service';
 import { Platform } from '@angular/cdk/platform';
 import {REQUEST} from '@nguniversal/express-engine/tokens';
-import {DOCUMENT} from '@angular/common';
+import {DOCUMENT, isPlatformBrowser} from '@angular/common';
+import { PartnerTrackingService } from './services/partner-tracking.service';
 
 @Component({
   selector: 'app-root',
@@ -16,8 +17,10 @@ export class AppComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private analytics: AnalyticsService,
+    private partnerTrackingService: PartnerTrackingService,
     @Optional()@Inject(REQUEST) private request: Request,
-    @Optional()@Inject(DOCUMENT) private document, private r: Renderer2
+    @Optional()@Inject(DOCUMENT) private document, private r: Renderer2,
+    @Optional()@Inject(PLATFORM_ID) private platformId: object
   ) {
     // Initialise analytics
     this.analytics.init();
@@ -48,6 +51,11 @@ export class AppComponent implements OnInit {
       }
     } else {
       console.log('CSR');
+    }
+
+    // app wide check for promotional partner referral if we're in the browser
+    if (isPlatformBrowser(this.platformId)) {
+      this.partnerTrackingService.checkAndSavePartnerTrackingCode();
     }
   }
 }
