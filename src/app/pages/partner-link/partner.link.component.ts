@@ -16,10 +16,17 @@ import { AlertService } from 'app/services/alert.service';
 export class PartnerLinkComponent implements OnInit, OnDestroy {
 
   public browser: boolean;
-  private userId: string;
+  public userId: string;
   public account: UserAccount;
   public partnerForm: FormGroup;
   private subscriptions: Subscription = new Subscription();
+
+  public shareObjectHome = {
+    title: `Lifecoach | The Premier Personal Coaching & Transformation Platform`,
+    subtitle: `Get coached online by the world's best personal development & transformation coaches. Find your coach today!`,
+    image: `https://lifecoach.io/assets/img/homepage/lifecoach-online-coaching-programs-coaches-courses.jpg`,
+    url: `` // deliberately empty string
+  };
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
@@ -56,6 +63,7 @@ export class PartnerLinkComponent implements OnInit, OnDestroy {
           this.userId = user.uid;
           this.checkPayoutsEnabled();
           this.updatePartnerForm();
+          this.updateShareUrls();
         }
       })
     );
@@ -65,6 +73,10 @@ export class PartnerLinkComponent implements OnInit, OnDestroy {
     this.partnerForm.patchValue({
       trackingCode: `?partner=${this.userId}`
     });
+  }
+
+  updateShareUrls() {
+      this.shareObjectHome.url = this.shareObjectHome.url.concat(`?partner=${this.userId}`);
   }
 
   checkPayoutsEnabled() {

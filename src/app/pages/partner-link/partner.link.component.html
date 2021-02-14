@@ -28,7 +28,7 @@
                         <h3 class=" card-title"> Build Your Own Links </h3>
                     </div>
                     <div class=" card-body">
-                        <div class=" row mt-4">
+                        <div class=" row mt-4 pb-4">
                             <div class=" col-md-4">
                                 <h5 class=" text-success">
                                     Step 1:
@@ -41,18 +41,19 @@
                                     to any page on Lifecoach, including our home page, individual 
                                     coach pages, search pages or product & service pages.
                                 </p>
-                                <h5 class=" mt-4">
+                                <h5 class=" mt-4 text-muted">
                                     Notes:
                                 </h5>
                                 <p>
                                     Be sure that your chosen link includes the lifecoach.io domain. 
                                     For example:
-                                    <span class=" text-success">
+                                    <a href="https://lifecoach.io" target="_blank">
                                         https://lifecoach.io
-                                    </span> or 
-                                    <span class=" text-success">
+                                    </a>
+                                    or 
+                                    <a href="https://lifecoach.io/programs" target="_blank">
                                         https://lifecoach.io/programs
-                                    </span> 
+                                    </a>
                                     can both be shared.
                                 </p>
                             </div>
@@ -88,29 +89,28 @@
                                                     (click)="copyTrackingCode(trackingCode)">
                                                         Copy Code
                                                     </button>
-                                                    <!-- <app-social-media-share [id]="this.userId" [sharingType]="'profile'" [sharingObject]="this.shareProfile"></app-social-media-share> -->
                                                 </div>
                                             </form>
                                             <!-- end form -->
                                         </div>
 
-                                        <h5 class=" mt-4">
+                                        <h5 class=" mt-4 text-muted">
                                             Notes:
                                         </h5>
                                         <p>
                                             For example, if you want to send your audience to the page 
-                                            <span class=" text-success">
+                                            <a href="lifecoach.io/programs" target="_blank">
                                                 lifecoach.io/programs
-                                            </span>
+                                            </a>
                                             and your unique tracking code is 
                                             <span class=" text-success">
                                                 {{ partnerF.trackingCode.value }}
                                             </span>
                                             , you would share the 
                                             following full link: 
-                                            <span class=" text-success">
+                                            <a [href]="'lifecoach.io/programs' + partnerF.trackingCode.value" target="_blank">
                                                 lifecoach.io/programs{{ partnerF.trackingCode.value }}
-                                            </span>
+                                            </a>
                                         </p>
                                     </div>
                                 </div>
@@ -126,7 +126,7 @@
                                 <p>
                                     Share your full link anywhere.
                                 </p>
-                                <h5 class=" mt-4">
+                                <h5 class=" mt-4 text-muted">
                                     Notes:
                                 </h5>
                                 <p>
@@ -150,27 +150,14 @@
                     </div>
                     <div class=" card-body">
 
-                        <p>
-                            body
-                        </p>
-
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- end row -->
-
-        <div class=" row">
-            <div class=" col">
-                <div class=" card">
-                    <div class=" card-header">
-                        <h3 class=" card-title"> Share Via Your Social Channels </h3>
-                    </div>
-                    <div class=" card-body">
-
-                        <p>
-                            body
-                        </p>
+                        <div class=" row">
+                            <div class=" col-md-4">
+                                <p>
+                                    home page
+                                </p>
+                                <app-social-media-share [id]="userId" [sharingType]="'partner-link'" [sharingObject]="shareObjectHome"></app-social-media-share>
+                            </div>
+                        </div>
 
                     </div>
                 </div>
