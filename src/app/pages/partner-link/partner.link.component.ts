@@ -84,7 +84,7 @@ export class PartnerLinkComponent implements OnInit, OnDestroy {
         this.dataService.getUserAccount(this.userId).subscribe(userAccount => {
             if (userAccount) {
                 this.account = userAccount;
-                console.log('User Account:', this.account);
+                // console.log('User Account:', this.account);
             }
           }
         )

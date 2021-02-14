@@ -11,6 +11,7 @@ import { DataService } from 'app/services/data.service';
 import { Subscription } from 'rxjs';
 
 import { VgAPI } from 'videogular2/compiled/core';
+import { PartnerTrackingService } from 'app/services/partner-tracking.service';
 
 @Component({
   selector: 'app-home',
@@ -50,7 +51,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     private metaTagService: Meta,
     private transferState: TransferState,
     private searchService: SearchService,
-    private dataService: DataService
+    private dataService: DataService,
+    private partnerTrackingService: PartnerTrackingService
   ) {
   }
 
@@ -70,6 +72,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (isPlatformBrowser(this.platformId)) {
       this.browser = true;
       this.analyticsService.pageView();
+      this.partnerTrackingService.checkAndSavePartnerTrackingCode();
       // this.checkSavedClientCurrencyAndCountry();
     }
 
@@ -88,17 +91,17 @@ export class HomeComponent implements OnInit, OnDestroy {
     // listen for the data loaded event
 
     this.vgApi.getDefaultMedia().subscriptions.loadedData.subscribe($event => {
-      console.log('Video loaded data', $event);
+      // console.log('Video loaded data', $event);
     });
 
     this.vgApi.getDefaultMedia().subscriptions.canPlay.subscribe($event => {
-      console.log('Video can play', $event);
+      // console.log('Video can play', $event);
       this.vgApi.play();
     });
 
     // listen for the video ended event
     this.vgApi.getDefaultMedia().subscriptions.ended.subscribe($event => {
-      console.log('Video ended:', $event);
+      // console.log('Video ended:', $event);
     });
     // end video ended event listener
   }
