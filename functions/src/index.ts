@@ -447,6 +447,14 @@ firstName: string | null, lastName: string | null) {
       action: 'account'
     });
 
+    const ref2 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault005');
+    batch.set(ref2, {
+      id: 'taskDefault005',
+      title: 'Test your unique link',
+      description: 'Test your unique link to ensure you can earn commission on all referrals to Lifecoach.',
+      action: 'partner-link'
+    });
+
     return batch.commit() // execute batch ops
     .catch(err => console.error(err));
 
