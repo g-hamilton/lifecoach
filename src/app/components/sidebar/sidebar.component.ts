@@ -174,6 +174,14 @@ export const ROUTES: RouteInfo[] = [
     ]
   },
   {
+    path: '/partner-link',
+    title: 'My Tracking Link',
+    rtlTitle: 'التقويم',
+    type: 'link',
+    icontype: 'tim-icons icon-link-72',
+    userTypes: ['partner']
+  },
+  {
     path: '/account',
     title: 'My Account',
     rtlTitle: 'التقويم',

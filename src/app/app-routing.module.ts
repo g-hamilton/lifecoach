@@ -333,6 +333,11 @@ const routes: Routes = [
         path: 'admin-more/uploader',
         loadChildren: () => import('./pages/admin-uploader/admin.uploader.module').then(m => m.AdminUploaderModule),
         canActivate: [AdminAuthGuard]
+      },
+      {
+        path: 'partner-link',
+        loadChildren: () => import('./pages/partner-link/partner.link.module').then(m => m.PartnerLinkModule),
+        pathMatch: 'full'
       }
     ],
     canActivate: [AuthGuard]
