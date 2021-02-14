@@ -189,7 +189,7 @@
 <!-- PROMOTIONAL PARTNER USERS -->
 <div *ngIf="userType === 'partner'" class=" content">
   <div class=" row">
-    <div class=" col-lg-4">
+    <div class=" col-lg-6">
       <div class=" card card-tasks">
         <div class=" card-header">
           <h4 class=" card-title"> My Todos
@@ -251,6 +251,27 @@
         </div>
       </div>
     </div>
+
+    <!-- Vote Features -->
+    <div class=" col-lg-6">
+      <div class=" card">
+        <div class=" card-header">
+          <h4 class=" card-title"> Have Your Say! </h4>
+          <p class=" card-category"> What's next for Lifecoach? </p>
+        </div>
+        <div class=" card-body">
+          <p>
+            Looking for a new feature? Need an improvement? Got an idea how to make Lifecoach work better for you? Suggest a feature or add your vote to an existing idea and help to make Lifecoach better for everyone - we're always listening!
+          </p>
+          <p class=" mt-3">
+            <a class=" btn btn-round btn-primary" [href]="feedbackUrl" target="_blank">
+              <i class="fas fa-lightbulb"></i> Have Your Say
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
