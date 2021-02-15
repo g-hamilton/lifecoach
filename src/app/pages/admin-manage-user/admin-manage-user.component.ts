@@ -21,8 +21,8 @@ export class AdminManageUserComponent implements OnInit, OnDestroy {
   public browser: boolean;
   public targetUserUid: string;
   public account: UserAccount;
-  public accountType: 'regular' | 'coach' | 'publisher' | 'provider' | 'admin';
-  public newAccountType: 'regular' | 'coach' | 'publisher' | 'provider' | 'admin'; // for admin update of type
+  public accountType: 'regular' | 'coach' | 'partner' | 'provider' | 'admin';
+  public newAccountType: 'regular' | 'coach' | 'partner' | 'provider' | 'admin'; // for admin update of type
   public purchasedCourses = [] as CoachingCourse[]; // purchased courses as buyer
   public courses: CoachingCourse[]; // courses created as coach seller
   private subscriptions: Subscription = new Subscription();

@@ -40,7 +40,7 @@ export const ROUTES: RouteInfo[] = [
     type: 'link',
     icontype: 'tim-icons icon-chart-pie-36',
     rtlTitle: 'لوحة القيادة',
-    userTypes: ['regular', 'coach', 'publisher', 'provider', 'admin']
+    userTypes: ['regular', 'coach', 'partner', 'provider', 'admin']
   },
   {
     path: '/people',
@@ -174,12 +174,20 @@ export const ROUTES: RouteInfo[] = [
     ]
   },
   {
+    path: '/partner-link',
+    title: 'My Tracking Link',
+    rtlTitle: 'التقويم',
+    type: 'link',
+    icontype: 'tim-icons icon-link-72',
+    userTypes: ['partner']
+  },
+  {
     path: '/account',
     title: 'My Account',
     rtlTitle: 'التقويم',
     type: 'link',
     icontype: 'tim-icons icon-lock-circle',
-    userTypes: ['regular', 'coach', 'publisher', 'provider', 'admin']
+    userTypes: ['regular', 'coach', 'partner', 'provider', 'admin']
   },
   {
     path: '/admin-more',
@@ -235,8 +243,8 @@ export class SidebarComponent implements OnInit, OnChanges {
         userType = 'coach';
       } else if (this.userClaims.admin) {
         userType = 'admin';
-      } else if (this.userClaims.publisher) {
-        userType = 'publisher';
+      } else if (this.userClaims.partner) {
+        userType = 'partner';
       } else if (this.userClaims.provider) {
         userType = 'provider';
       }

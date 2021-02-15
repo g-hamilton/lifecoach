@@ -1,0 +1,221 @@
+<div class=" content">
+    
+    <!-- template if user has enabled payouts -->
+    <div *ngIf="account?.stripeUid ; else noPayout">
+        <div class=" row">
+            <div class=" col">
+                <div class=" card">
+                    <div class=" card-header">
+                        <h5 class=" card-category"> My Tracking Link </h5>
+                        <h3 class=" card-title"> Earn Commission By Promoting Lifecoach </h3>
+                    </div>
+                    <div class=" card-body">
+
+                        <p>
+                            There are many ways to promote the Lifecoach platform in a way that 
+                            rewards you for getting the word out to your audience. 
+                            Generate your own links to send people to a specific page 
+                            of your choosing, or share our ready-made links that take 
+                            people to our most popular pages.
+                        </p>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- end row -->
+
+        <div class=" row">
+            <div class=" col">
+                <div class=" card">
+                    <div class=" card-header">
+                        <h4 class=" card-title"> Method 1: Build Your Own Links </h4>
+                    </div>
+                    <div class=" card-body">
+                        <div class=" row mt-4 pb-4">
+                            <div class=" col-md-4">
+                                <h5 class=" text-success">
+                                    Step 1:
+                                </h5>
+                                <h6>
+                                    Prepare a link to Lifecoach
+                                </h6>
+                                <p>
+                                    Prepare to share any Lifecoach link. You can choose to link 
+                                    to any page on Lifecoach, including our home page, individual 
+                                    coach pages, search pages or product & service pages.
+                                </p>
+                                <h5 class=" mt-4 text-muted">
+                                    Notes:
+                                </h5>
+                                <p>
+                                    Be sure that your chosen link includes the lifecoach.io domain. 
+                                    For example:
+                                    <a href="https://lifecoach.io" target="_blank">
+                                        https://lifecoach.io
+                                    </a>
+                                    or 
+                                    <a href="https://lifecoach.io/programs" target="_blank">
+                                        https://lifecoach.io/programs
+                                    </a>
+                                    can both be shared.
+                                </p>
+                            </div>
+                            <div class=" col-md-4">
+                                <h5 class=" text-success">
+                                    Step 2:
+                                </h5>
+                                <h6>
+                                    Add your code
+                                </h6>
+                                <p>
+                                    Add your unique tracking code to the end of your chosen link.
+                                </p>
+                                <!-- unique tracking link -->
+                                <div class=" row mt-5">
+                                    <div class=" col">
+                                        <div>
+                                            <!-- form -->
+                                            <form [formGroup]="partnerForm">
+                                                <div class="">
+                                                    <div class="form-group">
+                                                        <label for="tracking-code">
+                                                            Your unique tracking code:
+                                                        </label>
+                                                        <input #trackingCode type="text" class="form-control" id="tracking-code" formControlName="trackingCode">
+                                                    </div>
+                                                </div>
+                                                <div class="">
+                                                    <button 
+                                                    *ngIf="browser"
+                                                    type="button"
+                                                    class=" btn btn-default btn-round btn-fill mr-3"
+                                                    (click)="copyTrackingCode(trackingCode)">
+                                                        Copy Code
+                                                    </button>
+                                                </div>
+                                            </form>
+                                            <!-- end form -->
+                                        </div>
+
+                                        <h5 class=" mt-4 text-muted">
+                                            Notes:
+                                        </h5>
+                                        <p>
+                                            For example, if you want to send your audience to the page 
+                                            <a href="lifecoach.io/programs" target="_blank">
+                                                lifecoach.io/programs
+                                            </a>
+                                            and your unique tracking code is 
+                                            <span class=" text-success">
+                                                {{ partnerF.trackingCode.value }}
+                                            </span>
+                                            , you would share the 
+                                            following full link: 
+                                            <a [href]="'lifecoach.io/programs' + partnerF.trackingCode.value" target="_blank">
+                                                lifecoach.io/programs{{ partnerF.trackingCode.value }}
+                                            </a>
+                                        </p>
+                                    </div>
+                                </div>
+                                <!-- end tracking link -->
+                            </div>
+                            <div class=" col-md-4">
+                                <h5 class=" text-success">
+                                    Step 3:
+                                </h5>
+                                <h6>
+                                    Share anywhere
+                                </h6>
+                                <p>
+                                    Share your full link anywhere.
+                                </p>
+                                <h5 class=" mt-4 text-muted">
+                                    Notes:
+                                </h5>
+                                <p>
+                                    It doesn't matter where your audience go after 
+                                    visiting your initial link, we will attempt to track them over single 
+                                    or multiple visits & credit you with any successful sale. 
+                                    Why not share our link(s) on your website, emails, newsletters, 
+                                    social media & blog posts. Every share is an opportunity to transform 
+                                    lives & boost your earnings!
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- end row -->
+
+        <div class=" row">
+            <div class=" col">
+                <h4> Method 2: Share Our Ready Made Links </h4>
+                <p>
+                    Get the links below to share them anywhere you like, or click share to 
+                    share them on social media with 1 click.
+                </p>
+            </div>
+        </div>
+        <!-- end row -->
+
+        <!-- row -->
+        <div class=" row mt-4">
+            <div class=" col-md-4">
+                <div class=" card">
+                    <img class=" card-img-top" [src]="shareObjectHome.image" alt="Share the Lifecoach home page" />
+                    <div class=" card-body">
+                      <h4 class=" card-title">{{ shareObjectHome.title }}</h4>
+                      <p class=" card-text">
+                          <i class=" tim-icons icon-link-72"></i> 
+                          Send your audience to the Lifecoach home page with this link:</p>
+                      <p>
+                        <a [href]="'lifecoach.io' + partnerF.trackingCode.value" target="_blank">
+                            lifecoach.io{{ partnerF.trackingCode.value }}
+                        </a>
+                      </p>
+                      <div class=" mt-3">
+                        <app-social-media-share [id]="userId" [sharingType]="'partner-link'" [sharingObject]="shareObjectHome"></app-social-media-share>
+                      </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- end row -->
+
+    </div>
+
+    <!-- template if payouts not enabled -->
+    <ng-template #noPayout>
+        <div class=" row">
+            <div class=" col">
+                <div class=" card">
+                    <div class=" card-header">
+                        <h5 class=" card-category"> My Tracking Link </h5>
+                        <h3 class=" card-title"> Earn Commission By Promoting Lifecoach </h3>
+                    </div>
+                    <div class=" card-body">
+                        <h4>
+                            Just a moment!
+                        </h4>
+                        <p>
+                            Before testing & using your unique tracking link, you need to 
+                            enable your partner payout account.
+                        </p>
+                        <p>
+                            Your payout allows you to receive the funds that you earn through 
+                            promoting Lifecoach, directly into your chosen bank account.
+                        </p>
+                        <button
+                        class=" btn btn-primary btn-round mt-5"
+                        [routerLink]="['/account']">
+                            Enable my payout account
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ng-template>
+
+</div>

@@ -397,7 +397,7 @@ resizeCourseImage(data) {
     });
   }
 
-  adminChangeUserType(userId: string, oldType: 'regular' | 'coach' | 'publisher' | 'provider' | 'admin', newType: 'regular' | 'coach' | 'publisher' | 'provider' | 'admin') {
+  adminChangeUserType(userId: string, oldType: 'regular' | 'coach' | 'partner' | 'provider' | 'admin', newType: 'regular' | 'coach' | 'partner' | 'provider' | 'admin') {
     return new Promise(resolve => {
       const changeType = this.cloudFunctions.httpsCallable('adminChangeUserType');
       const tempSub = changeType({

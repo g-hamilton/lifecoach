@@ -81,24 +81,24 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   onPlayerReady(api: VgAPI) {
     // fires when the videoGular player is ready
-    console.log('onPlayerReady');
+    // console.log('onPlayerReady');
 
     this.vgApi = api;
 
     // listen for the data loaded event
 
     this.vgApi.getDefaultMedia().subscriptions.loadedData.subscribe($event => {
-      console.log('Video loaded data', $event);
+      // console.log('Video loaded data', $event);
     });
 
     this.vgApi.getDefaultMedia().subscriptions.canPlay.subscribe($event => {
-      console.log('Video can play', $event);
+      // console.log('Video can play', $event);
       this.vgApi.play();
     });
 
     // listen for the video ended event
     this.vgApi.getDefaultMedia().subscriptions.ended.subscribe($event => {
-      console.log('Video ended:', $event);
+      // console.log('Video ended:', $event);
     });
     // end video ended event listener
   }
