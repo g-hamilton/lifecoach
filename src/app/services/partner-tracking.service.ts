@@ -6,6 +6,8 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class PartnerTrackingService {
 
+  private maxDaysToTrack = 30; // how many days do we allow a tracking code to be valid for?
+
   constructor(
     private route: ActivatedRoute
   ) { }
@@ -23,6 +25,26 @@ export class PartnerTrackingService {
         localStorage.setItem('partner-tracking-timestamp', timeStampInSeconds.toString()); // save timestamp to local storage
       }
     });
+  }
+
+  checkForSavedPartnerTrackingCode() {
+    // inspect localstorage for a saved partner tracking code and timestamp.
+    const code = localStorage.getItem('partner-tracking-uid');
+    const timestamp = localStorage.getItem('partner-tracking-timestamp'); // should give unix number in seconds as a string
+
+    if (code && timestamp) {
+      // code & timestamp found, check if timestamp is valid
+      const now = Math.round(new Date().getTime() / 1000); // unix timestamp in seconds
+      if ((Number(timestamp) + (this.maxDaysToTrack * 24 * 60 * 60)) >= now) {
+        // timestamp is valid (within the max number of days to track)
+        return code; // return the tracking code
+      }
+      // timestamp not valid, return null
+      return null;
+    }
+
+    // no code or timestamp found, return null
+    return null;
   }
 
 }
