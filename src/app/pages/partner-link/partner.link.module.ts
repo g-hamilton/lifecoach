@@ -4,18 +4,19 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ComponentsModule } from '../../components/components.module';
 
-import { ForPublishersComponent } from './for.publishers.component';
-import { ForPublishersRoutes } from './for.publishers.routing';
+import { PartnerLinkComponent } from './partner.link.component';
+import { PartnerLinkRoutes } from './partner.link.routing';
 
 @NgModule({
   imports: [
     CommonModule,
-    RouterModule.forChild(ForPublishersRoutes),
+    RouterModule.forChild(PartnerLinkRoutes),
     FormsModule,
+    ReactiveFormsModule,
     ComponentsModule
   ],
   declarations: [
-    ForPublishersComponent
+    PartnerLinkComponent
   ]
 })
-export class ForPublishersModule {}
+export class PartnerLinkModule {}

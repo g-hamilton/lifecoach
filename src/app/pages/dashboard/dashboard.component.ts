@@ -18,12 +18,12 @@ import {CloudFunctionsService} from '../../services/cloud-functions.service';
 export class DashboardComponent implements OnInit, OnDestroy {
 
   private uid: string;
-  public userType: 'coach' | 'regular' | 'publisher' | 'provider' | 'admin';
+  public userType: 'coach' | 'regular' | 'partner' | 'provider' | 'admin';
 
   public adminCountAllUsers: number;
   public adminCountRegularUsers: number;
   public adminCountCoachUsers: number;
-  public adminCountPublisherUsers: number;
+  public adminCountPartnerUsers: number;
   public adminCountProviderUsers: number;
   public adminPublicCoachesCount: number;
   public adminCountAdminUsers: number;
@@ -100,8 +100,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 // this.loadClients();
               } else if (c.regular) {
                 this.userType = 'regular';
-              } else if (c.publisher) {
-                this.userType = 'publisher';
+              } else if (c.partner) {
+                this.userType = 'partner';
                 this.loadTodos();
               } else if (c.provider) {
                 this.userType = 'provider';
@@ -159,8 +159,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     const coachUsers = await this.searchService.searchUsers(1, 1, {params: {accountType: 'coach'}});
     this.adminCountCoachUsers = coachUsers.nbHits;
 
-    const publisherUsers = await this.searchService.searchUsers(1, 1, {params: {accountType: 'publisher'}});
-    this.adminCountPublisherUsers = publisherUsers.nbHits;
+    const partnerUsers = await this.searchService.searchUsers(1, 1, {params: {accountType: 'partner'}});
+    this.adminCountPartnerUsers = partnerUsers.nbHits;
 
     const providerUsers = await this.searchService.searchUsers(1, 1, {params: {accountType: 'provider'}});
     this.adminCountProviderUsers = providerUsers.nbHits;

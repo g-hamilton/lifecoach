@@ -225,7 +225,7 @@ export class AccountComponent implements OnInit, OnDestroy {
                         if (account.stripeUid) {
                           this.retrieveStripeBalance(account.stripeUid);
                         }
-                      } else if (account.accountType === 'publisher' ) { // user is a publisher
+                      } else if (account.accountType === 'partner' ) { // user is a partner
                         if (!account.stripeUid) { // user has not yet connected Stripe
 
                           // If redirecting to this component from Stripe, complete connection

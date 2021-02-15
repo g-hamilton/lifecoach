@@ -16,8 +16,8 @@ import { CoachingService } from 'app/interfaces/coaching.service.interface';
 export class SocialMediaShareComponent implements OnInit {
   public browser: boolean;
   @Input() id: string;
-    @Input() public sharingType: 'profile' | 'service' | 'program' | 'course';
-    @Input() public sharingObject: CoachingCourse | CoachingProgram | CoachingService | any;
+  @Input() public sharingType: 'profile' | 'service' | 'program' | 'course' | 'partner-link';
+  @Input() public sharingObject: CoachingCourse | CoachingProgram | CoachingService | any;
   @ViewChild('shareModal', {static: false}) public shareModal: ModalDirective;
 
   constructor(
@@ -125,6 +125,24 @@ export class SocialMediaShareComponent implements OnInit {
       this.location.go(`${this.router.url.toString()
           .replace('my-services', 'coaching-service')
           .replace('/content', '')}?referralCode=${this.id ? this.id : ''}`);
+    }
+    if (this.sharingType === 'partner-link') {
+      console.log(this.sharingObject);
+      this.metaTagService.updateTag({
+        name: 'description', content: `${this.sharingObject.subtitle}`
+      }, `name='description'`);
+      this.metaTagService.updateTag({
+        property: 'og:title', content: `${this.sharingObject.title}`
+      }, `property='og:title'`);
+      this.metaTagService.updateTag({
+        property: 'og:description', content: `${this.sharingObject.subtitle}`
+      }, `property='og:description'`);
+      this.metaTagService.updateTag({
+        property: 'og:image:url', content: `${this.sharingObject.image}`
+      }, `property='og:image:url'`);
+
+      this.location.go(`${this.router.url.toString()
+        .replace('partner-link', `${this.sharingObject.url}`)}`);
     }
   }
   fixLink() {
