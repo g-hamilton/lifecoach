@@ -14,38 +14,38 @@ else
   echo -e "Starting development process...\n\n\t\tDEVELOPMENT"
 fi
 
-#if [[ "$OSTYPE" == "win32" ]];
-#then ISWIN=true;
-#echo "warn: WINDOWS SYSTEM DETECTED";
-#fi
-## checking out to firebase project
-#if $PROD;
-#then
-#firebase use lifecoach-6ab28 >> deployment_log.txt;
-#echo -e "Using prod environment...\n\nProject: lifecoach-6ab28\n\n";
-#else firebase use livecoach-dev >> deployment_log.txt;
-#echo -e "Using dev environment...\n\nProject: livecoach-dev\n\n";
-#fi
-#
-##git checkout
-#if $PROD;
-#then git checkout master;
-#echo -e "Checkouted master\n\n";
-#else git checkout development;
-#echo -e "Checkouted development\n\n";
-#fi
-#
-## removing dist
-#if $ISWIN;
-#then rmdir /s /q dist;
-#else rm -rf dist/
-#fi
-#
-## yarn build
-#if $PROD;
-#then echo"YARN BUILD:SSR";yarn build:ssr;
-#else echo"YARN BUILD:DEV-SSR";yarn build:dev-ssr;
-#fi
+if [[ "$OSTYPE" == "win32" ]];
+then ISWIN=true;
+echo "warn: WINDOWS SYSTEM DETECTED";
+fi
+# checking out to firebase project
+if $PROD;
+then
+firebase use lifecoach-6ab28;
+echo -e "Using prod environment...\n\nProject: lifecoach-6ab28\n\n";
+else firebase use livecoach-dev;
+echo -e "Using dev environment...\n\nProject: livecoach-dev\n\n";
+fi
+
+#git checkout
+if $PROD;
+then git checkout master;
+echo -e "Checkouted master\n\n";
+else git checkout development;
+echo -e "Checkouted development\n\n";
+fi
+
+# removing dist
+if $ISWIN;
+then rmdir /s /q dist;
+else rm -rf dist/
+fi
+
+# yarn build
+if $PROD;
+then echo"YARN BUILD:SSR";yarn build:ssr;
+else echo"YARN BUILD:DEV-SSR";yarn build:dev-ssr;
+fi
 
 # building functions
 cd functions && npm run build;
