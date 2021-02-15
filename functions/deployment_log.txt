@@ -1,0 +1,34 @@
+
+[1m[37m===[39m Deploying to 'livecoach-dev'...[22m
+
+[1m[36mi [39m[22m deploying [1mfunctions[22m
+Running command: npm --prefix "$RESOURCE_DIR" run lint
+
+> lint
+> tslint --project tsconfig.json
+
+Running command: npm --prefix "$RESOURCE_DIR" run build
+
+> build
+> node cp-angular && tsc
+
+[1m[32m✔ [39m[22m [1m[32mfunctions:[39m[22m Finished running [1mpredeploy[22m script.
+[1m[36mi  functions:[39m[22m ensuring required API [1mcloudfunctions.googleapis.com[22m is enabled...
+[1m[36mi  functions:[39m[22m ensuring required API [1mcloudbuild.googleapis.com[22m is enabled...
+[1m[32m✔  functions:[39m[22m required API [1mcloudbuild.googleapis.com[22m is enabled
+[1m[32m✔  functions:[39m[22m required API [1mcloudfunctions.googleapis.com[22m is enabled
+[1m[36mi [39m[22m [1m[36mfunctions:[39m[22m preparing [1mfunctions[22m directory for uploading...
+[1m[36mi [39m[22m [1m[36mfunctions:[39m[22m packaged [1mfunctions[22m (46.69 MB) for uploading
+[1m[32m✔ [39m[22m [1m[32mfunctions:[39m[22m [1mfunctions[22m folder uploaded successfully
+[1m[36mi [39m[22m [1m[36mfunctions: [39m[22mcurrent functions in project: abortVideoSession(us-central1), adminApproveCourseReview(us-central1), adminApproveProgramReview(us-central1), adminApproveServiceReview(us-central1), adminChangeUserType(us-central1), adminRejectCourseReview(us-central1), adminRejectProgramReview(us-central1), adminRejectServiceReview(us-central1), approveRefund(us-central1), cancelCoachSession(us-central1), coachMarkSessionComplete(us-central1), completeFreeCourseEnrollment(us-central1), completeStripeConnect(us-central1), createAdminUser(us-central1), createDbUserWithType(us-central1), generateCoachProfileShortUrl(us-central1), generateJWT(us-central1), getCollectionDocIds(us-central1), getCoursePhoto(us-central1), getCoursePhotos(us-central1), getInfoAboutCurrentVideoSession(us-central1), getTwilioToken(us-central1), getUserPhoto(us-central1), manualUpdateRates(us-central1), onCreateCoursePublicQuestion(us-central1), onCreateCoursePublicQuestionReply(us-central1), onCreateCoursePublicQuestionReplyUpvote(us-central1), onCreateCoursePublicQuestionUpvote(us-central1), onDeleteAdminCourseReviewRequest(us-central1), onDeleteAdminProgramReviewRequest(us-central1), onDeleteAdminServiceReviewRequest(us-central1), onDeleteCoursePublicQuestion(us-central1), onDeleteCoursePublicQuestionReply(us-central1), onNewAdminCourseReviewRequest(us-central1), onNewAdminProgramReviewRequest(us-central1), onNewAdminServiceReviewRequest(us-central1), onNewCrmPersonCreate(us-central1), onPostNewChatMessage(us-central1), onPostNewCourseLibraryItem(us-central1), onUpdateUserChatRoom(us-central1), onWriteCourseReview(us-central1), onWritePrivateUserCourse(us-central1), onWritePrivateUserProgram(us-central1), onWritePrivateUserService(us-central1), onWriteProgramReview(us-central1), onWritePublicCoachesNode(us-central1), onWritePublicCourses(us-central1), onWritePublicPrograms(us-central1), onWritePublicServices(us-central1), onWriteServiceReview(us-central1), onWriteUserAccountNode(us-central1), onWriteUserCalendar(us-central1), onWriteUserProfileNode(us-central1), orderCoachSession(us-central1), postNewMessage(us-central1), recursiveDeleteUserData(us-central1), requestRefund(us-central1), resizeProfileAvatars(us-central1), scheduledFunctionUpdateRates(us-central1), sendCoachInvite(us-central1), ssr(us-central1), stripeCreateLoginLink(us-central1), stripeCreatePaymentIntent(us-central1), stripeRetrieveBalance(us-central1), stripeWebhookConnectedEvent(us-central1), stripeWebhookEvent(us-central1), updateAllProfilesInSequence(us-central1), updateMailingListUserEmail(us-central1), updateMailingListUserName(us-central1), uploadCourseImage(us-central1), uploadProgramImage(us-central1), uploadServiceImage(us-central1), uploadUserAvatar(us-central1)
+[1m[36mi [39m[22m [1m[36mfunctions: [39m[22muploading functions in project: manualUpdateRates(us-central1), orderCoachSession(us-central1)
+[1m[33m⚠ [39m[22m [1m[33mfunctions: [39m[22mthe following filters were specified but do not match any functions in the project: resizeProfileAvatars[22m
+[1m[36mi [39m[22m [1m[36mfunctions: [39m[22mupdating Node.js 10 function [1mmanualUpdateRates(us-central1)[22m...
+[1m[36mi [39m[22m [1m[36mfunctions: [39m[22mupdating Node.js 10 function [1morderCoachSession(us-central1)[22m...
+[1m[32m✔  scheduler:[39m[22m required API [1mcloudscheduler.googleapis.com[22m is enabled
+[1m[32m✔ [39m[22m [1m[32mfunctions[orderCoachSession(us-central1)]: [39m[22mSuccessful update operation. 
+[1m[32m✔ [39m[22m [1m[32mfunctions[manualUpdateRates(us-central1)]: [39m[22mSuccessful update operation. 
+
+[1m[32m✔ [39m[22m [1m[4mDeploy complete![24m[22m
+
+[1mProject Console:[22m https://console.firebase.google.com/project/livecoach-dev/overview
