@@ -92,6 +92,8 @@ export class ProgramComponent implements OnInit, OnDestroy {
       this.browser = true;
       this.analyticsService.pageView();
 
+      this.checkStoredPartnerTrackingCode();
+
       // Init Stripe.js
       const stripe = Stripe(`${environment.stripeJsClientKey}`);
 

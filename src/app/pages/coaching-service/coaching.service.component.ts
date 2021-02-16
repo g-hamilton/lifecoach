@@ -95,6 +95,7 @@ export class CoachingServiceComponent implements OnInit, OnDestroy {
     if (isPlatformBrowser(this.platformId)) {
       this.browser = true;
       this.analyticsService.pageView();
+      this.checkStoredPartnerTrackingCode();
 
       // Init Stripe.js
       const stripe = Stripe(`${environment.stripeJsClientKey}`);
