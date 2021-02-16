@@ -49,7 +49,12 @@ export class ProgramCardComponent implements OnInit, OnDestroy {
 
   get currencySymbol() {
     const c = this.currenciesService.getCurrencies();
-    return c[this.clientCurrency].symbol;
+    if (!this.clientCurrency) {
+      return '';
+    }
+    if (c != null) {
+      return c[this.clientCurrency].symbol;
+    }
   }
 
   get displayFullPrice() {

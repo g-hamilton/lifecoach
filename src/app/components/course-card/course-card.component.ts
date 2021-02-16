@@ -55,7 +55,12 @@ export class CourseCardComponent implements OnInit, OnChanges, OnDestroy {
 
   get currencySymbol() {
     const c = this.currenciesService.getCurrencies();
-    return c[this.clientCurrency].symbol;
+    if (!this.clientCurrency) {
+      return '';
+    }
+    if (c != null) {
+      return c[this.clientCurrency].symbol;
+    }
   }
 
   get displayPrice() {

@@ -473,6 +473,9 @@ export class ProgramComponent implements OnInit, OnDestroy {
 
   get currencySymbol() {
     const c = this.currenciesService.getCurrencies();
+    if (!this.clientCurrency) {
+      return '';
+    }
     if (c != null) {
       return c[this.clientCurrency].symbol;
     }
