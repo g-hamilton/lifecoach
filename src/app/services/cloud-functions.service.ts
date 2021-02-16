@@ -293,14 +293,7 @@ resizeCourseImage(data) {
   getStripePaymentIntent(piRequest: StripePaymentIntentRequest) {
     return new Promise(resolve => {
       const intent = this.cloudFunctions.httpsCallable('stripeCreatePaymentIntent');
-      const tempSub = intent({
-        saleItemId: piRequest.saleItemId,
-        saleItemType: piRequest.saleItemType,
-        salePrice: piRequest.salePrice,
-        currency: piRequest.currency,
-        buyerUid: piRequest.buyerUid,
-        referralCode : piRequest.referralCode ? piRequest.referralCode : null
-      })
+      const tempSub = intent(piRequest)
         .pipe(first())
         .subscribe(res => {
           resolve(res);

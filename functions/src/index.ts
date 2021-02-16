@@ -1124,6 +1124,8 @@ exports.stripeCreatePaymentIntent = functions
 .https
 .onCall( async (data, context) => {
 
+  console.log('payment intent called with data:', JSON.stringify(data));
+
   const saleItemId: string = data.saleItemId;
   const saleItemType: 'ecourse' | 'fullProgram' | 'programSession' | 'coachingPackage' = data.saleItemType;
   const clientPrice: number = Number(data.salePrice);
@@ -1131,7 +1133,7 @@ exports.stripeCreatePaymentIntent = functions
   const clientUid: string = data.buyerUid;
   const referralCode: string | null = data.referralCode;
   const partnerTrackingCode: string | null = data.partnerTrackingCode;
-  const packageSessions: number | null = data.pricingSessions; // only if purchasing a coachingPackage.
+  const packageSessions: number | null = Number(data.pricingSessions); // only if purchasing a coachingPackage.
 
   if (!saleItemId) { // ensure we have a valid sale item ID string
     return { error: 'No sale item ID! Valid sale item ID is required to proceed' }
@@ -1152,7 +1154,7 @@ exports.stripeCreatePaymentIntent = functions
   if (!clientUid) { // ensure we have a valid client user ID
     return { error: 'No client UID! Valid client user ID required to proceed' }
   }
-  if (saleItemType === 'coachingPackage' && !packageSessions) { // ensure we have a number of sessions purchased if purchasing a coaching package
+  if ((saleItemType === 'coachingPackage') && !packageSessions) { // ensure we have a number of sessions purchased if purchasing a coaching package
     return { error: 'No number of sessions purchased for the coaching package!' }
   }
 

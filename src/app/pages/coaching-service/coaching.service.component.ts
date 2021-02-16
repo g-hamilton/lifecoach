@@ -158,6 +158,8 @@ export class CoachingServiceComponent implements OnInit, OnDestroy {
           partnerTrackingCode: this.partnerTrackingCode ? this.partnerTrackingCode : null
         };
 
+        console.log('sending paymentIntent request:', piRequest);
+
         // request the payment intent
         const pIntentRes = await this.cloudFunctionsService.getStripePaymentIntent(piRequest) as any;
 
