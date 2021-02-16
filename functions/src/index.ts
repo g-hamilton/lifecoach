@@ -70,7 +70,7 @@ const programAppFeeDecimal = 0.1;
 const programAppFeeReferralDecimal = 0.025;
 const serviceAppFeeDecimal = 0.1;
 const serviceAppFeeReferralDecimal = 0.025;
-const partnerReferralDecimal = 0.5;
+// const partnerReferralDecimal = 0.5;
 
 // ================================================================================
 // =====                                                                     ======
@@ -1391,6 +1391,38 @@ exports.stripeWebhookEvent = functions
         } else if (saleItemType === 'coachingPackage') {
           const promise3 = recordServicePurchaseForClient(clientUid, saleItemId, paymentIntent.metadata.sale_item_title, paymentIntent.metadata.sale_item_image, paymentIntent.metadata.num_sessions);
           promises.push(promise3);
+        }
+
+        // Because we cannot split stripe connect payments 3 ways using our current setup, and because the stripe 
+        // 'seperate charges & transfers' flow requires that our platform and any conected accounts must be in the same 
+        // territory, (which limits us geographically in terms of promo partner network), if the sale was referred by 
+        // a promotional partner, we need to track this ourselves and use a seperate process to record and pay our partners.
+        if (paymentIntent.metadata.partner_referred && paymentIntent.metadata.partner_referred !== 'false') {
+          const saleDate = new Date(paymentIntent.created * 1000);
+          const saleMonth = saleDate.getMonth() + 1; // go from zero index to jan === 1
+          const saleYear = saleDate.getFullYear();
+
+          // flatten the data for easier lookups by platform and partners
+
+          const promise4 = db.collection(`partner-referrals/${paymentIntent.metadata.partner_referred}/${saleMonth}-${saleYear}`)
+          .doc(successfulPayment.id)
+          .set(successfulPayment, {merge: true});
+          promises.push(promise4);
+
+          const promise5 = db.collection(`partner-referrals/${paymentIntent.metadata.partner_referred}/all`)
+          .doc(successfulPayment.id)
+          .set(successfulPayment, {merge: true});
+          promises.push(promise5);
+
+          const promise6 = db.collection(`partner-referrals/${saleMonth}-${saleYear}`)
+          .doc(successfulPayment.id)
+          .set(successfulPayment, {merge: true});
+          promises.push(promise6);
+
+          const promise7 = db.collection(`partner-referrals/all/referrals`)
+          .doc(successfulPayment.id)
+          .set(successfulPayment, {merge: true});
+          promises.push(promise7);
         }
 
         return Promise.all(promises);
