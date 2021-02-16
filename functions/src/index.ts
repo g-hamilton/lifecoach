@@ -1398,7 +1398,7 @@ exports.stripeWebhookEvent = functions
 
           // flatten the data for easier lookups by platform and partners
 
-          const promise4 = db.collection(`partner-referrals/${paymentIntent.metadata.partner_referred}/${saleMonth}-${saleYear}`)
+          const promise4 = db.collection(`partner-referrals/${paymentIntent.metadata.partner_referred}/${saleYear}/${saleMonth}/all`)
           .doc(successfulPayment.id)
           .set(successfulPayment, {merge: true});
           promises.push(promise4);
@@ -1408,7 +1408,7 @@ exports.stripeWebhookEvent = functions
           .set(successfulPayment, {merge: true});
           promises.push(promise5);
 
-          const promise6 = db.collection(`partner-referrals/${saleMonth}-${saleYear}`)
+          const promise6 = db.collection(`partner-referrals/${saleYear}/${saleMonth}`)
           .doc(successfulPayment.id)
           .set(successfulPayment, {merge: true});
           promises.push(promise6);
