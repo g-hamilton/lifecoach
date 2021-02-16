@@ -440,9 +440,9 @@ firstName: string | null, lastName: string | null) {
   } else if (type === 'partner') { // partner account
 
     // Default tasks for partners
-    const ref1 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault004');
+    const ref1 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault005');
     batch.set(ref1, {
-      id: 'taskDefault004',
+      id: 'taskDefault005',
       title: 'Test your tracking link',
       description: 'Test your unique tracking link to ensure you can earn commission on all referrals to Lifecoach.',
       action: 'partner-link'
@@ -1415,6 +1415,10 @@ exports.stripeWebhookEvent = functions
           .doc(successfulPayment.id)
           .set(successfulPayment, {merge: true});
           promises.push(promise7);
+
+          // if not yet completed, completed the task to test the partners promo link is working
+          const promise8 = completeUserTask(paymentIntent.metadata.partner_referred, 'taskDefault005');
+          promises.push(promise8);
         }
 
         return Promise.all(promises);
@@ -5591,6 +5595,24 @@ exports.getCoursePhoto = functions
   });
 
 // Image services - end
+
+async function completeUserTask(uid: string, taskId: string) {
+  const todoSnap = await db.collection(`users/${uid}/tasks-todo`)
+  .doc(taskId)
+  .get();
+  if (todoSnap.exists) {
+    const todo = todoSnap.data();
+    if (todo) {
+      await db.collection(`users/${uid}/tasks-complete`)
+      .doc(taskId)
+      .set(todo, {merge: true});
+      return db.collection(`users/${uid}/tasks-todo`)
+      .doc(taskId)
+      .delete();
+    }
+  }
+  return null;
+}
 
 // *** TEMP TEMP TEMP ***
 function specialities() {
