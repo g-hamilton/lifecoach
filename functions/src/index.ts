@@ -443,14 +443,6 @@ firstName: string | null, lastName: string | null) {
     const ref1 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault004');
     batch.set(ref1, {
       id: 'taskDefault004',
-      title: 'Enable your payout account',
-      description: 'Head to Account > Payout Settings to enable your payout account so you can get paid.',
-      action: 'account'
-    });
-
-    const ref2 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault005');
-    batch.set(ref2, {
-      id: 'taskDefault005',
       title: 'Test your tracking link',
       description: 'Test your unique tracking link to ensure you can earn commission on all referrals to Lifecoach.',
       action: 'partner-link'
