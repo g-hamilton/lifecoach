@@ -64,12 +64,13 @@ const config: Stripe.StripeConfig = { apiVersion: '2020-08-27', typescript: true
 const stripe = new Stripe(functions.config().stripe.prod.secretkey, config); // prod secret key
 const stripeWebhookSecret = functions.config().stripe.prod.webhooksecret; // prod secret webhook key
 const stripeWebhookConnectSecret = functions.config().stripe.prod.webhookconnectsecret // prod secret webhook key
-const ecourseAppFeeDecimal = 0.5; // our std application fee percentage for ecourses, expressed as a decimal. eg 0.5 // 50%
+const ecourseAppFeeDecimal = 0.3; // our std application fee percentage for ecourses, expressed as a decimal. eg 0.5 // 50%
 const ecourseAppFeeReferralDecimal = 0.1; // our reduced ecourse app fee percentage expressed as a decimal.
-const programAppFeeDecimal = 0.05;
+const programAppFeeDecimal = 0.1;
 const programAppFeeReferralDecimal = 0.025;
-const serviceAppFeeDecimal = 0.05;
+const serviceAppFeeDecimal = 0.1;
 const serviceAppFeeReferralDecimal = 0.025;
+const partnerReferralDecimal = 0.5;
 
 // ================================================================================
 // =====                                                                     ======
@@ -1133,11 +1134,12 @@ exports.stripeCreatePaymentIntent = functions
 
   const saleItemId: string = data.saleItemId;
   const saleItemType: 'ecourse' | 'fullProgram' | 'programSession' | 'coachingPackage' = data.saleItemType;
-  const clientPrice = Number(data.salePrice);
-  const clientCurrency = (data.currency as string).toUpperCase();
-  const clientUid = data.buyerUid;
-  const referralCode = data.referralCode; // may be null
-  const packageSessions = data.pricingSessions; // may be null. Only if purchasing a coachingPackage.
+  const clientPrice: number = Number(data.salePrice);
+  const clientCurrency: string = (data.currency as string).toUpperCase();
+  const clientUid: string = data.buyerUid;
+  const referralCode: string | null = data.referralCode;
+  const partnerTrackingCode: string | null = data.partnerTrackingCode;
+  const packageSessions: number | null = data.pricingSessions; // only if purchasing a coachingPackage.
 
   if (!saleItemId) { // ensure we have a valid sale item ID string
     return { error: 'No sale item ID! Valid sale item ID is required to proceed' }
@@ -1195,7 +1197,7 @@ exports.stripeCreatePaymentIntent = functions
       saleItemPrice = saleItem.fullPrice;
     } else if (saleItemType === 'programSession') {
       saleItemPrice = saleItem.pricePerSession;
-    } else if (saleItemType === 'coachingPackage') {
+    } else if (saleItemType === 'coachingPackage' && packageSessions) {
       saleItemPrice = saleItem.pricing[packageSessions].price;
     }
 
@@ -1252,6 +1254,7 @@ exports.stripeCreatePaymentIntent = functions
 
     // if the seller referred the sale...
     if (referralCode && referralCode === saleItem.sellerUid) {
+      console.log('seller referral code detected');
       if (saleItemType === 'ecourse') {
         feeDecimal = ecourseAppFeeReferralDecimal;
       } else if (saleItemType === 'fullProgram' || saleItemType === 'programSession') {
@@ -1261,6 +1264,7 @@ exports.stripeCreatePaymentIntent = functions
       }
     } else {
       // the seller did not refer the sale
+      console.log('no seller referral code detected');
       if (saleItemType === 'ecourse') {
         feeDecimal = ecourseAppFeeDecimal;
       } else if (saleItemType === 'fullProgram' || saleItemType === 'programSession') {
@@ -1269,6 +1273,10 @@ exports.stripeCreatePaymentIntent = functions
         feeDecimal = serviceAppFeeDecimal;
       }
     }
+
+    // note: promotional partner referrals do not trigger split payment here. The platform takes the full platform fee and 
+    // we pay promotional partners by splitting our platform fee through a seperate back end process.
+
     console.log('Platform fee calculated with multiplier:', feeDecimal);
 
     const appFee = Math.floor(amount * feeDecimal); // platform fee (always same currency as transaction) rounded DOWN to integer
@@ -1296,6 +1304,7 @@ exports.stripeCreatePaymentIntent = functions
         seller_UID: saleItem.sellerUid,
         payment_type: 'lifecoach.io WEB',
         seller_referred: referralCode ? 'true' : 'false', // note: string as cannot be a boolean here
+        partner_referred: partnerTrackingCode ? partnerTrackingCode : 'false',
         // if purchasing a program numSessions will be the number of sessions in the program
         // if purchasing a coachingPackage (service), will be the number of sessions in the package
         num_sessions: saleItem.numSessions ? saleItem.numSessions : saleItemType === 'coachingPackage' ? packageSessions : null

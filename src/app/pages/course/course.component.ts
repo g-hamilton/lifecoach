@@ -152,7 +152,8 @@ export class CourseComponent implements OnInit, OnDestroy {
           salePrice: this.displayPrice,
           currency: this.clientCurrency,
           buyerUid: this.userId,
-          referralCode: this.referralCode ? this.referralCode : null
+          referralCode: this.referralCode ? this.referralCode : null,
+          partnerTrackingCode: this.partnerTrackingCode ? this.partnerTrackingCode : null
         };
 
         // request the payment intent

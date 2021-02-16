@@ -37,6 +37,7 @@ export class PartnerTrackingService {
       const now = Math.round(new Date().getTime() / 1000); // unix timestamp in seconds
       if ((Number(timestamp) + (this.maxDaysToTrack * 24 * 60 * 60)) >= now) {
         // timestamp is valid (within the max number of days to track)
+        console.log('saved & valid partner tracking code found:', code);
         return code; // return the tracking code
       }
       // timestamp not valid, return null

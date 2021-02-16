@@ -23,6 +23,7 @@ import { ScheduleCallComponent } from 'app/components/schedule-call/schedule-cal
 import {take} from 'rxjs/operators';
 import {ToastrService} from 'ngx-toastr';
 import { RegisterModalComponent } from 'app/components/register-modal/register-modal.component';
+import { PartnerTrackingService } from 'app/services/partner-tracking.service';
 
 declare var Stripe: any;
 
@@ -55,6 +56,7 @@ export class ProgramComponent implements OnInit, OnDestroy {
   public totalReviews: number;
   public avgRating: number;
   private referralCode: string;
+  private partnerTrackingCode: string | null; // will hold a partner tracking code if a promotional partner referred the user anywhere on the app within the last 30 days
   public purchaseType: 'full' | 'session'; // value should be set depending on which purchase button is pressed
 
   private subscriptions: Subscription = new Subscription();
@@ -77,7 +79,8 @@ export class ProgramComponent implements OnInit, OnDestroy {
     public formBuilder: FormBuilder,
     private languagesService: IsoLanguagesService,
     private modalService: BsModalService,
-    private toastrService: ToastrService
+    private toastrService: ToastrService,
+    private partnerTrackingService: PartnerTrackingService
   ) { }
 
   ngOnInit() {
@@ -141,7 +144,8 @@ export class ProgramComponent implements OnInit, OnDestroy {
           salePrice: this.purchaseType === 'full' ? this.displayFullPrice : this.displaySessionPrice,
           currency: this.clientCurrency,
           buyerUid: this.userId,
-          referralCode: this.referralCode ? this.referralCode : null
+          referralCode: this.referralCode ? this.referralCode : null,
+          partnerTrackingCode: this.partnerTrackingCode ? this.partnerTrackingCode : null
         };
 
         // request the payment intent
@@ -382,6 +386,17 @@ export class ProgramComponent implements OnInit, OnDestroy {
     this.metaTagService.updateTag({
       property: 'og:image:url', content: this.program.image ? this.program.image : this.program.coachPhoto
     }, `property='og:image:url'`);
+  }
+
+  checkStoredPartnerTrackingCode() {
+    // inspect localstorage for a saved partner tracking code.
+    // if a valid tracking code is found, update the component
+    // so any purchase can place the code in a payment intent
+
+    const validTrackingCode = this.partnerTrackingService.checkForSavedPartnerTrackingCode();
+    if (validTrackingCode) {
+      this.partnerTrackingCode = validTrackingCode;
+    }
   }
 
   checkForReferralCode() {
