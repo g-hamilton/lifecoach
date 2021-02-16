@@ -321,7 +321,7 @@
                       </div>
                       <div class=" card-footer text-center mb-3 mt-3">
                         <!-- purchase button -->
-                        <!-- disabled for service seller or if already purchased -->
+                        <!-- disabled for service seller -->
                         <!-- userId === service.sellerUid || userClaims && userClaims[service.serviceId] -->
                         <button
                         class=" btn btn-round"
@@ -334,7 +334,7 @@
                         type="button"
                         data-target="#payModal"
                         (click)="purchaseDisplayPrice = calcDisplayPrice(service.pricing[package].price) ; pricingSessions = package ; userId ? payModal.show() : registerToPurchase()"
-                        [disabled]="userId === service.sellerUid || userClaims && userClaims[service.serviceId]">
+                        [disabled]="userId === service.sellerUid">
                           <span
                           *ngIf="purchasingService"
                           class="spinner-border spinner-border-sm"
