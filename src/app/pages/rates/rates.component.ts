@@ -15,7 +15,7 @@ export class RatesComponent implements OnInit, OnDestroy {
   public updatingRates: boolean;
   public rates: any;
   public lastUpdated: Date;
-  public objKeys = Object.keys;
+  public sortedKeys = [];
   private subscriptions: Subscription = new Subscription();
 
   constructor(
@@ -39,6 +39,9 @@ export class RatesComponent implements OnInit, OnDestroy {
           console.log('Rates:', rates);
           this.rates = rates;
           this.lastUpdated = new Date(rates.timestamp * 1000);
+          this.sortedKeys = Object.keys(rates)
+          .sort();
+          // console.log(this.sortedKeys);
         }
       })
     );

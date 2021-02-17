@@ -982,6 +982,12 @@ exports.manualUpdateRates = functions
       const rates = oXRates.rates;
       rates.timestamp = oXRates.timestamp;
 
+      // Stripe do not give us OX rates. They use their own rates which are not made public.
+      // On testing, their rates are around 2% worse for the platform than OX rates, so we'll
+      // add a correction in here before saving the corrected rates to the db...
+
+      
+
       // Save rates to DB
       await db.collection(`currency`)
       .doc(`rates`)
@@ -1446,7 +1452,7 @@ exports.stripeWebhookEvent = functions
       break;
     case 'transfer.created':
         const transfer = event.data.object as Stripe.Transfer;
-        // console.log(`Transfer created: ${JSON.stringify(transfer)}`);
+        console.log(`Transfer created: ${JSON.stringify(transfer)}`);
 
         try {
           // Lookup the original charge to retrieve necessary metadata from the original paymentIntent
