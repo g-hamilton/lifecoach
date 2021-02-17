@@ -944,6 +944,16 @@ exports.scheduledFunctionUpdateRates = functions
       console.log(`Open Exchange Rates fetched successfully!`);
 
       const rates = oXRates.rates;
+
+      // Stripe do not give us OX rates. They use their own rates which are not made public.
+      // On testing, their rates are around 2% worse for the platform than OX rates, so we'll
+      // add a correction in here before saving the corrected rates to the db...
+
+      Object.keys(rates).forEach(key => {
+        rates[key] = Number(rates[key]) * .98;
+      })
+
+      // add the timestamp into the rate object after correction
       rates.timestamp = oXRates.timestamp;
 
       // Save rates to DB
@@ -980,13 +990,17 @@ exports.manualUpdateRates = functions
       console.log(`Open Exchange Rates fetched successfully!`);
 
       const rates = oXRates.rates;
-      rates.timestamp = oXRates.timestamp;
 
       // Stripe do not give us OX rates. They use their own rates which are not made public.
       // On testing, their rates are around 2% worse for the platform than OX rates, so we'll
       // add a correction in here before saving the corrected rates to the db...
 
-      
+      Object.keys(rates).forEach(key => {
+        rates[key] = Number(rates[key]) * .98;
+      })
+
+      // add the timestamp into the rate object after correction
+      rates.timestamp = oXRates.timestamp;
 
       // Save rates to DB
       await db.collection(`currency`)
