@@ -26,6 +26,7 @@ export class PersonHistoryComponent implements OnInit, OnDestroy {
   public msgUrl = '/messages';
   public enrolledInCourses = [];
   public enrolledInPrograms = [];
+  public enrolledInServices = [];
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
@@ -68,8 +69,16 @@ export class PersonHistoryComponent implements OnInit, OnDestroy {
           this.person = await this.crmPeopleService.getFilledPerson(this.userId, person, this.personId);
           this.updateMsgUrl();
 
-          // work out which eCourses and programs this person has enrolled in by looking at their history array
+          // work out which eCourses, programs & services this person has enrolled in by looking at their history array
           if (this.person.history) {
+
+            // deal with programs
+            const services = this.person.history.filter(i => i.action === 'service_purchase');
+            const serviceIds = services.map(i => i.serviceId); // make an array of service ids (may contain duplicates!)
+            const uniqueServiceIds = [...new Set(serviceIds)]; // remove any duplicates
+            this.enrolledInServices = []; // reset
+            uniqueServiceIds.forEach(i => this.loadService(i));
+
             // deal with programs
             const programs = this.person.history.filter(i => i.action === 'enrolled_in_program_session' || i.action === 'enrolled_in_full_program');
             const programIds = programs.map(i => i.programId); // make an array of program ids (may contain duplicates if paying per session!)
@@ -115,6 +124,44 @@ export class PersonHistoryComponent implements OnInit, OnDestroy {
       }
     };
     this.bsModalRef = this.modalService.show(CoachInviteComponent, config);
+  }
+
+  loadService(serviceId: string) {
+    // fetch the service and push it to the array of services the person is enrolled in
+    this.subscriptions.add(
+      this.dataService.getPublicService(serviceId)
+      .pipe(take(1))
+      .subscribe(service => {
+        if (service) {
+          // check purchased & complete sessions
+          this.subscriptions.add(
+            this.dataService.getPurchasedServiceSessions(this.userId, this.personId, serviceId)
+            .pipe(take(1))
+            .subscribe(sessions => {
+              this.subscriptions.add(
+                this.dataService.getServiceSessionsComplete(this.userId, this.personId, serviceId)
+                .pipe(take(1))
+                .subscribe(complete => {
+                  let purchasedSessions = [];
+                  let sessionsComplete = [];
+                  if (sessions) {
+                    purchasedSessions = sessions;
+                    service.purchasedSessions = sessions;
+                  }
+                  if (complete) {
+                    sessionsComplete = complete;
+                    service.sessionsComplete = complete;
+                  }
+                })
+              );
+            })
+          );
+          // add the program to the array
+          this.enrolledInServices.push(service);
+          console.log('enrolled in services:', this.enrolledInServices);
+        }
+      })
+    );
   }
 
   loadProgram(programId: string) {
