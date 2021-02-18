@@ -1357,14 +1357,14 @@ exports.stripeWebhookEvent = functions
     return response.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  console.log('Stripe webhook event:', event);
+  // console.log('Stripe webhook event:', event);
 
   // Handle the event
   // https://stripe.com/docs/api/events/types
   switch (event.type) {
     case 'payment_intent.succeeded':
       const paymentIntent = event.data.object as Stripe.PaymentIntent;
-      // console.log(`PaymentIntent was successful! ${JSON.stringify(paymentIntent)}`);
+      console.log(`PaymentIntent succeeded! ${JSON.stringify(paymentIntent)}`);
 
       const clientUid = paymentIntent.metadata.client_UID;
       const saleItemId = paymentIntent.metadata.sale_item_id;
@@ -1407,42 +1407,6 @@ exports.stripeWebhookEvent = functions
           promises.push(promise3);
         }
 
-        // Because we cannot split stripe connect payments 3 ways using our current setup, and because the stripe 
-        // 'seperate charges & transfers' flow requires that our platform and any conected accounts must be in the same 
-        // territory, (which limits us geographically in terms of promo partner network), if the sale was referred by 
-        // a promotional partner, we need to track this ourselves and use a seperate process to record and pay our partners.
-        if (paymentIntent.metadata.partner_referred && paymentIntent.metadata.partner_referred !== 'false') {
-          const saleDate = new Date(paymentIntent.created * 1000);
-          const saleMonth = saleDate.getMonth() + 1; // go from zero index to jan === 1
-          const saleYear = saleDate.getFullYear();
-
-          // flatten the data for easier lookups by platform and partners
-
-          const promise4 = db.collection(`partner-referrals/${paymentIntent.metadata.partner_referred}/${saleYear}/${saleMonth}/all`)
-          .doc(successfulPayment.id)
-          .set(successfulPayment, {merge: true});
-          promises.push(promise4);
-
-          const promise5 = db.collection(`partner-referrals/${paymentIntent.metadata.partner_referred}/all`)
-          .doc(successfulPayment.id)
-          .set(successfulPayment, {merge: true});
-          promises.push(promise5);
-
-          const promise6 = db.collection(`partner-referrals/${saleYear}/${saleMonth}`)
-          .doc(successfulPayment.id)
-          .set(successfulPayment, {merge: true});
-          promises.push(promise6);
-
-          const promise7 = db.collection(`partner-referrals/all/referrals`)
-          .doc(successfulPayment.id)
-          .set(successfulPayment, {merge: true});
-          promises.push(promise7);
-
-          // if not yet completed, completed the task to test the partners promo link is working
-          const promise8 = completeUserTask(paymentIntent.metadata.partner_referred, 'taskDefault005');
-          promises.push(promise8);
-        }
-
         return Promise.all(promises);
 
       } catch (err) {
@@ -1451,7 +1415,7 @@ exports.stripeWebhookEvent = functions
       break;
     case 'payment_intent.payment_failed':
       const paymentIntentFailed = event.data.object as Stripe.PaymentIntent;
-      // console.log(`PaymentIntent failed! ${JSON.stringify(paymentIntentFailed)}`);
+      console.log(`PaymentIntent failed! ${JSON.stringify(paymentIntentFailed)}`);
 
       const uidFP = paymentIntentFailed.metadata.client_UID;
 
@@ -1471,7 +1435,7 @@ exports.stripeWebhookEvent = functions
         try {
           // Lookup the original charge to retrieve necessary metadata from the original paymentIntent
           const originalCharge = await stripe.charges.retrieve(transfer.source_transaction as string);
-          // console.log('Original Charge:', originalCharge);
+          console.log('Original Charge:', originalCharge);
 
           const originalSellerUid = originalCharge.metadata.seller_UID;
           const originalSaleItemId = originalCharge.metadata.sale_item_id;
@@ -1533,6 +1497,86 @@ exports.stripeWebhookEvent = functions
           console.error(err);
         }
       break;
+    case 'charge.succeeded':
+      const charge = event.data.object as Stripe.Charge; // https://stripe.com/docs/api/charges/object
+      console.log(`Charge succeeded! ${JSON.stringify(charge)}`);
+
+      try {
+        // Because we cannot split stripe connect payments 3 ways using our current setup, and because the stripe 
+        // 'seperate charges & transfers' flow requires that our platform and any conected accounts must be in the same 
+        // territory, (which limits us geographically in terms of promo partner network), if the sale was referred by 
+        // a promotional partner, we need to track this ourselves and use a seperate process to record and pay our partners.
+
+        const promises = []; // for later
+
+        if (charge.metadata.partner_referred && charge.metadata.partner_referred !== 'false') { // this sale (charge) was partner referred...
+
+          // we've had a successful charge and now we want to know the effect of this charge on our platform balance 
+          // in our platform currency (our real revenue), so that we let's retrieve the associated balance transaction object...
+
+          const balanceTransaction = await stripe.balanceTransactions.retrieve(charge.balance_transaction as string);
+          console.log('Balance transaction:', balanceTransaction);
+
+          // now we have the charge and the balance transaction...
+
+          const saleDate = new Date(charge.created * 1000); // create a date object so we can work with months/years
+          const saleMonth = saleDate.getMonth() + 1; // go from zero index to jan === 1
+          const saleYear = saleDate.getFullYear();
+
+          // transform the data to sanitise and only save what we need here
+
+          const data = {} as any;
+
+          data.id = charge.id;
+          data.object = charge.object;
+          data.amount = charge.amount;
+          data.amount_captured = charge.amount_captured;
+          data.amount_refunded = charge.amount_refunded;
+          data.balance_transaction = charge.balance_transaction;
+          data.balance_transaction_expanded = balanceTransaction;
+          data.created = charge.created;
+          data.currency = charge.currency;
+          data.metadata = charge.metadata;
+          data.payment_intent = charge.payment_intent;
+          data.payment_method = charge.payment_method;
+          data.refunded = charge.refunded;
+          data.transfer = charge.transfer;
+          data.transfer_data = charge.transfer_data;
+          data.transfer_group = charge.transfer_group;
+
+          // flatten the data for easier lookups by platform and partners
+
+          const promise1 = db.collection(`partner-referrals/${charge.metadata.partner_referred}/${saleYear}/${saleMonth}/all`)
+          .doc(charge.payment_intent as string)
+          .set(data, {merge: true});
+          promises.push(promise1);
+
+          const promise2 = db.collection(`partner-referrals/${charge.metadata.partner_referred}/all`)
+          .doc(charge.payment_intent as string)
+          .set(data, {merge: true});
+          promises.push(promise2);
+
+          const promise3 = db.collection(`partner-referrals/${saleYear}/${saleMonth}`)
+          .doc(charge.payment_intent as string)
+          .set(data, {merge: true});
+          promises.push(promise3);
+
+          const promise4 = db.collection(`partner-referrals/all/referrals`)
+          .doc(charge.payment_intent as string)
+          .set(data, {merge: true});
+          promises.push(promise4);
+
+          // if not yet completed, completed the task to test the partners promo link is working
+          const promise5 = completeUserTask(charge.metadata.partner_referred, 'taskDefault005');
+          promises.push(promise5);
+        }
+
+        return Promise.all(promises);
+
+      } catch (err) {
+        console.error(err)
+      }
+      break;
   }
 
   // Return a response to acknowledge receipt of the event
@@ -1562,7 +1606,7 @@ exports.stripeWebhookConnectedEvent = functions
     return response.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  console.log('Stripe connected webhook event:', event);
+  // console.log('Stripe connected webhook event:', event);
 
   // Handle the event
   // https://stripe.com/docs/api/events/types
