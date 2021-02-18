@@ -11,6 +11,7 @@ import { DataService } from 'app/services/data.service';
 import { BsDatepickerConfig } from 'ngx-bootstrap/datepicker';
 import { BsModalRef } from 'ngx-bootstrap/modal';
 import { Subscription } from 'rxjs';
+import { take } from 'rxjs/operators';
 
 /*
   This component is designed to be a re-usable modal.
@@ -83,6 +84,22 @@ export class ScheduleCallComponent implements OnInit {
           this.userProfileName = `${regProfile.firstName} ${regProfile.lastName}`;
           this.userProfilePhoto = regProfile.photo ? regProfile.photo :
             `https://eu.ui-avatars.com/api/?name=${regProfile.firstName}+${regProfile.lastName}&size=100`; // https://eu.ui-avatars.com/
+        } else {
+          // fall back to using account data
+          this.getUserAccountData();
+        }
+      })
+    );
+  }
+
+  getUserAccountData() {
+    this.subscriptions.add(
+      this.dataService.getUserAccount(this.userId)
+      .pipe(take(1))
+      .subscribe(account => {
+        if (account) {
+          this.userProfileName = `${account.firstName} ${account.lastName}`;
+          this.userProfilePhoto = `https://eu.ui-avatars.com/api/?name=${account.firstName}+${account.lastName}&size=100`; // https://eu.ui-avatars.com/
         }
       })
     );
