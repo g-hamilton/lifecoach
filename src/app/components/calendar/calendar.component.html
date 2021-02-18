@@ -124,8 +124,8 @@
               </button>
             </div>
 
-            <!-- options if event tpe is session, not complete and not cancelled and is in the future -->
-            <div *ngIf="activeEvent && activeEvent.type === 'session' && !activeEvent.complete && !activeEvent.cancelled && activeEvent.end >= dateNow">
+            <!-- options if event type is session or discovery, not complete and not cancelled and is in the future -->
+            <div *ngIf="activeEvent && (activeEvent.type === 'session' || activeEvent.type === 'discovery') && !activeEvent.complete && !activeEvent.cancelled && activeEvent.end >= dateNow">
               <button class=" btn btn-default btn-round btn-block" (click)="onViewPerson()">
                 <i class="fas fa-user"></i> View Person
               </button>

@@ -225,12 +225,12 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   async logout() {
+    this.subscriptions.unsubscribe();
     await this.authService.signOut();
     console.log('Sign out successful.');
     this.alertService.alert('auto-close', 'Sign-Out Successful', 'See you again soon');
     this.router.navigate(['/']);
     this.analyticsService.signOut();
   }
-
 
 }
