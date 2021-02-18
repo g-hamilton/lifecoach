@@ -421,6 +421,27 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                <div class=" row mt-3">
+                                    <div class=" col-md-12">
+                                        <div class=" pull-right">
+                                            <button
+                                            *ngIf="!changeEmail && !changePassword"
+                                            class=" btn btn-fill btn-primary btn-round btn-wd"
+                                            name="next"
+                                            type="button"
+                                            (click)="onSubmit()"
+                                            > <span
+                                            *ngIf="submitted"
+                                            class="spinner-border spinner-border-sm"
+                                            role="status"
+                                            ></span> {{ submitted ? 'Saving...' : 'Save' }}
+                                            </button>
+                                        </div>
+                                        <div class=" clearfix"></div>
+                                    </div>
+                                </div>
+
                                 <div class=" row mt-3">
                                     <div class=" col-md-12">
                                         <h6 class=" mt-4"> Delete your account </h6>
@@ -439,21 +460,14 @@
                                 </div>
                                 <div class=" row mt-3">
                                     <div class=" col-md-12">
-                                        <div class=" pull-right">
-                                            <button
-                                            *ngIf="!changeEmail && !changePassword"
-                                            class=" btn btn-fill btn-primary btn-round btn-wd"
-                                            name="next"
-                                            type="button"
-                                            (click)="onSubmit()"
-                                            > <span
-                                            *ngIf="submitted"
-                                            class="spinner-border spinner-border-sm"
-                                            role="status"
-                                            ></span> {{ submitted ? 'Saving...' : 'Save' }}
-                                            </button>
-                                        </div>
-                                        <div class=" clearfix"></div>
+                                        <h6 class=" mt-4"> Log out of your Lifecoach account </h6>
+                                        <button
+                                        class=" btn btn-fill btn-default btn-round"
+                                        name="logout-button"
+                                        type="button"
+                                        (click)="logout()">
+                                            Log out
+                                        </button>
                                     </div>
                                 </div>
                             </form>

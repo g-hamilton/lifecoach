@@ -671,6 +671,15 @@ export class AccountComponent implements OnInit, OnDestroy {
     return `${day} ${date.toLocaleDateString()}`;
   }
 
+  async logout() {
+    this.subscriptions.unsubscribe();
+    await this.authService.signOut();
+    console.log('Sign out successful.');
+    this.alertService.alert('auto-close', 'Sign-Out Successful', 'See you again soon');
+    this.router.navigate(['/']);
+    this.analyticsService.signOut();
+  }
+
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
   }
