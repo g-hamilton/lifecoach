@@ -220,7 +220,12 @@
         </div>
         <!-- end col -->
         <div class=" col-md-6">
-            <app-person-history-timeline [person]="person"></app-person-history-timeline>
+            <app-person-history-timeline
+            [person]="person"
+            [enrolledCourses]="enrolledInCourses"
+            [enrolledPrograms]="enrolledInPrograms"
+            [enrolledServices]="enrolledInServices">
+            </app-person-history-timeline>
         </div>
     </div>
 

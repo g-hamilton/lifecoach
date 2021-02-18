@@ -97,16 +97,16 @@
                             </a>
                         </p>
                         <p *ngIf="item.action === 'enrolled_in_self_study_course'">
-                            {{ person.firstName }} enrolled in your eCourse.
+                            {{ person.firstName }} enrolled in your eCourse: {{ getCourseTitle(item.courseId) }}.
                         </p>
                         <p *ngIf="item.action === 'enrolled_in_full_program'">
-                            {{ person.firstName }} enrolled in your program and paid in full. 
+                            {{ person.firstName }} enrolled in your program: {{ getProgramTitle(item.programId) }} and paid in full. 
                             <a [routerLink]="['/calendar']">
                                 Schedule a session with {{ person.firstName }}
                             </a>
                         </p>
                         <p *ngIf="item.action === 'enrolled_in_program_session'">
-                            {{ person.firstName }} enrolled in your program and is paying per session. 
+                            {{ person.firstName }} enrolled in your program: {{ getProgramTitle(item.programId) }} and is paying per session. 
                             <a [routerLink]="['/calendar']">
                                 Schedule a session with {{ person.firstName }}
                             </a>
@@ -173,7 +173,8 @@
                             </ng-template>
                         </p>
                         <p *ngIf="item.action === 'service_purchase'">
-                            {{ person.firstName }} purchased {{ item.sessionsPurchased }} session(s) for your coaching service. 
+                            {{ person.firstName }} purchased {{ item.sessionsPurchased }} session(s) for your coaching service: 
+                            {{ getServiceTitle(item.serviceId) }}.
                             <a [routerLink]="['/calendar']">
                                 Schedule a session with {{ person.firstName }}
                             </a>

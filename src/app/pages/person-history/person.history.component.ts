@@ -9,6 +9,9 @@ import { CrmPeopleService } from 'app/services/crm-people.service';
 import { BsModalService, BsModalRef, ModalOptions } from 'ngx-bootstrap/modal';
 import { CoachInviteComponent } from 'app/components/coach-invite/coach-invite.component';
 import { DataService } from 'app/services/data.service';
+import { CoachingCourse } from 'app/interfaces/course.interface';
+import { CoachingProgram } from 'app/interfaces/coach.program.interface';
+import { CoachingService } from 'app/interfaces/coaching.service.interface';
 
 @Component({
   selector: 'app-person-history',
@@ -24,9 +27,9 @@ export class PersonHistoryComponent implements OnInit, OnDestroy {
   public person: CRMPerson;
   private subscriptions: Subscription = new Subscription();
   public msgUrl = '/messages';
-  public enrolledInCourses = [];
-  public enrolledInPrograms = [];
-  public enrolledInServices = [];
+  public enrolledInCourses = [] as CoachingCourse[];
+  public enrolledInPrograms = [] as CoachingProgram[];
+  public enrolledInServices = [] as CoachingService[];
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,

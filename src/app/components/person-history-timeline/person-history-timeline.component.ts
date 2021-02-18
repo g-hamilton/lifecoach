@@ -2,6 +2,9 @@ import { Component, OnInit, Input, OnChanges } from '@angular/core';
 import { CRMPerson } from 'app/interfaces/crm.person.interface';
 import { BsModalService, BsModalRef, ModalOptions } from 'ngx-bootstrap/modal';
 import { CoachInviteComponent } from 'app/components/coach-invite/coach-invite.component';
+import { CoachingService } from 'app/interfaces/coaching.service.interface';
+import { CoachingProgram } from 'app/interfaces/coach.program.interface';
+import { CoachingCourse } from 'app/interfaces/course.interface';
 
 @Component({
   selector: 'app-person-history-timeline',
@@ -11,6 +14,9 @@ import { CoachInviteComponent } from 'app/components/coach-invite/coach-invite.c
 export class PersonHistoryTimelineComponent implements OnInit, OnChanges {
 
   @Input() public person: CRMPerson;
+  @Input() public enrolledServices: CoachingService[];
+  @Input() public enrolledPrograms: CoachingProgram[];
+  @Input() public enrolledCourses: CoachingCourse[];
 
   public bsModalRef: BsModalRef;
 
@@ -70,6 +76,39 @@ export class PersonHistoryTimelineComponent implements OnInit, OnChanges {
       }
     };
     this.bsModalRef = this.modalService.show(CoachInviteComponent, config);
+  }
+
+  getServiceTitle(id: string) {
+    if (!this.enrolledServices) {
+      return '';
+    }
+    const filtered = this.enrolledServices.filter(i => i.serviceId === id);
+    if (filtered && filtered.length) {
+      return filtered[0].title;
+    }
+    return '';
+  }
+
+  getProgramTitle(id: string) {
+    if (!this.enrolledPrograms) {
+      return '';
+    }
+    const filtered = this.enrolledPrograms.filter(i => i.programId === id);
+    if (filtered && filtered.length) {
+      return filtered[0].title;
+    }
+    return '';
+  }
+
+  getCourseTitle(id: string) {
+    if (!this.enrolledCourses) {
+      return '';
+    }
+    const filtered = this.enrolledCourses.filter(i => i.courseId === id);
+    if (filtered && filtered.length) {
+      return filtered[0].title;
+    }
+    return '';
   }
 
 }
