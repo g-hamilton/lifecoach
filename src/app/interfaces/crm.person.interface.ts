@@ -15,13 +15,16 @@ export interface CRMPerson {
 
 export interface CRMPersonHistoryEvent {
     action: 'sent_first_message' | 'enrolled_in_self_study_course' | 'enrolled_in_full_program' | 'enrolled_in_program_session' |
-    'coach_invited_user' | 'booked_session' | 'cancelled_session' | 'completed_session' | 'coach_created_session';
+    'coach_invited_user' | 'booked_session' | 'cancelled_session' | 'completed_session' | 'coach_created_session' |
+    'service_purchase';
     id: string; // will be the db record which is also a unix timestamp doc id - NOT the person's lifecoach uid
     roomId?: string; // if the action relates to a message
     courseId?: string; // if this action relates to an eCourse
     programId?: string; // if this action relates to a program
+    serviceId?: string; // if this action relates to a coaching service
     sessionId?: string; // the session id which should match the calendar event id
     event?: CRMPersonHistoryEventData;
+    sessionsPurchased?: number; // if this action was a 'service_purchase', this will be the number of sessions purchased in this service
 }
 
 export interface CRMPersonHistoryEventData {

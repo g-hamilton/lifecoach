@@ -57,6 +57,9 @@
                 <div *ngIf="item.action === 'coach_created_session'" class=" timeline-badge success">
                     <i class="fas fa-calendar"></i>
                 </div>
+                <div *ngIf="item.action === 'service_purchase'" class=" timeline-badge info">
+                    <i class="fas fa-credit-card"></i>
+                </div>
 
                 <!-- panel -->
                 <div class=" timeline-panel">
@@ -74,6 +77,7 @@
                             Completed {{ item.programId === 'discovery' ? 'Discovery Session' : 'Session' }} 
                         </span>
                         <span *ngIf="item.action === 'coach_created_session'" class=" badge badge-success"> Scheduled Session </span>
+                        <span *ngIf="item.action === 'service_purchase'" class=" badge badge-info"> Purchased {{ item.sessionsPurchased }} Session(s) </span>
 
                         <!-- time / date of this action -->
                         <span class="pull-right">
@@ -167,6 +171,12 @@
                                 View session notes
                             </a>
                             </ng-template>
+                        </p>
+                        <p *ngIf="item.action === 'service_purchase'">
+                            {{ person.firstName }} purchased {{ item.sessionsPurchased }} session(s) for your coaching service. 
+                            <a [routerLink]="['/calendar']">
+                                Schedule a session with {{ person.firstName }}
+                            </a>
                         </p>
                     </div>
 
