@@ -8,7 +8,6 @@ import { AlertService } from '../../services/alert.service';
 import { AnalyticsService } from '../../services/analytics.service';
 import { DataService } from '../../services/data.service';
 
-import { CoachProfile } from '../../interfaces/coach.profile.interface';
 import { Subscription } from 'rxjs';
 
 const misc: any = {
@@ -22,7 +21,11 @@ const misc: any = {
 })
 export class NavbarComponent implements OnInit, OnDestroy {
 
-  public userProfile: CoachProfile;
+  public userId: string;
+  public userFirstName: string;
+  public userLastName: string;
+  public userPhotoPaths: any;
+  public uiavatar: string;
 
   private listTitles: any[];
   location: Location;
@@ -51,13 +54,34 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.authService.getAuthUser()
         .subscribe(user => {
-          if (user) {
-            this.dataService.getCoachProfile(user.uid)
-              .subscribe(profile => {
-                if (profile) {
-                  this.userProfile = profile;
+          if (user) { // user is authorised
+            this.userId = user.uid;
+            this.dataService.getUserAccount(user.uid)
+            .subscribe(acct => {
+              if (acct) { // user has an account
+
+                // update the name in the component using the account data
+                this.userFirstName = acct.firstName;
+                this.userLastName = acct.lastName;
+                this.uiavatar = `https://eu.ui-avatars.com/api/?name=${this.userFirstName}+${this.userLastName}&size=100`;
+
+                if (acct.accountType === 'coach') { // if user is a coach
+                  this.dataService.getCoachProfile(user.uid)
+                  .subscribe(profile => {
+                    if (profile) { // if profile exists, update photo
+                      this.userPhotoPaths = profile.photoPaths;
+                    }
+                  });
+                } else if (acct.accountType === 'regular') { // if user is a regular
+                  this.dataService.getRegularProfile(user.uid)
+                  .subscribe(profile => {
+                    if (profile) { // if profile exists, update photo
+                      this.userPhotoPaths = profile.photoPaths;
+                    }
+                  });
                 }
-              });
+              }
+            });
           }
         })
     );

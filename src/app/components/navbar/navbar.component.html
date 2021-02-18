@@ -142,19 +142,19 @@
             tooltip="Account"
             placement="bottom"
           >
-            <ng-container *ngIf="userProfile">
-              <ng-container *ngIf="userProfile.photoPaths; else noPhotos">
+            <ng-container *ngIf="userId">
+              <ng-container *ngIf="userPhotoPaths; else noPhotos">
                 <div class=" photo webp-photo">
-                  <img alt="Profile Photo" src="{{userProfile.photoPaths.webp['124']}}"/>
+                  <img alt="Profile Photo" src="{{userPhotoPaths.webp['124']}}"/>
                 </div>
                 <div class=" photo default">
-                  <img alt="Profile Photo" src="{{userProfile.photoPaths.original['124']}}"/>
+                  <img alt="Profile Photo" src="{{userPhotoPaths.original['124']}}"/>
                 </div>
 
               </ng-container>
               <ng-template #noPhotos>
                 <div class=" photo">
-                  <img alt="Profile Photo" src="{{userProfile ? userProfile.photo : 'assets/img/placeholder.jpg'}}"/>
+                  <img *ngIf="uiavatar" alt="Profile Photo" [src]="uiavatar"/>
                 </div>
               </ng-template>
             </ng-container>
