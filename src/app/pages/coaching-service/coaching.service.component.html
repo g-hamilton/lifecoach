@@ -297,7 +297,7 @@
                     <div class=" card card-pricing card-white"
                     [ngClass]="{
                       'card-success': i === 0,
-                      'card-warning': i === 1,
+                      'card-info': i === 1,
                       'card-danger': i === 2
                     }">
                       <div class=" card-body">
@@ -306,7 +306,7 @@
                         alt="Image"
                         class=" card-img"
                         [src]="i === 0 ? 'assets/img/card-success.png' :
-                        i === 1 ? 'assets/img/card-warning.png' : 'assets/img/card-danger.png'"
+                        i === 1 ? 'assets/img/card-info.png' : 'assets/img/card-danger.png'"
                         />
               
                         <ul class=" list-group">
@@ -327,7 +327,7 @@
                         class=" btn btn-round"
                         [ngClass]="{
                           'btn-success': i === 0,
-                          'btn-warning': i === 1,
+                          'btn-info': i === 1,
                           'btn-danger': i === 2
                         }"
                         id="buynowfull"
