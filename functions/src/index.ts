@@ -1359,6 +1359,12 @@ exports.stripeWebhookEvent = functions
 
   // console.log('Stripe webhook event:', event);
 
+  /*
+  Note: consider the possibility that a webhook may be received more than once!
+  If we fail to send a success response to the webhook or if our code times out beyond 300 seconds,
+  Stripe will try again up to 2 more times.
+  */
+
   // Handle the event
   // https://stripe.com/docs/api/events/types
   switch (event.type) {
@@ -1387,7 +1393,7 @@ exports.stripeWebhookEvent = functions
         // Save the successful payment to the purchaser's account for payment history
         const promise1 = db.collection(`users/${clientUid}/account/account${clientUid}/successful-payments/`)
         .doc(successfulPayment.id)
-        .set(successfulPayment);
+        .set(successfulPayment, {merge: true});
         promises.push(promise1);
 
         // Add the item ID of the purchased item to the user's auth token claims
@@ -1407,7 +1413,7 @@ exports.stripeWebhookEvent = functions
           promises.push(promise3);
         }
 
-        return Promise.all(promises);
+        await Promise.all(promises);
 
       } catch (err) {
         console.error(err)
@@ -1571,7 +1577,7 @@ exports.stripeWebhookEvent = functions
           promises.push(promise5);
         }
 
-        return Promise.all(promises);
+        await Promise.all(promises);
 
       } catch (err) {
         console.error(err)
