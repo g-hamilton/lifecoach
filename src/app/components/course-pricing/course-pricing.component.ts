@@ -7,7 +7,6 @@ import { CoachingCourse } from 'app/interfaces/course.interface';
 import { DataService } from 'app/services/data.service';
 import { AlertService } from 'app/services/alert.service';
 import { AnalyticsService } from 'app/services/analytics.service';
-import { PriceValidator } from 'app/custom-validators/price.validator';
 import { UserAccount } from 'app/interfaces/user.account.interface';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -33,18 +32,19 @@ export class CoursePricingComponent implements OnInit, OnChanges, OnDestroy {
   public focus: boolean;
   public focusTouched: boolean;
 
-  private baseMinPrice = 1;
-  private baseMaxPrice = 10000;
+  private baseMinPrice = 9.99; // minimum allowed price in base currency
+  private baseMaxPrice = 10000; // maximum allowed price in base currency
   private baseCurrency = 'GBP';
-  private minPrice = 1;
+  private rates: any;
+  private minPrice = 9.99;
   private maxPrice = 10000;
 
   public errorMessages = {
     price: {
-      required: `Price is required for paid courses.`,
+      required: `Price is required for paid courses`,
       notNumber: `Price must be a number`,
-      belowMin: `Please enter a price above ${this.minPrice}.`,
-      aboveMax: `Price enter a price below ${this.maxPrice}`
+      min: `Please cannot be below ${this.minPrice}`,
+      max: `Price cannot be above ${this.maxPrice}`
     }
   };
 
@@ -78,7 +78,7 @@ export class CoursePricingComponent implements OnInit, OnChanges, OnDestroy {
             this.pricingForm.get('currency').updateValueAndValidity();
           })
       );
-      this.updateLocalPriceLimits();
+      this.monitorPlatformRates();
     }
   }
 
@@ -91,6 +91,21 @@ export class CoursePricingComponent implements OnInit, OnChanges, OnDestroy {
         this.loadUserData();
       }
     }
+  }
+
+  monitorPlatformRates() {
+    // Monitor platform rates for realtime price calculations
+    this.subscriptions.add(
+      this.dataService.getPlatformRates().subscribe(rates => {
+        if (rates) {
+          // console.log('Rates:', rates);
+          this.rates = rates;
+
+          // update local price limits any time the rates change
+          this.updateLocalPriceLimits();
+        }
+      })
+    );
   }
 
   loadUserData() {
@@ -107,25 +122,55 @@ export class CoursePricingComponent implements OnInit, OnChanges, OnDestroy {
     /*
       Adjusts min & max price validator to set the lowest and highest allowed price
       in multiple currencies, adjusted from the base price & currency.
-      As the platform gets charged in GBP, the base is GBP
+      As the platform gets charged in GBP, the base is GBP.
+      Note: platform rates are in USD.
       https://stripe.com/gb/connect/pricing
-      NOT USED YET
     */
+
+    // safety catch if rates not loaded yet, do nothing as we'll be called again
+    if (!this.rates) {
+      return;
+    }
+
+    // calculate current conversion rate to go from platform base currency into USD (the rate benchmark currency & form default currency)
+    const baseUsd = 1 / this.rates[this.baseCurrency];
+    // console.log('base conversion rate to USD:', baseUsd);
+
+    // calculate the minimum price in USD at the current platform currency conversion rate
+    const minPriceUsd = this.baseMinPrice * baseUsd;
+    const maxPriceUsd = this.baseMaxPrice * baseUsd;
+    // console.log('minimum price in USD:', minPriceUsd);
+    // console.log('maximum price in USD:', maxPriceUsd);
+
+    // check the current value of the selected currency in the form
+    const selectedCurrency = this.pricingF.currency.value;
+    // console.log('selected currency is:', selectedCurrency);
+
+    // update the limits based on the selected currency in the form
+    this.minPrice = Number((minPriceUsd * this.rates[selectedCurrency] as number).toFixed(2));
+    this.maxPrice = Number((maxPriceUsd * this.rates[selectedCurrency] as number).toFixed(2));
+    // console.log(`updated minimum price in ${selectedCurrency}: ${this.minPrice}`);
+    // console.log(`updated maximum price in ${selectedCurrency}: ${this.maxPrice}`);
+
+    // update the form validators
+    this.pricingForm.get('price').clearValidators();
+    this.pricingForm.get('price').setValidators([this.conditionallyRequiredValidator, Validators.min(this.minPrice), Validators.max(this.maxPrice)]);
+    this.pricingForm.get('price').updateValueAndValidity();
+
+    // reset the error message object with new values
+    this.errorMessages.price.min = `Price cannot be below ${this.minPrice}`;
+    this.errorMessages.price.max = `Price cannot be above ${this.maxPrice}`;
   }
 
   buildPricingForm() {
     this.pricingForm = this.formBuilder.group({
       courseId: ['', [Validators.required]],
       pricingStrategy: [null, [Validators.required]],
-      price: ['', [this.conditionallyRequiredValidator]],
+      price: ['', [this.conditionallyRequiredValidator, Validators.min(this.minPrice), Validators.max(this.maxPrice)]],
       currency: ['USD', [this.conditionallyRequiredValidator]],
       disableInstructorSupport: [false],
       disableAllDiscussion: [false],
       includeInCoachingForCoaches: [false]
-    }, {
-      validators: [
-        PriceValidator('pricingStrategy', 'price', this.minPrice, this.maxPrice)
-      ]
     });
   }
 
@@ -152,6 +197,9 @@ export class CoursePricingComponent implements OnInit, OnChanges, OnDestroy {
       price: this.course.price ? this.course.price : '',
       currency: this.course.currency ? this.course.currency : defaultCurrency
     });
+
+    // now we've imported the data, update local price limits again
+    this.updateLocalPriceLimits();
   }
 
   get pricingF(): any {
@@ -171,6 +219,7 @@ export class CoursePricingComponent implements OnInit, OnChanges, OnDestroy {
       this.pricingForm.patchValue({ // update the pricing form
         currency: event
       });
+      this.updateLocalPriceLimits(); // update the local price limits again using the new currency selected
     }
   }
 
@@ -238,15 +287,15 @@ export class CoursePricingComponent implements OnInit, OnChanges, OnDestroy {
 
     await this.dataService.savePrivateCourse(this.userId, this.course);
 
+    this.alertService.alert('auto-close', 'Success!', 'Changes saved.');
     this.saving = false;
     this.saveAttempt = false;
 
     this.analyticsService.editCourseOptions();
   }
 
-  async saveProgress() {
-    await this.onSubmit(); // attempt to save
-    this.alertService.alert('auto-close', 'Success!', 'Changes saved.');
+  saveProgress() {
+    this.onSubmit(); // attempt to save
   }
 
   async goNext() {

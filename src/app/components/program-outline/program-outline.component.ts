@@ -7,7 +7,6 @@ import { UserAccount } from 'app/interfaces/user.account.interface';
 import { DataService } from 'app/services/data.service';
 import { AlertService } from 'app/services/alert.service';
 import { AnalyticsService } from 'app/services/analytics.service';
-import { ProgramPriceValidator } from 'app/custom-validators/program.price.validator';
 
 @Component({
   selector: 'app-program-outline',
@@ -37,26 +36,25 @@ export class ProgramOutlineComponent implements OnInit, OnChanges, OnDestroy {
   public objKeys = Object.keys;
   private subscriptions: Subscription = new Subscription();
 
-  private baseMinPrice = 1;
-  private baseMaxPrice = 10000;
+  private baseMinPrice = 29.99; // minimum allowed price in base currency
+  private baseMaxPrice = 10000; // maximum allowed price in base currency
   private baseCurrency = 'GBP';
-  private minPrice = 1;
+  private rates: any;
+  private minPrice = 29.99;
   private maxPrice = 10000;
-  private minPricePerSession = 1;
-  private maxPricePerSession = 10000;
 
   public errorMessages = {
     fullPrice: {
-      required: `Please set a price for this program.`,
+      required: `Please set a price for this program`,
       notNumber: `Price must be a number`,
-      belowMin: `Please enter a price above ${this.minPrice}.`,
-      aboveMax: `Price enter a price below ${this.maxPrice}`
+      min: `Price cannot be below ${this.minPrice}`,
+      max: `Price cannot be above ${this.maxPrice}`
     },
     pricePerSession: {
-      required: `Please set a price per session or de-select Pay As You Go as an option.`,
+      required: `Please set a price per session or de-select Pay As You Go as an option`,
       notNumber: `Price must be a number`,
-      belowMin: `Please enter a price above ${this.minPricePerSession}.`,
-      aboveMax: `Price enter a price below ${this.maxPricePerSession}`
+      min: `Price cannot be below ${this.minPrice}`,
+      max: `Price cannot be above ${this.maxPrice}`
     },
     numSessions: {
       required: `Please enter a number`
@@ -88,7 +86,7 @@ export class ProgramOutlineComponent implements OnInit, OnChanges, OnDestroy {
             this.outlineForm.get('currency').updateValueAndValidity();
           })
       );
-      this.updateLocalPriceLimits();
+      this.monitorPlatformRates();
     }
   }
 
@@ -101,6 +99,21 @@ export class ProgramOutlineComponent implements OnInit, OnChanges, OnDestroy {
         this.loadUserData();
       }
     }
+  }
+
+  monitorPlatformRates() {
+    // Monitor platform rates for realtime price calculations
+    this.subscriptions.add(
+      this.dataService.getPlatformRates().subscribe(rates => {
+        if (rates) {
+          // console.log('Rates:', rates);
+          this.rates = rates;
+
+          // update local price limits any time the rates change
+          this.updateLocalPriceLimits();
+        }
+      })
+    );
   }
 
   loadUserData() {
@@ -117,15 +130,11 @@ export class ProgramOutlineComponent implements OnInit, OnChanges, OnDestroy {
     this.outlineForm = this.formBuilder.group({
       programId: ['', [Validators.required]],
       pricingStrategy: ['flexible', [Validators.required]],
-      fullPrice: [null, [Validators.required]],
-      pricePerSession: [null, [this.conditionallyRequiredValidator]],
+      fullPrice: [null, [Validators.required, Validators.min(this.minPrice), Validators.max(this.maxPrice)]],
+      pricePerSession: [null, [this.conditionallyRequiredValidator, Validators.min(this.minPrice), Validators.max(this.maxPrice)]],
       currency: ['USD', [Validators.required]],
       numSessions: [null, [Validators.required]],
       duration: [null, [Validators.required]],
-    }, {
-      validators: [
-        ProgramPriceValidator('pricingStrategy', 'fullPrice', 'pricePerSession', this.minPrice, this.maxPrice),
-      ]
     });
   }
 
@@ -145,10 +154,49 @@ export class ProgramOutlineComponent implements OnInit, OnChanges, OnDestroy {
     /*
       Adjusts min & max price validator to set the lowest and highest allowed price
       in multiple currencies, adjusted from the base price & currency.
-      As the platform gets charged in GBP, the base is GBP
+      As the platform gets charged in GBP, the base is GBP.
+      Note: platform rates are in USD.
       https://stripe.com/gb/connect/pricing
-      NOT USED YET
     */
+
+    // safety catch if rates not loaded yet, do nothing as we'll be called again
+    if (!this.rates) {
+      return;
+    }
+
+    // calculate current conversion rate to go from platform base currency into USD (the rate benchmark currency & form default currency)
+    const baseUsd = 1 / this.rates[this.baseCurrency];
+    // console.log('base conversion rate to USD:', baseUsd);
+
+    // calculate the minimum price in USD at the current platform currency conversion rate
+    const minPriceUsd = this.baseMinPrice * baseUsd;
+    const maxPriceUsd = this.baseMaxPrice * baseUsd;
+    // console.log('minimum price in USD:', minPriceUsd);
+    // console.log('maximum price in USD:', maxPriceUsd);
+
+    // check the current value of the selected currency in the form
+    const selectedCurrency = this.outlineF.currency.value;
+    // console.log('selected currency is:', selectedCurrency);
+
+    // update the limits based on the selected currency in the form
+    this.minPrice = Number((minPriceUsd * this.rates[selectedCurrency] as number).toFixed(2));
+    this.maxPrice = Number((maxPriceUsd * this.rates[selectedCurrency] as number).toFixed(2));
+    // console.log(`updated minimum price in ${selectedCurrency}: ${this.minPrice}`);
+    // console.log(`updated maximum price in ${selectedCurrency}: ${this.maxPrice}`);
+
+    // update the form validators
+    this.outlineForm.get('fullPrice').clearValidators();
+    this.outlineForm.get('fullPrice').setValidators([Validators.required, Validators.min(this.minPrice), Validators.max(this.maxPrice)]);
+    this.outlineForm.get('fullPrice').updateValueAndValidity();
+    this.outlineForm.get('pricePerSession').clearValidators();
+    this.outlineForm.get('pricePerSession').setValidators([this.conditionallyRequiredValidator, Validators.min(this.minPrice), Validators.max(this.maxPrice)]);
+    this.outlineForm.get('pricePerSession').updateValueAndValidity();
+
+    // reset the error message object with new values
+    this.errorMessages.fullPrice.min = `Price cannot be below ${this.minPrice}`;
+    this.errorMessages.fullPrice.max = `Price cannot be above ${this.maxPrice}`;
+    this.errorMessages.pricePerSession.min = `Price cannot be below ${this.minPrice}`;
+    this.errorMessages.pricePerSession.max = `Price cannot be above ${this.maxPrice}`;
   }
 
   importProgramData() {
@@ -165,6 +213,9 @@ export class ProgramOutlineComponent implements OnInit, OnChanges, OnDestroy {
       numSessions: this.program.numSessions ? this.program.numSessions : null,
       duration: this.program.duration ? this.program.duration : null,
     });
+
+    // now we've imported the data, update local price limits again
+    this.updateLocalPriceLimits();
   }
 
   get outlineF(): any {
@@ -184,6 +235,7 @@ export class ProgramOutlineComponent implements OnInit, OnChanges, OnDestroy {
       this.outlineForm.patchValue({ // update the form
         currency: event
       });
+      this.updateLocalPriceLimits(); // update the local price limits again using the new currency selected
     }
   }
 
@@ -229,6 +281,7 @@ export class ProgramOutlineComponent implements OnInit, OnChanges, OnDestroy {
 
     await this.dataService.savePrivateProgram(this.userId, this.program);
 
+    this.alertService.alert('auto-close', 'Success!', 'Changes saved.');
     this.saving = false;
     this.saveAttempt = false;
 
@@ -251,9 +304,8 @@ export class ProgramOutlineComponent implements OnInit, OnChanges, OnDestroy {
     return (100 - (this.outlineF.fullPrice.value / (this.outlineF.numSessions.value * this.outlineF.pricePerSession.value)) * 100).toFixed();
   }
 
-  async saveProgress() {
-    await this.onSubmit(); // attempt to save
-    this.alertService.alert('auto-close', 'Success!', 'Changes saved.');
+  saveProgress() {
+    this.onSubmit(); // attempt to save
   }
 
   async goNext() {
