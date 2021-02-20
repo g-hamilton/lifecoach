@@ -64,13 +64,12 @@ const config: Stripe.StripeConfig = { apiVersion: '2020-08-27', typescript: true
 const stripe = new Stripe(functions.config().stripe.prod.secretkey, config); // prod secret key
 const stripeWebhookSecret = functions.config().stripe.prod.webhooksecret; // prod secret webhook key
 const stripeWebhookConnectSecret = functions.config().stripe.prod.webhookconnectsecret // prod secret webhook key
-const ecourseAppFeeDecimal = 0.3; // our std application fee percentage for ecourses, expressed as a decimal. eg 0.5 // 50%
-const ecourseAppFeeReferralDecimal = 0.1; // our reduced ecourse app fee percentage expressed as a decimal.
-const programAppFeeDecimal = 0.1;
-const programAppFeeReferralDecimal = 0.025;
-const serviceAppFeeDecimal = 0.1;
-const serviceAppFeeReferralDecimal = 0.025;
-// const partnerReferralDecimal = 0.5;
+const ecourseAppFeeDecimal = 0.5; // our std application fee percentage for ecourses, expressed as a decimal. eg 0.5 // 50%
+const ecourseAppFeeReferralDecimal = 0.25; // our reduced ecourse app fee percentage expressed as a decimal.
+const programAppFeeDecimal = 0.2;
+const programAppFeeReferralDecimal = 0.075;
+const serviceAppFeeDecimal = 0.2;
+const serviceAppFeeReferralDecimal = 0.075;
 
 // ================================================================================
 // =====                                                                     ======
