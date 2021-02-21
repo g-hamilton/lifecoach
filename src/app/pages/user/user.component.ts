@@ -336,7 +336,7 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
 
   loadUserProfileData(p: CoachProfile) {
     this.shareProfile = p;
-    console.log(p);
+    // console.log(p);
     // Patch user data into the built profile form
     this.userProfile.patchValue({
       firstName: p.firstName,
@@ -565,7 +565,7 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
       return;
     }
 
-    console.log('Profile is valid:', this.userProfile.value);
+    // console.log('Profile is valid:', this.userProfile.value);
 
     const saveProfile = this.userProfile.value; // capture the form value as a new object to save
 

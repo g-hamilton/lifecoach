@@ -122,34 +122,6 @@
                       >Please enter your last name.</label
                     >
                   </div>
-                  <!-- Phone -->
-                  <div
-                    class=" input-group"
-                    [ngClass]="{
-                      'input-group-focus': focus3 === true,
-                      'has-danger': (((focus3Touched && group0.phone.value != '') || saveAttempt) && group0.phone.errors),
-                      'has-success': group0.phone.value != '' && !group0.phone.errors
-                    }"
-                  >
-                    <div class=" input-group-prepend">
-                      <div class=" input-group-text">
-                        <i class=" tim-icons icon-mobile"> </i>
-                      </div>
-                    </div>
-                    <input
-                      class=" form-control"
-                      name="number"
-                      placeholder="Phone (optional)"
-                      formControlName="phone"
-                      type="number"
-                      (focus)="focus3 = true; focus3Touched = true"
-                      (blur)="focus3 = false"
-                    />
-                    <label
-                      class="error custom-error-label text-left"
-                      *ngIf="(((focus3Touched && group0.phone.value != '') || saveAttempt) && group0.phone.errors)"
-                      >Provide a contact number.</label>
-                  </div>
                 </div>
               </div>
               <div class=" mt-5">

@@ -10,7 +10,6 @@ export interface CoachProfile {
     isPublic: boolean;
     lastName: string;
     gender: 'female' | 'male' | 'gnc' | 'prefer-not';
-    phone: number;
     photo: string;
     proSummary:	string;
     objectID: string;
@@ -54,4 +53,5 @@ export interface CoachProfile {
     onlyIncludeInCoachingForCoaches?: boolean;
     targetIssues?: string;
     targetGoals?: string;
+    phone?: number;
 }

@@ -132,8 +132,7 @@ export class ProfileWizardComponent implements OnInit, OnDestroy {
           email: [
             '',
             [Validators.required, Validators.pattern(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)]
-          ],
-          phone: ['', [Validators.pattern('^-?[0-9]+$')]]
+          ]
         }),
 
         // Group 1
