@@ -286,49 +286,6 @@
                                     DRAFT
                                 </span>
                             </div>
-                            <div>
-                                <blockquote class="blockquote mt-3 mb-0">
-                                    <h6>
-                                        <span class=" text-muted">
-                                            Earned this month: 
-                                        </span>
-                                    </h6>
-                                    <div *ngIf="publishedCourses[i]?.monthlyEarnings" class="">
-                                        <!-- list each unique currency's total sales amount -->
-                                        <p *ngFor="let key of objKeys(publishedCourses[i]?.monthlyEarnings)">
-                                            {{ currencies[key.toUpperCase()].symbol + publishedCourses[i].monthlyEarnings[key].monthTotalInThisCurrency }}
-                                        </p>
-                                    </div>
-                                    <!-- no sales this month -->
-                                    <div *ngIf="publishedCourses[i]?.monthlyEarnings">
-                                        <p *ngIf="objKeys(publishedCourses[i].monthlyEarnings).length == 0">
-                                            0
-                                        </p>
-                                    </div>
-
-                                    <!-- lifetime total enrollments for this course -->
-                                    <div *ngIf="publishedCourses[i]?.lifetimeTotals">
-                                        <h6>
-                                            <span class=" text-muted">
-                                                Lifetime total earnings: 
-                                            </span>
-                                        </h6>
-                                        <div *ngFor="let key of objKeys(publishedCourses[i].lifetimeTotals)">
-                                            <p *ngIf="key !== 'free'">
-                                                {{ currencies[(key).toUpperCase()].symbol + publishedCourses[i].lifetimeTotals[key].lifetimeTotalAmount / 100 }}
-                                            </p>
-                                        </div>
-                                        <h6 class="">
-                                            <span class=" text-muted">
-                                                Lifetime total enrollments: 
-                                            </span>
-                                        </h6>
-                                        <p>
-                                            {{ publishedCourses[i].lifetimeTotalSales }}
-                                        </p>
-                                    </div>
-                                </blockquote>
-                            </div>
                         </div>
                     </div>
                 </a>
