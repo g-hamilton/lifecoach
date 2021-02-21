@@ -50,6 +50,7 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
   public focus10: boolean;
   public focus11: boolean;
   public focus12: boolean;
+  public focus13: boolean;
 
   public focusTouched: boolean;
   public focus1Touched: boolean;
@@ -64,6 +65,7 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
   public focus10Touched: boolean;
   public focus11Touched: boolean;
   public focus12Touched: boolean;
+  public focus13Touched: boolean;
 
   public countryList = this.countryService.getCountryList();
   public currencyList = this.currencyService.getCurrenciesAsArray();
@@ -92,6 +94,9 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
     },
     city: {
       required: `Please enter your city`
+    },
+    gender: {
+      required: `Please enter a gender or indicate that you prefer not to say`
     },
     proSummary: {
       required: `Please enter a short summary`,
@@ -253,6 +258,7 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
         '',
         [Validators.required, Validators.pattern(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)]
       ],
+      gender: [null, Validators.required],
       phone: ['', [Validators.pattern('^-?[0-9]+$')]],
       photo: ['', Validators.required],
       photoPaths: [null],
@@ -326,6 +332,7 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
       firstName: p.firstName,
       lastName: p.lastName,
       email: p.email,
+      gender: p.gender ? p.gender : null,
       phone: p.phone,
       photo: p.photo,
       city: p.city,
@@ -547,17 +554,17 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
       return;
     }
 
-    // update the form data from just country code to the full country object.
+    console.log('Profile is valid:', this.userProfile.value);
+
+    const saveProfile = this.userProfile.value; // capture the form value as a new object to save
+
+    // update the country data from just country code to the full country object.
     const ct = this.countryService.getCountryByCode(this.profileF.country.value);
-    this.userProfile.patchValue({country: ct});
+    saveProfile.country = ct;
 
-    // update the form data from just speciality id to the full speciality object.
+    // update the speciality data from just speciality id to the full speciality object.
     const spec = this.specialitiesService.getSpecialityById(this.profileF.speciality1.value);
-    this.userProfile.patchValue({speciality1: spec});
-
-    // console.log('Profile is valid:', this.userProfile.value);
-
-    const saveProfile = this.userProfile.value;
+    saveProfile.speciality1 = spec;
 
     // Restructure the goalTags from string formArray into the object array structure required
     const goalObjArr = [];
@@ -609,7 +616,7 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
     //   this.dataService.completeUserTask(this.userId, 'taskDefault002'); // this is done by default now
     // }
 
-    this.alertService.alert('success-message', 'Success!', 'Profile updated successfully.');
+    this.alertService.alert('auto-close', 'Success!', 'Profile updated successfully.');
     this.analyticsService.saveUserProfile(saveProfile);
 
     this.savingProfile = false;

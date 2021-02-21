@@ -9,6 +9,7 @@ export interface CoachProfile {
     firstName: string;
     isPublic: boolean;
     lastName: string;
+    gender: 'female' | 'male' | 'gnc' | 'prefer-not';
     phone: number;
     photo: string;
     proSummary:	string;

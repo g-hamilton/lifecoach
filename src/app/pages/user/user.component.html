@@ -171,6 +171,53 @@
                   </div>
                 </div>
               </div>
+
+              <!-- gender -->
+              <div class=" row mt-4">
+                <div class=" col">
+                  <label> My Gender </label> 
+                  <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> We may use this information to match you with clients who specify that the 
+                    gender of their coach is particularly important to them.
+                  </p>
+                </div>
+              </div>
+              <div class=" row mt-2">
+                <div class=" col-sm-5">
+                  <div class=" form-group" *ngIf="browser">
+                    <select
+                      class="form-control"
+                      id="genderSelect"
+                      formControlName="gender"
+                      (focus)="focus13 = true; focus13Touched = true"
+                      (blur)="focus13 = false">
+                      <option [ngValue]="null"> Select... </option>
+                      <option value="female">
+                        Female
+                      </option>
+                      <option value="male">
+                        Male
+                      </option>
+                      <option value="gnc">
+                        Gender Non-Conforming
+                      </option>
+                      <option value="prefer-not">
+                        I prefer not to say
+                      </option>
+                    </select>
+                    <div *ngIf="(((focus13Touched && profileF.gender.value != null) || saveAttempt) && profileF.gender.errors)">
+                      <label
+                      *ngFor="let error of objKeys(profileF.gender.errors)"
+                      class="error custom-error-label"
+                      >{{ showError('gender', error) }}
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- end gender -->
+
               <!-- Short Summary -->
               <div class=" row mt-4">
                 <div class=" col-md-12">
