@@ -479,6 +479,34 @@
                   </div>
                 </div>
               </div>
+              <!-- end quals -->
+
+              <!-- Full Description -->
+              <div class=" row mt-5">
+                <div class=" col-md-12">
+                  <label> About Me </label>
+                  <p class=" small text-muted pl-2 mb-2">
+                    <i class="fas fa-info-circle"></i> This is a great place to expand on the information above 
+                    to really promote yourself as a coach. We recommend you focus on yourself. What makes you unique? 
+                    What can you offer your clients? Why should clients choose you? What can you help your clients to 
+                    achieve?
+                  </p>
+                  <div *ngIf="viewLoaded" class=" form-group">
+                    <editor 
+                    apiKey="swb6l7gw85zcl8aw2dh7551jt3t5ydravtthultgf8fo3w2l" 
+                    [init]="{
+                      height: 300,
+                      menubar: false,
+                      plugins: 'link lists paste',
+                      toolbar: 'undo redo | formatselect | paste | bold italic backcolor link| alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat'
+                    }"
+                    formControlName="fullDescription"
+                    >
+                    </editor>
+                  </div>
+                </div>
+              </div>
+              <!-- end full description -->
 
               <!-- Credentials -->
               <div class=" row mt-4">
@@ -538,6 +566,60 @@
                   </button>
                 </div>
               </div>
+              <!-- end credentials -->
+
+              <!-- include in C4C -->
+              <div class=" form-group mt-3">
+                <label> Include my profile in the Lifecoach 'Coaching for Coaches' program </label>
+                <p class=" small text-muted pl-2 mb-4">
+                    <i class="fas fa-info-circle"></i> The Lifecoach 'Coaching for Coaches' program is aimed specifically 
+                    at helping professional Coaches to progress their coaching careers. If you are a Coach who 
+                    specialises in coaching or training fellow Coaches, you can promote your profile in this program. 
+                    Please only select this option if your coaching is aimed specifically at other coaches. 
+                    Need a little help? <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001174543-introducing-the-lifecoach-coaching-for-coaches-program" target="_blank">
+                        Read more.
+                    </a> 
+                </p>
+                <div class=" mt-3">
+                    <bSwitch
+                    [switch-on-color]="'danger'"
+                    [switch-off-color]="'danger'"
+                    [switch-off-text]="'NO'"
+                    [switch-on-text]="'YES'"
+                    [(ngModel)]="profileF.includeInCoachingForCoaches.value"
+                    [ngModelOptions]="{standalone: true}"
+                    (changeState)="onIncludeInCoachingForCoachesToggle($event)"
+                  >
+                  </bSwitch>
+                </div>
+              </div>
+              <!-- end include c4c -->
+
+              <!-- only include in C4C -->
+              <div class=" form-group mt-3">
+                <label> Only show my profile to registered coaches </label>
+                <p class=" small text-muted pl-2 mb-4">
+                    <i class="fas fa-info-circle"></i> If you are participating in the Lifecoach 'Coaching for Coaches' program, 
+                    you may wish to restrict your profile so that it is only shown to registered coaches on the platform. 
+                    This can help to ensure you only get relevant leads from other coaches.
+                    Need a little help? <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001174543-introducing-the-lifecoach-coaching-for-coaches-program" target="_blank">
+                        Read more.
+                    </a> 
+                </p>
+                <div class=" mt-3">
+                    <bSwitch
+                    [switch-on-color]="'danger'"
+                    [switch-off-color]="'danger'"
+                    [switch-off-text]="'NO'"
+                    [switch-on-text]="'YES'"
+                    [(ngModel)]="profileF.onlyIncludeInCoachingForCoaches.value"
+                    [ngModelOptions]="{standalone: true}"
+                    (changeState)="onOnlyIncludeInCoachingForCoachesToggle($event)"
+                  >
+                  </bSwitch>
+                </div>
+              </div>
+              <!-- end only include c4c -->
   
               <!-- Social links -->
               <div class=" row mt-5">
@@ -762,32 +844,8 @@
                   </div>
                 </div>
               </div>
+              <!-- end social links -->
   
-              <!-- Full Description -->
-              <div class=" row mt-5">
-                <div class=" col-md-12">
-                  <label> About Me </label>
-                  <p class=" small text-muted pl-2 mb-2">
-                    <i class="fas fa-info-circle"></i> This is a great place to expand on the information above 
-                    to really promote yourself as a coach. We recommend you focus on yourself. What makes you unique? 
-                    What can you offer your clients? Why should clients choose you? What can you help your clients to 
-                    achieve?
-                  </p>
-                  <div *ngIf="viewLoaded" class=" form-group">
-                    <editor 
-                    apiKey="swb6l7gw85zcl8aw2dh7551jt3t5ydravtthultgf8fo3w2l" 
-                    [init]="{
-                      height: 300,
-                      menubar: false,
-                      plugins: 'link lists paste',
-                      toolbar: 'undo redo | formatselect | paste | bold italic backcolor link| alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat'
-                    }"
-                    formControlName="fullDescription"
-                    >
-                    </editor>
-                  </div>
-                </div>
-              </div>
             </form>
             <!-- End of form -->
           </div>

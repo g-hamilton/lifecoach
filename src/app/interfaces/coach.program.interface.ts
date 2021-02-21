@@ -46,6 +46,6 @@ export interface CoachingProgram {
     progress?: number;
     purchasedSessions?: any[];
     sessionsComplete?: any[];
-    imagePaths?: ProgramImagePaths;
-    // for different image to speed up first render --test_feature
+    imagePaths?: ProgramImagePaths; // for different image to speed up first render --test_feature
+    includeInCoachingForCoaches?: boolean;
 }

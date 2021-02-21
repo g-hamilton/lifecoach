@@ -43,4 +43,5 @@ export interface CoachingService {
     purchasedSessions?: any[];
     sessionsComplete?: any[];
     imagePaths?: ServiceImagePaths; // for different image to speed up first render --test_feature
+    includeInCoachingForCoaches?: boolean;
 }

@@ -153,7 +153,8 @@ export class ServiceLandingPageComponent implements OnInit, OnChanges, OnDestroy
       promoVideo: [null],
       learningPoints: [this.formBuilder.array([])],
       requirements: [this.formBuilder.array([])],
-      targets: [this.formBuilder.array([])]
+      targets: [this.formBuilder.array([])],
+      includeInCoachingForCoaches: [false]
     });
   }
 
@@ -172,7 +173,8 @@ export class ServiceLandingPageComponent implements OnInit, OnChanges, OnDestroy
       promoVideo: this.service.promoVideo ? this.service.promoVideo : null,
       learningPoints: this.service.learningPoints ? this.loadLpoints() : this.formBuilder.array([], Validators.maxLength(this.learningPointsMax)),
       requirements: this.service.requirements ? this.loadRequirements() : this.formBuilder.array([], Validators.maxLength(this.requirementsMax)),
-      targets: this.service.targets ? this.loadTargets() : this.formBuilder.array([], Validators.maxLength(this.targetsMax))
+      targets: this.service.targets ? this.loadTargets() : this.formBuilder.array([], Validators.maxLength(this.targetsMax)),
+      includeInCoachingForCoaches : this.service.includeInCoachingForCoaches ? this.service.includeInCoachingForCoaches : false
     });
     // init the character counts (before user input detected)
     this.titleActualLength = this.landingF.title.value.length;
@@ -300,6 +302,10 @@ export class ServiceLandingPageComponent implements OnInit, OnChanges, OnDestroy
     } else {
       console.log('Self upload image selected');
     }
+  }
+
+  onIncludeInCoachingForCoachesToggle(ev: any) {
+    this.landingForm.patchValue({includeInCoachingForCoaches: ev.currentValue});
   }
 
   buildLpArray() {

@@ -49,4 +49,6 @@ export interface CoachProfile {
     website?: string;
     selectedProfileVideo?: string;
     photoPaths?: UserAvatarImagePaths;
+    includeInCoachingForCoaches?: boolean;
+    onlyIncludeInCoachingForCoaches?: boolean;
 }

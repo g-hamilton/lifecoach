@@ -303,7 +303,9 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
       website: [''],
       isPublic: [false],
       selectedProfileVideo: [null],
-      dateCreated: [null]
+      dateCreated: [null],
+      includeInCoachingForCoaches: [false],
+      onlyIncludeInCoachingForCoaches: [false]
     }, {
       validators: [
         UrlScheme('facebook'),
@@ -374,7 +376,9 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
       selectedProfileVideo: p.selectedProfileVideo ? p.selectedProfileVideo : null,
       isPublic: p.isPublic ? p.isPublic : false,
       dateCreated: p.dateCreated ? p.dateCreated : Math.round(new Date().getTime() / 1000), // unix timestamp if missing
-      photoPaths: p.photoPaths ? p.photoPaths : null
+      photoPaths: p.photoPaths ? p.photoPaths : null,
+      includeInCoachingForCoaches : p.includeInCoachingForCoaches ? p.includeInCoachingForCoaches : false,
+      onlyIncludeInCoachingForCoaches : p.onlyIncludeInCoachingForCoaches ? p.onlyIncludeInCoachingForCoaches : false
     });
 
     if (p.selectedProfileVideo) {
@@ -514,6 +518,14 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
 
   onSummaryInput(ev: any) {
     this.summaryActualLength = (ev.target.value as string).length;
+  }
+
+  onIncludeInCoachingForCoachesToggle(ev: any) {
+    this.userProfile.patchValue({includeInCoachingForCoaches: ev.currentValue});
+  }
+
+  onOnlyIncludeInCoachingForCoachesToggle(ev: any) {
+    this.userProfile.patchValue({onlyIncludeInCoachingForCoaches: ev.currentValue});
   }
 
   async onSubmit() {
