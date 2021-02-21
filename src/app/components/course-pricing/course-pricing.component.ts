@@ -185,8 +185,7 @@ export class CoursePricingComponent implements OnInit, OnChanges, OnDestroy {
       price: ['', [this.conditionallyRequiredValidator, Validators.min(this.minPrice), Validators.max(this.maxPrice)]],
       currency: ['USD', [this.conditionallyRequiredValidator]],
       disableInstructorSupport: [false],
-      disableAllDiscussion: [false],
-      includeInCoachingForCoaches: [false]
+      disableAllDiscussion: [false]
     });
   }
 
@@ -211,7 +210,9 @@ export class CoursePricingComponent implements OnInit, OnChanges, OnDestroy {
       courseId: this.course.courseId,
       pricingStrategy: this.course.pricingStrategy ? this.course.pricingStrategy : 'free',
       price: this.course.price ? this.course.price : '',
-      currency: this.course.currency ? this.course.currency : defaultCurrency
+      currency: this.course.currency ? this.course.currency : defaultCurrency,
+      disableInstructorSupport: this.course.disableInstructorSupport ? this.course.disableInstructorSupport : false,
+      disableAllDiscussion: this.course.disableAllDiscussion ? this.course.disableAllDiscussion : false
     });
 
     // now we've imported the data, update local price limits again
@@ -262,10 +263,6 @@ export class CoursePricingComponent implements OnInit, OnChanges, OnDestroy {
 
   onDisableAllDiscussionToggle(ev: any) {
     this.pricingForm.patchValue({disableAllDiscussion: ev.currentValue});
-  }
-
-  onIncludeInCoachingForCoachesToggle(ev: any) {
-    this.pricingForm.patchValue({includeInCoachingForCoaches: ev.currentValue});
   }
 
   async onSubmit() {

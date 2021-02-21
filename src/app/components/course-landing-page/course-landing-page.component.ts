@@ -157,7 +157,8 @@ export class CourseLandingPageComponent implements OnInit, OnChanges, AfterViewI
       requirements: [this.formBuilder.array([])],
       targets: [this.formBuilder.array([])],
       // field below should replace image field in future
-      imagePaths: [null]
+      imagePaths: [null],
+      includeInCoachingForCoaches: [false]
     });
   }
 
@@ -177,7 +178,8 @@ export class CourseLandingPageComponent implements OnInit, OnChanges, AfterViewI
       requirements: this.course.requirements ? this.loadRequirements() : this.formBuilder.array([], Validators.maxLength(this.requirementsMax)),
       targets: this.course.targets ? this.loadTargets() : this.formBuilder.array([], Validators.maxLength(this.targetsMax)),
       // field below should replace image field in future
-      imagePaths: this.course.imagePaths ? this.course.imagePaths : null
+      imagePaths: this.course.imagePaths ? this.course.imagePaths : null,
+      includeInCoachingForCoaches : this.course.includeInCoachingForCoaches ? this.course.includeInCoachingForCoaches : false
     });
 
     if (this.course.promoVideo) {
@@ -302,6 +304,10 @@ export class CourseLandingPageComponent implements OnInit, OnChanges, AfterViewI
     this.videoSources.push({ // use the array method for reloading a videoGular video as simple [src] binding does not reload on the fly
       src: event.downloadURL
     });
+  }
+
+  onIncludeInCoachingForCoachesToggle(ev: any) {
+    this.landingForm.patchValue({includeInCoachingForCoaches: ev.currentValue});
   }
 
   buildLpArray() {

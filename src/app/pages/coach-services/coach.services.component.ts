@@ -81,7 +81,7 @@ export class CoachServicesComponent implements OnInit, OnDestroy {
                   this.subscriptions.add(
                     this.dataService.getProgramSalesByMonth(this.userId, month, year, programId).subscribe(sales => {
                       if (sales) { // should be an array of program enrollment objects
-                        console.log(`Sales for program ${programId}`, sales);
+                        // console.log(`Sales for program ${programId}`, sales);
 
                         // map a new array containing unique currencies from all sales in the month
                         const uniqueCurrencies = [...new Set(sales.map(item => item.currency))];
