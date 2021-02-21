@@ -37,13 +37,13 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
   private subscriptions: Subscription = new Subscription();
 
   private baseMinPrice = 29.99; // minimum allowed price in base currency
-  private baseMaxPrice = 10000; // maximum allowed price in base currency
+  private baseMaxPrice = 9999; // maximum allowed price in base currency
   private baseCurrency = 'GBP';
   private rates: any;
   private minSessions = 2; // should be 2 or above
   private maxSessions = 100;
   private minPrice = 29.99;
-  private maxPrice = 10000;
+  private maxPrice = 9999;
   public pricingPointsMax = 3; // keep to max 3 for the purchase UI (3 cards + discovery card)
 
   public errorMessages = {
@@ -160,10 +160,26 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
     // console.log('selected currency is:', selectedCurrency);
 
     // update the limits based on the selected currency in the form
-    this.minPrice = Number((minPriceUsd * this.rates[selectedCurrency] as number).toFixed(2));
-    this.maxPrice = Number((maxPriceUsd * this.rates[selectedCurrency] as number).toFixed(2));
-    // console.log(`updated minimum price in ${selectedCurrency}: ${this.minPrice}`);
-    // console.log(`updated maximum price in ${selectedCurrency}: ${this.maxPrice}`);
+    const minimumPrice = Number((minPriceUsd * this.rates[selectedCurrency] as number));
+    const maximumPrice = Number((maxPriceUsd * this.rates[selectedCurrency] as number));
+    // console.log(`updated minimum price in ${selectedCurrency}: ${minimumPrice}`);
+    // console.log(`updated maximum price in ${selectedCurrency}: ${maximumPrice}`);
+
+    // round prices
+    if (!Number.isInteger(minimumPrice)) { // min price is not an integer
+      const roundedMin = Math.floor(minimumPrice) + .99; // round up to .99
+      this.minPrice = roundedMin;
+    } else { // min price is an integer
+      this.minPrice = minimumPrice + 1; // add 1 as a margin
+    }
+    // console.log('rounded minimum price:', this.minPrice);
+    if (!Number.isInteger(maximumPrice)) { // max price is not an integer
+      const roundedMax = Math.floor(maximumPrice) + .99; // round up to .99
+      this.maxPrice = roundedMax;
+    } else { // max price is an integer
+      this.maxPrice = maximumPrice + 1; // add 1 as a margin
+    }
+    // console.log('rounded maximum price:', this.maxPrice);
 
     // update the form validators
     this.outlineForm.get('pricing.0.price').clearValidators();
