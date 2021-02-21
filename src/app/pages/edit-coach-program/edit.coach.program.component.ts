@@ -117,9 +117,22 @@ export class EditCoachProgramComponent implements OnInit, OnDestroy {
     this.staticTabs.tabs[tabId].active = true;
   }
 
+  scrollToTop() {
+    if (this.browser) {
+      (function smoothscroll() {
+        const currentScroll = document.documentElement.scrollTop || document.body.scrollTop;
+        if (currentScroll > 0) {
+          window.requestAnimationFrame(smoothscroll);
+          window.scrollTo(0, currentScroll - (currentScroll / 8));
+        }
+      })();
+    }
+  }
+
   onGoNextEvent(id: number) {
     // console.log('onGoNextEvent:', id);
     this.selectTab(id);
+    this.scrollToTop();
   }
 
   ngOnDestroy() {

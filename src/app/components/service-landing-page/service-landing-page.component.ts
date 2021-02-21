@@ -10,6 +10,7 @@ import { CoachingSpecialitiesService } from 'app/services/coaching.specialities.
 import { IsoLanguagesService } from 'app/services/iso-languages.service';
 import { StorageService } from 'app/services/storage.service';
 import { CloudFunctionsService } from 'app/services/cloud-functions.service';
+import { ToastService } from 'app/services/toast.service';
 
 @Component({
   selector: 'app-service-landing-page',
@@ -114,7 +115,8 @@ export class ServiceLandingPageComponent implements OnInit, OnChanges, OnDestroy
     private specialitiesService: CoachingSpecialitiesService,
     private languagesService: IsoLanguagesService,
     private storageService: StorageService,
-    private cloudFunctions: CloudFunctionsService
+    private cloudFunctions: CloudFunctionsService,
+    private toastService: ToastService
   ) { }
 
   ngOnInit() {
@@ -407,15 +409,16 @@ export class ServiceLandingPageComponent implements OnInit, OnChanges, OnDestroy
 
     await this.dataService.savePrivateService(this.userId, this.service);
 
+    this.toastService.showToast('Changes saved.', 2500, 'success', 'bottom', 'center');
+
     this.saving = false;
     this.saveAttempt = false;
 
     this.analyticsService.editServiceLanding();
   }
 
-  async saveProgress() {
-    await this.onSubmit(); // attempt to save
-    this.alertService.alert('auto-close', 'Success!', 'Changes saved.');
+  saveProgress() {
+    this.onSubmit(); // attempt to save
   }
 
   async goNext() {

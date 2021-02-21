@@ -7,6 +7,7 @@ import { UserAccount } from 'app/interfaces/user.account.interface';
 import { DataService } from 'app/services/data.service';
 import { AlertService } from 'app/services/alert.service';
 import { AnalyticsService } from 'app/services/analytics.service';
+import { ToastService } from 'app/services/toast.service';
 
 @Component({
   selector: 'app-service-outline',
@@ -66,7 +67,8 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
     public formBuilder: FormBuilder,
     private dataService: DataService,
     private alertService: AlertService,
-    private analyticsService: AnalyticsService
+    private analyticsService: AnalyticsService,
+    private toastService: ToastService
   ) { }
 
   ngOnInit() {
@@ -339,7 +341,8 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
 
     await this.dataService.savePrivateService(this.userId, this.service);
 
-    this.alertService.alert('auto-close', 'Success!', 'Changes saved.');
+    this.toastService.showToast('Changes saved.', 2500, 'success', 'bottom', 'center');
+
     this.saving = false;
     this.saveAttempt = false;
 

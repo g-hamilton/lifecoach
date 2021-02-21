@@ -11,6 +11,7 @@ import { StorageService } from 'app/services/storage.service';
 import { CoachingSpecialitiesService } from 'app/services/coaching.specialities.service';
 import { IsoLanguagesService } from 'app/services/iso-languages.service';
 import { CloudFunctionsService } from '../../services/cloud-functions.service';
+import { ToastService } from 'app/services/toast.service';
 // import {daLocale} from 'ngx-bootstrap';
 
 @Component({
@@ -117,7 +118,8 @@ export class CourseLandingPageComponent implements OnInit, OnChanges, AfterViewI
     private storageService: StorageService,
     private specialitiesService: CoachingSpecialitiesService,
     private languagesService: IsoLanguagesService,
-    private cloudFunctions: CloudFunctionsService
+    private cloudFunctions: CloudFunctionsService,
+    private toastService: ToastService
   ) { }
 
   ngOnInit() {
@@ -408,9 +410,11 @@ export class CourseLandingPageComponent implements OnInit, OnChanges, AfterViewI
     // field below should replace image field in future
     this.course.imagePaths = this.landingF.imagePaths.value;
 
-    console.log(this.course);
+    // console.log(this.course);
 
     await this.dataService.savePrivateCourse(this.userId, this.course);
+
+    this.toastService.showToast('Changes saved.', 2500, 'success', 'bottom', 'center');
 
     this.saving = false;
     this.saveAttempt = false;
@@ -418,9 +422,8 @@ export class CourseLandingPageComponent implements OnInit, OnChanges, AfterViewI
     this.analyticsService.editCourseLandingPage();
   }
 
-  async saveProgress() {
-    await this.onSubmit(); // attempt to save
-    this.alertService.alert('auto-close', 'Success!', 'Changes saved.');
+  saveProgress() {
+    this.onSubmit(); // attempt to save
   }
 
   async goNext() {

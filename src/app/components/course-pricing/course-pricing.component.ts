@@ -10,6 +10,7 @@ import { AnalyticsService } from 'app/services/analytics.service';
 import { UserAccount } from 'app/interfaces/user.account.interface';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { ToastService } from 'app/services/toast.service';
 
 @Component({
   selector: 'app-course-pricing',
@@ -61,7 +62,8 @@ export class CoursePricingComponent implements OnInit, OnChanges, OnDestroy {
     private dataService: DataService,
     private alertService: AlertService,
     private analyticsService: AnalyticsService,
-    private router: Router
+    private router: Router,
+    private toastService: ToastService
   ) {
   }
 
@@ -293,14 +295,14 @@ export class CoursePricingComponent implements OnInit, OnChanges, OnDestroy {
     }
     this.course.disableInstructorSupport = this.pricingF.disableInstructorSupport.value;
     this.course.disableAllDiscussion = this.pricingF.disableAllDiscussion.value;
-    this.course.includeInCoachingForCoaches = this.pricingF.includeInCoachingForCoaches.value;
 
     // console.log(this.pricingForm.value);
     // console.log('Saving course:', this.course);
 
     await this.dataService.savePrivateCourse(this.userId, this.course);
 
-    this.alertService.alert('auto-close', 'Success!', 'Changes saved.');
+    this.toastService.showToast('Changes saved.', 2500, 'success', 'bottom', 'center');
+
     this.saving = false;
     this.saveAttempt = false;
 
