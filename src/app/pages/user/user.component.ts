@@ -18,6 +18,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { environment } from 'environments/environment';
 import {CloudFunctionsService} from '../../services/cloud-functions.service';
+import { CoachProfile } from 'app/interfaces/coach.profile.interface';
 
 @Component({
   selector: 'app-user',
@@ -51,6 +52,8 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
   public focus11: boolean;
   public focus12: boolean;
   public focus13: boolean;
+  public focus14: boolean;
+  public focus15: boolean;
 
   public focusTouched: boolean;
   public focus1Touched: boolean;
@@ -66,6 +69,8 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
   public focus11Touched: boolean;
   public focus12Touched: boolean;
   public focus13Touched: boolean;
+  public focus14Touched: boolean;
+  public focus15Touched: boolean;
 
   public countryList = this.countryService.getCountryList();
   public currencyList = this.currencyService.getCurrenciesAsArray();
@@ -84,6 +89,12 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
   public summaryMinLength = 90;
   public summaryMaxLength = 120;
   public summaryActualLength = 0;
+
+  public targetIssuesMaxLength = 500;
+  public targetIssuesActualLength = 0;
+
+  public targetGoalsMaxLength = 500;
+  public targetGoalsActualLength = 0;
 
   public ErrorMessages = {
     firstName: {
@@ -135,6 +146,12 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
       minlength: `Must be more than ${this.credentialMinLength} characters`,
       maxlength: `Must be below ${this.credentialMaxLength} characters`,
       includesComma: `Please only add one credential area per line`
+    },
+    targetIssues: {
+      maxlength: `Cannot be above ${this.targetIssuesMaxLength} characters.`
+    },
+    targetGoals: {
+      maxlength: `Cannot be above ${this.targetGoalsMaxLength} characters.`
     }
   };
 
@@ -259,7 +276,7 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
         [Validators.required, Validators.pattern(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)]
       ],
       gender: [null, Validators.required],
-      phone: ['', [Validators.pattern('^-?[0-9]+$')]],
+      phone: [null, [Validators.pattern('^-?[0-9]+$')]],
       photo: ['', Validators.required],
       photoPaths: [null],
       city: [null, Validators.required],
@@ -287,20 +304,11 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
       qualCas: [false],
       qualCsa: [false],
       qualSa: [false],
-      proSummary: ['', [Validators.required, Validators.minLength(this.summaryMinLength), Validators.maxLength(this.summaryMaxLength)]],
+      proSummary: [null, [Validators.required, Validators.minLength(this.summaryMinLength), Validators.maxLength(this.summaryMaxLength)]],
       profileUrl: [''],
       fullDescription: [''],
       goalTags: [this.formBuilder.array([new FormControl('', [Validators.minLength(this.goalTagMinLength), Validators.maxLength(this.goalTagMaxLength)])]), Validators.compose([Validators.maxLength(this.goalTagsMax)])],
       credentials: [this.formBuilder.array([new FormControl('', [Validators.minLength(this.credentialMinLength), Validators.maxLength(this.credentialMaxLength)])]), Validators.compose([Validators.maxLength(this.credentialsMax)])],
-      remotePractice: [true],
-      freeConsultation: [false],
-      payHourly: [false],
-      payMonthly: [false],
-      payPerSession: [false],
-      hourlyRate: new FormControl({value: '', disabled: true}),
-      sessionRate: new FormControl({value: '', disabled: true}),
-      monthlyRate: new FormControl({value: '', disabled: true}),
-      currency: [''],
       facebook: [''],
       twitter: [''],
       linkedin: [''],
@@ -311,7 +319,9 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
       selectedProfileVideo: [null],
       dateCreated: [null],
       includeInCoachingForCoaches: [false],
-      onlyIncludeInCoachingForCoaches: [false]
+      onlyIncludeInCoachingForCoaches: [false],
+      targetIssues: [null, [Validators.maxLength(this.targetIssuesMaxLength)]],
+      targetGoals: [null, [Validators.maxLength(this.targetGoalsMaxLength)]],
     }, {
       validators: [
         UrlScheme('facebook'),
@@ -324,7 +334,7 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
     });
   }
 
-  loadUserProfileData(p) {
+  loadUserProfileData(p: CoachProfile) {
     this.shareProfile = p;
     console.log(p);
     // Patch user data into the built profile form
@@ -333,9 +343,9 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
       lastName: p.lastName,
       email: p.email,
       gender: p.gender ? p.gender : null,
-      phone: p.phone,
-      photo: p.photo,
-      city: p.city,
+      phone: p.phone ? p.phone : null,
+      photo: p.photo ? p.photo : '',
+      city: p.city ? p.city : null,
       country: (p.country && p.country.code) ? p.country.code : null,
       speciality1: (p.speciality1 && p.speciality1.id) ? p.speciality1.id : null,
       qualBa: p.qualBa ? p.qualBa : null,
@@ -360,20 +370,11 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
       qualCas: p.qualCas ? p.qualCas : null,
       qualCsa: p.qualCsa ? p.qualCsa : null,
       qualSa: p.qualSa ? p.qualSa : null,
-      proSummary: p.proSummary,
+      proSummary: p.proSummary ? p.proSummary : null,
       profileUrl: p.profileUrl ? p.profileUrl : `${environment.baseUrl}/coach/${this.userId}`,
       fullDescription: p.fullDescription ? p.fullDescription : '',
       goalTags: this.importGoalTags(p.goalTags),
       credentials: this.importCredentials(p.credentials),
-      remotePractice: p.remotePractice ? p.remotePractice : true,
-      freeConsultation: p.freeConsultation ? p.freeConsultation : false,
-      payHourly: p.payHourly ? p.payHourly : false,
-      payMonthly: p.payMonthly ? p.payMonthly : false,
-      payPerSession: p.payPerSession ? p.payPerSession : false,
-      hourlyRate: p.hourlyRate,
-      sessionRate: p.sessionRate,
-      monthlyRate: p.monthlyRate,
-      currency: p.currency ? p.currency : '',
       facebook: p.facebook ? p.facebook : '',
       twitter: p.twitter ? p.twitter : '',
       linkedin: p.linkedin ? p.linkedin : '',
@@ -385,7 +386,9 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
       dateCreated: p.dateCreated ? p.dateCreated : Math.round(new Date().getTime() / 1000), // unix timestamp if missing
       photoPaths: p.photoPaths ? p.photoPaths : null,
       includeInCoachingForCoaches : p.includeInCoachingForCoaches ? p.includeInCoachingForCoaches : false,
-      onlyIncludeInCoachingForCoaches : p.onlyIncludeInCoachingForCoaches ? p.onlyIncludeInCoachingForCoaches : false
+      onlyIncludeInCoachingForCoaches : p.onlyIncludeInCoachingForCoaches ? p.onlyIncludeInCoachingForCoaches : false,
+      tagetIssues: p.targetIssues ? p.targetIssues : null,
+      targetGoals: p.targetGoals ? p.targetGoals : null
     });
 
     if (p.selectedProfileVideo) {
@@ -533,6 +536,14 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
 
   onOnlyIncludeInCoachingForCoachesToggle(ev: any) {
     this.userProfile.patchValue({onlyIncludeInCoachingForCoaches: ev.currentValue});
+  }
+
+  onTargetIssuesInput(ev: any) {
+    this.targetIssuesActualLength = (ev.target.value as string).length;
+  }
+
+  onTargetGoalsInput(ev: any) {
+    this.targetGoalsActualLength = (ev.target.value as string).length;
   }
 
   async onSubmit() {

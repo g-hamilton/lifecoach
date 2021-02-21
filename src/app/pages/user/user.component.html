@@ -234,18 +234,18 @@
                     cols="80"
                     rows="5"
                     formControlName="proSummary"
+                    placeholder="A little about me..."
                     (focus)="focus4 = true; focus4Touched = true"
                     (blur)="focus4 = false"
                     (input)="onSummaryInput($event)"
                     required="">
-                      A little about me...
                     </textarea>
                     <small>
                       <span class="pull-right">
                         {{ summaryActualLength + '/' + summaryMaxLength }}
                       </span>
                     </small>
-                    <div *ngIf="(((focus4Touched && profileF.proSummary.value != '') || savingProfile) && profileF.proSummary.errors)">
+                    <div *ngIf="(((focus4Touched && profileF.proSummary.value != null) || savingProfile) && profileF.proSummary.errors)">
                       <label
                       *ngFor="let error of objKeys(profileF.proSummary.errors)"
                       class="error custom-error-label"
@@ -614,62 +614,9 @@
                 </div>
               </div>
               <!-- end credentials -->
-
-              <!-- include in C4C -->
-              <div class=" form-group mt-3">
-                <label> Include my profile in the Lifecoach 'Coaching for Coaches' program </label>
-                <p class=" small text-muted pl-2 mb-4">
-                    <i class="fas fa-info-circle"></i> The Lifecoach 'Coaching for Coaches' program is aimed specifically 
-                    at helping professional Coaches to progress their coaching careers. If you are a Coach who 
-                    specialises in coaching or training fellow Coaches, you can promote your profile in this program. 
-                    Please only select this option if your coaching is aimed specifically at other coaches. 
-                    Need a little help? <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001174543-introducing-the-lifecoach-coaching-for-coaches-program" target="_blank">
-                        Read more.
-                    </a> 
-                </p>
-                <div class=" mt-3">
-                    <bSwitch
-                    [switch-on-color]="'danger'"
-                    [switch-off-color]="'danger'"
-                    [switch-off-text]="'NO'"
-                    [switch-on-text]="'YES'"
-                    [(ngModel)]="profileF.includeInCoachingForCoaches.value"
-                    [ngModelOptions]="{standalone: true}"
-                    (changeState)="onIncludeInCoachingForCoachesToggle($event)"
-                  >
-                  </bSwitch>
-                </div>
-              </div>
-              <!-- end include c4c -->
-
-              <!-- only include in C4C -->
-              <div class=" form-group mt-3">
-                <label> Only show my profile to registered coaches </label>
-                <p class=" small text-muted pl-2 mb-4">
-                    <i class="fas fa-info-circle"></i> If you are participating in the Lifecoach 'Coaching for Coaches' program, 
-                    you may wish to restrict your profile so that it is only shown to registered coaches on the platform. 
-                    This can help to ensure you only get relevant leads from other coaches.
-                    Need a little help? <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001174543-introducing-the-lifecoach-coaching-for-coaches-program" target="_blank">
-                        Read more.
-                    </a> 
-                </p>
-                <div class=" mt-3">
-                    <bSwitch
-                    [switch-on-color]="'danger'"
-                    [switch-off-color]="'danger'"
-                    [switch-off-text]="'NO'"
-                    [switch-on-text]="'YES'"
-                    [(ngModel)]="profileF.onlyIncludeInCoachingForCoaches.value"
-                    [ngModelOptions]="{standalone: true}"
-                    (changeState)="onOnlyIncludeInCoachingForCoachesToggle($event)"
-                  >
-                  </bSwitch>
-                </div>
-              </div>
-              <!-- end only include c4c -->
   
               <!-- Social links -->
-              <div class=" row mt-5">
+              <div class=" row mt-4">
                 <div class=" col">
                   <label>
                     My Social Links
@@ -1039,7 +986,7 @@
               <div class="">
                 <div class="form-group">
                     <label for="referral-code"> Share your profile using this link.
-                        <a href="https://lifecoach.freshdesk.com/a/solutions/articles/47001133909" target="_blank">
+                        <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001143074-how-to-make-the-most-of-your-lifecoach-profile" target="_blank">
                             Learn more
                         </a>
                     </label>
@@ -1192,6 +1139,151 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Client Matching Section -->
+    <div class=" row">
+      <div class=" col-md-8">
+        <!-- back into the main form again -->
+        <form [formGroup]="userProfile">
+          <div class=" card">
+            <div class=" card-header"><h5 class=" title"> Client Matching </h5></div>
+            <p class=" small text-muted pl-4 pr-4">
+              <i class="fas fa-info-circle"></i> This section of your profile is not shown directly to Lifecoach users but it is important! 
+              We use this information to try and match you to the most relevant clients, so please provide as much detail as you can.
+            </p>
+            <div class=" card-body">
+
+              <!-- target issues -->
+              <div class=" row mt-4">
+                <div class=" col-md-12">
+                  <div class=" form-group">
+                    <label> Issues my clients typically describe </label>
+                    <p class=" small text-muted pl-2 mb-2">
+                      <i class="fas fa-info-circle"></i> One of the ways we match you with your ideal client persona is by 
+                      asking people to describe the issues that they are currently facing. If you were standing in your ideal 
+                      client's shoes right now, how would you describe the issues that you need help with?
+                    </p>
+                    <textarea
+                    class=" form-control mt-2"
+                    cols="80"
+                    rows="5"
+                    formControlName="targetIssues"
+                    placeholder="Eg. I'm struggling with recognition at work and it's really affecting my confidence..."
+                    (focus)="focus14 = true; focus14Touched = true"
+                    (blur)="focus14 = false"
+                    (input)="onTargetIssuesInput($event)">
+                    </textarea>
+                    <small>
+                      <span class="pull-right">
+                        {{ targetIssuesActualLength + '/' + targetIssuesMaxLength }}
+                      </span>
+                    </small>
+                    <div *ngIf="(((focus14Touched && profileF.targetIssues.value != null) || savingProfile) && profileF.targetIssues.errors)">
+                      <label
+                      *ngFor="let error of objKeys(profileF.targetIssues.errors)"
+                      class="error custom-error-label"
+                      >{{ showError('targetIssues', error) }}
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- end target issues -->
+
+              <!-- target goals -->
+              <div class=" row mt-4">
+                <div class=" col-md-12">
+                  <div class=" form-group">
+                    <label> Goals my clients typically describe </label>
+                    <p class=" small text-muted pl-2 mb-2">
+                      <i class="fas fa-info-circle"></i> Another way we match you with your ideal client persona is by 
+                      asking people to describe what they want to achieve in their current stage of life. If you were standing in your ideal 
+                      client's shoes right now, how would you describe what you want to achieve?
+                    </p>
+                    <textarea
+                    class=" form-control mt-2"
+                    cols="80"
+                    rows="5"
+                    formControlName="targetGoals"
+                    placeholder="Eg. I want to improve my confidence and learn how to interact with people..."
+                    (focus)="focus15 = true; focus15Touched = true"
+                    (blur)="focus15 = false"
+                    (input)="onTargetGoalsInput($event)">
+                    </textarea>
+                    <small>
+                      <span class="pull-right">
+                        {{ targetGoalsActualLength + '/' + targetGoalsMaxLength }}
+                      </span>
+                    </small>
+                    <div *ngIf="(((focus15Touched && profileF.targetGoals.value != null) || savingProfile) && profileF.targetGoals.errors)">
+                      <label
+                      *ngFor="let error of objKeys(profileF.targetGoals.errors)"
+                      class="error custom-error-label"
+                      >{{ showError('targetGoals', error) }}
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- end target goals -->
+
+              <!-- include in C4C -->
+              <div class=" form-group mt-3">
+                <label> Include my profile in the Lifecoach 'Coaching for Coaches' program </label>
+                <p class=" small text-muted pl-2 mb-4">
+                    <i class="fas fa-info-circle"></i> The Lifecoach 'Coaching for Coaches' program is aimed specifically 
+                    at helping professional Coaches to progress their coaching careers. If you are a Coach who 
+                    specialises in coaching or training fellow Coaches, you can promote your profile in this program. 
+                    Please only select this option if your coaching is aimed specifically at other coaches. 
+                    Need a little help? <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001174543-introducing-the-lifecoach-coaching-for-coaches-program" target="_blank">
+                        Read more.
+                    </a> 
+                </p>
+                <div class=" mt-3">
+                    <bSwitch
+                    [switch-on-color]="'danger'"
+                    [switch-off-color]="'danger'"
+                    [switch-off-text]="'NO'"
+                    [switch-on-text]="'YES'"
+                    [(ngModel)]="profileF.includeInCoachingForCoaches.value"
+                    [ngModelOptions]="{standalone: true}"
+                    (changeState)="onIncludeInCoachingForCoachesToggle($event)"
+                  >
+                  </bSwitch>
+                </div>
+              </div>
+              <!-- end include c4c -->
+  
+              <!-- only include in C4C -->
+              <div class=" form-group mt-3">
+                <label> Only show my profile to registered coaches </label>
+                <p class=" small text-muted pl-2 mb-4">
+                    <i class="fas fa-info-circle"></i> If you are participating in the Lifecoach 'Coaching for Coaches' program, 
+                    you may wish to restrict your profile so that it is only shown to registered coaches on the platform. 
+                    This can help to ensure you only get relevant leads from other coaches.
+                    Need a little help? <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001174543-introducing-the-lifecoach-coaching-for-coaches-program" target="_blank">
+                        Read more.
+                    </a> 
+                </p>
+                <div class=" mt-3">
+                    <bSwitch
+                    [switch-on-color]="'danger'"
+                    [switch-off-color]="'danger'"
+                    [switch-off-text]="'NO'"
+                    [switch-on-text]="'YES'"
+                    [(ngModel)]="profileF.onlyIncludeInCoachingForCoaches.value"
+                    [ngModelOptions]="{standalone: true}"
+                    (changeState)="onOnlyIncludeInCoachingForCoachesToggle($event)"
+                  >
+                  </bSwitch>
+                </div>
+              </div>
+              <!-- end only include c4c -->
+            </div>
+          </div>
+        </form>
       </div>
     </div>
 

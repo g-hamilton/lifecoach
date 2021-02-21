@@ -52,4 +52,6 @@ export interface CoachProfile {
     photoPaths?: UserAvatarImagePaths;
     includeInCoachingForCoaches?: boolean;
     onlyIncludeInCoachingForCoaches?: boolean;
+    targetIssues?: string;
+    targetGoals?: string;
 }
