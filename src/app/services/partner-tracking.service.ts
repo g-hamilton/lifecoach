@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { AnalyticsService } from './analytics.service';
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +10,8 @@ export class PartnerTrackingService {
   private maxDaysToTrack = 30; // how many days do we allow a tracking code to be valid for?
 
   constructor(
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private analyticsService: AnalyticsService
   ) { }
 
   checkAndSavePartnerTrackingCode() {
@@ -23,6 +25,8 @@ export class PartnerTrackingService {
 
         localStorage.setItem('partner-tracking-uid', qP.partner); // save partner tracking id to local storage
         localStorage.setItem('partner-tracking-timestamp', timeStampInSeconds.toString()); // save timestamp to local storage
+
+        this.analyticsService.partnerTrackingCodeDetectedInRoute(qP.partner);
       }
     });
   }
@@ -38,9 +42,11 @@ export class PartnerTrackingService {
       if ((Number(timestamp) + (this.maxDaysToTrack * 24 * 60 * 60)) >= now) {
         // timestamp is valid (within the max number of days to track)
         console.log('saved & valid partner tracking code found:', code);
+        this.analyticsService.savedValidPartnerTrackingCodeDetected(code);
         return code; // return the tracking code
       }
       // timestamp not valid, return null
+      this.analyticsService.savedInvalidPartnerTrackingCodeDetected(code);
       return null;
     }
 

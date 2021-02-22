@@ -9,6 +9,7 @@ import { CourseQuestion, CourseQuestionReply } from 'app/interfaces/q&a.interfac
 import { CoachProfile } from 'app/interfaces/coach.profile.interface';
 import { CoachingProgram } from 'app/interfaces/coach.program.interface';
 import { CoachingService } from 'app/interfaces/coaching.service.interface';
+import { StripePaymentIntentRequest } from 'app/interfaces/stripe.payment.intent.request';
 
 /*
   Using Mixpanel analytics
@@ -192,8 +193,10 @@ export class AnalyticsService {
     mixpanel.track('managed Stripe connect');
   }
 
-  attemptStripePayment() {
-    mixpanel.track('attempted Stripe payment');
+  attemptStripePayment(paymentIntent: StripePaymentIntentRequest) {
+    mixpanel.track('attempted Stripe payment', {
+      paymentIntent
+    });
   }
 
   completeStripePayment() {
@@ -457,6 +460,24 @@ export class AnalyticsService {
 
   clickGetStarted() {
     mixpanel.track('clicked get started');
+  }
+
+  partnerTrackingCodeDetectedInRoute(partnerUid: string) {
+    mixpanel.track('detected partner tracking code', {
+      partnerUid
+    });
+  }
+
+  savedValidPartnerTrackingCodeDetected(partnerUid: string) {
+    mixpanel.track('detected partner tracking code', {
+      partnerUid
+    });
+  }
+
+  savedInvalidPartnerTrackingCodeDetected(partnerUid: string) {
+    mixpanel.track('detected partner tracking code', {
+      partnerUid
+    });
   }
 
 }

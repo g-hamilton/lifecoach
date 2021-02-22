@@ -143,7 +143,6 @@ export class CourseComponent implements OnInit, OnDestroy {
 
         // Safe to proceed..
         this.purchasingCourse = true;
-        this.analyticsService.attemptStripePayment();
 
         // prepare the request object
         const piRequest: StripePaymentIntentRequest = {
@@ -155,6 +154,8 @@ export class CourseComponent implements OnInit, OnDestroy {
           referralCode: this.referralCode ? this.referralCode : null,
           partnerTrackingCode: this.partnerTrackingCode ? this.partnerTrackingCode : null
         };
+
+        this.analyticsService.attemptStripePayment(piRequest);
 
         // request the payment intent
         const pIntentRes = await this.cloudFunctionsService.getStripePaymentIntent(piRequest) as any;
