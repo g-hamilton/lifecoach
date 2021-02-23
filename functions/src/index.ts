@@ -4,6 +4,7 @@ const firebase_tools = require('firebase-tools');
 
 const firebase = admin.initializeApp();
 const db = admin.firestore();
+const batch = db.batch(); // for atomic db ops
 const client = require('twilio')(functions.config().twilio.accountsid, functions.config().twilio.authtoken);
 import * as sharp from 'sharp';
 
@@ -13,6 +14,15 @@ import * as sharp from 'sharp';
 // =====  https://firebase.google.com/docs/functions/config-env              ======
 // =====  For storing environment variables                                  ======
 // ================================================================================
+
+// ================================================================================
+// =====                            INTERFACES                               ======
+// ================================================================================
+
+interface CustomTransfer extends Stripe.Transfer {
+  source_transaction_expanded: any; // will be a santised Stripe.Charge object
+  balance_transaction_expanded: Stripe.BalanceTransaction;
+}
 
 // ================================================================================
 // =====                     ANGULAR UNIVERSAL SSR                           ======
@@ -56,16 +66,15 @@ const shortUrlEndpoint = 'https://api.rebrandly.com/v1/links'
 // =====                           STRIPE CONFIG                             ======
 // ================================================================================
 
-// Set Stripe secret key. Remember to switch to live secret key in production!
 // See Stripe keys here: https://dashboard.stripe.com/account/apikeys
 
 import { Stripe } from 'stripe';
 const config: Stripe.StripeConfig = { apiVersion: '2020-08-27', typescript: true }
-const stripe = new Stripe(functions.config().stripe.prod.secretkey, config); // prod secret key
-const stripeWebhookSecret = functions.config().stripe.prod.webhooksecret; // prod secret webhook key
-const stripeWebhookConnectSecret = functions.config().stripe.prod.webhookconnectsecret // prod secret webhook key
-const ecourseAppFeeDecimal = 0.5; // our std application fee percentage for ecourses, expressed as a decimal. eg 0.5 // 50%
-const ecourseAppFeeReferralDecimal = 0.25; // our reduced ecourse app fee percentage expressed as a decimal.
+const stripe = new Stripe(functions.config().stripe.prod.secretkey, config);
+const stripeWebhookSecret = functions.config().stripe.prod.webhooksecret;
+const stripeWebhookConnectSecret = functions.config().stripe.prod.webhookconnectsecret
+const ecourseAppFeeDecimal = 0.5;
+const ecourseAppFeeReferralDecimal = 0.25;
 const programAppFeeDecimal = 0.2;
 const programAppFeeReferralDecimal = 0.075;
 const serviceAppFeeDecimal = 0.2;
@@ -392,8 +401,6 @@ firstName: string | null, lastName: string | null) {
   .catch(err => console.error(err));
 
   // Initialise default data
-
-  const batch = db.batch(); // prepare to execute multiple ops atomically
 
   if (type === 'coach') { // Coach account
 
@@ -1375,40 +1382,31 @@ exports.stripeWebhookEvent = functions
       const saleItemId = paymentIntent.metadata.sale_item_id;
       const saleItemType = paymentIntent.metadata.sale_item_type;
 
-      // Transform the successful payment intent to remove any sensitive data that we don't want to store ourselves
-      const successfulPayment = {
-        id: paymentIntent.id,
-        amount: paymentIntent.amount,
-        currency: paymentIntent.currency,
-        created: paymentIntent.created,
-        metadata: paymentIntent.metadata,
-        receiptEmail: paymentIntent.receipt_email,
-        paymentMethod: paymentIntent.payment_method
-      }
-
       try {
         const promises = [];
 
-        // Save the successful payment to the purchaser's account for payment history
-        const promise1 = db.collection(`users/${clientUid}/account/account${clientUid}/successful-payments/`)
-        .doc(successfulPayment.id)
-        .set(successfulPayment, {merge: true});
-        promises.push(promise1);
-
         // Add the item ID of the purchased item to the user's auth token claims
         // so the user can access any content restricted by paywall.
-        const promise2 = addCustomUserClaims(clientUid, { [saleItemId]: true }) as any;
-        promises.push(promise2);
+        const promise1 = addCustomUserClaims(clientUid, { [saleItemId]: true }) as any;
+        promises.push(promise1);
 
-        // Record the appropriate purchase/enrollment for the client
+        // Record the appropriate purchase/enrollment for the purchaser & the seller
         if (saleItemType === 'ecourse') {
-          const promise3 = recordCourseEnrollmentForStudent(clientUid, saleItemId, paymentIntent.metadata.sale_item_title, paymentIntent.metadata.sale_item_image);
+          const promise2 = recordCourseEnrollmentForClient(paymentIntent);
+          promises.push(promise2);
+          const promise3 = recordCourseEnrollmentForCreator(paymentIntent);
           promises.push(promise3);
+
         } else if (saleItemType === 'fullProgram' || saleItemType === 'programSession') {
-          const promise3 = recordProgramEnrollmentForClient(saleItemType, clientUid, saleItemId, paymentIntent.metadata.sale_item_title, paymentIntent.metadata.sale_item_image);
+          const promise2 = recordProgramEnrollmentForClient(paymentIntent);
+          promises.push(promise2);
+          const promise3 = recordProgramEnrollmentForCreator(paymentIntent);
           promises.push(promise3);
+
         } else if (saleItemType === 'coachingPackage') {
-          const promise3 = recordServicePurchaseForClient(clientUid, saleItemId, paymentIntent.metadata.sale_item_title, paymentIntent.metadata.sale_item_image, paymentIntent.metadata.num_sessions);
+          const promise2 = recordServicePurchaseForClient(paymentIntent);
+          promises.push(promise2);
+          const promise3 = recordServicePurchaseForCreator(paymentIntent);
           promises.push(promise3);
         }
 
@@ -1434,146 +1432,171 @@ exports.stripeWebhookEvent = functions
       }
       break;
     case 'transfer.created':
-        const transfer = event.data.object as Stripe.Transfer;
+        /*
+        https://stripe.com/docs/api/transfers/object
+        Received when a successful transfer occurs
+        */
+        const transfer = event.data.object as CustomTransfer;
         console.log(`Transfer created: ${JSON.stringify(transfer)}`);
 
+        const transferDate = new Date(transfer.created * 1000); // create a date object so we can work with months/years
+        const transferMonth = transferDate.getMonth() + 1; // go from zero index to jan === 1
+        const transferYear = transferDate.getFullYear();
+
         try {
+          // to cover cases where we want to know the effect of this transfer on our platform balance 
+          // in our platform currency (our real revenue), let's retrieve the associated balance transaction object...
+
+          const balanceTransaction = await stripe.balanceTransactions.retrieve(transfer.balance_transaction as string);
+          console.log('Transfer balance transaction:', balanceTransaction);
+
+          // now we have the transfer and the expanded balance transaction...
+
+          // add the expanded balance transaction object into the tansfer object
+          transfer.balance_transaction_expanded = balanceTransaction;
+
           // Lookup the original charge to retrieve necessary metadata from the original paymentIntent
           const originalCharge = await stripe.charges.retrieve(transfer.source_transaction as string);
           console.log('Original Charge:', originalCharge);
 
-          const originalSellerUid = originalCharge.metadata.seller_UID;
-          const originalSaleItemId = originalCharge.metadata.sale_item_id;
-          const originalSaleItemType = originalCharge.metadata.sale_item_type;
-          const originalSaleItemTitle = originalCharge.metadata.sale_item_title;
-          const originalSaleItemImage = originalCharge.metadata.sale_item_image;
-          const originalClientUid = originalCharge.metadata.client_UID;
-          const originalSellerReferred = originalCharge.metadata.seller_referred; // will be string 'true' | 'false'
-          const originalNumSessions = originalCharge.metadata.num_sessions // if purchase related to program or coaching package, will be the number of sessions purchased
+          // transform the data to sanitise and only save what we need in our own db
 
-          // Check for required metadata on the original charge
-          if (!originalSaleItemId) {
-            console.error('Stripe webhook transfer.received missing charge metadata sale item ID');
-            return;
-          }
-          if (!originalClientUid) {
-            console.error('Stripe webhook transfer.received missing charge metadata client UID');
-            return;
-          }
-          if (!originalSellerUid) {
-            console.error('Stripe webhook transfer.received missing charge metadata seller UID');
-            return;
-          }
+          const sanitisedCharge = {} as any;
 
-          // clone the original stripe transfer object and add a new key to track whether sale was seller referred
-          const customTransferObj = JSON.parse(JSON.stringify(transfer));
-          customTransferObj.seller_referred = originalSellerReferred === 'true' ? true : false;
+          sanitisedCharge.id = originalCharge.id;
+          sanitisedCharge.object = originalCharge.object;
+          sanitisedCharge.amount = originalCharge.amount;
+          sanitisedCharge.amount_captured = originalCharge.amount_captured;
+          sanitisedCharge.amount_refunded = originalCharge.amount_refunded;
+          sanitisedCharge.balance_transaction = originalCharge.balance_transaction;
+          sanitisedCharge.created = originalCharge.created;
+          sanitisedCharge.currency = originalCharge.currency;
+          sanitisedCharge.metadata = originalCharge.metadata;
+          sanitisedCharge.payment_intent = originalCharge.payment_intent;
+          sanitisedCharge.payment_method = originalCharge.payment_method;
+          sanitisedCharge.refunded = originalCharge.refunded;
+          sanitisedCharge.refunds = originalCharge.refunds;
+          sanitisedCharge.transfer = originalCharge.transfer;
+          sanitisedCharge.transfer_data = originalCharge.transfer_data;
+          sanitisedCharge.transfer_group = originalCharge.transfer_group;
 
-          const promises = [];
+          // add the santised charge object into the tansfer object
+          transfer.source_transaction_expanded = sanitisedCharge;
 
-          // if the transfer is related to an ecourse sale
-          if (originalSaleItemType === 'ecourse') {
-            const promise1 = recordCourseEnrollmentForCreator(originalSellerUid, originalSaleItemId, customTransferObj, originalClientUid);
-            promises.push(promise1);
+          // record the transfer for the recipient (flatten the data for easier lookups)
+          const ref1 = db.collection(`users/${sanitisedCharge.metadata.seller_UID}/transfers/all/transfers`).doc(transfer.id);
+          batch.set(ref1, transfer);
+          const ref2 = db.collection(`users/${sanitisedCharge.metadata.seller_UID}/transfers/by-item-id/${sanitisedCharge.metadata.sale_item_id}`).doc(transfer.id);
+          batch.set(ref2, transfer);
+          const ref3 = db.collection(`users/${sanitisedCharge.metadata.seller_UID}/transfers/by-date/${transferYear}/${transferMonth}/transfers`).doc(transfer.id);
+          batch.set(ref3, transfer);
 
-            const promise2 = updateCourseEnrollmentCounts(originalSellerUid, originalSaleItemId, customTransferObj, originalClientUid);
-            promises.concat(await promise2)
+          // record the transfer for the platform (flatten the data for easier lookups)
+          const ref4 = db.collection(`successful-transfers/all/transfers`).doc(transfer.id);
+          batch.set(ref4, transfer);
+          const ref5 = db.collection(`successful-transfers/by-seller-id/${sanitisedCharge.metadata.seller_UID}`).doc(transfer.id);
+          batch.set(ref5, transfer);
+          const ref6 = db.collection(`successful-transfers/by-date/${transferYear}/${transferMonth}/transfers`).doc(transfer.id);
+          batch.set(ref6, transfer);
+          const ref7 = db.collection(`successful-transfers/by-item-id/${sanitisedCharge.metadata.sale_item_id}`).doc(transfer.id);
+          batch.set(ref7, transfer);
 
-          // if the transfer is related to a program sale (full program or single session purchase)
-          } else if (originalSaleItemType === 'fullProgram' || originalSaleItemType === 'programSession') {
-            const promise1 = recordProgramEnrollmentForCreator(originalSaleItemType, originalSellerUid, originalSaleItemId, customTransferObj, originalClientUid, originalSaleItemTitle, originalSaleItemImage, originalNumSessions);
-            promises.push(promise1);
-
-            const promise2 = updateProgramEnrollmentCounts(originalSellerUid, originalSaleItemId, customTransferObj, originalClientUid);
-            promises.concat(await promise2)
-
-          // if the transfer is related to a service sale
-          } else if (originalSaleItemType === 'coachingPackage') {
-            const promise1 = recordServicePurchaseForCreator(originalSellerUid, originalSaleItemId, customTransferObj, originalClientUid, originalSaleItemTitle, originalSaleItemImage, originalNumSessions);
-            promises.push(promise1);
-
-            const promise2 = updateServiceEnrollmentCounts(originalSellerUid, originalSaleItemId, customTransferObj, originalClientUid);
-            promises.concat(await promise2)
-          }
-
-          await Promise.all(promises); // run concurrent ops
+          // execute atomic batch
+          await batch.commit(); // any error should trigger catch.
 
         } catch (err) {
           console.error(err);
         }
       break;
     case 'charge.succeeded':
-      const charge = event.data.object as Stripe.Charge; // https://stripe.com/docs/api/charges/object
+      /*
+        https://stripe.com/docs/api/charges/object
+        Received when a successful charge occurs
+        */
+      const charge = event.data.object as Stripe.Charge;
       console.log(`Charge succeeded! ${JSON.stringify(charge)}`);
 
+      const saleDate = new Date(charge.created * 1000); // create a date object so we can work with months/years
+      const saleMonth = saleDate.getMonth() + 1; // go from zero index to jan === 1
+      const saleYear = saleDate.getFullYear();
+
       try {
+
+        // to cover cases where we want to know the effect of this charge on our platform balance 
+        // in our platform currency (our real revenue), let's retrieve the associated balance transaction object...
+
+        const balanceTransaction = await stripe.balanceTransactions.retrieve(charge.balance_transaction as string);
+        console.log('Balance transaction:', balanceTransaction);
+
+        // now we have the charge and the balance transaction...
+
+        // transform the data to sanitise and only save what we need in our own db
+
+        const data = {} as any;
+
+        data.id = charge.id;
+        data.object = charge.object;
+        data.amount = charge.amount;
+        data.amount_captured = charge.amount_captured;
+        data.amount_refunded = charge.amount_refunded;
+        data.balance_transaction = charge.balance_transaction;
+        data.balance_transaction_expanded = balanceTransaction;
+        data.created = charge.created;
+        data.currency = charge.currency;
+        data.metadata = charge.metadata;
+        data.payment_intent = charge.payment_intent;
+        data.payment_method = charge.payment_method;
+        data.refunded = charge.refunded;
+        data.refunds = charge.refunds;
+        data.transfer = charge.transfer;
+        data.transfer_data = charge.transfer_data;
+        data.transfer_group = charge.transfer_group;
+
         // Because we cannot split stripe connect payments 3 ways using our current setup, and because the stripe 
         // 'seperate charges & transfers' flow requires that our platform and any conected accounts must be in the same 
         // territory, (which limits us geographically in terms of promo partner network), if the sale was referred by 
         // a promotional partner, we need to track this ourselves and use a seperate process to record and pay our partners.
 
-        const promises = []; // for later
-
         if (charge.metadata.partner_referred && charge.metadata.partner_referred !== 'false') { // this sale (charge) was partner referred...
-
-          // we've had a successful charge and now we want to know the effect of this charge on our platform balance 
-          // in our platform currency (our real revenue), so that we let's retrieve the associated balance transaction object...
-
-          const balanceTransaction = await stripe.balanceTransactions.retrieve(charge.balance_transaction as string);
-          console.log('Balance transaction:', balanceTransaction);
-
-          // now we have the charge and the balance transaction...
-
-          const saleDate = new Date(charge.created * 1000); // create a date object so we can work with months/years
-          const saleMonth = saleDate.getMonth() + 1; // go from zero index to jan === 1
-          const saleYear = saleDate.getFullYear();
-
-          // transform the data to sanitise and only save what we need here
-
-          const data = {} as any;
-
-          data.id = charge.id;
-          data.object = charge.object;
-          data.amount = charge.amount;
-          data.amount_captured = charge.amount_captured;
-          data.amount_refunded = charge.amount_refunded;
-          data.balance_transaction = charge.balance_transaction;
-          data.balance_transaction_expanded = balanceTransaction;
-          data.created = charge.created;
-          data.currency = charge.currency;
-          data.metadata = charge.metadata;
-          data.payment_intent = charge.payment_intent;
-          data.payment_method = charge.payment_method;
-          data.refunded = charge.refunded;
-          data.transfer = charge.transfer;
-          data.transfer_data = charge.transfer_data;
-          data.transfer_group = charge.transfer_group;
 
           // flatten the data for easier lookups by platform and partners
 
-          const promise1 = db.collection(`partner-referrals/${charge.metadata.partner_referred}/${saleYear}/${saleMonth}/all`)
-          .doc(charge.payment_intent as string)
-          .set(data, {merge: true});
-          promises.push(promise1);
+          const ref1 = db.collection(`partner-referrals/${charge.metadata.partner_referred}/${saleYear}/${saleMonth}/all`).doc(charge.payment_intent as string);
+          batch.set(ref1, data);
+          const ref2 = db.collection(`partner-referrals/${charge.metadata.partner_referred}/all`).doc(charge.payment_intent as string);
+          batch.set(ref2, data);
+          const ref3 = db.collection(`partner-referrals/${saleYear}/${saleMonth}`).doc(charge.payment_intent as string);
+          batch.set(ref3, data);
+          const ref4 = db.collection(`partner-referrals/all/referrals`).doc(charge.payment_intent as string);
+          batch.set(ref4, data);
 
-          const promise2 = db.collection(`partner-referrals/${charge.metadata.partner_referred}/all`)
-          .doc(charge.payment_intent as string)
-          .set(data, {merge: true});
-          promises.push(promise2);
+        } // end of if charge was partner referred
 
-          const promise3 = db.collection(`partner-referrals/${saleYear}/${saleMonth}`)
-          .doc(charge.payment_intent as string)
-          .set(data, {merge: true});
-          promises.push(promise3);
+        // record the charge for the purchaser (flatten data)
 
-          const promise4 = db.collection(`partner-referrals/all/referrals`)
-          .doc(charge.payment_intent as string)
-          .set(data, {merge: true});
-          promises.push(promise4);
+        const ref6 = db.collection(`users/${charge.metadata.client_UID}/successful-charges/all/charges`).doc(charge.id);
+        batch.set(ref6, data);
+        const ref7 = db.collection(`users/${charge.metadata.client_UID}/successful-charges/${saleYear}/${saleMonth}`).doc(charge.id);
+        batch.set(ref7, data);
 
+        // record the charge for the platform (flatten data)
+
+        const ref8 = db.collection(`successful-charges/all/charges`).doc(charge.id);
+        batch.set(ref8, data);
+        const ref9 = db.collection(`successful-charges/${saleYear}/${saleMonth}`).doc(charge.id);
+        batch.set(ref9, data);
+
+        // execute atomic batch
+        await batch.commit(); // any error should trigger catch.
+
+        // if we got this far all batch ops were successful...
+
+        const promises = [];
+
+        if (charge.metadata.partner_referred && charge.metadata.partner_referred !== 'false') {
           // if not yet completed, completed the task to test the partners promo link is working
-          const promise5 = completeUserTask(charge.metadata.partner_referred, 'taskDefault005');
-          promises.push(promise5);
+          const promise1 = completeUserTask(charge.metadata.partner_referred, 'taskDefault005');
+          promises.push(promise1);
         }
 
         await Promise.all(promises);
@@ -1615,6 +1638,7 @@ exports.stripeWebhookConnectedEvent = functions
 
   // Handle the event
   // https://stripe.com/docs/api/events/types
+
   switch (event.type) {
     case 'account.updated':
       const account = event.data.object as Stripe.Account;
@@ -1642,8 +1666,7 @@ exports.stripeWebhookConnectedEvent = functions
 
 /*
   Attempts to complete user enrollment in a free course.
-  We can't use the same Stripe flow for free courses with a zero price so we're re-
-  creating the post-payment flow normally carried out after Stripe webhook received.
+  We can't use the same Stripe flow for free courses with a zero price.
 */
 exports.completeFreeCourseEnrollment = functions
 .runWith({memory: '1GB', timeoutSeconds: 300})
@@ -1652,7 +1675,11 @@ exports.completeFreeCourseEnrollment = functions
 
   const courseId = data.courseId;
   const clientUid = data.clientUid;
-  const referralCode = data.referralCode;
+  const sellerReferred = data.referralCode ? 'true' : 'false';
+  const timestampNow = Math.round(new Date().getTime() / 1000);
+  const saleDate = new Date(); // create a date object so we can work with months/years
+  const saleMonth = saleDate.getMonth() + 1; // go from zero index to jan === 1
+  const saleYear = saleDate.getFullYear();
 
   try {
 
@@ -1676,6 +1703,37 @@ exports.completeFreeCourseEnrollment = functions
 
     // Course exists and is marked free by seller. Complete the enrollment...
 
+    const enrollment = {
+      created: timestampNow,
+      sellerReferred,
+      sellerUid: course.sellerUid,
+      paid: false,
+      clientUid,
+      itemId: courseId,
+      itemType: 'ecourse'
+    };
+
+    // db ops
+    const ref1 = db.collection(`users/${data.clientUid}/purchased-courses`).doc(data.saleItemId);
+    batch.set(ref1, {courseId: data.saleItemId});
+    const ref2 = db.collection(`users/${course.sellerUid}/people`).doc(clientUid);
+    batch.set(ref2, { lastUpdated: timestampNow }, { merge: true }) // creates a real (not virtual) doc
+    const ref3 = db.collection(`users/${course.sellerUid}/people/${clientUid}/history`).doc(timestampNow.toString());
+    batch.set(ref3, { action: 'enrolled_in_self_study_course', courseId });
+    const ref4 = db.collection(`users/${clientUid}/coaches/${course.sellerUid}/history`).doc(timestampNow.toString());
+    batch.set(ref4, { action: 'enrolled_in_self_study_course', courseId });
+    const ref5 = db.collection(`users/${course.sellerUid}/enrollments/all/enrollments`).doc(timestampNow.toString());
+    batch.set(ref5, enrollment);
+    const ref6 = db.collection(`users/${course.sellerUid}/enrollments/by-date/${saleYear}/${saleMonth}/enrollments`).doc(timestampNow.toString());
+    batch.set(ref6, enrollment);
+    const ref7 = db.collection(`users/${course.sellerUid}/enrollments/by-item-id/${courseId}`).doc(timestampNow.toString());
+    batch.set(ref7, enrollment);
+
+    // execute atomic batch
+    await batch.commit(); // any error should trigger catch.
+
+    // if we got this far all batch ops were successful...
+
     const promises = [];
 
     // Add the course ID of the purchased course to the user's auth token claims
@@ -1683,25 +1741,18 @@ exports.completeFreeCourseEnrollment = functions
     const promise1 = addCustomUserClaims(clientUid, { [courseId]: true }) as any;
     promises.push(promise1);
 
-    const promise2 = recordCourseEnrollmentForStudent(clientUid, courseId, course.title, course.image);
+    // trigger a mailchimp event
+    const event = {
+      name: 'course_enrollment',
+      properties: {
+        course_id: data.saleItemId,
+        course_title: data.saleItemTitle,
+        course_image: data.saleItemImg
+      }
+    }
+    const promise2 = logMailchimpEvent(data.clientUid, event);
     promises.push(promise2);
 
-    // Create a free sale object and save to the seller account to record the zero price sale (enrollment)
-    const freeEnrollmentObj = {
-      id: `free_${Math.random().toString(36).substr(2, 9)}`, // generate semi-random id
-      created: Math.round(new Date().getTime() / 1000), // inix timestamp
-      seller_referred: (referralCode && referralCode === course.sellerUid) ? true : false, // did seller refer the 'sale'
-      amount: 0, // record enrollment as a zero price sale
-      currency: 'free' // important: use string 'free' and not null or undefined as we record all sales against a currency
-    };
-
-    const promise3 = recordCourseEnrollmentForCreator(course.sellerUid, courseId, freeEnrollmentObj, clientUid);
-    promises.push(promise3);
-
-    const promise4 = updateCourseEnrollmentCounts(course.sellerUid, courseId, freeEnrollmentObj, clientUid);
-    promises.concat(await promise4)
-
-    // Execute concurrent ops
     await Promise.all(promises);
 
     return { success: true }
@@ -1716,263 +1767,259 @@ exports.completeFreeCourseEnrollment = functions
 // =====                      COURSE ENROLLMENT FUNCTIONS                    ======
 // ================================================================================
 
-async function recordCourseEnrollmentForCreator(sellerUid: string, courseId: string, obj: any, clientUid: string) {
-  // Save either the custom transfer object (paid courses) or the free enrollment object
-  // (free courses) to the seller account to record the enrollment
+async function recordCourseEnrollmentForCreator(data: Stripe.PaymentIntent) {
 
-  const saleDate = new Date(obj.created * 1000);
+  const timestampNow = Math.round(new Date().getTime() / 1000);
+  const saleDate = new Date(data.created * 1000); // create a date object so we can work with months/years
   const saleMonth = saleDate.getMonth() + 1; // go from zero index to jan === 1
   const saleYear = saleDate.getFullYear();
-  const timestampNow = Math.round(new Date().getTime() / 1000);
+  const sellerUid = data.metadata.seller_UID;
+  const clientUid = data.metadata.client_UID;
+  const saleItemId = data.metadata.sale_item_id;
+  const saleItemType = data.metadata.sale_item_type;
 
-  await db.collection(`users/${sellerUid}/sales/${saleMonth}-${saleYear}/${courseId}`)
-  .doc(obj.id)
-  .create(obj);
+  // Coach CRM (My People)
 
-  // save the person to the recipient's people (create if doesn't exist yet - it might)
-  await db.collection(`users/${sellerUid}/people`)
-  .doc(clientUid)
-  .set({ lastUpdated: timestampNow }, { merge: true }) // creates a real (not virtual) doc
-  .catch(err => console.log(err));
+  const ref1 = db.collection(`users/${sellerUid}/people`).doc(clientUid);
+  batch.set(ref1, { lastUpdated: timestampNow }, { merge: true }) // creates a real (not virtual) doc
+  const batch2 = db.collection(`users/${sellerUid}/people/${clientUid}/history`).doc(timestampNow.toString());
+  batch.set(batch2, { action: 'enrolled_in_self_study_course', courseId: saleItemId });
 
-  // save the action to this person's history for the coach
-  await db.collection(`users/${sellerUid}/people/${clientUid}/history`)
-  .doc(timestampNow.toString())
-  .set({ action: 'enrolled_in_self_study_course', courseId });
+  // Coach enrollments
 
-  // save the action to this user's history with the coach
-  return db.collection(`users/${clientUid}/coaches/${sellerUid}/history`)
-  .doc(timestampNow.toString())
-  .set({ action: 'enrolled_in_self_study_course', courseId });
+  const enrollment = {
+    created: timestampNow,
+    sellerReferred: data.metadata.seller_referred,
+    sellerUid,
+    paid: true,
+    clientUid,
+    itemId: saleItemId,
+    itemType: saleItemType,
+    paymentIntent: data
+  };
+
+  const ref3 = db.collection(`users/${sellerUid}/enrollments/all/enrollments`).doc(timestampNow.toString());
+  batch.set(ref3, enrollment);
+  const ref4 = db.collection(`users/${sellerUid}/enrollments/by-date/${saleYear}/${saleMonth}/enrollments`).doc(timestampNow.toString());
+  batch.set(ref4, enrollment);
+  const ref5 = db.collection(`users/${sellerUid}/enrollments/by-item-id/${saleItemId}`).doc(timestampNow.toString());
+  batch.set(ref5, enrollment);
+
+  // Client (My Coaches)
+
+  const ref6 = db.collection(`users/${clientUid}/coaches/${sellerUid}/history`).doc(timestampNow.toString());
+  batch.set(ref6, { action: 'enrolled_in_self_study_course', courseId: saleItemId });
+
+  // execute atomic batch
+  return batch.commit();
 }
 
-async function recordCourseEnrollmentForStudent(studentUid: string, courseId: string, courseTitle: string, courseImg: string) {
+async function recordCourseEnrollmentForClient(data: Stripe.PaymentIntent) {
 
-  // Add the course ID to the student's own purchased courses node.
-  // We can monitor this with a client side subscription to notify the user of the completed purchase.
+  const clientUid = data.metadata.client_UID;
+  const saleItemId = data.metadata.sale_item_id;
+  const saleItemTitle = data.metadata.sale_item_title;
+  const saleItemImg = data.metadata.sale_item_image;
 
-  await db.collection(`users/${studentUid}/purchased-courses`)
-  .doc(courseId)
+  await db.collection(`users/${clientUid}/purchased-courses`).doc(saleItemId)
   .set({
-    courseId: courseId
+    courseId: saleItemId
   }, { merge: true });
 
   // trigger a mailchimp event
   const event = {
     name: 'course_enrollment',
     properties: {
-      course_id: courseId,
-      course_title: courseTitle,
-      course_image: courseImg
+      course_id: saleItemId,
+      course_title: saleItemTitle,
+      course_image: saleItemImg
     }
   }
-  return logMailchimpEvent(studentUid, event); // log event
-}
-
-async function updateCourseEnrollmentCounts(creatorUid: string, courseId:string, obj: any, clientUid: string) {
-  // Accepts either a custom transfer object (paid courses) or a free course enrollment object (free courses)
-  // Promises an array of Firebase write result promises
-
-  const incrementCount = admin.firestore.FieldValue.increment(1);
-  const incrementAmount = admin.firestore.FieldValue.increment(obj.amount);
-  const incrementCurrency = obj.currency;
-  const timestampNow = Math.round(new Date().getTime() / 1000);
-
-  const promises = [];
-
-  // Increment the total sales number & total lifetime sales amount for this course creator
-  const promise1 = db.collection(`users/${creatorUid}/sales/total-lifetime-course-sales/courses`)
-  .doc(courseId)
-  .set({
-    [incrementCurrency]: {
-      lifetimeTotalSales: incrementCount,
-      lifetimeTotalAmount: incrementAmount
-    }
-  }, { merge: true });
-  promises.push(promise1);
-
-  // update this client on the seller's enrollments by course node
-  const promise2 = db.collection(`seller-enrollments-by-course/${creatorUid}/courses/${courseId}/enrolled`)
-  .doc(clientUid)
-  .set({
-    timeOfLastEnrollment: timestampNow.toString(),
-    clientUid
-  }, { merge: true });
-  promises.push(promise2);
-
-  return promises;
+  return logMailchimpEvent(clientUid, event);
 }
 
 // ================================================================================
 // =====                     PROGRAM ENROLLMENT FUNCTIONS                    ======
 // ================================================================================
 
-async function recordProgramEnrollmentForCreator(enrollmentType: 'fullProgram' | 'programSession', sellerUid: string, programId: string, obj: any, clientUid: string, programTitle: string, programImg: string, numSessions: string) {
-  // Save the custom transfer object to the seller account to record the enrollment
+async function recordProgramEnrollmentForCreator(data: Stripe.PaymentIntent) {
 
-  const saleDate = new Date(obj.created * 1000);
-  const saleMonth = saleDate.getMonth() + 1; // go from zero index to jan === 1
-  const saleYear = saleDate.getFullYear();
   const timestampNow = Math.round(new Date().getTime() / 1000);
+  const saleItemType = data.metadata.sale_item_type;
+  const clientUid = data.metadata.client_UID;
+  const sellerUid = data.metadata.seller_UID;
+  const saleItemId = data.metadata.sale_item_id;
+  const saleItemTitle = data.metadata.sale_item_title;
+  const saleItemImg = data.metadata.sale_item_image;
+  const numSessions = data.metadata.num_sessions;
 
   let sessionsPurchased = 1; // default to one session purchased
-  if (enrollmentType === 'fullProgram') {
+  if (saleItemType === 'fullProgram') {
     sessionsPurchased = Number(numSessions) // if user has purchased the whole program, update to number of sessions in the program
   }
 
-  const promises = [];
+  // db ops
+  const ref1 = db.collection(`users/${sellerUid}/people`).doc(clientUid);
+  batch.set(ref1, { lastUpdated: timestampNow }, { merge: true }) // creates a real (not virtual) doc
 
-  // send email
-
-  if (enrollmentType === 'fullProgram') {
-    const event = {
-      name: 'coach_program_enrollment',
-      properties: {
-        program_id: programId,
-        program_title: programTitle,
-        program_image: programImg,
-        client_url: `https://lifecoach.io/person-history/${clientUid}`
-      }
-    }
-    const emailPromise = logMailchimpEvent(sellerUid, event); // log event
-    promises.push(emailPromise);
-  } else if (enrollmentType === 'programSession') {
-    const event = {
-      name: 'coach_program_session_enroll',
-      properties: {
-        program_id: programId,
-        program_title: programTitle,
-        program_image: programImg,
-        client_url: `https://lifecoach.io/person-history/${clientUid}`
-      }
-    }
-    const emailPromise = logMailchimpEvent(sellerUid, event); // log event
-    promises.push(emailPromise);
-  }
-
-  await db.collection(`users/${sellerUid}/program-sales/${saleMonth}-${saleYear}/${programId}`)
-  .doc(obj.id)
-  .create(obj);
-
-  // save the person to the recipient's people (create if doesn't exist yet - it might)
-  await db.collection(`users/${sellerUid}/people`)
-  .doc(clientUid)
-  .set({ lastUpdated: timestampNow }, { merge: true }) // creates a real (not virtual) doc
-  .catch(err => console.log(err));
-
-  // update this person's session data (allows the coach to see how many paid sessions this person has purchased/remaining)
   let i = 0;
   while (i < sessionsPurchased) {
-    await db.collection(`users/${sellerUid}/people/${clientUid}/sessions-purchased`)
-    .doc()
-    .create({
-      sellerUid,
-      clientUid,
-      programId,
-      saleDate,
-      relatedStripeTransferId: obj.id
-    });
+    const ref2 = db.collection(`users/${sellerUid}/people/${clientUid}/sessions-purchased`).doc();
+    batch.create(ref2, {
+      sellerUid: sellerUid,
+      clientUid: clientUid,
+      programId: saleItemId,
+      saleDate: data.created,
+      paymentIntentId: data.id
+    }); // allows the coach to see how many paid sessions this person has purchased
     i++;
   }
 
-  // save the action to this person's history for the coach
-  await db.collection(`users/${sellerUid}/people/${clientUid}/history`)
-  .doc(timestampNow.toString())
-  .set({ action: enrollmentType === 'fullProgram' ? 'enrolled_in_full_program' : 'enrolled_in_program_session', programId });
+  const batch3 = db.collection(`users/${sellerUid}/people/${clientUid}/history`).doc(timestampNow.toString());
+  batch.set(batch3, { 
+    action: saleItemType === 'fullProgram' ? 'enrolled_in_full_program' : 'enrolled_in_program_session', 
+    programId: saleItemId 
+  });
 
-  // save the action to this person's history with the coach
-  return db.collection(`users/${clientUid}/coaches/${sellerUid}/history`)
-  .doc(timestampNow.toString())
-  .set({ action: enrollmentType === 'fullProgram' ? 'enrolled_in_full_program' : 'enrolled_in_program_session', programId });
-}
+  const batch4 = db.collection(`users/${clientUid}/coaches/${sellerUid}/history`).doc(timestampNow.toString());
+  batch.set(batch4, { 
+    action: saleItemType === 'fullProgram' ? 'enrolled_in_full_program' : 'enrolled_in_program_session', 
+    programId: saleItemId 
+  });
 
-async function recordProgramEnrollmentForClient(enrollmentType: 'fullProgram' | 'programSession', studentUid: string, programId: string, programTitle: string, programImg: string) {
+  // execute atomic batch
+  await batch.commit(); // any error should trigger catch.
 
-  // Add the program ID to the client's own purchased programs node.
-  // We can monitor this with a client side subscription to notify the user of the completed purchase.
-
-  await db.collection(`users/${studentUid}/purchased-programs`)
-  .doc(programId)
-  .set({
-    programId,
-    enrollmentType
-  }, { merge: true });
-
-  // send email
-
-  if (enrollmentType === 'fullProgram') {
-    const event = {
-      name: 'program_enrollment',
-      properties: {
-        program_id: programId,
-        program_title: programTitle,
-        program_image: programImg,
-        landing_url: `https://lifecoach.io/my-programs/${programId}`
-      }
-    }
-    return logMailchimpEvent(studentUid, event); // log event
-  } else if (enrollmentType === 'programSession') {
-    const event = {
-      name: 'program_session_enrollment',
-      properties: {
-        program_id: programId,
-        program_title: programTitle,
-        program_image: programImg,
-        landing_url: `https://lifecoach.io/my-programs/${programId}`
-      }
-    }
-    return logMailchimpEvent(studentUid, event); // log event
-  }
-}
-
-async function updateProgramEnrollmentCounts(creatorUid: string, programId:string, obj: any, clientUid: string) {
-  // Accepts a custom transfer object
-  // Promises an array of Firebase write result promises
-
-  const incrementCount = admin.firestore.FieldValue.increment(1);
-  const incrementAmount = admin.firestore.FieldValue.increment(obj.amount);
-  const incrementCurrency = obj.currency;
-  const timestampNow = Math.round(new Date().getTime() / 1000);
+  // if we got this far all batch ops were successful...
 
   const promises = [];
 
-  // Increment the total sales number & total lifetime sales amount for this program creator
-  const promise1 = db.collection(`users/${creatorUid}/program-sales/total-lifetime-program-sales/programs`)
-  .doc(programId)
-  .set({
-    [incrementCurrency]: {
-      lifetimeTotalSales: incrementCount,
-      lifetimeTotalAmount: incrementAmount
+  // send email
+
+  if (saleItemType === 'fullProgram') {
+    const event = {
+      name: 'coach_program_enrollment',
+      properties: {
+        program_id: saleItemId,
+        program_title: saleItemTitle,
+        program_image: saleItemImg,
+        client_url: `https://lifecoach.io/person-history/${clientUid}`
+      }
     }
-  }, { merge: true });
-  promises.push(promise1);
+    const emailPromise = logMailchimpEvent(sellerUid, event);
+    promises.push(emailPromise);
+  } else if (saleItemType === 'programSession') {
+    const event = {
+      name: 'coach_program_session_enroll',
+      properties: {
+        program_id: saleItemId,
+        program_title: saleItemTitle,
+        program_image: saleItemImg,
+        client_url: `https://lifecoach.io/person-history/${clientUid}`
+      }
+    }
+    const emailPromise = logMailchimpEvent(sellerUid, event);
+    promises.push(emailPromise);
+  }
 
-  // update this client on the coach's enrollments (clients) by program node
-  // allows us & coaches to see which (and how many) clients are enrolled on each program
-  const promise2 = db.collection(`coach-enrollments-by-program/${creatorUid}/programs/${programId}/enrolled`)
-  .doc(clientUid)
-  .set({
-    timeOfLastEnrollment: timestampNow.toString(),
-    clientUid
-  }, { merge: true });
-  promises.push(promise2);
+  return Promise.all(promises);
 
-  return promises;
+}
+
+async function recordProgramEnrollmentForClient(data: Stripe.PaymentIntent) {
+
+  const saleItemType = data.metadata.sale_item_type;
+  const clientUid = data.metadata.client_UID;
+  const saleItemId = data.metadata.sale_item_id;
+  const saleItemTitle = data.metadata.sale_item_title;
+  const saleItemImg = data.metadata.sale_item_image;
+
+  // db ops
+
+  const ref1 = db.collection(`users/${clientUid}/purchased-programs`).doc(saleItemId);
+  batch.set(ref1, {
+    programId: saleItemId,
+    enrollmentType: saleItemType
+  }, { merge: true });
+
+  await batch.commit();
+
+  // if we got this far, atomic batch ops were successful...
+
+  const promises = [];
+
+  // send email
+
+  if (saleItemType === 'fullProgram') {
+    const event = {
+      name: 'program_enrollment',
+      properties: {
+        program_id: saleItemId,
+        program_title: saleItemTitle,
+        program_image: saleItemImg,
+        landing_url: `https://lifecoach.io/my-programs/${saleItemId}`
+      }
+    }
+    const promise1 = logMailchimpEvent(clientUid, event);
+    promises.push(promise1);
+  } else if (saleItemType === 'programSession') {
+    const event = {
+      name: 'program_session_enrollment',
+      properties: {
+        program_id: saleItemId,
+        program_title: saleItemTitle,
+        program_image: saleItemImg,
+        landing_url: `https://lifecoach.io/my-programs/${saleItemId}`
+      }
+    }
+    const promise2 = logMailchimpEvent(clientUid, event);
+    promises.push(promise2);
+  }
+  return Promise.all(promises);
 }
 
 // ================================================================================
 // =====                      SERVICE PURCHASE FUNCTIONS                     ======
 // ================================================================================
 
-async function recordServicePurchaseForCreator(sellerUid: string, serviceId: string, obj: any, clientUid: string, serviceTitle: string, serviceImg: string, numSessions: string) {
-  // Save the custom transfer object to the seller account to record the enrollment
+async function recordServicePurchaseForCreator(data: Stripe.PaymentIntent) {
 
-  const saleDate = new Date(obj.created * 1000);
-  const saleMonth = saleDate.getMonth() + 1; // go from zero index to jan === 1
-  const saleYear = saleDate.getFullYear();
   const timestampNow = Math.round(new Date().getTime() / 1000);
-
+  const clientUid = data.metadata.client_UID;
+  const sellerUid = data.metadata.seller_UID;
+  const saleItemId = data.metadata.sale_item_id;
+  const saleItemTitle = data.metadata.sale_item_title;
+  const saleItemImg = data.metadata.sale_item_image;
+  const numSessions = data.metadata.num_sessions;
   const sessionsPurchased = Number(numSessions)
+
+  // db ops
+
+  const ref1 = db.collection(`users/${sellerUid}/people`).doc(clientUid);
+  batch.set(ref1, { lastUpdated: timestampNow }, { merge: true }) // creates a real (not virtual) doc
+
+  let i = 0;
+  while (i < sessionsPurchased) {
+    const ref2 = db.collection(`users/${sellerUid}/people/${clientUid}/sessions-purchased`).doc();
+    batch.create(ref2, {
+      sellerUid: sellerUid,
+      clientUid: clientUid,
+      serviceId: saleItemId,
+      saleDate: data.created,
+      paymentIntentId: data.id
+    }); // allows the coach to see how many paid sessions this person has purchased
+    i++;
+  }
+
+  const ref3 = db.collection(`users/${sellerUid}/people/${clientUid}/history`).doc(timestampNow.toString());
+  batch.set(ref3, { action: 'service_purchase', serviceId: saleItemId, sessionsPurchased });
+
+  const ref4 = db.collection(`users/${clientUid}/coaches/${sellerUid}/history`).doc(timestampNow.toString());
+  batch.set(ref4, { action: 'service_purchase', serviceId: saleItemId, sessionsPurchased });
+
+  await batch.commit();
+
+  // if we got this far, atomic batch ops were successful...
 
   const promises = [];
 
@@ -1981,111 +2028,56 @@ async function recordServicePurchaseForCreator(sellerUid: string, serviceId: str
   const event = {
     name: 'coach_service_purchase',
     properties: {
-      service_id: serviceId,
-      service_title: serviceTitle,
-      service_image: serviceImg,
-      num_sessions_purchased: numSessions,
+      service_id: saleItemId,
+      service_title: saleItemTitle,
+      service_image: saleItemImg,
+      num_sessions_purchased: sessionsPurchased,
       client_url: `https://lifecoach.io/person-history/${clientUid}`
     }
   }
-  const emailPromise = logMailchimpEvent(sellerUid, event); // log event
+  const emailPromise = logMailchimpEvent(sellerUid, event);
   promises.push(emailPromise);
 
-  await db.collection(`users/${sellerUid}/service-sales/${saleMonth}-${saleYear}/${serviceId}`)
-  .doc(obj.id)
-  .create(obj);
-
-  // save the person to the recipient's people (create if doesn't exist yet - it might)
-  await db.collection(`users/${sellerUid}/people`)
-  .doc(clientUid)
-  .set({ lastUpdated: timestampNow }, { merge: true }) // creates a real (not virtual) doc
-  .catch(err => console.log(err));
-
-  // update this person's session data (allows the coach to see how many paid sessions this person has purchased/remaining)
-  let i = 0;
-  while (i < sessionsPurchased) {
-    await db.collection(`users/${sellerUid}/people/${clientUid}/sessions-purchased`)
-    .doc()
-    .create({
-      sellerUid,
-      clientUid,
-      serviceId,
-      saleDate,
-      relatedStripeTransferId: obj.id
-    });
-    i++;
-  }
-
-  // save the action to this person's history for the coach
-  await db.collection(`users/${sellerUid}/people/${clientUid}/history`)
-  .doc(timestampNow.toString())
-  .set({ action: 'service_purchase', serviceId, sessionsPurchased });
-
-  // save the action to this person's history with the coach
-  return db.collection(`users/${clientUid}/coaches/${sellerUid}/history`)
-  .doc(timestampNow.toString())
-  .set({ action: 'service_purchase', serviceId, sessionsPurchased });
+  return Promise.all(promises);
 }
 
-async function recordServicePurchaseForClient(studentUid: string, serviceId: string, serviceTitle: string, serviceImg: string, sessionsPurchased: string) {
+async function recordServicePurchaseForClient(data: Stripe.PaymentIntent) {
 
-  // Add the service ID to the client's own purchased services node.
-  // We can monitor this with a client side subscription to notify the user of the completed purchase.
+  const clientUid = data.metadata.client_UID;
+  const saleItemId = data.metadata.sale_item_id;
+  const saleItemTitle = data.metadata.sale_item_title;
+  const saleItemImg = data.metadata.sale_item_image;
+  const numSessions = data.metadata.num_sessions;
 
-  await db.collection(`users/${studentUid}/purchased-services`)
-  .doc(serviceId)
-  .set({
-    serviceId,
+  // db ops
+
+  const ref1 = db.collection(`users/${clientUid}/purchased-services`).doc(saleItemId);
+  batch.set(ref1, {
+    serviceId: saleItemId,
   }, { merge: true });
+
+  await batch.commit();
+
+  // if we got this far, atomic batch ops were successful...
+
+  const promises = [];
 
   // send email
 
   const event = {
     name: 'service_enrollment',
     properties: {
-      service_id: serviceId,
-      service_title: serviceTitle,
-      service_image: serviceImg,
-      num_sessions_purchased: sessionsPurchased,
-      landing_url: `https://lifecoach.io/my-services/${serviceId}`
+      service_id: saleItemId,
+      service_title: saleItemTitle,
+      service_image: saleItemImg,
+      num_sessions_purchased: numSessions,
+      landing_url: `https://lifecoach.io/my-services/${saleItemId}`
     }
   }
-  return logMailchimpEvent(studentUid, event); // log event
-}
-
-async function updateServiceEnrollmentCounts(creatorUid: string, serviceId:string, obj: any, clientUid: string) {
-  // Accepts a custom transfer object
-  // Promises an array of Firebase write result promises
-
-  const incrementCount = admin.firestore.FieldValue.increment(1);
-  const incrementAmount = admin.firestore.FieldValue.increment(obj.amount);
-  const incrementCurrency = obj.currency;
-  const timestampNow = Math.round(new Date().getTime() / 1000);
-
-  const promises = [];
-
-  // Increment the total sales number & total lifetime sales amount for this creator
-  const promise1 = db.collection(`users/${creatorUid}/service-sales/total-lifetime-service-sales/services`)
-  .doc(serviceId)
-  .set({
-    [incrementCurrency]: {
-      lifetimeTotalSales: incrementCount,
-      lifetimeTotalAmount: incrementAmount
-    }
-  }, { merge: true });
+  const promise1 = logMailchimpEvent(clientUid, event);
   promises.push(promise1);
 
-  // update this client on the coach's enrollments (clients) by service node
-  // allows us & coaches to see which (and how many) clients are enrolled on each service
-  const promise2 = db.collection(`coach-enrollments-by-service/${creatorUid}/services/${serviceId}/enrolled`)
-  .doc(clientUid)
-  .set({
-    timeOfLastEnrollment: timestampNow.toString(),
-    clientUid
-  }, { merge: true });
-  promises.push(promise2);
-
-  return promises;
+  return Promise.all(promises);
 }
 
 // ================================================================================
@@ -2358,8 +2350,6 @@ exports.adminApproveCourseReview = functions
       reviewerUid: userId
     });
 
-    const batch = db.batch(); // prepare to execute multiple ops atomically
-
     // update user's private course node with updated course object
     const privateCourseCopy = JSON.parse(JSON.stringify(course));
     const privateReviewRequest = JSON.parse(JSON.stringify(reviewRequest));
@@ -2437,8 +2427,6 @@ exports.adminRejectCourseReview = functions
   reviewRequest.reviewerUid = userId;
 
   try {
-
-    const batch = db.batch(); // prepare to execute multiple ops atomically
 
     // update user's private course node
     const privateRef = db.collection(`users/${reviewRequest.sellerUid}/courses`).doc(courseId);
@@ -2527,8 +2515,6 @@ exports.adminApproveProgramReview = functions
       reviewerUid: userId
     });
 
-    const batch = db.batch(); // prepare to execute multiple ops atomically
-
     // update user's private programs node with updated program object
     const privateProgramCopy = JSON.parse(JSON.stringify(program));
     const privateReviewRequest = JSON.parse(JSON.stringify(reviewRequest));
@@ -2606,8 +2592,6 @@ exports.adminRejectProgramReview = functions
   reviewRequest.reviewerUid = userId;
 
   try {
-
-    const batch = db.batch(); // prepare to execute multiple ops atomically
 
     // update user's private program node
     const privateRef = db.collection(`users/${reviewRequest.sellerUid}/programs`).doc(programId);
@@ -2696,8 +2680,6 @@ exports.adminApproveServiceReview = functions
       reviewerUid: userId
     });
 
-    const batch = db.batch(); // prepare to execute multiple ops atomically
-
     // update user's private services node with updated service object
     const privateServiceCopy = JSON.parse(JSON.stringify(service));
     const privateReviewRequest = JSON.parse(JSON.stringify(reviewRequest));
@@ -2775,8 +2757,6 @@ exports.adminRejectServiceReview = functions
   reviewRequest.reviewerUid = userId;
 
   try {
-
-    const batch = db.batch(); // prepare to execute multiple ops atomically
 
     // update user's private services node
     const privateRef = db.collection(`users/${reviewRequest.sellerUid}/services`).doc(serviceId);
@@ -2915,8 +2895,6 @@ exports.orderCoachSession = functions
 
   const promises = []; // an array of promises to execute
 
-  const batch = db.batch(); // prepare to execute multiple ops atomically
-
   try {
 
     console.group('ORDERING COACH SESSION');
@@ -3041,8 +3019,6 @@ exports.cancelCoachSession = functions
   const now = Math.round(new Date().getTime() / 1000) // unix timestamp
 
   const promises = []; // an array of promises to execute
-
-  const batch = db.batch(); // prepare to execute multiple ops atomically
 
   try {
 
@@ -3220,8 +3196,6 @@ exports.coachMarkSessionComplete = functions
   const programId = data.programId; // will be 'discovery' or program id string
   const sessionId = data.sessionId;
   const now = Math.round(new Date().getTime() / 1000) // unix timestamp
-
-  const batch = db.batch(); // prepare to execute multiple ops atomically
 
   try {
 
@@ -3920,7 +3894,6 @@ exports.onWritePrivateUserCourse = functions
 
   try {
     // Sync with public-courses.
-    const batch = db.batch(); // prepare to execute multiple ops atomically
 
     // copy non-paywall protected course data in public courses node (to allow browse & purchase)
     const publicData = {
@@ -4416,7 +4389,6 @@ exports.onWritePrivateUserProgram = functions
 
   try {
     // Sync with public-programs.
-    const batch = db.batch(); // prepare to execute multiple ops atomically
 
     // copy non-paywall protected program data in public programs node (to allow browse & purchase)
     const publicData = {
@@ -4697,7 +4669,6 @@ exports.onWritePrivateUserService = functions
 
   try {
     // Sync with public-services.
-    const batch = db.batch(); // prepare to execute multiple ops atomically
 
     // copy non-paywall protected service data in public services node (to allow browse & purchase)
     const publicData = {
@@ -4818,7 +4789,6 @@ exports.onWriteUserCalendar = functions
   const coachId = context.params.uid; // note only coach users have a calendar so uid will always be a coach
   const event = change.after.data() as any; // will be a CustomCalendarEvent
   const eventBefore = change.before.data() as any; // will not exist on first create
-  const batch = db.batch(); // prepare to execute multiple ops atomically
   const promises = [];
   const dateNow = Date.now();
 
