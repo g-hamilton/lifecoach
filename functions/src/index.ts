@@ -1561,14 +1561,16 @@ exports.stripeWebhookEvent = functions
 
           // flatten the data for easier lookups by platform and partners
 
-          const ref1 = db.collection(`partner-referrals/${charge.metadata.partner_referred}/${saleYear}/${saleMonth}/all`).doc(charge.payment_intent as string);
+          const ref1 = db.collection(`partner-referrals/by-partner-id/${charge.metadata.partner_referred}/by-date/${saleYear}/${saleMonth}/referrals`).doc(charge.payment_intent as string);
           batch.set(ref1, data);
-          const ref2 = db.collection(`partner-referrals/${charge.metadata.partner_referred}/all`).doc(charge.payment_intent as string);
+          const ref2 = db.collection(`partner-referrals/by-partner-id/${charge.metadata.partner_referred}/all/referrals`).doc(charge.payment_intent as string);
           batch.set(ref2, data);
-          const ref3 = db.collection(`partner-referrals/${saleYear}/${saleMonth}`).doc(charge.payment_intent as string);
+          const ref3 = db.collection(`partner-referrals/by-date/${saleYear}/${saleMonth}/referrals`).doc(charge.payment_intent as string);
           batch.set(ref3, data);
-          const ref4 = db.collection(`partner-referrals/all/referrals`).doc(charge.payment_intent as string);
+          const ref4 = db.collection(`partner-referrals/by-date/${saleYear}/${saleMonth}/by-partner-id/${charge.metadata.partner_referred}/referrals`).doc(charge.payment_intent as string);
           batch.set(ref4, data);
+          const ref5 = db.collection(`partner-referrals/all/referrals`).doc(charge.payment_intent as string);
+          batch.set(ref5, data);
 
         } // end of if charge was partner referred
 
