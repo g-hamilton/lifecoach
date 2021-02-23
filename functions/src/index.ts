@@ -1724,11 +1724,11 @@ exports.completeFreeCourseEnrollment = functions
     batch.set(ref3, { action: 'enrolled_in_self_study_course', courseId });
     const ref4 = db.collection(`users/${clientUid}/coaches/${course.sellerUid}/history`).doc(timestampNow.toString());
     batch.set(ref4, { action: 'enrolled_in_self_study_course', courseId });
-    const ref5 = db.collection(`users/${course.sellerUid}/enrollments/all/enrollments`).doc(timestampNow.toString());
+    const ref5 = db.collection(`users/${course.sellerUid}/enrollments/all/enrollments`).doc();
     batch.set(ref5, enrollment);
-    const ref6 = db.collection(`users/${course.sellerUid}/enrollments/by-date/${saleYear}/${saleMonth}/enrollments`).doc(timestampNow.toString());
+    const ref6 = db.collection(`users/${course.sellerUid}/enrollments/by-date/${saleYear}/${saleMonth}/enrollments`).doc();
     batch.set(ref6, enrollment);
-    const ref7 = db.collection(`users/${course.sellerUid}/enrollments/by-item-id/${courseId}`).doc(timestampNow.toString());
+    const ref7 = db.collection(`users/${course.sellerUid}/enrollments/by-item-id/${courseId}`).doc();
     batch.set(ref7, enrollment);
 
     // execute atomic batch
@@ -1800,11 +1800,11 @@ async function recordCourseEnrollmentForCreator(data: Stripe.PaymentIntent) {
     paymentIntent: data
   };
 
-  const ref3 = db.collection(`users/${sellerUid}/enrollments/all/enrollments`).doc(timestampNow.toString());
+  const ref3 = db.collection(`users/${sellerUid}/enrollments/all/enrollments`).doc();
   batch.set(ref3, enrollment);
-  const ref4 = db.collection(`users/${sellerUid}/enrollments/by-date/${saleYear}/${saleMonth}/enrollments`).doc(timestampNow.toString());
+  const ref4 = db.collection(`users/${sellerUid}/enrollments/by-date/${saleYear}/${saleMonth}/enrollments`).doc();
   batch.set(ref4, enrollment);
-  const ref5 = db.collection(`users/${sellerUid}/enrollments/by-item-id/${saleItemId}`).doc(timestampNow.toString());
+  const ref5 = db.collection(`users/${sellerUid}/enrollments/by-item-id/${saleItemId}`).doc();
   batch.set(ref5, enrollment);
 
   // Client (My Coaches)
