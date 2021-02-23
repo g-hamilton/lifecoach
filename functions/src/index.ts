@@ -1797,7 +1797,8 @@ async function recordCourseEnrollmentForCreator(data: Stripe.PaymentIntent) {
     clientUid,
     itemId: saleItemId,
     itemType: saleItemType,
-    paymentIntent: data
+    paymentIntentId: data.id,
+    paymentIntentMetadata: data.metadata
   };
 
   const ref3 = db.collection(`users/${sellerUid}/enrollments/all/enrollments`).doc();
