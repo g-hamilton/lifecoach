@@ -2193,32 +2193,35 @@ exports.requestRefund = functions
   const now = Math.round(new Date().getTime()/1000) // unix timestamp
   request.created = now;
   request.status = 'requested';
+  const index = algolia.initIndex('prod_REFUNDS');
+  const date = new Date();
+  const month = date.getMonth() + 1;
+  const year = date.getFullYear();
+  const saleItemId = pI.metadata.sale_item_id;
 
   try {
-    const index = algolia.initIndex('prod_REFUNDS');
 
     // console.log(`Refund requested by user ${request.uid} for payment: ${JSON.stringify(pI)}`);
 
-    const promises = [] as any[];
-
     // Create a refund request for admins to approve
-    const promise1 = db.collection(`admin/refunds/requested`)
-    .doc(pI.id)
-    .set(request);
-    promises.push(promise1);
+    const ref1 = db.collection(`platform-refund-requests`).doc(pI.id);
+    batch.set(ref1, request);
 
-    // Create a request in the requester's history
-    const promise2 = db.collection(`users/${uid}/account/account${uid}/refunds`)
-    .doc(pI.id)
-    .set(request);
-    promises.push(promise2);
+    // Create a request in the requester's history (flatten data)
+    const ref2 = db.collection(`users/${uid}/refund-requests/all/requests`).doc(pI.id);
+    batch.set(ref2, request);
+    const ref3 = db.collection(`users/${uid}/refund-requests/by-date/${year}/${month}/requests`).doc(pI.id);
+    batch.set(ref3, request);
+    const ref4 = db.collection(`users/${uid}/refund-requests/by-item-id/${saleItemId}`).doc(pI.id);
+    batch.set(ref4, request);
+
+    await batch.commit();
+
+    // if we got this far the batch commit was successful...
 
     // Send the record to Algolia.
     request.objectID = pI.id;
-    const promise3 = index.saveObject(request);
-    promises.push(promise3);
-
-    await Promise.all(promises);
+    await index.saveObject(request);
 
     return { success: true } // success
 
@@ -2246,12 +2249,12 @@ exports.approveRefund = functions
   const clientUid = request.uid;
   const pI = request.paymentIntent as Stripe.PaymentIntent;
   const sellerUid = pI.metadata.seller_UID;
+  const index = algolia.initIndex('prod_REFUNDS');
+  const saleItemId = pI.metadata.sale_item_id;
 
   try {
-    const index = algolia.initIndex('prod_REFUNDS');
 
-    // Attempt the refund
-    // https://stripe.com/docs/api/refunds/create
+    // Attempt the refund: https://stripe.com/docs/api/refunds/create
     const refund = await stripe.refunds.create({
       payment_intent: pI.id,
       metadata: pI.metadata,
@@ -2260,117 +2263,53 @@ exports.approveRefund = functions
       expand: ['transfer_reversal']
     });
 
-    // console.log('Refund:', refund);
+    console.log('Refund:', refund);
+
+    const date = new Date(refund.created * 1000);
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
 
     if (refund && refund.status === 'succeeded') {
-
-      const promises = [] as any[];
 
       // Update request status
       request.status = "refunded";
       request.refund = refund;
 
       // Move admin request from requested to approved in db
-      const promise1 = db.collection(`admin/refunds/requested`)
-      .doc(pI.id)
-      .delete();
-      promises.push(promise1);
+      const ref1 = db.collection(`platform-refund-requests`).doc(pI.id);
+      batch.delete(ref1);
+      const ref2 = db.collection(`platform-successful-refunds`).doc(pI.id);
+      batch.set(ref2, request);
 
-      const promise2 = db.collection(`admin/refunds/refunded`)
-      .doc(pI.id)
-      .set(request);
-      promises.push(promise2);
+      // Update refunded request in client's history (overwrite original docs)
+      const ref3 = db.collection(`users/${clientUid}/refund-requests/all/requests`).doc(pI.id);
+      batch.set(ref3, request);
+      const ref4 = db.collection(`users/${clientUid}/refund-requests/by-date/${year}/${month}/requests`).doc(pI.id);
+      batch.set(ref4, request);
+      const ref5 = db.collection(`users/${clientUid}/refund-requests/by-item-id/${saleItemId}`).doc(pI.id);
+      batch.set(ref5, request);
 
-      // Update refunded request in client's history
-      const promise3 = db.collection(`users/${clientUid}/account/account${clientUid}/refunds`)
-      .doc(pI.id)
-      .set(request); // overwrite the original request with the newly updated request
-      promises.push(promise3);
-
-      // Update the seller's refund record
-      const date = new Date(refund.created * 1000);
-      const month = date.getMonth() + 1;
-      const year = date.getFullYear();
-      const promise4 = db.collection(`users/${sellerUid}/refunds/${month}-${year}/${pI.metadata.sale_item_id}`)
-      .doc(refund.id)
-      .set({
+      // Update the seller's refund record (flatten data)
+      const successfulRefund = {
         refund_id: refund.id,
         reason: request.formData.reason,
         payment_intent: pI.id,
         transfer_reversal: refund.transfer_reversal
-      });
-      promises.push(promise4);
-
-      // Update the sellers totals
-      const decrementAmount = fieldValue.increment(-(refund.transfer_reversal as any).amount);
-
-      // If refunding an ecourse...
-      if (pI.metadata.sale_item_type === 'ecourse') {
-        const promise5 = db.collection(`users/${sellerUid}/sales/${month}-${year}/${pI.metadata.sale_item_id}`)
-        .doc((refund.transfer_reversal as any).transfer)
-        .set({
-          amount_reversed: (refund.transfer_reversal as any).amount // update the amount reversed on the original transfer object
-        }, { merge: true });
-        promises.push(promise5);
-
-        const promise6 = db.collection(`users/${sellerUid}/sales`)
-        .doc('totals')
-        .set({
-          [pI.metadata.sale_item_id]: {
-            [(refund.transfer_reversal as any).currency]: {
-              lifetimeTotalAmount: decrementAmount // decrement lifetitme total sales by refunded amount
-            }
-          }
-        }, { merge: true });
-        promises.push(promise6);
-
-      // If refunding a program or program session...
-      } else if (pI.metadata.sale_item_type === 'fullProgram' || pI.metadata.sale_item_type === 'programSession') {
-        const promise5 = db.collection(`users/${sellerUid}/program-sales/${month}-${year}/${pI.metadata.sale_item_id}`)
-        .doc((refund.transfer_reversal as any).transfer)
-        .set({
-          amount_reversed: (refund.transfer_reversal as any).amount // update the amount reversed on the original transfer object
-        }, { merge: true });
-        promises.push(promise5);
-
-        const promise6 = db.collection(`users/${sellerUid}/program-sales`)
-        .doc('totals')
-        .set({
-          [pI.metadata.sale_item_id]: {
-            [(refund.transfer_reversal as any).currency]: {
-              lifetimeTotalAmount: decrementAmount // decrement lifetime total sales by refunded amount
-            }
-          }
-        }, { merge: true });
-        promises.push(promise6);
-
-      // if refunding a service purchase
-      } else if (pI.metadata.sale_item_type === 'service') {
-        const promise5 = db.collection(`users/${sellerUid}/service-sales/${month}-${year}/${pI.metadata.sale_item_id}`)
-        .doc((refund.transfer_reversal as any).transfer)
-        .set({
-          amount_reversed: (refund.transfer_reversal as any).amount // update the amount reversed on the original transfer object
-        }, { merge: true });
-        promises.push(promise5);
-
-        const promise6 = db.collection(`users/${sellerUid}/service-sales`)
-        .doc('totals')
-        .set({
-          [pI.metadata.sale_item_id]: {
-            [(refund.transfer_reversal as any).currency]: {
-              lifetimeTotalAmount: decrementAmount // decrement lifetime total sales by refunded amount
-            }
-          }
-        }, { merge: true });
-        promises.push(promise6);
       }
+      const ref6 = db.collection(`users/${sellerUid}/successful-refunds/all/refunds`).doc(refund.id);
+      batch.set(ref6, successfulRefund);
+      const ref7 = db.collection(`users/${sellerUid}/successful-refunds/by-date/${year}/${month}/refunds`).doc(refund.id);
+      batch.set(ref7, successfulRefund);
+      const ref8 = db.collection(`users/${sellerUid}/successful-refunds/by-item-id/${saleItemId}`).doc(refund.id);
+      batch.set(ref8, successfulRefund);
+
+      await batch.commit();
+
+      // if we got this far, batch ops were successful...
 
       // Update Algolia
       request.objectID = pI.id;
-      const promise7 = index.saveObject(request); // overwrite the original object in Algolia
-      promises.push(promise7);
-
-      await Promise.all(promises); // run concurrent ops
+      await index.saveObject(request); // overwrite the original object in Algolia
 
       return { success: true } // success
     }
