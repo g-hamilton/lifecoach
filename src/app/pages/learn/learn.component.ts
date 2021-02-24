@@ -33,7 +33,6 @@ export class LearnComponent implements OnInit, OnDestroy {
   public course: CoachingCourse;
   public activeSectionIndex: number;
   public videoSources = [];
-  public totalEnrollments: number;
   private vgApi: VgAPI; // http://www.videogular.com/tutorials/videogular-api/
   public lecturesComplete = [];
   public bookmarkForm: FormGroup;
@@ -112,15 +111,6 @@ export class LearnComponent implements OnInit, OnDestroy {
     } else {
       this.fetchPublicCourse();
     }
-
-    // fetch total enrollments for this course
-    const enrollmentsSub = this.dataService.getTotalPublicEnrollmentsByCourse(this.courseId).subscribe(enrollments => {
-      if (enrollments) {
-        this.totalEnrollments = enrollments.totalEnrollments;
-      }
-      enrollmentsSub.unsubscribe();
-    });
-    this.subscriptions.add(enrollmentsSub);
 
     // fetch user's course progress
     this.subscriptions.add(

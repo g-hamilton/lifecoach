@@ -49,14 +49,10 @@ export class CourseComponent implements OnInit, OnDestroy {
   public rates: any;
   private courseId: string;
   public course: CoachingCourse;
-  public courseEnrollments: any;
 
   public purchasingCourse: boolean;
 
   public languages: any;
-
-  public totalReviews: number;
-  public avgRating: number;
 
   private referralCode: string; // will hold a referral code if a coach referred the user here
   private partnerTrackingCode: string | null; // will hold a partner tracking code if a promotional partner referred the user anywhere on the app within the last 30 days
@@ -299,15 +295,6 @@ export class CourseComponent implements OnInit, OnDestroy {
                   })
                 );
 
-                // monitor total public course enrollments
-                this.subscriptions.add(
-                  this.dataService.getTotalPublicEnrollmentsByCourse(this.courseId).subscribe(enrollments => {
-                    if (enrollments) {
-                      this.courseEnrollments = enrollments;
-                    }
-                  })
-                );
-
                 // check for referral code
                 this.checkForReferralCode();
               }
@@ -338,15 +325,6 @@ export class CourseComponent implements OnInit, OnDestroy {
                     } else { // user not authorised
                       console.log('User not authorised to view private course!');
                       this.redirectToBrowseCourses();
-                    }
-                  })
-                );
-
-                // monitor total public course enrollments
-                this.subscriptions.add(
-                  this.dataService.getTotalPublicEnrollmentsByCourse(this.courseId).subscribe(enrollments => {
-                    if (enrollments) {
-                      this.courseEnrollments = enrollments;
                     }
                   })
                 );
@@ -493,11 +471,11 @@ export class CourseComponent implements OnInit, OnDestroy {
   }
 
   onAvgRatingEvent(event: number) {
-    this.avgRating = event;
+    // this.avgRating = event;
   }
 
   onTotalReviewsEvent(event: number) {
-    this.totalReviews = event;
+    // this.totalReviews = event;
     // console.log('Total reviews event:', event);
   }
 

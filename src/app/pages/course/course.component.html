@@ -36,21 +36,21 @@
                         [course]="course"
                         (totalReviewsEvent)="onTotalReviewsEvent($event)">
                         </app-stars>
-                        <span class=" d-inline-block ml-2" style="margin-top: 0.3rem;">
+                        <!-- <span class=" d-inline-block ml-2" style="margin-top: 0.3rem;">
                           {{ avgRating?.toFixed(2) }} ({{ totalReviews ? totalReviews : '0' }} {{ totalReviews === 1 ? 'review' : 'reviews'}})
-                        </span>
+                        </span> -->
                         <!-- if zero enrollments -->
-                        <span *ngIf="!courseEnrollments?.totalEnrollments" class=" ml-3 badge badge-danger">
+                        <span class=" ml-3 badge badge-danger">
                           🔥 New eCourse
                         </span>
                         <!-- if 1 enrollment -->
-                        <span *ngIf="courseEnrollments?.totalEnrollments && courseEnrollments?.totalEnrollments == 1" class=" ml-3">
+                        <!-- <span *ngIf="courseEnrollments?.totalEnrollments && courseEnrollments?.totalEnrollments == 1" class=" ml-3">
                           1 student enrolled
-                        </span>
+                        </span> -->
                         <!-- if more than 1 enrollment -->
-                        <span *ngIf="courseEnrollments?.totalEnrollments && courseEnrollments?.totalEnrollments > 1" class=" ml-3">
+                        <!-- <span *ngIf="courseEnrollments?.totalEnrollments && courseEnrollments?.totalEnrollments > 1" class=" ml-3">
                           {{ courseEnrollments.totalEnrollments }} students enrolled
-                        </span>
+                        </span> -->
                       </div>
 
                       <!-- coach -->

@@ -50,11 +50,10 @@ export class ProgramComponent implements OnInit, OnDestroy {
   public rates: any;
   private programId: string;
   public program: CoachingProgram;
-  public programEnrollments: any;
   public purchasingProgram: boolean;
   public languages: any;
-  public totalReviews: number;
-  public avgRating: number;
+  // public totalReviews: number;
+  // public avgRating: number;
   private referralCode: string;
   private partnerTrackingCode: string | null; // will hold a partner tracking code if a promotional partner referred the user anywhere on the app within the last 30 days
   public purchaseType: 'full' | 'session'; // value should be set depending on which purchase button is pressed
@@ -290,15 +289,6 @@ export class ProgramComponent implements OnInit, OnDestroy {
                   })
                 );
 
-                // monitor total public program enrollments
-                this.subscriptions.add(
-                  this.dataService.getTotalPublicEnrollmentsByProgram(this.programId).subscribe(enrollments => {
-                    if (enrollments) {
-                      this.programEnrollments = enrollments;
-                    }
-                  })
-                );
-
                 // check for referral code
                 this.checkForReferralCode();
               }
@@ -331,15 +321,6 @@ export class ProgramComponent implements OnInit, OnDestroy {
                     } else { // user not authorised
                       console.log('User not authorised to view private program!');
                       this.redirectToBrowsePrograms();
-                    }
-                  })
-                );
-
-                // monitor total public program enrollments
-                this.subscriptions.add(
-                  this.dataService.getTotalPublicEnrollmentsByProgram(this.programId).subscribe(enrollments => {
-                    if (enrollments) {
-                      this.programEnrollments = enrollments;
                     }
                   })
                 );
@@ -531,26 +512,13 @@ export class ProgramComponent implements OnInit, OnDestroy {
   }
 
   onAvgRatingEvent(event: number) {
-    this.avgRating = event;
+    // this.avgRating = event;
   }
 
   onTotalReviewsEvent(event: number) {
-    this.totalReviews = event;
+    // this.totalReviews = event;
     // console.log('Total reviews event:', event);
   }
-
-  // daySelect(event: any) {
-  //   if (event.target.value !== 'NULL') {
-  //     console.log(event.target.value);
-  //     this.subscriptions.add(
-  //       this.dataService.getUserNotReservedEvents(this.program.sellerUid, new Date(event.target.value))
-  //         .subscribe(next => {
-  //         this.todayEvents = next;
-  //       })
-  //     );
-  //   } else {
-  //   }
-  // }
 
   isSameDay(a: Date, b: Date) {
     return (a.getUTCFullYear() === b.getUTCFullYear() && a.getUTCMonth() === b.getUTCMonth() && a.getUTCDate() === b.getUTCDate());

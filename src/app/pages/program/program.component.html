@@ -80,18 +80,17 @@
                 </h6>
               </div>
               <div class=" mt-4 mb-5">
-                <!-- if zero enrollments -->
-                <span *ngIf="!programEnrollments?.totalEnrollments" class=" badge badge-danger">
+                <span class=" badge badge-danger">
                   🔥 New Coaching Program
                 </span>
                 <!-- if 1 enrollment -->
-                <span *ngIf="programEnrollments?.totalEnrollments && programEnrollments?.totalEnrollments == 1" class="">
+                <!-- <span *ngIf="programEnrollments?.totalEnrollments && programEnrollments?.totalEnrollments == 1" class="">
                   1 person enrolled
-                </span>
+                </span> -->
                 <!-- if more than 1 enrollment -->
-                <span *ngIf="programEnrollments?.totalEnrollments && programEnrollments?.totalEnrollments > 1" class="">
+                <!-- <span *ngIf="programEnrollments?.totalEnrollments && programEnrollments?.totalEnrollments > 1" class="">
                   {{ programEnrollments.totalEnrollments }} people enrolled
-                </span>
+                </span> -->
                 <!-- is coach viewing own program? -->
                 <div *ngIf="userId === program.sellerUid">
                   <p class=" text-success text-center mt-3">

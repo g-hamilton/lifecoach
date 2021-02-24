@@ -46,12 +46,12 @@ export class ReceiptComponent implements OnInit, OnDestroy {
               if (user) {
                 this.userId = user.uid;
                 this.subscriptions.add(
-                  this.dataService.getSuccessfulPaymentIntent(this.userId, paymentIntentId).subscribe(payInt => {
-                    if (payInt) {
-                      this.purchasedItem = payInt;
-                      console.log('Purchased item:', this.purchasedItem);
-                    }
-                  })
+                  // this.dataService.getSuccessfulPaymentIntent(this.userId, paymentIntentId).subscribe(payInt => {
+                  //   if (payInt) {
+                  //     this.purchasedItem = payInt;
+                  //     console.log('Purchased item:', this.purchasedItem);
+                  //   }
+                  // })
                 );
 
                 // Get the user account
