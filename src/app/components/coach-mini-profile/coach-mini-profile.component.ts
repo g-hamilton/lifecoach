@@ -55,9 +55,9 @@ export class CoachMiniProfileComponent implements OnInit, OnChanges, OnDestroy {
       this.fetchCourseReviewsData();
       this.fetchProgramReviewsData();
       this.fetchServiceReviewsData();
-      this.fetchSellerCourseEnrollmentsData();
-      this.fetchSellerProgramEnrollmentsData();
-      this.fetchSellerServiceEnrollmentsData();
+      // this.fetchSellerCourseEnrollmentsData();
+      // this.fetchSellerProgramEnrollmentsData();
+      // this.fetchSellerServiceEnrollmentsData();
       this.fetchSellerCoursesData();
       this.fetchSellerProgramsData();
       this.fetchSellerServicesData();
@@ -176,59 +176,59 @@ export class CoachMiniProfileComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  async fetchSellerCourseEnrollmentsData() {
-    const ENROLLMENTS_KEY = makeStateKey<any>('course-enrollments'); // create a key for saving/retrieving state
+  // async fetchSellerCourseEnrollmentsData() {
+  //   const ENROLLMENTS_KEY = makeStateKey<any>('course-enrollments'); // create a key for saving/retrieving state
 
-    const enrollmentsData = this.transferState.get(ENROLLMENTS_KEY, null as any); // checking if data in the storage exists
+  //   const enrollmentsData = this.transferState.get(ENROLLMENTS_KEY, null as any); // checking if data in the storage exists
 
-    if (enrollmentsData === null) { // if state data does not exist - retrieve it from the api
-      this.sellerCourseEnrollments = await this.dataService.getTotalPublicEnrollmentsByCourseSeller(this.coachId);
+  //   if (enrollmentsData === null) { // if state data does not exist - retrieve it from the api
+  //     this.sellerCourseEnrollments = await this.dataService.getTotalPublicEnrollmentsByCourseSeller(this.coachId);
 
-      if (isPlatformServer(this.platformId)) { // if we're server side, store the retrieved data as a state
-        this.transferState.set(ENROLLMENTS_KEY, this.sellerCourseEnrollments);
-      }
+  //     if (isPlatformServer(this.platformId)) { // if we're server side, store the retrieved data as a state
+  //       this.transferState.set(ENROLLMENTS_KEY, this.sellerCourseEnrollments);
+  //     }
 
-    } else { // if state data exists retrieve it from the state storage
-      this.sellerCourseEnrollments = enrollmentsData;
-      this.transferState.remove(ENROLLMENTS_KEY);
-    }
-  }
+  //   } else { // if state data exists retrieve it from the state storage
+  //     this.sellerCourseEnrollments = enrollmentsData;
+  //     this.transferState.remove(ENROLLMENTS_KEY);
+  //   }
+  // }
 
-  async fetchSellerProgramEnrollmentsData() {
-    const ENROLLMENTS_KEY = makeStateKey<any>('program-enrollments'); // create a key for saving/retrieving state
+  // async fetchSellerProgramEnrollmentsData() {
+  //   const ENROLLMENTS_KEY = makeStateKey<any>('program-enrollments'); // create a key for saving/retrieving state
 
-    const enrollmentsData = this.transferState.get(ENROLLMENTS_KEY, null as any); // checking if data in the storage exists
+  //   const enrollmentsData = this.transferState.get(ENROLLMENTS_KEY, null as any); // checking if data in the storage exists
 
-    if (enrollmentsData === null) { // if state data does not exist - retrieve it from the api
-      this.sellerProgramEnrollments = await this.dataService.getTotalPublicProgramEnrollmentsBySeller(this.coachId);
+  //   if (enrollmentsData === null) { // if state data does not exist - retrieve it from the api
+  //     this.sellerProgramEnrollments = await this.dataService.getTotalPublicProgramEnrollmentsBySeller(this.coachId);
 
-      if (isPlatformServer(this.platformId)) { // if we're server side, store the retrieved data as a state
-        this.transferState.set(ENROLLMENTS_KEY, this.sellerProgramEnrollments);
-      }
+  //     if (isPlatformServer(this.platformId)) { // if we're server side, store the retrieved data as a state
+  //       this.transferState.set(ENROLLMENTS_KEY, this.sellerProgramEnrollments);
+  //     }
 
-    } else { // if state data exists retrieve it from the state storage
-      this.sellerProgramEnrollments = enrollmentsData;
-      this.transferState.remove(ENROLLMENTS_KEY);
-    }
-  }
+  //   } else { // if state data exists retrieve it from the state storage
+  //     this.sellerProgramEnrollments = enrollmentsData;
+  //     this.transferState.remove(ENROLLMENTS_KEY);
+  //   }
+  // }
 
-  async fetchSellerServiceEnrollmentsData() {
-    const ENROLLMENTS_KEY = makeStateKey<any>('service-enrollments'); // create a key for saving/retrieving state
+  // async fetchSellerServiceEnrollmentsData() {
+  //   const ENROLLMENTS_KEY = makeStateKey<any>('service-enrollments'); // create a key for saving/retrieving state
 
-    const enrollmentsData = this.transferState.get(ENROLLMENTS_KEY, null as any); // checking if data in the storage exists
+  //   const enrollmentsData = this.transferState.get(ENROLLMENTS_KEY, null as any); // checking if data in the storage exists
 
-    if (enrollmentsData === null) { // if state data does not exist - retrieve it from the api
-      this.sellerServiceEnrollments = await this.dataService.getTotalPublicServiceEnrollmentsBySeller(this.coachId);
+  //   if (enrollmentsData === null) { // if state data does not exist - retrieve it from the api
+  //     this.sellerServiceEnrollments = await this.dataService.getTotalPublicServiceEnrollmentsBySeller(this.coachId);
 
-      if (isPlatformServer(this.platformId)) { // if we're server side, store the retrieved data as a state
-        this.transferState.set(ENROLLMENTS_KEY, this.sellerServiceEnrollments);
-      }
+  //     if (isPlatformServer(this.platformId)) { // if we're server side, store the retrieved data as a state
+  //       this.transferState.set(ENROLLMENTS_KEY, this.sellerServiceEnrollments);
+  //     }
 
-    } else { // if state data exists retrieve it from the state storage
-      this.sellerServiceEnrollments = enrollmentsData;
-      this.transferState.remove(ENROLLMENTS_KEY);
-    }
-  }
+  //   } else { // if state data exists retrieve it from the state storage
+  //     this.sellerServiceEnrollments = enrollmentsData;
+  //     this.transferState.remove(ENROLLMENTS_KEY);
+  //   }
+  // }
 
   fetchSellerCoursesData() {
     const COURSES_KEY = makeStateKey<any>('courses'); // create a key for saving/retrieving state

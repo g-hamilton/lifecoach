@@ -1429,7 +1429,7 @@ exports.stripeWebhookEvent = functions
 
       try {
         // Save the successful payment intent object to the user's account
-        await db.collection(`users/${uidFP}/account/account${uidFP}/failed-payments`)
+        await db.collection(`users/${uidFP}/failed-payments`)
         .doc(paymentIntentFailed.id)
         .create(paymentIntentFailed);
       } catch (err) {
@@ -1537,7 +1537,7 @@ exports.stripeWebhookEvent = functions
 
         // transform the data to sanitise and only save what we need in our own db
 
-        const data = {} as any;
+        const data = {} as any; // actually a custom SanitisedStripeCharge interface
 
         data.id = charge.id;
         data.object = charge.object;
@@ -2198,6 +2198,7 @@ exports.requestRefund = functions
   const month = date.getMonth() + 1;
   const year = date.getFullYear();
   const saleItemId = pI.metadata.sale_item_id;
+  const sellerUid = pI.metadata.seller_UID;
 
   try {
 
@@ -2218,6 +2219,14 @@ exports.requestRefund = functions
     batch.set(ref5, request);
     const ref6 = db.collection(`users/${uid}/refund-requests/by-item-id/${saleItemId}`).doc(pI.id);
     batch.set(ref6, request);
+
+    // Create a request in the seller's history (flatten data)
+    const ref7 = db.collection(`users/${sellerUid}/client-refund-requests/all/requests`).doc(pI.id);
+    batch.set(ref7, request);
+    const ref8 = db.collection(`users/${sellerUid}/client-refund-requests/by-date/${year}/${month}/requests`).doc(pI.id);
+    batch.set(ref8, request);
+    const ref9 = db.collection(`users/${sellerUid}/client-refund-requests/by-item-id/${saleItemId}`).doc(pI.id);
+    batch.set(ref9, request);
 
     await batch.commit();
 
@@ -2279,7 +2288,7 @@ exports.approveRefund = functions
       request.status = "refunded";
       request.refund = refund;
 
-      // Move admin request from requested to approved in db
+      // Move request from requested to approved for platform
       const ref1 = db.collection(`platform-refund-requests/all/requests`).doc(pI.id);
       batch.delete(ref1);
       const ref2 = db.collection(`platform-refund-requests/by-date/${year}/${month}/requests`).doc(pI.id);
@@ -2293,27 +2302,33 @@ exports.approveRefund = functions
       const ref6 = db.collection(`platform-successful-refunds/by-item-id/${saleItemId}`).doc(pI.id);
       batch.set(ref6, request);
 
-      // Update refunded request in client's history (overwrite original docs)
+      // Move request from requested to approved for requester
       const ref7 = db.collection(`users/${clientUid}/refund-requests/all/requests`).doc(pI.id);
-      batch.set(ref7, request);
+      batch.delete(ref7);
       const ref8 = db.collection(`users/${clientUid}/refund-requests/by-date/${year}/${month}/requests`).doc(pI.id);
-      batch.set(ref8, request);
+      batch.delete(ref8);
       const ref9 = db.collection(`users/${clientUid}/refund-requests/by-item-id/${saleItemId}`).doc(pI.id);
-      batch.set(ref9, request);
+      batch.delete(ref9);
+      const ref10 = db.collection(`users/${clientUid}/successful-refunds/all/refunds`).doc(refund.id);
+      batch.set(ref10, request);
+      const ref11 = db.collection(`users/${clientUid}/successful-refunds/by-date/${year}/${month}/refunds`).doc(refund.id);
+      batch.set(ref11, request);
+      const ref12 = db.collection(`users/${clientUid}/successful-refunds/by-item-id/${saleItemId}`).doc(refund.id);
+      batch.set(ref12, request);
 
-      // Update the seller's refund record (flatten data)
-      const successfulRefund = {
-        refund_id: refund.id,
-        reason: request.formData.reason,
-        payment_intent: pI.id,
-        transfer_reversal: refund.transfer_reversal
-      }
-      const ref10 = db.collection(`users/${sellerUid}/successful-refunds/all/refunds`).doc(refund.id);
-      batch.set(ref10, successfulRefund);
-      const ref11 = db.collection(`users/${sellerUid}/successful-refunds/by-date/${year}/${month}/refunds`).doc(refund.id);
-      batch.set(ref11, successfulRefund);
-      const ref12 = db.collection(`users/${sellerUid}/successful-refunds/by-item-id/${saleItemId}`).doc(refund.id);
-      batch.set(ref12, successfulRefund);
+      // Move request from requested to approved for seller
+      const ref13 = db.collection(`users/${sellerUid}/client-refund-requests/all/requests`).doc(pI.id);
+      batch.delete(ref13);
+      const ref14 = db.collection(`users/${sellerUid}/client-refund-requests/by-date/${year}/${month}/requests`).doc(pI.id);
+      batch.delete(ref14);
+      const ref15 = db.collection(`users/${sellerUid}/client-refund-requests/by-item-id/${saleItemId}`).doc(pI.id);
+      batch.delete(ref15);
+      const ref16 = db.collection(`users/${sellerUid}/client-successful-refunds/all/refunds`).doc(refund.id);
+      batch.set(ref16, request);
+      const ref17 = db.collection(`users/${sellerUid}/client-successful-refunds/by-date/${year}/${month}/refunds`).doc(refund.id);
+      batch.set(ref17, request);
+      const ref18 = db.collection(`users/${sellerUid}/client-successful-refunds/by-item-id/${saleItemId}`).doc(refund.id);
+      batch.set(ref18, request);
 
       await batch.commit();
 

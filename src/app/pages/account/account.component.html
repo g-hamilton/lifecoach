@@ -566,7 +566,7 @@
                                 If you are not 100% happy with a purchase, you can request a refund. Refund requests are handled by our 
                                 Quality Team to promote fairness and improve processing times.
                             </p>
-                            <div *ngIf="successfulPayments" class=" table-responsive">
+                            <div *ngIf="successfulPayments && successfulPayments.length" class=" table-responsive">
                                 <table class=" table">
                                 <thead class=" text-primary">
                                     <tr>
@@ -616,7 +616,7 @@
                                             tooltip="Request a refund"
                                             type="button"
                                             (click)="popRefund(payment)"
-                                            [disabled]="refundIds && refundIds.includes(payment.id)"
+                                            [disabled]="refundsRequestedIds && refundsRequestedIds.includes(payment.id)"
                                             >
                                             <i class=" tim-icons icon-double-left"> </i>
                                             </button>
@@ -630,134 +630,145 @@
                                     You have not purchased any items yet.
                                 </p>
                             </div>
-                            <!-- Refunds table -->
-                            <h6 *ngIf="refunds && refunds.length > 0" class=" mt-4"> Refunds </h6>
-                            <div *ngIf="refunds && refunds.length > 0" class=" table-responsive">
-                                <table class=" table">
-                                <thead class=" text-primary">
-                                    <tr>
-                                    <th> Item </th>
-                                    <th> Price </th>
-                                    <th> Date Purchased </th>
-                                    <th> Refund Requested </th>
-                                    <th> Status </th>
-                                    <!-- <th class=" text-right">Actions</th> -->
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr *ngFor="let refund of refunds" class="">
-                                    <td> {{ refund.paymentIntent.metadata.sale_item_title }} </td>
-                                    <td> {{ currencies[(refund.paymentIntent.currency).toUpperCase()].symbol + refund.paymentIntent.amount / 100 }} </td>
-                                    <td> {{ timestampToDate(refund.paymentIntent.created) }} </td>
-                                    <td> {{ timestampToDate(refund.created) }} </td>
-                                    <td>
-                                        <p
-                                        class="text-capitalize"
-                                        [ngClass]="{
-                                            'text-warning': refund.status === 'requested',
-                                            'text-success': refund.status === 'refunded'
-                                        }"
-                                        >
-                                            {{ refund.status }} 
-                                        </p>
-                                    </td>
-                                    <!-- <td class=" text-right"></td> -->
-                                    </tr>
-                                </tbody>
-                                </table>
+
+                            <!-- if refund requests -->
+                            <div *ngIf="refundRequests && refundRequests.length" class=" mt-4">
+                                <h6> Refund Requests </h6>
+                                <div class=" table-responsive">
+                                    <table class=" table">
+                                    <thead class=" text-primary">
+                                        <tr>
+                                            <th> Item </th>
+                                            <th> Price </th>
+                                            <th> Date Purchased </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let refund of refundRequests" class="">
+                                            <td> {{ refund.paymentIntent.metadata.sale_item_title }} </td>
+                                            <td> {{ currencies[(refund.paymentIntent.currency).toUpperCase()].symbol + refund.paymentIntent.amount / 100 }} </td>
+                                            <td> {{ timestampToDate(refund.paymentIntent.created) }} </td>
+                                        </tr>
+                                    </tbody>
+                                    </table>
+                                </div>
                             </div>
+
+                            <!-- if successful refunds -->
+                            <div *ngIf="successfulRefunds && successfulRefunds.length" class=" mt-4">
+                                <h6> Successful Refunds </h6>
+                                <div class=" table-responsive">
+                                    <table class=" table">
+                                    <thead class=" text-primary">
+                                        <tr>
+                                            <th> Item </th>
+                                            <th> Price </th>
+                                            <th> Date Purchased </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let refund of successfulRefunds" class="">
+                                            <td> {{ refund.paymentIntent.metadata.sale_item_title }} </td>
+                                            <td> {{ currencies[(refund.paymentIntent.currency).toUpperCase()].symbol + refund.paymentIntent.amount / 100 }} </td>
+                                            <td> {{ timestampToDate(refund.paymentIntent.created) }} </td>
+                                        </tr>
+                                    </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
                         </tab>
 
-            <!-- Settings of each session duration -->
-            <tab *ngIf="accountF.accountType.value === 'coach'" heading="Session settings">
-              <div class="">
-                <h6 class=" mt-4 pl-4">
-                  SESSION SETTINGS
-                </h6>
-                <p class=" small text-muted pl-4 mb-2">
-                    <i class="fas fa-info-circle"></i> Your Lifecoach calendar allows you to quickly and easily create coaching sessions 
-                    with your clients and set yourself available to take bookings for discovery video sessions. Discovery sessions allow 
-                    prospective clients to find out more about your products & services, and ensure they are suitable prior to enrolling. 
-                    These default settings are used by your calendar, allowing you to customise settings such as how long you allow for 
-                    each discovery session and whether you want to automatically schedule breaks between your sessions when creating 
-                    multiple sessions on a given day.
-                </p>
-                <div class=" row pl-3 pr-3">
-                  <div class=" col-md-12">
-                    <form>
-                      <!-- Settings -->
-                      <div class=" form-group mt-3">
-                        <label> My default discovery session duration (15 to 120 min)</label>
-                        <p class=" small text-muted pl-1 mb-2">
-                            <i class="fas fa-info-circle"></i> How long are your (free) discovery sessions?
-                        </p>
-                        <input type="range"  min="15" max="120" step="5"
-                        [(ngModel)]="accountF.sessionDuration.value"
-                        [ngModelOptions]="{standalone: true}"
-                        (input)="onSessionDurationInput($event)"
-                        />
-                        <span class=" pl-2">
-                            {{this.accountF.sessionDuration.value || 30}} minutes
-                        </span>
-                      </div>
+                        <!-- Settings of each session duration -->
+                        <tab *ngIf="accountF.accountType.value === 'coach'" heading="Session settings">
+                        <div class="">
+                            <h6 class=" mt-4 pl-4">
+                            SESSION SETTINGS
+                            </h6>
+                            <p class=" small text-muted pl-4 mb-2">
+                                <i class="fas fa-info-circle"></i> Your Lifecoach calendar allows you to quickly and easily create coaching sessions 
+                                with your clients and set yourself available to take bookings for discovery video sessions. Discovery sessions allow 
+                                prospective clients to find out more about your products & services, and ensure they are suitable prior to enrolling. 
+                                These default settings are used by your calendar, allowing you to customise settings such as how long you allow for 
+                                each discovery session and whether you want to automatically schedule breaks between your sessions when creating 
+                                multiple sessions on a given day.
+                            </p>
+                            <div class=" row pl-3 pr-3">
+                            <div class=" col-md-12">
+                                <form>
+                                <!-- Settings -->
+                                <div class=" form-group mt-3">
+                                    <label> My default discovery session duration (15 to 120 min)</label>
+                                    <p class=" small text-muted pl-1 mb-2">
+                                        <i class="fas fa-info-circle"></i> How long are your (free) discovery sessions?
+                                    </p>
+                                    <input type="range"  min="15" max="120" step="5"
+                                    [(ngModel)]="accountF.sessionDuration.value"
+                                    [ngModelOptions]="{standalone: true}"
+                                    (input)="onSessionDurationInput($event)"
+                                    />
+                                    <span class=" pl-2">
+                                        {{this.accountF.sessionDuration.value || 30}} minutes
+                                    </span>
+                                </div>
 
-                      <!-- EPP -->
-                      <div class=" form-group mt-3">
-                        <label> My default discovery session break time (0 to 30 min) </label>
-                        <p class=" small text-muted pl-1 mb-2">
-                            <i class="fas fa-info-circle"></i> Do you want the calendar to automatically schedule breaks between 
-                            discovery sessions when creating multiple sessions? For example, if you set yourself available for 
-                            discovery sessions between 0900 and 1200 hrs with a session time of 30 min and a break time of 30 min, 
-                            the calendar will create 3 x 30 min discovery sessions (0900 - 0930, 1000 - 1030, 1100 - 1130).
-                        </p>
-                        <input
-                        type="range"
-                        value="0"
-                        [valueAsNumber]="this.breakBeforeNextSessionLength"
-                        id="range"
-                        min="0"
-                        max="30"
-                        step="5"
-                        [(ngModel)]="accountF.breakDuration.value"
-                        [ngModelOptions]="{standalone: true}"
-                        (input)="onBreakDurationInput($event)"
-                        />
-                        <span class=" pl-2">
-                            {{this.accountF.breakDuration.value || 0}} minutes
-                        </span>
-                      </div>
-                    </form>
-                    <div class=" row mt-3">
-                      <div class=" col-md-12">
-                        <div class=" pull-right">
-                          <button
-                            class=" btn btn-fill btn-primary btn-round btn-wd"
-                            name="save-session-settings"
-                            type="button"
-                            (click)="onSubmit()"
-                          > <span
-                            *ngIf="submitted"
-                            class="spinner-border spinner-border-sm"
-                            role="status"
-                          ></span> {{ submitted ? 'Saving...' : 'Save' }}
-                          </button>
+                                <!-- EPP -->
+                                <div class=" form-group mt-3">
+                                    <label> My default discovery session break time (0 to 30 min) </label>
+                                    <p class=" small text-muted pl-1 mb-2">
+                                        <i class="fas fa-info-circle"></i> Do you want the calendar to automatically schedule breaks between 
+                                        discovery sessions when creating multiple sessions? For example, if you set yourself available for 
+                                        discovery sessions between 0900 and 1200 hrs with a session time of 30 min and a break time of 30 min, 
+                                        the calendar will create 3 x 30 min discovery sessions (0900 - 0930, 1000 - 1030, 1100 - 1130).
+                                    </p>
+                                    <input
+                                    type="range"
+                                    value="0"
+                                    [valueAsNumber]="this.breakBeforeNextSessionLength"
+                                    id="range"
+                                    min="0"
+                                    max="30"
+                                    step="5"
+                                    [(ngModel)]="accountF.breakDuration.value"
+                                    [ngModelOptions]="{standalone: true}"
+                                    (input)="onBreakDurationInput($event)"
+                                    />
+                                    <span class=" pl-2">
+                                        {{this.accountF.breakDuration.value || 0}} minutes
+                                    </span>
+                                </div>
+                                </form>
+                                <div class=" row mt-3">
+                                <div class=" col-md-12">
+                                    <div class=" pull-right">
+                                    <button
+                                        class=" btn btn-fill btn-primary btn-round btn-wd"
+                                        name="save-session-settings"
+                                        type="button"
+                                        (click)="onSubmit()"
+                                    > <span
+                                        *ngIf="submitted"
+                                        class="spinner-border spinner-border-sm"
+                                        role="status"
+                                    ></span> {{ submitted ? 'Saving...' : 'Save' }}
+                                    </button>
 
 
+                                    </div>
+                                    <div class=" clearfix"></div>
+                                </div>
+                                </div>
+                            </div>
+                            </div>
                         </div>
-                        <div class=" clearfix"></div>
-                      </div>
-                    </div>
-                  </div>
+                        </tab>
+                    </tabset>
                 </div>
-              </div>
-            </tab>
-          </tabset>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
-  <!-- Refund modal -->
-  <div
+    <!-- Refund modal -->
+    <div
     aria-hidden="true"
     aria-labelledby="refundModalLabel"
     bsModal

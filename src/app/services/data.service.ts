@@ -18,6 +18,9 @@ import { CoachingProgram } from 'app/interfaces/coach.program.interface';
 import { AdminProgramReviewRequest } from 'app/interfaces/admin.program.review.interface';
 import { AdminServiceReviewRequest } from 'app/interfaces/admin.service.review.interface';
 import { CloudFunctionsService } from './cloud-functions.service';
+import { SanitisedStripeCharge } from 'app/interfaces/sanitised.stripe.charge.interface';
+import { Stripe } from 'stripe';
+import { RefundRequest } from 'app/interfaces/refund.request.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -552,33 +555,28 @@ export class DataService {
   // =====                          PAYMENT HISTORY                            ======
   // ================================================================================
 
-  getSuccessfulPayments(uid: string) {
-    // Returns all the user's successful payment documents along with the doc IDs.
-    return this.db.collection(`users/${uid}/account/account${uid}/successful-payments`)
-      .valueChanges({idField: 'id'}) as Observable<any[]>;
+  getSuccessfulCharges(uid: string) {
+    return this.db.collection(`users/${uid}/successful-charges/all/charges`)
+      .valueChanges({idField: 'id'}) as Observable<SanitisedStripeCharge[]>;
   }
 
   getFailedPayments(uid: string) {
-    // Returns all the user's successful payment documents along with the doc IDs.
-    return this.db.collection(`users/${uid}/account/account${uid}/failed-payments`)
-      .valueChanges({idField: 'id'}) as Observable<any[]>;
-  }
-
-  getSuccessfulPaymentIntent(userId: string, paymentIntentId: string) {
-    // Returns a successful Stripe payment intent document.
-    return this.db.collection(`users/${userId}/account/account${userId}/successful-payments`)
-      .doc(paymentIntentId)
-      .valueChanges() as Observable<any>;
+    return this.db.collection(`users/${uid}/failed-payments`)
+      .valueChanges({idField: 'id'}) as Observable<Stripe.PaymentIntent[]>;
   }
 
   // ================================================================================
   // =====                              REFUNDS                                ======
   // ================================================================================
 
-  getUserRefunds(uid: string) {
-    // Returns all the user's refund documents along with the doc IDs.
-    return this.db.collection(`users/${uid}/account/account${uid}/refunds`)
-      .valueChanges({idField: 'id'}) as Observable<any[]>;
+  getUserRefundRequests(uid: string) {
+    return this.db.collection(`users/${uid}/refund-requests/all/requests`)
+      .valueChanges({idField: 'id'}) as Observable<RefundRequest[]>;
+  }
+
+  getUserSuccessfulRefunds(uid: string) {
+    return this.db.collection(`users/${uid}/successful-refunds/all/refunds`)
+      .valueChanges({idField: 'id'}) as Observable<RefundRequest[]>;
   }
 
   // ================================================================================
