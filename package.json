@@ -69,6 +69,7 @@
     "perfect-scrollbar": "1.4.0",
     "rxjs": "6.5.3",
     "stream": "0.0.2",
+    "stripe": "^8.137.0",
     "sweetalert2": "8.18.1",
     "tslib": "1.10.0",
     "twilio-video": "^2.7.3",
