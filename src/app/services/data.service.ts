@@ -235,48 +235,6 @@ export class DataService {
       .valueChanges() as Observable<CoachingCourse[]>;
   }
 
-  getCourseSalesByMonth(uid: string, month: number, year: number, courseId: string) {
-    // Returns all the user's course sales documents for month and year, along with the doc IDs.
-    return this.db.collection(`users/${uid}/sales/${month}-${year}/${courseId}`)
-      .valueChanges({idField: 'id'}) as Observable<any[]>;
-  }
-
-  getLifetimeTotalCourseSales(uid: string, courseId: string) {
-    // Returns a document containing lifetime sales totals.
-    return this.db.collection(`users/${uid}/sales/total-lifetime-course-sales/courses`)
-      .doc(courseId)
-      .valueChanges() as Observable<any>;
-  }
-
-  // getTotalPublicEnrollmentsByCourse(courseId: string) {
-  //   // Returns a document containing a courses total lifetime enrollments
-  //   return this.db.collection(`course-enrollments`)
-  //     .doc(courseId)
-  //     .valueChanges() as Observable<any>;
-  // }
-
-  // async getTotalPublicEnrollmentsByCourseSeller(sellerUid: string) {
-  //   // returns a total number of unique clients across all seller courses
-  //   const docPath = `seller-enrollments-by-course/${sellerUid}/courses`;
-  //   const res = await this.cloudService.getCollectionDocIds(docPath) as any;
-  //   if (res.docs) {
-  //     // console.log(`collections for docPath: seller-enrollments-by-course/${sellerUid}/courses`, res.docs);
-  //     // the path has subcollection(s)
-  //     let total = 0;
-  //     for (const docId of res.docs) {
-  //       const res1 = await this.cloudService.getCollectionDocIds(`seller-enrollments-by-course/${sellerUid}/courses/${docId}/enrolled`) as any;
-  //       if (res1.docs) {
-  //         // console.log(`collections for docPath: seller-enrollments-by-course/${sellerUid}/courses/${docId}/enrolled`, res1.docs);
-  //         // the path has subcollection(s)
-  //         total += res1.docs.length;
-  //       }
-  //     }
-  //     return total;
-  //   } else { // the path has no subcollections
-  //     return 0;
-  //   }
-  // }
-
   async savePrivateCourse(uid: string, course: CoachingCourse) {
     // track
     this.analyticsService.saveCourse();
@@ -772,53 +730,11 @@ export class DataService {
       .valueChanges() as Observable<CoachingProgram>;
   }
 
-  // getTotalPublicEnrollmentsByProgram(programId: string) {
-  //   // Returns a document containing a program's total lifetime enrollments
-  //   return this.db.collection(`program-enrollments`)
-  //     .doc(programId)
-  //     .valueChanges() as Observable<any>;
-  // }
-
   getPrivatePrograms(uid: string) {
     // Returns all the user's created program (as seller) documents.
     return this.db.collection(`users/${uid}/programs`)
       .valueChanges() as Observable<CoachingProgram[]>;
   }
-
-  getProgramSalesByMonth(uid: string, month: number, year: number, programId: string) {
-    // Returns all the user's program sales documents for month and year, along with the doc IDs.
-    return this.db.collection(`users/${uid}/program-sales/${month}-${year}/${programId}`)
-      .valueChanges({idField: 'id'}) as Observable<any[]>;
-  }
-
-  getLifetimeTotalProgramSales(uid: string, programId: string) {
-    // Returns a document containing lifetime sales totals.
-    return this.db.collection(`users/${uid}/program-sales/total-lifetime-program-sales/programs`)
-      .doc(programId)
-      .valueChanges() as Observable<any>;
-  }
-
-  // async getTotalPublicProgramEnrollmentsBySeller(sellerUid: string) {
-  //   // returns a total number of unique clients across all seller programs
-  //   const docPath = `coach-enrollments-by-program/${sellerUid}/programs`;
-  //   const res = await this.cloudService.getCollectionDocIds(docPath) as any;
-  //   if (res.docs) {
-  //     // console.log(`collections for docPath: coach-enrollments-by-program/${sellerUid}/programs`, res.docs);
-  //     // the path has subcollection(s)
-  //     let total = 0;
-  //     for (const docId of res.docs) {
-  //       const res1 = await this.cloudService.getCollectionDocIds(`coach-enrollments-by-program/${sellerUid}/programs/${docId}/enrolled`) as any;
-  //       if (res1.docs) {
-  //         // console.log(`collections for docPath: coach-enrollments-by-program/${sellerUid}/programs/${docId}/enrolled`, res1.docs);
-  //         // the path has subcollection(s)
-  //         total += res1.docs.length;
-  //       }
-  //     }
-  //     return total;
-  //   } else { // the path has no subcollections
-  //     return 0;
-  //   }
-  // }
 
   getPublicProgramsBySeller(sellerUid: string) {
     console.log(sellerUid);
@@ -952,53 +868,11 @@ export class DataService {
       .valueChanges() as Observable<CoachingService>;
   }
 
-  getTotalPublicEnrollmentsByService(serviceId: string) {
-    // Returns a document containing a service's total lifetime enrollments
-    return this.db.collection(`service-enrollments`)
-      .doc(serviceId)
-      .valueChanges() as Observable<any>;
-  }
-
   getPrivateServices(uid: string) {
     // Returns all the user's created service (as seller) documents.
     return this.db.collection(`users/${uid}/services`)
       .valueChanges() as Observable<CoachingService[]>;
   }
-
-  getServiceSalesByMonth(uid: string, month: number, year: number, serviceId: string) {
-    // Returns all the user's service sales documents for month and year, along with the doc IDs.
-    return this.db.collection(`users/${uid}/service-sales/${month}-${year}/${serviceId}`)
-      .valueChanges({idField: 'id'}) as Observable<any[]>;
-  }
-
-  getLifetimeTotalServiceSales(uid: string, serviceId: string) {
-    // Returns a document containing lifetime sales totals.
-    return this.db.collection(`users/${uid}/service-sales/total-lifetime-service-sales/services`)
-      .doc(serviceId)
-      .valueChanges() as Observable<any>;
-  }
-
-  // async getTotalPublicServiceEnrollmentsBySeller(sellerUid: string) {
-  //   // returns a total number of unique clients across all seller services
-  //   const docPath = `coach-enrollments-by-service/${sellerUid}/services`;
-  //   const res = await this.cloudService.getCollectionDocIds(docPath) as any;
-  //   if (res.docs) {
-  //     // console.log(`collections for docPath: coach-enrollments-by-service/${sellerUid}/services`, res.docs);
-  //     // the path has subcollection(s)
-  //     let total = 0;
-  //     for (const docId of res.docs) {
-  //       const res1 = await this.cloudService.getCollectionDocIds(`coach-enrollments-by-service/${sellerUid}/services/${docId}/enrolled`) as any;
-  //       if (res1.docs) {
-  //         // console.log(`collections for docPath: coach-enrollments-by-service/${sellerUid}/services/${docId}/enrolled`, res1.docs);
-  //         // the path has subcollection(s)
-  //         total += res1.docs.length;
-  //       }
-  //     }
-  //     return total;
-  //   } else { // the path has no subcollections
-  //     return 0;
-  //   }
-  // }
 
   getPublicServicesBySeller(sellerUid: string) {
     const servicesRef = this.db.collection('public-services', ref => ref.where('sellerUid', '==', sellerUid));

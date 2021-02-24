@@ -50,7 +50,6 @@ export class CoachingServiceComponent implements OnInit, OnDestroy {
   public rates: any;
   private serviceId: string;
   public service: CoachingService;
-  public serviceEnrollments: any;
   public purchasingService: boolean;
   public languages: any;
   public totalReviews: number;
@@ -301,15 +300,6 @@ export class CoachingServiceComponent implements OnInit, OnDestroy {
                   })
                 );
 
-                // monitor total public service enrollments
-                this.subscriptions.add(
-                  this.dataService.getTotalPublicEnrollmentsByService(this.serviceId).subscribe(enrollments => {
-                    if (enrollments) {
-                      this.serviceEnrollments = enrollments;
-                    }
-                  })
-                );
-
                 // check for referral code
                 this.checkForReferralCode();
               }
@@ -342,15 +332,6 @@ export class CoachingServiceComponent implements OnInit, OnDestroy {
                     } else { // user not authorised
                       console.log('User not authorised to view private service!');
                       this.redirectToBrowseServices();
-                    }
-                  })
-                );
-
-                // monitor total public service enrollments
-                this.subscriptions.add(
-                  this.dataService.getTotalPublicEnrollmentsByService(this.serviceId).subscribe(enrollments => {
-                    if (enrollments) {
-                      this.serviceEnrollments = enrollments;
                     }
                   })
                 );

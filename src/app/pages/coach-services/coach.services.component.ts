@@ -69,61 +69,6 @@ export class CoachServicesComponent implements OnInit, OnDestroy {
               if (programs) {
                 this.publishedPrograms = programs;
                 // console.log('Published Programs:', programs);
-
-                const now = new Date();
-                const month = now.getMonth() + 1; // we dont store zero based. jan === 1
-                const year = now.getFullYear();
-
-                // Load stats
-                programs.forEach((p, i) => {
-                  const programId = p.programId;
-                  // Load sales broken down by month
-                  this.subscriptions.add(
-                    this.dataService.getProgramSalesByMonth(this.userId, month, year, programId).subscribe(sales => {
-                      if (sales) { // should be an array of program enrollment objects
-                        // console.log(`Sales for program ${programId}`, sales);
-
-                        // map a new array containing unique currencies from all sales in the month
-                        const uniqueCurrencies = [...new Set(sales.map(item => item.currency))];
-                        // console.log('Unique currencies:', uniqueCurrencies);
-
-                        // build total sales for each unique currency
-                        const monthEarningsByCurrency = {};
-                        uniqueCurrencies.forEach(currencyString => {
-                          // calculate total sales amount for this currency
-                          let monthTotalInThisCurrency = 0;
-                          sales.forEach(saleObject => {
-                            if (saleObject.currency === currencyString) {
-                              monthTotalInThisCurrency += ((saleObject.amount - saleObject.amount_reversed) / 100); // convert into higher denominator (pence to pounds / cents to dollars)
-                            }
-                          });
-                          // add the total for this currency into the overall totals for all currencies
-                          monthEarningsByCurrency[currencyString] = {monthTotalInThisCurrency};
-                        });
-
-                        // console.log(`Monthly earnings totals by currencies for course ${courseId}`, monthEarningsByCurrency);
-
-                        // add this data into the program object
-                        this.publishedPrograms[i].monthlyEarnings = monthEarningsByCurrency;
-                      }
-                    })
-                  );
-
-                  // Load lifetime total sales for this program
-                  this.subscriptions.add(
-                    this.dataService.getLifetimeTotalProgramSales(this.userId, programId).subscribe(ltSales => {
-                      // console.log('Lifetime total course sales:', ltSales);
-                      if (ltSales) {
-                        p.lifetimeTotals = ltSales;
-                        let total = 0;
-                        Object.keys(ltSales).forEach(currency => {
-                          total += ltSales[currency].lifetimeTotalSales;
-                        });
-                        p.lifetimeTotalSales = total;
-                      }
-                    })
-                  );
-                });
               }
             })
           );
@@ -134,65 +79,6 @@ export class CoachServicesComponent implements OnInit, OnDestroy {
               if (courses) {
                 this.publishedCourses = courses;
                 // console.log('Published Courses:', courses);
-
-                const now = new Date();
-                const month = now.getMonth() + 1; // we dont store zero based. jan === 1
-                const year = now.getFullYear();
-
-                // Load stats
-                courses.forEach((c, i) => {
-                  const courseId = c.courseId;
-                  // Load course sales broken down by month
-                  this.subscriptions.add(
-                    this.dataService.getCourseSalesByMonth(this.userId, month, year, courseId).subscribe(sales => {
-                      if (sales) { // should be an array of custom free or paid course enrollment objects
-                        // console.log(`Sales for course ${courseId}`, sales);
-
-                        // map a new array containing unique currencies from all sales in the month
-                        const uniqueCurrencies = [...new Set(sales.map(item => item.currency))];
-                        // console.log('Unique currencies:', uniqueCurrencies);
-
-                        // build total sales for each unique currency
-                        const monthEarningsByCurrency = {};
-                        uniqueCurrencies.forEach(currencyString => {
-                          if (currencyString === 'free') { // exclude any free course 'sales'
-                            return;
-                          }
-                          // calculate total sales amount for this currency
-                          let monthTotalInThisCurrency = 0;
-                          sales.forEach(saleObject => {
-                            if (saleObject.currency === currencyString) {
-                              // tslint:disable-next-line: max-line-length
-                              monthTotalInThisCurrency += ((saleObject.amount - saleObject.amount_reversed) / 100); // convert into higher denominator (pence to pounds / cents to dollars)
-                            }
-                          });
-                          // add the total for this currency into the overall totals for all currencies
-                          monthEarningsByCurrency[currencyString] = {monthTotalInThisCurrency};
-                        });
-
-                        // console.log(`Monthly earnings totals by currencies for course ${courseId}`, monthEarningsByCurrency);
-
-                        // add this data into the course object
-                        this.publishedCourses[i].monthlyEarnings = monthEarningsByCurrency;
-                      }
-                    })
-                  );
-
-                  // Load lifetime total sales for this course
-                  this.subscriptions.add(
-                    this.dataService.getLifetimeTotalCourseSales(this.userId, courseId).subscribe(ltSales => {
-                      // console.log('Lifetime total course sales:', ltSales);
-                      if (ltSales) {
-                        c.lifetimeTotals = ltSales;
-                        let total = 0;
-                        Object.keys(ltSales).forEach(currency => {
-                          total += ltSales[currency].lifetimeTotalSales;
-                        });
-                        c.lifetimeTotalSales = total;
-                      }
-                    })
-                  );
-                });
               }
             })
           );

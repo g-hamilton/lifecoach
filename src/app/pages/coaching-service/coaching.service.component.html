@@ -70,17 +70,17 @@
               <!-- service duration -->
               <div class=" mb-5">
                 <!-- if zero enrollments -->
-                <span *ngIf="!serviceEnrollments?.totalEnrollments" class=" badge badge-danger">
+                <span class=" badge badge-danger">
                   🔥 New Coaching Service
                 </span>
                 <!-- if 1 enrollment -->
-                <span *ngIf="serviceEnrollments?.totalEnrollments && serviceEnrollments?.totalEnrollments == 1" class="">
+                <!-- <span *ngIf="serviceEnrollments?.totalEnrollments && serviceEnrollments?.totalEnrollments == 1" class="">
                   1 person enrolled
-                </span>
+                </span> -->
                 <!-- if more than 1 enrollment -->
-                <span *ngIf="serviceEnrollments?.totalEnrollments && serviceEnrollments?.totalEnrollments > 1" class="">
+                <!-- <span *ngIf="serviceEnrollments?.totalEnrollments && serviceEnrollments?.totalEnrollments > 1" class="">
                   {{ serviceEnrollments.totalEnrollments }} people enrolled
-                </span>
+                </span> -->
                 <!-- is coach viewing own service? -->
                 <div *ngIf="userId === service.sellerUid">
                   <p class=" text-success text-center mt-3">
