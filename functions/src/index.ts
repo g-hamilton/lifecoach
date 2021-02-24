@@ -2203,17 +2203,21 @@ exports.requestRefund = functions
 
     // console.log(`Refund requested by user ${request.uid} for payment: ${JSON.stringify(pI)}`);
 
-    // Create a refund request for admins to approve
-    const ref1 = db.collection(`platform-refund-requests`).doc(pI.id);
+    // Create a refund request for admins to approve (flatten data)
+    const ref1 = db.collection(`platform-refund-requests/all/requests`).doc(pI.id);
     batch.set(ref1, request);
+    const ref2 = db.collection(`platform-refund-requests/by-date/${year}/${month}/requests`).doc(pI.id);
+    batch.set(ref2, request);
+    const ref3 = db.collection(`platform-refund-requests/by-item-id/${saleItemId}`).doc(pI.id);
+    batch.set(ref3, request);
 
     // Create a request in the requester's history (flatten data)
-    const ref2 = db.collection(`users/${uid}/refund-requests/all/requests`).doc(pI.id);
-    batch.set(ref2, request);
-    const ref3 = db.collection(`users/${uid}/refund-requests/by-date/${year}/${month}/requests`).doc(pI.id);
-    batch.set(ref3, request);
-    const ref4 = db.collection(`users/${uid}/refund-requests/by-item-id/${saleItemId}`).doc(pI.id);
+    const ref4 = db.collection(`users/${uid}/refund-requests/all/requests`).doc(pI.id);
     batch.set(ref4, request);
+    const ref5 = db.collection(`users/${uid}/refund-requests/by-date/${year}/${month}/requests`).doc(pI.id);
+    batch.set(ref5, request);
+    const ref6 = db.collection(`users/${uid}/refund-requests/by-item-id/${saleItemId}`).doc(pI.id);
+    batch.set(ref6, request);
 
     await batch.commit();
 
@@ -2276,18 +2280,26 @@ exports.approveRefund = functions
       request.refund = refund;
 
       // Move admin request from requested to approved in db
-      const ref1 = db.collection(`platform-refund-requests`).doc(pI.id);
+      const ref1 = db.collection(`platform-refund-requests/all/requests`).doc(pI.id);
       batch.delete(ref1);
-      const ref2 = db.collection(`platform-successful-refunds`).doc(pI.id);
-      batch.set(ref2, request);
+      const ref2 = db.collection(`platform-refund-requests/by-date/${year}/${month}/requests`).doc(pI.id);
+      batch.delete(ref2);
+      const ref3 = db.collection(`platform-refund-requests/by-item-id/${saleItemId}`).doc(pI.id);
+      batch.delete(ref3);
+      const ref4 = db.collection(`platform-successful-refunds/all/refunds`).doc(pI.id);
+      batch.set(ref4, request);
+      const ref5 = db.collection(`platform-successful-refunds/by-date/${year}/${month}/refunds`).doc(pI.id);
+      batch.set(ref5, request);
+      const ref6 = db.collection(`platform-successful-refunds/by-item-id/${saleItemId}`).doc(pI.id);
+      batch.set(ref6, request);
 
       // Update refunded request in client's history (overwrite original docs)
-      const ref3 = db.collection(`users/${clientUid}/refund-requests/all/requests`).doc(pI.id);
-      batch.set(ref3, request);
-      const ref4 = db.collection(`users/${clientUid}/refund-requests/by-date/${year}/${month}/requests`).doc(pI.id);
-      batch.set(ref4, request);
-      const ref5 = db.collection(`users/${clientUid}/refund-requests/by-item-id/${saleItemId}`).doc(pI.id);
-      batch.set(ref5, request);
+      const ref7 = db.collection(`users/${clientUid}/refund-requests/all/requests`).doc(pI.id);
+      batch.set(ref7, request);
+      const ref8 = db.collection(`users/${clientUid}/refund-requests/by-date/${year}/${month}/requests`).doc(pI.id);
+      batch.set(ref8, request);
+      const ref9 = db.collection(`users/${clientUid}/refund-requests/by-item-id/${saleItemId}`).doc(pI.id);
+      batch.set(ref9, request);
 
       // Update the seller's refund record (flatten data)
       const successfulRefund = {
@@ -2296,12 +2308,12 @@ exports.approveRefund = functions
         payment_intent: pI.id,
         transfer_reversal: refund.transfer_reversal
       }
-      const ref6 = db.collection(`users/${sellerUid}/successful-refunds/all/refunds`).doc(refund.id);
-      batch.set(ref6, successfulRefund);
-      const ref7 = db.collection(`users/${sellerUid}/successful-refunds/by-date/${year}/${month}/refunds`).doc(refund.id);
-      batch.set(ref7, successfulRefund);
-      const ref8 = db.collection(`users/${sellerUid}/successful-refunds/by-item-id/${saleItemId}`).doc(refund.id);
-      batch.set(ref8, successfulRefund);
+      const ref10 = db.collection(`users/${sellerUid}/successful-refunds/all/refunds`).doc(refund.id);
+      batch.set(ref10, successfulRefund);
+      const ref11 = db.collection(`users/${sellerUid}/successful-refunds/by-date/${year}/${month}/refunds`).doc(refund.id);
+      batch.set(ref11, successfulRefund);
+      const ref12 = db.collection(`users/${sellerUid}/successful-refunds/by-item-id/${saleItemId}`).doc(refund.id);
+      batch.set(ref12, successfulRefund);
 
       await batch.commit();
 
