@@ -1410,6 +1410,10 @@ exports.stripeWebhookEvent = functions
           promises.push(promise3);
         }
 
+        // record the enrollment for platform totals
+        const promise4 = recordEnrollmentForPlatform(paymentIntent);
+        promises.push(promise4);
+
         await Promise.all(promises);
 
       } catch (err) {
@@ -1730,6 +1734,17 @@ exports.completeFreeCourseEnrollment = functions
     batch.set(ref6, enrollment);
     const ref7 = db.collection(`users/${course.sellerUid}/enrollments/by-item-id/${courseId}`).doc();
     batch.set(ref7, enrollment);
+    const ref8 = db.collection(`users/${course.sellerUid}/unique-clients`).doc(clientUid);
+    batch.set(ref8, { clientUid }, { merge: true });
+    const ref9 = db.collection(`users/${course.sellerUid}/unique-clients-by-item-id/item-id/${courseId}`).doc(clientUid);
+    batch.set(ref9, { clientUid }, { merge: true });
+    const saveData = { clientUid };
+    const ref10 = db.collection(`public-unique-clients`).doc(clientUid);
+    batch.set(ref10, saveData, { merge: true });
+    const ref11 = db.collection(`public-coach-unique-clients/${course.sellerUid}/unique-clients`).doc(clientUid);
+    batch.set(ref11, saveData, { merge: true });
+    const ref12 = db.collection(`public-item-unique-clients/${courseId}/unique-clients`).doc(clientUid);
+    batch.set(ref12, saveData, { merge: true });
 
     // execute atomic batch
     await batch.commit(); // any error should trigger catch.
@@ -1807,11 +1822,15 @@ async function recordCourseEnrollmentForCreator(data: Stripe.PaymentIntent) {
   batch.set(ref4, enrollment);
   const ref5 = db.collection(`users/${sellerUid}/enrollments/by-item-id/${saleItemId}`).doc();
   batch.set(ref5, enrollment);
+  const ref6 = db.collection(`users/${sellerUid}/unique-clients`).doc(clientUid);
+  batch.set(ref6, { clientUid }, { merge: true });
+  const ref7 = db.collection(`users/${sellerUid}/unique-clients-by-item-id/item-id/${saleItemId}`).doc(clientUid);
+  batch.set(ref7, { clientUid }, { merge: true });
 
   // Client (My Coaches)
 
-  const ref6 = db.collection(`users/${clientUid}/coaches/${sellerUid}/history`).doc(timestampNow.toString());
-  batch.set(ref6, { action: 'enrolled_in_self_study_course', courseId: saleItemId });
+  const ref8 = db.collection(`users/${clientUid}/coaches/${sellerUid}/history`).doc(timestampNow.toString());
+  batch.set(ref8, { action: 'enrolled_in_self_study_course', courseId: saleItemId });
 
   // execute atomic batch
   return batch.commit();
@@ -2081,6 +2100,33 @@ async function recordServicePurchaseForClient(data: Stripe.PaymentIntent) {
   promises.push(promise1);
 
   return Promise.all(promises);
+}
+
+// ================================================================================
+// =====                    PLATFORM ENROLLMENT FUNCTIONS                    ======
+// ================================================================================
+
+function recordEnrollmentForPlatform(data: Stripe.PaymentIntent) {
+  /*
+  Record all unique clients for our coaches on a public node so any users can see 
+  how many clients a coach has. A client is anyone who has purchased or enrolled 
+  in any product or service from a coach.
+  */
+
+  const clientUid = data.metadata.client_UID;
+  const coachId = data.metadata.seller_UID;
+  const saleItemId = data.metadata.sale_item_id;
+
+  const saveData = { clientUid };
+
+  const ref1 = db.collection(`public-unique-clients`).doc(clientUid);
+  batch.set(ref1, saveData, { merge: true });
+  const ref2 = db.collection(`public-coach-unique-clients/${coachId}/unique-clients`).doc(clientUid);
+  batch.set(ref2, saveData, { merge: true });
+  const ref3 = db.collection(`public-item-unique-clients/${saleItemId}/unique-clients`).doc(clientUid);
+  batch.set(ref3, saveData, { merge: true });
+
+  return batch.commit();
 }
 
 // ================================================================================
