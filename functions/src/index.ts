@@ -1513,6 +1513,83 @@ exports.stripeWebhookEvent = functions
           console.error(err);
         }
       break;
+    case 'transfer.reversed':
+      /*
+        https://stripe.com/docs/api/transfers/object
+        Received when a transfer is reversed fully or partially
+      */
+      const transferReversed = event.data.object as CustomTransfer;
+      console.log(`Transfer reversed: ${JSON.stringify(transferReversed)}`);
+
+      const reverseDate = new Date(transferReversed.created * 1000); // create a date object so we can work with months/years
+      const reverseMonth = reverseDate.getMonth() + 1; // go from zero index to jan === 1
+      const reverseYear = reverseDate.getFullYear();
+
+      try {
+        // to cover cases where we want to know the effect of this transfer on our platform balance 
+        // in our platform currency (our real revenue), let's retrieve the associated balance transaction object...
+
+        const balanceTransaction = await stripe.balanceTransactions.retrieve(transferReversed.balance_transaction as string);
+        console.log('Transfer reversed balance transaction:', balanceTransaction);
+
+        // now we have the transfer and the expanded balance transaction...
+
+        // add the expanded balance transaction object into the tansfer object
+        transferReversed.balance_transaction_expanded = balanceTransaction;
+
+        // Lookup the original charge to retrieve necessary metadata from the original paymentIntent
+        const originalCharge = await stripe.charges.retrieve(transferReversed.source_transaction as string);
+        console.log('Original Charge:', originalCharge);
+
+        // transform the data to sanitise and only save what we need in our own db
+
+        const sanitisedCharge = {} as any;
+
+        sanitisedCharge.id = originalCharge.id;
+        sanitisedCharge.object = originalCharge.object;
+        sanitisedCharge.amount = originalCharge.amount;
+        sanitisedCharge.amount_captured = originalCharge.amount_captured;
+        sanitisedCharge.amount_refunded = originalCharge.amount_refunded;
+        sanitisedCharge.balance_transaction = originalCharge.balance_transaction;
+        sanitisedCharge.created = originalCharge.created;
+        sanitisedCharge.currency = originalCharge.currency;
+        sanitisedCharge.metadata = originalCharge.metadata;
+        sanitisedCharge.payment_intent = originalCharge.payment_intent;
+        sanitisedCharge.payment_method = originalCharge.payment_method;
+        sanitisedCharge.refunded = originalCharge.refunded;
+        sanitisedCharge.refunds = originalCharge.refunds;
+        sanitisedCharge.transfer = originalCharge.transfer;
+        sanitisedCharge.transfer_data = originalCharge.transfer_data;
+        sanitisedCharge.transfer_group = originalCharge.transfer_group;
+
+        // add the santised charge object into the tansfer object
+        transferReversed.source_transaction_expanded = sanitisedCharge;
+
+        // update the transfer for the recipient (flatten the data for easier lookups)
+        const ref1 = db.collection(`users/${sanitisedCharge.metadata.seller_UID}/transfers/all/transfers`).doc(transferReversed.id);
+        batch.set(ref1, transferReversed, { merge: true });
+        const ref2 = db.collection(`users/${sanitisedCharge.metadata.seller_UID}/transfers/by-item-id/${sanitisedCharge.metadata.sale_item_id}`).doc(transferReversed.id);
+        batch.set(ref2, transferReversed, { merge: true });
+        const ref3 = db.collection(`users/${sanitisedCharge.metadata.seller_UID}/transfers/by-date/${reverseYear}/${reverseMonth}/transfers`).doc(transferReversed.id);
+        batch.set(ref3, transferReversed, { merge: true });
+
+        // record the transfer for the platform (flatten the data for easier lookups)
+        const ref4 = db.collection(`successful-transfers/all/transfers`).doc(transferReversed.id);
+        batch.set(ref4, transferReversed, { merge: true });
+        const ref5 = db.collection(`successful-transfers/by-seller-id/${sanitisedCharge.metadata.seller_UID}`).doc(transferReversed.id);
+        batch.set(ref5, transferReversed, { merge: true });
+        const ref6 = db.collection(`successful-transfers/by-date/${reverseYear}/${reverseMonth}/transfers`).doc(transferReversed.id);
+        batch.set(ref6, transferReversed, { merge: true });
+        const ref7 = db.collection(`successful-transfers/by-item-id/${sanitisedCharge.metadata.sale_item_id}`).doc(transferReversed.id);
+        batch.set(ref7, transferReversed, { merge: true });
+
+        // execute atomic batch
+        await batch.commit(); // any error should trigger catch.
+
+      } catch (err) {
+        console.error(err);
+      }
+      break;
     case 'charge.succeeded':
       /*
         https://stripe.com/docs/api/charges/object
@@ -1607,6 +1684,89 @@ exports.stripeWebhookEvent = functions
         }
 
         await Promise.all(promises);
+
+      } catch (err) {
+        console.error(err)
+      }
+      break;
+    case 'charge.refunded':
+      /*
+        https://stripe.com/docs/api/charges/object
+        Received when a charge is refunded, including partial refunds.
+        */
+      const chargeRefunded = event.data.object as Stripe.Charge;
+      console.log(`Charge refunded! ${JSON.stringify(chargeRefunded)}`);
+
+      const chargeDate = new Date(chargeRefunded.created * 1000); // create a date object so we can work with months/years
+      const chargeMonth = chargeDate.getMonth() + 1; // go from zero index to jan === 1
+      const chargeYear = chargeDate.getFullYear();
+
+      try {
+
+        // to cover cases where we want to know the effect of this charge on our platform balance 
+        // in our platform currency (our real revenue), let's retrieve the associated balance transaction object...
+
+        const balanceTransaction = await stripe.balanceTransactions.retrieve(chargeRefunded.balance_transaction as string);
+        console.log('Balance transaction:', balanceTransaction);
+
+        // now we have the charge and the balance transaction...
+
+        // transform the data to sanitise and only save what we need in our own db
+
+        const data = {} as any; // actually a custom SanitisedStripeCharge interface
+
+        data.id = chargeRefunded.id;
+        data.object = chargeRefunded.object;
+        data.amount = chargeRefunded.amount;
+        data.amount_captured = chargeRefunded.amount_captured;
+        data.amount_refunded = chargeRefunded.amount_refunded;
+        data.balance_transaction = chargeRefunded.balance_transaction;
+        data.balance_transaction_expanded = balanceTransaction;
+        data.created = chargeRefunded.created;
+        data.currency = chargeRefunded.currency;
+        data.metadata = chargeRefunded.metadata;
+        data.payment_intent = chargeRefunded.payment_intent;
+        data.payment_method = chargeRefunded.payment_method;
+        data.refunded = chargeRefunded.refunded;
+        data.refunds = chargeRefunded.refunds;
+        data.transfer = chargeRefunded.transfer;
+        data.transfer_data = chargeRefunded.transfer_data;
+        data.transfer_group = chargeRefunded.transfer_group;
+
+        // As we pay our promotional partners a share of our platform revenue, in cases where charges are refunded, 
+        // we can update the original charge objects so that we can filter out charges where refunded = true
+
+        if (chargeRefunded.metadata.partner_referred && chargeRefunded.metadata.partner_referred !== 'false') { // this sale (charge) was partner referred...
+
+          const ref1 = db.collection(`partner-referrals/by-partner-id/${chargeRefunded.metadata.partner_referred}/by-date/${chargeYear}/${chargeMonth}/referrals`).doc(chargeRefunded.payment_intent as string);
+          batch.set(ref1, data, { merge: true });
+          const ref2 = db.collection(`partner-referrals/by-partner-id/${chargeRefunded.metadata.partner_referred}/all/referrals`).doc(chargeRefunded.payment_intent as string);
+          batch.set(ref2, data, { merge: true });
+          const ref3 = db.collection(`partner-referrals/by-date/${chargeYear}/${chargeMonth}/referrals`).doc(chargeRefunded.payment_intent as string);
+          batch.set(ref3, data, { merge: true });
+          const ref4 = db.collection(`partner-referrals/by-date/${chargeYear}/${chargeMonth}/by-partner-id/${chargeRefunded.metadata.partner_referred}/referrals`).doc(chargeRefunded.payment_intent as string);
+          batch.set(ref4, data, { merge: true });
+          const ref5 = db.collection(`partner-referrals/all/referrals`).doc(chargeRefunded.payment_intent as string);
+          batch.set(ref5, data, { merge: true });
+
+        } // end of if charge was partner referred
+
+        // update the charge for the purchaser
+
+        const ref6 = db.collection(`users/${chargeRefunded.metadata.client_UID}/successful-charges/all/charges`).doc(chargeRefunded.id);
+        batch.set(ref6, data, { merge: true });
+        const ref7 = db.collection(`users/${chargeRefunded.metadata.client_UID}/successful-charges/${chargeYear}/${chargeMonth}`).doc(chargeRefunded.id);
+        batch.set(ref7, data, { merge: true });
+
+        // update the charge for the platform
+
+        const ref8 = db.collection(`successful-charges/all/charges`).doc(chargeRefunded.id);
+        batch.set(ref8, data, { merge: true });
+        const ref9 = db.collection(`successful-charges/${chargeYear}/${chargeMonth}`).doc(chargeRefunded.id);
+        batch.set(ref9, data, { merge: true });
+
+        // execute atomic batch
+        await batch.commit(); // any error should trigger catch.
 
       } catch (err) {
         console.error(err)
