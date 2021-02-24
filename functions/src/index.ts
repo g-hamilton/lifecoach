@@ -5,6 +5,7 @@ const firebase_tools = require('firebase-tools');
 const firebase = admin.initializeApp();
 const db = admin.firestore();
 const batch = db.batch(); // for atomic db ops
+const fieldValue = admin.firestore.FieldValue;
 const client = require('twilio')(functions.config().twilio.accountsid, functions.config().twilio.authtoken);
 import * as sharp from 'sharp';
 
@@ -2129,6 +2130,45 @@ function recordEnrollmentForPlatform(data: Stripe.PaymentIntent) {
   return batch.commit();
 }
 
+/*
+  Monitor platform enrollments to update totals.
+*/
+exports.onCreatePublicUniqueClient = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.firestore
+.document(`public-unique-clients/{clientUid}`)
+.onCreate((snap, context) => {
+  const increment = fieldValue.increment(1);
+  return db.collection(`public-unique-clients`).doc('total-unique-clients')
+  .set({
+    totalRecords: increment
+  }, { merge: true });
+});
+
+exports.onCreatePublicCoachUniqueClient = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.firestore
+.document(`public-coach-unique-clients/{coachUid}/unique-clients/{clientUid}`)
+.onCreate((snap, context) => {
+  const increment = fieldValue.increment(1);
+  return db.collection(`public-coach-unique-clients/{coachUid}/unique-clients`).doc('total-unique-clients')
+  .set({
+    totalRecords: increment
+  }, { merge: true });
+});
+
+exports.onCreatePublicItemUniqueClient = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.firestore
+.document(`public-item-unique-clients/{saleItemId}/unique-clients/{clientUid}`)
+.onCreate((snap, context) => {
+  const increment = fieldValue.increment(1);
+  return db.collection(`public-item-unique-clients/{saleItemId}/unique-clients`).doc('total-unique-clients')
+  .set({
+    totalRecords: increment
+  }, { merge: true });
+});
+
 // ================================================================================
 // =====                              REFUNDS                                ======
 // ================================================================================
@@ -2262,7 +2302,7 @@ exports.approveRefund = functions
       promises.push(promise4);
 
       // Update the sellers totals
-      const decrementAmount = admin.firestore.FieldValue.increment(-(refund.transfer_reversal as any).amount);
+      const decrementAmount = fieldValue.increment(-(refund.transfer_reversal as any).amount);
 
       // If refunding an ecourse...
       if (pI.metadata.sale_item_type === 'ecourse') {
@@ -3745,7 +3785,7 @@ exports.onPostNewCourseLibraryItem = functions
 .document(`users/{userId}/courseLibrary/{docId}`)
 .onCreate((snap, context) => {
   const uid = context.params.userId;
-  const increment = admin.firestore.FieldValue.increment(1);
+  const increment = fieldValue.increment(1);
   return db.collection(`users/${uid}/courseLibrary/totals/items`)
   .doc('itemTotals')
   .set({
@@ -3765,7 +3805,7 @@ exports.onNewAdminCourseReviewRequest = functions
 
   const reviewRequest = snap.data() as any
 
-  const increment = admin.firestore.FieldValue.increment(1);
+  const increment = fieldValue.increment(1);
 
   db.collection(`admin`)
   .doc('totalCoursesInReview')
@@ -3805,7 +3845,7 @@ exports.onDeleteAdminCourseReviewRequest = functions
 .firestore
 .document(`admin/review-requests/courses/{courseId}`)
 .onDelete((snap, context) => {
-  const decrement = admin.firestore.FieldValue.increment(-1);
+  const decrement = fieldValue.increment(-1);
   return db.collection(`admin`)
   .doc('totalCoursesInReview')
   .set({
@@ -4007,7 +4047,7 @@ exports.onWriteCourseReview = functions
 
     // decrement total review count
     if (before) {
-      const decrementCount = admin.firestore.FieldValue.increment(-1);
+      const decrementCount = fieldValue.increment(-1);
       await db.collection(`public-courses`)
       .doc(review.courseId)
       .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: decrementCount }, { merge: true })
@@ -4022,7 +4062,7 @@ exports.onWriteCourseReview = functions
 
   // if rating has been updated, decrement the old value before incrementing the new value
   if (before && before.starValue && review && review.starValue && (before.starValue !== review.starValue)) {
-    const decrementCount = admin.firestore.FieldValue.increment(-1);
+    const decrementCount = fieldValue.increment(-1);
     await db.collection(`public-courses`)
     .doc(review.courseId)
     .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: decrementCount }, { merge: true })
@@ -4030,7 +4070,7 @@ exports.onWriteCourseReview = functions
   }
 
   // increment total review count to allow cheaper lookups
-  const incrementCount = admin.firestore.FieldValue.increment(1);
+  const incrementCount = fieldValue.increment(1);
   await db.collection(`public-courses`)
   .doc(review.courseId)
   .set({ [`total${getRatingAsText(review.starValue)}StarReviews`]: incrementCount }, { merge: true })
@@ -4115,7 +4155,7 @@ exports.onCreateCoursePublicQuestion = functions
   await index.saveObject(recordToSend);
 
   // Increment question count on course
-  const incrementCount = admin.firestore.FieldValue.increment(1);
+  const incrementCount = fieldValue.increment(1);
   return db.collection(`locked-course-content`)
   .doc(question.courseId)
   .set({ questions: incrementCount }, { merge: true })
@@ -4139,7 +4179,7 @@ exports.onDeleteCoursePublicQuestion = functions
   await index.deleteObject(questionId);
 
   // Deccrement question count on course
-  const decrement = admin.firestore.FieldValue.increment(-1);
+  const decrement = fieldValue.increment(-1);
   return db.collection(`locked-course-content`)
   .doc(question.courseId)
   .set({ questions: decrement }, { merge: true })
@@ -4176,7 +4216,7 @@ exports.onCreateCoursePublicQuestionReply = functions
   await index.saveObject(recordToSend);
 
   // Increment replies count on original question
-  const incrementCount = admin.firestore.FieldValue.increment(1);
+  const incrementCount = fieldValue.increment(1);
   return db.collection(`public-course-questions`)
   .doc(questionId)
   .set({ replies: incrementCount }, { merge: true })
@@ -4200,7 +4240,7 @@ exports.onDeleteCoursePublicQuestionReply = functions
   await index.deleteObject(replyId);
 
   // Deccrement replies count on original question
-  const decrement = admin.firestore.FieldValue.increment(-1);
+  const decrement = fieldValue.increment(-1);
   return db.collection(`public-course-questions`)
   .doc(questionId)
   .set({ replies: decrement }, { merge: true })
@@ -4219,7 +4259,7 @@ exports.onCreateCoursePublicQuestionUpvote = functions
   const questionId = context.params.questionId;
 
   // Increment upvotes count on original question
-  const incrementCount = admin.firestore.FieldValue.increment(1);
+  const incrementCount = fieldValue.increment(1);
   return db.collection(`public-course-questions`)
   .doc(questionId)
   .set({ upVotes: incrementCount }, { merge: true })
@@ -4239,7 +4279,7 @@ exports.onCreateCoursePublicQuestionReplyUpvote = functions
   const replyId = context.params.replyId;
 
   // Increment upvotes count on question reply
-  const incrementCount = admin.firestore.FieldValue.increment(1);
+  const incrementCount = fieldValue.increment(1);
   return db.collection(`public-course-questions/${questionId}/replies`)
   .doc(replyId)
   .set({ upVotes: incrementCount }, { merge: true })
@@ -4263,6 +4303,8 @@ exports.onNewCrmPersonCreate = functions
   .doc(personId)
   .set({ created: timestampNow }, { merge: true })
   .catch(err => console.error(err));
+
+  // todo increment total count
 });
 
 /*
@@ -4276,7 +4318,7 @@ exports.onNewAdminProgramReviewRequest = functions
 
   const reviewRequest = snap.data() as any
 
-  const increment = admin.firestore.FieldValue.increment(1);
+  const increment = fieldValue.increment(1);
 
   db.collection(`admin`)
   .doc('totalProgramsInReview')
@@ -4316,7 +4358,7 @@ exports.onDeleteAdminProgramReviewRequest = functions
 .firestore
 .document(`admin/review-requests/programs/{programId}`)
 .onDelete((snap, context) => {
-  const decrement = admin.firestore.FieldValue.increment(-1);
+  const decrement = fieldValue.increment(-1);
   return db.collection(`admin`)
   .doc('totalProgramsInReview')
   .set({
@@ -4503,7 +4545,7 @@ exports.onWriteProgramReview = functions
 
     // decrement total review count
     if (before) {
-      const decrementCount = admin.firestore.FieldValue.increment(-1);
+      const decrementCount = fieldValue.increment(-1);
       await db.collection(`public-programs`)
       .doc(review.programId)
       .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: decrementCount }, { merge: true })
@@ -4518,7 +4560,7 @@ exports.onWriteProgramReview = functions
 
   // if rating has been updated, decrement the old value before incrementing the new value
   if (before && before.starValue && review && review.starValue && (before.starValue !== review.starValue)) {
-    const decrementCount = admin.firestore.FieldValue.increment(-1);
+    const decrementCount = fieldValue.increment(-1);
     await db.collection(`public-programs`)
     .doc(review.programId)
     .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: decrementCount }, { merge: true })
@@ -4526,7 +4568,7 @@ exports.onWriteProgramReview = functions
   }
 
   // increment total review count to allow cheaper lookups
-  const incrementCount = admin.firestore.FieldValue.increment(1);
+  const incrementCount = fieldValue.increment(1);
   await db.collection(`public-programs`)
   .doc(review.programId)
   .set({ [`total${getRatingAsText(review.starValue)}StarReviews`]: incrementCount }, { merge: true })
@@ -4561,7 +4603,7 @@ exports.onNewAdminServiceReviewRequest = functions
 
   const reviewRequest = snap.data() as any
 
-  const increment = admin.firestore.FieldValue.increment(1);
+  const increment = fieldValue.increment(1);
 
   db.collection(`admin`)
   .doc('totalServicesInReview')
@@ -4601,7 +4643,7 @@ exports.onDeleteAdminServiceReviewRequest = functions
 .firestore
 .document(`admin/review-requests/services/{serviceId}`)
 .onDelete((snap, context) => {
-  const decrement = admin.firestore.FieldValue.increment(-1);
+  const decrement = fieldValue.increment(-1);
   return db.collection(`admin`)
   .doc('totalServicesInReview')
   .set({
@@ -4779,7 +4821,7 @@ exports.onWriteServiceReview = functions
 
     // decrement total review count
     if (before) {
-      const decrementCount = admin.firestore.FieldValue.increment(-1);
+      const decrementCount = fieldValue.increment(-1);
       await db.collection(`public-services`)
       .doc(review.serviceId)
       .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: decrementCount }, { merge: true })
@@ -4794,7 +4836,7 @@ exports.onWriteServiceReview = functions
 
   // if rating has been updated, decrement the old value before incrementing the new value
   if (before && before.starValue && review && review.starValue && (before.starValue !== review.starValue)) {
-    const decrementCount = admin.firestore.FieldValue.increment(-1);
+    const decrementCount = fieldValue.increment(-1);
     await db.collection(`public-services`)
     .doc(review.serviceId)
     .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: decrementCount }, { merge: true })
@@ -4802,7 +4844,7 @@ exports.onWriteServiceReview = functions
   }
 
   // increment total review count to allow cheaper lookups
-  const incrementCount = admin.firestore.FieldValue.increment(1);
+  const incrementCount = fieldValue.increment(1);
   await db.collection(`public-services`)
   .doc(review.serviceId)
   .set({ [`total${getRatingAsText(review.starValue)}StarReviews`]: incrementCount }, { merge: true })
