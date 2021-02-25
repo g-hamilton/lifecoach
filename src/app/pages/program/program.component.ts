@@ -200,7 +200,7 @@ export class ProgramComponent implements OnInit, OnDestroy {
               this.analyticsService.completeStripePayment();
               this.analyticsService.enrollInProgram(this.program);
 
-              const result = await this.alertService.alert('success-message', 'Success!', 'You are now enrolled in this program.', 'Go to my programs') as any;
+              const result = await this.alertService.alert('success-message', 'Success!', 'You are now enrolled in this program. Visit My Programs to discover your next steps!', 'Go to my programs') as any;
               if (result && result.action) {
                 this.router.navigate(['/my-programs']);
               }

@@ -4,8 +4,6 @@ const firebase_tools = require('firebase-tools');
 
 const firebase = admin.initializeApp();
 const db = admin.firestore();
-const batch = db.batch(); // for atomic db ops
-const fieldValue = admin.firestore.FieldValue;
 const client = require('twilio')(functions.config().twilio.accountsid, functions.config().twilio.authtoken);
 import * as sharp from 'sharp';
 
@@ -388,6 +386,8 @@ async function removeCustomUserClaims(uid: string, claims: any) {
 
 async function createUserNode(uid: string, email: string, type: 'regular' | 'coach' | 'partner' | 'provider' | 'admin',
 firstName: string | null, lastName: string | null) {
+
+  const batch = admin.firestore().batch();
 
   // Initialise account data
   await db.collection(`users/${uid}/account`)
@@ -1366,6 +1366,8 @@ exports.stripeWebhookEvent = functions
 
   // console.log('Stripe webhook event:', event);
 
+  const batch = admin.firestore().batch();
+
   /*
   Note: consider the possibility that a webhook may be received more than once!
   If we fail to send a success response to the webhook or if our code times out beyond 300 seconds,
@@ -1840,6 +1842,7 @@ exports.completeFreeCourseEnrollment = functions
 .https
 .onCall( async (data, context) => {
 
+  const batch = admin.firestore().batch();
   const courseId = data.courseId;
   const clientUid = data.clientUid;
   const sellerReferred = data.referralCode ? 'true' : 'false';
@@ -1947,6 +1950,7 @@ exports.completeFreeCourseEnrollment = functions
 
 async function recordCourseEnrollmentForCreator(data: Stripe.PaymentIntent) {
 
+  const batch = admin.firestore().batch();
   const timestampNow = Math.round(new Date().getTime() / 1000);
   const saleDate = new Date(data.created * 1000); // create a date object so we can work with months/years
   const saleMonth = saleDate.getMonth() + 1; // go from zero index to jan === 1
@@ -1994,7 +1998,7 @@ async function recordCourseEnrollmentForCreator(data: Stripe.PaymentIntent) {
   batch.set(ref8, { action: 'enrolled_in_self_study_course', courseId: saleItemId });
 
   // execute atomic batch
-  return batch.commit();
+  await batch.commit();
 }
 
 async function recordCourseEnrollmentForClient(data: Stripe.PaymentIntent) {
@@ -2027,6 +2031,7 @@ async function recordCourseEnrollmentForClient(data: Stripe.PaymentIntent) {
 
 async function recordProgramEnrollmentForCreator(data: Stripe.PaymentIntent) {
 
+  const batch = admin.firestore().batch();
   const timestampNow = Math.round(new Date().getTime() / 1000);
   const saleItemType = data.metadata.sale_item_type;
   const clientUid = data.metadata.client_UID;
@@ -2111,6 +2116,7 @@ async function recordProgramEnrollmentForCreator(data: Stripe.PaymentIntent) {
 
 async function recordProgramEnrollmentForClient(data: Stripe.PaymentIntent) {
 
+  const batch = admin.firestore().batch();
   const saleItemType = data.metadata.sale_item_type;
   const clientUid = data.metadata.client_UID;
   const saleItemId = data.metadata.sale_item_id;
@@ -2167,6 +2173,7 @@ async function recordProgramEnrollmentForClient(data: Stripe.PaymentIntent) {
 
 async function recordServicePurchaseForCreator(data: Stripe.PaymentIntent) {
 
+  const batch = admin.firestore().batch();
   const timestampNow = Math.round(new Date().getTime() / 1000);
   const clientUid = data.metadata.client_UID;
   const sellerUid = data.metadata.seller_UID;
@@ -2226,6 +2233,7 @@ async function recordServicePurchaseForCreator(data: Stripe.PaymentIntent) {
 
 async function recordServicePurchaseForClient(data: Stripe.PaymentIntent) {
 
+  const batch = admin.firestore().batch();
   const clientUid = data.metadata.client_UID;
   const saleItemId = data.metadata.sale_item_id;
   const saleItemTitle = data.metadata.sale_item_title;
@@ -2267,13 +2275,14 @@ async function recordServicePurchaseForClient(data: Stripe.PaymentIntent) {
 // =====                    PLATFORM ENROLLMENT FUNCTIONS                    ======
 // ================================================================================
 
-function recordEnrollmentForPlatform(data: Stripe.PaymentIntent) {
+async function recordEnrollmentForPlatform(data: Stripe.PaymentIntent) {
   /*
   Record all unique clients for our coaches on a public node so any users can see 
   how many clients a coach has. A client is anyone who has purchased or enrolled 
   in any product or service from a coach.
   */
 
+  const batch = admin.firestore().batch();
   const clientUid = data.metadata.client_UID;
   const coachId = data.metadata.seller_UID;
   const saleItemId = data.metadata.sale_item_id;
@@ -2287,7 +2296,7 @@ function recordEnrollmentForPlatform(data: Stripe.PaymentIntent) {
   const ref3 = db.collection(`public-item-unique-clients/${saleItemId}/unique-clients`).doc(clientUid);
   batch.set(ref3, saveData, { merge: true });
 
-  return batch.commit();
+  await batch.commit();
 }
 
 /*
@@ -2298,10 +2307,9 @@ exports.onCreatePublicUniqueClient = functions
 .firestore
 .document(`public-unique-clients/{clientUid}`)
 .onCreate((snap, context) => {
-  const increment = fieldValue.increment(1);
   return db.collection(`public-unique-clients`).doc('total-unique-clients')
   .set({
-    totalRecords: increment
+    totalRecords: admin.firestore.FieldValue.increment(1)
   }, { merge: true });
 });
 
@@ -2309,11 +2317,10 @@ exports.onCreatePublicCoachUniqueClient = functions
 .runWith({memory: '1GB', timeoutSeconds: 300})
 .firestore
 .document(`public-coach-unique-clients/{coachUid}/unique-clients/{clientUid}`)
-.onCreate((snap, context) => {
-  const increment = fieldValue.increment(1);
-  return db.collection(`public-coach-unique-clients/{coachUid}/unique-clients`).doc('total-unique-clients')
+.onCreate((snap, context) => {;
+  return db.collection(`public-coach-unique-clients/${context.params.coachUid}/unique-clients`).doc('total-unique-clients')
   .set({
-    totalRecords: increment
+    totalRecords: admin.firestore.FieldValue.increment(1)
   }, { merge: true });
 });
 
@@ -2322,10 +2329,9 @@ exports.onCreatePublicItemUniqueClient = functions
 .firestore
 .document(`public-item-unique-clients/{saleItemId}/unique-clients/{clientUid}`)
 .onCreate((snap, context) => {
-  const increment = fieldValue.increment(1);
-  return db.collection(`public-item-unique-clients/{saleItemId}/unique-clients`).doc('total-unique-clients')
+  return db.collection(`public-item-unique-clients/${context.params.saleItemId}/unique-clients`).doc('total-unique-clients')
   .set({
-    totalRecords: increment
+    totalRecords: admin.firestore.FieldValue.increment(1)
   }, { merge: true });
 });
 
@@ -2347,6 +2353,7 @@ exports.requestRefund = functions
     return {error: 'Unauthorised!'}
   }
 
+  const batch = admin.firestore().batch();
   const request = data.refundRequest;
   const uid = request.uid;
   const pI = request.paymentIntent as Stripe.PaymentIntent;
@@ -2418,6 +2425,7 @@ exports.approveRefund = functions
     return {error: 'Unauthorised!'}
   }
 
+  const batch = admin.firestore().batch();
   const request = data.refundRequest;
   const clientUid = request.uid;
   const pI = request.paymentIntent as Stripe.PaymentIntent;
@@ -2521,6 +2529,7 @@ exports.adminApproveCourseReview = functions
 .https
 .onCall( async (data, context) => {
 
+  const batch = admin.firestore().batch();
   const courseId = data.courseId;
   const userId = data.userId; // reviewer not seller!
   const reviewRequest = data.reviewRequest;
@@ -2617,6 +2626,7 @@ exports.adminRejectCourseReview = functions
 .https
 .onCall( async (data, context) => {
 
+  const batch = admin.firestore().batch();
   const courseId = data.courseId;
   const userId = data.userId; // reviewer not seller!
   const reviewRequest = data.reviewRequest;
@@ -2686,6 +2696,7 @@ exports.adminApproveProgramReview = functions
 .https
 .onCall( async (data, context) => {
 
+  const batch = admin.firestore().batch();
   const programId = data.programId;
   const userId = data.userId; // reviewer not seller!
   const reviewRequest = data.reviewRequest;
@@ -2782,6 +2793,7 @@ exports.adminRejectProgramReview = functions
 .https
 .onCall( async (data, context) => {
 
+  const batch = admin.firestore().batch();
   const programId = data.programId;
   const userId = data.userId; // reviewer not seller!
   const reviewRequest = data.reviewRequest;
@@ -2851,6 +2863,7 @@ exports.adminApproveServiceReview = functions
 .https
 .onCall( async (data, context) => {
 
+  const batch = admin.firestore().batch();
   const serviceId = data.serviceId;
   const userId = data.userId; // reviewer not seller!
   const reviewRequest = data.reviewRequest;
@@ -2947,6 +2960,7 @@ exports.adminRejectServiceReview = functions
 .https
 .onCall( async (data, context) => {
 
+  const batch = admin.firestore().batch();
   const serviceId = data.serviceId;
   const userId = data.userId; // reviewer not seller!
   const reviewRequest = data.reviewRequest;
@@ -3100,6 +3114,7 @@ exports.orderCoachSession = functions
     return {error: 'Unauthorised!'}
   }
 
+  const batch = admin.firestore().batch();
   const coachId = data.coachId; // the user id of the coach
   const event = data.event; // is a type CustomCalendarEvent
   const uid = data.uid; // the user id of the person booking
@@ -3229,10 +3244,10 @@ exports.cancelCoachSession = functions
     return {error: 'Unauthorised!'}
   }
 
+  const batch = admin.firestore().batch();
   const eventId = data.eventId; // is a type CustomCalendarEvent
   const cancelledById = data.cancelledById; // who cancelled the session?
   const now = Math.round(new Date().getTime() / 1000) // unix timestamp
-
   const promises = []; // an array of promises to execute
 
   try {
@@ -3406,6 +3421,7 @@ exports.coachMarkSessionComplete = functions
     return {error: 'Unauthorised!'}
   }
 
+  const batch = admin.firestore().batch();
   const coachUid = data.coachId;
   const clientUid = data.clientId;
   const programId = data.programId; // will be 'discovery' or program id string
@@ -3911,11 +3927,10 @@ exports.onPostNewCourseLibraryItem = functions
 .document(`users/{userId}/courseLibrary/{docId}`)
 .onCreate((snap, context) => {
   const uid = context.params.userId;
-  const increment = fieldValue.increment(1);
   return db.collection(`users/${uid}/courseLibrary/totals/items`)
   .doc('itemTotals')
   .set({
-    totalItems: increment
+    totalItems: admin.firestore.FieldValue.increment(1)
   }, { merge: true })
   .catch(err => console.error(err));
 });
@@ -3931,12 +3946,10 @@ exports.onNewAdminCourseReviewRequest = functions
 
   const reviewRequest = snap.data() as any
 
-  const increment = fieldValue.increment(1);
-
   db.collection(`admin`)
   .doc('totalCoursesInReview')
   .set({
-    totalRecords: increment
+    totalRecords: admin.firestore.FieldValue.increment(1)
   }, { merge: true })
   .catch(err => console.error(err));
 
@@ -3971,11 +3984,10 @@ exports.onDeleteAdminCourseReviewRequest = functions
 .firestore
 .document(`admin/review-requests/courses/{courseId}`)
 .onDelete((snap, context) => {
-  const decrement = fieldValue.increment(-1);
   return db.collection(`admin`)
   .doc('totalCoursesInReview')
   .set({
-    totalRecords: decrement
+    totalRecords: admin.firestore.FieldValue.increment(-1)
   }, { merge: true })
   .catch(err => console.error(err));
 });
@@ -4029,6 +4041,7 @@ exports.onWritePrivateUserCourse = functions
 .firestore
 .document(`/users/{userId}/courses/{courseId}`)
 .onWrite( async (change, context) => {
+  const batch = admin.firestore().batch();
   const courseId = context.params.courseId;
   const course = change.after.data() as any;
   const courseBefore = change.before.data() as any;
@@ -4173,10 +4186,9 @@ exports.onWriteCourseReview = functions
 
     // decrement total review count
     if (before) {
-      const decrementCount = fieldValue.increment(-1);
       await db.collection(`public-courses`)
       .doc(review.courseId)
-      .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: decrementCount }, { merge: true })
+      .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: admin.firestore.FieldValue.increment(-1) }, { merge: true })
       .catch(err => console.error(err));
     }
 
@@ -4188,18 +4200,16 @@ exports.onWriteCourseReview = functions
 
   // if rating has been updated, decrement the old value before incrementing the new value
   if (before && before.starValue && review && review.starValue && (before.starValue !== review.starValue)) {
-    const decrementCount = fieldValue.increment(-1);
     await db.collection(`public-courses`)
     .doc(review.courseId)
-    .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: decrementCount }, { merge: true })
+    .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: admin.firestore.FieldValue.increment(-1) }, { merge: true })
     .catch(err => console.error(err));
   }
 
   // increment total review count to allow cheaper lookups
-  const incrementCount = fieldValue.increment(1);
   await db.collection(`public-courses`)
   .doc(review.courseId)
-  .set({ [`total${getRatingAsText(review.starValue)}StarReviews`]: incrementCount }, { merge: true })
+  .set({ [`total${getRatingAsText(review.starValue)}StarReviews`]: admin.firestore.FieldValue.increment(1) }, { merge: true })
   .catch(err => console.error(err));
 
   // sync with Algolia
@@ -4281,10 +4291,9 @@ exports.onCreateCoursePublicQuestion = functions
   await index.saveObject(recordToSend);
 
   // Increment question count on course
-  const incrementCount = fieldValue.increment(1);
   return db.collection(`locked-course-content`)
   .doc(question.courseId)
-  .set({ questions: incrementCount }, { merge: true })
+  .set({ questions: admin.firestore.FieldValue.increment(1) }, { merge: true })
   .catch(err => console.error(err));
 });
 
@@ -4305,10 +4314,9 @@ exports.onDeleteCoursePublicQuestion = functions
   await index.deleteObject(questionId);
 
   // Deccrement question count on course
-  const decrement = fieldValue.increment(-1);
   return db.collection(`locked-course-content`)
   .doc(question.courseId)
-  .set({ questions: decrement }, { merge: true })
+  .set({ questions: admin.firestore.FieldValue.increment(-1) }, { merge: true })
   .catch(err => console.error(err));
 });
 
@@ -4342,10 +4350,9 @@ exports.onCreateCoursePublicQuestionReply = functions
   await index.saveObject(recordToSend);
 
   // Increment replies count on original question
-  const incrementCount = fieldValue.increment(1);
   return db.collection(`public-course-questions`)
   .doc(questionId)
-  .set({ replies: incrementCount }, { merge: true })
+  .set({ replies: admin.firestore.FieldValue.increment(1) }, { merge: true })
   .catch(err => console.error(err));
 });
 
@@ -4366,10 +4373,9 @@ exports.onDeleteCoursePublicQuestionReply = functions
   await index.deleteObject(replyId);
 
   // Deccrement replies count on original question
-  const decrement = fieldValue.increment(-1);
   return db.collection(`public-course-questions`)
   .doc(questionId)
-  .set({ replies: decrement }, { merge: true })
+  .set({ replies: admin.firestore.FieldValue.increment(-1) }, { merge: true })
   .catch(err => console.error(err));
 });
 
@@ -4385,10 +4391,9 @@ exports.onCreateCoursePublicQuestionUpvote = functions
   const questionId = context.params.questionId;
 
   // Increment upvotes count on original question
-  const incrementCount = fieldValue.increment(1);
   return db.collection(`public-course-questions`)
   .doc(questionId)
-  .set({ upVotes: incrementCount }, { merge: true })
+  .set({ upVotes: admin.firestore.FieldValue.increment(1) }, { merge: true })
   .catch(err => console.error(err));
 });
 
@@ -4405,10 +4410,9 @@ exports.onCreateCoursePublicQuestionReplyUpvote = functions
   const replyId = context.params.replyId;
 
   // Increment upvotes count on question reply
-  const incrementCount = fieldValue.increment(1);
   return db.collection(`public-course-questions/${questionId}/replies`)
   .doc(replyId)
-  .set({ upVotes: incrementCount }, { merge: true })
+  .set({ upVotes: admin.firestore.FieldValue.increment(1)}, { merge: true })
   .catch(err => console.error(err));
 });
 
@@ -4444,12 +4448,10 @@ exports.onNewAdminProgramReviewRequest = functions
 
   const reviewRequest = snap.data() as any
 
-  const increment = fieldValue.increment(1);
-
   db.collection(`admin`)
   .doc('totalProgramsInReview')
   .set({
-    totalRecords: increment
+    totalRecords: admin.firestore.FieldValue.increment(1)
   }, { merge: true })
   .catch(err => console.error(err));
 
@@ -4484,11 +4486,10 @@ exports.onDeleteAdminProgramReviewRequest = functions
 .firestore
 .document(`admin/review-requests/programs/{programId}`)
 .onDelete((snap, context) => {
-  const decrement = fieldValue.increment(-1);
   return db.collection(`admin`)
   .doc('totalProgramsInReview')
   .set({
-    totalRecords: decrement
+    totalRecords: admin.firestore.FieldValue.increment(-1)
   }, { merge: true })
   .catch(err => console.error(err));
 });
@@ -4544,6 +4545,7 @@ exports.onWritePrivateUserProgram = functions
 .firestore
 .document(`/users/{userId}/programs/{programId}`)
 .onWrite( async (change, context) => {
+  const batch = admin.firestore().batch();
   const programId = context.params.programId;
   const program = change.after.data() as any;
   const programBefore = change.before.data() as any;
@@ -4671,10 +4673,9 @@ exports.onWriteProgramReview = functions
 
     // decrement total review count
     if (before) {
-      const decrementCount = fieldValue.increment(-1);
       await db.collection(`public-programs`)
       .doc(review.programId)
-      .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: decrementCount }, { merge: true })
+      .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: admin.firestore.FieldValue.increment(-1) }, { merge: true })
       .catch(err => console.error(err));
     }
 
@@ -4686,18 +4687,16 @@ exports.onWriteProgramReview = functions
 
   // if rating has been updated, decrement the old value before incrementing the new value
   if (before && before.starValue && review && review.starValue && (before.starValue !== review.starValue)) {
-    const decrementCount = fieldValue.increment(-1);
     await db.collection(`public-programs`)
     .doc(review.programId)
-    .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: decrementCount }, { merge: true })
+    .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: admin.firestore.FieldValue.increment(-1) }, { merge: true })
     .catch(err => console.error(err));
   }
 
   // increment total review count to allow cheaper lookups
-  const incrementCount = fieldValue.increment(1);
   await db.collection(`public-programs`)
   .doc(review.programId)
-  .set({ [`total${getRatingAsText(review.starValue)}StarReviews`]: incrementCount }, { merge: true })
+  .set({ [`total${getRatingAsText(review.starValue)}StarReviews`]: admin.firestore.FieldValue.increment(1) }, { merge: true })
   .catch(err => console.error(err));
 
   // sync with Algolia
@@ -4729,12 +4728,10 @@ exports.onNewAdminServiceReviewRequest = functions
 
   const reviewRequest = snap.data() as any
 
-  const increment = fieldValue.increment(1);
-
   db.collection(`admin`)
   .doc('totalServicesInReview')
   .set({
-    totalRecords: increment
+    totalRecords: admin.firestore.FieldValue.increment(1)
   }, { merge: true })
   .catch(err => console.error(err));
 
@@ -4769,11 +4766,10 @@ exports.onDeleteAdminServiceReviewRequest = functions
 .firestore
 .document(`admin/review-requests/services/{serviceId}`)
 .onDelete((snap, context) => {
-  const decrement = fieldValue.increment(-1);
   return db.collection(`admin`)
   .doc('totalServicesInReview')
   .set({
-    totalRecords: decrement
+    totalRecords: admin.firestore.FieldValue.increment(-1)
   }, { merge: true })
   .catch(err => console.error(err));
 });
@@ -4824,6 +4820,7 @@ exports.onWritePrivateUserService = functions
 .firestore
 .document(`/users/{userId}/services/{serviceId}`)
 .onWrite( async (change, context) => {
+  const batch = admin.firestore().batch();
   const serviceId = context.params.serviceId;
   const service = change.after.data() as any;
   const serviceBefore = change.before.data() as any;
@@ -4947,10 +4944,9 @@ exports.onWriteServiceReview = functions
 
     // decrement total review count
     if (before) {
-      const decrementCount = fieldValue.increment(-1);
       await db.collection(`public-services`)
       .doc(review.serviceId)
-      .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: decrementCount }, { merge: true })
+      .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: admin.firestore.FieldValue.increment(-1) }, { merge: true })
       .catch(err => console.error(err));
     }
 
@@ -4962,18 +4958,16 @@ exports.onWriteServiceReview = functions
 
   // if rating has been updated, decrement the old value before incrementing the new value
   if (before && before.starValue && review && review.starValue && (before.starValue !== review.starValue)) {
-    const decrementCount = fieldValue.increment(-1);
     await db.collection(`public-services`)
     .doc(review.serviceId)
-    .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: decrementCount }, { merge: true })
+    .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: admin.firestore.FieldValue.increment(-1) }, { merge: true })
     .catch(err => console.error(err));
   }
 
   // increment total review count to allow cheaper lookups
-  const incrementCount = fieldValue.increment(1);
   await db.collection(`public-services`)
   .doc(review.serviceId)
-  .set({ [`total${getRatingAsText(review.starValue)}StarReviews`]: incrementCount }, { merge: true })
+  .set({ [`total${getRatingAsText(review.starValue)}StarReviews`]: admin.firestore.FieldValue.increment(1) }, { merge: true })
   .catch(err => console.error(err));
 
   // sync with Algolia
@@ -5003,6 +4997,7 @@ exports.onWriteUserCalendar = functions
 .document(`users/{uid}/calendar/{eventId}`)
 .onWrite(async (change, context) => {
 
+  const batch = admin.firestore().batch();
   const coachId = context.params.uid; // note only coach users have a calendar so uid will always be a coach
   const event = change.after.data() as any; // will be a CustomCalendarEvent
   const eventBefore = change.before.data() as any; // will not exist on first create

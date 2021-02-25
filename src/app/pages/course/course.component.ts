@@ -203,7 +203,7 @@ export class CourseComponent implements OnInit, OnDestroy {
               this.analyticsService.completeStripePayment();
               this.analyticsService.enrollInCourse(this.course);
 
-              const result = await this.alertService.alert('success-message', 'Success!', 'You have now purchased this course.', 'Go To My eCourses') as any;
+              const result = await this.alertService.alert('success-message', 'Success!', 'You have now purchased this eCourse. Go to My eCourses now to start your new eCourse!', 'Go To My eCourses') as any;
               if (result && result.action) {
                 this.router.navigate(['/my-courses']);
               }
