@@ -2221,7 +2221,7 @@ async function recordServicePurchaseForCreator(data: Stripe.PaymentIntent) {
       service_id: saleItemId,
       service_title: saleItemTitle,
       service_image: saleItemImg,
-      num_sessions_purchased: sessionsPurchased,
+      num_sessions_purchased: String(sessionsPurchased), // mailchimp only accepts string data!
       client_url: `https://lifecoach.io/person-history/${clientUid}`
     }
   }
@@ -2261,7 +2261,7 @@ async function recordServicePurchaseForClient(data: Stripe.PaymentIntent) {
       service_id: saleItemId,
       service_title: saleItemTitle,
       service_image: saleItemImg,
-      num_sessions_purchased: numSessions,
+      num_sessions_purchased: String(numSessions), // mailchimp only accepts string data!
       landing_url: `https://lifecoach.io/my-services/${saleItemId}`
     }
   }
@@ -2302,34 +2302,34 @@ async function recordEnrollmentForPlatform(data: Stripe.PaymentIntent) {
 /*
   Monitor platform enrollments to update totals.
 */
-exports.onCreatePublicUniqueClient = functions
+exports.onCreatePublicUniqueClientNode = functions
 .runWith({memory: '1GB', timeoutSeconds: 300})
 .firestore
 .document(`public-unique-clients/{clientUid}`)
 .onCreate((snap, context) => {
-  return db.collection(`public-unique-clients`).doc('total-unique-clients')
+  return db.collection(`public-totals/all/unique-clients`).doc('total-unique-clients')
   .set({
     totalRecords: admin.firestore.FieldValue.increment(1)
   }, { merge: true });
 });
 
-exports.onCreatePublicCoachUniqueClient = functions
+exports.onCreatePublicCoachUniqueClientNode = functions
 .runWith({memory: '1GB', timeoutSeconds: 300})
 .firestore
 .document(`public-coach-unique-clients/{coachUid}/unique-clients/{clientUid}`)
 .onCreate((snap, context) => {;
-  return db.collection(`public-coach-unique-clients/${context.params.coachUid}/unique-clients`).doc('total-unique-clients')
+  return db.collection(`public-totals/by-coach-id/${context.params.coachUid}`).doc('total-unique-clients')
   .set({
     totalRecords: admin.firestore.FieldValue.increment(1)
   }, { merge: true });
 });
 
-exports.onCreatePublicItemUniqueClient = functions
+exports.onCreatePublicItemUniqueClientNode = functions
 .runWith({memory: '1GB', timeoutSeconds: 300})
 .firestore
 .document(`public-item-unique-clients/{saleItemId}/unique-clients/{clientUid}`)
 .onCreate((snap, context) => {
-  return db.collection(`public-item-unique-clients/${context.params.saleItemId}/unique-clients`).doc('total-unique-clients')
+  return db.collection(`public-totals/by-item-id/${context.params.saleItemId}`).doc('total-unique-clients')
   .set({
     totalRecords: admin.firestore.FieldValue.increment(1)
   }, { merge: true });
