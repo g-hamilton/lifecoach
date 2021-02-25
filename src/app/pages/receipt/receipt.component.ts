@@ -8,6 +8,7 @@ import { DataService } from '../../services/data.service';
 import { UserAccount } from 'app/interfaces/user.account.interface';
 import { CurrenciesService } from 'app/services/currencies.service';
 import { Subscription } from 'rxjs';
+import { SanitisedStripeCharge } from 'app/interfaces/sanitised.stripe.charge.interface';
 
 @Component({
   selector: 'app-receipt',
@@ -17,7 +18,7 @@ export class ReceiptComponent implements OnInit, OnDestroy {
 
   public browser: boolean;
   private userId: string;
-  public purchasedItem: any;
+  public charge: SanitisedStripeCharge;
   public account: UserAccount;
   public currencies: any;
   private subscriptions: Subscription = new Subscription();
@@ -39,19 +40,19 @@ export class ReceiptComponent implements OnInit, OnDestroy {
       this.currencies = this.currenciesService.getCurrencies();
       // Get the payment data
       this.route.params.subscribe(params => {
-        const paymentIntentId = params.id;
-        if (paymentIntentId) {
+        const chargeId = params.id;
+        if (chargeId) {
           this.subscriptions.add(
             this.authService.getAuthUser().subscribe(user => {
               if (user) {
                 this.userId = user.uid;
                 this.subscriptions.add(
-                  // this.dataService.getSuccessfulPaymentIntent(this.userId, paymentIntentId).subscribe(payInt => {
-                  //   if (payInt) {
-                  //     this.purchasedItem = payInt;
-                  //     console.log('Purchased item:', this.purchasedItem);
-                  //   }
-                  // })
+                  this.dataService.getSuccessfulChargeById(this.userId, chargeId).subscribe(data => {
+                    if (data) {
+                      this.charge = data;
+                      // console.log('Charge:', this.charge);
+                    }
+                  })
                 );
 
                 // Get the user account

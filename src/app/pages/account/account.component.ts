@@ -629,8 +629,9 @@ export class AccountComponent implements OnInit, OnDestroy {
     }
   }
 
-  loadReceipt(paymentIntentId: string) {
-    this.router.navigate(['receipt', paymentIntentId]);
+  loadReceipt(chargeId: string) {
+    // console.log(chargeId);
+    this.router.navigate(['receipt', chargeId]);
   }
 
   popRefund(paymentIntent: any) {

@@ -1,10 +1,10 @@
 <div class=" content">
     <div class=" row">
         <div class=" col">
-            <div *ngIf="purchasedItem && account" class=" card">
+            <div *ngIf="charge && account" class=" card">
                 <div class=" card-header">
                     <h5> 
-                        Receipt - {{ timestampToDate(purchasedItem.created) }}
+                        Receipt - {{ timestampToDate(charge.created) }}
                     </h5>
                 </div>
                 <div class=" card-body">
@@ -24,8 +24,8 @@
                         </div>
                         <div class=" col-md-6">
                             <p class="text-right pr-3">
-                                <strong> Date </strong>: {{ timestampToDate(purchasedItem.created) }} <br>
-                                <strong> Order # </strong>: {{ purchasedItem.id }}
+                                <strong> Date </strong>: {{ timestampToDate(charge.created) }} <br>
+                                <strong> Order # </strong>: {{ charge.id }}
                             </p>
                         </div>
                     </div>
@@ -51,25 +51,25 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td> {{ purchasedItem.metadata.sale_item_title }} </td>
-                                <td> {{ timestampToDate(purchasedItem.created) }} </td>
+                                <td> {{ charge.metadata.sale_item_title }} </td>
+                                <td> {{ timestampToDate(charge.created) }} </td>
                                 <td> </td>
                                 <td> 1 </td>
-                                <td> {{ currencies[(purchasedItem.currency).toUpperCase()].symbol + purchasedItem.amount / 100 }} </td>
+                                <td> {{ currencies[(charge.currency).toUpperCase()].symbol + charge.amount / 100 }} </td>
                             </tr>
                             <tr>
                                 <td> </td>
                                 <td> </td>
                                 <td> </td>
                                 <td> Total </td>
-                                <td> {{ currencies[(purchasedItem.currency).toUpperCase()].symbol + ((purchasedItem.amount / 100) * 1) }} </td>
+                                <td> {{ currencies[(charge.currency).toUpperCase()].symbol + ((charge.amount / 100) * 1) }} </td>
                             </tr>
                             <tr>
                                 <td> </td>
                                 <td> </td>
                                 <td> </td>
                                 <td> Net Amount </td>
-                                <td> {{ currencies[(purchasedItem.currency).toUpperCase()].symbol + ((purchasedItem.amount / 100) * 1) }} </td>
+                                <td> {{ currencies[(charge.currency).toUpperCase()].symbol + ((charge.amount / 100) * 1) }} </td>
                             </tr>
                             <tr>
                                 <td> </td>
@@ -83,7 +83,7 @@
                                 <td> </td>
                                 <td> </td>
                                 <td> Total Paid </td>
-                                <td> {{ currencies[(purchasedItem.currency).toUpperCase()].symbol + ((purchasedItem.amount / 100) * 1) }} </td>
+                                <td> {{ currencies[(charge.currency).toUpperCase()].symbol + ((charge.amount / 100) * 1) }} </td>
                             </tr>
                         </tbody>
                         </table>

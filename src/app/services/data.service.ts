@@ -518,8 +518,14 @@ export class DataService {
       .valueChanges({idField: 'id'}) as Observable<SanitisedStripeCharge[]>;
   }
 
+  getSuccessfulChargeById(uid: string, chargeId: string) {
+    return this.db.collection(`users/${uid}/successful-charges/all/charges`)
+      .doc(chargeId)
+      .valueChanges() as Observable<SanitisedStripeCharge>;
+  }
+
   getFailedPayments(uid: string) {
-    return this.db.collection(`users/${uid}/failed-payments`)
+    return this.db.collection(`users/${uid}/failed-payments/all/payments`)
       .valueChanges({idField: 'id'}) as Observable<Stripe.PaymentIntent[]>;
   }
 
