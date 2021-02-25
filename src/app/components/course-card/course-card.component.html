@@ -23,18 +23,18 @@
       <h4 class="card-title"> {{ course?.title }} </h4>
       <h6 class="card-subtitle mb-2 text-muted"> {{ course?.coachName }} </h6>
       <div *ngIf="browser">
-        <app-stars
+        <!-- <app-stars
           *ngIf="courseObject"
           [course]="courseObject">
-        </app-stars>
+        </app-stars> -->
       </div>
       <div *ngIf="clientCurrency && rates" style="clear: both;">
         <h4 *ngIf="course?.pricingStrategy === 'paid'"> {{ currencySymbol + '' + displayPrice }} </h4>
         <h4 *ngIf="course?.pricingStrategy === 'free'"> FREE </h4>
       </div>
-      <span class=" badge badge-success">
-                New
-            </span>
+      <!-- <span class=" badge badge-success">
+        New
+      </span> -->
     </div>
 
   </div>

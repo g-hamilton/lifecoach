@@ -247,7 +247,7 @@ export class LearnComponent implements OnInit, OnDestroy {
       console.log('first time course completed!');
 
       // pop complete modal
-      this.courseCompleteModal.show();
+      // this.courseCompleteModal.show();
 
       // save as complete so that we don't keep getting popups when viewing again after completing
       this.markCourseCompleted();
@@ -294,7 +294,7 @@ export class LearnComponent implements OnInit, OnDestroy {
       this.saveLectureComplete(this.lectureId);
 
       // if at prompt point in the course, prompt user for a review and wait for a response before moving on
-      await this.promptUserReviewIfRequired();
+      // await this.promptUserReviewIfRequired();
 
       // redirect to the next lecture in the course
       this.redirectToNextLecture();
