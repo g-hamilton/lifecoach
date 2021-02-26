@@ -42,20 +42,28 @@ export class MyCoursesComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.authService.getAuthUser().subscribe(async user => {
         if (user) {
-          console.log('THIS IS USER', user);
           this.userId = user.uid;
-          const token = await user.getIdTokenResult(true);
-          console.log('Claims:', token.claims);
 
-          // Check for purchased courses. Coaches and regular users can purchase courses
+          // at this point (if coming here immediately after a purchase), the user may
+          // be authorised, but their auth object may be missing the required claims
+          // until cloud functions / webhooks complete...
+
+          // Check for purchased courses
+          // Coaches and regular users can purchase courses...
           this.subscriptions.add(
-            this.dataService.getPurchasedCourses(this.userId).subscribe(courseIds => {
+            this.dataService.getPurchasedCourses(this.userId).subscribe(async courseIds => {
               if (courseIds) {
-                console.log('Enrolled In Course Ids:', courseIds);
+                // user is enrolled in at least one course now
+                // console.log('Enrolled In Course Ids:', courseIds);
+                // important: force refresh the auth token to update the latest claims
+                // before calling for unlocked data (requires auth claim to get through paywall)
+                const token = await user.getIdTokenResult(true);
+                // console.log('Claims:', token.claims);
                 this.purchasedCourses = []; // reset
                 courseIds.forEach((o: any, index) => { // fetch and monitor live / latest course info
                   this.subscriptions.add(
                     this.dataService.getUnlockedPublicCourse(o.id).subscribe(course => {
+                      // console.log('Unlocked course:', course);
                       if (course) {
                         this.purchasedCourses.push(course);
                         this.calcCourseProgress(course, index);

@@ -42,27 +42,30 @@ export class MyProgramsComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.authService.getAuthUser().subscribe(async user => {
         if (user) {
-          console.log('THIS IS USER', user);
           this.userId = user.uid;
-          const token = await user.getIdTokenResult(true);
-          console.log('Claims:', token.claims);
+
+          // at this point (if coming here immediately after a purchase), the user may
+          // be authorised, but their auth object may be missing the required claims
+          // until cloud functions / webhooks complete...
 
           // Check for purchased programs
           this.subscriptions.add(
             this.dataService.getPurchasedPrograms(this.userId).subscribe(async programIds => {
               if (programIds) {
+                // user is enrolled in at least one program now
                 console.log('Enrolled In Program Ids:', programIds);
-
+                // important: force refresh the auth token to update the latest claims
+                // before calling for unlocked data (requires auth claim to get through paywall)
                 // force refresh the user claims on a change to purchased programs
                 // trying to avoid "insufficient permissions" error when going to my-programs immediately afer program purchase 
                 const token = await user.getIdTokenResult(true);
-                console.log('Claims:', token.claims);
-
+                // console.log('Claims:', token.claims);
                 this.purchasedPrograms = []; // reset
                 programIds.forEach((o: any, index) => { // fetch and monitor live / latest program info
                   this.subscriptions.add(
                     this.dataService.getUnlockedPublicProgram(o.id).subscribe(program => {
                       if (program) {
+                        // console.log('unlocked program:', program);
                         this.purchasedPrograms.push(program);
                         // this.calcProgramProgress(program, index); TODO
                       }
