@@ -21,7 +21,7 @@
         </div>
 
         <!-- No purchased courses -->
-        <div class=" row" *ngIf="!purchasedCourses || purchasedCourses && purchasedCourses.length === 0">
+        <div class=" row" *ngIf="!loadingPostPurchase && (!purchasedCourses || purchasedCourses && purchasedCourses.length === 0)">
             <div class=" col">
                 <div class=" card">
                     <div class=" card-body">
@@ -35,6 +35,18 @@
                                 </a> to discover what you can learn next!
                             </p>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading post purchase -->
+        <div class=" row" *ngIf="loadingPostPurchase">
+            <div class=" col">
+                <!-- Loading spinner -->
+                <div class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="sr-only">Loading...</span>
                     </div>
                 </div>
             </div>

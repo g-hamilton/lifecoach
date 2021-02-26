@@ -1,10 +1,9 @@
 import { Component, OnInit, Inject, PLATFORM_ID, OnDestroy } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 
 import { AuthService } from '../../services/auth.service';
 import { DataService } from '../../services/data.service';
-import { AlertService } from 'app/services/alert.service';
 import { CoachingCourse } from 'app/interfaces/course.interface';
 import { AnalyticsService } from 'app/services/analytics.service';
 import { Subscription } from 'rxjs';
@@ -20,13 +19,13 @@ export class MyCoursesComponent implements OnInit, OnDestroy {
   public purchasedCourses = [] as CoachingCourse[]; // purchased courses as buyer
   public objKeys = Object.keys;
   private subscriptions: Subscription = new Subscription();
+  public loadingPostPurchase: boolean;
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
     private authService: AuthService,
     private dataService: DataService,
-    private router: Router,
-    private alertService: AlertService,
+    private route: ActivatedRoute,
     private analyticsService: AnalyticsService
   ) {
   }
@@ -34,6 +33,7 @@ export class MyCoursesComponent implements OnInit, OnDestroy {
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
       this.browser = true;
+      this.checkRouteData();
       this.loadUserData();
     }
   }
@@ -65,6 +65,7 @@ export class MyCoursesComponent implements OnInit, OnDestroy {
                     this.dataService.getUnlockedPublicCourse(o.id).subscribe(course => {
                       // console.log('Unlocked course:', course);
                       if (course) {
+                        this.loadingPostPurchase = false;
                         this.purchasedCourses.push(course);
                         this.calcCourseProgress(course, index);
                       }
@@ -77,6 +78,14 @@ export class MyCoursesComponent implements OnInit, OnDestroy {
         }
       })
     );
+  }
+
+  checkRouteData() {
+    this.route.queryParams.subscribe(params => {
+      if (params.postPurchase) {
+        this.loadingPostPurchase = true;
+      }
+    });
   }
 
   browseCourses() {

@@ -205,7 +205,7 @@ export class CourseComponent implements OnInit, OnDestroy {
 
               const result = await this.alertService.alert('success-message', 'Success!', 'You have now purchased this eCourse. Go to My eCourses now to start your new eCourse!', 'Go To My eCourses') as any;
               if (result && result.action) {
-                this.router.navigate(['/my-courses']);
+                this.router.navigate(['/my-courses'], { queryParams: { postPurchase: true } });
               }
             }
           }

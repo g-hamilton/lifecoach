@@ -1,10 +1,9 @@
 import { Component, OnInit, Inject, PLATFORM_ID, OnDestroy } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 
 import { AuthService } from '../../services/auth.service';
 import { DataService } from '../../services/data.service';
-import { AlertService } from 'app/services/alert.service';
 import { AnalyticsService } from 'app/services/analytics.service';
 import { Subscription } from 'rxjs';
 import { CoachingProgram } from 'app/interfaces/coach.program.interface';
@@ -20,13 +19,13 @@ export class MyProgramsComponent implements OnInit, OnDestroy {
   public purchasedPrograms = [] as CoachingProgram[]; // purchased programs as buyer
   public objKeys = Object.keys;
   private subscriptions: Subscription = new Subscription();
+  public loadingPostPurchase: boolean;
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
     private authService: AuthService,
     private dataService: DataService,
-    private router: Router,
-    private alertService: AlertService,
+    private route: ActivatedRoute,
     private analyticsService: AnalyticsService
   ) {
   }
@@ -34,6 +33,7 @@ export class MyProgramsComponent implements OnInit, OnDestroy {
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
       this.browser = true;
+      this.checkRouteData();
       this.loadUserData();
     }
   }
@@ -57,7 +57,7 @@ export class MyProgramsComponent implements OnInit, OnDestroy {
                 // important: force refresh the auth token to update the latest claims
                 // before calling for unlocked data (requires auth claim to get through paywall)
                 // force refresh the user claims on a change to purchased programs
-                // trying to avoid "insufficient permissions" error when going to my-programs immediately afer program purchase 
+                // trying to avoid "insufficient permissions" error when going to my-programs immediately afer program purchase
                 const token = await user.getIdTokenResult(true);
                 // console.log('Claims:', token.claims);
                 this.purchasedPrograms = []; // reset
@@ -78,6 +78,14 @@ export class MyProgramsComponent implements OnInit, OnDestroy {
         }
       })
     );
+  }
+
+  checkRouteData() {
+    this.route.queryParams.subscribe(params => {
+      if (params.postPurchase) {
+        this.loadingPostPurchase = true;
+      }
+    });
   }
 
   browsePrograms() {
