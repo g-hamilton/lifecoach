@@ -1999,6 +1999,17 @@ async function recordCourseEnrollmentForCreator(data: Stripe.PaymentIntent) {
 
   // execute atomic batch
   await batch.commit();
+
+  // trigger a mailchimp event
+  const event = {
+    name: 'seller_course_enrollment',
+    properties: {
+      course_id: saleItemId,
+      course_title: data.metadata.sale_item_title,
+      course_image: data.metadata.sale_item_image
+    }
+  }
+  return logMailchimpEvent(sellerUid, event);
 }
 
 async function recordCourseEnrollmentForClient(data: Stripe.PaymentIntent) {
@@ -2298,42 +2309,6 @@ async function recordEnrollmentForPlatform(data: Stripe.PaymentIntent) {
 
   await batch.commit();
 }
-
-/*
-  Monitor platform enrollments to update totals.
-*/
-exports.onCreatePublicUniqueClientNode = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.firestore
-.document(`public-unique-clients/{clientUid}`)
-.onCreate((snap, context) => {
-  return db.collection(`public-totals/all/unique-clients`).doc('total-unique-clients')
-  .set({
-    totalRecords: admin.firestore.FieldValue.increment(1)
-  }, { merge: true });
-});
-
-exports.onCreatePublicCoachUniqueClientNode = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.firestore
-.document(`public-coach-unique-clients/{coachUid}/unique-clients/{clientUid}`)
-.onCreate((snap, context) => {;
-  return db.collection(`public-totals/by-coach-id/${context.params.coachUid}`).doc('total-unique-clients')
-  .set({
-    totalRecords: admin.firestore.FieldValue.increment(1)
-  }, { merge: true });
-});
-
-exports.onCreatePublicItemUniqueClientNode = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.firestore
-.document(`public-item-unique-clients/{saleItemId}/unique-clients/{clientUid}`)
-.onCreate((snap, context) => {
-  return db.collection(`public-totals/by-item-id/${context.params.saleItemId}`).doc('total-unique-clients')
-  .set({
-    totalRecords: admin.firestore.FieldValue.increment(1)
-  }, { merge: true });
-});
 
 // ================================================================================
 // =====                              REFUNDS                                ======
@@ -5094,6 +5069,95 @@ exports.onWriteUserCalendar = functions
   await Promise.all(promises);
   // done
   return;
+});
+
+/*
+  Monitor platform charges to update totals.
+*/
+exports.onCreatePlatformSuccessfulChargeNode = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.firestore
+.document(`successful-charges/all/charges/{charge}`)
+.onCreate((snap, context) => {
+  return db.collection(`platform/all/successful-charges`).doc('total-successful-charges')
+  .set({
+    totalRecords: admin.firestore.FieldValue.increment(1)
+  }, { merge: true });
+});
+
+/*
+  Monitor platform transfers to update totals.
+*/
+exports.onCreatePlatformSuccessfulTransferNode = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.firestore
+.document(`successful-transfers/all/transfers/{transfer}`)
+.onCreate((snap, context) => {
+  return db.collection(`platform/all/successful-transfers`).doc('total-successful-transfers')
+  .set({
+    totalRecords: admin.firestore.FieldValue.increment(1)
+  }, { merge: true });
+});
+
+/*
+  Monitor platform enrollments to update totals.
+*/
+exports.onCreatePublicUniqueClientNode = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.firestore
+.document(`public-unique-clients/{clientUid}`)
+.onCreate((snap, context) => {
+  return db.collection(`public-totals/all/unique-clients`).doc('total-unique-clients')
+  .set({
+    totalRecords: admin.firestore.FieldValue.increment(1)
+  }, { merge: true });
+});
+
+exports.onCreatePublicCoachUniqueClientNode = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.firestore
+.document(`public-coach-unique-clients/{coachUid}/unique-clients/{clientUid}`)
+.onCreate((snap, context) => {;
+  return db.collection(`public-totals/by-coach-id/${context.params.coachUid}`).doc('total-unique-clients')
+  .set({
+    totalRecords: admin.firestore.FieldValue.increment(1)
+  }, { merge: true });
+});
+
+exports.onCreatePublicItemUniqueClientNode = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.firestore
+.document(`public-item-unique-clients/{saleItemId}/unique-clients/{clientUid}`)
+.onCreate((snap, context) => {
+  return db.collection(`public-totals/by-item-id/${context.params.saleItemId}`).doc('total-unique-clients')
+  .set({
+    totalRecords: admin.firestore.FieldValue.increment(1)
+  }, { merge: true });
+});
+
+/*
+  Monitor partner referrals to update totals.
+*/
+exports.onCreatePartnerReferralNode = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.firestore
+.document(`partner-referrals/all/referrals/{referral}`)
+.onCreate((snap, context) => {
+  return db.collection(`public-totals/all/partner-referrals`).doc('total-partner-referrals')
+  .set({
+    totalRecords: admin.firestore.FieldValue.increment(1)
+  }, { merge: true });
+});
+
+exports.onCreatePartnerReferralByPartnerIdNode = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.firestore
+.document(`partner-referrals/by-partner-id/{partnerId}/all/referrals/{referral}`)
+.onCreate((snap, context) => {;
+  return db.collection(`public-totals/by-partner-id/${context.params.partnerId}`).doc('total-partner-referrals')
+  .set({
+    totalRecords: admin.firestore.FieldValue.increment(1)
+  }, { merge: true });
 });
 
 // ================================================================================
