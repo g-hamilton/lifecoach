@@ -66,6 +66,7 @@ export class MyProgramsComponent implements OnInit, OnDestroy {
                     this.dataService.getUnlockedPublicProgram(o.id).subscribe(program => {
                       if (program) {
                         // console.log('unlocked program:', program);
+                        this.loadingPostPurchase = false;
                         this.purchasedPrograms.push(program);
                         // this.calcProgramProgress(program, index); TODO
                       }
