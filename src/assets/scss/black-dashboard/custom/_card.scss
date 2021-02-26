@@ -80,15 +80,19 @@
     .has-danger {
       .form-control,
       .input-group-prepend .input-group-text {
-        border-color: $danger-states;
+        border-color: $danger-states !important;
       }
     }
 
     .has-success {
       .form-control,
       .input-group-prepend .input-group-text {
-        border-color: darken($success, 10%);
+        border-color: darken($success, 10%) !important;
       }
+    }
+
+    .input-group:focus-within .input-group-prepend .input-group-text {
+      border-color: $primary;
     }
 
     .input-group-prepend .input-group-text {
