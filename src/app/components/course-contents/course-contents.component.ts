@@ -1,4 +1,5 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { Component, OnInit, Input, Inject, PLATFORM_ID } from '@angular/core';
 import { CoachingCourse } from 'app/interfaces/course.interface';
 
 @Component({
@@ -10,11 +11,17 @@ export class CourseContentsComponent implements OnInit {
 
   @Input() course: CoachingCourse;
 
+  public browser: boolean;
   public previewVideoDownloadUrl: string;
 
-  constructor() { }
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: object,
+  ) { }
 
   ngOnInit() {
+    if (isPlatformBrowser(this.platformId)) {
+      this.browser = true;
+    }
   }
 
   expandAllSections() {

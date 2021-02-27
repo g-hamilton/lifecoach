@@ -295,7 +295,7 @@
                 </tab>
             </tabset>
             <!-- Video player -->
-            <div *ngIf="landingF.promoVideo.value && landingF.promoVideo.value.downloadURL" class=" mt-3">
+            <div *ngIf="browser && landingF.promoVideo.value && landingF.promoVideo.value.downloadURL" class=" mt-3">
                 <vg-player>
                 <vg-controls>
                     <vg-play-pause></vg-play-pause>

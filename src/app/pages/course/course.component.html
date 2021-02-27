@@ -170,7 +170,7 @@
                 <div class=" col-md-4">
                   <div class=" card">
                     <!-- course promo vid? -->
-                    <div *ngIf="course.promoVideo">
+                    <div *ngIf="browser && course.promoVideo">
                       <vg-player>
                         <vg-controls>
                             <vg-play-pause></vg-play-pause>
