@@ -149,7 +149,7 @@
                                     <!-- End video upload options -->
                                     
                                     <!-- Lecture video player -->
-                                    <div *ngIf="lectureF.video.value && lectureF.video.value.downloadURL" class=" mt-3">
+                                    <div *ngIf="browser && lectureF.video.value && lectureF.video.value.downloadURL" class=" mt-3">
                                         <vg-player>
                                         <vg-controls>
                                             <vg-play-pause></vg-play-pause>

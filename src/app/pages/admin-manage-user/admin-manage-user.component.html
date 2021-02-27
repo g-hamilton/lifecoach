@@ -112,20 +112,241 @@
                 </div>
             </div>
         </div>
+        <!-- end of profile -->
+
+        <!-- User service data -->
+        <div class=" row">
+            <div class=" col">
+                <div class=" card">
+                    <div class=" card-header">
+                        <h5 class=" card-category"> User Service Info </h5>
+                        <h4 class=" card-title"> Services </h4>
+                    </div>
+                    <div class=" card-body">
+                        
+                        <!-- User created services -->
+                        <h5>
+                            Created Services
+                            <span *ngIf="services?.length" class=" ml-1">
+                                ({{ services.length }})
+                            </span>
+                        </h5>
+                        <div *ngIf="services?.length" class=" table-responsive">
+                            <table class=" table">
+                            <thead class=" text-primary">
+                                <tr>
+                                <th> Title </th>
+                                <th> ID </th>
+                                <th class=" text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let service of services">
+                                <td> {{ service.title }} </td>
+                                <td> {{ service.serviceId }} </td>
+                                <td class=" text-right">
+                                    <!-- edit service as user -->
+                                    <button
+                                    class=" btn btn-warning btn-link btn-icon btn-sm btn-simple"
+                                    tooltip="Edit service as user"
+                                    type="button"
+                                    (click)="editUserService(service.serviceId)"
+                                    >
+                                    <i class=" tim-icons icon-single-02"> </i>
+                                    </button>
+                                </td>
+                                </tr>
+                            </tbody>
+                            </table>
+                        </div>
+
+                        <div *ngIf="!services?.length">
+                            <p>
+                                No services created
+                            </p>
+                        </div>
+
+                        <!-- Create service as user -->
+                        <button
+                        type="button"
+                        class=" btn btn-primary btn-round mt-3"
+                        tooltip="Create a course as this user"
+                        (click)="createUserService()"
+                        >
+                            Create Service
+                        </button>
+
+                        <!-- User purchased services -->
+                        <div class=" mt-5">
+                            <h5>
+                                Purchased Services
+                                <span *ngIf="purchasedServices?.length" class=" ml-1">
+                                    ({{ purchasedServices.length }})
+                                </span>
+                            </h5>
+                            <div *ngIf="purchasedServices?.length" class=" table-responsive">
+                                <table class=" table">
+                                <thead class=" text-primary">
+                                    <tr>
+                                    <th> Title </th>
+                                    <th> ID </th>
+                                    <th class=" text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let service of purchasedServices">
+                                    <td> {{ service.title }} </td>
+                                    <td> {{ service.serviceId }} </td>
+                                    <td class=" text-right">
+                                        <button
+                                        class=" btn btn-success btn-link btn-icon btn-sm btn-simple"
+                                        tooltip="??"
+                                        type="button"
+                                        >
+                                        <i class=" tim-icons icon-single-02"> </i>
+                                        </button>
+                                    </td>
+                                    </tr>
+                                </tbody>
+                                </table>
+                            </div>
+
+                            <div *ngIf="!purchasedServices?.length">
+                                <p>
+                                    No purchased services
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- end of services -->
+
+        <!-- User program data -->
+        <div class=" row">
+            <div class=" col">
+                <div class=" card">
+                    <div class=" card-header">
+                        <h5 class=" card-category"> User Program Info </h5>
+                        <h4 class=" card-title"> Programs </h4>
+                    </div>
+                    <div class=" card-body">
+                        
+                        <!-- User created programs -->
+                        <h5>
+                            Created Programs
+                            <span *ngIf="programs?.length" class=" ml-1">
+                                ({{ programs.length }})
+                            </span>
+                        </h5>
+                        <div *ngIf="programs?.length" class=" table-responsive">
+                            <table class=" table">
+                            <thead class=" text-primary">
+                                <tr>
+                                <th> Title </th>
+                                <th> ID </th>
+                                <th class=" text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let program of programs">
+                                <td> {{ program.title }} </td>
+                                <td> {{ program.programId }} </td>
+                                <td class=" text-right">
+                                    <!-- edit program as user -->
+                                    <button
+                                    class=" btn btn-warning btn-link btn-icon btn-sm btn-simple"
+                                    tooltip="Edit program as user"
+                                    type="button"
+                                    (click)="editUserProgram(program.programId)"
+                                    >
+                                    <i class=" tim-icons icon-single-02"> </i>
+                                    </button>
+                                </td>
+                                </tr>
+                            </tbody>
+                            </table>
+                        </div>
+
+                        <div *ngIf="!programs?.length">
+                            <p>
+                                No programs created
+                            </p>
+                        </div>
+
+                        <!-- Create program as user -->
+                        <button
+                        type="button"
+                        class=" btn btn-primary btn-round mt-3"
+                        tooltip="Create a course as this user"
+                        (click)="createUserProgram()"
+                        >
+                            Create Program
+                        </button>
+
+                        <!-- User purchased programs -->
+                        <div class=" mt-5">
+                            <h5>
+                                Purchased Programs
+                                <span *ngIf="purchasedPrograms?.length" class=" ml-1">
+                                    ({{ purchasedPrograms.length }})
+                                </span>
+                            </h5>
+                            <div *ngIf="purchasedPrograms?.length" class=" table-responsive">
+                                <table class=" table">
+                                <thead class=" text-primary">
+                                    <tr>
+                                    <th> Title </th>
+                                    <th> ID </th>
+                                    <th class=" text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let program of purchasedPrograms">
+                                    <td> {{ program.title }} </td>
+                                    <td> {{ program.programId }} </td>
+                                    <td class=" text-right">
+                                        <button
+                                        class=" btn btn-success btn-link btn-icon btn-sm btn-simple"
+                                        tooltip="??"
+                                        type="button"
+                                        >
+                                        <i class=" tim-icons icon-single-02"> </i>
+                                        </button>
+                                    </td>
+                                    </tr>
+                                </tbody>
+                                </table>
+                            </div>
+
+                            <div *ngIf="!purchasedPrograms?.length">
+                                <p>
+                                    No purchased programs
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- end of programs -->
 
         <!-- User course(s) data -->
         <div class=" row">
             <div class=" col">
                 <div class=" card">
                     <div class=" card-header">
-                        <h5 class=" card-category"> User Courses Info </h5>
-                        <h4 class=" card-title"> Courses </h4>
+                        <h5 class=" card-category"> User eCourses Info </h5>
+                        <h4 class=" card-title"> eCourses </h4>
                     </div>
                     <div class=" card-body">
                         
                         <!-- User created courses -->
                         <h5>
-                            Created Courses
+                            Created eCourses
                             <span *ngIf="courses?.length" class=" ml-1">
                                 ({{ courses.length }})
                             </span>
@@ -170,7 +391,7 @@
 
                         <div *ngIf="!courses?.length">
                             <p>
-                                No courses created
+                                No eCourses created
                             </p>
                         </div>
 
@@ -181,13 +402,13 @@
                         tooltip="Create a course as this user"
                         (click)="createUserCourse()"
                         >
-                            Create Course
+                            Create eCourse
                         </button>
 
                         <!-- User purchased courses -->
                         <div class=" mt-5">
                             <h5>
-                                Purchased Courses
+                                Purchased eCourses
                                 <span *ngIf="purchasedCourses?.length" class=" ml-1">
                                     ({{ purchasedCourses.length }})
                                 </span>
@@ -222,7 +443,7 @@
 
                             <div *ngIf="!purchasedCourses?.length">
                                 <p>
-                                    No purchased courses
+                                    No purchased eCourses
                                 </p>
                             </div>
                         </div>
@@ -231,6 +452,7 @@
                 </div>
             </div>
         </div>
+        <!-- end of course data -->
 
     </div>
 </div>
