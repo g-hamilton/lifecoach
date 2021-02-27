@@ -119,13 +119,13 @@
                 <div class=" card">
                     <div class=" card-header">
                         <h5 class=" card-category"> User Courses Info </h5>
-                        <h4 class=" card-title"> Courses </h4>
+                        <h4 class=" card-title"> eCourses </h4>
                     </div>
                     <div class=" card-body">
                         
                         <!-- User created courses -->
                         <h5>
-                            Created Courses
+                            Created eCourses
                             <span *ngIf="courses?.length" class=" ml-1">
                                 ({{ courses.length }})
                             </span>
@@ -170,7 +170,7 @@
 
                         <div *ngIf="!courses?.length">
                             <p>
-                                No courses created
+                                No eCourses created
                             </p>
                         </div>
 
@@ -181,13 +181,13 @@
                         tooltip="Create a course as this user"
                         (click)="createUserCourse()"
                         >
-                            Create Course
+                            Create eCourse
                         </button>
 
                         <!-- User purchased courses -->
                         <div class=" mt-5">
                             <h5>
-                                Purchased Courses
+                                Purchased eCourses
                                 <span *ngIf="purchasedCourses?.length" class=" ml-1">
                                     ({{ purchasedCourses.length }})
                                 </span>
@@ -222,7 +222,7 @@
 
                             <div *ngIf="!purchasedCourses?.length">
                                 <p>
-                                    No purchased courses
+                                    No purchased eCourses
                                 </p>
                             </div>
                         </div>
