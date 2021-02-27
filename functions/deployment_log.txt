@@ -1,5 +1,4 @@
 
-<<<<<<< HEAD
 [1m[37m===[39m Deploying to 'lifecoach-6ab28'...[22m
 
 [1m[36mi [39m[22m deploying [1mfunctions[22m
@@ -31,6 +30,3 @@ Running command: npm --prefix "$RESOURCE_DIR" run build
 [1m[32m✔ [39m[22m [1m[4mDeploy complete![24m[22m
 
 [1mProject Console:[22m https://console.firebase.google.com/project/lifecoach-6ab28/overview
-=======
-[1m[31mError:[39m[22m Cannot understand what targets to deploy/serve. No targets in firebase.json match '--only [22mfunctions:updateMailingListUserName[22m'.
->>>>>>> development
