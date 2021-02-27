@@ -8,6 +8,7 @@ import { CoachingCourse } from 'app/interfaces/course.interface';
 import { AlertService } from 'app/services/alert.service';
 import { Subscription } from 'rxjs';
 import { CloudFunctionsService } from 'app/services/cloud-functions.service';
+import { CoachingProgram } from 'app/interfaces/coach.program.interface';
 
 @Component({
   selector: 'app-admin-manage-user',
@@ -24,7 +25,9 @@ export class AdminManageUserComponent implements OnInit, OnDestroy {
   public accountType: 'regular' | 'coach' | 'partner' | 'provider' | 'admin';
   public newAccountType: 'regular' | 'coach' | 'partner' | 'provider' | 'admin'; // for admin update of type
   public purchasedCourses = [] as CoachingCourse[]; // purchased courses as buyer
-  public courses: CoachingCourse[]; // courses created as coach seller
+  public purchasedPrograms = [] as CoachingProgram[]; // purchased programs as buyer
+  public courses: CoachingCourse[]; // courses created as coach
+  public programs: CoachingProgram[]; // programs created as coach
   private subscriptions: Subscription = new Subscription();
 
   constructor(
@@ -133,6 +136,17 @@ export class AdminManageUserComponent implements OnInit, OnDestroy {
 
   editUserCourse(courseId: string) {
     this.router.navigate(['/my-courses', courseId, 'content'], {queryParams: {targetUser: this.targetUserUid}});
+  }
+
+  async createUserProgram() {
+    if (!this.account.stripeUid) { // alert if no stripe account for info
+      this.alertService.alert('info-message', 'Be Aware!', `This user has no Stripe account.`);
+    }
+    this.router.navigate(['my-programs', 'new-program'], {queryParams: {targetUser: this.targetUserUid}});
+  }
+
+  editUserProgram(programId: string) {
+    this.router.navigate(['/my-programs', programId, 'content'], {queryParams: {targetUser: this.targetUserUid}});
   }
 
   async saveUpdatedAccountType() {
