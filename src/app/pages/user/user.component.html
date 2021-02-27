@@ -1111,7 +1111,7 @@
               </form>
             </div>
             <!-- Profile video player -->
-            <div *ngIf="profileF.selectedProfileVideo.value && profileF.selectedProfileVideo.value !== '-1'">
+            <div *ngIf="browser && profileF.selectedProfileVideo.value && profileF.selectedProfileVideo.value !== '-1'">
               <vg-player>
                 <vg-controls>
                     <vg-play-pause></vg-play-pause>

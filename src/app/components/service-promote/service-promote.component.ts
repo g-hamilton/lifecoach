@@ -33,7 +33,7 @@ export class ServicePromoteComponent implements OnInit, OnChanges {
 
   ngOnChanges() {
     if (this.userId && this.service) {
-      const baseUrl = `${environment.baseUrl}/Service/${this.service.serviceId}`;
+      const baseUrl = `${environment.baseUrl}/coaching-service/${this.service.serviceId}`;
       const queryparams = `?referralCode=${this.userId}`;
       this.promoteForm.patchValue({ referralCode: `${baseUrl}${queryparams}` });
     }

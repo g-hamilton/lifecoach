@@ -280,11 +280,13 @@ export class ProgramComponent implements OnInit, OnDestroy {
                     if (user) { // user is authorised
                       this.userId = user.uid;
                       user.getIdTokenResult(true).then(token => this.userClaims = token.claims); // retrieve user auth claims
-                      this.dataService.getUserAccount(this.userId).subscribe(account => { // check for user account data
-                        if (account) { // account data exists
-                          this.account = account;
-                        }
-                      });
+                      this.subscriptions.add(
+                        this.dataService.getUserAccount(this.userId).subscribe(account => {
+                          if (account) { // account data exists
+                            this.account = account;
+                          }
+                        })
+                      );
                     }
                   })
                 );
