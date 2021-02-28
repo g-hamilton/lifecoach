@@ -271,12 +271,12 @@
                         />
           
                         <ul class=" list-group">
-                          <li class=" list-group-item mt-4">Schedule a discovery session</li>
+                          <li class=" list-group-item mt-4">Schedule a free discovery session</li>
                         </ul>
                         <div class=" card-prices pl-3 pr-3">
                           <h3 class=" text-on-front">FREE</h3>
                           <h5 class=" text-on-back">FREE</h5>
-                          <p class=" plan">Check this coaching is right for you. <br>Ask your coach anything you like prior to starting.</p>
+                          <p class=" plan">Check this coaching is right for you</p>
                         </div>
                       </div>
                       <div class=" card-footer text-center mb-3 mt-3">
@@ -306,7 +306,7 @@
                       'card-danger': i === 2
                     }">
                       <div class=" card-body">
-                        <h1 class=" card-title" style="font-size: 3em;">{{ package }} Session{{package === '1' ? '' : 's'}}</h1>
+                        <h1 class=" card-title">{{ package }} Session{{package === '1' ? '' : 's'}}</h1>
                         <img
                         alt="Image"
                         class=" card-img"
@@ -316,12 +316,11 @@
               
                         <ul class=" list-group">
                           <li class=" list-group-item">Buy {{ package }} Session{{package === '1' ? '' : 's'}}</li>
-                          <li *ngIf="package !== '1'" class=" list-group-item text-success">Save {{ calcDiscount(package) }}%</li>
                         </ul>
                         <div class=" card-prices pl-3 pr-3">
                           <h3 class=" text-on-front">{{ currencySymbol + calcDisplayPrice(service.pricing[package].price) }}</h3>
-                          <h5 class=" text-on-back" style="font-size: 4em;">{{ currencySymbol + calcDisplayPrice(service.pricing[package].price) }}</h5>
-                          <p class=" plan" style="margin-top: 0;">{{ package }} private 1-to-1 coaching session{{package === '1' ? '' : 's'}}</p>
+                          <h5 class=" text-on-back">{{ currencySymbol + calcDisplayPrice(service.pricing[package].price) }}</h5>
+                          <p *ngIf="calcDiscount(package) > 0" class=" discount">Save {{ calcDiscount(package) }}%</p>
                         </div>
                       </div>
                       <div class=" card-footer text-center mb-3 mt-3">
