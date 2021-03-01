@@ -28,7 +28,7 @@ export class NewServiceComponent implements OnInit, OnChanges, OnDestroy {
   public focusTouched: boolean;
   public focus1Touched: boolean;
   public headlineMinLength = 10;
-  public headlineMaxLength = 60;
+  public headlineMaxLength = 120;
   public headlineActualLength = 0;
 
   public errorMessages = {
