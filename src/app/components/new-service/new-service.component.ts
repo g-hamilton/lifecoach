@@ -24,15 +24,23 @@ export class NewServiceComponent implements OnInit, OnChanges, OnDestroy {
 
   public newServiceForm: FormGroup;
   public focus: boolean;
+  public focus1: boolean;
   public focusTouched: boolean;
-  public titleMinLength = 10;
-  public titleMaxLength = 60;
-  public titleActualLength = 0;
+  public focus1Touched: boolean;
+  public headlineMinLength = 10;
+  public headlineMaxLength = 60;
+  public headlineActualLength = 0;
 
   public errorMessages = {
-    title: {
-      minlength: `Your title should be at least ${this.titleMinLength} characters.`,
-      maxlength: `Your title should be at less than ${this.titleMaxLength} characters.`
+    type: {
+      required: `Please select a service type.`
+    },
+    sessionDuration: {
+      required: `Please enter a duration in minutes.`
+    },
+    headline: {
+      minlength: `Your headline should be at least ${this.headlineMinLength} characters.`,
+      maxlength: `Your headline should be at less than ${this.headlineMaxLength} characters.`
     }
   };
 
@@ -67,7 +75,9 @@ export class NewServiceComponent implements OnInit, OnChanges, OnDestroy {
 
   buildServiceForm() {
     this.newServiceForm = this.formBuilder.group({
-      title: ['', [Validators.required, Validators.minLength(this.titleMinLength), Validators.maxLength(this.titleMaxLength)]]
+      type: [null, [Validators.required]],
+      sessionDuration: [null, [Validators.required]],
+      headline: ['', [Validators.required, Validators.minLength(this.headlineMinLength), Validators.maxLength(this.headlineMaxLength)]]
     });
   }
 
@@ -95,8 +105,8 @@ export class NewServiceComponent implements OnInit, OnChanges, OnDestroy {
     return 'Invalid input';
   }
 
-  onTitleInput(ev: any) {
-    this.titleActualLength = (ev.target.value as string).length;
+  onHeadlineInput(ev: any) {
+    this.headlineActualLength = (ev.target.value as string).length;
   }
 
   async onSubmit() {
@@ -131,7 +141,9 @@ export class NewServiceComponent implements OnInit, OnChanges, OnDestroy {
       serviceId,
       sellerUid: this.userId,
       stripeId: this.account.stripeUid ? this.account.stripeUid : null,
-      title: this.serviceF.title.value,
+      type: this.serviceF.type.value,
+      sessionDuration: this.serviceF.sessionDuration.value,
+      headline: this.serviceF.headline.value,
       coachName: `${this.userProfile.firstName} ${this.userProfile.lastName}`,
       coachPhoto: this.userProfile.photo
     } as CoachingService;
@@ -144,6 +156,10 @@ export class NewServiceComponent implements OnInit, OnChanges, OnDestroy {
 
     // Navigate to continue
     this.router.navigate(['/my-services', serviceId, 'content'], { queryParams: { targetUser: this.userId }});
+  }
+
+  cancel() {
+    this.router.navigate(['/coach-products-services']);
   }
 
   ngOnDestroy() {

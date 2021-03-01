@@ -2,58 +2,148 @@
     <div class=" col-md-8">
         <div class="card">
             <div class="card-body">
-              <h4 class="card-title"> Let's give this service a title! </h4>
-              <h6 class="card-subtitle mb-4 text-muted"> You can change your title at any time. </h6>
+              <h4 class="card-headline"> Let's start with a few details... </h4>
+                <h6 class="card-subheadline mb-4 text-muted"> 
+                    <i class="fas fa-info-circle"></i> You can change these details at any time. 
+                </h6>
               <div class=" p-3">
-                <p class=" small text-muted pl-2 mb-2">
-                    <i class="fas fa-info-circle"></i> Use your brand if you have one, or choose a title that 
-                    gives clients a good idea about what you can help them to achieve by working with you.
-                </p>
-
-                <div class="mt-3">
+                <div class="">
                     <form *ngIf="newServiceForm" [formGroup]="newServiceForm" (submit)="onSubmit()">
 
-                        <div
-                        class="input-group no-symbol"
-                        [ngClass]="{
-                            'has-danger':
-                            (( (focusTouched && serviceF.title.value != '') || saveAttempt) && serviceF.title.errors),
-                            'has-success': !serviceF.title.errors
-                        }">
-                            <input
-                            type="text"
-                            class="form-control"
-                            formControlName="title"
-                            placeholder="eg. 'Laura Mills Coaching' or 'Find Your Fulfilment'"
-                            (focus)="focusTouched = true"
-                            (input)="onTitleInput($event)">
-                            <div class="input-group-append">
-                              <span class="input-group-text">
-                                  {{ titleActualLength + '/' + titleMaxLength }}
-                              </span>
+                        <div class=" row">
+                            <!-- type -->
+                            <div class="">
+                                <label> Service type </label>
+                                <p class=" small text-muted pl-2 mb-2">
+                                    <i class="fas fa-info-circle"></i> We currently only support individual (1-to-1) coaching 
+                                    on the platform. Support for group coaching is coming soon!
+                                </p>
                             </div>
+                            <div class=" col-6">
+                                <div class="form-group">
+                                    <select class="form-control" formControlName="type">
+                                        <option [value]="null">Select a type</option>
+                                        <option value="individual">
+                                            Individual (1-to-1) Coaching
+                                        </option>
+                                    </select>
+                                </div>
+                                <div *ngIf="saveAttempt && serviceF.type.errors || serviceF.type.value != null && serviceF.type.errors">
+                                    <label
+                                    *ngFor="let error of objKeys(serviceF.type.errors)"
+                                    class="error custom-error-label"
+                                    >{{ showError('type', error) }}
+                                    </label>
+                                </div>
+                            </div>
+                            <!-- end type -->
                         </div>
-                        <div *ngIf="(( (focusTouched && serviceF.title.value != '') || saveAttempt) && serviceF.title.errors)">
-                            <label
-                            *ngFor="let error of objKeys(serviceF.title.errors)"
-                            class="error custom-error-label"
-                            >{{ showError('title', error) }}
-                            </label>
+                        <!-- end row -->
+
+                        <div class=" row mt-4">
+                            <!-- session duration -->
+                            <div class="">
+                                <label> Session Duration </label>
+                                <p class=" small text-muted pl-2 mb-2">
+                                    <i class="fas fa-info-circle"></i> How long are your coaching sessions? Enter a time in minutes.
+                                </p>
+                            </div>
+                            <div class=" col-6">
+                                <div
+                                class="form-group"
+                                [ngClass]="{
+                                    'has-danger':
+                                    (((focus1Touched && serviceF.sessionDuration.value !== null) || saveAttempt) && serviceF.sessionDuration.errors),
+                                    'has-success': !serviceF.sessionDuration.errors
+                                }">
+                                    <input
+                                    type="number"
+                                    class="form-control"
+                                    formControlName="sessionDuration"
+                                    placeholder="eg. 90"
+                                    (focus)="focus1Touched = true"
+                                    (blur)="focus1Touched = false">
+                                </div>
+                                <div *ngIf="(((focus1Touched && serviceF.sessionDuration.value !== null) || saveAttempt) && serviceF.sessionDuration.errors)">
+                                    <label
+                                    *ngFor="let error of objKeys(serviceF.sessionDuration.errors)"
+                                    class="error custom-error-label"
+                                    >{{ showError('sessionDuration', error) }}
+                                    </label>
+                                </div>
+                            </div>
+                            <!-- End of session duration -->
+                        </div>
+                        <!-- end row -->
+
+                        <div class=" row mt-4">
+                            <!-- headline -->
+                            <div class="">
+                                <label> Headline </label>
+                                <p class=" small text-muted pl-2 mb-2">
+                                    <i class="fas fa-info-circle"></i> Summarise your coaching service with a short headline.
+                                </p>
+                            </div>
+                            <div class=" col-12">
+                                <div
+                                class="input-group no-symbol"
+                                [ngClass]="{
+                                    'has-danger':
+                                    (( (focusTouched && serviceF.headline.value != '') || saveAttempt) && serviceF.headline.errors),
+                                    'has-success': !serviceF.headline.errors
+                                }">
+                                    <input
+                                    type="text"
+                                    class="form-control"
+                                    formControlName="headline"
+                                    placeholder="eg. 'Solution focused coaching session to work with your challenge or goal'"
+                                    (focus)="focusTouched = true"
+                                    (input)="onHeadlineInput($event)">
+                                    <div class="input-group-append">
+                                    <span class="input-group-text">
+                                        {{ headlineActualLength + '/' + headlineMaxLength }}
+                                    </span>
+                                    </div>
+                                </div>
+                                <div *ngIf="(( (focusTouched && serviceF.headline.value != '') || saveAttempt) && serviceF.headline.errors)">
+                                    <label
+                                    *ngFor="let error of objKeys(serviceF.headline.errors)"
+                                    class="error custom-error-label"
+                                    >{{ showError('headline', error) }}
+                                    </label>
+                                </div>
+                            </div>
+                            <!-- end headline -->
                         </div>
 
-                        <div class=" pull-right">
-                            <button type="submit" class=" btn btn-primary btn-round btn-fill mt-4">
-                                <span *ngIf="!saving">
-                                    <i class="fas fa-save"></i>
-                                  </span>
-                                  <span
-                                  *ngIf="saving"
-                                  class="spinner-border spinner-border-sm"
-                                  role="status"
-                                  ></span> {{ saving ? 'Saving...' : 'Continue'}}
-                            </button>
+                        <!-- buttons -->
+                        <div class=" row">
+                            <div class=" col">
+                                <div class=" pull-left">
+                                    <button type="button" class=" btn btn-default btn-round btn-fill mt-4" (click)="cancel()">
+                                        <i class="fas fa-times"></i>
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                            <div class=" col">
+                                <div class=" pull-right">
+                                    <button type="submit" class=" btn btn-primary btn-round btn-fill mt-4">
+                                        <span *ngIf="!saving">
+                                            <i class="fas fa-save"></i>
+                                          </span>
+                                          <span
+                                          *ngIf="saving"
+                                          class="spinner-border spinner-border-sm"
+                                          role="status"
+                                          ></span> {{ saving ? 'Saving...' : 'Continue'}}
+                                    </button>
+                                </div>
+                            </div>
                         </div>
+                        <!-- end row -->
                     </form>
+                    <!-- end form -->
                 </div>
               </div>
             </div>

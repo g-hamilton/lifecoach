@@ -3,6 +3,9 @@ import { ServiceImagePaths } from './image-path.interface';
 
 export interface CoachingService {
     serviceId: string;
+    type: 'individual' | 'group';
+    sessionDuration: number; // in minutes
+    headline: string;
     title: string;
     sellerUid: string;
     reviewRequest?: AdminProgramReviewRequest;
