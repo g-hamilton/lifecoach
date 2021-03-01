@@ -106,12 +106,12 @@ export class SocialMediaShareComponent implements OnInit {
     }
     if (this.sharingType === 'service') {
       console.log(this.sharingObject);
-      this.metaTagService.updateTag({name: 'description', content: `${this.sharingObject.subtitle} | Personal Development & Transformation 1-to-1 online coaching services from Lifecoach.io`}, `name='description'`);
+      this.metaTagService.updateTag({name: 'description', content: `${this.sharingObject.headline} | Personal Development & Transformation 1-to-1 online coaching services from Lifecoach.io`}, `name='description'`);
       this.metaTagService.updateTag({
-        property: 'og:title', content: `${this.sharingObject.title}`
+        property: 'og:title', content: `${this.sharingObject.coachName} Coaching`
       }, `property='og:title'`);
       this.metaTagService.updateTag({
-        property: 'og:description', content: `${this.sharingObject.subtitle}`
+        property: 'og:description', content: `${this.sharingObject.headline}`
       }, `property='og:description'`);
       this.metaTagService.updateTag({
         property: 'og:image:url', content: this.sharingObject.image ? this.sharingObject.image : this.sharingObject.coachPhoto

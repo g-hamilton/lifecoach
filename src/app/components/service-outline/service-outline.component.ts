@@ -216,14 +216,6 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   loadPricing() {
-
-    return this.formBuilder.array([
-      // sessions/price group
-      this.formBuilder.group({
-        numSessions: [1, [Validators.required, Validators.min(1)]],
-        price: [null, [Validators.required, Validators.min(this.minPrice), Validators.max(this.maxPrice)]]
-      })
-    ], Validators.maxLength(this.pricingPointsMax))
     const pricingArray = this.formBuilder.array([], Validators.maxLength(this.pricingPointsMax));
     console.log('service pricing from DB', this.service.pricing);
     Object.keys(this.service.pricing).forEach(key => {

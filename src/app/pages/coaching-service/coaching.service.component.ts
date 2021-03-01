@@ -372,13 +372,13 @@ export class CoachingServiceComponent implements OnInit, OnDestroy {
 
   updateServiceMeta() {
     // Build dynamic meta tags
-    this.titleService.setTitle(`${this.service.title}`);
-    this.metaTagService.updateTag({name: 'description', content: `${this.service.subtitle} | Personal Development & Transformation 1-to-1 online coaching services from Lifecoach.io`}, `name='description'`);
+    this.titleService.setTitle(`${this.service.coachName} Coaching`);
+    this.metaTagService.updateTag({name: 'description', content: `${this.service.headline} | Personal Development & Transformation 1-to-1 online coaching services from Lifecoach.io`}, `name='description'`);
     this.metaTagService.updateTag({
-      property: 'og:title', content: `${this.service.title}`
+      property: 'og:title', content: `${this.service.coachName} Coaching`
     }, `property='og:title'`);
     this.metaTagService.updateTag({
-      property: 'og:description', content: `${this.service.subtitle}`
+      property: 'og:description', content: `${this.service.headline}`
     }, `property='og:description'`);
     this.metaTagService.updateTag({
       property: 'og:image:url', content: this.service.image ? this.service.image : this.service.coachPhoto
