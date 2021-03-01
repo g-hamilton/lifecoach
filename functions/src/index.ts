@@ -4768,8 +4768,9 @@ exports.onWritePublicServices = functions
   // Record added/updated.
   const recordToSend = {
     objectID: serviceId,
-    title: service.title,
-    subtitle: service.subtitle,
+    type: service.type,
+    headline: service.headline,
+    sessionDuration: service.sessionDuration,
     category: service.category,
     language: service.language,
     subject: service.subject,
@@ -4807,7 +4808,6 @@ exports.onWritePrivateUserService = functions
     const recordToSend = {
       objectID: serviceId,
       sellerUid: service.sellerUid,
-      title: service.title,
       coachName: service.coachName ? service.coachName : ''
     }
     await index.saveObject(recordToSend);
@@ -4816,7 +4816,7 @@ exports.onWritePrivateUserService = functions
     const event = {
       name: 'new_service_created',
       properties: {
-        service_title: service.title,
+        service_type: service.type,
       }
     }
     await logMailchimpEvent(service.sellerUid, event); // log event
@@ -4869,8 +4869,9 @@ exports.onWritePrivateUserService = functions
       coachName: service.coachName,
       coachPhoto: service.coachPhoto,
       stripeId: service.stripeId ? service.stripeId : null,
-      title: service.title,
-      subtitle: service.subtitle,
+      type: service.type,
+      headline: service.headline,
+      sessionDuration: service.sessionDuration,
       description: service.description,
       language: service.language,
       category: service.category,
@@ -4885,11 +4886,11 @@ exports.onWritePrivateUserService = functions
       imagePaths: service.imagePaths ? service.imagePaths : null
     };
     const publicRef = db.collection(`public-services`).doc(serviceId);
-    batch.set(publicRef, publicData, { merge: true });
+    batch.set(publicRef, publicData); // don't merge true as we need a full overwrite - otherwise pricing object can get messed up
 
     // copy service object as is into paywall protected node (will be available when purchased!)
     const lockedRef = db.collection(`locked-service-content`).doc(serviceId);
-    batch.set(lockedRef, service, { merge: true });
+    batch.set(lockedRef, service); // don't merge true as we need a full overwrite - otherwise pricing object can get messed up
 
     return batch.commit(); // execute batch ops. Any error should trigger catch.
   } catch (err) {

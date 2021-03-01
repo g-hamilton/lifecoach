@@ -42,8 +42,11 @@
                             <div class="">
                                 <label> Set pricing </label>
                                 <p class=" small text-muted pl-2 mb-2">
-                                    <i class="fas fa-info-circle"></i> Set your price for a single coaching session. 
-                                    Optional: Add up to 2 more session packages so that clients can purchase multiple sessions at a discount.
+                                    <i class="fas fa-info-circle"></i> Add up to 3 pricing packages. 
+                                    If you allow your clients to purchase single sessions, enter '1' in the 'number of sessions' column 
+                                    and set your price per session. 
+                                    To encourage commitment, some coaches prefer to set a session minimum above 1. That's fine too - the choice is yours! 
+                                    We recommend you discount your session bundles to encourage sales & help with upfront client commitment.
                                 </p>
                             </div>
                         </div>
@@ -80,7 +83,7 @@
                                     type="number"
                                     class="form-control"
                                     formControlName="numSessions"
-                                    placeholder="eg. 3">
+                                    [placeholder]="i === 0 ? 'eg. 1' : i === 1 ? 'eg. 3' : 'eg. 10'">
                                 </div>
                                 <div *ngIf="(( !outlineF.pricing.controls[i].controls.numSessions.pristine || saveAttempt) && 
                                     outlineF.pricing.controls[i].controls.numSessions.errors)">
@@ -107,9 +110,10 @@
                                     type="number"
                                     class="form-control"
                                     formControlName="price"
-                                    [placeholder]="i === 0 ? 'eg. 39.00' : 'eg. 99.99'">
+                                    [placeholder]="i === 0 ? 'eg. 59.00' : i === 1 ? 'eg. 149.99' : 'eg. 399.99'">
         
                                 </div>
+                                <!-- <p *ngIf="calcDiscount(outlineF.pricing.controls) > 0" class=" plan discount">Save {{ calcDiscount(outlineF.pricing.controls) }}%</p> -->
                                 <div *ngIf="(( !outlineF.pricing.controls[i].controls.price.pristine || saveAttempt) && 
                                     outlineF.pricing.controls[i].controls.price.errors)">
                                     <label
@@ -203,6 +207,14 @@
                 <h6 class="card-subtitle mb-2 text-muted">
                     {{ service.headline ? service.headline : service.subtitle ? service.subtitle : '' }}
                 </h6>
+                <div *ngIf="outlineF.pricing.controls.length > 1">
+                    <span class=" badge badge-default">
+                        Flexible Pricing
+                    </span>
+                    <span class=" badge badge-success ml-2">
+                        Save up to 25%
+                    </span>
+                </div>
             </div>
 
         </div>

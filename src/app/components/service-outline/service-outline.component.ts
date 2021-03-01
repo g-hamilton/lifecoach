@@ -121,10 +121,7 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
       pricing: this.formBuilder.array([
         // sessions/price group
         this.formBuilder.group({
-          numSessions: [{
-            value: 1,
-            disabled: true // disable single session by default (clients must always be allowed to buy 1 session)
-          }],
+          numSessions: [1, [Validators.required, Validators.min(1)]],
           price: [null, [Validators.required, Validators.min(this.minPrice), Validators.max(this.maxPrice)]]
         })
       ]),
@@ -206,10 +203,7 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
     this.outlineForm.setControl('pricing', this.service.pricing ? this.loadPricing() : this.formBuilder.array([
         // sessions/price group
         this.formBuilder.group({
-          numSessions: [{
-            value: 1,
-            disabled: true // disable single session by default (clients must always be allowed to buy 1 session)
-          }],
+          numSessions: [1, [Validators.required, Validators.min(1)]],
           price: [null, [Validators.required, Validators.min(this.minPrice), Validators.max(this.maxPrice)]]
         })
       ], Validators.maxLength(this.pricingPointsMax)),
@@ -222,16 +216,21 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   loadPricing() {
+
+    return this.formBuilder.array([
+      // sessions/price group
+      this.formBuilder.group({
+        numSessions: [1, [Validators.required, Validators.min(1)]],
+        price: [null, [Validators.required, Validators.min(this.minPrice), Validators.max(this.maxPrice)]]
+      })
+    ], Validators.maxLength(this.pricingPointsMax))
     const pricingArray = this.formBuilder.array([], Validators.maxLength(this.pricingPointsMax));
     console.log('service pricing from DB', this.service.pricing);
     Object.keys(this.service.pricing).forEach(key => {
       if (key === '1') {
         pricingArray.push(
           this.formBuilder.group({
-            numSessions: [{
-              value: 1,
-              disabled: true // disable single session by default (clients must always be allowed to buy 1 session)
-            }],
+            numSessions: [1, [Validators.required, Validators.min(1)]],
             price: [this.service.pricing[key].price, [Validators.required, Validators.min(this.minPrice), Validators.max(this.maxPrice)]]
           })
         );
@@ -349,8 +348,27 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
     this.analyticsService.editServiceOutline();
   }
 
-  calcDiscount() {
-    return 0;
+  calcDiscount(pricingArr: any) {
+    // check that prices exist on the db object
+    // if (!this.service.pricing) {
+    //   return 0;
+    // }
+    // if (!this.service.pricing['1'].price) {
+    //   return 0;
+    // }
+    // if (!this.service.pricing[pricingObjKey].price) {
+    //   return 0;
+    // }
+    // // convert the db prices into local prices
+    // const singleSessionPrice = this.calcDisplayPrice(this.service.pricing['1'].price);
+    // const packageTotalPrice = this.calcDisplayPrice(this.service.pricing[pricingObjKey].price);
+    // const packagePricePerSession = packageTotalPrice / Number(pricingObjKey);
+    // // don't apply a discount if the package price per session is more than or equal to the single session price
+    // if (singleSessionPrice <= packagePricePerSession) {
+    //   return 0;
+    // }
+    // // it's discount time!
+    // return (100 - ((packagePricePerSession  / singleSessionPrice) * 100)).toFixed();
   }
 
   saveProgress() {
