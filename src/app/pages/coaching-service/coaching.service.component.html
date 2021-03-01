@@ -207,11 +207,6 @@
               </div>
               <!-- end card -->
 
-              <!-- coach card -->
-              <div class=" mt-5"></div>
-              <app-coach-mini-profile [coachId]="service.sellerUid"></app-coach-mini-profile>
-              <!-- end coach card -->
-
               <!-- service feedback *BROWSER ONLY* -->
               <!-- <div *ngIf="browser">
                 <div class=" col-md-6 ml-auto mr-auto text-center mt-5">
@@ -241,7 +236,7 @@
                 <!-- we've got all the info we need for pricing -->
                 <div *ngIf="service && service.pricing && service.pricing['1'].price && service.currency" class=" row mt-5">
                   <div class=" col-md-6 ml-auto mr-auto text-center">
-                    <h1 class=" title">Get Private 1-to-1 Coaching</h1>
+                    <h1 class=" title">Payment Options</h1>
                     <h4 class=" description">
                       Got questions? Schedule a free discovery session with your coach before you get started.
                     </h4>
@@ -320,7 +315,7 @@
                         <div class=" card-prices pl-3 pr-3">
                           <h3 class=" text-on-front">{{ currencySymbol + calcDisplayPrice(service.pricing[package].price) }}</h3>
                           <h5 class=" text-on-back">{{ currencySymbol + calcDisplayPrice(service.pricing[package].price) }}</h5>
-                          <p *ngIf="calcDiscount(package) > 0" class=" discount">Save {{ calcDiscount(package) }}%</p>
+                          <p *ngIf="calcDiscount(package) > 0" class=" plan discount">Save {{ calcDiscount(package) }}%</p>
                         </div>
                       </div>
                       <div class=" card-footer text-center mb-3 mt-3">
@@ -381,6 +376,11 @@
                   </div>
                 </div>
                 <!-- end currency picker row -->
+
+                <!-- coach card -->
+                <div class=" mt-5"></div>
+                <app-coach-mini-profile [coachId]="service.sellerUid"></app-coach-mini-profile>
+                <!-- end coach card --> 
 
             </div>
             <!-- end pricing -->

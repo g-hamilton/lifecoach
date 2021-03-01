@@ -75,7 +75,7 @@ export class NewServiceComponent implements OnInit, OnChanges, OnDestroy {
 
   buildServiceForm() {
     this.newServiceForm = this.formBuilder.group({
-      type: [null, [Validators.required]],
+      type: ['individual', [Validators.required]], // when adding group coaching, set null here
       sessionDuration: [null, [Validators.required]],
       headline: ['', [Validators.required, Validators.minLength(this.headlineMinLength), Validators.maxLength(this.headlineMaxLength)]]
     });
