@@ -41,7 +41,7 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
   private baseMaxPrice = 9999; // maximum allowed price in base currency
   private baseCurrency = 'GBP';
   private rates: any;
-  private minSessions = 2; // should be 2 or above
+  private minSessions = 1;
   private maxSessions = 100;
   private minPrice = 29.99;
   private maxPrice = 9999;
@@ -57,7 +57,7 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
     numSessions: {
       required: `Please set a number of sessions.`,
       notNumber: `Must be a number`,
-      min: `Please enter a number above ${this.minSessions - 1}.`,
+      min: `Please enter a number above ${this.minSessions}.`,
       max: `Price enter a number below ${this.maxSessions}`
     }
   };
@@ -340,27 +340,45 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
     this.analyticsService.editServiceOutline();
   }
 
-  calcDiscount(pricingArr: any) {
-    // check that prices exist on the db object
-    // if (!this.service.pricing) {
-    //   return 0;
-    // }
-    // if (!this.service.pricing['1'].price) {
-    //   return 0;
-    // }
-    // if (!this.service.pricing[pricingObjKey].price) {
-    //   return 0;
-    // }
-    // // convert the db prices into local prices
-    // const singleSessionPrice = this.calcDisplayPrice(this.service.pricing['1'].price);
-    // const packageTotalPrice = this.calcDisplayPrice(this.service.pricing[pricingObjKey].price);
-    // const packagePricePerSession = packageTotalPrice / Number(pricingObjKey);
-    // // don't apply a discount if the package price per session is more than or equal to the single session price
-    // if (singleSessionPrice <= packagePricePerSession) {
-    //   return 0;
-    // }
-    // // it's discount time!
-    // return (100 - ((packagePricePerSession  / singleSessionPrice) * 100)).toFixed();
+  calcDiscount(key: number) {
+    // console.log(key);
+
+    const pricing = this.outlineF.pricing.value;
+    const pricingCopy = JSON.parse(JSON.stringify(pricing)); // avoiding changedAfterChecked errors
+
+    // check that prices exist
+    if (!pricing) {
+      return 0;
+    }
+    // there can't be a discount if there's only one pricing package
+    if (Object.keys(pricing).length <= 1) {
+      return 0;
+    }
+
+    // find the lowest number of sessions in the pricing
+    const sessions = [];
+    pricing.forEach(i => sessions.push(i.numSessions));
+    sessions.sort();
+    // console.log(sessions);
+    const lowest = sessions[0];
+    // console.log(lowest);
+
+    // calculate the base price per session
+    const index = pricing.findIndex(i => i.numSessions = lowest);
+    const basePricePerSession = Number((pricing[index].price / pricing[index].numSessions).toFixed(2));
+    // console.log(basePricePerSession);
+
+    if (key === lowest) { // this is the lowest number of sessions so there can't be a discount here
+      return 0;
+    }
+
+    // calculate this package price per session
+    const index1 = pricingCopy.findIndex(i => i.numSessions = key);
+    const thisPricePerSession = Number((pricingCopy[index1].price / pricingCopy[index1].numSessions).toFixed(2));
+    // console.log(thisPricePerSession);
+
+    // it's discount time!
+    return (100 - ((thisPricePerSession  / basePricePerSession) * 100)).toFixed();
   }
 
   saveProgress() {

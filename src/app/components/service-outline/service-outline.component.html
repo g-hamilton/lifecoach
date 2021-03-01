@@ -113,7 +113,11 @@
                                     [placeholder]="i === 0 ? 'eg. 59.00' : i === 1 ? 'eg. 149.99' : 'eg. 399.99'">
         
                                 </div>
-                                <!-- <p *ngIf="calcDiscount(outlineF.pricing.controls) > 0" class=" plan discount">Save {{ calcDiscount(outlineF.pricing.controls) }}%</p> -->
+                                <small
+                                *ngIf="calcDiscount(outlineF.pricing.controls[i].controls.numSessions.value) > 0"
+                                class=" text-success">
+                                    Clients save {{ calcDiscount(outlineF.pricing.controls[i].controls.numSessions.value) }}%
+                                </small>
                                 <div *ngIf="(( !outlineF.pricing.controls[i].controls.price.pristine || saveAttempt) && 
                                     outlineF.pricing.controls[i].controls.price.errors)">
                                     <label
