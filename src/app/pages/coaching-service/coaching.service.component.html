@@ -63,24 +63,16 @@
 
           <div *ngIf="service" class=" row">
             <div class=" col-md-6 ml-auto mr-auto text-center">
-              <h1 class=" title">{{ service.title }}</h1>
+              <h1 class=" title">
+                {{ service.type ? service.type === 'individual' ? 'Individual' : '' : 'Individual'}} 
+                {{ service.sessionDuration ? service.sessionDuration + 'min' : '' }}
+                coaching session
+              </h1>
               <h4>
-                {{ service.subtitle }}
+                {{ service.headline ? service.headline : service.subtitle ? service.subtitle : '' }}
               </h4>
-              <!-- service duration -->
+
               <div class=" mb-5">
-                <!-- if zero enrollments -->
-                <span class=" badge badge-danger">
-                  🔥 New Coaching Service
-                </span>
-                <!-- if 1 enrollment -->
-                <!-- <span *ngIf="serviceEnrollments?.totalEnrollments && serviceEnrollments?.totalEnrollments == 1" class="">
-                  1 person enrolled
-                </span> -->
-                <!-- if more than 1 enrollment -->
-                <!-- <span *ngIf="serviceEnrollments?.totalEnrollments && serviceEnrollments?.totalEnrollments > 1" class="">
-                  {{ serviceEnrollments.totalEnrollments }} people enrolled
-                </span> -->
                 <!-- is coach viewing own service? -->
                 <div *ngIf="userId === service.sellerUid">
                   <p class=" text-success text-center mt-3">
