@@ -218,7 +218,7 @@
               <!-- service pricing & call booking -->
               <div class=" mt-5">
                 <!-- if were still waiting for pricing -->
-                <div *ngIf="!service || !service.pricing || !service.pricing['1'].price || !service.currency"
+                <div *ngIf="!service || !service.pricing || !service.currency"
                 >
                   <p>
                     Awaiting pricing & session information
@@ -226,7 +226,7 @@
                 </div>
 
                 <!-- we've got all the info we need for pricing -->
-                <div *ngIf="service && service.pricing && service.pricing['1'].price && service.currency" class=" row mt-5">
+                <div *ngIf="service && service.pricing && service.currency" class=" row mt-5">
                   <div class=" col-md-6 ml-auto mr-auto text-center">
                     <h1 class=" title">Payment Options</h1>
                     <h4 class=" description">
@@ -236,7 +236,7 @@
                 </div>
 
                 <!-- payment options row -->
-                <div *ngIf="service && service.pricing && service.pricing['1'].price && service.currency" class=" row">
+                <div *ngIf="service && service.pricing && service.currency" class=" row">
 
                   <!-- dynamic spacer col -->
                   <div *ngIf="objKeys(service.pricing).length === 1" class=" col-md-2 col-xs-12">
@@ -356,7 +356,7 @@
                 <!-- end payment options row -->
 
                 <!-- Currency picker row -->
-                <div *ngIf="service && service.pricing && service.pricing['1'].price && service.currency" class=" row">
+                <div *ngIf="service && service.pricing && service.currency" class=" row">
                   <div class=" col-md-4 ml-auto mr-auto">
                     <div>
                       <label> Show prices in </label>

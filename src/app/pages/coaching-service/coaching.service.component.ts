@@ -552,27 +552,42 @@ export class CoachingServiceComponent implements OnInit, OnDestroy {
       .subscribe(() => this.router.navigate(['/reserved-sessions']));
   }
 
-  calcDiscount(pricingObjKey: string) {
-    // check that prices exist on the db object
-    if (!this.service.pricing) {
+  calcDiscount(key: number) {
+    // console.log(key);
+
+    const pricing = this.service.pricing;
+
+    // check that prices exist
+    if (!pricing) {
       return 0;
     }
-    if (!this.service.pricing['1'].price) {
+    // there can't be a discount if there's only one pricing package
+    if (Object.keys(pricing).length <= 1) {
       return 0;
     }
-    if (!this.service.pricing[pricingObjKey].price) {
+
+    // find the lowest number of sessions in the pricing
+    const sessions = [];
+    Object.keys(pricing).forEach(i => sessions.push(pricing[i].numSessions));
+    sessions.sort();
+    // console.log(sessions);
+    const lowest = sessions[0];
+    // console.log(lowest);
+
+    // calculate the base price per session
+    const basePricePerSession = Number((pricing[lowest].price / pricing[lowest].numSessions));
+    // console.log(basePricePerSession);
+
+    if (key === lowest) { // this is the lowest number of sessions so there can't be a discount here
       return 0;
     }
-    // convert the db prices into local prices
-    const singleSessionPrice = this.calcDisplayPrice(this.service.pricing['1'].price);
-    const packageTotalPrice = this.calcDisplayPrice(this.service.pricing[pricingObjKey].price);
-    const packagePricePerSession = packageTotalPrice / Number(pricingObjKey);
-    // don't apply a discount if the package price per session is more than or equal to the single session price
-    if (singleSessionPrice <= packagePricePerSession) {
-      return 0;
-    }
+
+    // calculate this package price per session
+    const thisPricePerSession = Number((pricing[key].price / pricing[key].numSessions));
+    // console.log(thisPricePerSession);
+
     // it's discount time!
-    return (100 - ((packagePricePerSession  / singleSessionPrice) * 100)).toFixed();
+    return (100 - ((thisPricePerSession  / basePricePerSession) * 100)).toFixed();
   }
 
   ngOnDestroy() {

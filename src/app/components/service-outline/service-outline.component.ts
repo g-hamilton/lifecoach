@@ -344,7 +344,6 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
     // console.log(key);
 
     const pricing = this.outlineF.pricing.value;
-    const pricingCopy = JSON.parse(JSON.stringify(pricing)); // avoiding changedAfterChecked errors
 
     // check that prices exist
     if (!pricing) {
@@ -364,8 +363,8 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
     // console.log(lowest);
 
     // calculate the base price per session
-    const index = pricing.findIndex(i => i.numSessions = lowest);
-    const basePricePerSession = Number((pricing[index].price / pricing[index].numSessions).toFixed(2));
+    const index = pricing.findIndex(i => i.numSessions === lowest);
+    const basePricePerSession = Number((pricing[index].price / pricing[index].numSessions));
     // console.log(basePricePerSession);
 
     if (key === lowest) { // this is the lowest number of sessions so there can't be a discount here
@@ -373,8 +372,8 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     // calculate this package price per session
-    const index1 = pricingCopy.findIndex(i => i.numSessions = key);
-    const thisPricePerSession = Number((pricingCopy[index1].price / pricingCopy[index1].numSessions).toFixed(2));
+    const index1 = pricing.findIndex(i => i.numSessions === key);
+    const thisPricePerSession = Number((pricing[index1].price / pricing[index1].numSessions));
     // console.log(thisPricePerSession);
 
     // it's discount time!
