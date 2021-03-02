@@ -21,7 +21,9 @@
         <div *ngIf="!isNewService">
 
             <!-- Title -->
-            <h4>{{ service?.title }}
+            <h4>{{ service?.type === 'individual' ? 'Individual' : '' }} 
+                {{ service?.sessionDuration ? service.sessionDuration + 'min' : '' }}
+                Coaching Session
                 <span
                 *ngIf="reviewRequest?.status === 'submitted' && service?.reviewRequest?.status !== 'approved'"
                 class=" badge badge-info ml-2">

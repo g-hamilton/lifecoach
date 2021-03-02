@@ -517,7 +517,7 @@
                     <hr>
         
                     <div class=" row mt-4">
-                        <div class="col-md-6">
+                        <div class="col">
                             <p class=" small text-warning pl-2 mb-2">
                                 <i class="fas fa-info-circle"></i> Don't forget to save your changes before you preview.
                             </p>
@@ -532,12 +532,7 @@
                                         <i class="fas fa-eye"></i> Preview Landing Page
                                     </button>
                                 </a>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <!-- buttons -->
-                            <div class=" pull-right">
-                                <button type="button" class=" btn btn-default btn-round btn-fill" (click)="saveProgress()">
+                                <button type="button" class=" btn btn-default btn-round btn-fill ml-3" (click)="saveProgress()">
                                     <span *ngIf="!saving">
                                         <i class="fas fa-save"></i>
                                     </span>

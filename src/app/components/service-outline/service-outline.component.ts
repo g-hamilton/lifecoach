@@ -343,38 +343,42 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
   calcDiscount(key: number) {
     // console.log(key);
 
-    const pricing = this.outlineF.pricing.value;
+    const controls = this.outlineF.pricing.controls;
+    // console.log(controls);
 
     // check that prices exist
-    if (!pricing) {
-      return 0;
-    }
-    // there can't be a discount if there's only one pricing package
-    if (Object.keys(pricing).length <= 1) {
+    if (!controls) {
       return 0;
     }
 
     // find the lowest number of sessions in the pricing
     const sessions = [];
-    pricing.forEach(i => sessions.push(i.numSessions));
+    controls.forEach(i => sessions.push(i.controls.numSessions.value));
     sessions.sort();
     // console.log(sessions);
     const lowest = sessions[0];
     // console.log(lowest);
+    if (key === lowest) { // this is the lowest number of sessions so there can't be a discount here
+    return 0;
+    }
 
     // calculate the base price per session
-    const index = pricing.findIndex(i => i.numSessions === lowest);
-    const basePricePerSession = Number((pricing[index].price / pricing[index].numSessions));
-    // console.log(basePricePerSession);
-
-    if (key === lowest) { // this is the lowest number of sessions so there can't be a discount here
+    const index = controls.findIndex(i => i.controls.numSessions.value === lowest);
+    // console.log(index);
+    const basePricePerSession = Number((controls[index].controls.price.value / controls[index].controls.numSessions.value));
+    console.log(basePricePerSession);
+    if (!basePricePerSession || basePricePerSession === Infinity || isNaN(basePricePerSession)) {
       return 0;
     }
 
     // calculate this package price per session
-    const index1 = pricing.findIndex(i => i.numSessions === key);
-    const thisPricePerSession = Number((pricing[index1].price / pricing[index1].numSessions));
-    // console.log(thisPricePerSession);
+    const index1 = controls.findIndex(i => i.controls.numSessions.value === key);
+    // console.log('index1', index1);
+    const thisPricePerSession = Number((controls[index1].controls.price.value / controls[index1].controls.numSessions.value));
+    console.log(thisPricePerSession);
+    if (!thisPricePerSession || thisPricePerSession === Infinity || isNaN(thisPricePerSession)) {
+      return 0;
+    }
 
     // it's discount time!
     return (100 - ((thisPricePerSession  / basePricePerSession) * 100)).toFixed();
