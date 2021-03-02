@@ -182,6 +182,13 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
     this.titleActualLength = this.landingF.title.value.length;
     this.subTitleActualLength = this.landingF.subtitle.value.length;
     this.subjectActualLength = this.landingF.subject.value.length;
+    // load the promo video if there is one
+    if (this.program.promoVideo) {
+      this.videoSources = []; // reset
+      this.videoSources.push({ // use the array method for reloading a videoGular video as simple [src] binding does not reload on the fly
+        src: this.program.promoVideo.downloadURL
+      });
+    }
   }
 
   // https://medium.com/ngx/3-ways-to-implement-conditional-validation-of-reactive-forms-c59ed6fc3325

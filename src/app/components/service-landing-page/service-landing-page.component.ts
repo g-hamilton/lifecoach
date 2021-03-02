@@ -180,6 +180,13 @@ export class ServiceLandingPageComponent implements OnInit, OnChanges, OnDestroy
     // init the character counts (before user input detected)
     this.headlineActualLength = this.landingF.headline.value.length;
     this.subjectActualLength = this.landingF.subject.value.length;
+    // load the promo video if there is one
+    if (this.service.promoVideo) {
+      this.videoSources = []; // reset
+      this.videoSources.push({ // use the array method for reloading a videoGular video as simple [src] binding does not reload on the fly
+        src: this.service.promoVideo.downloadURL
+      });
+    }
   }
 
   // https://medium.com/ngx/3-ways-to-implement-conditional-validation-of-reactive-forms-c59ed6fc3325
