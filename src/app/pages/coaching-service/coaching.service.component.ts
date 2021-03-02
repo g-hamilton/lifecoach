@@ -59,6 +59,7 @@ export class CoachingServiceComponent implements OnInit, OnDestroy {
 
   public pricingSessions: string; // how many sessions is the user purchasing?
   public purchaseDisplayPrice: number; // what price is the client expecting to pay?
+  public maxDiscountObj = { max: 0 };
 
   private subscriptions: Subscription = new Subscription();
 
@@ -587,7 +588,15 @@ export class CoachingServiceComponent implements OnInit, OnDestroy {
     // console.log(thisPricePerSession);
 
     // it's discount time!
-    return (100 - ((thisPricePerSession  / basePricePerSession) * 100)).toFixed();
+    const discount = Number((100 - ((thisPricePerSession  / basePricePerSession) * 100)).toFixed());
+
+    // update the max discount if required
+    this.maxDiscountObj.max = 0;
+    if (discount > this.maxDiscountObj.max) {
+      this.maxDiscountObj.max = discount;
+    }
+
+    return discount;
   }
 
   ngOnDestroy() {

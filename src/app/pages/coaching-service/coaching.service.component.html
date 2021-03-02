@@ -68,9 +68,9 @@
                 {{ service.sessionDuration ? service.sessionDuration + 'min' : '' }}
                 coaching session
               </h1>
-              <h4>
+              <h3>
                 {{ service.headline ? service.headline : service.subtitle ? service.subtitle : '' }}
-              </h4>
+              </h3>
 
               <div class=" mb-5">
                 <!-- is coach viewing own service? -->
@@ -229,6 +229,10 @@
                 <div *ngIf="service && service.pricing && service.currency" class=" row mt-5">
                   <div class=" col-md-6 ml-auto mr-auto text-center">
                     <h1 class=" title">Payment Options</h1>
+                    <h3 *ngIf="maxDiscountObj.max > 0" class=" text-success">
+                      <i class="fas fa-fire text-danger mr-1"></i>
+                      Save up to {{ maxDiscountObj.max }}% with a multi-session purchase
+                    </h3>
                     <h4 class=" description">
                       Got questions? Schedule a free discovery session with your coach before you get started.
                     </h4>
