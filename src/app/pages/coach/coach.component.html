@@ -183,8 +183,12 @@
                                 </ng-template>
 
                                 <div class=" card-body">
-                                    <h4 class="card-title"> {{ service?.title }} </h4>
-                                    <h6 class="card-subtitle mb-2 text-muted"> {{ service?.subtitle }} </h6>
+                                    <h4 class="card-title">
+                                        {{ service?.type === 'individual' ? 'Individual' : '' }} 
+                                        {{ service?.sessionDuration ? service.sessionDuration + 'min' : '' }}
+                                        Coaching Session
+                                    </h4>
+                                    <h6 class="card-subtitle mb-2 text-muted"> {{ service?.headline ? service.headline : service?.subtitle ? service.subtitle : ''}} </h6>
                                 </div>
 
                             </div>
