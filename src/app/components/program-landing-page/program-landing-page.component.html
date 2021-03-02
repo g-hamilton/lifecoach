@@ -1,539 +1,539 @@
-<div class=" card">
-    <div class=" card-body">
-        <form *ngIf="landingForm" [formGroup]="landingForm" (submit)="onSubmit()">
-
-            <h5>Program Landing Page
-                <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001167913-help-with-your-lifecoach-program-landing-page" target="_blank">
-                    <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> Help with your program landing page </span>
-                </a>
-            </h5>
-
-            <!-- Program title -->
-            <div class="mt-4">
-                <label> Program Title </label>
-                <p class=" small text-muted pl-2 mb-2">
-                    <i class="fas fa-info-circle"></i> Keep your title goal/outcome focussed and short, so that it fits inside your program image.
-                </p>
-            </div>
-            <div
-            class="input-group no-symbol"
-            [ngClass]="{
-                'has-danger':
-                (( (focusTouched && landingF.title.value != '') || saveAttempt) && landingF.title.errors),
-                'has-success': !landingF.title.errors
-            }">
-                <input
-                type="text"
-                class="form-control"
-                formControlName="title"
-                placeholder="eg. Master Your Anxiety"
-                (focus)="focus = true; focusTouched = true"
-                (blur)="focus =false"
-                (input)="onTitleInput($event)">
-                <div class="input-group-append">
-                <span class="input-group-text">
-                    {{ titleActualLength + '/' + titleMaxLength }}
-                </span>
-                </div>
-            </div>
-            <div *ngIf="(( (focusTouched && landingF.title.value != '') || saveAttempt) && landingF.title.errors)">
-                <label
-                *ngFor="let error of objKeys(landingF.title.errors)"
-                class="error custom-error-label"
-                >{{ showError('title', error) }}
-                </label>
-            </div>
-            <!-- End of program title -->
-
-            <!-- Program subtitle -->
-            <div class=" mt-4">
-                <label> Program Subtitle </label>
-                <p class=" small text-muted pl-2 mb-2">
-                    <i class="fas fa-info-circle"></i> Expand on your title and entice prospective clients by telling them what they can achieve on this program.
-                </p>
-            </div>
-            <div
-            class="input-group no-symbol"
-            [ngClass]="{
-                'has-danger':
-                (( (focusTouched && landingF.subtitle.value != '') || saveAttempt) && landingF.subtitle.errors),
-                'has-success': !landingF.subtitle.errors
-            }">
-                <input
-                type="text"
-                class="form-control"
-                formControlName="subtitle"
-                placeholder="eg. Overcome Your Anxiety in 90 Days"
-                (focus)="focus1 = true; focus1Touched = true"
-                (blur)="focus1 = false"
-                (input)="onSubTitleInput($event)">
-                <div class="input-group-append">
-                <span class="input-group-text">
-                    {{ subTitleActualLength + '/' + subTitleMaxLength }}
-                </span>
-                </div>
-            </div>
-            <div *ngIf="(( (focus1Touched && landingF.subtitle.value != '') || saveAttempt) && landingF.subtitle.errors)">
-                <label
-                *ngFor="let error of objKeys(landingF.subtitle.errors)"
-                class="error custom-error-label"
-                >{{ showError('subtitle', error) }}
-                </label>
-            </div>
-            <!-- End program subtitle -->
-
-            <!-- Program description -->
-            <div class=" mt-4">
-                <label> Program Description </label>
-                <p class=" small text-muted pl-2 mb-2">
-                    <i class="fas fa-info-circle"></i> Describe what's unique about this program, what clients can expect and how you can help them to achieve their goals/desired outcomes.
-                </p>
-            </div>
-            <editor
-            *ngIf="viewLoaded"
-            apiKey="swb6l7gw85zcl8aw2dh7551jt3t5ydravtthultgf8fo3w2l" 
-            [init]="{
-                height: 300,
-                menubar: false,
-                plugins: 'link lists paste',
-                toolbar: 'undo redo | formatselect | paste | bold italic backcolor link| alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat'
-            }"
-            formControlName="description"
-            >
-            </editor>
-            <div *ngIf="((saveAttempt) && landingF.description.errors) ||
-                (landingF.description.value != '' && landingF.description.errors)">
-                <label
-                *ngFor="let error of objKeys(landingF.description.errors)"
-                class="error custom-error-label"
-                >{{ showError('description', error) }}
-                </label>
-            </div>
-            <!-- End program description -->
-
-            <!-- Program language -->
-            <div class=" mt-4">
-                <label> Program Language </label>
-                <p class=" small text-muted pl-2 mb-2">
-                    <i class="fas fa-info-circle"></i> Marketing is more effective when targeting a single primary language. 
-                    If you coach in more than one language, consider creating duplicate programs.
-                </p>
-            </div>
-            <div class="form-group">
-                <select class="form-control" formControlName="language">
-                    <option [value]="null">Select a language</option>
-                    <option *ngFor="let item of objKeys(languages)" [value]="item">
-                        {{ languages[item].nativeName }}
-                    </option>
-                </select>
-            </div>
-            <div *ngIf="saveAttempt && landingF.language.errors || landingF.language.value != null && landingF.language.errors">
-                <label
-                *ngFor="let error of objKeys(landingF.language.errors)"
-                class="error custom-error-label"
-                >{{ showError('language', error) }}
-                </label>
-            </div>
-            <!-- End program language -->
-
-            <!-- Program category -->
-            <div class=" mt-4">
-                <label> Program Category </label>
-                <p class=" small text-muted pl-2 mb-2">
-                    <i class="fas fa-info-circle"></i> Select the closest matching high level coaching category for this program.
-                </p>
-            </div>
-            <div class="form-group">
-                <select class="form-control" formControlName="category">
-                    <option [value]="null">Select a category</option>
-                    <option *ngFor="let item of specialities" [value]="item.itemName">
-                        {{ item.itemName }}
-                    </option>
-                </select>
-            </div>
-            <div *ngIf="saveAttempt && landingF.category.errors || landingF.category.value != null && landingF.category.errors">
-                <label
-                *ngFor="let error of objKeys(landingF.category.errors)"
-                class="error custom-error-label"
-                >{{ showError('category', error) }}
-                </label>
-            </div>
-            <!-- End program category -->
-
-            <!-- Program subject -->
-            <div class=" mt-4">
-                <label> What is the <strong>Primary</strong> subject you address in this program? </label>
-                <p class=" small text-muted pl-2 mb-2">
-                    <i class="fas fa-info-circle"></i> This helps you to attract the most suitable clients using search.
-                </p>
-            </div>
-            <div
-            class="input-group no-symbol"
-            [ngClass]="{
-                'has-danger':
-                (( (focus2Touched && landingF.subject.value != '') || saveAttempt) && landingF.subject.errors),
-                'has-success': !landingF.subject.errors
-            }">
-                <input
-                type="text"
-                class="form-control"
-                formControlName="subject"
-                placeholder="eg. Dealing with anxiety"
-                (focus)="focus2 = true; focus2Touched = true"
-                (blur)="focus2 = false"
-                (input)="onSubjectInput($event)">
-                <div class="input-group-append">
-                <span class="input-group-text">
-                    {{ subjectActualLength + '/' + subjectMaxLength }}
-                </span>
-                </div>
-            </div>
-            <div *ngIf="(( (focus2Touched && landingF.subject.value != '') || saveAttempt) && landingF.subject.errors)">
-                <label
-                *ngFor="let error of objKeys(landingF.subject.errors)"
-                class="error custom-error-label"
-                >{{ showError('subject', error) }}
-                </label>
-            </div>
-            <!-- End of program subject -->
-
-            <!-- cover image -->
-            <div class=" mt-4">
-                <label> Cover Image </label>
-                <p class="lead text-muted">Make your coaching program stand out with a great cover image!
-                    Upload your own if you have an image that meets our 
-                    <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001167913-help-with-your-lifecoach-program-landing-page" target="_blank">
-                        guidelines
-                    </a>
-                    , or request a 
-                    professionally designed cover image from our design team 
-                    <span class=" text-success">FREE for a limited time!</span>
-                </p>
-                
-                <div class="form-check form-check-radio mt-4">
-                    <label class="form-check-label">
-                        <input class="form-check-input" type="radio" id="image-radio-upload" value="upload" formControlName="imageOption" (change)="onImageOptionChange($event)">
-                        Upload my own cover image
-                        <span class="form-check-sign"></span>
-                    </label>
-                </div>
-                <div class="form-check form-check-radio">
-                    <label class="form-check-label">
-                        <input class="form-check-input" type="radio" id="image-radio-pro" value="pro" formControlName="imageOption" (change)="onImageOptionChange($event)">
-                        Get a professionally designed cover image (Currently FREE!)
-                        <span class="form-check-sign"></span>
-                    </label>
-                </div>
-                
-                <p *ngIf="landingF.imageOption.value === 'upload'" class="lead text-muted mt-4">Note: Images <strong>MUST</strong> meet our
-                    <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001167913-help-with-your-lifecoach-program-landing-page" target="_blank">
-                        image guidelines
-                    </a>
-                    to be accepted.
-                </p>
-
-                <p *ngIf="landingF.imageOption.value === 'pro'" class="lead text-success mt-4">
-                    Great! Our design team will get to work when you submit your service for review
-                </p>
-                
-            </div>
-            <div *ngIf="landingF.imageOption.value === 'upload'" class=" mt-3">
-                <app-picture-upload
-                [inputImg]="landingF.image.value"
-                (messageEvent)="onPictureUpload($event)">
-                </app-picture-upload>
-            </div>
-            <!-- if image errors -->
-            <div *ngIf="(saveAttempt && landingF.image.errors)">
-                <label
-                *ngFor="let error of objKeys(landingF.image.errors)"
-                class="error custom-error-label"
-                >{{ showError('image', error) }}
-                </label>
-            </div>
-            <!-- End cover image -->
-
-            <!-- Program promotional video -->
-            <div class=" mt-4">
-                <label> Program Promotional Video </label>
-                <p class=" small text-muted pl-2 mb-2">
-                    <i class="fas fa-info-circle"></i> Optional. Upload a short (90sec max.) promotional video to promote your program. Clients 
-                    who watch a well-made promo video are 5-10X more likely to enrol! Need a little help? Click  
-                    <a href="" target="_blank">
-                        here
-                    </a> to learn how to make a great promo video. Video files must be at least 720p and less than 4.0GB
-                </p>
-            </div>
-
-            <!-- Video upload -->
-            <div>
-                <!-- Video drop / upload -->
-                <app-program-promo-video-uploader
-                [uid]="userId"
-                [program]="program"
-                (promoVidUploadedEvent)="onPromoVideoUploadEvent($event)">
-                </app-program-promo-video-uploader>
-            </div>
-
-            <!-- Video player -->
-            <div *ngIf="browser && landingF.promoVideo.value && landingF.promoVideo.value.downloadURL" class=" mt-3">
-                <vg-player>
-                <vg-controls>
-                    <vg-play-pause></vg-play-pause>
-                    <vg-playback-button></vg-playback-button>
-                
-                    <vg-time-display vgProperty="current" vgFormat="mm:ss"></vg-time-display>
-                
-                    <vg-scrub-bar>
-                        <vg-scrub-bar-current-time></vg-scrub-bar-current-time>
-                        <vg-scrub-bar-buffering-time></vg-scrub-bar-buffering-time>
-                    </vg-scrub-bar>
-                
-                    <vg-time-display vgProperty="total" vgFormat="mm:ss"></vg-time-display>
-                
-                    <vg-mute></vg-mute>
-                    <vg-volume></vg-volume>
-                
-                    <vg-fullscreen></vg-fullscreen>
-                </vg-controls>
-                
-                <video #media [vgMedia]="media" id="singleVideo" preload="auto">
-                    <source *ngFor="let video of videoSources" [src]="video.src">
-                </video>
-                </vg-player>
-            </div>
-            <!-- End video player -->
-            <!-- End program promotional video -->
-
-            <!-- Program learning points -->
-            <div class=" mt-4">
-                <label> What are the main outcomes for clients who complete this program? </label>
-                <p class=" small text-muted pl-2 mb-2">
-                    <i class="fas fa-info-circle"></i> Optional. These outcomes will be highlighted on your landing page & help 
-                    to attract the right clients to enrol in your program.
-                </p>
-            </div>
-            <div formArrayName="learningPoints" *ngFor="let item of landingF.learningPoints.value.controls ; let i = index">
-                <div
-                class="input-group no-symbol"
-                [ngClass]="{
-                    'has-danger':
-                    (( (landingF.learningPoints.value.controls[i].touched && landingF.learningPoints.value.controls[i].value != '') || saveAttempt) &&  
-                    landingF.learningPoints.value.controls[i].errors),
-                    'has-success': !landingF.learningPoints.value.controls[i].errors
-                }">
-                    <input
-                    type="text"
-                    class="form-control"
-                    [formControl]="landingF.learningPoints.value.controls[i]"
-                    placeholder="eg. Learn self-belief">
-                    <div class="input-group-append">
-                        <span class="input-group-text">
-                            {{ landingF.learningPoints.value.controls[i].value.length + '/' + learningPointsMaxLength }}
-                        </span>
-                    </div>
-                    <button 
-                    class="input-group-append ml-2 btn btn-danger btn-fab btn-icon"
-                    (click)="deleteLearningPoint(i)">
-                        <i class="tim-icons icon-trash-simple"></i>
-                    </button>
-                </div>
-                <div *ngIf="(( (landingF.learningPoints.value.controls[i].touched && landingF.learningPoints.value.controls[i].value != '') || saveAttempt) && 
-                    landingF.learningPoints.value.controls[i].errors)">
-                    <label
-                    *ngFor="let error of objKeys(landingF.learningPoints.value.controls[i].errors)"
-                    class="error custom-error-label"
-                    >{{ showError('learningPoints', error) }}
-                    </label>
-                </div>
-            </div>
-            <button
-            type="button"
-            class=" btn btn-primary btn-link"
-            (click)="addLearningPoint()"
-            [disabled]="landingF.learningPoints.value.controls.length >= learningPointsMax">
-                <i class="fas fa-plus"></i> Add an outcome
-            </button>
-            <!-- End program learning points -->
-
-            <!-- Program requirements -->
-            <div class=" mt-4">
-                <label> Are there any special requirements or prerequisites to clients enrolling in this program? </label>
-                <p class=" small text-muted pl-2 mb-2">
-                    <i class="fas fa-info-circle"></i> Optional. If you require any specific conditions to be met 
-                    before clients enrol in this program, mention them here. Any requirements or prerequisites will 
-                    be highlighted on your landing page & help 
-                    to attract the right clients to your program.
-                </p>
-            </div>
-            <div formArrayName="requirements" *ngFor="let item of landingF.requirements.value?.controls ; let i = index">
-                <div
-                class="input-group no-symbol"
-                [ngClass]="{
-                    'has-danger':
-                    (( (landingF.requirements.value.controls[i].touched && landingF.requirements.value.controls[i].value != '') || saveAttempt) &&  
-                    landingF.requirements.value.controls[i].errors),
-                    'has-success': !landingF.requirements.value.controls[i].errors
-                }">
-                    <input
-                    type="text"
-                    class="form-control"
-                    [formControl]="landingF.requirements.value.controls[i]"
-                    placeholder="eg. Completed the beginner program">
-                    <div class="input-group-append">
-                        <span class="input-group-text">
-                            {{ landingF.requirements.value.controls[i].value.length + '/' + requirementsMaxLength }}
-                        </span>
-                    </div>
-                    <button 
-                    class="input-group-append ml-2 btn btn-danger btn-fab btn-icon"
-                    (click)="deleteRequirement(i)">
-                        <i class="tim-icons icon-trash-simple"></i>
-                    </button>
-                </div>
-                <div *ngIf="(( (landingF.requirements.value.controls[i].touched && landingF.requirements.value.controls[i].value != '') || saveAttempt) && 
-                    landingF.requirements.value.controls[i].errors)">
-                    <label
-                    *ngFor="let error of objKeys(landingF.requirements.value.controls[i].errors)"
-                    class="error custom-error-label"
-                    >{{ showError('requirements', error) }}
-                    </label>
-                </div>
-            </div>
-            <button
-            type="button"
-            class=" btn btn-primary btn-link"
-            (click)="addRequirement()"
-            [disabled]="landingF.requirements.value?.controls.length >= requirementsMax">
-                <i class="fas fa-plus"></i> Add a requirement
-            </button>
-            <!-- End program requirements -->
-
-            <!-- Program target clients -->
-            <div class=" mt-4">
-                <label> Who are your ideal target clients for this program? </label>
-                <p class=" small text-muted pl-2 mb-2">
-                    <i class="fas fa-info-circle"></i> Optional. Adding target clients will help 
-                    to attract the right clients to your program.
-                </p>
-            </div>
-            <div formArrayName="targets" *ngFor="let item of landingF.targets.value.controls ; let i = index">
-                <div
-                class="input-group no-symbol"
-                [ngClass]="{
-                    'has-danger':
-                    (( (landingF.targets.value.controls[i].touched && landingF.targets.value.controls[i].value != '') || saveAttempt) &&  
-                    landingF.targets.value.controls[i].errors),
-                    'has-success': !landingF.targets.value.controls[i].errors
-                }">
-                    <input
-                    type="text"
-                    class="form-control"
-                    [formControl]="landingF.targets.value.controls[i]"
-                    placeholder="eg. Female Entreprenuers">
-                    <div class="input-group-append">
-                        <span class="input-group-text">
-                            {{ landingF.targets.value.controls[i].value.length + '/' + targetsMaxLength }}
-                        </span>
-                    </div>
-                    <button 
-                    class="input-group-append ml-2 btn btn-danger btn-fab btn-icon"
-                    (click)="deleteTarget(i)">
-                        <i class="tim-icons icon-trash-simple"></i>
-                    </button>
-                </div>
-                <div *ngIf="(( (landingF.targets.value.controls[i].touched && landingF.targets.value.controls[i].value != '') || saveAttempt) && 
-                    landingF.targets.value.controls[i].errors)">
-                    <label
-                    *ngFor="let error of objKeys(landingF.targets.value.controls[i].errors)"
-                    class="error custom-error-label"
-                    >{{ showError('targets', error) }}
-                    </label>
-                </div>
-            </div>
-            <button
-            type="button"
-            class=" btn btn-primary btn-link"
-            (click)="addTarget()"
-            [disabled]="landingF.targets.value.controls.length >= targetsMax">
-                <i class="fas fa-plus"></i> Add a target client
-            </button>
-            <!-- End program target clients -->
-
-            <!-- include in C4C -->
-            <div class=" form-group mt-3">
-                <label> Include this program in the Lifecoach 'Coaching for Coaches' program </label>
-                <p class=" small text-muted pl-2 mb-4">
-                    <i class="fas fa-info-circle"></i> The Lifecoach 'Coaching for Coaches' program is aimed specifically 
-                    at helping professional Coaches to progress their coaching careers. If you are a Coach who 
-                    specialises in coaching or training fellow Coaches, you can include your coaching in this program. 
-                    Please only select this option if your coaching is aimed specifically at other coaches. 
-                    Need a little help? <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001174543-introducing-the-lifecoach-coaching-for-coaches-program" target="_blank">
-                        Read more.
-                    </a> 
-                </p>
-                <div class=" mt-3">
-                    <bSwitch
-                    [switch-on-color]="'danger'"
-                    [switch-off-color]="'danger'"
-                    [switch-off-text]="'NO'"
-                    [switch-on-text]="'YES'"
-                    [(ngModel)]="landingF.includeInCoachingForCoaches.value"
-                    [ngModelOptions]="{standalone: true}"
-                    (changeState)="onIncludeInCoachingForCoachesToggle($event)"
-                  >
-                  </bSwitch>
-                </div>
-                
-            </div>
-
-            <hr>
-
-            <div class=" row mt-4">
-                <div class="col-md-6">
-                    <p class=" small text-warning pl-2 mb-2">
-                        <i class="fas fa-info-circle"></i> Don't forget to save your changes before you preview.
-                    </p>
-                    <!-- Preview program -->
-                    <div *ngIf="program?.programId">
-                        <a
-                        [routerLink]="['/program', program.programId]"
-                        target="_blank">
-                            <button
-                            type="button"
-                            class="btn btn-default btn-round">
-                                <i class="fas fa-eye"></i> Preview Landing Page
-                            </button>
+<div class=" row">
+    <div class=" col-md-8">
+        <div class=" card">
+            <div class=" card-body">
+                <form *ngIf="landingForm" [formGroup]="landingForm" (submit)="onSubmit()">
+        
+                    <h5>Program Landing Page
+                        <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001167913-help-with-your-lifecoach-program-landing-page" target="_blank">
+                            <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> Help with your program landing page </span>
                         </a>
+                    </h5>
+        
+                    <!-- Program title -->
+                    <div class="mt-4">
+                        <label> Program Title </label>
+                        <p class=" small text-muted pl-2 mb-2">
+                            <i class="fas fa-info-circle"></i> Keep your title goal/outcome focussed and short, so that it fits inside your program image.
+                        </p>
                     </div>
-                </div>
-                <div class="col-md-6">
-                    <!-- buttons -->
-                    <div class=" pull-right">
-                        <button type="button" class=" btn btn-default btn-round btn-fill" (click)="saveProgress()">
-                            <span *ngIf="!saving">
-                                <i class="fas fa-save"></i>
-                            </span>
-                            <span
-                            *ngIf="saving"
-                            class="spinner-border spinner-border-sm"
-                            role="status"
-                            ></span> {{ saving ? 'Saving...' : 'Save'}}
-                        </button>
-                        <button type="button" class=" btn btn-primary btn-round btn-fill ml-3" (click)="goNext()">
-                            <span *ngIf="!saving">
-                                <i class="fas fa-arrow-right"></i>
-                            </span>
-                            <span
-                            *ngIf="saving"
-                            class="spinner-border spinner-border-sm"
-                            role="status"
-                            ></span> {{ saving ? 'Saving...' : 'Next: Set Sessions & Pricing'}}
-                        </button>
+                    <div
+                    class="input-group no-symbol"
+                    [ngClass]="{
+                        'has-danger':
+                        (( (focusTouched && landingF.title.value != '') || saveAttempt) && landingF.title.errors),
+                        'has-success': !landingF.title.errors
+                    }">
+                        <input
+                        type="text"
+                        class="form-control"
+                        formControlName="title"
+                        placeholder="eg. Master Your Anxiety"
+                        (focus)="focus = true; focusTouched = true"
+                        (blur)="focus =false"
+                        (input)="onTitleInput($event)">
+                        <div class="input-group-append">
+                        <span class="input-group-text">
+                            {{ titleActualLength + '/' + titleMaxLength }}
+                        </span>
+                        </div>
                     </div>
-                </div>
+                    <div *ngIf="(( (focusTouched && landingF.title.value != '') || saveAttempt) && landingF.title.errors)">
+                        <label
+                        *ngFor="let error of objKeys(landingF.title.errors)"
+                        class="error custom-error-label"
+                        >{{ showError('title', error) }}
+                        </label>
+                    </div>
+                    <!-- End of program title -->
+        
+                    <!-- Program subtitle -->
+                    <div class=" mt-4">
+                        <label> Program Subtitle </label>
+                        <p class=" small text-muted pl-2 mb-2">
+                            <i class="fas fa-info-circle"></i> Expand on your title and entice prospective clients by telling them what they can achieve on this program.
+                        </p>
+                    </div>
+                    <div
+                    class="input-group no-symbol"
+                    [ngClass]="{
+                        'has-danger':
+                        (( (focusTouched && landingF.subtitle.value != '') || saveAttempt) && landingF.subtitle.errors),
+                        'has-success': !landingF.subtitle.errors
+                    }">
+                        <input
+                        type="text"
+                        class="form-control"
+                        formControlName="subtitle"
+                        placeholder="eg. Overcome Your Anxiety in 90 Days"
+                        (focus)="focus1 = true; focus1Touched = true"
+                        (blur)="focus1 = false"
+                        (input)="onSubTitleInput($event)">
+                        <div class="input-group-append">
+                        <span class="input-group-text">
+                            {{ subTitleActualLength + '/' + subTitleMaxLength }}
+                        </span>
+                        </div>
+                    </div>
+                    <div *ngIf="(( (focus1Touched && landingF.subtitle.value != '') || saveAttempt) && landingF.subtitle.errors)">
+                        <label
+                        *ngFor="let error of objKeys(landingF.subtitle.errors)"
+                        class="error custom-error-label"
+                        >{{ showError('subtitle', error) }}
+                        </label>
+                    </div>
+                    <!-- End program subtitle -->
+        
+                    <!-- Program description -->
+                    <div class=" mt-4">
+                        <label> Program Description </label>
+                        <p class=" small text-muted pl-2 mb-2">
+                            <i class="fas fa-info-circle"></i> Describe what's unique about this program, what clients can expect and how you can help them to achieve their goals/desired outcomes.
+                        </p>
+                    </div>
+                    <editor
+                    *ngIf="viewLoaded"
+                    apiKey="swb6l7gw85zcl8aw2dh7551jt3t5ydravtthultgf8fo3w2l" 
+                    [init]="{
+                        height: 300,
+                        menubar: false,
+                        plugins: 'link lists paste',
+                        toolbar: 'undo redo | formatselect | paste | bold italic backcolor link| alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat'
+                    }"
+                    formControlName="description"
+                    >
+                    </editor>
+                    <div *ngIf="((saveAttempt) && landingF.description.errors) ||
+                        (landingF.description.value != '' && landingF.description.errors)">
+                        <label
+                        *ngFor="let error of objKeys(landingF.description.errors)"
+                        class="error custom-error-label"
+                        >{{ showError('description', error) }}
+                        </label>
+                    </div>
+                    <!-- End program description -->
+        
+                    <!-- Program language -->
+                    <div class=" mt-4">
+                        <label> Program Language </label>
+                        <p class=" small text-muted pl-2 mb-2">
+                            <i class="fas fa-info-circle"></i> Marketing is more effective when targeting a single primary language. 
+                            If you coach in more than one language, consider creating duplicate programs.
+                        </p>
+                    </div>
+                    <div class="form-group">
+                        <select class="form-control" formControlName="language">
+                            <option [value]="null">Select a language</option>
+                            <option *ngFor="let item of objKeys(languages)" [value]="item">
+                                {{ languages[item].nativeName }}
+                            </option>
+                        </select>
+                    </div>
+                    <div *ngIf="saveAttempt && landingF.language.errors || landingF.language.value != null && landingF.language.errors">
+                        <label
+                        *ngFor="let error of objKeys(landingF.language.errors)"
+                        class="error custom-error-label"
+                        >{{ showError('language', error) }}
+                        </label>
+                    </div>
+                    <!-- End program language -->
+        
+                    <!-- Program category -->
+                    <div class=" mt-4">
+                        <label> Program Category </label>
+                        <p class=" small text-muted pl-2 mb-2">
+                            <i class="fas fa-info-circle"></i> Select the closest matching high level coaching category for this program.
+                        </p>
+                    </div>
+                    <div class="form-group">
+                        <select class="form-control" formControlName="category">
+                            <option [value]="null">Select a category</option>
+                            <option *ngFor="let item of specialities" [value]="item.itemName">
+                                {{ item.itemName }}
+                            </option>
+                        </select>
+                    </div>
+                    <div *ngIf="saveAttempt && landingF.category.errors || landingF.category.value != null && landingF.category.errors">
+                        <label
+                        *ngFor="let error of objKeys(landingF.category.errors)"
+                        class="error custom-error-label"
+                        >{{ showError('category', error) }}
+                        </label>
+                    </div>
+                    <!-- End program category -->
+        
+                    <!-- Program subject -->
+                    <div class=" mt-4">
+                        <label> What is the <strong>Primary</strong> subject you address in this program? </label>
+                        <p class=" small text-muted pl-2 mb-2">
+                            <i class="fas fa-info-circle"></i> This helps you to attract the most suitable clients using search.
+                        </p>
+                    </div>
+                    <div
+                    class="input-group no-symbol"
+                    [ngClass]="{
+                        'has-danger':
+                        (( (focus2Touched && landingF.subject.value != '') || saveAttempt) && landingF.subject.errors),
+                        'has-success': !landingF.subject.errors
+                    }">
+                        <input
+                        type="text"
+                        class="form-control"
+                        formControlName="subject"
+                        placeholder="eg. Dealing with anxiety"
+                        (focus)="focus2 = true; focus2Touched = true"
+                        (blur)="focus2 = false"
+                        (input)="onSubjectInput($event)">
+                        <div class="input-group-append">
+                        <span class="input-group-text">
+                            {{ subjectActualLength + '/' + subjectMaxLength }}
+                        </span>
+                        </div>
+                    </div>
+                    <div *ngIf="(( (focus2Touched && landingF.subject.value != '') || saveAttempt) && landingF.subject.errors)">
+                        <label
+                        *ngFor="let error of objKeys(landingF.subject.errors)"
+                        class="error custom-error-label"
+                        >{{ showError('subject', error) }}
+                        </label>
+                    </div>
+                    <!-- End of program subject -->
+        
+                    <!-- cover image -->
+                    <div class=" mt-4">
+                        <label> Cover Image </label>
+                        <p class="lead text-muted">Make your coaching program stand out with a great cover image!
+                            Upload your own if you have an image that meets our 
+                            <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001167913-help-with-your-lifecoach-program-landing-page" target="_blank">
+                                guidelines
+                            </a>
+                            , or request a 
+                            professionally designed cover image from our design team 
+                            <span class=" text-success">FREE for a limited time!</span>
+                        </p>
+                        
+                        <div class="form-check form-check-radio mt-4">
+                            <label class="form-check-label">
+                                <input class="form-check-input" type="radio" id="image-radio-upload" value="upload" formControlName="imageOption" (change)="onImageOptionChange($event)">
+                                Upload my own cover image
+                                <span class="form-check-sign"></span>
+                            </label>
+                        </div>
+                        <div class="form-check form-check-radio">
+                            <label class="form-check-label">
+                                <input class="form-check-input" type="radio" id="image-radio-pro" value="pro" formControlName="imageOption" (change)="onImageOptionChange($event)">
+                                Get a professionally designed cover image (Currently FREE!)
+                                <span class="form-check-sign"></span>
+                            </label>
+                        </div>
+                        
+                        <p *ngIf="landingF.imageOption.value === 'upload'" class="lead text-muted mt-4">Note: Images <strong>MUST</strong> meet our
+                            <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001167913-help-with-your-lifecoach-program-landing-page" target="_blank">
+                                image guidelines
+                            </a>
+                            to be accepted.
+                        </p>
+        
+                        <p *ngIf="landingF.imageOption.value === 'pro'" class="lead text-success mt-4">
+                            Great! Our design team will get to work when you submit your service for review
+                        </p>
+                        
+                    </div>
+                    <div *ngIf="landingF.imageOption.value === 'upload'" class=" mt-3">
+                        <app-picture-upload
+                        [inputImg]="landingF.image.value"
+                        (messageEvent)="onPictureUpload($event)">
+                        </app-picture-upload>
+                    </div>
+                    <!-- if image errors -->
+                    <div *ngIf="(saveAttempt && landingF.image.errors)">
+                        <label
+                        *ngFor="let error of objKeys(landingF.image.errors)"
+                        class="error custom-error-label"
+                        >{{ showError('image', error) }}
+                        </label>
+                    </div>
+                    <!-- End cover image -->
+        
+                    <!-- Program promotional video -->
+                    <div class=" mt-4">
+                        <label> Program Promotional Video </label>
+                        <p class=" small text-muted pl-2 mb-2">
+                            <i class="fas fa-info-circle"></i> Optional. Upload a short (90sec max.) promotional video to promote your program. Clients 
+                            who watch a well-made promo video are 5-10X more likely to enrol! Need a little help? Click  
+                            <a href="" target="_blank">
+                                here
+                            </a> to learn how to make a great promo video. Video files must be at least 720p and less than 4.0GB
+                        </p>
+                    </div>
+        
+                    <!-- Video upload -->
+                    <div>
+                        <!-- Video drop / upload -->
+                        <app-program-promo-video-uploader
+                        [uid]="userId"
+                        [program]="program"
+                        (promoVidUploadedEvent)="onPromoVideoUploadEvent($event)">
+                        </app-program-promo-video-uploader>
+                    </div>
+        
+                    <!-- Video player -->
+                    <div *ngIf="browser && landingF.promoVideo.value && landingF.promoVideo.value.downloadURL" class=" mt-3">
+                        <vg-player>
+                        <vg-controls>
+                            <vg-play-pause></vg-play-pause>
+                            <vg-playback-button></vg-playback-button>
+                        
+                            <vg-time-display vgProperty="current" vgFormat="mm:ss"></vg-time-display>
+                        
+                            <vg-scrub-bar>
+                                <vg-scrub-bar-current-time></vg-scrub-bar-current-time>
+                                <vg-scrub-bar-buffering-time></vg-scrub-bar-buffering-time>
+                            </vg-scrub-bar>
+                        
+                            <vg-time-display vgProperty="total" vgFormat="mm:ss"></vg-time-display>
+                        
+                            <vg-mute></vg-mute>
+                            <vg-volume></vg-volume>
+                        
+                            <vg-fullscreen></vg-fullscreen>
+                        </vg-controls>
+                        
+                        <video #media [vgMedia]="media" id="singleVideo" preload="auto">
+                            <source *ngFor="let video of videoSources" [src]="video.src">
+                        </video>
+                        </vg-player>
+                    </div>
+                    <!-- End video player -->
+                    <!-- End program promotional video -->
+        
+                    <!-- Program learning points -->
+                    <div class=" mt-4">
+                        <label> What are the main outcomes for clients who complete this program? </label>
+                        <p class=" small text-muted pl-2 mb-2">
+                            <i class="fas fa-info-circle"></i> Optional. These outcomes will be highlighted on your landing page & help 
+                            to attract the right clients to enrol in your program.
+                        </p>
+                    </div>
+                    <div formArrayName="learningPoints" *ngFor="let item of landingF.learningPoints.value.controls ; let i = index">
+                        <div
+                        class="input-group no-symbol"
+                        [ngClass]="{
+                            'has-danger':
+                            (( (landingF.learningPoints.value.controls[i].touched && landingF.learningPoints.value.controls[i].value != '') || saveAttempt) &&  
+                            landingF.learningPoints.value.controls[i].errors),
+                            'has-success': !landingF.learningPoints.value.controls[i].errors
+                        }">
+                            <input
+                            type="text"
+                            class="form-control"
+                            [formControl]="landingF.learningPoints.value.controls[i]"
+                            placeholder="eg. Learn self-belief">
+                            <div class="input-group-append">
+                                <span class="input-group-text">
+                                    {{ landingF.learningPoints.value.controls[i].value.length + '/' + learningPointsMaxLength }}
+                                </span>
+                            </div>
+                            <button 
+                            class="input-group-append ml-2 btn btn-danger btn-fab btn-icon"
+                            (click)="deleteLearningPoint(i)">
+                                <i class="tim-icons icon-trash-simple"></i>
+                            </button>
+                        </div>
+                        <div *ngIf="(( (landingF.learningPoints.value.controls[i].touched && landingF.learningPoints.value.controls[i].value != '') || saveAttempt) && 
+                            landingF.learningPoints.value.controls[i].errors)">
+                            <label
+                            *ngFor="let error of objKeys(landingF.learningPoints.value.controls[i].errors)"
+                            class="error custom-error-label"
+                            >{{ showError('learningPoints', error) }}
+                            </label>
+                        </div>
+                    </div>
+                    <button
+                    type="button"
+                    class=" btn btn-primary btn-link"
+                    (click)="addLearningPoint()"
+                    [disabled]="landingF.learningPoints.value.controls.length >= learningPointsMax">
+                        <i class="fas fa-plus"></i> Add an outcome
+                    </button>
+                    <!-- End program learning points -->
+        
+                    <!-- Program requirements -->
+                    <div class=" mt-4">
+                        <label> Are there any special requirements or prerequisites to clients enrolling in this program? </label>
+                        <p class=" small text-muted pl-2 mb-2">
+                            <i class="fas fa-info-circle"></i> Optional. If you require any specific conditions to be met 
+                            before clients enrol in this program, mention them here. Any requirements or prerequisites will 
+                            be highlighted on your landing page & help 
+                            to attract the right clients to your program.
+                        </p>
+                    </div>
+                    <div formArrayName="requirements" *ngFor="let item of landingF.requirements.value?.controls ; let i = index">
+                        <div
+                        class="input-group no-symbol"
+                        [ngClass]="{
+                            'has-danger':
+                            (( (landingF.requirements.value.controls[i].touched && landingF.requirements.value.controls[i].value != '') || saveAttempt) &&  
+                            landingF.requirements.value.controls[i].errors),
+                            'has-success': !landingF.requirements.value.controls[i].errors
+                        }">
+                            <input
+                            type="text"
+                            class="form-control"
+                            [formControl]="landingF.requirements.value.controls[i]"
+                            placeholder="eg. Completed the beginner program">
+                            <div class="input-group-append">
+                                <span class="input-group-text">
+                                    {{ landingF.requirements.value.controls[i].value.length + '/' + requirementsMaxLength }}
+                                </span>
+                            </div>
+                            <button 
+                            class="input-group-append ml-2 btn btn-danger btn-fab btn-icon"
+                            (click)="deleteRequirement(i)">
+                                <i class="tim-icons icon-trash-simple"></i>
+                            </button>
+                        </div>
+                        <div *ngIf="(( (landingF.requirements.value.controls[i].touched && landingF.requirements.value.controls[i].value != '') || saveAttempt) && 
+                            landingF.requirements.value.controls[i].errors)">
+                            <label
+                            *ngFor="let error of objKeys(landingF.requirements.value.controls[i].errors)"
+                            class="error custom-error-label"
+                            >{{ showError('requirements', error) }}
+                            </label>
+                        </div>
+                    </div>
+                    <button
+                    type="button"
+                    class=" btn btn-primary btn-link"
+                    (click)="addRequirement()"
+                    [disabled]="landingF.requirements.value?.controls.length >= requirementsMax">
+                        <i class="fas fa-plus"></i> Add a requirement
+                    </button>
+                    <!-- End program requirements -->
+        
+                    <!-- Program target clients -->
+                    <div class=" mt-4">
+                        <label> Who are your ideal target clients for this program? </label>
+                        <p class=" small text-muted pl-2 mb-2">
+                            <i class="fas fa-info-circle"></i> Optional. Adding target clients will help 
+                            to attract the right clients to your program.
+                        </p>
+                    </div>
+                    <div formArrayName="targets" *ngFor="let item of landingF.targets.value.controls ; let i = index">
+                        <div
+                        class="input-group no-symbol"
+                        [ngClass]="{
+                            'has-danger':
+                            (( (landingF.targets.value.controls[i].touched && landingF.targets.value.controls[i].value != '') || saveAttempt) &&  
+                            landingF.targets.value.controls[i].errors),
+                            'has-success': !landingF.targets.value.controls[i].errors
+                        }">
+                            <input
+                            type="text"
+                            class="form-control"
+                            [formControl]="landingF.targets.value.controls[i]"
+                            placeholder="eg. Female Entreprenuers">
+                            <div class="input-group-append">
+                                <span class="input-group-text">
+                                    {{ landingF.targets.value.controls[i].value.length + '/' + targetsMaxLength }}
+                                </span>
+                            </div>
+                            <button 
+                            class="input-group-append ml-2 btn btn-danger btn-fab btn-icon"
+                            (click)="deleteTarget(i)">
+                                <i class="tim-icons icon-trash-simple"></i>
+                            </button>
+                        </div>
+                        <div *ngIf="(( (landingF.targets.value.controls[i].touched && landingF.targets.value.controls[i].value != '') || saveAttempt) && 
+                            landingF.targets.value.controls[i].errors)">
+                            <label
+                            *ngFor="let error of objKeys(landingF.targets.value.controls[i].errors)"
+                            class="error custom-error-label"
+                            >{{ showError('targets', error) }}
+                            </label>
+                        </div>
+                    </div>
+                    <button
+                    type="button"
+                    class=" btn btn-primary btn-link"
+                    (click)="addTarget()"
+                    [disabled]="landingF.targets.value.controls.length >= targetsMax">
+                        <i class="fas fa-plus"></i> Add a target client
+                    </button>
+                    <!-- End program target clients -->
+        
+                    <!-- include in C4C -->
+                    <div class=" form-group mt-3">
+                        <label> Include this program in the Lifecoach 'Coaching for Coaches' program </label>
+                        <p class=" small text-muted pl-2 mb-4">
+                            <i class="fas fa-info-circle"></i> The Lifecoach 'Coaching for Coaches' program is aimed specifically 
+                            at helping professional Coaches to progress their coaching careers. If you are a Coach who 
+                            specialises in coaching or training fellow Coaches, you can include your coaching in this program. 
+                            Please only select this option if your coaching is aimed specifically at other coaches. 
+                            Need a little help? <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001174543-introducing-the-lifecoach-coaching-for-coaches-program" target="_blank">
+                                Read more.
+                            </a> 
+                        </p>
+                        <div class=" mt-3">
+                            <bSwitch
+                            [switch-on-color]="'danger'"
+                            [switch-off-color]="'danger'"
+                            [switch-off-text]="'NO'"
+                            [switch-on-text]="'YES'"
+                            [(ngModel)]="landingF.includeInCoachingForCoaches.value"
+                            [ngModelOptions]="{standalone: true}"
+                            (changeState)="onIncludeInCoachingForCoachesToggle($event)"
+                          >
+                          </bSwitch>
+                        </div>
+                        
+                    </div>
+        
+                    <hr>
+        
+                    <div class=" row mt-4">
+                        <div class="col">
+                            <p class=" small text-warning pl-2 mb-2">
+                                <i class="fas fa-info-circle"></i> Don't forget to save your changes before you preview.
+                            </p>
+                            <!-- Preview program -->
+                            <a *ngIf="program?.programId"
+                                [routerLink]="['/program', program.programId]"
+                                target="_blank">
+                                    <button
+                                    type="button"
+                                    class="btn btn-default btn-round">
+                                        <i class="fas fa-eye"></i> Preview Landing Page
+                                    </button>
+                            </a>
+                            <button type="button" class=" btn btn-default btn-round btn-fill ml-3" (click)="saveProgress()">
+                                <span *ngIf="!saving">
+                                    <i class="fas fa-save"></i>
+                                </span>
+                                <span
+                                *ngIf="saving"
+                                class="spinner-border spinner-border-sm"
+                                role="status"
+                                ></span> {{ saving ? 'Saving...' : 'Save'}}
+                            </button>
+                            <button type="button" class=" btn btn-primary btn-round btn-fill ml-3" (click)="goNext()">
+                                <span *ngIf="!saving">
+                                    <i class="fas fa-arrow-right"></i>
+                                </span>
+                                <span
+                                *ngIf="saving"
+                                class="spinner-border spinner-border-sm"
+                                role="status"
+                                ></span> {{ saving ? 'Saving...' : 'Next: Sessions & Pricing'}}
+                            </button>
+                        </div>
+                    </div>
+        
+                </form>
             </div>
+        </div>
+    </div>
+    <div class=" md-4">
 
-        </form>
     </div>
 </div>
