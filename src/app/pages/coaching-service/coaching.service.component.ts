@@ -31,7 +31,6 @@ declare var Stripe: any;
   selector: 'app-service',
   templateUrl: './coaching.service.component.html',
   styleUrls: ['./coaching.service.component.scss'],
-  // encapsulation: ViewEncapsulation.None // to allow styling to be applied to innerHTML on the description // I'm not sure, but looks like this is redundant
 })
 export class CoachingServiceComponent implements OnInit, AfterContentChecked, OnDestroy {
 
