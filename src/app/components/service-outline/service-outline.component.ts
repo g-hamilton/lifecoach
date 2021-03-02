@@ -46,6 +46,7 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
   private minPrice = 29.99;
   private maxPrice = 9999;
   public pricingPointsMax = 3; // keep to max 3 for the purchase UI (3 cards + discovery card)
+  public maxDiscountObj = { max: 0 };
 
   public errorMessages = {
     price: {
@@ -249,6 +250,7 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
 
   deletePricingPoint(index: number) {
     this.outlineF.pricing.controls.splice(index, 1);
+    this.maxDiscountObj.max = 0;
   }
 
   buildPricing() {
@@ -366,7 +368,7 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
     const index = controls.findIndex(i => i.controls.numSessions.value === lowest);
     // console.log(index);
     const basePricePerSession = Number((controls[index].controls.price.value / controls[index].controls.numSessions.value));
-    console.log(basePricePerSession);
+    // console.log(basePricePerSession);
     if (!basePricePerSession || basePricePerSession === Infinity || isNaN(basePricePerSession)) {
       return 0;
     }
@@ -375,13 +377,22 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
     const index1 = controls.findIndex(i => i.controls.numSessions.value === key);
     // console.log('index1', index1);
     const thisPricePerSession = Number((controls[index1].controls.price.value / controls[index1].controls.numSessions.value));
-    console.log(thisPricePerSession);
+    // console.log(thisPricePerSession);
     if (!thisPricePerSession || thisPricePerSession === Infinity || isNaN(thisPricePerSession)) {
       return 0;
     }
 
     // it's discount time!
-    return (100 - ((thisPricePerSession  / basePricePerSession) * 100)).toFixed();
+    const discount = Number((100 - ((thisPricePerSession  / basePricePerSession) * 100)).toFixed());
+
+    // update the max discount if required
+    this.maxDiscountObj.max = 0;
+    if (discount > this.maxDiscountObj.max) {
+      this.maxDiscountObj.max = discount;
+    }
+
+    // return the discount
+    return discount;
   }
 
   saveProgress() {

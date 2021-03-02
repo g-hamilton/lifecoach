@@ -215,8 +215,8 @@
                     <span class=" badge badge-default">
                         Flexible Pricing
                     </span>
-                    <span class=" badge badge-success ml-2">
-                        Save up to 25%
+                    <span *ngIf="maxDiscountObj.max > 0" class=" badge badge-success ml-2">
+                        Save up to {{ maxDiscountObj.max }}%
                     </span>
                 </div>
             </div>
