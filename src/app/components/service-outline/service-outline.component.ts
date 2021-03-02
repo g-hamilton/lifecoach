@@ -41,11 +41,12 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
   private baseMaxPrice = 9999; // maximum allowed price in base currency
   private baseCurrency = 'GBP';
   private rates: any;
-  private minSessions = 2; // should be 2 or above
+  private minSessions = 1;
   private maxSessions = 100;
   private minPrice = 29.99;
   private maxPrice = 9999;
   public pricingPointsMax = 3; // keep to max 3 for the purchase UI (3 cards + discovery card)
+  public maxDiscountObj = { max: 0 };
 
   public errorMessages = {
     price: {
@@ -57,7 +58,7 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
     numSessions: {
       required: `Please set a number of sessions.`,
       notNumber: `Must be a number`,
-      min: `Please enter a number above ${this.minSessions - 1}.`,
+      min: `Please enter a number above ${this.minSessions}.`,
       max: `Price enter a number below ${this.maxSessions}`
     }
   };
@@ -121,10 +122,7 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
       pricing: this.formBuilder.array([
         // sessions/price group
         this.formBuilder.group({
-          numSessions: [{
-            value: 1,
-            disabled: true // disable single session by default (clients must always be allowed to buy 1 session)
-          }],
+          numSessions: [1, [Validators.required, Validators.min(1)]],
           price: [null, [Validators.required, Validators.min(this.minPrice), Validators.max(this.maxPrice)]]
         })
       ]),
@@ -206,10 +204,7 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
     this.outlineForm.setControl('pricing', this.service.pricing ? this.loadPricing() : this.formBuilder.array([
         // sessions/price group
         this.formBuilder.group({
-          numSessions: [{
-            value: 1,
-            disabled: true // disable single session by default (clients must always be allowed to buy 1 session)
-          }],
+          numSessions: [1, [Validators.required, Validators.min(1)]],
           price: [null, [Validators.required, Validators.min(this.minPrice), Validators.max(this.maxPrice)]]
         })
       ], Validators.maxLength(this.pricingPointsMax)),
@@ -223,15 +218,12 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
 
   loadPricing() {
     const pricingArray = this.formBuilder.array([], Validators.maxLength(this.pricingPointsMax));
-    console.log('service pricing from DB', this.service.pricing);
+    // console.log('service pricing from DB', this.service.pricing);
     Object.keys(this.service.pricing).forEach(key => {
       if (key === '1') {
         pricingArray.push(
           this.formBuilder.group({
-            numSessions: [{
-              value: 1,
-              disabled: true // disable single session by default (clients must always be allowed to buy 1 session)
-            }],
+            numSessions: [1, [Validators.required, Validators.min(1)]],
             price: [this.service.pricing[key].price, [Validators.required, Validators.min(this.minPrice), Validators.max(this.maxPrice)]]
           })
         );
@@ -258,6 +250,7 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
 
   deletePricingPoint(index: number) {
     this.outlineF.pricing.controls.splice(index, 1);
+    this.maxDiscountObj.max = 0;
   }
 
   buildPricing() {
@@ -349,8 +342,57 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
     this.analyticsService.editServiceOutline();
   }
 
-  calcDiscount() {
+  calcDiscount(key: number) {
+    // console.log(key);
+
+    const controls = this.outlineF.pricing.controls;
+    // console.log(controls);
+
+    // check that prices exist
+    if (!controls) {
+      return 0;
+    }
+
+    // find the lowest number of sessions in the pricing
+    const sessions = [];
+    controls.forEach(i => sessions.push(i.controls.numSessions.value));
+    sessions.sort();
+    // console.log(sessions);
+    const lowest = sessions[0];
+    // console.log(lowest);
+    if (key === lowest) { // this is the lowest number of sessions so there can't be a discount here
     return 0;
+    }
+
+    // calculate the base price per session
+    const index = controls.findIndex(i => i.controls.numSessions.value === lowest);
+    // console.log(index);
+    const basePricePerSession = Number((controls[index].controls.price.value / controls[index].controls.numSessions.value));
+    // console.log(basePricePerSession);
+    if (!basePricePerSession || basePricePerSession === Infinity || isNaN(basePricePerSession)) {
+      return 0;
+    }
+
+    // calculate this package price per session
+    const index1 = controls.findIndex(i => i.controls.numSessions.value === key);
+    // console.log('index1', index1);
+    const thisPricePerSession = Number((controls[index1].controls.price.value / controls[index1].controls.numSessions.value));
+    // console.log(thisPricePerSession);
+    if (!thisPricePerSession || thisPricePerSession === Infinity || isNaN(thisPricePerSession)) {
+      return 0;
+    }
+
+    // it's discount time!
+    const discount = Number((100 - ((thisPricePerSession  / basePricePerSession) * 100)).toFixed());
+
+    // update the max discount if required
+    this.maxDiscountObj.max = 0;
+    if (discount > this.maxDiscountObj.max) {
+      this.maxDiscountObj.max = discount;
+    }
+
+    // return the discount
+    return discount;
   }
 
   saveProgress() {

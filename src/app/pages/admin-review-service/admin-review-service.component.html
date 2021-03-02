@@ -63,9 +63,13 @@
                 <!-- title & subtitle -->
                 <div *ngIf="service" class=" row">
                     <div class=" col-md-6 ml-auto mr-auto text-center">
-                        <h1 class=" title">{{ service.title }}</h1>
+                        <h1 class=" title">
+                            {{ service.type ? service.type === 'individual' ? 'Individual' : '' : 'Individual'}} 
+                            {{ service.sessionDuration ? service.sessionDuration + 'min' : '' }}
+                            coaching session
+                        </h1>
                         <h4>
-                            {{ service.subtitle }}
+                            {{ service.headline ? service.headline : service.subtitle ? service.subtitle : '' }}
                         </h4>
                     </div>
                 </div>
@@ -167,7 +171,7 @@
                         <div *ngIf="service?.language ; else noLanguage" class=" mt-5">
                             <h5 class=" card-title"> Service language: </h5>
                             <h6 class="text-muted">
-                            <i class="fas fa-comment"></i> {{ service.language }}
+                            {{ service.language }}
                             </h6>
                         </div>
                         <ng-template #noLanguage>
@@ -182,7 +186,7 @@
                         <div *ngIf="service?.imageOption" class=" mt-5">
                             <h5 class=" card-title"> Image Option: </h5>
                             <h6 class="text-muted">
-                            <i class="fas fa-comment"></i> {{ service.imageOption }}
+                            {{ service.imageOption }}
                             </h6>
                         </div>
 

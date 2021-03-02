@@ -834,7 +834,7 @@ export class DataService {
     // Saves a user's program to a document with matching id
     return this.db.collection(`users/${uid}/services`)
       .doc(service.serviceId)
-      .set(service, {merge: true})
+      .set(service) // don't merge true as we need a full overwrite - otherwise pricing object can get messed up
       .catch(err => console.error(err));
   }
 

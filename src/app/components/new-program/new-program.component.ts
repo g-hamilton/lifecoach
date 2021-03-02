@@ -145,6 +145,11 @@ export class NewProgramComponent implements OnInit, OnChanges, OnDestroy {
     // Navigate to continue
     this.router.navigate(['/my-programs', programId, 'content'], { queryParams: { targetUser: this.userId }});
   }
+
+  cancel() {
+    this.router.navigate(['/coach-products-services']);
+  }
+
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
   }

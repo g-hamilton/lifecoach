@@ -59,6 +59,7 @@ export class CoachingServiceComponent implements OnInit, OnDestroy {
 
   public pricingSessions: string; // how many sessions is the user purchasing?
   public purchaseDisplayPrice: number; // what price is the client expecting to pay?
+  public maxDiscountObj = { max: 0 };
 
   private subscriptions: Subscription = new Subscription();
 
@@ -372,13 +373,13 @@ export class CoachingServiceComponent implements OnInit, OnDestroy {
 
   updateServiceMeta() {
     // Build dynamic meta tags
-    this.titleService.setTitle(`${this.service.title}`);
-    this.metaTagService.updateTag({name: 'description', content: `${this.service.subtitle} | Personal Development & Transformation 1-to-1 online coaching services from Lifecoach.io`}, `name='description'`);
+    this.titleService.setTitle(`${this.service.coachName} Coaching`);
+    this.metaTagService.updateTag({name: 'description', content: `${this.service.headline} | Personal Development & Transformation 1-to-1 online coaching services from Lifecoach.io`}, `name='description'`);
     this.metaTagService.updateTag({
-      property: 'og:title', content: `${this.service.title}`
+      property: 'og:title', content: `${this.service.coachName} Coaching`
     }, `property='og:title'`);
     this.metaTagService.updateTag({
-      property: 'og:description', content: `${this.service.subtitle}`
+      property: 'og:description', content: `${this.service.headline}`
     }, `property='og:description'`);
     this.metaTagService.updateTag({
       property: 'og:image:url', content: this.service.image ? this.service.image : this.service.coachPhoto
@@ -552,27 +553,50 @@ export class CoachingServiceComponent implements OnInit, OnDestroy {
       .subscribe(() => this.router.navigate(['/reserved-sessions']));
   }
 
-  calcDiscount(pricingObjKey: string) {
-    // check that prices exist on the db object
-    if (!this.service.pricing) {
+  calcDiscount(key: number) {
+    // console.log(key);
+
+    const pricing = this.service.pricing;
+
+    // check that prices exist
+    if (!pricing) {
       return 0;
     }
-    if (!this.service.pricing['1'].price) {
+    // there can't be a discount if there's only one pricing package
+    if (Object.keys(pricing).length <= 1) {
       return 0;
     }
-    if (!this.service.pricing[pricingObjKey].price) {
+
+    // find the lowest number of sessions in the pricing
+    const sessions = [];
+    Object.keys(pricing).forEach(i => sessions.push(pricing[i].numSessions));
+    sessions.sort();
+    // console.log(sessions);
+    const lowest = sessions[0];
+    // console.log(lowest);
+
+    // calculate the base price per session
+    const basePricePerSession = Number((pricing[lowest].price / pricing[lowest].numSessions));
+    // console.log(basePricePerSession);
+
+    if (key === lowest) { // this is the lowest number of sessions so there can't be a discount here
       return 0;
     }
-    // convert the db prices into local prices
-    const singleSessionPrice = this.calcDisplayPrice(this.service.pricing['1'].price);
-    const packageTotalPrice = this.calcDisplayPrice(this.service.pricing[pricingObjKey].price);
-    const packagePricePerSession = packageTotalPrice / Number(pricingObjKey);
-    // don't apply a discount if the package price per session is more than or equal to the single session price
-    if (singleSessionPrice <= packagePricePerSession) {
-      return 0;
-    }
+
+    // calculate this package price per session
+    const thisPricePerSession = Number((pricing[key].price / pricing[key].numSessions));
+    // console.log(thisPricePerSession);
+
     // it's discount time!
-    return (100 - ((packagePricePerSession  / singleSessionPrice) * 100)).toFixed();
+    const discount = Number((100 - ((thisPricePerSession  / basePricePerSession) * 100)).toFixed());
+
+    // update the max discount if required
+    this.maxDiscountObj.max = 0;
+    if (discount > this.maxDiscountObj.max) {
+      this.maxDiscountObj.max = discount;
+    }
+
+    return discount;
   }
 
   ngOnDestroy() {
