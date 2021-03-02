@@ -16,7 +16,7 @@
                 <p class=" small text-muted pl-2 mb-2">
                     <i class="fas fa-info-circle"></i> Promote your coaching services & sell online video coaching sessions through Lifecoach. 
                     Simply add your services to start coaching through the platform.
-                        Want to read more? <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001170594-what-are-bespoke-coaching-services-" target="_blank">Read the guide.</a>
+                        Want to read more? <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001170594-what-are-lifecoach-coaching-services-" target="_blank">Read the guide.</a>
                 </p>
             </div>
         </div>
@@ -38,7 +38,7 @@
                 <div class=" card">
                     <div class=" card-body">
                         <p class="p-4">
-                            Before you can create bespoke coaching services, you must complete your public coach profile. 
+                            Before you can create coaching services, you must complete your public coach profile. 
                             Let's <a [routerLink]="['/profile']">
                                 complete your profile now.
                             </a>
@@ -54,7 +54,7 @@
                 <div class=" card">
                     <div class=" card-body">
                         <p class="p-4">
-                            You haven't created any bespoke coaching services yet. Let's 
+                            You haven't created any coaching services yet. Let's 
                             <a [routerLink]="['/my-services', 'new-service']">
                                 create one now!
                             </a>
@@ -70,14 +70,30 @@
                 <a [routerLink]="['/my-services', service.serviceId, 'content']">
                     <div class=" card">
 
-                        <img
-                        class="card-img-top"
-                        [src]="service.image ? service.image : 'assets/img/awaiting-image.png'"
-                        [alt]="service.title" />
+                        <ng-container *ngIf="service.imagePaths; else noImages">
+                            <div class="card-img-top service-image service-image_webp_full"
+                                 [ngStyle]="{'background-image': 'url(' + service.imagePaths.webp.fullSize +')'}"></div>
+                            <div class="card-img-top service-image service-image_webp_half"
+                                 [ngStyle]="{'background-image': 'url(' + service.imagePaths.webp['1200'] +')'}"></div>
+                            <div class="card-img-top service-image service-image_full"
+                                 [ngStyle]="{'background-image': 'url(' + service.imagePaths.original.fullSize +')'}"></div>
+                            <div class="card-img-top service-image service-image_half"
+                                 [ngStyle]="{'background-image': 'url(' + service.imagePaths.original['1200'] +')'}"></div>
+                        </ng-container>
+                        <ng-template #noImages>
+                            <img
+                              class="card-img-top"
+                              [src]="service.image ? service.image : 'assets/img/awaiting-image.png'"
+                              [alt]="service.title" />
+                        </ng-template>
 
                         <div class=" card-body">
-                            <h4 class="card-title"> {{ service?.title }} </h4>
-                            <h6 class="card-subtitle mb-2 text-muted"> {{ service?.subtitle }} </h6>
+                            <h4 class="card-title">
+                                {{ service.type ? service.type === 'individual' ? 'Individual' : '' : 'Individual'}} 
+                                {{ service.sessionDuration ? service.sessionDuration + 'min' : '' }}
+                                coaching session
+                            </h4>
+                            <h6 class="card-subtitle mb-2 text-muted"> {{ service.headline ? service.headline : service.subtitle ? service.subtitle : '' }} </h6>
                             <div>
                                 <span *ngIf="service?.reviewRequest?.status === 'submitted'" class=" badge badge-info ml-2">
                                     SUBMITTED FOR REVIEW

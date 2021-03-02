@@ -36,13 +36,9 @@ export class ServiceLandingPageComponent implements OnInit, OnChanges, OnDestroy
   public focus1Touched: boolean;
   public focus2Touched: boolean;
 
-  public titleMinLength = 10;
-  public titleMaxLength = 60;
-  public titleActualLength = 0;
-
-  public subTitleMinLength = 20;
-  public subTitleMaxLength = 120;
-  public subTitleActualLength = 0;
+  public headlineMinLength = 10;
+  public headlineMaxLength = 120;
+  public headlineActualLength = 0;
 
   public subjectMinLength = 6;
   public subjectMaxLength = 120;
@@ -68,14 +64,15 @@ export class ServiceLandingPageComponent implements OnInit, OnChanges, OnDestroy
   public videoSources = [] as any;
 
   public errorMessages = {
-    title: {
-      minlength: `Your service title should be at least ${this.titleMinLength} characters.`,
-      maxlength: `Your service title should be at less than ${this.titleMaxLength} characters.`,
-      required: 'Please enter a service title.'
+    type: {
+      required: `Please select a service type.`
     },
-    subtitle: {
-      minlength: `Your service sub-title should be at least ${this.subTitleMinLength} characters.`,
-      maxlength: `Your service sub-title should be at less than ${this.subTitleMaxLength} characters.`,
+    sessionDuration: {
+      required: `Please enter a duration in minutes.`
+    },
+    headline: {
+      minlength: `Your headline should be at least ${this.headlineMinLength} characters.`,
+      maxlength: `Your headline should be at less than ${this.headlineMaxLength} characters.`,
       required: 'Please enter a service sub-title.'
     },
     description: {
@@ -143,8 +140,9 @@ export class ServiceLandingPageComponent implements OnInit, OnChanges, OnDestroy
   buildLandingForm() {
     this.landingForm = this.formBuilder.group({
       serviceId: ['', [Validators.required]],
-      title: ['', [Validators.required, Validators.minLength(this.titleMinLength), Validators.maxLength(this.titleMaxLength)]],
-      subtitle: ['', [Validators.required, Validators.minLength(this.subTitleMinLength), Validators.maxLength(this.subTitleMaxLength)]],
+      type: [null, [Validators.required]],
+      sessionDuration: [null, [Validators.required]],
+      headline: ['', [Validators.required, Validators.minLength(this.headlineMinLength), Validators.maxLength(this.headlineMaxLength)]],
       description: ['', [Validators.required]],
       language: [null, [Validators.required]],
       category: [null, [Validators.required]],
@@ -163,8 +161,9 @@ export class ServiceLandingPageComponent implements OnInit, OnChanges, OnDestroy
   importServiceData() {
     this.landingForm.patchValue({
       serviceId: this.service.serviceId,
-      title: this.service.title ? this.service.title : '',
-      subtitle: this.service.subtitle ? this.service.subtitle : '',
+      type: this.service.type ? this.service.type : 'individual',
+      sessionDuration: this.service.sessionDuration ? this.service.sessionDuration : 60,
+      headline: this.service.headline ? this.service.headline : this.service.subtitle ? this.service.subtitle : '', // some older services may have subtitle
       description: this.service.description ? this.service.description : '',
       language: this.service.language ? this.service.language : 'en',
       category: this.service.category ? this.service.category : null,
@@ -179,8 +178,7 @@ export class ServiceLandingPageComponent implements OnInit, OnChanges, OnDestroy
       includeInCoachingForCoaches : this.service.includeInCoachingForCoaches ? this.service.includeInCoachingForCoaches : false
     });
     // init the character counts (before user input detected)
-    this.titleActualLength = this.landingF.title.value.length;
-    this.subTitleActualLength = this.landingF.subtitle.value.length;
+    this.headlineActualLength = this.landingF.headline.value.length;
     this.subjectActualLength = this.landingF.subject.value.length;
   }
 
@@ -258,12 +256,8 @@ export class ServiceLandingPageComponent implements OnInit, OnChanges, OnDestroy
     return 'Invalid input';
   }
 
-  onTitleInput(ev: any) {
-    this.titleActualLength = (ev.target.value as string).length;
-  }
-
-  onSubTitleInput(ev: any) {
-    this.subTitleActualLength = (ev.target.value as string).length;
+  onHeadlineInput(ev: any) {
+    this.headlineActualLength = (ev.target.value as string).length;
   }
 
   onSubjectInput(ev: any) {
@@ -390,8 +384,9 @@ export class ServiceLandingPageComponent implements OnInit, OnChanges, OnDestroy
     }
 
     // Merge landing form data into service data & save the service object
-    this.service.title = this.landingF.title.value;
-    this.service.subtitle = this.landingF.subtitle.value;
+    this.service.type = this.landingF.type.value;
+    this.service.sessionDuration = this.landingF.sessionDuration.value;
+    this.service.headline = this.landingF.headline.value;
     this.service.description = this.landingF.description.value;
     this.service.language = this.landingF.language.value;
     this.service.category = this.landingF.category.value;

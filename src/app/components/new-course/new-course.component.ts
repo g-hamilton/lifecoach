@@ -150,6 +150,10 @@ export class NewCourseComponent implements OnInit, OnChanges, OnDestroy {
     this.router.navigate(['/my-courses', courseId, 'content', 'section', 'new'], { queryParams: { targetUser: this.userId }});
   }
 
+  cancel() {
+    this.router.navigate(['/coach-products-services']);
+  }
+
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
   }

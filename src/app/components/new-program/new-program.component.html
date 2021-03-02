@@ -42,18 +42,32 @@
                             </label>
                         </div>
 
-                        <div class=" pull-right">
-                            <button type="submit" class=" btn btn-primary btn-round btn-fill mt-4">
-                                <span *ngIf="!saving">
-                                    <i class="fas fa-save"></i>
-                                  </span>
-                                  <span
-                                  *ngIf="saving"
-                                  class="spinner-border spinner-border-sm"
-                                  role="status"
-                                  ></span> {{ saving ? 'Saving...' : 'Continue'}}
-                            </button>
+                        <!-- buttons -->
+                        <div class=" row">
+                            <div class=" col">
+                                <div class=" pull-left">
+                                    <button type="button" class=" btn btn-default btn-round btn-fill mt-4" (click)="cancel()">
+                                        <i class="fas fa-times"></i>
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                            <div class=" col">
+                                <div class=" pull-right">
+                                    <button type="submit" class=" btn btn-primary btn-round btn-fill mt-4">
+                                        <span *ngIf="!saving">
+                                            <i class="fas fa-save"></i>
+                                          </span>
+                                          <span
+                                          *ngIf="saving"
+                                          class="spinner-border spinner-border-sm"
+                                          role="status"
+                                          ></span> {{ saving ? 'Saving...' : 'Continue'}}
+                                    </button>
+                                </div>
+                            </div>
                         </div>
+                        <!-- end row -->
                     </form>
                 </div>
               </div>
