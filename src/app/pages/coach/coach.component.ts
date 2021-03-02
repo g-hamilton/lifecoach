@@ -40,6 +40,8 @@ export class CoachComponent implements OnInit, OnDestroy {
   public todayEvents: Array<any>;
   private subscriptions: Subscription = new Subscription();
   public userId: string;
+  public objKeys = Object.keys;
+  public maxDiscountObj = { max: 0 };
 
   constructor(
     @Inject(DOCUMENT) private document: any,

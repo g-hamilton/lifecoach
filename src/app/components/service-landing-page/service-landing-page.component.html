@@ -563,26 +563,8 @@
     <!-- end col -->
 
     <!-- col -->
-    <div class=" col-md-4">
-        <div class=" card">
-
-            <img
-            class="card-img-top"
-            [src]="landingF.image.value ? landingF.image.value : 'assets/img/awaiting-image.png'"
-            alt="Example cover image for your coaching service" />
-
-            <div class=" card-body">
-                <h4 class="card-title"> 
-                    {{ landingF.type.value === 'individual' ? 'Individual' : '' }} 
-                    {{ landingF.sessionDuration.value ? landingF.sessionDuration.value + 'min' : '' }}
-                    coaching session
-                </h4>
-                <h6 class="card-subtitle mb-2 text-muted"> 
-                    {{ landingF.headline.value }}
-                </h6>
-            </div>
-
-        </div>
+    <div *ngIf="service" class=" col-md-4">
+        <app-service-card [service]="service"></app-service-card>
     </div>
     <!-- end col -->
 

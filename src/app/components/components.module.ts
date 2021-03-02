@@ -136,6 +136,7 @@ import { CoachMiniProfileComponent } from './coach-mini-profile/coach-mini-profi
 import { RegisterModalComponent } from './register-modal/register-modal.component';
 import { SocialMediaShareComponent } from './social-media-share/social-media-share.component';
 import { NgxSocialShareModule } from 'ngx-social-share';
+import { ServiceCardComponent } from './service-card/service-card.component';
 
 export function momentAdapterFactory() {
   return adapterFactory(moment);
@@ -275,7 +276,8 @@ export function momentAdapterFactory() {
     ServicePromoVideoUploadTaskComponent,
     CoachMiniProfileComponent,
     RegisterModalComponent,
-    SocialMediaShareComponent
+    SocialMediaShareComponent,
+    ServiceCardComponent
   ],
   exports: [
     TabsModule,
@@ -390,7 +392,8 @@ export function momentAdapterFactory() {
     ServicePromoteComponent,
     ServiceMoreComponent,
     CoachMiniProfileComponent,
-    SocialMediaShareComponent
+    SocialMediaShareComponent,
+    ServiceCardComponent
   ],
   entryComponents: [
     LoginComponent,
