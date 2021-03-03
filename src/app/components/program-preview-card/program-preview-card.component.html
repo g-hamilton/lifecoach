@@ -29,6 +29,23 @@
             <div class=" card-body">
                 <h4 class="card-title"> {{ formControls?.title?.value }} </h4>
                 <h6 class="card-subtitle mb-2 text-muted"> {{ formControls?.subtitle?.value }} </h6>
+                <div>
+                    <span *ngIf="formControls?.numSessions?.value" class=" badge badge-primary mr-2">
+                        {{formControls.numSessions.value }} sessions
+                        <span *ngIf="formControls?.duration?.value">
+                            / {{ formControls.duration.value }} Weeks
+                        </span>
+                    </span>
+                    <span *ngIf="formControls?.pricingStrategy?.value === 'flexible'" class=" badge badge-default mr-2">
+                        Flexible Pricing
+                    </span>
+                    <span *ngIf="maxDiscountObj.max > 0" class=" badge badge-success mr-2">
+                        Save up to {{ maxDiscountObj.max }}%
+                    </span>
+                    <span *ngIf="maxDiscount?.max" class=" badge badge-success mr-2">
+                        Save up to {{ maxDiscount?.max }}%
+                    </span>
+                </div>
             </div>
     
         </div>
@@ -66,6 +83,20 @@
             <div class=" card-body">
                 <h4 class="card-title"> {{ program.title }} </h4>
                 <h6 class="card-subtitle mb-2 text-muted"> {{ program.subtitle }} </h6>
+                <div>
+                    <span *ngIf="program.numSessions" class=" badge badge-primary mr-2">
+                        {{program.numSessions }} sessions
+                        <span *ngIf="program.duration">
+                            / {{ program.duration }} Weeks
+                        </span>
+                    </span>
+                    <span *ngIf="program.pricingStrategy === 'flexible'" class=" badge badge-default mr-2">
+                        Flexible Pricing
+                    </span>
+                    <span *ngIf="maxDiscountObj.max > 0" class=" badge badge-success">
+                        Save up to {{ maxDiscountObj.max }}%
+                    </span>
+                </div>
             </div>
     
         </div>
