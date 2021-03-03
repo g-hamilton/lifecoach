@@ -22,7 +22,7 @@
             <ng-template #noImages>
                 <img
                   class="card-img-top"
-                  [src]="program.image"
+                  [src]="program.image ? program.image : 'assets/img/awaiting-image.png'"
                   [alt]="program.title" />
             </ng-template>
     
@@ -30,7 +30,7 @@
                 <h4 class="card-title"> {{ formControls?.title?.value }} </h4>
                 <h6 class="card-subtitle mb-2 text-muted"> {{ formControls?.subtitle?.value }} </h6>
                 <div>
-                    <span *ngIf="formControls?.numSessions?.value" class=" badge badge-primary">
+                    <span *ngIf="formControls?.numSessions?.value" class=" badge badge-primary mr-2">
                         {{formControls.numSessions.value }} sessions
                         <span *ngIf="formControls?.duration?.value">
                             / {{ formControls.duration.value }} Weeks
@@ -76,7 +76,7 @@
             <ng-template #noImages>
                 <img
                   class="card-img-top"
-                  [src]="program.image"
+                  [src]="program.image ? program.image : 'assets/img/awaiting-image.png'"
                   [alt]="program.title" />
             </ng-template>
     
@@ -93,7 +93,7 @@
                     <span *ngIf="program.pricingStrategy === 'flexible'" class=" badge badge-default mr-2">
                         Flexible Pricing
                     </span>
-                    <span *ngIf="maxDiscountObj.max > 0" class=" badge badge-success">
+                    <span *ngIf="maxDiscountObj.max > 0" class=" badge badge-success mr-2">
                         Save {{ maxDiscountObj.max }}%
                     </span>
                 </div>
