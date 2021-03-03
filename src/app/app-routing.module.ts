@@ -338,6 +338,11 @@ const routes: Routes = [
         path: 'partner-link',
         loadChildren: () => import('./pages/partner-link/partner.link.module').then(m => m.PartnerLinkModule),
         pathMatch: 'full'
+      },
+      {
+        path: 'my-coaches',
+        loadChildren: () => import('./pages/my-coaches/mycoaches.module').then(m => m.MyCoachesModule),
+        pathMatch: 'full'
       }
     ],
     canActivate: [AuthGuard]
