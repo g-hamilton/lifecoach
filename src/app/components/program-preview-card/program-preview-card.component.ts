@@ -19,8 +19,8 @@ export class ProgramPreviewCardComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges() {
-    console.log('previewMode:', this.previewMode);
-    console.log('formData:', this.formData);
+    // console.log('previewMode:', this.previewMode);
+    // console.log('formData:', this.formData);
   }
 
   get formControls(): any {

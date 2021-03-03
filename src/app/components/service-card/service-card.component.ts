@@ -1,4 +1,5 @@
 import { Component, Input, OnInit, OnChanges } from '@angular/core';
+import { FormGroup } from '@angular/forms';
 import { CoachingService } from 'app/interfaces/coaching.service.interface';
 
 @Component({
@@ -8,7 +9,10 @@ import { CoachingService } from 'app/interfaces/coaching.service.interface';
 })
 export class ServiceCardComponent implements OnInit, OnChanges {
 
+  @Input() public previewMode: boolean;
   @Input() public service: CoachingService;
+  @Input() public formData: FormGroup;
+  @Input() public maxDiscount: any;
 
   public objKeys = Object.keys;
 
@@ -20,7 +24,13 @@ export class ServiceCardComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges() {
-    this.calcDiscount();
+    if (!this.maxDiscount) {
+      this.calcDiscount();
+    }
+  }
+
+  get formControls(): any {
+    return this.formData.controls;
   }
 
   calcDiscount() {
