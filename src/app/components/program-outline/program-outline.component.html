@@ -12,12 +12,14 @@
         
                     <!-- How many sessions are in this program? -->
                     <div class=" row mt-4">
-                        <div class=" col-6">
+                        <div class=" col-12">
                             <label> How many live 1-to-1 video coaching sessions are included in this program? </label>
                             <p class=" small text-muted pl-2 mb-2">
                                 <i class="fas fa-info-circle"></i> At this time the platform only supports 1-to-1 video coaching. Support for group 
                                 coaching is coming soon.
                             </p>
+                        </div>
+                        <div class=" col-6">
                             <div
                             class="form-group"
                             [ngClass]="{
@@ -45,13 +47,15 @@
         
                     <!-- How many weeks does the program generally run (duration)? -->
                     <div class=" row mt-4">
-                        <div class=" col-6">
+                        <div class=" col-12">
                             <label> Generally speaking, how many weeks does your program run for each client? </label>
                             <p class=" small text-muted pl-2 mb-2">
                                 <i class="fas fa-info-circle"></i> This is just an indicator for the client. 
                                 Note that you always retain full control & flexibility over the exact delivery 
                                 of your program for each client, as it is your responsibility to schedule client sessions.
                             </p>
+                        </div>
+                        <div class=" col-6">
                             <div
                             class="form-group"
                             [ngClass]="{
@@ -87,7 +91,7 @@
                     <div class=" row mt-3">
         
                         <!-- Currency -->
-                        <div class=" col-6">
+                        <div class=" col-12">
                             <label> Your Local Currency </label>
                             <p class=" small text-muted pl-2 mb-2">
                                 <i class="fas fa-info-circle"></i> Set your local currency here. We use this in conjunction with 
@@ -95,6 +99,8 @@
                                 across all supported international territories. This makes your program available all over the world 
                                 in local prices, without you having to worry about currency conversion.
                             </p>
+                        </div>
+                        <div class=" col-6">
                             <app-select-currency
                             [currency]="outlineF?.currency?.value"
                             (currencyEvent)="onCurrencyEvent($event)">
