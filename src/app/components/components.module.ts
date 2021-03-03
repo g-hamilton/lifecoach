@@ -137,6 +137,7 @@ import { RegisterModalComponent } from './register-modal/register-modal.componen
 import { SocialMediaShareComponent } from './social-media-share/social-media-share.component';
 import { NgxSocialShareModule } from 'ngx-social-share';
 import { ServiceCardComponent } from './service-card/service-card.component';
+import { ProgramPreviewCardComponent } from './program-preview-card/program-preview-card.component';
 
 export function momentAdapterFactory() {
   return adapterFactory(moment);
@@ -277,7 +278,8 @@ export function momentAdapterFactory() {
     CoachMiniProfileComponent,
     RegisterModalComponent,
     SocialMediaShareComponent,
-    ServiceCardComponent
+    ServiceCardComponent,
+    ProgramPreviewCardComponent
   ],
   exports: [
     TabsModule,
@@ -393,7 +395,8 @@ export function momentAdapterFactory() {
     ServiceMoreComponent,
     CoachMiniProfileComponent,
     SocialMediaShareComponent,
-    ServiceCardComponent
+    ServiceCardComponent,
+    ProgramPreviewCardComponent
   ],
   entryComponents: [
     LoginComponent,

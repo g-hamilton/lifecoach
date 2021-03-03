@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, ViewChild, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, ViewChild, AfterContentChecked, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Title, Meta, TransferState, makeStateKey } from '@angular/platform-browser';
 import { DOCUMENT, isPlatformBrowser, isPlatformServer } from '@angular/common';
@@ -31,9 +31,8 @@ declare var Stripe: any;
   selector: 'app-service',
   templateUrl: './coaching.service.component.html',
   styleUrls: ['./coaching.service.component.scss'],
-  // encapsulation: ViewEncapsulation.None // to allow styling to be applied to innerHTML on the description // I'm not sure, but looks like this is redundant
 })
-export class CoachingServiceComponent implements OnInit, OnDestroy {
+export class CoachingServiceComponent implements OnInit, AfterContentChecked, OnDestroy {
 
   @ViewChild('payModal', {static: false}) public payModal: ModalDirective;
 
@@ -84,7 +83,8 @@ export class CoachingServiceComponent implements OnInit, OnDestroy {
     private languagesService: IsoLanguagesService,
     private modalService: BsModalService,
     private toastrService: ToastrService,
-    private partnerTrackingService: PartnerTrackingService
+    private partnerTrackingService: PartnerTrackingService,
+    private cdRef: ChangeDetectorRef
   ) { }
 
   ngOnInit() {
@@ -354,6 +354,10 @@ export class CoachingServiceComponent implements OnInit, OnDestroy {
 
   }
   // End of ngOnInit
+
+  ngAfterContentChecked() {
+    this.cdRef.detectChanges();
+  }
 
   async getClientCurrencyAndCountryFromIP() {
     const res = await fetch('https://ipapi.co/json/');

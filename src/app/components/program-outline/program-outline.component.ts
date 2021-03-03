@@ -43,6 +43,7 @@ export class ProgramOutlineComponent implements OnInit, OnChanges, OnDestroy {
   private rates: any;
   private minPrice = 29.99;
   private maxPrice = 9999;
+  public maxDiscountObj = { max: 0 };
 
   public errorMessages = {
     fullPrice: {
@@ -131,6 +132,8 @@ export class ProgramOutlineComponent implements OnInit, OnChanges, OnDestroy {
   buildOutlineForm() {
     this.outlineForm = this.formBuilder.group({
       programId: ['', [Validators.required]],
+      title: [''], // for preview only
+      subtitle: [''], // for preview only
       pricingStrategy: ['flexible', [Validators.required]],
       fullPrice: [null, [Validators.required, Validators.min(this.minPrice), Validators.max(this.maxPrice)]],
       pricePerSession: [null, [this.conditionallyRequiredValidator, Validators.min(this.minPrice), Validators.max(this.maxPrice)]],
@@ -224,6 +227,8 @@ export class ProgramOutlineComponent implements OnInit, OnChanges, OnDestroy {
 
     this.outlineForm.patchValue({
       programId: this.program.programId,
+      title: this.program.title ? this.program.title : '',
+      subtitle: this.program.subtitle ? this.program.subtitle : '',
       pricingStrategy: this.program.pricingStrategy ? this.program.pricingStrategy : 'flexible',
       fullPrice: this.program.fullPrice ? this.program.fullPrice : null,
       pricePerSession: this.program.pricePerSession ? this.program.pricePerSession : null,
@@ -317,10 +322,15 @@ export class ProgramOutlineComponent implements OnInit, OnChanges, OnDestroy {
     if (!this.outlineF.pricePerSession.value) {
       return 0;
     }
-    if ((this.outlineF.numSessions.value * this.outlineF.pricePerSession.value) <= this.outlineF.fullPrice.value) {
-      return 0;
+    const discount = Number((100 - (this.outlineF.fullPrice.value / (this.outlineF.numSessions.value * this.outlineF.pricePerSession.value)) * 100).toFixed());
+
+    // update the max discount if required
+    this.maxDiscountObj.max = 0;
+    if (discount > this.maxDiscountObj.max) {
+      this.maxDiscountObj.max = discount;
     }
-    return (100 - (this.outlineF.fullPrice.value / (this.outlineF.numSessions.value * this.outlineF.pricePerSession.value)) * 100).toFixed();
+
+    return discount;
   }
 
   saveProgress() {
