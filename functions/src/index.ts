@@ -5163,6 +5163,20 @@ exports.onCreatePartnerReferralByPartnerIdNode = functions
   }, { merge: true });
 });
 
+/*
+  Monitor user coaches node to update time last updated and create a real (not virtual) doc.
+*/
+exports.onWriteUserCoachesNode = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.firestore
+.document(`users/{uid}/coaches/{coachUid}/history/{doc}`)
+.onWrite((snap, context) => {;
+  return db.collection(`users/${context.params.uid}/coaches`).doc(context.params.coachUid)
+  .set({
+    timeOfLastUpdate: Date.now()
+  }, { merge: true });
+});
+
 // ================================================================================
 // =====                                                                     ======
 // =====                         ADMIN SPECIAL OPS                           ======
