@@ -36,11 +36,22 @@ export class MyCoachesComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.authService.getAuthUser().subscribe(async user => {
         if (user) {
-          this.userId = user.uid;
-
-          // Check for coaches
+            this.userId = user.uid;
+            console.log('user:', this.userId);
+            this.monitorUserCoaches();
         }
       })
+    );
+  }
+
+  monitorUserCoaches() {
+    this.subscriptions.add(
+        this.dataService.getUserCoaches(this.userId).subscribe(data => {
+            if (data) {
+                this.coaches = data;
+                console.log('User coaches:', this.coaches);
+            }
+        })
     );
   }
 
