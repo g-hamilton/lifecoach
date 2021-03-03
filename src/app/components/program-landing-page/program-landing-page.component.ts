@@ -156,7 +156,10 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
       learningPoints: [this.formBuilder.array([])],
       requirements: [this.formBuilder.array([])],
       targets: [this.formBuilder.array([])],
-      includeInCoachingForCoaches: [false]
+      includeInCoachingForCoaches: [false],
+      pricingStrategy: ['flexible'], // only for preview
+      numSessions: [null], // only for preview
+      duration: [null] // only for preview
     });
   }
 
@@ -176,12 +179,22 @@ export class ProgramLandingPageComponent implements OnInit, OnChanges, OnDestroy
       learningPoints: this.program.learningPoints ? this.loadLpoints() : this.formBuilder.array([], Validators.maxLength(this.learningPointsMax)),
       requirements: this.program.requirements ? this.loadRequirements() : this.formBuilder.array([], Validators.maxLength(this.requirementsMax)),
       targets: this.program.targets ? this.loadTargets() : this.formBuilder.array([], Validators.maxLength(this.targetsMax)),
-      includeInCoachingForCoaches : this.program.includeInCoachingForCoaches ? this.program.includeInCoachingForCoaches : false
+      includeInCoachingForCoaches : this.program.includeInCoachingForCoaches ? this.program.includeInCoachingForCoaches : false,
+      pricingStrategy: this.program.pricingStrategy ? this.program.pricingStrategy : 'flexible', // only for preview
+      numSessions: this.program.numSessions ? this.program.numSessions : null,
+      duration: this.program.duration ? this.program.duration : null,
     });
     // init the character counts (before user input detected)
     this.titleActualLength = this.landingF.title.value.length;
     this.subTitleActualLength = this.landingF.subtitle.value.length;
     this.subjectActualLength = this.landingF.subject.value.length;
+    // load the promo video if there is one
+    if (this.program.promoVideo) {
+      this.videoSources = []; // reset
+      this.videoSources.push({ // use the array method for reloading a videoGular video as simple [src] binding does not reload on the fly
+        src: this.program.promoVideo.downloadURL
+      });
+    }
   }
 
   // https://medium.com/ngx/3-ways-to-implement-conditional-validation-of-reactive-forms-c59ed6fc3325

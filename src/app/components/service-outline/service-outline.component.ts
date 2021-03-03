@@ -119,6 +119,9 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
   buildOutlineForm() {
     this.outlineForm = this.formBuilder.group({
       serviceId: ['', [Validators.required]],
+      type: [null],
+      sessionDuration: [null],
+      headline: [''],
       pricing: this.formBuilder.array([
         // sessions/price group
         this.formBuilder.group({
@@ -198,6 +201,9 @@ export class ServiceOutlineComponent implements OnInit, OnChanges, OnDestroy {
 
     this.outlineForm.patchValue({
       serviceId: this.service.serviceId,
+      type: this.service.type ? this.service.type : 'individual',
+      sessionDuration: this.service.sessionDuration ? this.service.sessionDuration : 60,
+      headline: this.service.headline ? this.service.headline : this.service.subtitle ? this.service.subtitle : '', // some older services may have subtitle
       currency: this.service.currency ? this.service.currency : defaultCurrency
     });
 

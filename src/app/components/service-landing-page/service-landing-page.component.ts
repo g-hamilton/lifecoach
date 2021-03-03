@@ -154,7 +154,15 @@ export class ServiceLandingPageComponent implements OnInit, OnChanges, OnDestroy
       learningPoints: [this.formBuilder.array([])],
       requirements: [this.formBuilder.array([])],
       targets: [this.formBuilder.array([])],
-      includeInCoachingForCoaches: [false]
+      includeInCoachingForCoaches: [false],
+      // below fields are only for the preview card
+      pricing: this.formBuilder.array([
+        // sessions/price group
+        this.formBuilder.group({
+          numSessions: [1],
+          price: [null]
+        })
+      ]),
     });
   }
 
@@ -180,6 +188,23 @@ export class ServiceLandingPageComponent implements OnInit, OnChanges, OnDestroy
     // init the character counts (before user input detected)
     this.headlineActualLength = this.landingF.headline.value.length;
     this.subjectActualLength = this.landingF.subject.value.length;
+    // load the promo video if there is one
+    if (this.service.promoVideo) {
+      this.videoSources = []; // reset
+      this.videoSources.push({ // use the array method for reloading a videoGular video as simple [src] binding does not reload on the fly
+        src: this.service.promoVideo.downloadURL
+      });
+    }
+
+    // below is only for the preview card
+    this.landingForm.setControl('pricing', this.service.pricing ? this.loadPricing() : this.formBuilder.array([
+      // sessions/price group
+      this.formBuilder.group({
+        numSessions: [1],
+        price: [null]
+      })
+    ])
+  );
   }
 
   // https://medium.com/ngx/3-ways-to-implement-conditional-validation-of-reactive-forms-c59ed6fc3325
@@ -243,6 +268,27 @@ export class ServiceLandingPageComponent implements OnInit, OnChanges, OnDestroy
 
   deleteTarget(index: number) {
     this.landingF.targets.value.controls.splice(index, 1);
+  }
+
+  loadPricing() {
+    const pricingArray = this.formBuilder.array([]);
+    Object.keys(this.service.pricing).forEach(key => {
+      if (key === '1') {
+        pricingArray.push(
+          this.formBuilder.group({
+            numSessions: [1],
+            price: [this.service.pricing[key].price]
+          })
+        );
+      } else {
+        pricingArray.push(
+          this.formBuilder.group({
+            numSessions: [this.service.pricing[key].numSessions],
+            price: [this.service.pricing[key].price]
+          }));
+      }
+    });
+    return pricingArray;
   }
 
   get landingF(): any {
