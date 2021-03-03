@@ -44,6 +44,41 @@
                         </div>
                     </div>
                     <!-- End of row -->
+
+                    <!-- session duration -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <label> Session Duration </label>
+                            <p class=" small text-muted pl-2 mb-2">
+                                <i class="fas fa-info-circle"></i> How long are your coaching sessions? Enter a time in minutes.
+                            </p>
+                        </div>
+                        <div class="col-6">
+                            <div
+                            class="form-group"
+                            [ngClass]="{
+                                'has-danger':
+                                (((focus4Touched && outlineF.sessionDuration.value !== null) || saveAttempt) && outlineF.sessionDuration.errors),
+                                'has-success': !outlineF.sessionDuration.errors
+                            }">
+                                <input
+                                type="number"
+                                class="form-control"
+                                formControlName="sessionDuration"
+                                placeholder="eg. 90"
+                                (focus)="focus4Touched = true"
+                                (blur)="focus4Touched = false">
+                            </div>
+                            <div *ngIf="(((focus4Touched && outlineF.sessionDuration.value !== null) || saveAttempt) && outlineF.sessionDuration.errors)">
+                                <label
+                                *ngFor="let error of objKeys(outlineF.sessionDuration.errors)"
+                                class="error custom-error-label"
+                                >{{ showError('sessionDuration', error) }}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End of row -->
         
                     <!-- How many weeks does the program generally run (duration)? -->
                     <div class=" row mt-4">
