@@ -1,233 +1,240 @@
-<div class=" card">
-    <div class=" card-body">
-        <form *ngIf="outlineForm" [formGroup]="outlineForm" (submit)="onSubmit()">
-
-            <h5>Program Sessions
-                <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001167914-help-with-lifecoach-program-sessions-and-pricing" target="_blank">
-                    <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> Help with sessions </span>
-                </a>
-            </h5>
-
-            <!-- How many sessions are in this program? -->
-            <div class=" row mt-4">
-                <div class=" col-6">
-                    <label> How many live 1-to-1 video coaching sessions are included in this program? </label>
-                    <p class=" small text-muted pl-2 mb-2">
-                        <i class="fas fa-info-circle"></i> At this time the platform only supports 1-to-1 video coaching. Support for group 
-                        coaching is coming soon.
-                    </p>
-                    <div
-                    class="form-group"
-                    [ngClass]="{
-                        'has-danger':
-                        (((focus2Touched && outlineF.numSessions.value !== null) || saveAttempt) && outlineF.numSessions.errors),
-                        'has-success': !outlineF.numSessions.errors
-                    }">
-                        <input
-                        type="number"
-                        class="form-control"
-                        formControlName="numSessions"
-                        placeholder="eg. 12"
-                        (focus)="focus2Touched = true">
+<div class=" row">
+    <div class=" col-md-8">
+        <div class=" card">
+            <div class=" card-body">
+                <form *ngIf="outlineForm" [formGroup]="outlineForm" (submit)="onSubmit()">
+        
+                    <h5>Program Sessions
+                        <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001167914-help-with-lifecoach-program-sessions-and-pricing" target="_blank">
+                            <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> Help with sessions </span>
+                        </a>
+                    </h5>
+        
+                    <!-- How many sessions are in this program? -->
+                    <div class=" row mt-4">
+                        <div class=" col-6">
+                            <label> How many live 1-to-1 video coaching sessions are included in this program? </label>
+                            <p class=" small text-muted pl-2 mb-2">
+                                <i class="fas fa-info-circle"></i> At this time the platform only supports 1-to-1 video coaching. Support for group 
+                                coaching is coming soon.
+                            </p>
+                            <div
+                            class="form-group"
+                            [ngClass]="{
+                                'has-danger':
+                                (((focus2Touched && outlineF.numSessions.value !== null) || saveAttempt) && outlineF.numSessions.errors),
+                                'has-success': !outlineF.numSessions.errors
+                            }">
+                                <input
+                                type="number"
+                                class="form-control"
+                                formControlName="numSessions"
+                                placeholder="eg. 12"
+                                (focus)="focus2Touched = true">
+                            </div>
+                            <div *ngIf="(((focus2Touched && outlineF.numSessions.value !== null) || saveAttempt) && outlineF.numSessions.errors)">
+                                <label
+                                *ngFor="let error of objKeys(outlineF.numSessions.errors)"
+                                class="error custom-error-label"
+                                >{{ showError('numSessions', error) }}
+                                </label>
+                            </div>
+                        </div>
                     </div>
-                    <div *ngIf="(((focus2Touched && outlineF.numSessions.value !== null) || saveAttempt) && outlineF.numSessions.errors)">
-                        <label
-                        *ngFor="let error of objKeys(outlineF.numSessions.errors)"
-                        class="error custom-error-label"
-                        >{{ showError('numSessions', error) }}
-                        </label>
+                    <!-- End of row -->
+        
+                    <!-- How many weeks does the program generally run (duration)? -->
+                    <div class=" row mt-4">
+                        <div class=" col-6">
+                            <label> Generally speaking, how many weeks does your program run for each client? </label>
+                            <p class=" small text-muted pl-2 mb-2">
+                                <i class="fas fa-info-circle"></i> This is just an indicator for the client. 
+                                Note that you always retain full control & flexibility over the exact delivery 
+                                of your program for each client, as it is your responsibility to schedule client sessions.
+                            </p>
+                            <div
+                            class="form-group"
+                            [ngClass]="{
+                                'has-danger':
+                                (((focus3Touched && outlineF.duration.value !== null) || saveAttempt) && outlineF.duration.errors),
+                                'has-success': !outlineF.duration.errors
+                            }">
+                                <input
+                                type="number"
+                                class="form-control"
+                                formControlName="duration"
+                                placeholder="eg. 12"
+                                (focus)="focus3Touched = true">
+                            </div>
+                            <div *ngIf="(((focus3Touched && outlineF.duration.value !== null) || saveAttempt) && outlineF.duration.errors)">
+                                <label
+                                *ngFor="let error of objKeys(outlineF.duration.errors)"
+                                class="error custom-error-label"
+                                >{{ showError('duration', error) }}
+                                </label>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                    <!-- End of row -->
+        
+                    <h5 class="mt-5">Program Pricing
+                        <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001167914-help-with-lifecoach-program-sessions-and-pricing" target="_blank">
+                            <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> Help with pricing </span>
+                        </a>
+                    </h5>
+        
+                    <!-- Program currency -->
+                    <div class=" row mt-3">
+        
+                        <!-- Currency -->
+                        <div class=" col-6">
+                            <label> Your Local Currency </label>
+                            <p class=" small text-muted pl-2 mb-2">
+                                <i class="fas fa-info-circle"></i> Set your local currency here. We use this in conjunction with 
+                                your set price to show your program in local currencies using a real-time currency conversion 
+                                across all supported international territories. This makes your program available all over the world 
+                                in local prices, without you having to worry about currency conversion.
+                            </p>
+                            <app-select-currency
+                            [currency]="outlineF?.currency?.value"
+                            (currencyEvent)="onCurrencyEvent($event)">
+                            </app-select-currency>
+                        </div>
+        
+                    </div>
+                    <!-- End of row -->
+        
+                    <!-- Pricing strategy (Can clients pay per session?) -->
+                    <div class=" row mt-4">
+                        <div class=" col">
+                            <label> Payment Options </label>
+                            <p class=" small text-muted pl-2 mb-2">
+                                <i class="fas fa-info-circle"></i> How can clients pay for this program? Clients will always have the 
+                                option to pay you in full (upfront) for the program, and you can offer 'Pay As You Go' (pay per session) if 
+                                you wish to offer flexible pricing. Tip: If you offer flexible pricing, set a lower program price  
+                                to automatically show an enticing discount on your course landing page.
+                            </p>
+                            <div class="form-check form-check-radio mt-3">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" type="radio" id="pricing-radio-full" value="full" formControlName="pricingStrategy">
+                                    Clients must purchase this program in full (Full payment upfront)
+                                    <span class="form-check-sign"></span>
+                                </label>
+                            </div>
+                            <div class="form-check form-check-radio">
+                                <label class="form-check-label">
+                                    <input class="form-check-input" type="radio" id="pricing-radio-flexible" value="flexible" formControlName="pricingStrategy">
+                                    Clients can purchase this program in full or pay per individual session (Pay As You Go)
+                                    <span class="form-check-sign"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- End of row -->
+        
+                    <!-- Program pricing -->
+                    <div class=" row mt-4">
+        
+                        <!-- Full program price -->
+                        <div class=" col-6">
+                            <label> Program price </label>
+                            <p class=" small text-muted pl-2 mb-2">
+                                <i class="fas fa-info-circle"></i> The full price of your program if clients pay upfront.
+                            </p>
+                            <div
+                            class="form-group"
+                            [ngClass]="{
+                                'has-danger':
+                                (((focusTouched && outlineF.fullPrice.value !== null) || saveAttempt) && outlineF.fullPrice.errors),
+                                'has-success': !outlineF.fullPrice.errors
+                            }">
+                                <input
+                                type="number"
+                                class="form-control"
+                                formControlName="fullPrice"
+                                placeholder="eg. 199.99"
+                                (focus)="focusTouched = true">
+                            </div>
+                            <div *ngIf="(((focusTouched && outlineF.fullPrice.value !== null) || saveAttempt) && outlineF.fullPrice.errors)">
+                                <label
+                                *ngFor="let error of objKeys(outlineF.fullPrice.errors)"
+                                class="error custom-error-label"
+                                >{{ showError('fullPrice', error) }}
+                                </label>
+                            </div>
+                            <!-- real-time calculation of discount to clients if paying in full -->
+                            <div class=" float-right" *ngIf="outlineF.numSessions.value && outlineF.pricePerSession.value && outlineF.fullPrice.value">
+                                <p class=" small text-success">
+                                    {{ calcDiscount() }}% discount compared to 'Pay As You Go'
+                                </p>
+                            </div>
+                        </div>
+                        <!-- End of full program price -->
+        
+                        <!-- per session price (if flexible strategy selected) -->
+                        <div class=" col-6" *ngIf="outlineF?.pricingStrategy.value === 'flexible'">
+                            <div class="">
+                                <label> Price Per Session </label>
+                            </div>
+                            <p class=" small text-muted pl-2 mb-2">
+                                <i class="fas fa-info-circle"></i> Because you allow flexible, 'Pay As You Go' pricing.
+                            </p>
+                            <div
+                            class="form-group"
+                            [ngClass]="{
+                                'has-danger':
+                                (((focus1Touched && outlineF.pricePerSession.value !== null) || saveAttempt) && outlineF.pricePerSession.errors),
+                                'has-success': !outlineF.pricePerSession.errors
+                            }">
+                                <input
+                                type="number"
+                                class="form-control"
+                                formControlName="pricePerSession"
+                                placeholder="eg. 39.99"
+                                (focus)="focus1Touched = true">
+                            </div>
+                            <div *ngIf="(((focus1Touched && outlineF.pricePerSession.value !== null) || saveAttempt) && outlineF.pricePerSession.errors)">
+                                <label
+                                *ngFor="let error of objKeys(outlineF.pricePerSession.errors)"
+                                class="error custom-error-label"
+                                >{{ showError('pricePerSession', error) }}
+                                </label>
+                            </div>
+                        </div>
+                        <!-- End of price per session -->
+        
+                    </div>
+                    <!-- End of row -->
+        
+                    <!-- buttons -->
+                    <div class=" pull-right">
+                        <button type="button" class=" btn btn-default btn-round btn-fill" (click)="saveProgress()">
+                            <span *ngIf="!saving">
+                                <i class="fas fa-save"></i>
+                            </span>
+                            <span
+                            *ngIf="saving"
+                            class="spinner-border spinner-border-sm"
+                            role="status"
+                            ></span> {{ saving ? 'Saving...' : 'Save'}}
+                        </button>
+                        <button type="button" class=" btn btn-primary btn-round btn-fill ml-3" (click)="goNext()">
+                            <span *ngIf="!saving">
+                                <i class="fas fa-arrow-right"></i>
+                            </span>
+                            <span
+                            *ngIf="saving"
+                            class="spinner-border spinner-border-sm"
+                            role="status"
+                            ></span> {{ saving ? 'Saving...' : 'Next: Submit for Review'}}
+                        </button>
+                    </div>
+        
+                </form>
             </div>
-            <!-- End of row -->
-
-            <!-- How many weeks does the program generally run (duration)? -->
-            <div class=" row mt-4">
-                <div class=" col-6">
-                    <label> Generally speaking, how many weeks does your program run for each client? </label>
-                    <p class=" small text-muted pl-2 mb-2">
-                        <i class="fas fa-info-circle"></i> This is just an indicator for the client. 
-                        Note that you always retain full control & flexibility over the exact delivery 
-                        of your program for each client, as it is your responsibility to schedule client sessions.
-                    </p>
-                    <div
-                    class="form-group"
-                    [ngClass]="{
-                        'has-danger':
-                        (((focus3Touched && outlineF.duration.value !== null) || saveAttempt) && outlineF.duration.errors),
-                        'has-success': !outlineF.duration.errors
-                    }">
-                        <input
-                        type="number"
-                        class="form-control"
-                        formControlName="duration"
-                        placeholder="eg. 12"
-                        (focus)="focus3Touched = true">
-                    </div>
-                    <div *ngIf="(((focus3Touched && outlineF.duration.value !== null) || saveAttempt) && outlineF.duration.errors)">
-                        <label
-                        *ngFor="let error of objKeys(outlineF.duration.errors)"
-                        class="error custom-error-label"
-                        >{{ showError('duration', error) }}
-                        </label>
-                    </div>
-                </div>
-            </div>
-            <!-- End of row -->
-
-            <h5 class="mt-5">Program Pricing
-                <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001167914-help-with-lifecoach-program-sessions-and-pricing" target="_blank">
-                    <span class=" text-muted pl-2"><i class="fas fa-graduation-cap"></i> Help with pricing </span>
-                </a>
-            </h5>
-
-            <!-- Program currency -->
-            <div class=" row mt-3">
-
-                <!-- Currency -->
-                <div class=" col-6">
-                    <label> Your Local Currency </label>
-                    <p class=" small text-muted pl-2 mb-2">
-                        <i class="fas fa-info-circle"></i> Set your local currency here. We use this in conjunction with 
-                        your set price to show your program in local currencies using a real-time currency conversion 
-                        across all supported international territories. This makes your program available all over the world 
-                        in local prices, without you having to worry about currency conversion.
-                    </p>
-                    <app-select-currency
-                    [currency]="outlineF?.currency?.value"
-                    (currencyEvent)="onCurrencyEvent($event)">
-                    </app-select-currency>
-                </div>
-
-            </div>
-            <!-- End of row -->
-
-            <!-- Pricing strategy (Can clients pay per session?) -->
-            <div class=" row mt-4">
-                <div class=" col">
-                    <label> Payment Options </label>
-                    <p class=" small text-muted pl-2 mb-2">
-                        <i class="fas fa-info-circle"></i> How can clients pay for this program? Clients will always have the 
-                        option to pay you in full (upfront) for the program, and you can offer 'Pay As You Go' (pay per session) if 
-                        you wish to offer flexible pricing. Tip: If you offer flexible pricing, set a lower program price  
-                        to automatically show an enticing discount on your course landing page.
-                    </p>
-                    <div class="form-check form-check-radio mt-3">
-                        <label class="form-check-label">
-                            <input class="form-check-input" type="radio" id="pricing-radio-full" value="full" formControlName="pricingStrategy">
-                            Clients must purchase this program in full (Full payment upfront)
-                            <span class="form-check-sign"></span>
-                        </label>
-                    </div>
-                    <div class="form-check form-check-radio">
-                        <label class="form-check-label">
-                            <input class="form-check-input" type="radio" id="pricing-radio-flexible" value="flexible" formControlName="pricingStrategy">
-                            Clients can purchase this program in full or pay per individual session (Pay As You Go)
-                            <span class="form-check-sign"></span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-            <!-- End of row -->
-
-            <!-- Program pricing -->
-            <div class=" row mt-4">
-
-                <!-- Full program price -->
-                <div class=" col-6">
-                    <label> Program price </label>
-                    <p class=" small text-muted pl-2 mb-2">
-                        <i class="fas fa-info-circle"></i> The full price of your program if clients pay upfront.
-                    </p>
-                    <div
-                    class="form-group"
-                    [ngClass]="{
-                        'has-danger':
-                        (((focusTouched && outlineF.fullPrice.value !== null) || saveAttempt) && outlineF.fullPrice.errors),
-                        'has-success': !outlineF.fullPrice.errors
-                    }">
-                        <input
-                        type="number"
-                        class="form-control"
-                        formControlName="fullPrice"
-                        placeholder="eg. 199.99"
-                        (focus)="focusTouched = true">
-                    </div>
-                    <div *ngIf="(((focusTouched && outlineF.fullPrice.value !== null) || saveAttempt) && outlineF.fullPrice.errors)">
-                        <label
-                        *ngFor="let error of objKeys(outlineF.fullPrice.errors)"
-                        class="error custom-error-label"
-                        >{{ showError('fullPrice', error) }}
-                        </label>
-                    </div>
-                    <!-- real-time calculation of discount to clients if paying in full -->
-                    <div class=" float-right" *ngIf="outlineF.numSessions.value && outlineF.pricePerSession.value && outlineF.fullPrice.value">
-                        <p class=" small text-success">
-                            {{ calcDiscount() }}% discount compared to 'Pay As You Go'
-                        </p>
-                    </div>
-                </div>
-                <!-- End of full program price -->
-
-                <!-- per session price (if flexible strategy selected) -->
-                <div class=" col-6" *ngIf="outlineF?.pricingStrategy.value === 'flexible'">
-                    <div class="">
-                        <label> Price Per Session </label>
-                    </div>
-                    <p class=" small text-muted pl-2 mb-2">
-                        <i class="fas fa-info-circle"></i> Because you allow flexible, 'Pay As You Go' pricing.
-                    </p>
-                    <div
-                    class="form-group"
-                    [ngClass]="{
-                        'has-danger':
-                        (((focus1Touched && outlineF.pricePerSession.value !== null) || saveAttempt) && outlineF.pricePerSession.errors),
-                        'has-success': !outlineF.pricePerSession.errors
-                    }">
-                        <input
-                        type="number"
-                        class="form-control"
-                        formControlName="pricePerSession"
-                        placeholder="eg. 39.99"
-                        (focus)="focus1Touched = true">
-                    </div>
-                    <div *ngIf="(((focus1Touched && outlineF.pricePerSession.value !== null) || saveAttempt) && outlineF.pricePerSession.errors)">
-                        <label
-                        *ngFor="let error of objKeys(outlineF.pricePerSession.errors)"
-                        class="error custom-error-label"
-                        >{{ showError('pricePerSession', error) }}
-                        </label>
-                    </div>
-                </div>
-                <!-- End of price per session -->
-
-            </div>
-            <!-- End of row -->
-
-            <!-- buttons -->
-            <div class=" pull-right">
-                <button type="button" class=" btn btn-default btn-round btn-fill" (click)="saveProgress()">
-                    <span *ngIf="!saving">
-                        <i class="fas fa-save"></i>
-                    </span>
-                    <span
-                    *ngIf="saving"
-                    class="spinner-border spinner-border-sm"
-                    role="status"
-                    ></span> {{ saving ? 'Saving...' : 'Save'}}
-                </button>
-                <button type="button" class=" btn btn-primary btn-round btn-fill ml-3" (click)="goNext()">
-                    <span *ngIf="!saving">
-                        <i class="fas fa-arrow-right"></i>
-                    </span>
-                    <span
-                    *ngIf="saving"
-                    class="spinner-border spinner-border-sm"
-                    role="status"
-                    ></span> {{ saving ? 'Saving...' : 'Next: Submit for Review'}}
-                </button>
-            </div>
-
-        </form>
+        </div>
+    </div>
+    <div class=" col-md-4">
+        <app-program-preview-card [program]="program"></app-program-preview-card>
     </div>
 </div>
