@@ -30,7 +30,7 @@
                 <h4 class="card-title"> {{ formControls?.title?.value }} </h4>
                 <h6 class="card-subtitle mb-2 text-muted"> {{ formControls?.subtitle?.value }} </h6>
                 <div>
-                    <span *ngIf="formControls?.numSessions?.value" class=" badge badge-primary mr-2">
+                    <span *ngIf="formControls?.numSessions?.value" class=" badge badge-primary">
                         {{formControls.numSessions.value }} sessions
                         <span *ngIf="formControls?.duration?.value">
                             / {{ formControls.duration.value }} Weeks
@@ -40,10 +40,10 @@
                         Flexible Pricing
                     </span>
                     <span *ngIf="maxDiscountObj.max > 0" class=" badge badge-success mr-2">
-                        Save up to {{ maxDiscountObj.max }}%
+                        Save {{ maxDiscountObj.max }}%
                     </span>
                     <span *ngIf="maxDiscount?.max" class=" badge badge-success mr-2">
-                        Save up to {{ maxDiscount?.max }}%
+                        Save {{ maxDiscount?.max }}%
                     </span>
                 </div>
             </div>
@@ -94,7 +94,7 @@
                         Flexible Pricing
                     </span>
                     <span *ngIf="maxDiscountObj.max > 0" class=" badge badge-success">
-                        Save up to {{ maxDiscountObj.max }}%
+                        Save {{ maxDiscountObj.max }}%
                     </span>
                 </div>
             </div>
