@@ -215,7 +215,7 @@ export class CoachingServiceComponent implements OnInit, AfterContentChecked, On
               this.analyticsService.purchaseService(this.service, Number(this.pricingSessions));
 
               const result = await this.alertService.alert('success-message', 'Success!', `You've
-              purchased ${this.pricingSessions === '1' ? 'a private coaching session.' : this.pricingSessions + ` private coaching sessions. You're now being coached by ${this.service.coachName}`}!`, 'Go to My Coaches') as any;
+              purchased ${this.pricingSessions === '1' ? 'a private coaching session' : this.pricingSessions + ` private coaching sessions`} with ${this.service.coachName}.`, 'Go to My Coaches') as any;
               if (result && result.action) {
                 this.router.navigate(['/my-coaches']);
               }
