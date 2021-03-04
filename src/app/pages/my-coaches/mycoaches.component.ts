@@ -5,6 +5,8 @@ import { AuthService } from '../../services/auth.service';
 import { DataService } from '../../services/data.service';
 import { AnalyticsService } from 'app/services/analytics.service';
 import { Subscription } from 'rxjs';
+import { take } from 'rxjs/operators';
+import { CoachProfile } from 'app/interfaces/coach.profile.interface';
 
 @Component({
   selector: 'app-my-coaches',
@@ -37,7 +39,7 @@ export class MyCoachesComponent implements OnInit, OnDestroy {
       this.authService.getAuthUser().subscribe(async user => {
         if (user) {
             this.userId = user.uid;
-            console.log('user:', this.userId);
+            // console.log('user:', this.userId);
             this.monitorUserCoaches();
         }
       })
@@ -48,8 +50,22 @@ export class MyCoachesComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
         this.dataService.getUserCoaches(this.userId).subscribe(data => {
             if (data) {
-                this.coaches = data;
-                console.log('User coaches:', this.coaches);
+                // fetch coach profiles
+                const profiles = [] as CoachProfile[];
+                data.forEach(i => {
+                    this.subscriptions.add(
+                        this.dataService.getPublicCoachProfile(i.coachUid)
+                        .pipe(take(1))
+                        .subscribe(profile => {
+                            if (profile) {
+                                profile.objectID = i.coachUid; // card component needs this
+                                profiles.push(profile);
+                                // console.log('coach profiles:', profiles);
+                                this.coaches = profiles;
+                            }
+                        })
+                    );
+                });
             }
         })
     );

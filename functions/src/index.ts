@@ -5174,7 +5174,7 @@ exports.onWriteUserCoachesNode = functions
   return db.collection(`users/${context.params.uid}/coaches`).doc(context.params.coachUid)
   .set({
     timeOfLastUpdate: Date.now(),
-    coachUid: context.params.uid
+    coachUid: context.params.coachUid
   }, { merge: true });
 });
 
