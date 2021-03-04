@@ -2236,6 +2236,17 @@ async function recordServicePurchaseForCreator(data: Stripe.PaymentIntent) {
 
   // send email
 
+  // lookup the client name to include in the email as this is not in the payment data
+  let clientFirstName = '';
+  let clientLastName = '';
+  const snapshot = await db.collection(`users/${clientUid}/account`)
+  .doc(`account${clientUid}`)
+  .get();
+  if (snapshot.exists) {
+    clientFirstName = `${(snapshot.data() as any).firstName}`;
+    clientLastName = `${(snapshot.data() as any).lastName}`;
+  }
+
   const event = {
     name: 'coach_service_purchase',
     properties: {
@@ -2244,7 +2255,9 @@ async function recordServicePurchaseForCreator(data: Stripe.PaymentIntent) {
       service_headline: saleItemHeadline,
       service_image: saleItemImg,
       num_sessions_purchased: String(sessionsPurchased), // mailchimp only accepts string data!
-      client_url: `https://lifecoach.io/person-history/${clientUid}`
+      client_url: `https://lifecoach.io/person-history/${clientUid}`,
+      client_first_name: clientFirstName,
+      client_last_name: clientLastName
     }
   }
   const emailPromise = logMailchimpEvent(sellerUid, event);
