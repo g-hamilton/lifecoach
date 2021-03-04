@@ -67,6 +67,14 @@ export const ROUTES: RouteInfo[] = [
     userTypes: ['regular', 'coach', 'admin']
   },
   {
+    path: '/my-coaches',
+    title: 'My Coaches',
+    rtlTitle: 'التقويم',
+    type: 'link',
+    icontype: 'tim-icons icon-single-02',
+    userTypes: ['regular']
+  },
+  {
     path: '/my-sessions',
     title: 'My Sessions',
     rtlTitle: 'التقويم',
