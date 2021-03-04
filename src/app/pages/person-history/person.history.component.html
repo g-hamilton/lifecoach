@@ -142,7 +142,7 @@
                   </div>
                   <div class=" card-footer">
                     <button class="btn btn-round btn-default" [routerLink]="['/my-services', service.serviceId, 'clients', person.id, 'sessions']">
-                      View Session History
+                      Session History
                     </button>
                     <!-- schedule a session button if sessions remaining -->
                     <button *ngIf="service.purchasedSessions?.length > 0" class="btn btn-round btn-primary"
@@ -179,7 +179,7 @@
                   </div>
                   <div class=" card-footer">
                     <button class="btn btn-round btn-default" [routerLink]="['/my-programs', program.programId, 'clients', person.id, 'sessions']">
-                      View Session History
+                      Session History
                     </button>
                     <!-- schedule a session button if sessions remaining -->
                     <button *ngIf="program.purchasedSessions?.length > 0" class="btn btn-round btn-primary"
