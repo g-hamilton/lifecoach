@@ -26,11 +26,11 @@ export class ProgramOutlineComponent implements OnInit, OnChanges, OnDestroy {
   private account: UserAccount;
 
   public outlineForm: FormGroup;
-  public focus: boolean;
   public focusTouched: boolean;
   public focus1Touched: boolean;
   public focus2Touched: boolean;
   public focus3Touched: boolean;
+  public focus4Touched: boolean;
 
   public saving: boolean;
   public saveAttempt: boolean;
@@ -63,7 +63,10 @@ export class ProgramOutlineComponent implements OnInit, OnChanges, OnDestroy {
     },
     duration: {
       required: `Please enter a number (in weeks)`
-    }
+    },
+    sessionDuration: {
+      required: `Please enter a duration (in minutes)`
+    },
   };
 
   constructor(
@@ -137,6 +140,7 @@ export class ProgramOutlineComponent implements OnInit, OnChanges, OnDestroy {
       pricingStrategy: ['flexible', [Validators.required]],
       fullPrice: [null, [Validators.required, Validators.min(this.minPrice), Validators.max(this.maxPrice)]],
       pricePerSession: [null, [this.conditionallyRequiredValidator, Validators.min(this.minPrice), Validators.max(this.maxPrice)]],
+      sessionDuration: [null, [Validators.required]],
       currency: ['USD', [Validators.required]],
       numSessions: [null, [Validators.required]],
       duration: [null, [Validators.required]],
@@ -232,6 +236,7 @@ export class ProgramOutlineComponent implements OnInit, OnChanges, OnDestroy {
       pricingStrategy: this.program.pricingStrategy ? this.program.pricingStrategy : 'flexible',
       fullPrice: this.program.fullPrice ? this.program.fullPrice : null,
       pricePerSession: this.program.pricePerSession ? this.program.pricePerSession : null,
+      sessionDuration: this.program.sessionDuration ? this.program.sessionDuration : null,
       currency: this.program.currency ? this.program.currency : defaultCurrency,
       numSessions: this.program.numSessions ? this.program.numSessions : null,
       duration: this.program.duration ? this.program.duration : null,
@@ -298,6 +303,7 @@ export class ProgramOutlineComponent implements OnInit, OnChanges, OnDestroy {
     this.program.stripeId = this.account.stripeUid; // Important! Without this the creator cannot be paid!
     this.program.numSessions = this.outlineF.numSessions.value;
     this.program.duration = this.outlineF.duration.value;
+    this.program.sessionDuration = this.outlineF.sessionDuration.value;
 
     // console.log(this.outlineForm.value);
     console.log('Saving program:', this.program);

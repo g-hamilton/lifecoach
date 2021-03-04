@@ -4499,6 +4499,7 @@ exports.onWritePublicPrograms = functions
     pricePerSession: program.pricePerSession,
     currency: program.currency,
     duration: program.duration,
+    sessionDuration: program.sessionDuration,
     numSessions: program.numSessions,
     image: program.image,
     promoVideo: program.promoVideo,
@@ -4590,6 +4591,7 @@ exports.onWritePrivateUserProgram = functions
       approved: program.reviewRequest.approved ? program.reviewRequest.approved : null,
       numSessions: program.numSessions ? program.numSessions : null,
       duration: program.duration ? program.duration : null,
+      sessionDuration: program.sessionDuration ? program.sessionDuration : null,
       pricingStrategy: program.pricingStrategy,
       currency: program.currency ? program.currency : null,
       fullPrice: program.fullPrice ? program.fullPrice : null,
@@ -5158,6 +5160,21 @@ exports.onCreatePartnerReferralByPartnerIdNode = functions
   return db.collection(`public-totals/by-partner-id/${context.params.partnerId}`).doc('total-partner-referrals')
   .set({
     totalRecords: admin.firestore.FieldValue.increment(1)
+  }, { merge: true });
+});
+
+/*
+  Monitor user coaches node to update time last updated and create a real (not virtual) doc.
+*/
+exports.onWriteUserCoachesNode = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.firestore
+.document(`users/{uid}/coaches/{coachUid}/history/{doc}`)
+.onWrite((snap, context) => {;
+  return db.collection(`users/${context.params.uid}/coaches`).doc(context.params.coachUid)
+  .set({
+    timeOfLastUpdate: Date.now(),
+    coachUid: context.params.coachUid
   }, { merge: true });
 });
 
