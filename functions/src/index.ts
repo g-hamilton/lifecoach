@@ -1222,6 +1222,11 @@ exports.stripeCreatePaymentIntent = functions
       saleItemPrice = saleItem.pricing[packageSessions].price;
     }
 
+    // if purchasing coaching package, we must set the title now as this is usually done dynamically client side
+    if (saleItemType === 'coachingPackage' && packageSessions) {
+      saleItem.title = `${saleItem.type ? saleItem.type === 'individual' ? 'Individual' : '' : 'Individual'} ${saleItem.sessionDuration ? saleItem.sessionDuration + 'min' : ''} Coaching Session`;
+    }
+
     if (!saleItemPrice || !saleItem.currency || !saleItem.stripeId || !saleItem.sellerUid || !saleItem.title) { // valid item data must exist
       return { error: `Insufficient item data saved for ${saleItemType} with ID: ${saleItemId}. Unable to proceed.`}
     }

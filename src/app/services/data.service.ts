@@ -743,7 +743,7 @@ export class DataService {
   }
 
   getPublicProgramsBySeller(sellerUid: string) {
-    console.log(sellerUid);
+    // console.log(sellerUid);
     const programsRef = this.db.collection('public-programs', ref => ref.where('sellerUid', '==', sellerUid));
     return programsRef.valueChanges() as Observable<CoachingProgram[]>;
   }

@@ -21,7 +21,7 @@ export class PartnerTrackingService {
       if (qP.partner) { // We found a partner param (will be partner uid)
         const timeStampInSeconds = Math.round(new Date().getTime() / 1000); // unix timestamp in seconds
 
-        console.log('partner tracking code found in route params:', qP.partner, 'timestamp:', timeStampInSeconds);
+        // console.log('partner tracking code found in route params:', qP.partner, 'timestamp:', timeStampInSeconds);
 
         localStorage.setItem('partner-tracking-uid', qP.partner); // save partner tracking id to local storage
         localStorage.setItem('partner-tracking-timestamp', timeStampInSeconds.toString()); // save timestamp to local storage
@@ -41,7 +41,7 @@ export class PartnerTrackingService {
       const now = Math.round(new Date().getTime() / 1000); // unix timestamp in seconds
       if ((Number(timestamp) + (this.maxDaysToTrack * 24 * 60 * 60)) >= now) {
         // timestamp is valid (within the max number of days to track)
-        console.log('saved & valid partner tracking code found:', code);
+        // console.log('saved & valid partner tracking code found:', code);
         this.analyticsService.savedValidPartnerTrackingCodeDetected(code);
         return code; // return the tracking code
       }

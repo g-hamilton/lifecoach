@@ -49,7 +49,8 @@ export class CoachingServiceComponent implements OnInit, AfterContentChecked, On
   public rates: any;
   private serviceId: string;
   public service: CoachingService;
-  public purchasingService: boolean;
+  public purchasingService = -1;
+  public purchaseInProgress: boolean;
   public languages: any;
   public totalReviews: number;
   public avgRating: number;
@@ -143,7 +144,7 @@ export class CoachingServiceComponent implements OnInit, AfterContentChecked, On
         }
 
         // Safe to proceed..
-        this.purchasingService = true;
+        this.purchaseInProgress = true;
 
         // prepare the request object
         const piRequest: StripePaymentIntentRequest = {
@@ -193,7 +194,8 @@ export class CoachingServiceComponent implements OnInit, AfterContentChecked, On
             console.log('Result error:', res.error);
             // Show error to your customer (e.g., insufficient funds)
             this.alertService.alert('warning-message', 'Oops', `${res.error.message}`);
-            this.purchasingService = false;
+            this.purchasingService = -1;
+            this.purchaseInProgress = false;
             this.analyticsService.failStripePayment();
 
           } else { // success confirming payment
@@ -207,14 +209,15 @@ export class CoachingServiceComponent implements OnInit, AfterContentChecked, On
               // post-payment actions.
 
               this.payModal.hide();
-              this.purchasingService = false;
+              this.purchasingService = -1;
+              this.purchaseInProgress = false;
               this.analyticsService.completeStripePayment();
               this.analyticsService.purchaseService(this.service, Number(this.pricingSessions));
 
               const result = await this.alertService.alert('success-message', 'Success!', `You've
-              purchased ${this.pricingSessions === '1' ? 'a private coaching session.' : this.pricingSessions + ' private coaching sessions.'}.`, 'Go to my dashboard') as any;
+              purchased ${this.pricingSessions === '1' ? 'a private coaching session.' : this.pricingSessions + ` private coaching sessions. You're now being coached by ${this.service.coachName}`}!`, 'Go to My Coaches') as any;
               if (result && result.action) {
-                this.router.navigate(['/dashboard']);
+                this.router.navigate(['/my-coaches']);
               }
             }
           }
@@ -222,7 +225,8 @@ export class CoachingServiceComponent implements OnInit, AfterContentChecked, On
         } else { // payment intent result error
           this.payModal.hide();
           this.alertService.alert('warning-message', 'Oops', `${pIntentRes.error}. Please contact support.`);
-          this.purchasingService = false;
+          this.purchasingService = -1;
+          this.purchaseInProgress = false;
         }
 
       });
@@ -268,13 +272,13 @@ export class CoachingServiceComponent implements OnInit, AfterContentChecked, On
       if (serviceData === null) { // if service state data does not exist - retrieve it from the api
 
         // Try to retrieve a public service
-        console.log('Checking for public service...');
+        // console.log('Checking for public service...');
         this.subscriptions.add(
           this.dataService.getPublicService(this.serviceId).subscribe(publicService => {
             if (publicService) { // public service exists
               // set the service
               this.service = publicService;
-              console.log('Public service found:', this.service);
+              // console.log('Public service found:', this.service);
               // update meta
               this.updateServiceMeta();
 
@@ -288,7 +292,7 @@ export class CoachingServiceComponent implements OnInit, AfterContentChecked, On
                 // Monitor user data
                 this.subscriptions.add(
                   this.authService.getAuthUser().subscribe(user => { // check if user authorised
-                    console.log('User:', user);
+                    // console.log('User:', user);
                     if (user) { // user is authorised
                       this.userId = user.uid;
                       user.getIdTokenResult(true).then(token => this.userClaims = token.claims); // retrieve user auth claims
@@ -416,7 +420,7 @@ export class CoachingServiceComponent implements OnInit, AfterContentChecked, On
           return;
         }
         // user has a referral code in storage from a previous session
-        console.log('Referral code for this service found in local storage from previous session:', savedReferralCode);
+        // console.log('Referral code for this service found in local storage from previous session:', savedReferralCode);
         this.referralCode = savedReferralCode;
       }
     });

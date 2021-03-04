@@ -66,7 +66,7 @@
               <h1 class=" title">
                 {{ service.type ? service.type === 'individual' ? 'Individual' : '' : 'Individual'}} 
                 {{ service.sessionDuration ? service.sessionDuration + 'min' : '' }}
-                coaching session
+                Coaching Session
               </h1>
               <h3>
                 {{ service.headline ? service.headline : service.subtitle ? service.subtitle : '' }}
@@ -234,7 +234,7 @@
                       Save up to {{ maxDiscountObj.max }}% with a multi-session purchase
                     </h3>
                     <h4 class=" description">
-                      Got questions? Schedule a free discovery session with your coach before you get started.
+                      Got questions? Schedule a free discovery session with {{ service.coachName }} before you get started.
                     </h4>
                   </div>
                 </div>
@@ -328,13 +328,13 @@
                         id="buynowfull"
                         type="button"
                         data-target="#payModal"
-                        (click)="purchaseDisplayPrice = calcDisplayPrice(service.pricing[package].price) ; pricingSessions = package ; userId ? payModal.show() : registerToPurchase()"
+                        (click)="purchasingService = i ; purchaseDisplayPrice = calcDisplayPrice(service.pricing[package].price) ; pricingSessions = package ; userId ? payModal.show() : registerToPurchase()"
                         [disabled]="userId === service.sellerUid">
                           <span
-                          *ngIf="purchasingService"
+                          *ngIf="purchaseInProgress && purchasingService === i"
                           class="spinner-border spinner-border-sm"
                           role="status"
-                          ></span> {{ purchasingService ? 'Purchasing...' : 'Buy Now'}} 
+                          ></span> {{ purchaseInProgress && purchasingService === i ? 'Purchasing...' : 'Buy Now'}} 
                         </button>
                         <div class="mt-2">
                           <small>
@@ -406,7 +406,11 @@
                         <div class="ElementsModal--top-banner ElementsModal--top-banner-overlay" [style.background-image]="'url(' + service?.image + ')'">
                             <div class="ElementsModal--sales-info">
                               <div class="ElementsModal--top">
-                                <div *ngIf="service && service.title" class="ElementsModal--company"> {{ service.title }} </div>
+                                <div *ngIf="service" class="ElementsModal--company">
+                                  {{ service.type ? service.type === 'individual' ? 'Individual' : '' : 'Individual'}} 
+                                  {{ service.sessionDuration ? service.sessionDuration + 'min' : '' }}
+                                  Coaching Session
+                                </div>
                                 <button class="ElementsModal--close" (click)="payModal.hide()">
                                   <svg
                                     width="20px"
@@ -458,7 +462,7 @@
                                   </svg>
                                 </button>
                               </div>
-                              <div class="ElementsModal--product ElementsModal--details"> Private 1-to-1 Coaching: {{ pricingSessions }} Session{{pricingSessions === '1' ? '' : 's'}} </div>
+                              <div class="ElementsModal--product ElementsModal--details"> {{ pricingSessions }} Session{{pricingSessions === '1' ? '' : 's'}} with {{ service?.coachName }} </div>
                               <div *ngIf="service" class="ElementsModal--price ElementsModal--details"> 
                                 {{ currencySymbol + '' + purchaseDisplayPrice }}
                               </div>
@@ -530,10 +534,10 @@
                                       class="btn btn-success btn-fill btn-round btn-block mt-4"
                                     >
                                     <span
-                                      *ngIf="purchasingService"
+                                      *ngIf="purchaseInProgress"
                                       class="spinner-border spinner-border-sm"
                                       role="status"
-                                      ></span> {{ purchasingService ? 'Processing...' : currencySymbol + '' + purchaseDisplayPrice }}
+                                      ></span> {{ purchaseInProgress ? 'Processing...' : currencySymbol + '' + purchaseDisplayPrice }}
                                     </button>
                                   </div>
                                 </div>
