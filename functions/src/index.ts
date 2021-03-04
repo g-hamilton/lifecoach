@@ -1324,7 +1324,9 @@ exports.stripeCreatePaymentIntent = functions
       metadata: { // any additional data to save with the payment
         sale_item_type: saleItemType,
         sale_item_id: saleItemId,
-        sale_item_title: saleItem.title,
+        sale_item_title: saleItem.title ? saleItem.title : '',
+        sale_item_subtitle: saleItem.subtitle ? saleItem.subtitle : '',
+        sale_item_headline: saleItem.headline ? saleItem.headline : '',
         sale_item_image: saleItem.image,
         client_UID: clientUid,
         seller_UID: saleItem.sellerUid,
@@ -1333,7 +1335,9 @@ exports.stripeCreatePaymentIntent = functions
         partner_referred: partnerTrackingCode ? partnerTrackingCode : 'false',
         // if purchasing a program numSessions will be the number of sessions in the program
         // if purchasing a coachingPackage (service), will be the number of sessions in the package
-        num_sessions: saleItem.numSessions ? saleItem.numSessions : saleItemType === 'coachingPackage' ? packageSessions : null
+        num_sessions: saleItem.numSessions ? saleItem.numSessions : saleItemType === 'coachingPackage' ? packageSessions : null,
+        seller_name: saleItem.coachName,
+        seller_photo: saleItem.coachPhoto
       }
     });
 
@@ -2197,7 +2201,8 @@ async function recordServicePurchaseForCreator(data: Stripe.PaymentIntent) {
   const saleItemTitle = data.metadata.sale_item_title;
   const saleItemImg = data.metadata.sale_item_image;
   const numSessions = data.metadata.num_sessions;
-  const sessionsPurchased = Number(numSessions)
+  const sessionsPurchased = Number(numSessions);
+  const saleItemHeadline = data.metadata.headline;
 
   // db ops
 
@@ -2236,6 +2241,7 @@ async function recordServicePurchaseForCreator(data: Stripe.PaymentIntent) {
     properties: {
       service_id: saleItemId,
       service_title: saleItemTitle,
+      service_headline: saleItemHeadline,
       service_image: saleItemImg,
       num_sessions_purchased: String(sessionsPurchased), // mailchimp only accepts string data!
       client_url: `https://lifecoach.io/person-history/${clientUid}`
@@ -2255,6 +2261,9 @@ async function recordServicePurchaseForClient(data: Stripe.PaymentIntent) {
   const saleItemTitle = data.metadata.sale_item_title;
   const saleItemImg = data.metadata.sale_item_image;
   const numSessions = data.metadata.num_sessions;
+  const coachName = data.metadata.seller_name;
+  const coachPhoto = data.metadata.seller_photo;
+  const saleItemHeadline = data.metadata.headline;
 
   // db ops
 
@@ -2276,9 +2285,12 @@ async function recordServicePurchaseForClient(data: Stripe.PaymentIntent) {
     properties: {
       service_id: saleItemId,
       service_title: saleItemTitle,
+      service_headline: saleItemHeadline,
       service_image: saleItemImg,
       num_sessions_purchased: String(numSessions), // mailchimp only accepts string data!
-      landing_url: `https://lifecoach.io/my-services/${saleItemId}`
+      landing_url: `https://lifecoach.io/my-coaches`,
+      coach_name: coachName,
+      coach_photo: coachPhoto
     }
   }
   const promise1 = logMailchimpEvent(clientUid, event);
