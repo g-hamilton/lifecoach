@@ -1,0 +1,120 @@
+<div class=" content">
+
+    <div class=" row">
+        <div class=" col-md-6">
+
+          <!-- loading coach -->
+          <div *ngIf="!coachProfile">
+            <!-- loading spinner -->
+            <div class="text-center">
+                <div class="spinner-border" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+          </div>
+
+          <!-- coach loaded -->
+          <div *ngIf="coachProfile" class=" card card-testimonial">
+            <div class=" card-header card-header-avatar">
+              <a href="javascript:void(0)">
+                <img
+                  [alt]="coachProfile.firstName + ' ' + coachProfile.lastName"
+                  class=" img img-raised"
+                  [src]="coachProfile.photo"
+                />
+              </a>
+            </div>
+            <div class=" card-body">
+                <h4 class=" card-title">{{ coachProfile.firstName + ' ' + coachProfile.lastName }}</h4>
+
+                <!-- connected -->
+                <div class=" mt-4">
+                  <small class=" text-muted">
+                    First connected
+                  </small>
+                  <p>
+                    <!-- <i class="fas fa-calendar text-muted"></i> {{ person.created.toLocaleDateString() }} 
+                    <i class="fas fa-clock text-muted ml-2"></i> {{ person.created.toLocaleTimeString() }} -->
+                  </p>
+                </div>
+
+                <!-- status -->
+                <div class=" mt-4">
+                  <small class=" text-muted">
+                    Status
+                  </small>
+                  <!-- <p
+                  [ngClass]="{
+                  'text-danger': person.status === 'Awaiting reply' || person.status === 'Client responded',
+                  'text-success' : person.status === 'Responded' || person.status === 'Invited',
+                  'text-primary' : person.status === 'Enrolled in eCourse' || person.status === 'Enrolled in program'}">
+                    {{ person.status }}
+                  </p> -->
+                </div>
+
+                <!-- actions -->
+                <div class=" mt-4 text-center">
+                  <div class=" dropdown btn-group" dropdown>
+                    <button
+                    class=" btn btn-round btn-default dropdown-toggle dropdown-toggle"
+                    data-toggle="dropdown"
+                    dropdownToggle
+                    type="button"
+                    >
+                        <span class="pl-2">Actions</span>
+                    </button>
+                    <div class=" dropdown-menu" *dropdownMenu>
+
+                      <!--  -->
+                      <a *ngIf="true" class=" dropdown-item" [routerLink]="msgUrl">
+                        Send {{ coachProfile.firstName }} a message
+                      </a>
+
+                      <!--  -->
+                      <!-- <a *ngIf="true" class=" dropdown-item" [routerLink]="'/calendar'">
+                        Schedule a session with {{ coachProfile.firstName }}
+                      </a> -->
+  
+                    </div>
+                  </div>
+                </div>
+
+            </div>
+            <!-- <div class=" card-footer">
+            </div> -->
+          </div>
+          <!-- end of person card -->
+
+          <!-- notes card -->
+          <!-- <div class=" card">
+            <div class=" card-header">
+              <h5> Add a quick note: </h5>
+            </div>
+            <div class=" card-body">
+              <textarea></textarea>
+            </div>
+          </div> -->
+          <!-- end notes card -->
+
+          <!-- enrolled in products cards -->
+          <div *ngIf="enrolledInCourses?.length > 0 || enrolledInPrograms?.length > 0">
+            <h5> Enrolled In: </h5>
+          </div>
+
+          <div class=" row">
+            
+          </div>
+
+        </div>
+        <!-- end col -->
+        <div class=" col-md-6">
+            <!-- <app-person-history-timeline
+            [person]="person"
+            [enrolledCourses]="enrolledInCourses"
+            [enrolledPrograms]="enrolledInPrograms"
+            [enrolledServices]="enrolledInServices">
+            </app-person-history-timeline> -->
+        </div>
+    </div>
+
+</div>
