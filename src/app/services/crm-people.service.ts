@@ -137,6 +137,9 @@ export class CrmPeopleService implements OnDestroy {
         case 'booked_session':
           type = this.isPersonWarm(person) ? 'warm lead' : 'lead';
           break;
+        case 'service_purchase':
+          type = 'client';
+          break;
         default:
           type = 'lead';
       }
@@ -197,6 +200,9 @@ export class CrmPeopleService implements OnDestroy {
           break;
         case 'cancelled_session':
           status = 'Cancelled Session';
+          break;
+        case 'service_purchase':
+          status = 'In Coaching';
           break;
         default:
           status = 'Message';
