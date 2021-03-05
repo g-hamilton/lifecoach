@@ -1,0 +1,14 @@
+<div id="status">
+    <span *ngIf="reviewRequest?.status === 'submitted'" class="submitted">
+        SUBMITTED FOR REVIEW
+    </span>
+    <span *ngIf="reviewRequest?.status === 'approved'" class="published">
+        PUBLISHED
+    </span>
+    <span *ngIf="reviewRequest?.status === 'rejected'" class="action">
+        NEEDS ACTION
+    </span>
+    <span *ngIf="!reviewRequest?.status" class="draft">
+        DRAFT
+    </span>
+</div>

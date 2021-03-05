@@ -69,22 +69,8 @@
             <div *ngFor="let service of publishedServices ; let i = index" class=" col-md-4">
                 <a [routerLink]="['/my-services', service.serviceId, 'content']">
                     <app-service-card [service]="service"></app-service-card>
-                    <div>
-                        <span *ngIf="service?.reviewRequest?.status === 'submitted'" class=" badge badge-info ml-2">
-                            SUBMITTED FOR REVIEW
-                        </span>
-                        <span *ngIf="service?.reviewRequest?.status === 'approved'" class=" badge badge-success ml-2">
-                            PUBLISHED
-                        </span>
-                        <span *ngIf="service?.reviewRequest?.status === 'rejected'" class=" badge badge-danger ml-2">
-                            NEEDS ACTION
-                        </span>
-                        <span *ngIf="!service?.reviewRequest?.status" class=" badge badge-warning ml-2">
-                            DRAFT
-                        </span>
-                    </div>
+                    <app-item-status [reviewRequest]="service.reviewRequest"></app-item-status>
                 </a>
-                
             </div>
         </div>
     </div>
@@ -153,20 +139,7 @@
             <div *ngFor="let program of publishedPrograms ; let i = index" class=" col-md-4">
                 <a [routerLink]="['/my-programs', program.programId, 'content']">
                     <app-program-card [program]="program"></app-program-card>
-                    <div>
-                        <span *ngIf="program?.reviewRequest?.status === 'submitted'" class=" badge badge-info ml-2">
-                            SUBMITTED FOR REVIEW
-                        </span>
-                        <span *ngIf="program?.reviewRequest?.status === 'approved'" class=" badge badge-success ml-2">
-                            PUBLISHED
-                        </span>
-                        <span *ngIf="program?.reviewRequest?.status === 'rejected'" class=" badge badge-danger ml-2">
-                            NEEDS ACTION
-                        </span>
-                        <span *ngIf="!program?.reviewRequest?.status" class=" badge badge-warning ml-2">
-                            DRAFT
-                        </span>
-                    </div>
+                    <app-item-status [reviewRequest]="program.reviewRequest"></app-item-status>
                 </a>
                 
             </div>
@@ -239,20 +212,7 @@
             <div *ngFor="let course of publishedCourses ; let i = index" class=" col-md-4">
                 <a [routerLink]="['/my-courses', course.courseId, 'content']">
                     <app-course-card [course]="course"></app-course-card>
-                    <div>
-                        <span *ngIf="course?.reviewRequest?.status === 'submitted'" class=" badge badge-info ml-2">
-                            SUBMITTED FOR REVIEW
-                        </span>
-                        <span *ngIf="course?.reviewRequest?.status === 'approved'" class=" badge badge-success ml-2">
-                            PUBLISHED
-                        </span>
-                        <span *ngIf="course?.reviewRequest?.status === 'rejected'" class=" badge badge-danger ml-2">
-                            NEEDS ACTION
-                        </span>
-                        <span *ngIf="!course?.reviewRequest?.status" class=" badge badge-warning ml-2">
-                            DRAFT
-                        </span>
-                    </div>
+                    <app-item-status [reviewRequest]="course.reviewRequest"></app-item-status>
                 </a>
                 
             </div>
