@@ -173,8 +173,7 @@
                             </ng-template>
                         </p>
                         <p *ngIf="item.action === 'service_purchase'">
-                            {{ person.firstName }} purchased {{ item.sessionsPurchased }} session(s) for your coaching service: 
-                            {{ getServiceTitle(item.serviceId) }}.
+                            {{ person.firstName }} purchased {{ item.sessionsPurchased }} {{ getServiceTitle(item.serviceId) }}{{item.sessionsPurchased > 1 ? 's' : '' }}.
                             <a [routerLink]="['/calendar']">
                                 Schedule a session with {{ person.firstName }}
                             </a>

@@ -84,7 +84,8 @@ export class PersonHistoryTimelineComponent implements OnInit, OnChanges {
     }
     const filtered = this.enrolledServices.filter(i => i.serviceId === id);
     if (filtered && filtered.length) {
-      return filtered[0].title;
+      const title = `${filtered[0].type ? filtered[0].type === 'individual' ? 'Individual' : '' : 'Individual'} ${filtered[0].sessionDuration ? filtered[0].sessionDuration + 'min' : ''} Coaching Session`;
+      return title;
     }
     return '';
   }
