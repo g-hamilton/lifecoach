@@ -153,24 +153,13 @@
             <!-- enrolled courses -->
             <div *ngFor="let course of enrolledInCourses ; let c = index" class=" col-md-6">
               <a [routerLink]="['/my-courses', course.courseId, 'content']">
-                  <div class=" card">
-                      <img
-                      class="card-img-top"
-                      [src]="course.image ? course.image : 'assets/img/image_placeholder.jpg'"
-                      [alt]="course.title" />
-
-                      <div class=" card-body">
-                          <h4 class="card-title"> {{ course?.title }} </h4>
-                          <h6 class="card-subtitle mb-2 text-muted"> {{ course?.subtitle }} </h6>
-                          <span class=" badge badge-default"> eCourse </span>
-                          <div class="progress-container progress-primary mt-2">
-                              <span class="progress-badge"> Progress </span>
-                              <progressbar class="progress-bar-primary" [value]="course?.progress">
-                                <span class="progress-value"> {{ course?.progress }}% </span>
-                              </progressbar>
-                          </div>
-                      </div>
-                  </div>
+                <app-course-card [course]="course"></app-course-card>
+                <!-- <div class="progress-container progress-primary mt-2">
+                  <span class="progress-badge"> Progress </span>
+                  <progressbar class="progress-bar-primary" [value]="course?.progress">
+                    <span class="progress-value"> {{ course?.progress }}% </span>
+                  </progressbar>
+                </div> -->
               </a>
             </div>
             <!-- end enrolled courses -->

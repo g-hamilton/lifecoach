@@ -1,41 +1,39 @@
-<a [routerLink]="['/course', courseId]">
-  <div class=" card">
+<div class=" card">
 
-    <!-- Card image -->
-    <ng-container *ngIf="course.imagePaths; else noImages">
-      <div class="card-img-top course-card-image course-avatar course-avatar_webp_full"
-           [ngStyle]="{'background-image': 'url(' + course.imagePaths.webp.fullSize +')'}"></div>
-      <div class="card-img-top course-card-image course-avatar course-avatar_webp_half"
-           [ngStyle]="{'background-image': 'url(' + course.imagePaths.webp['991'] +')'}"></div>
-      <div class="card-img-top course-card-image course-avatar course-avatar_full"
-           [ngStyle]="{'background-image': 'url(' + course.imagePaths.original.fullSize +')'}"></div>
-      <div class="card-img-top course-card-image course-avatar course-avatar_half"
-           [ngStyle]="{'background-image': 'url(' + course.imagePaths.original['991'] +')'}"></div>
-    </ng-container>
-    <ng-template #noImages>
-      <img
-        class=" card-img-top course-card-image"
-        [src]="course.image ? course.image : 'assets/img/image_placeholder.jpg'"
-        [alt]="course.title"/>
-    </ng-template>
-    <!-- Card body -->
-    <div class=" card-body">
-      <h4 class="card-title"> {{ course?.title }} </h4>
-      <h6 class="card-subtitle mb-2 text-muted"> {{ course?.coachName }} </h6>
-      <div *ngIf="browser">
-        <!-- <app-stars
-          *ngIf="courseObject"
-          [course]="courseObject">
-        </app-stars> -->
-      </div>
-      <div *ngIf="clientCurrency && rates" style="clear: both;">
-        <h4 *ngIf="course?.pricingStrategy === 'paid'"> {{ currencySymbol + '' + displayPrice }} </h4>
-        <h4 *ngIf="course?.pricingStrategy === 'free'"> FREE </h4>
-      </div>
-      <!-- <span class=" badge badge-success">
-        New
-      </span> -->
+  <!-- Card image -->
+  <ng-container *ngIf="course.imagePaths; else noImages">
+    <div class="card-img-top course-card-image course-avatar course-avatar_webp_full"
+         [ngStyle]="{'background-image': 'url(' + course.imagePaths.webp.fullSize +')'}"></div>
+    <div class="card-img-top course-card-image course-avatar course-avatar_webp_half"
+         [ngStyle]="{'background-image': 'url(' + course.imagePaths.webp['991'] +')'}"></div>
+    <div class="card-img-top course-card-image course-avatar course-avatar_full"
+         [ngStyle]="{'background-image': 'url(' + course.imagePaths.original.fullSize +')'}"></div>
+    <div class="card-img-top course-card-image course-avatar course-avatar_half"
+         [ngStyle]="{'background-image': 'url(' + course.imagePaths.original['991'] +')'}"></div>
+  </ng-container>
+  <ng-template #noImages>
+    <img
+      class=" card-img-top course-card-image"
+      [src]="course.image ? course.image : 'assets/img/image_placeholder.jpg'"
+      [alt]="course.title"/>
+  </ng-template>
+  <!-- Card body -->
+  <div class=" card-body">
+    <h4 class="card-title"> {{ course?.title }} </h4>
+    <h6 class="card-subtitle mb-2 text-muted"> {{ course?.coachName }} </h6>
+    <div *ngIf="browser">
+      <!-- <app-stars
+        *ngIf="courseObject"
+        [course]="courseObject">
+      </app-stars> -->
     </div>
-
+    <div *ngIf="clientCurrency && rates" style="clear: both;">
+      <h4 *ngIf="course?.pricingStrategy === 'paid'"> {{ currencySymbol + '' + displayPrice }} </h4>
+      <h4 *ngIf="course?.pricingStrategy === 'free'"> FREE </h4>
+    </div>
+    <!-- <span class=" badge badge-success">
+      New
+    </span> -->
   </div>
-</a>
+
+</div>

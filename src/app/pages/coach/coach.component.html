@@ -189,9 +189,9 @@
                 <div class=" results-container">
                     <div class=" row">
                         <div *ngFor="let course of courses" class=" col-md-4">
-                            <app-course-card
-                            [course]="course">
-                            </app-course-card>
+                            <a [routerLink]="['/course', course.courseId]">
+                                <app-course-card [course]="course"></app-course-card>
+                            </a>
                         </div>
                     </div>
                 </div>
