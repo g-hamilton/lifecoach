@@ -58,7 +58,7 @@
         <div class=" row" *ngIf="purchasedPrograms && purchasedPrograms.length > 0">
             <div *ngFor="let program of purchasedPrograms ; let p = index" class=" col-md-4">
                 <a [routerLink]="['/my-programs']">
-                    <app-program-preview-card [program]="program"></app-program-preview-card>
+                    <app-program-card [program]="program"></app-program-card>
                 </a>
             </div>
         </div>

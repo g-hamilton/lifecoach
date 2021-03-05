@@ -139,7 +139,7 @@
 
             <!-- enrolled programs -->
             <div *ngFor="let program of enrolledInPrograms ; let p = index" class=" col-md-6">
-              <app-program-preview-card [program]="program"></app-program-preview-card>
+              <app-program-card [program]="program"></app-program-card>
               <!-- <button class="btn btn-round btn-default" [routerLink]="['/my-programs', program.programId, 'clients', person.id, 'sessions']">
                 Session History
               </button>
