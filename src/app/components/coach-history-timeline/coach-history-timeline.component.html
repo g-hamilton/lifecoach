@@ -1,0 +1,180 @@
+<!-- loading -->
+<div *ngIf="!coachProfile || !history" class="text-center">
+    <div class="spinner-border" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+</div>
+
+<!-- person loaded -->
+<div *ngIf="coachProfile && history">
+
+    <!-- sort by dropdown -->
+    <div class=" row">
+        <div class=" col-md-6">
+            <div class=" form-group">
+                <select class="form-control" name="sortby" id="sortby" [(ngModel)]="sortBy" (change)="onSortByHandler($event)">
+                  <option value="newest">
+                    Display newest events first
+                  </option>
+                  <option value="oldest">
+                    Display oldest events first
+                  </option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class=" card card-timeline card-plain">
+        <div class=" card-body">
+          <ul class=" timeline timeline-simple">
+            <li *ngFor="let item of history ; let i = index" class=" timeline-inverted">
+
+                <!-- badge -->
+                <div *ngIf="item.action === 'sent_first_message'" class=" timeline-badge danger">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <div *ngIf="item.action === 'enrolled_in_self_study_course'" class=" timeline-badge primary">
+                    <i class="fas fa-play-circle"></i>
+                </div>
+                <div *ngIf="item.action === 'enrolled_in_full_program'" class=" timeline-badge primary">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div *ngIf="item.action === 'enrolled_in_program_session'" class=" timeline-badge primary">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div *ngIf="item.action === 'coach_invited_user'" class=" timeline-badge success">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <div *ngIf="item.action === 'booked_session'" class=" timeline-badge success">
+                    <i class="fas fa-calendar"></i>
+                </div>
+                <div *ngIf="item.action === 'cancelled_session'" class=" timeline-badge warning">
+                    <i class="fas fa-calendar"></i>
+                </div>
+                <div *ngIf="item.action === 'completed_session'" class=" timeline-badge primary">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div *ngIf="item.action === 'coach_created_session'" class=" timeline-badge success">
+                    <i class="fas fa-calendar"></i>
+                </div>
+                <div *ngIf="item.action === 'service_purchase'" class=" timeline-badge info">
+                    <i class="fas fa-credit-card"></i>
+                </div>
+
+                <!-- panel -->
+                <div class=" timeline-panel">
+
+                    <!-- heading -->
+                    <div class=" timeline-heading">
+                        <span *ngIf="item.action === 'sent_first_message'" class=" badge badge-danger"> New Lead </span>
+                        <span *ngIf="item.action === 'enrolled_in_self_study_course'" class=" badge badge-primary"> Enrolled In eCourse </span>
+                        <span *ngIf="item.action === 'enrolled_in_full_program'" class=" badge badge-primary"> Enrolled In Program (Full) </span>
+                        <span *ngIf="item.action === 'enrolled_in_program_session'" class=" badge badge-primary"> Enrolled In Program (PAYG) </span>
+                        <span *ngIf="item.action === 'coach_invited_user'" class=" badge badge-success"> Sent Invite </span>
+                        <span *ngIf="item.action === 'booked_session'" class=" badge badge-success"> Booked Session </span>
+                        <span *ngIf="item.action === 'cancelled_session'" class=" badge badge-warning"> Cancelled Session </span>
+                        <span *ngIf="item.action === 'completed_session'" class=" badge badge-primary"> 
+                            Completed {{ item.programId === 'discovery' ? 'Discovery Session' : 'Session' }} 
+                        </span>
+                        <span *ngIf="item.action === 'coach_created_session'" class=" badge badge-success"> Scheduled Session </span>
+                        <span *ngIf="item.action === 'service_purchase'" class=" badge badge-info"> Purchased {{ item.sessionsPurchased }} Session(s) </span>
+
+                        <!-- time / date of this action -->
+                        <span class="pull-right">
+                            <small class="text-muted">
+                                <i class="fas fa-calendar"></i> {{ getDisplayDate(item.id) }} 
+                                <i class="fas fa-clock ml-2"></i> {{ getDisplayTime(item.id) }}
+                            </small>
+                        </span>
+                    </div>
+
+                    <!-- body -->
+                    <div class=" timeline-body">
+                        <p *ngIf="item.action === 'sent_first_message'">
+                            You first contacted {{ coachProfile.firstName }} by message. 
+                            <a class=" pl-2" [routerLink]="['/messages', 'rooms', history[i].roomId]">
+                                View messages
+                            </a>
+                        </p>
+                        <p *ngIf="item.action === 'enrolled_in_self_study_course'">
+                            You enrolled in {{ coachProfile.firstName }}'s eCourse: {{ getCourseTitle(item.courseId) }}.
+                        </p>
+                        <p *ngIf="item.action === 'enrolled_in_full_program'">
+                            You enrolled in {{ coachProfile.firstName }}'s program: {{ getProgramTitle(item.programId) }} and paid in full. 
+                            <!-- <a [routerLink]="['/calendar']">
+                                Schedule a session with {{ coachProfile.firstName }}
+                            </a> -->
+                        </p>
+                        <p *ngIf="item.action === 'enrolled_in_program_session'">
+                            You enrolled in {{ coachProfile.firstName }}'s program: {{ getProgramTitle(item.programId) }} and you're paying per session. 
+                            <!-- <a [routerLink]="['/calendar']">
+                                Schedule a session with {{ coachProfile.firstName }}
+                            </a> -->
+                        </p>
+                        <p *ngIf="item.action === 'coach_invited_user'">
+                            {{ coachProfile.firstName }} sent you an invitation to  
+                            {{ history[i].event?.properties.item_type }}: 
+                            <a [href]="history[i].event.properties.landing_url" target="_blank">
+                                {{ history[i].event?.properties.item_title }}
+                            </a>
+                        </p>
+                        <p *ngIf="item.action === 'booked_session'">
+                            You booked a {{ history[i].event?.type }} session with {{ coachProfile.firstName }}. 
+                            <a *ngIf="dateNow < getDate(item.event.end.seconds * 1000) ; else viewHistory" 
+                                [routerLink]="['/my-sessions', history[i].event.id]">
+                                Go to session
+                            </a>
+                            <ng-template #viewHistory>
+                                <a [routerLink]="[]">
+                                View session notes
+                            </a>
+                            </ng-template>
+                        </p>
+                        <p *ngIf="item.action === 'cancelled_session'">
+                            You cancelled your {{ history[i].event?.type }} session with {{ coachProfile.firstName }}. 
+                            <a [routerLink]="['/calendar']">
+                                View calendar
+                            </a>
+                        </p>
+                        <p *ngIf="item.action === 'completed_session'">
+                            You completed a {{ item.programId === 'discovery' ? 'discovery session' : 'session' }} with {{ coachProfile.firstName }}. 
+                            <span>
+                                <a [routerLink]="[]">
+                                    view session notes
+                                </a>
+                            </span>
+                        </p>
+                        <p *ngIf="item.action === 'coach_created_session'">
+                            {{ coachProfile.firstName }} scheduled a new session with you. 
+                            <span *ngIf="dateNow < getDate(item.event.end.seconds * 1000) ; else inPast">
+                                <a [routerLink]="['/my-sessions', history[i].event.id]">
+                                Go to session
+                                </a> or
+                                <a [routerLink]="['/calendar']">
+                                    View calendar
+                                </a>
+                            </span>
+                            <ng-template #inPast>
+                                <a [routerLink]="[]">
+                                View session notes
+                            </a>
+                            </ng-template>
+                        </p>
+                        <p *ngIf="item.action === 'service_purchase'">
+                            You purchased {{ item.sessionsPurchased }} {{ getServiceTitle(item.serviceId) }}{{item.sessionsPurchased > 1 ? 's' : '' }} with {{ coachProfile.firstName }}.
+                            <!-- <a [routerLink]="['/calendar']">
+                                Schedule a session with {{ coachProfile.firstName }}
+                            </a> -->
+                        </p>
+                    </div>
+
+                    <!-- footer -->
+                    <!-- <div class=" timeline-footer">
+                        <hr>
+                    </div> -->
+                </div>
+            </li>
+          </ul>
+        </div>
+    </div>
+</div>

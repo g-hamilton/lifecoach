@@ -3082,6 +3082,11 @@ exports.sendCoachInvite = functions
     .doc(now.toString())
     .set({ action: event.name, event });
 
+    // record the crm event in the person's history with the coach
+    await db.collection(`users/${data.invitee.id}/coaches/${data.item.sellerUid}/history`)
+    .doc(now.toString())
+    .set({ action: event.name, event });
+
     // record in coach's invites sent node
     await db.collection(`users/${data.item.sellerUid}/sent-invites/${data.invitee.id}/by-date`)
     .doc(now.toString())
