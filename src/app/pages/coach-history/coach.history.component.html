@@ -28,13 +28,13 @@
                 <h4 class=" card-title">{{ coachProfile.firstName + ' ' + coachProfile.lastName }}</h4>
 
                 <!-- connected -->
-                <div class=" mt-4">
+                <div *ngIf="connectedDate" class=" mt-4">
                   <small class=" text-muted">
                     First Connected
                   </small>
                   <p>
-                    <!-- <i class="fas fa-calendar text-muted"></i> {{ person.created.toLocaleDateString() }} 
-                    <i class="fas fa-clock text-muted ml-2"></i> {{ person.created.toLocaleTimeString() }} -->
+                    <i class="fas fa-calendar text-muted"></i> {{ connectedDate.toLocaleDateString() }} 
+                    <i class="fas fa-clock text-muted ml-2"></i> {{ connectedDate.toLocaleTimeString() }}
                   </p>
                 </div>
 
@@ -83,12 +83,50 @@
           <!-- end notes card -->
 
           <!-- enrolled in products cards -->
-          <div *ngIf="enrolledInCourses?.length > 0 || enrolledInPrograms?.length > 0">
+          <div *ngIf="enrolledInCourses?.length > 0 || enrolledInPrograms?.length > 0 || enrolledInServices?.length > 0">
             <h5> Enrolled In: </h5>
           </div>
 
           <div class=" row">
-            
+            <!-- enrolled services -->
+            <div *ngFor="let service of enrolledInServices ; let s = index" class=" col-md-6">
+              <app-service-card [service]="service"></app-service-card>
+              <!-- <button class="btn btn-round btn-default" [routerLink]="['/my-services', service.serviceId, 'clients', person.id, 'sessions']">
+                Session History
+              </button>
+              <button *ngIf="service.purchasedSessions?.length > 0" class="btn btn-round btn-primary"
+              [routerLink]="['/calendar']">
+                Schedule a Session
+              </button> -->
+            </div>
+            <!-- end enrolled services -->
+
+            <!-- enrolled programs -->
+            <div *ngFor="let program of enrolledInPrograms ; let p = index" class=" col-md-6">
+              <app-program-card [program]="program"></app-program-card>
+              <!-- <button class="btn btn-round btn-default" [routerLink]="['/my-programs', program.programId, 'clients', person.id, 'sessions']">
+                Session History
+              </button>
+              <button *ngIf="program.purchasedSessions?.length > 0" class="btn btn-round btn-primary"
+              [routerLink]="['/calendar']">
+                Schedule a Session
+              </button> -->
+            </div>
+            <!-- end enrolled programs -->
+
+            <!-- enrolled courses -->
+            <div *ngFor="let course of enrolledInCourses ; let c = index" class=" col-md-6">
+              <a [routerLink]="['/my-courses', course.courseId, 'content']">
+                <app-course-card [course]="course"></app-course-card>
+                <!-- <div class="progress-container progress-primary mt-2">
+                  <span class="progress-badge"> Progress </span>
+                  <progressbar class="progress-bar-primary" [value]="course?.progress">
+                    <span class="progress-value"> {{ course?.progress }}% </span>
+                  </progressbar>
+                </div> -->
+              </a>
+            </div>
+            <!-- end enrolled courses -->
           </div>
 
         </div>

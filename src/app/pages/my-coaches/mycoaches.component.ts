@@ -52,6 +52,7 @@ export class MyCoachesComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
         this.crmPeopleService.getOwnCoaches(this.userId).subscribe(data => {
             if (data) {
+                // console.log(data);
                 // fetch coach profiles
                 const profiles = [] as CoachProfile[];
                 data.forEach(i => {

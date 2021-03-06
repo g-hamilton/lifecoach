@@ -2,7 +2,7 @@ import { Component, OnInit, Inject, PLATFORM_ID, OnDestroy } from '@angular/core
 import { isPlatformBrowser } from '@angular/common';
 import { AuthService } from 'app/services/auth.service';
 import { ActivatedRoute } from '@angular/router';
-import { CRMPerson } from 'app/interfaces/crm.person.interface';
+import { CRMPerson, CRMPersonHistoryEvent } from 'app/interfaces/crm.person.interface';
 import { Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { CrmPeopleService } from 'app/services/crm-people.service';
@@ -25,7 +25,8 @@ export class CoachHistoryComponent implements OnInit, OnDestroy {
   private userId: string;
   private coachId: string;
   public coachProfile: CoachProfile;
-  public me: CRMPerson;
+  public connectedDate: Date;
+  public history: CRMPersonHistoryEvent[];
   private subscriptions: Subscription = new Subscription();
   public msgUrl = '/messages';
   public enrolledInCourses = [] as CoachingCourse[];
@@ -59,6 +60,7 @@ export class CoachHistoryComponent implements OnInit, OnDestroy {
       this.authService.getAuthUser().subscribe(user => {
         if (user) {
           this.userId = user.uid;
+          this.getCoachData();
           this.getCoachProfile();
           this.getHistory();
         }
@@ -79,6 +81,22 @@ export class CoachHistoryComponent implements OnInit, OnDestroy {
     );
   }
 
+  getCoachData() {
+    if (!this.coachId) {
+      return;
+    }
+    this.subscriptions.add(
+      this.crmPeopleService.getOwnCoachById(this.userId, this.coachId).subscribe(data => {
+        if (data) {
+          console.log(data);
+          if (data.connected) {
+            this.connectedDate = new Date((data.created as any) * 1000); // convert from unix to Date
+          }
+        }
+      })
+    );
+  }
+
   getHistory() {
     if (!this.coachId) {
       return;
@@ -87,6 +105,8 @@ export class CoachHistoryComponent implements OnInit, OnDestroy {
       this.crmPeopleService.getOwnClientHistory(this.userId, this.coachId).subscribe(data => {
         if (data) {
           console.log(data);
+
+          this.history = data;
 
           // work out which coach created eCourses, programs & services this person has enrolled in by looking at their history array
 
@@ -216,6 +236,22 @@ export class CoachHistoryComponent implements OnInit, OnDestroy {
         }
       })
     );
+  }
+
+  updateMsgUrl() {
+    // checks if this person has a message room. if so, updates the msg url to take
+    // the person to that room on click
+    let roomId: string;
+    if (this.history) {
+      this.history.forEach(item => {
+        if (item.roomId) {
+          roomId = item.roomId;
+        }
+      });
+    }
+    if (roomId) {
+      this.msgUrl = `/messages/rooms/${roomId}`;
+    }
   }
 
   ngOnDestroy() {

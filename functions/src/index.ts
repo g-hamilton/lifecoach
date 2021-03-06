@@ -5200,11 +5200,17 @@ exports.onWriteUserCoachesNode = functions
 .runWith({memory: '1GB', timeoutSeconds: 300})
 .firestore
 .document(`users/{uid}/coaches/{coachUid}/history/{doc}`)
-.onWrite((snap, context) => {;
+.onWrite( async (change, context) => {
+  if (!change.before.exists) { // This is a new record (first time creation)
+    await db.collection(`users/${context.params.uid}/coaches`).doc(context.params.coachUid)
+    .set({
+      created: Date.now(),
+      coachUid: context.params.coachUid
+    });
+  }
   return db.collection(`users/${context.params.uid}/coaches`).doc(context.params.coachUid)
   .set({
-    timeOfLastUpdate: Date.now(),
-    coachUid: context.params.coachUid
+    timeOfLastUpdate: Date.now()
   }, { merge: true });
 });
 
