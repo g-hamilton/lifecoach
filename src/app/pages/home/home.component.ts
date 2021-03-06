@@ -211,6 +211,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     // we can send data to the modal & open in a another component via a service
     // https://valor-software.com/ngx-bootstrap/#/modals#service-component
     const config: ModalOptions = {
+      class: 'modal-lg', // let's make this a large one!
       initialState: {
         message: `Let's do this!`
       } as any

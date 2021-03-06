@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AlertService } from 'app/services/alert.service';
 import { AnalyticsService } from 'app/services/analytics.service';
 import { AuthService } from 'app/services/auth.service';
@@ -25,29 +25,12 @@ export class FindCoachWizardComponent implements OnInit {
   public userType: string;
   public wizardForm: FormGroup;
   public saving = false;
-  public rfocusTouched = false;
-  public rfocusTouched1 = false;
-  public rfocusTouched2 = false;
-  public rfocusTouched3 = false;
   public saveAttempt: boolean;
 
   public objKeys = Object.keys;
 
   public errorMessages = {
-    firstName: {
-      required: 'Please enter your first name'
-    },
-    lastName: {
-      required: 'Please enter your first name'
-    },
-    email: {
-      required: 'Please enter your email address',
-      pattern: `Please enter a valid email address`
-    },
-    password: {
-      required: 'Please create a password',
-      minlength: `Passwords must be at least 6 characters`
-    }
+    //
   };
 
   constructor(
@@ -66,16 +49,42 @@ export class FindCoachWizardComponent implements OnInit {
   buildWizardForm() {
     this.wizardForm = this.formBuilder.group(
       {
-        firstName: ['', [Validators.required]],
-        lastName: ['', [Validators.required]],
-        email: ['', [Validators.required, Validators.pattern(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)]],
-        password: ['', [Validators.required, Validators.minLength(6)]]
+        formArray: this.formBuilder.array([
+          // Group 0
+          this.formBuilder.group({
+            firstName: ['', [Validators.required, Validators.minLength(1)]],
+            lastName: ['', [Validators.required, Validators.minLength(1)]],
+            email: [
+              '',
+              [Validators.required, Validators.pattern(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)]
+            ]
+          }),
+        ])
       }
     );
   }
 
   get wizardF(): any {
     return this.wizardForm.controls;
+  }
+
+  get formArray() {
+    return this.wizardForm.controls.formArray as FormArray;
+  }
+
+  get group0() {
+    return ((this.wizardForm.controls.formArray as FormArray).controls[0] as FormGroup).controls;
+  }
+
+  onNextClick() {
+    this.saveAttempt = true;
+  }
+
+  onStepChange(event: any) {
+    // console.log('STEP CHANGED!', event);
+    setTimeout(() => {
+      this.saveAttempt = false;
+    }, 10);
   }
 
   showError(control: string, error: string) {

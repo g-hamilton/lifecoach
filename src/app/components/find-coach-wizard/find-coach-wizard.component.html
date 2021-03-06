@@ -1,198 +1,54 @@
-<p>TESTING</p>
 <!-- wizard modal -->
 <div id="wizard-modal" class=" wizard-modal">
-    <!-- <div class="modal-header">
-      <h4 class="modal-title pull-left"> Wizard </h4>
+    <!-- modal header -->
+    <div class="modal-header">
       <button type="button" class="close pull-right" aria-label="Close" (click)="bsModalRef.hide()">
         <span aria-hidden="true">&times;</span>
       </button>
-    </div> -->
-    <div class="modal-body">
-        <form
-        class=" form"
-        id="wizardForm"
-        [formGroup]="wizardForm"
-        (ngSubmit)="onSubmit()"
-        >
-            <div class="card card-register card-white">
-                <div class=" card-header">
-                <img class="card-img" style="width: 86%;" alt="" src="assets/img/card-primary.png" />
-                <h1 class=" card-title"> Get Started </h1>
-                </div>
-                <div class=" card-body">
-
-                    <div class=" row">
-                        <div class=" col">
-                            <p>
-                                {{ message }}
-                            </p>
-                        </div>
-                    </div>
-
-                <div class=" row mt-3">
-
-                    <!-- First Name -->
-                    <div class=" col-sm-12 col-md-6">
-                        <div
-                        class=" input-group"
-                        [ngClass]="{
-                            'has-danger': (((rfocusTouched && wizardF.firstName.value != '') || saveAttempt) && wizardF.firstName.errors),
-                            'has-success': !wizardF.firstName.errors
-                        }"
-                        >
-                            <div class=" input-group-prepend">
-                                <div class=" input-group-text">
-                                    <i class=" tim-icons icon-single-02"> </i>
-                                </div>
-                            </div>
-                            <input
-                            class=" form-control"
-                            name="firstName"
-                            formControlName="firstName"
-                            placeholder="First Name"
-                            type="text"
-                            (focus)="rfocusTouched = true"
-                            required=""
-                            />
-                        </div>
-                        <div *ngIf="(((rfocusTouched && wizardF.firstName.value != '') || saveAttempt) && wizardF.firstName.errors)">
-                            <label
-                            *ngFor="let error of objKeys(wizardF.firstName.errors)"
-                            class="error custom-error-label"
-                            >{{ showError('firstName', error) }}
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Last Name -->
-                    <div class=" col-sm-12 col-md-6">
-                        <div
-                        class=" input-group"
-                        [ngClass]="{
-                            'has-danger': (((rfocusTouched3 && wizardF.lastName.value != '') || saveAttempt) && wizardF.lastName.errors),
-                            'has-success': !wizardF.lastName.errors
-                        }"
-                        >
-                            <div class=" input-group-prepend">
-                                <div class=" input-group-text">
-                                    <i class=" tim-icons icon-single-02"> </i>
-                                </div>
-                            </div>
-                            <input
-                            class=" form-control"
-                            name="lastName"
-                            formControlName="lastName"
-                            placeholder="Last Name"
-                            type="text"
-                            (focus)="rfocusTouched3 = true"
-                            required=""
-                            />
-                            
-                        </div>
-                        <div *ngIf="(((rfocusTouched3 && wizardF.lastName.value != '') || saveAttempt) && wizardF.lastName.errors)">
-                            <label
-                            *ngFor="let error of objKeys(wizardF.lastName.errors)"
-                            class="error custom-error-label"
-                            >{{ showError('lastName', error) }}
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Email -->
-                <div
-                    class=" input-group"
-                    [ngClass]="{
-                    'has-danger': (((rfocusTouched1 && wizardF.email.value != '') || saveAttempt) && wizardF.email.errors),
-                    'has-success': !wizardF.email.errors
-                    }"
-                >
-                    <div class=" input-group-prepend">
-                    <div class=" input-group-text">
-                        <i class=" tim-icons icon-email-85"> </i>
-                    </div>
-                    </div>
-                    <input
-                    class=" form-control"
-                    name="email"
-                    formControlName="email"
-                    placeholder="Email"
-                    type="email"
-                    (focus)="rfocusTouched1 = true"
-                    required=""
-                    />
-                </div>
-                <div *ngIf="(((rfocusTouched1 && wizardF.email.value != '') || saveAttempt) && wizardF.email.errors)">
-                    <label
-                    *ngFor="let error of objKeys(wizardF.email.errors)"
-                    class="error custom-error-label"
-                    >{{ showError('email', error) }}
-                    </label>
-                </div>
-
-                <!-- Create Password -->
-                <div
-                    class=" input-group"
-                    [ngClass]="{
-                    'has-danger': (((rfocusTouched2 && wizardF.password.value != '') || saveAttempt) && wizardF.password.errors),
-                    'has-success': wizardF.password.value != '' && !wizardF.password.errors
-                    }"
-                >
-                    <div class=" input-group-prepend">
-                    <div class=" input-group-text">
-                        <i class=" tim-icons icon-lock-circle"> </i>
-                    </div>
-                    </div>
-                    <input
-                    class=" form-control"
-                    name="password"
-                    formControlName="password"
-                    placeholder="Create Password"
-                    type="password"
-                    (focus)="rfocusTouched2 = true"
-                    required=""
-                    />
-                </div>
-                <div *ngIf="(((rfocusTouched2 && wizardF.password.value != '') || saveAttempt) && wizardF.password.errors)">
-                    <label
-                    *ngFor="let error of objKeys(wizardF.password.errors)"
-                    class="error custom-error-label"
-                    >{{ showError('password', error) }}
-                    </label>
-                </div>
-
-                <!-- Form Submit Button -->
-                <button
-                class=" btn btn-primary btn-round btn-block mt-4"
-                type="submit"
-                >
-                    <span
-                    *ngIf="saving"
-                    class="spinner-border spinner-border-sm"
-                    role="status"
-                    ></span> {{ saving ? 'Creating Account...' : 'Sign Up'}} 
-                </button>
-
-                <!-- Terms & Conditions -->
-                <div class=" text-center text-muted mt-3">
-                    By signing up, you agree to our
-                    <a href="https://lifecoach.freshdesk.com/a/solutions/articles/47000883660" target="_blank"> 
-                    terms and conditions. 
-                    </a>
-                </div>
-
-                <hr>
-                <div class=" text-center">
-                    <strong>Already have an account? <a href="javascript:void(0)" (click)="bsModalRef.hide() ; login()">Log in</a></strong>
-                </div>
-
-                </div>
-                <!-- <div class=" card-footer">
-                
-                </div> -->
-            </div>
-        </form>
     </div>
+    <!-- end modal header -->
+
+    <!-- modal body -->
+    <div class="modal-body">
+
+        <!-- wizard container -->
+        <div class=" wizard-container">
+
+            <!-- wizard card -->
+            <div class="card card-wizard active" id="wizardProfile">
+
+                <!-- form -->
+                <form [formGroup]="wizardForm" (ngSubmit)="onSubmit()">
+
+                    <!-- stepper -->
+                    <mat-horizontal-stepper
+                    formArrayName="formArray"
+                    linear labelPosition="bottom"
+                    class=" card-body"
+                    (selectionChange)="onStepChange($event)"
+                    >
+                        <!-- Step 0 -->
+                        <mat-step formGroupName="0" [stepControl]="formArray.get([0])" label="Zero">
+                            <p class=" info-text mt-3">
+                            Let's start with some basic information...
+                            </p>
+                        </mat-step>
+                        <!-- end step 0 -->
+
+                    </mat-horizontal-stepper>
+                    <!-- end stepper -->
+
+                </form>
+                <!-- end form -->
+
+            </div>
+            <!-- end wizard card -->
+
+        </div>
+        <!-- end wizard container -->
+        
+    </div>
+    <!-- end modal body -->
   
     <!-- <div class="modal-footer">
   
