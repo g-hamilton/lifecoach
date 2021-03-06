@@ -139,6 +139,7 @@ import { NgxSocialShareModule } from 'ngx-social-share';
 import { ServiceCardComponent } from './service-card/service-card.component';
 import { ItemStatusComponent } from './item-status/item-status.component';
 import { CoachHistoryTimelineComponent } from './coach-history-timeline/coach-history-timeline.component';
+import { FindCoachWizardComponent } from './find-coach-wizard/find-coach-wizard.component';
 
 export function momentAdapterFactory() {
   return adapterFactory(moment);
@@ -281,7 +282,8 @@ export function momentAdapterFactory() {
     SocialMediaShareComponent,
     ServiceCardComponent,
     ItemStatusComponent,
-    CoachHistoryTimelineComponent
+    CoachHistoryTimelineComponent,
+    FindCoachWizardComponent
   ],
   exports: [
     TabsModule,
@@ -405,7 +407,8 @@ export function momentAdapterFactory() {
     LoginComponent,
     RegisterModalComponent,
     SessionManagerComponent,
-    CoachInviteComponent
+    CoachInviteComponent,
+    FindCoachWizardComponent
   ]
 })
 export class ComponentsModule {}

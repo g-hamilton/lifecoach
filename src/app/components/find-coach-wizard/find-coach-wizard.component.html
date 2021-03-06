@@ -1,7 +1,8 @@
-<!-- register modal -->
-<div id="register-modal" class=" register-modal">
+<p>TESTING</p>
+<!-- wizard modal -->
+<div id="wizard-modal" class=" wizard-modal">
     <!-- <div class="modal-header">
-      <h4 class="modal-title pull-left"> Register </h4>
+      <h4 class="modal-title pull-left"> Wizard </h4>
       <button type="button" class="close pull-right" aria-label="Close" (click)="bsModalRef.hide()">
         <span aria-hidden="true">&times;</span>
       </button>
@@ -9,14 +10,14 @@
     <div class="modal-body">
         <form
         class=" form"
-        id="RegisterValidation"
-        [formGroup]="registerForm"
-        (ngSubmit)="onRegister()"
+        id="wizardForm"
+        [formGroup]="wizardForm"
+        (ngSubmit)="onSubmit()"
         >
             <div class="card card-register card-white">
                 <div class=" card-header">
                 <img class="card-img" style="width: 86%;" alt="" src="assets/img/card-primary.png" />
-                <h1 class=" card-title"> Sign Up </h1>
+                <h1 class=" card-title"> Get Started </h1>
                 </div>
                 <div class=" card-body">
 
@@ -35,8 +36,8 @@
                         <div
                         class=" input-group"
                         [ngClass]="{
-                            'has-danger': (((rfocusTouched && registerF.firstName.value != '') || registerAttempt) && registerF.firstName.errors),
-                            'has-success': !registerF.firstName.errors
+                            'has-danger': (((rfocusTouched && wizardF.firstName.value != '') || saveAttempt) && wizardF.firstName.errors),
+                            'has-success': !wizardF.firstName.errors
                         }"
                         >
                             <div class=" input-group-prepend">
@@ -54,9 +55,9 @@
                             required=""
                             />
                         </div>
-                        <div *ngIf="(((rfocusTouched && registerF.firstName.value != '') || registerAttempt) && registerF.firstName.errors)">
+                        <div *ngIf="(((rfocusTouched && wizardF.firstName.value != '') || saveAttempt) && wizardF.firstName.errors)">
                             <label
-                            *ngFor="let error of objKeys(registerF.firstName.errors)"
+                            *ngFor="let error of objKeys(wizardF.firstName.errors)"
                             class="error custom-error-label"
                             >{{ showError('firstName', error) }}
                             </label>
@@ -68,8 +69,8 @@
                         <div
                         class=" input-group"
                         [ngClass]="{
-                            'has-danger': (((rfocusTouched3 && registerF.lastName.value != '') || registerAttempt) && registerF.lastName.errors),
-                            'has-success': !registerF.lastName.errors
+                            'has-danger': (((rfocusTouched3 && wizardF.lastName.value != '') || saveAttempt) && wizardF.lastName.errors),
+                            'has-success': !wizardF.lastName.errors
                         }"
                         >
                             <div class=" input-group-prepend">
@@ -88,9 +89,9 @@
                             />
                             
                         </div>
-                        <div *ngIf="(((rfocusTouched3 && registerF.lastName.value != '') || registerAttempt) && registerF.lastName.errors)">
+                        <div *ngIf="(((rfocusTouched3 && wizardF.lastName.value != '') || saveAttempt) && wizardF.lastName.errors)">
                             <label
-                            *ngFor="let error of objKeys(registerF.lastName.errors)"
+                            *ngFor="let error of objKeys(wizardF.lastName.errors)"
                             class="error custom-error-label"
                             >{{ showError('lastName', error) }}
                             </label>
@@ -102,8 +103,8 @@
                 <div
                     class=" input-group"
                     [ngClass]="{
-                    'has-danger': (((rfocusTouched1 && registerF.email.value != '') || registerAttempt) && registerF.email.errors),
-                    'has-success': !registerF.email.errors
+                    'has-danger': (((rfocusTouched1 && wizardF.email.value != '') || saveAttempt) && wizardF.email.errors),
+                    'has-success': !wizardF.email.errors
                     }"
                 >
                     <div class=" input-group-prepend">
@@ -121,9 +122,9 @@
                     required=""
                     />
                 </div>
-                <div *ngIf="(((rfocusTouched1 && registerF.email.value != '') || registerAttempt) && registerF.email.errors)">
+                <div *ngIf="(((rfocusTouched1 && wizardF.email.value != '') || saveAttempt) && wizardF.email.errors)">
                     <label
-                    *ngFor="let error of objKeys(registerF.email.errors)"
+                    *ngFor="let error of objKeys(wizardF.email.errors)"
                     class="error custom-error-label"
                     >{{ showError('email', error) }}
                     </label>
@@ -133,8 +134,8 @@
                 <div
                     class=" input-group"
                     [ngClass]="{
-                    'has-danger': (((rfocusTouched2 && registerF.password.value != '') || registerAttempt) && registerF.password.errors),
-                    'has-success': registerF.password.value != '' && !registerF.password.errors
+                    'has-danger': (((rfocusTouched2 && wizardF.password.value != '') || saveAttempt) && wizardF.password.errors),
+                    'has-success': wizardF.password.value != '' && !wizardF.password.errors
                     }"
                 >
                     <div class=" input-group-prepend">
@@ -152,9 +153,9 @@
                     required=""
                     />
                 </div>
-                <div *ngIf="(((rfocusTouched2 && registerF.password.value != '') || registerAttempt) && registerF.password.errors)">
+                <div *ngIf="(((rfocusTouched2 && wizardF.password.value != '') || saveAttempt) && wizardF.password.errors)">
                     <label
-                    *ngFor="let error of objKeys(registerF.password.errors)"
+                    *ngFor="let error of objKeys(wizardF.password.errors)"
                     class="error custom-error-label"
                     >{{ showError('password', error) }}
                     </label>
@@ -166,10 +167,10 @@
                 type="submit"
                 >
                     <span
-                    *ngIf="register"
+                    *ngIf="saving"
                     class="spinner-border spinner-border-sm"
                     role="status"
-                    ></span> {{ register ? 'Creating Account...' : 'Sign Up'}} 
+                    ></span> {{ saving ? 'Creating Account...' : 'Sign Up'}} 
                 </button>
 
                 <!-- Terms & Conditions -->
@@ -197,5 +198,4 @@
   
     </div> -->
   </div>
-  <!-- End of register modal -->
-  
+  <!-- End of wizard modal -->

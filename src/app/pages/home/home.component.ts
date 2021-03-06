@@ -11,6 +11,8 @@ import { DataService } from 'app/services/data.service';
 import { Subscription } from 'rxjs';
 
 import { VgAPI } from 'videogular2/compiled/core';
+import { BsModalRef, BsModalService, ModalOptions } from 'ngx-bootstrap/modal';
+import { FindCoachWizardComponent } from 'app/components/find-coach-wizard/find-coach-wizard.component';
 
 @Component({
   selector: 'app-home',
@@ -43,6 +45,8 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   private vgApi: VgAPI; // http://www.videogular.com/tutorials/videogular-api/
 
+  public bsModalRef: BsModalRef;
+
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
     private analyticsService: AnalyticsService,
@@ -50,7 +54,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     private metaTagService: Meta,
     private transferState: TransferState,
     private searchService: SearchService,
-    private dataService: DataService
+    private dataService: DataService,
+    private modalService: BsModalService
   ) {
   }
 
@@ -199,6 +204,18 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   onGoCoaches() {
     this.analyticsService.clickBrowseCoaches();
+  }
+
+  onGetStarted() {
+    // pop get started modal wizard
+    // we can send data to the modal & open in a another component via a service
+    // https://valor-software.com/ngx-bootstrap/#/modals#service-component
+    const config: ModalOptions = {
+      initialState: {
+        message: `Let's do this!`
+      } as any
+    };
+    this.bsModalRef = this.modalService.show(FindCoachWizardComponent, config);
   }
 
   ngOnDestroy() {
