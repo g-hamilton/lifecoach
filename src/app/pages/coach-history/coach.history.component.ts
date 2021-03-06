@@ -2,29 +2,31 @@ import { Component, OnInit, Inject, PLATFORM_ID, OnDestroy } from '@angular/core
 import { isPlatformBrowser } from '@angular/common';
 import { AuthService } from 'app/services/auth.service';
 import { ActivatedRoute } from '@angular/router';
-import { CRMPerson } from 'app/interfaces/crm.person.interface';
+import { CRMPerson, CRMPersonHistoryEvent } from 'app/interfaces/crm.person.interface';
 import { Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { CrmPeopleService } from 'app/services/crm-people.service';
 import { BsModalService, BsModalRef, ModalOptions } from 'ngx-bootstrap/modal';
-import { CoachInviteComponent } from 'app/components/coach-invite/coach-invite.component';
 import { DataService } from 'app/services/data.service';
 import { CoachingCourse } from 'app/interfaces/course.interface';
 import { CoachingProgram } from 'app/interfaces/coach.program.interface';
 import { CoachingService } from 'app/interfaces/coaching.service.interface';
+import { CoachProfile } from 'app/interfaces/coach.profile.interface';
 
 @Component({
-  selector: 'app-person-history',
-  templateUrl: 'person.history.component.html'
+  selector: 'app-coach-history',
+  templateUrl: 'coach.history.component.html'
 })
-export class PersonHistoryComponent implements OnInit, OnDestroy {
+export class CoachHistoryComponent implements OnInit, OnDestroy {
 
   public bsModalRef: BsModalRef;
 
   public browser: boolean;
-  private userId: string; // the user's own id
-  private personId: string; // the id of the person the user is looking at
-  public person: CRMPerson;
+  private userId: string;
+  private coachId: string;
+  public coachProfile: CoachProfile;
+  public connectedDate: Date;
+  public history: CRMPersonHistoryEvent[];
   private subscriptions: Subscription = new Subscription();
   public msgUrl = '/messages';
   public enrolledInCourses = [] as CoachingCourse[];
@@ -45,8 +47,8 @@ export class PersonHistoryComponent implements OnInit, OnDestroy {
     if (isPlatformBrowser(this.platformId)) {
       this.browser = true;
       this.route.params.subscribe(params => {
-        if (params.uid) {
-          this.personId = params.uid;
+        if (params.coachId) {
+          this.coachId = params.coachId;
           this.getUserData();
         }
       });
@@ -58,75 +60,79 @@ export class PersonHistoryComponent implements OnInit, OnDestroy {
       this.authService.getAuthUser().subscribe(user => {
         if (user) {
           this.userId = user.uid;
-          this.loadPerson();
+          this.getCoachData();
+          this.getCoachProfile();
+          this.getHistory();
         }
       })
     );
   }
 
-  loadPerson() {
+  getCoachProfile() {
+    if (!this.coachId) {
+      return;
+    }
     this.subscriptions.add(
-      this.crmPeopleService.getUserPerson(this.userId, this.personId).subscribe(async person => {
-        if (person) {
-          console.log('person:', person);
-          this.person = await this.crmPeopleService.getFilledPerson(this.userId, person, this.personId);
-          this.updateMsgUrl();
+      this.dataService.getPublicCoachProfile(this.coachId).subscribe(profile => {
+        if (profile) {
+          this.coachProfile = profile;
+        }
+      })
+    );
+  }
 
-          // work out which eCourses, programs & services this person has enrolled in by looking at their history array
-          if (this.person.history) {
-
-            // deal with services
-            const services = this.person.history.filter(i => i.action === 'service_purchase');
-            const serviceIds = services.map(i => i.serviceId); // make an array of service ids (may contain duplicates!)
-            const uniqueServiceIds = [...new Set(serviceIds)]; // remove any duplicates
-            this.enrolledInServices = []; // reset
-            uniqueServiceIds.forEach(i => this.loadService(i));
-
-            // deal with programs
-            const programs = this.person.history.filter(i => i.action === 'enrolled_in_program_session' || i.action === 'enrolled_in_full_program');
-            const programIds = programs.map(i => i.programId); // make an array of program ids (may contain duplicates if paying per session!)
-            const uniqueProgramIds = [...new Set(programIds)]; // remove any duplicates
-            this.enrolledInPrograms = []; // reset
-            uniqueProgramIds.forEach(i => this.loadProgram(i));
-
-            // deal with eCourses
-            const courses = this.person.history.filter(i => i.action === 'enrolled_in_self_study_course');
-            const courseIds = courses.map(i => i.courseId); // make an array of course ids
-            const uniqueCourseIds = [...new Set(courseIds)]; // remove any duplicates (there shouldn't be any)
-            this.enrolledInCourses = []; // reset
-            uniqueCourseIds.forEach(i => this.loadCourse(i));
+  getCoachData() {
+    if (!this.coachId) {
+      return;
+    }
+    this.subscriptions.add(
+      this.crmPeopleService.getOwnCoachById(this.userId, this.coachId).subscribe(data => {
+        if (data) {
+          console.log(data);
+          if (data.connected) {
+            this.connectedDate = new Date((data.created as any) * 1000); // convert from unix to Date
           }
         }
       })
     );
   }
 
-  updateMsgUrl() {
-    // checks if this person has a message room. if so, updates the msg url to take
-    // the coach to that room on click
-    let roomId: string;
-    if (this.person.history) {
-      this.person.history.forEach(item => {
-        if (item.roomId) {
-          roomId = item.roomId;
-        }
-      });
+  getHistory() {
+    if (!this.coachId) {
+      return;
     }
-    if (roomId) {
-      this.msgUrl = `/messages/rooms/${roomId}`;
-    }
-  }
+    this.subscriptions.add(
+      this.crmPeopleService.getOwnClientHistory(this.userId, this.coachId).subscribe(data => {
+        if (data) {
+          console.log(data);
 
-  openInviteModal(type: 'ecourse' | 'program') {
-    // we can send data to the modal & open in a another component via a service
-    // https://valor-software.com/ngx-bootstrap/#/modals#service-component
-    const config: ModalOptions = {
-      initialState: {
-        type,
-        invitee: this.person
-      }
-    };
-    this.bsModalRef = this.modalService.show(CoachInviteComponent, config);
+          this.history = data;
+
+          // work out which coach created eCourses, programs & services this person has enrolled in by looking at their history array
+
+          // deal with services
+          const services = data.filter(i => i.action === 'service_purchase');
+          const serviceIds = services.map(i => i.serviceId); // make an array of service ids (may contain duplicates!)
+          const uniqueServiceIds = [...new Set(serviceIds)]; // remove any duplicates
+          this.enrolledInServices = []; // reset
+          uniqueServiceIds.forEach(i => this.loadService(i));
+
+          // deal with programs
+          const programs = data.filter(i => i.action === 'enrolled_in_program_session' || i.action === 'enrolled_in_full_program');
+          const programIds = programs.map(i => i.programId); // make an array of program ids (may contain duplicates if paying per session!)
+          const uniqueProgramIds = [...new Set(programIds)]; // remove any duplicates
+          this.enrolledInPrograms = []; // reset
+          uniqueProgramIds.forEach(i => this.loadProgram(i));
+
+          // deal with eCourses
+          const courses = data.filter(i => i.action === 'enrolled_in_self_study_course');
+          const courseIds = courses.map(i => i.courseId); // make an array of course ids
+          const uniqueCourseIds = [...new Set(courseIds)]; // remove any duplicates (there shouldn't be any)
+          this.enrolledInCourses = []; // reset
+          uniqueCourseIds.forEach(i => this.loadCourse(i));
+        }
+      })
+    );
   }
 
   loadService(serviceId: string) {
@@ -138,11 +144,11 @@ export class PersonHistoryComponent implements OnInit, OnDestroy {
         if (service) {
           // check purchased & complete sessions
           this.subscriptions.add(
-            this.dataService.getPurchasedServiceSessions(this.userId, this.personId, serviceId)
+            this.dataService.getPurchasedServiceSessions(this.coachId, this.userId, serviceId)
             .pipe(take(1))
             .subscribe(sessions => {
               this.subscriptions.add(
-                this.dataService.getServiceSessionsComplete(this.userId, this.personId, serviceId)
+                this.dataService.getServiceSessionsComplete(this.coachId, this.userId, serviceId)
                 .pipe(take(1))
                 .subscribe(complete => {
                   let purchasedSessions = [];
@@ -176,11 +182,11 @@ export class PersonHistoryComponent implements OnInit, OnDestroy {
         if (program) {
           // calculate program progress
           this.subscriptions.add(
-            this.dataService.getPurchasedProgramSessions(this.userId, this.personId, programId)
+            this.dataService.getPurchasedProgramSessions(this.coachId, this.userId, programId)
             .pipe(take(1))
             .subscribe(sessions => {
               this.subscriptions.add(
-                this.dataService.getProgramSessionsComplete(this.userId, this.personId, programId)
+                this.dataService.getProgramSessionsComplete(this.coachId, this.userId, programId)
                 .pipe(take(1))
                 .subscribe(complete => {
                   let purchasedSessions = [];
@@ -230,6 +236,22 @@ export class PersonHistoryComponent implements OnInit, OnDestroy {
         }
       })
     );
+  }
+
+  updateMsgUrl() {
+    // checks if this person has a message room. if so, updates the msg url to take
+    // the person to that room on click
+    let roomId: string;
+    if (this.history) {
+      this.history.forEach(item => {
+        if (item.roomId) {
+          roomId = item.roomId;
+        }
+      });
+    }
+    if (roomId) {
+      this.msgUrl = `/messages/rooms/${roomId}`;
+    }
   }
 
   ngOnDestroy() {

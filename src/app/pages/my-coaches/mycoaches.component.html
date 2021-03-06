@@ -2,7 +2,7 @@
 
     <h5 class=" title"> My Coaches </h5>
     <p class=" small text-muted pl-2 mb-2">
-        <i class="fas fa-info-circle"></i> These are the coaches you've enrolled with.
+        <i class="fas fa-info-circle"></i> View the coaches you've enrolled with. Click on a coach to view your history.
     </p>
 
     <div>
@@ -41,7 +41,7 @@
         <!-- got coaches -->
         <div class=" row" *ngIf="coaches && coaches.length > 0">
             <div *ngFor="let coach of coaches" class=" col-md-4">
-                <a [routerLink]="['/coach', coach.objectID]">
+                <a [routerLink]="['/coach-history', coach.objectID]">
                     <app-coach-card [coachProfile]="coach"></app-coach-card>
                 </a>
             </div>

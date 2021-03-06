@@ -68,50 +68,9 @@
         <div class=" row mt-3" *ngIf="publishedServices && publishedServices.length > 0">
             <div *ngFor="let service of publishedServices ; let i = index" class=" col-md-4">
                 <a [routerLink]="['/my-services', service.serviceId, 'content']">
-                    <div class=" card">
-
-                        <ng-container *ngIf="service.imagePaths; else noImages">
-                            <div class="card-img-top service-image service-image_webp_full"
-                                 [ngStyle]="{'background-image': 'url(' + service.imagePaths.webp.fullSize +')'}"></div>
-                            <div class="card-img-top service-image service-image_webp_half"
-                                 [ngStyle]="{'background-image': 'url(' + service.imagePaths.webp['1200'] +')'}"></div>
-                            <div class="card-img-top service-image service-image_full"
-                                 [ngStyle]="{'background-image': 'url(' + service.imagePaths.original.fullSize +')'}"></div>
-                            <div class="card-img-top service-image service-image_half"
-                                 [ngStyle]="{'background-image': 'url(' + service.imagePaths.original['1200'] +')'}"></div>
-                        </ng-container>
-                        <ng-template #noImages>
-                            <img
-                              class="card-img-top"
-                              [src]="service.image ? service.image : 'assets/img/awaiting-image.png'"
-                              [alt]="service.title" />
-                        </ng-template>
-
-                        <div class=" card-body">
-                            <h4 class="card-title">
-                                {{ service.type ? service.type === 'individual' ? 'Individual' : '' : 'Individual'}} 
-                                {{ service.sessionDuration ? service.sessionDuration + 'min' : '' }}
-                                coaching session
-                            </h4>
-                            <h6 class="card-subtitle mb-2 text-muted"> {{ service.headline ? service.headline : service.subtitle ? service.subtitle : '' }} </h6>
-                            <div>
-                                <span *ngIf="service?.reviewRequest?.status === 'submitted'" class=" badge badge-info ml-2">
-                                    SUBMITTED FOR REVIEW
-                                </span>
-                                <span *ngIf="service?.reviewRequest?.status === 'approved'" class=" badge badge-success ml-2">
-                                    PUBLISHED
-                                </span>
-                                <span *ngIf="service?.reviewRequest?.status === 'rejected'" class=" badge badge-danger ml-2">
-                                    NEEDS ACTION
-                                </span>
-                                <span *ngIf="!service?.reviewRequest?.status" class=" badge badge-warning ml-2">
-                                    DRAFT
-                                </span>
-                            </div>
-                        </div>
-                    </div>
+                    <app-service-card [service]="service"></app-service-card>
+                    <app-item-status [reviewRequest]="service.reviewRequest"></app-item-status>
                 </a>
-                
             </div>
         </div>
     </div>
@@ -179,32 +138,8 @@
         <div class=" row mt-3" *ngIf="publishedPrograms && publishedPrograms.length > 0">
             <div *ngFor="let program of publishedPrograms ; let i = index" class=" col-md-4">
                 <a [routerLink]="['/my-programs', program.programId, 'content']">
-                    <div class=" card">
-
-                        <img
-                        class="card-img-top"
-                        [src]="program.image ? program.image : 'assets/img/awaiting-image.png'"
-                        [alt]="program.title" />
-
-                        <div class=" card-body">
-                            <h4 class="card-title"> {{ program?.title }} </h4>
-                            <h6 class="card-subtitle mb-2 text-muted"> {{ program?.subtitle }} </h6>
-                            <div>
-                                <span *ngIf="program?.reviewRequest?.status === 'submitted'" class=" badge badge-info ml-2">
-                                    SUBMITTED FOR REVIEW
-                                </span>
-                                <span *ngIf="program?.reviewRequest?.status === 'approved'" class=" badge badge-success ml-2">
-                                    PUBLISHED
-                                </span>
-                                <span *ngIf="program?.reviewRequest?.status === 'rejected'" class=" badge badge-danger ml-2">
-                                    NEEDS ACTION
-                                </span>
-                                <span *ngIf="!program?.reviewRequest?.status" class=" badge badge-warning ml-2">
-                                    DRAFT
-                                </span>
-                            </div>
-                        </div>
-                    </div>
+                    <app-program-card [program]="program"></app-program-card>
+                    <app-item-status [reviewRequest]="program.reviewRequest"></app-item-status>
                 </a>
                 
             </div>
@@ -276,34 +211,8 @@
         <div class=" row mt-3" *ngIf="publishedCourses && publishedCourses.length > 0">
             <div *ngFor="let course of publishedCourses ; let i = index" class=" col-md-4">
                 <a [routerLink]="['/my-courses', course.courseId, 'content']">
-                    <div class=" card">
-
-                        <!-- Card image -->
-                        <img
-                        class="card-img-top"
-                        [src]="course.image ? course.image : 'assets/img/awaiting-image.png'"
-                        [alt]="course.title" />
-
-                        <!-- Card body -->
-                        <div class=" card-body">
-                            <h4 class="card-title"> {{ course?.title }} </h4>
-                            <h6 class="card-subtitle mb-2 text-muted"> {{ course?.subtitle }} </h6>
-                            <div>
-                                <span *ngIf="course?.reviewRequest?.status === 'submitted'" class=" badge badge-info ml-2">
-                                    SUBMITTED FOR REVIEW
-                                </span>
-                                <span *ngIf="course?.reviewRequest?.status === 'approved'" class=" badge badge-success ml-2">
-                                    PUBLISHED
-                                </span>
-                                <span *ngIf="course?.reviewRequest?.status === 'rejected'" class=" badge badge-danger ml-2">
-                                    NEEDS ACTION
-                                </span>
-                                <span *ngIf="!course?.reviewRequest?.status" class=" badge badge-warning ml-2">
-                                    DRAFT
-                                </span>
-                            </div>
-                        </div>
-                    </div>
+                    <app-course-card [course]="course"></app-course-card>
+                    <app-item-status [reviewRequest]="course.reviewRequest"></app-item-status>
                 </a>
                 
             </div>

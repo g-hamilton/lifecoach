@@ -1,0 +1,43 @@
+#status .published {
+    position: absolute;
+    top: 1em;
+    left: 15px;
+    background-color: #ba54f5;
+    color: white;
+    padding: 4px 10px 4px 10px;
+    font-size: .8em;
+    border-radius: 0 8px 8px 0;
+}
+
+#status .draft {
+    position: absolute;
+    top: 1em;
+    left: 15px;
+    background-color: grey;
+    color: white;
+    padding: 4px 10px 4px 10px;
+    font-size: .8em;
+    border-radius: 0 8px 8px 0;
+}
+
+#status .submitted {
+    position: absolute;
+    top: 1em;
+    left: 15px;
+    background-color: #11cdef;
+    color: white;
+    padding: 4px 10px 4px 10px;
+    font-size: .8em;
+    border-radius: 0 8px 8px 0;
+}
+
+#status .action {
+    position: absolute;
+    top: 1em;
+    left: 15px;
+    background-color: #fd5d93;
+    color: white;
+    padding: 4px 10px 4px 10px;
+    font-size: .8em;
+    border-radius: 0 8px 8px 0;
+}

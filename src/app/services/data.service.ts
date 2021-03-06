@@ -743,7 +743,7 @@ export class DataService {
   }
 
   getPublicProgramsBySeller(sellerUid: string) {
-    console.log(sellerUid);
+    // console.log(sellerUid);
     const programsRef = this.db.collection('public-programs', ref => ref.where('sellerUid', '==', sellerUid));
     return programsRef.valueChanges() as Observable<CoachingProgram[]>;
   }
@@ -965,15 +965,6 @@ export class DataService {
   getParticularOrderedSession(roomName: string) {
     return this.db.collection(`ordered-sessions/all/sessions`).doc(roomName);
   }
-
-// ================================================================================
-// =====                            USER COACHES                             ======
-// ================================================================================
-
-getUserCoaches(uid: string) {
-  return this.db.collection(`users/${uid}/coaches`)
-    .valueChanges() as Observable<any[]>;
-}
 
 // ================================================================================
 // =====                            TESTING METHOD FOR DOC.REFERENCE         ======

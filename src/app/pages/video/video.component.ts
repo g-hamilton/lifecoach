@@ -1,8 +1,8 @@
-import {Component, Inject, OnDestroy, OnInit} from '@angular/core';
-import {DataService} from '../../services/data.service';
-import {AuthService} from '../../services/auth.service';
-import {Subscription} from 'rxjs';
-import {filter, first, flatMap, map} from 'rxjs/operators';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { DataService } from '../../services/data.service';
+import { AuthService } from '../../services/auth.service';
+import { Subscription } from 'rxjs';
+import { first, map } from 'rxjs/operators';
 import { CustomCalendarEvent } from 'app/interfaces/custom.calendar.event.interface';
 
 @Component({
@@ -14,7 +14,6 @@ export class VideoComponent implements OnInit, OnDestroy {
 
   public coachingSessions: Array<any> = [];
   public orderedSessions: Array<any> = [];
-  private user: any;
   public onLoad = true;
   public uid: string;
   public userType: string;
@@ -24,52 +23,64 @@ export class VideoComponent implements OnInit, OnDestroy {
   constructor(
     private dataService: DataService,
     private authService: AuthService,
-  ) {
-
-  }
+  ) { }
 
   ngOnInit(): void {
+    this.getUserData();
+  }
+
+  getUserData() {
     this.subscriptions.add(
       this.authService.getAuthUser().subscribe(user => {
         if (user) {
           this.uid = user.uid;
-
           this.subscriptions.add(
             this.dataService.getUserAccount(this.uid)
-              .pipe(first())
-              .subscribe( usr => this.userType = usr.accountType)
+            .pipe(first())
+            .subscribe( usr => {
+              this.userType = usr.accountType;
+              if (this.userType === 'regular') {
+                this.getSessionsAsClient();
+              } else if (this.userType === 'coach') {
+                // this.getSessionsAsCoach(); // NOT currently used
+              }
+            })
           );
-
-          this.subscriptions.add(
-            this.dataService.getUserOrderedSessions(this.uid)
-              .pipe(
-                map(i => this.filterSessionsByTodayAndSort(this.formTimeStampToDate(i))),
-              )
-              .subscribe(sessions => {
-                if (sessions) {
-                  this.orderedSessions = sessions;
-                }
-              })
-          );
-
-          this.subscriptions.add(
-            this.dataService.getUserIsCoachSessions(this.uid)
-              .pipe(
-                map(i => this.filterSessionsByTodayAndSort(this.formTimeStampToDate(i)))
-              )
-              .subscribe(sessions => {
-                    if (sessions) {
-                      this.coachingSessions = sessions;
-                    }
-                  })
-              );
         }
       })
     );
+  }
 
+  getSessionsAsClient() {
+    this.subscriptions.add(
+      this.dataService.getUserOrderedSessions(this.uid)
+      .pipe(
+        map(i => this.filterSessionsByTodayAndSort(this.formTimeStampToDate(i))),
+      )
+      .subscribe(sessions => {
+        if (sessions) {
+          this.orderedSessions = sessions;
+        }
+      })
+    );
+  }
+
+  getSessionsAsCoach() {
+    this.subscriptions.add(
+      this.dataService.getUserIsCoachSessions(this.uid)
+      .pipe(
+        map(i => this.filterSessionsByTodayAndSort(this.formTimeStampToDate(i)))
+      )
+      .subscribe(sessions => {
+        if (sessions) {
+          this.coachingSessions = sessions;
+        }
+      })
+    );
   }
 
   filterSessionsByTodayAndSort(arr: CustomCalendarEvent[]) {
+    console.log(arr);
     const nowTime = Date.now();
     const noCancelledSessions = arr.filter(i => !i.cancelled);
     return noCancelledSessions.filter( i => nowTime - i.end.getTime() < 0).sort((a, b) => a.start.getTime() - b.start.getTime());

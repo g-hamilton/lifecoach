@@ -1,33 +1,112 @@
-<a [routerLink]="['/program', programId]">
-    <div class=" card">
-
-        <!-- Card image -->
-        <img
-        class=" card-img-top program-card-image"
-        [src]="program.image ? program.image : 'assets/img/awaiting-image.png'"
-        [alt]="program.title" />
-
-        <!-- Card body -->
-        <div class=" card-body">
-            <h4 class="card-title"> {{ program?.title }} </h4>
-            <h6 class="card-subtitle mb-2 text-muted"> {{ program?.coachName }} </h6>
-            <div *ngIf="browser">
-                <app-program-stars
-                *ngIf="programObject"
-                [program]="programObject">
-                </app-program-stars>
-            </div>
-            <div *ngIf="clientCurrency && rates" style="clear: both;">
-                <h4> {{ currencySymbol + '' + displayFullPrice }} 
-                    <span *ngIf="program.pricingStrategy === 'flexible'">
-                        / {{ currencySymbol + '' + displaySessionPrice }} per session
+<ng-container *ngIf="previewMode ; else liveMode">
+    <div *ngIf="program">
+        <div class=" card">
+            <ng-container *ngIf="program.imagePaths; else noImages">
+                <div 
+                *ngIf="program.imagePaths?.webp?.fullSize"
+                class="card-img-top program-image program-image_webp_full"
+                [ngStyle]="{'background-image': 'url(' + program.imagePaths.webp.fullSize +')'}"></div>
+                <div
+                *ngIf="program.imagePaths?.webp['1200']"
+                class="card-img-top program-image program-image_webp_half"
+                [ngStyle]="{'background-image': 'url(' + program.imagePaths.webp['1200'] +')'}"></div>
+                <div
+                *ngIf="program.imagePaths?.original?.fullSize"
+                class="card-img-top program-image program-image_full"
+                [ngStyle]="{'background-image': 'url(' + program.imagePaths.original.fullSize +')'}"></div>
+                <div
+                *ngIf="program.imagePaths?.original['1200']"
+                class="card-img-top program-image program-image_half"
+                [ngStyle]="{'background-image': 'url(' + program.imagePaths.original['1200'] +')'}"></div>
+            </ng-container>
+            <ng-template #noImages>
+                <img
+                  class="card-img-top"
+                  [src]="program.image ? program.image : 'assets/img/awaiting-image.png'"
+                  [alt]="program.title" />
+            </ng-template>
+    
+            <div class=" card-body">
+                <h4 class="card-title"> {{ formControls?.title?.value }} </h4>
+                <h6 class="card-subtitle mb-2 text-muted"> {{ formControls?.subtitle?.value }} </h6>
+                <div>
+                    <span *ngIf="formControls?.numSessions?.value" class=" badge badge-primary mr-2">
+                        {{formControls.numSessions.value }} sessions
+                        <span *ngIf="formControls?.duration?.value">
+                            / {{ formControls.duration.value }} Weeks
+                        </span>
                     </span>
-                </h4>
+                    <span *ngIf="formControls?.pricingStrategy?.value === 'flexible'" class=" badge badge-default mr-2">
+                        Flexible Pricing
+                    </span>
+                    <span *ngIf="maxDiscountObj.max > 0" class=" badge badge-success mr-2">
+                        Save {{ maxDiscountObj.max }}%
+                    </span>
+                    <span *ngIf="maxDiscount?.max" class=" badge badge-success mr-2">
+                        Save {{ maxDiscount?.max }}%
+                    </span>
+                </div>
             </div>
-            <span class=" badge badge-success">
-                New
-            </span>
+    
         </div>
-
     </div>
-</a>
+</ng-container>
+    
+<ng-template #liveMode>
+    <div *ngIf="program">
+        <div class=" card">
+            <ng-container *ngIf="program.imagePaths; else noImages">
+                <div 
+                *ngIf="program.imagePaths?.webp?.fullSize"
+                class="card-img-top program-image program-image_webp_full"
+                [ngStyle]="{'background-image': 'url(' + program.imagePaths.webp.fullSize +')'}"></div>
+                <div
+                *ngIf="program.imagePaths?.webp['1200']"
+                class="card-img-top program-image program-image_webp_half"
+                [ngStyle]="{'background-image': 'url(' + program.imagePaths.webp['1200'] +')'}"></div>
+                <div
+                *ngIf="program.imagePaths?.original?.fullSize"
+                class="card-img-top program-image program-image_full"
+                [ngStyle]="{'background-image': 'url(' + program.imagePaths.original.fullSize +')'}"></div>
+                <div
+                *ngIf="program.imagePaths?.original['1200']"
+                class="card-img-top program-image program-image_half"
+                [ngStyle]="{'background-image': 'url(' + program.imagePaths.original['1200'] +')'}"></div>
+            </ng-container>
+            <ng-template #noImages>
+                <img
+                  class="card-img-top"
+                  [src]="program.image ? program.image : 'assets/img/awaiting-image.png'"
+                  [alt]="program.title" />
+            </ng-template>
+    
+            <div class=" card-body">
+                <h4 class="card-title"> {{ program.title }} </h4>
+                <h6 class="card-subtitle mb-2 text-muted"> {{ program.subtitle }} </h6>
+                <div>
+                    <span *ngIf="program.numSessions" class=" badge badge-primary mr-2">
+                        {{program.numSessions }} sessions
+                        <span *ngIf="program.duration">
+                            / {{ program.duration }} Weeks
+                        </span>
+                    </span>
+                    <span *ngIf="program.pricingStrategy === 'flexible'" class=" badge badge-default mr-2">
+                        Flexible Pricing
+                    </span>
+                    <span *ngIf="maxDiscountObj.max > 0" class=" badge badge-success mr-2">
+                        Save {{ maxDiscountObj.max }}%
+                    </span>
+                </div>
+                <!-- <div *ngIf="clientCurrency && rates" style="clear: both;">
+                    <h4> {{ currencySymbol + '' + displayFullPrice }} 
+                        <span *ngIf="program.pricingStrategy === 'flexible'">
+                            / {{ currencySymbol + '' + displaySessionPrice }} per session
+                        </span>
+                    </h4>
+                </div> -->
+            </div>
+    
+        </div>
+    </div>
+</ng-template>
+

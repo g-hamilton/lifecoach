@@ -1222,6 +1222,11 @@ exports.stripeCreatePaymentIntent = functions
       saleItemPrice = saleItem.pricing[packageSessions].price;
     }
 
+    // if purchasing coaching package, we must set the title now as this is usually done dynamically client side
+    if (saleItemType === 'coachingPackage' && packageSessions) {
+      saleItem.title = `${saleItem.type ? saleItem.type === 'individual' ? 'Individual' : '' : 'Individual'} ${saleItem.sessionDuration ? saleItem.sessionDuration + 'min' : ''} Coaching Session`;
+    }
+
     if (!saleItemPrice || !saleItem.currency || !saleItem.stripeId || !saleItem.sellerUid || !saleItem.title) { // valid item data must exist
       return { error: `Insufficient item data saved for ${saleItemType} with ID: ${saleItemId}. Unable to proceed.`}
     }
@@ -1319,7 +1324,9 @@ exports.stripeCreatePaymentIntent = functions
       metadata: { // any additional data to save with the payment
         sale_item_type: saleItemType,
         sale_item_id: saleItemId,
-        sale_item_title: saleItem.title,
+        sale_item_title: saleItem.title ? saleItem.title : '',
+        sale_item_subtitle: saleItem.subtitle ? saleItem.subtitle : '',
+        sale_item_headline: saleItem.headline ? saleItem.headline : '',
         sale_item_image: saleItem.image,
         client_UID: clientUid,
         seller_UID: saleItem.sellerUid,
@@ -1328,7 +1335,9 @@ exports.stripeCreatePaymentIntent = functions
         partner_referred: partnerTrackingCode ? partnerTrackingCode : 'false',
         // if purchasing a program numSessions will be the number of sessions in the program
         // if purchasing a coachingPackage (service), will be the number of sessions in the package
-        num_sessions: saleItem.numSessions ? saleItem.numSessions : saleItemType === 'coachingPackage' ? packageSessions : null
+        num_sessions: saleItem.numSessions ? saleItem.numSessions : saleItemType === 'coachingPackage' ? packageSessions : null,
+        seller_name: saleItem.coachName,
+        seller_photo: saleItem.coachPhoto
       }
     });
 
@@ -2070,7 +2079,7 @@ async function recordProgramEnrollmentForCreator(data: Stripe.PaymentIntent) {
       programId: saleItemId,
       saleDate: data.created,
       paymentIntentId: data.id
-    }); // allows the coach to see how many paid sessions this person has purchased
+    }); // allows the coach and client to see how many paid sessions this person has purchased
     i++;
   }
 
@@ -2192,7 +2201,8 @@ async function recordServicePurchaseForCreator(data: Stripe.PaymentIntent) {
   const saleItemTitle = data.metadata.sale_item_title;
   const saleItemImg = data.metadata.sale_item_image;
   const numSessions = data.metadata.num_sessions;
-  const sessionsPurchased = Number(numSessions)
+  const sessionsPurchased = Number(numSessions);
+  const saleItemHeadline = data.metadata.headline;
 
   // db ops
 
@@ -2208,7 +2218,7 @@ async function recordServicePurchaseForCreator(data: Stripe.PaymentIntent) {
       serviceId: saleItemId,
       saleDate: data.created,
       paymentIntentId: data.id
-    }); // allows the coach to see how many paid sessions this person has purchased
+    }); // allows the coach and client to see how many paid sessions this person has purchased
     i++;
   }
 
@@ -2226,14 +2236,28 @@ async function recordServicePurchaseForCreator(data: Stripe.PaymentIntent) {
 
   // send email
 
+  // lookup the client name to include in the email as this is not in the payment data
+  let clientFirstName = '';
+  let clientLastName = '';
+  const snapshot = await db.collection(`users/${clientUid}/account`)
+  .doc(`account${clientUid}`)
+  .get();
+  if (snapshot.exists) {
+    clientFirstName = `${(snapshot.data() as any).firstName}`;
+    clientLastName = `${(snapshot.data() as any).lastName}`;
+  }
+
   const event = {
     name: 'coach_service_purchase',
     properties: {
       service_id: saleItemId,
       service_title: saleItemTitle,
+      service_headline: saleItemHeadline,
       service_image: saleItemImg,
       num_sessions_purchased: String(sessionsPurchased), // mailchimp only accepts string data!
-      client_url: `https://lifecoach.io/person-history/${clientUid}`
+      client_url: `https://lifecoach.io/person-history/${clientUid}`,
+      client_first_name: clientFirstName,
+      client_last_name: clientLastName
     }
   }
   const emailPromise = logMailchimpEvent(sellerUid, event);
@@ -2250,6 +2274,9 @@ async function recordServicePurchaseForClient(data: Stripe.PaymentIntent) {
   const saleItemTitle = data.metadata.sale_item_title;
   const saleItemImg = data.metadata.sale_item_image;
   const numSessions = data.metadata.num_sessions;
+  const coachName = data.metadata.seller_name;
+  const coachPhoto = data.metadata.seller_photo;
+  const saleItemHeadline = data.metadata.headline;
 
   // db ops
 
@@ -2271,9 +2298,12 @@ async function recordServicePurchaseForClient(data: Stripe.PaymentIntent) {
     properties: {
       service_id: saleItemId,
       service_title: saleItemTitle,
+      service_headline: saleItemHeadline,
       service_image: saleItemImg,
       num_sessions_purchased: String(numSessions), // mailchimp only accepts string data!
-      landing_url: `https://lifecoach.io/my-services/${saleItemId}`
+      landing_url: `https://lifecoach.io/my-coaches`,
+      coach_name: coachName,
+      coach_photo: coachPhoto
     }
   }
   const promise1 = logMailchimpEvent(clientUid, event);
@@ -3052,6 +3082,11 @@ exports.sendCoachInvite = functions
     .doc(now.toString())
     .set({ action: event.name, event });
 
+    // record the crm event in the person's history with the coach
+    await db.collection(`users/${data.invitee.id}/coaches/${data.item.sellerUid}/history`)
+    .doc(now.toString())
+    .set({ action: event.name, event });
+
     // record in coach's invites sent node
     await db.collection(`users/${data.item.sellerUid}/sent-invites/${data.invitee.id}/by-date`)
     .doc(now.toString())
@@ -3453,7 +3488,7 @@ exports.coachMarkSessionComplete = functions
       sessionDoc.completedTime = now;
       sessionDoc.linkedCalEventId = sessionId
 
-      // copy the document into this client's completed sessions collection
+      // copy the document into this client's completed sessions collection. can be viewed by coach and client.
       const completeRef = db.collection(`users/${coachUid}/people/${clientUid}/sessions-complete`).doc() // id does not matter
       batch.create(completeRef, sessionDoc);
 
@@ -5170,11 +5205,17 @@ exports.onWriteUserCoachesNode = functions
 .runWith({memory: '1GB', timeoutSeconds: 300})
 .firestore
 .document(`users/{uid}/coaches/{coachUid}/history/{doc}`)
-.onWrite((snap, context) => {;
+.onWrite( async (change, context) => {
+  if (!change.before.exists) { // This is a new record (first time creation)
+    await db.collection(`users/${context.params.uid}/coaches`).doc(context.params.coachUid)
+    .set({
+      created: Date.now(),
+      coachUid: context.params.coachUid
+    });
+  }
   return db.collection(`users/${context.params.uid}/coaches`).doc(context.params.coachUid)
   .set({
-    timeOfLastUpdate: Date.now(),
-    coachUid: context.params.coachUid
+    timeOfLastUpdate: Date.now()
   }, { merge: true });
 });
 

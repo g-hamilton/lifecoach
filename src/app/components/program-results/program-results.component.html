@@ -1,12 +1,15 @@
 <div class=" results-container">
     <div class=" row">
         <div *ngFor="let result of results" class=" col-md-3">
-            <app-program-card
-            [program]="result"
-            [rates]="rates"
-            [clientCurrency]="clientCurrency"
-            [clientCountry]="clientCountry">
-            </app-program-card>
+            <a [routerLink]="['/program', result.objectID]">
+                <app-program-card
+                [program]="result"
+                [fetchData]="true"
+                [rates]="rates"
+                [clientCurrency]="clientCurrency"
+                [clientCountry]="clientCountry">
+                </app-program-card>
+            </a>
         </div>
     </div>
 </div>
