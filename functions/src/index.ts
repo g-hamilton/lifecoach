@@ -2079,7 +2079,7 @@ async function recordProgramEnrollmentForCreator(data: Stripe.PaymentIntent) {
       programId: saleItemId,
       saleDate: data.created,
       paymentIntentId: data.id
-    }); // allows the coach to see how many paid sessions this person has purchased
+    }); // allows the coach and client to see how many paid sessions this person has purchased
     i++;
   }
 
@@ -2218,7 +2218,7 @@ async function recordServicePurchaseForCreator(data: Stripe.PaymentIntent) {
       serviceId: saleItemId,
       saleDate: data.created,
       paymentIntentId: data.id
-    }); // allows the coach to see how many paid sessions this person has purchased
+    }); // allows the coach and client to see how many paid sessions this person has purchased
     i++;
   }
 
@@ -3483,7 +3483,7 @@ exports.coachMarkSessionComplete = functions
       sessionDoc.completedTime = now;
       sessionDoc.linkedCalEventId = sessionId
 
-      // copy the document into this client's completed sessions collection
+      // copy the document into this client's completed sessions collection. can be viewed by coach and client.
       const completeRef = db.collection(`users/${coachUid}/people/${clientUid}/sessions-complete`).doc() // id does not matter
       batch.create(completeRef, sessionDoc);
 

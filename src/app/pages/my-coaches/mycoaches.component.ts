@@ -7,6 +7,7 @@ import { AnalyticsService } from 'app/services/analytics.service';
 import { Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { CoachProfile } from 'app/interfaces/coach.profile.interface';
+import { CrmPeopleService } from 'app/services/crm-people.service';
 
 @Component({
   selector: 'app-my-coaches',
@@ -23,7 +24,8 @@ export class MyCoachesComponent implements OnInit, OnDestroy {
     @Inject(PLATFORM_ID) private platformId: object,
     private authService: AuthService,
     private dataService: DataService,
-    private analyticsService: AnalyticsService
+    private analyticsService: AnalyticsService,
+    private crmPeopleService: CrmPeopleService
   ) {
   }
 
@@ -48,7 +50,7 @@ export class MyCoachesComponent implements OnInit, OnDestroy {
 
   monitorUserCoaches() {
     this.subscriptions.add(
-        this.dataService.getUserCoaches(this.userId).subscribe(data => {
+        this.crmPeopleService.getOwnCoaches(this.userId).subscribe(data => {
             if (data) {
                 // fetch coach profiles
                 const profiles = [] as CoachProfile[];

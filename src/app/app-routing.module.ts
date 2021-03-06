@@ -141,6 +141,10 @@ const routes: Routes = [
         loadChildren: () => import('./pages/person-history/person.history.module').then(m => m.PersonHistoryModule)
       },
       {
+        path: 'coach-history/:coachId',
+        loadChildren: () => import('./pages/coach-history/coach.history.module').then(m => m.CoachHistoryModule)
+      },
+      {
         path: 'account',
         loadChildren: () => import('./pages/account/account.module').then(m => m.AccountModule)
       },

@@ -75,7 +75,7 @@ export class PersonHistoryComponent implements OnInit, OnDestroy {
           // work out which eCourses, programs & services this person has enrolled in by looking at their history array
           if (this.person.history) {
 
-            // deal with programs
+            // deal with services
             const services = this.person.history.filter(i => i.action === 'service_purchase');
             const serviceIds = services.map(i => i.serviceId); // make an array of service ids (may contain duplicates!)
             const uniqueServiceIds = [...new Set(serviceIds)]; // remove any duplicates

@@ -228,6 +228,16 @@ export class CrmPeopleService implements OnDestroy {
     });
   }
 
+  getOwnCoaches(uid: string) {
+    return this.db.collection(`users/${uid}/coaches`)
+      .valueChanges() as Observable<any[]>;
+  }
+
+  getOwnClientHistory(uid: string, coachId: string) {
+    return this.db.collection(`users/${uid}/coaches/${coachId}/history`)
+      .valueChanges({idField: 'id'}) as Observable<CRMPersonHistoryEvent[]>;
+  }
+
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
   }
