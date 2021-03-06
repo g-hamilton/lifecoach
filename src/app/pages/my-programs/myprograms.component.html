@@ -57,27 +57,8 @@
         <!-- Purchased programs -->
         <div class=" row" *ngIf="purchasedPrograms && purchasedPrograms.length > 0">
             <div *ngFor="let program of purchasedPrograms ; let p = index" class=" col-md-4">
-                <a [routerLink]="['/program', program.programId, 'learn']">
-                    <div class=" card">
-
-                        <!-- Card image -->
-                        <img
-                        class="card-img-top"
-                        [src]="program.image ? program.image : 'assets/img/image_placeholder.jpg'"
-                        [alt]="program.title" />
-
-                        <!-- Card body -->
-                        <div class=" card-body">
-                            <h4 class="card-title"> {{ program?.title }} </h4>
-                            <h6 class="card-subtitle mb-2 text-muted"> {{ program?.subtitle }} </h6>
-                            <!-- <div class="progress-container progress-primary">
-                                <span class="progress-badge"> Progress </span>
-                                <progressbar class="progress-bar-primary" [value]="program?.progress">
-                                  <span class="progress-value"> {{ program?.progress }}% </span>
-                                </progressbar>
-                            </div> -->
-                        </div>
-                    </div>
+                <a [routerLink]="['/my-programs']">
+                    <app-program-card [program]="program"></app-program-card>
                 </a>
             </div>
         </div>

@@ -137,6 +137,9 @@ export class CrmPeopleService implements OnDestroy {
         case 'booked_session':
           type = this.isPersonWarm(person) ? 'warm lead' : 'lead';
           break;
+        case 'service_purchase':
+          type = 'client';
+          break;
         default:
           type = 'lead';
       }
@@ -198,6 +201,9 @@ export class CrmPeopleService implements OnDestroy {
         case 'cancelled_session':
           status = 'Cancelled Session';
           break;
+        case 'service_purchase':
+          status = 'In Coaching';
+          break;
         default:
           status = 'Message';
       }
@@ -220,6 +226,22 @@ export class CrmPeopleService implements OnDestroy {
         })
       );
     });
+  }
+
+  getOwnCoaches(uid: string) {
+    return this.db.collection(`users/${uid}/coaches`)
+      .valueChanges() as Observable<any[]>;
+  }
+
+  getOwnCoachById(uid: string, coachId: string) {
+    return this.db.collection(`users/${uid}/coaches`)
+      .doc(coachId)
+      .valueChanges() as Observable<any>;
+  }
+
+  getOwnClientHistory(uid: string, coachId: string) {
+    return this.db.collection(`users/${uid}/coaches/${coachId}/history`)
+      .valueChanges({idField: 'id'}) as Observable<CRMPersonHistoryEvent[]>;
   }
 
   ngOnDestroy() {

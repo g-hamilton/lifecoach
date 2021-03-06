@@ -1,36 +1,32 @@
-import { Component, OnInit, Input, OnChanges } from '@angular/core';
-import { CRMPerson } from 'app/interfaces/crm.person.interface';
-import { BsModalService, BsModalRef, ModalOptions } from 'ngx-bootstrap/modal';
-import { CoachInviteComponent } from 'app/components/coach-invite/coach-invite.component';
-import { CoachingService } from 'app/interfaces/coaching.service.interface';
+import { Component, Input, OnInit, OnChanges } from '@angular/core';
+import { CoachProfile } from 'app/interfaces/coach.profile.interface';
 import { CoachingProgram } from 'app/interfaces/coach.program.interface';
+import { CoachingService } from 'app/interfaces/coaching.service.interface';
 import { CoachingCourse } from 'app/interfaces/course.interface';
+import { CRMPersonHistoryEvent } from 'app/interfaces/crm.person.interface';
 
 @Component({
-  selector: 'app-person-history-timeline',
-  templateUrl: './person-history-timeline.component.html',
-  styleUrls: ['./person-history-timeline.component.scss']
+  selector: 'app-coach-history-timeline',
+  templateUrl: './coach-history-timeline.component.html',
+  styleUrls: ['./coach-history-timeline.component.scss']
 })
-export class PersonHistoryTimelineComponent implements OnInit, OnChanges {
+export class CoachHistoryTimelineComponent implements OnInit, OnChanges {
 
-  @Input() public person: CRMPerson;
+  @Input() public coachProfile: CoachProfile;
+  @Input() public history: CRMPersonHistoryEvent[];
   @Input() public enrolledServices: CoachingService[];
   @Input() public enrolledPrograms: CoachingProgram[];
   @Input() public enrolledCourses: CoachingCourse[];
 
-  public bsModalRef: BsModalRef;
-
   public sortBy = 'newest' as 'newest';
 
-  constructor(
-    private modalService: BsModalService
-  ) { }
+  constructor() { }
 
   ngOnInit() {
   }
 
   ngOnChanges() {
-    if (this.person && this.person.history) {
+    if (this.history) {
       this.sortHistoryEvents(this.sortBy); // run a default sort to display newest items first
     }
   }
@@ -60,22 +56,10 @@ export class PersonHistoryTimelineComponent implements OnInit, OnChanges {
 
   sortHistoryEvents(by: 'newest' | 'oldest') {
     if (by === 'newest') {
-      this.person.history.sort((a, b) => parseFloat(b.id) - parseFloat(a.id));
+      this.history.sort((a, b) => parseFloat(b.id) - parseFloat(a.id));
     } else {
-      this.person.history.sort((a, b) => parseFloat(a.id) - parseFloat(b.id));
+      this.history.sort((a, b) => parseFloat(a.id) - parseFloat(b.id));
     }
-  }
-
-  openInviteModal(type: 'ecourse' | 'program') {
-    // we can send data to the modal & open in a another component via a service
-    // https://valor-software.com/ngx-bootstrap/#/modals#service-component
-    const config: ModalOptions = {
-      initialState: {
-        type,
-        invitee: this.person
-      }
-    };
-    this.bsModalRef = this.modalService.show(CoachInviteComponent, config);
   }
 
   getServiceTitle(id: string) {

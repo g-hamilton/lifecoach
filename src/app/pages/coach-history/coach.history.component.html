@@ -3,8 +3,8 @@
     <div class=" row">
         <div class=" col-md-6">
 
-          <!-- loading person -->
-          <div *ngIf="!person">
+          <!-- loading coach -->
+          <div *ngIf="!coachProfile">
             <!-- loading spinner -->
             <div class="text-center">
                 <div class="spinner-border" role="status">
@@ -13,58 +13,32 @@
             </div>
           </div>
 
-          <!-- person loaded -->
-          <div *ngIf="person" class=" card card-testimonial">
+          <!-- coach loaded -->
+          <div *ngIf="coachProfile" class=" card card-testimonial">
             <div class=" card-header card-header-avatar">
               <a href="javascript:void(0)">
                 <img
-                  [alt]="person.firstName + ' ' + person.lastName"
+                  [alt]="coachProfile.firstName + ' ' + coachProfile.lastName"
                   class=" img img-raised"
-                  [src]="person.photo"
+                  [src]="coachProfile.photo"
                 />
               </a>
             </div>
             <div class=" card-body">
-                <h4 class=" card-title">
-                  {{ person.firstName + ' ' + person.lastName }}
-                  <!-- person type -->
-                  <span *ngIf="person.type === 'warm lead'" class=" badge badge-danger">
-                    🔥 Warm Lead
-                  </span>
-                  <span *ngIf="person.type === 'lead'" class=" badge badge-success">
-                    Lead
-                  </span>
-                  <span *ngIf="person.type === 'client'" class=" badge badge-primary">
-                    Client
-                  </span>
-                </h4>
+                <h4 class=" card-title">{{ coachProfile.firstName + ' ' + coachProfile.lastName }}</h4>
 
                 <!-- connected -->
-                <div class=" mt-4">
+                <div *ngIf="connectedDate" class=" mt-4">
                   <small class=" text-muted">
                     First Connected
                   </small>
                   <p>
-                    <i class="fas fa-calendar text-muted"></i> {{ person.created.toLocaleDateString() }} 
-                    <i class="fas fa-clock text-muted ml-2"></i> {{ person.created.toLocaleTimeString() }}
+                    <i class="fas fa-calendar text-muted"></i> {{ connectedDate.toLocaleDateString() }} 
+                    <i class="fas fa-clock text-muted ml-2"></i> {{ connectedDate.toLocaleTimeString() }}
                   </p>
                 </div>
 
-                <!-- person status -->
-                <!-- <div class=" mt-4">
-                  <small class=" text-muted">
-                    Status
-                  </small>
-                  <p
-                  [ngClass]="{
-                  'text-danger': person.status === 'Awaiting reply' || person.status === 'Client responded',
-                  'text-success' : person.status === 'Responded' || person.status === 'Invited',
-                  'text-primary' : person.status === 'Enrolled in eCourse' || person.status === 'Enrolled in program'}">
-                    {{ person.status }}
-                  </p>
-                </div> -->
-
-                <!-- coach actions -->
+                <!-- actions -->
                 <div class=" mt-4 text-center">
                   <div class=" dropdown btn-group" dropdown>
                     <button
@@ -79,23 +53,13 @@
 
                       <!--  -->
                       <a *ngIf="true" class=" dropdown-item" [routerLink]="msgUrl">
-                        Send {{ person.firstName }} a message
-                      </a>
-  
-                      <!--  -->
-                      <a *ngIf="true" class=" dropdown-item" href="javascript:void(0)" (click)="openInviteModal('program')">
-                        Invite {{ person.firstName }} to join a program
+                        Send {{ coachProfile.firstName }} a message
                       </a>
 
                       <!--  -->
-                      <a *ngIf="true" class=" dropdown-item" href="javascript:void(0)" (click)="openInviteModal('ecourse')">
-                        Invite {{ person.firstName }} to enroll in an eCourse
-                      </a>
-
-                      <!--  -->
-                      <a *ngIf="true" class=" dropdown-item" [routerLink]="'/calendar'">
-                        Schedule a session with {{ person.firstName }}
-                      </a>
+                      <!-- <a *ngIf="true" class=" dropdown-item" [routerLink]="'/calendar'">
+                        Schedule a session with {{ coachProfile.firstName }}
+                      </a> -->
   
                     </div>
                   </div>
@@ -168,12 +132,13 @@
         </div>
         <!-- end col -->
         <div class=" col-md-6">
-            <app-person-history-timeline
-            [person]="person"
+            <app-coach-history-timeline
+            [coachProfile]="coachProfile"
+            [history]="history"
             [enrolledCourses]="enrolledInCourses"
             [enrolledPrograms]="enrolledInPrograms"
             [enrolledServices]="enrolledInServices">
-            </app-person-history-timeline>
+            </app-coach-history-timeline>
         </div>
     </div>
 

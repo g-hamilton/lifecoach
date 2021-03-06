@@ -1,12 +1,12 @@
-<!-- loading person -->
-<div *ngIf="!person" class="text-center">
+<!-- loading -->
+<div *ngIf="!coachProfile || !history" class="text-center">
     <div class="spinner-border" role="status">
         <span class="sr-only">Loading...</span>
     </div>
 </div>
 
 <!-- person loaded -->
-<div *ngIf="person">
+<div *ngIf="coachProfile && history">
 
     <!-- sort by dropdown -->
     <div class=" row">
@@ -27,7 +27,7 @@
     <div class=" card card-timeline card-plain">
         <div class=" card-body">
           <ul class=" timeline timeline-simple">
-            <li *ngFor="let item of person.history ; let i = index" class=" timeline-inverted">
+            <li *ngFor="let item of history ; let i = index" class=" timeline-inverted">
 
                 <!-- badge -->
                 <div *ngIf="item.action === 'sent_first_message'" class=" timeline-badge danger">
@@ -91,75 +91,63 @@
                     <!-- body -->
                     <div class=" timeline-body">
                         <p *ngIf="item.action === 'sent_first_message'">
-                            {{ person.firstName }} first contacted you by message. 
-                            <a class=" pl-2" [routerLink]="['/messages', 'rooms', person.history[i].roomId]">
+                            You first contacted {{ coachProfile.firstName }} by message. 
+                            <a class=" pl-2" [routerLink]="['/messages', 'rooms', history[i].roomId]">
                                 View messages
                             </a>
                         </p>
                         <p *ngIf="item.action === 'enrolled_in_self_study_course'">
-                            {{ person.firstName }} enrolled in your eCourse: {{ getCourseTitle(item.courseId) }}.
+                            You enrolled in {{ coachProfile.firstName }}'s eCourse: {{ getCourseTitle(item.courseId) }}.
                         </p>
                         <p *ngIf="item.action === 'enrolled_in_full_program'">
-                            {{ person.firstName }} enrolled in your program: {{ getProgramTitle(item.programId) }} and paid in full. 
-                            <a [routerLink]="['/calendar']">
-                                Schedule a session with {{ person.firstName }}
-                            </a>
+                            You enrolled in {{ coachProfile.firstName }}'s program: {{ getProgramTitle(item.programId) }} and paid in full. 
+                            <!-- <a [routerLink]="['/calendar']">
+                                Schedule a session with {{ coachProfile.firstName }}
+                            </a> -->
                         </p>
                         <p *ngIf="item.action === 'enrolled_in_program_session'">
-                            {{ person.firstName }} enrolled in your program: {{ getProgramTitle(item.programId) }} and is paying per session. 
-                            <a [routerLink]="['/calendar']">
-                                Schedule a session with {{ person.firstName }}
-                            </a>
+                            You enrolled in {{ coachProfile.firstName }}'s program: {{ getProgramTitle(item.programId) }} and you're paying per session. 
+                            <!-- <a [routerLink]="['/calendar']">
+                                Schedule a session with {{ coachProfile.firstName }}
+                            </a> -->
                         </p>
                         <p *ngIf="item.action === 'coach_invited_user'">
-                            You sent {{ person.firstName }} an invitation to your 
-                            {{ person.history[i].event?.properties.item_type }}: 
-                            <a [href]="person.history[i].event.properties.landing_url" target="_blank">
-                                {{ person.history[i].event?.properties.item_title }}
+                            {{ coachProfile.firstName }} sent you an invitation to  
+                            {{ history[i].event?.properties.item_type }}: 
+                            <a [href]="history[i].event.properties.landing_url" target="_blank">
+                                {{ history[i].event?.properties.item_title }}
                             </a>
                         </p>
                         <p *ngIf="item.action === 'booked_session'">
-                            {{ person.firstName }} booked a {{ person.history[i].event?.type }} session with you. 
+                            You booked a {{ history[i].event?.type }} session with {{ coachProfile.firstName }}. 
                             <a *ngIf="dateNow < getDate(item.event.end.seconds * 1000) ; else viewHistory" 
-                                [routerLink]="['/my-sessions', person.history[i].event.id]">
+                                [routerLink]="['/my-sessions', history[i].event.id]">
                                 Go to session
                             </a>
                             <ng-template #viewHistory>
-                                <a [routerLink]="['/my-programs', item.programId, 'clients', person.id, 'sessions', item.sessionId]">
+                                <a [routerLink]="[]">
                                 View session notes
                             </a>
                             </ng-template>
                         </p>
                         <p *ngIf="item.action === 'cancelled_session'">
-                            {{ person.firstName }} cancelled a {{ person.history[i].event?.type }} session with you. 
+                            You cancelled your {{ history[i].event?.type }} session with {{ coachProfile.firstName }}. 
                             <a [routerLink]="['/calendar']">
                                 View calendar
                             </a>
                         </p>
                         <p *ngIf="item.action === 'completed_session'">
-                            You completed a {{ item.programId === 'discovery' ? 'discovery session' : 'session' }} with {{ person.firstName }}. 
-                            <span *ngIf="item.programId === 'discovery'">
-                                Invite {{ person.firstName }} to 
-                                <a href="javascript:void(0)" (click)="openInviteModal('program')">
-                                    join a coaching program
-                                </a> ,  
-                                <a href="javascript:void(0)" (click)="openInviteModal('ecourse')">
-                                    enroll in an eCourse.
-                                </a> or
-                                <a [routerLink]="['/my-programs', 'discovery', 'clients', person.id, 'sessions', item.sessionId]">
+                            You completed a {{ item.programId === 'discovery' ? 'discovery session' : 'session' }} with {{ coachProfile.firstName }}. 
+                            <span>
+                                <a [routerLink]="[]">
                                     view session notes
-                                </a>
-                            </span>
-                            <span *ngIf="item.programId !== 'discovery'">
-                                <a [routerLink]="['/my-programs', item.programId, 'clients', person.id, 'sessions', item.sessionId]">
-                                    View session notes
                                 </a>
                             </span>
                         </p>
                         <p *ngIf="item.action === 'coach_created_session'">
-                            You scheduled a new session with {{ person.firstName }}. 
+                            {{ coachProfile.firstName }} scheduled a new session with you. 
                             <span *ngIf="dateNow < getDate(item.event.end.seconds * 1000) ; else inPast">
-                                <a [routerLink]="['/my-sessions', person.history[i].event.id]">
+                                <a [routerLink]="['/my-sessions', history[i].event.id]">
                                 Go to session
                                 </a> or
                                 <a [routerLink]="['/calendar']">
@@ -167,16 +155,16 @@
                                 </a>
                             </span>
                             <ng-template #inPast>
-                                <a [routerLink]="['/my-programs', item.programId, 'clients', person.id, 'sessions', item.sessionId]">
+                                <a [routerLink]="[]">
                                 View session notes
                             </a>
                             </ng-template>
                         </p>
                         <p *ngIf="item.action === 'service_purchase'">
-                            {{ person.firstName }} purchased {{ item.sessionsPurchased }} {{ getServiceTitle(item.serviceId) }}{{item.sessionsPurchased > 1 ? 's' : '' }}.
-                            <a [routerLink]="['/calendar']">
-                                Schedule a session with {{ person.firstName }}
-                            </a>
+                            You purchased {{ item.sessionsPurchased }} {{ getServiceTitle(item.serviceId) }}{{item.sessionsPurchased > 1 ? 's' : '' }} with {{ coachProfile.firstName }}.
+                            <!-- <a [routerLink]="['/calendar']">
+                                Schedule a session with {{ coachProfile.firstName }}
+                            </a> -->
                         </p>
                     </div>
 

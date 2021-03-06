@@ -49,4 +49,5 @@ export interface CoachingProgram {
     sessionsComplete?: any[];
     imagePaths?: ProgramImagePaths; // for different image to speed up first render --test_feature
     includeInCoachingForCoaches?: boolean;
+    objectID?: string; // if coming from Algolia
 }

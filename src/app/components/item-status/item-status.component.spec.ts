@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ProgramPreviewCardComponent } from './program-preview-card.component';
+import { ItemStatusComponent } from './item-status.component';
 
-describe('ProgramPreviewCardComponent', () => {
-  let component: ProgramPreviewCardComponent;
-  let fixture: ComponentFixture<ProgramPreviewCardComponent>;
+describe('ItemStatusComponent', () => {
+  let component: ItemStatusComponent;
+  let fixture: ComponentFixture<ItemStatusComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ProgramPreviewCardComponent ]
+      declarations: [ ItemStatusComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ProgramPreviewCardComponent);
+    fixture = TestBed.createComponent(ItemStatusComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

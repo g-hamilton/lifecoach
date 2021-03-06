@@ -176,7 +176,7 @@
                 <div class=" row mt-3">
                     <div *ngFor="let program of publishedPrograms ; let i = index" class=" col-md-4">
                         <a [routerLink]="['/program', program.programId]">
-                            <app-program-preview-card [program]="program"></app-program-preview-card>
+                            <app-program-card [program]="program"></app-program-card>
                         </a>
 
                     </div>
@@ -189,9 +189,9 @@
                 <div class=" results-container">
                     <div class=" row">
                         <div *ngFor="let course of courses" class=" col-md-4">
-                            <app-course-card
-                            [course]="course">
-                            </app-course-card>
+                            <a [routerLink]="['/course', course.courseId]">
+                                <app-course-card [course]="course"></app-course-card>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -230,7 +230,7 @@
                                 <app-coach-contact [coachUid]="coachId"></app-coach-contact>
                             </div>
                             <div class=" col-md-4 text-center pt-5">
-                                <h5 class=" card-title"> Or schedule a discovery call with {{ userProfile.firstName }} </h5>
+                                <h5 class=" card-title"> Or schedule a discovery session with {{ userProfile.firstName }} </h5>
                                 <!-- scheduler button. User must be logged in to schedule a call. -->
                                 <button
                                   class=" btn btn-fill btn-round btn-primary mr-2 mb-2"
@@ -239,7 +239,7 @@
                                   (click)="this.userId ? openScheduleCallModal() : registerToDiscover()"
                                   [disabled]="this.userId === this.coachId"
                                 ><i class="fas fa-phone">&nbsp;</i>
-                                    <span>Schedule a Call</span>
+                                    <span>Schedule a Session</span>
                                 </button>
                             </div>
                         </div>
