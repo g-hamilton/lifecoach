@@ -93,13 +93,13 @@
 .mat-stepper-label-position-bottom .mat-horizontal-stepper-header:not(:first-child)::before, .mat-stepper-label-position-bottom .mat-horizontal-stepper-header:not(:last-child)::after, [dir=rtl] .mat-stepper-label-position-bottom .mat-horizontal-stepper-header:not(:first-child)::after, [dir=rtl] .mat-stepper-label-position-bottom .mat-horizontal-stepper-header:not(:last-child)::before {
   border-top-width: 2px !important;
   top: 42px !important;
-  border-top-color: white !important;
+  border-top-color: rgb(240, 240, 240);
 }
 
 .mat-stepper-label-position-bottom .mat-stepper-horizontal-line {
   border-top-width: 2px !important;
   top: 42px !important;
-  border-top-color: white !important;
+  border-top-color: rgb(240, 240, 240);
 }
 
 // Text truncate
@@ -522,4 +522,28 @@ select option {
 
 bs-datepicker-inline-container { 
   margin-left: 4em;
+}
+
+#find-coach-wizard-modal {
+  .card-wizard .card-body {
+    background: white;
+    border-top-left-radius: 0.4285rem;
+    border-top-right-radius: 0.4285rem;
+    margin-top: 0px;
+    
+    .mat-step-text-label {
+      color: #222a42;
+    }
+
+    .mat-step-header .mat-step-icon {
+      color: #222a42;
+      background-color: rgb(216, 216, 216);
+    }
+
+    .mat-step-header .mat-step-icon-selected {
+      color: white;
+      background-color: #e14eca;
+    }
+  }
+
 }

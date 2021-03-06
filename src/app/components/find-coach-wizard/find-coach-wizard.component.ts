@@ -50,15 +50,22 @@ export class FindCoachWizardComponent implements OnInit {
     this.wizardForm = this.formBuilder.group(
       {
         formArray: this.formBuilder.array([
+
           // Group 0
           this.formBuilder.group({
-            firstName: ['', [Validators.required, Validators.minLength(1)]],
-            lastName: ['', [Validators.required, Validators.minLength(1)]],
-            email: [
-              '',
-              [Validators.required, Validators.pattern(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)]
-            ]
+            zero: [null]
           }),
+
+          // Group 1
+          this.formBuilder.group({
+            one: [null]
+          }),
+
+          // Group 2
+          this.formBuilder.group({
+            two: [null]
+          })
+
         ])
       }
     );
@@ -76,15 +83,23 @@ export class FindCoachWizardComponent implements OnInit {
     return ((this.wizardForm.controls.formArray as FormArray).controls[0] as FormGroup).controls;
   }
 
+  get group1() {
+    return ((this.wizardForm.controls.formArray as FormArray).controls[1] as FormGroup).controls;
+  }
+
+  get group2() {
+    return ((this.wizardForm.controls.formArray as FormArray).controls[2] as FormGroup).controls;
+  }
+
   onNextClick() {
-    this.saveAttempt = true;
+    // this.saveAttempt = true;
   }
 
   onStepChange(event: any) {
-    // console.log('STEP CHANGED!', event);
-    setTimeout(() => {
-      this.saveAttempt = false;
-    }, 10);
+    console.log('STEP CHANGED!', event);
+    // setTimeout(() => {
+    //   this.saveAttempt = false;
+    // }, 10);
   }
 
   showError(control: string, error: string) {

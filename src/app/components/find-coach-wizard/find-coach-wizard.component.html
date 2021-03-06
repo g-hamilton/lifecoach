@@ -1,11 +1,11 @@
 <!-- wizard modal -->
-<div id="wizard-modal" class=" wizard-modal">
+<div id="find-coach-wizard-modal">
     <!-- modal header -->
-    <div class="modal-header">
+    <!-- <div class="modal-header">
       <button type="button" class="close pull-right" aria-label="Close" (click)="bsModalRef.hide()">
         <span aria-hidden="true">&times;</span>
       </button>
-    </div>
+    </div> -->
     <!-- end modal header -->
 
     <!-- modal body -->
@@ -34,6 +34,22 @@
                             </p>
                         </mat-step>
                         <!-- end step 0 -->
+
+                        <!-- Step 1 -->
+                        <mat-step formGroupName="1" [stepControl]="formArray.get([1])" label="One">
+                            <p class=" info-text mt-3">
+                            Now this
+                            </p>
+                        </mat-step>
+                        <!-- end step 1 -->
+
+                        <!-- Step 2 -->
+                        <mat-step formGroupName="2" [stepControl]="formArray.get([2])" label="Two">
+                            <p class=" info-text mt-3">
+                            Next this
+                            </p>
+                        </mat-step>
+                        <!-- end step 2 -->
 
                     </mat-horizontal-stepper>
                     <!-- end stepper -->
