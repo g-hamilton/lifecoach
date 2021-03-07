@@ -32,6 +32,16 @@
                             <p class=" info-text mt-3">
                             Let's start with some basic information...
                             </p>
+                            <button type="button" class=" btn btn-round btn-default">
+                                Cancel
+                            </button>
+                            <button
+                            type="button" 
+                            class=" btn btn-round btn-primary"
+                            mat-button
+                            matStepperNext>
+                                Next: Challenges
+                            </button>
                         </mat-step>
                         <!-- end step 0 -->
 
@@ -40,6 +50,20 @@
                             <p class=" info-text mt-3">
                             Now this
                             </p>
+                            <button
+                            type="button" 
+                            class=" btn btn-round btn-default"
+                            mat-button
+                            matStepperPrevious>
+                                Cancel
+                            </button>
+                            <button
+                            type="button" 
+                            class=" btn btn-round btn-primary"
+                            mat-button
+                            matStepperNext>
+                                Next: Details
+                            </button>
                         </mat-step>
                         <!-- end step 1 -->
 
@@ -48,6 +72,19 @@
                             <p class=" info-text mt-3">
                             Next this
                             </p>
+                            <button
+                            type="button" 
+                            class=" btn btn-round btn-default"
+                            mat-button
+                            matStepperPrevious>
+                                Cancel
+                            </button>
+                            <button
+                            type="button" 
+                            class=" btn btn-round btn-primary"
+                            (click)="onSubmit()">
+                                Go!
+                            </button>
                         </mat-step>
                         <!-- end step 2 -->
 
@@ -66,8 +103,11 @@
     </div>
     <!-- end modal body -->
   
+    <!-- modal footer -->
     <!-- <div class="modal-footer">
-  
+        
     </div> -->
+    <!-- end modal footer -->
+
   </div>
   <!-- End of wizard modal -->

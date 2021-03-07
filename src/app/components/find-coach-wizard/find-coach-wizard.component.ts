@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { AlertService } from 'app/services/alert.service';
 import { AnalyticsService } from 'app/services/analytics.service';
 import { AuthService } from 'app/services/auth.service';
@@ -39,7 +40,8 @@ export class FindCoachWizardComponent implements OnInit {
     private authService: AuthService,
     private analyticsService: AnalyticsService,
     private alertService: AlertService,
-    private modalService: BsModalService
+    private modalService: BsModalService,
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -114,7 +116,11 @@ export class FindCoachWizardComponent implements OnInit {
   }
 
   onSubmit() {
-    //
+    console.log('Submit!');
+    this.bsModalRef.hide(); // hide the current modal
+
+    // redirect to search/browse coaches page with params or localstorage saved data
+    this.router.navigate(['/coaches']); // TODO: params/localStorage
   }
 
 }
