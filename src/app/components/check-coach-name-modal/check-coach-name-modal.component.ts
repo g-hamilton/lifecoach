@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { AlertService } from 'app/services/alert.service';
 import { AnalyticsService } from 'app/services/analytics.service';
 import { AuthService } from 'app/services/auth.service';
@@ -41,7 +42,8 @@ export class CheckCoachNameModalComponent implements OnInit {
     private authService: AuthService,
     private analyticsService: AnalyticsService,
     private alertService: AlertService,
-    private modalService: BsModalService
+    private modalService: BsModalService,
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -67,12 +69,18 @@ export class CheckCoachNameModalComponent implements OnInit {
 
   onSubmit() {
     // if the user has input search data, run the search...
+    const coachName = 'Greg Coachy'; // for TESTING
+
+    this.bsModalRef.hide(); // hide the current modal
+
+    // redirect to search page with param...
+    this.router.navigate(['/coaches'], { queryParams: { q: coachName} });
   }
 
   onGetStarted() {
     // if the user has not given data, pop get started modal wizard
 
-    this.bsModalRef.hide(); // first up, hide the current modal
+    this.bsModalRef.hide(); // hide the current modal
 
     // we can send data to the modal & open in a another component via a service
     // https://valor-software.com/ngx-bootstrap/#/modals#service-component

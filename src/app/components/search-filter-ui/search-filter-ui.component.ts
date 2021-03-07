@@ -70,6 +70,9 @@ export class SearchFilterUiComponent implements OnInit {
     if (!this.filters.params.country) {
       this.loadCoachCountries(this.filters.params.category);
     }
+    if (this.filters.params.q) {
+      this.searchTerm = this.filters.params.q;
+    }
     if (this.filters.params.q && this.filters.params.country) {
       this.loadCoachCities(null, this.filters.params.country, this.filters.params.q);
       this.selectedCountries = [];
