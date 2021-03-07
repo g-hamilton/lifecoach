@@ -12,7 +12,7 @@ import { Subscription } from 'rxjs';
 
 import { VgAPI } from 'videogular2/compiled/core';
 import { BsModalRef, BsModalService, ModalOptions } from 'ngx-bootstrap/modal';
-import { FindCoachWizardComponent } from 'app/components/find-coach-wizard/find-coach-wizard.component';
+import { CheckCoachNameModalComponent } from 'app/components/check-coach-name-modal/check-coach-name-modal.component';
 
 @Component({
   selector: 'app-home',
@@ -206,17 +206,17 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.analyticsService.clickBrowseCoaches();
   }
 
-  onGetStarted() {
-    // pop get started modal wizard
+  onFindCoach() {
+    // pop the check coach name modal
     // we can send data to the modal & open in a another component via a service
     // https://valor-software.com/ngx-bootstrap/#/modals#service-component
     const config: ModalOptions = {
       class: 'modal-lg', // let's make this a large one!
       initialState: {
-        message: `Let's do this!`
+        message: `Do you know the coach's name?`
       } as any
     };
-    this.bsModalRef = this.modalService.show(FindCoachWizardComponent, config);
+    this.bsModalRef = this.modalService.show(CheckCoachNameModalComponent, config);
   }
 
   ngOnDestroy() {
