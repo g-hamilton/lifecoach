@@ -37,7 +37,7 @@ export class ChipsMultiSelectComponent implements OnInit, ControlValueAccessor, 
   onChange!: (value: string[]) => void;
 
   writeValue(value: string[]): void {
-    console.log('writeValue', value);
+    // console.log('writeValue', value);
     // When form value set when chips list initialized
     if (this.chipList && value) {
       this.selectChips(value);
@@ -93,7 +93,7 @@ export class ChipsMultiSelectComponent implements OnInit, ControlValueAccessor, 
   }
 
   selectChips(value: string[]) {
-    console.log('selectChips', value);
+    // console.log('selectChips', value);
     this.chipList.chips.forEach((chip) => chip.deselect());
 
     const chipsToSelect = this.chipList.chips.filter((c) =>

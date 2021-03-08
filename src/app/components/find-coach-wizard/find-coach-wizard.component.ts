@@ -35,6 +35,7 @@ export class FindCoachWizardComponent implements OnInit {
   };
 
   public goals = ['one', 'two', 'three'];
+  public challenges = ['one', 'two', 'three'];
 
   constructor(
     public bsModalRef: BsModalRef,
@@ -57,17 +58,17 @@ export class FindCoachWizardComponent implements OnInit {
 
           // Group 0
           this.formBuilder.group({
-            goals: [['two']]
+            goals: [[]] // init with an empty array
           }),
 
           // Group 1
           this.formBuilder.group({
-            one: [null]
+            challenges: [[]] // init with an empty array
           }),
 
           // Group 2
           this.formBuilder.group({
-            two: [null]
+            other: [null]
           })
 
         ])

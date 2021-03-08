@@ -49,14 +49,15 @@
                         <!-- Step 1 -->
                         <mat-step formGroupName="1" [stepControl]="formArray.get([1])" label="One">
                             <p class=" info-text mt-3">
-                            Now this
+                            Any challenges?
                             </p>
+                            <app-chips-multi-select [options]="challenges" formControlName="challenges"></app-chips-multi-select>
                             <button
                             type="button" 
                             class=" btn btn-round btn-default"
                             mat-button
                             matStepperPrevious>
-                                Cancel
+                                Back
                             </button>
                             <button
                             type="button" 
@@ -78,7 +79,7 @@
                             class=" btn btn-round btn-default"
                             mat-button
                             matStepperPrevious>
-                                Cancel
+                                Back
                             </button>
                             <button
                             type="button" 
