@@ -34,6 +34,8 @@ export class FindCoachWizardComponent implements OnInit {
     //
   };
 
+  public goals = ['one', 'two', 'three'];
+
   constructor(
     public bsModalRef: BsModalRef,
     public formBuilder: FormBuilder,
@@ -55,7 +57,7 @@ export class FindCoachWizardComponent implements OnInit {
 
           // Group 0
           this.formBuilder.group({
-            zero: [null]
+            goals: [null]
           }),
 
           // Group 1
@@ -99,6 +101,7 @@ export class FindCoachWizardComponent implements OnInit {
 
   onStepChange(event: any) {
     console.log('STEP CHANGED!', event);
+    console.log('formData', this.wizardForm.value);
     // setTimeout(() => {
     //   this.saveAttempt = false;
     // }, 10);

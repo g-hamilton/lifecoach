@@ -28,10 +28,11 @@
                     (selectionChange)="onStepChange($event)"
                     >
                         <!-- Step 0 -->
-                        <mat-step formGroupName="0" [stepControl]="formArray.get([0])" label="Zero">
+                        <mat-step formGroupName="0" [stepControl]="formArray.get([0])" label="Goals">
                             <p class=" info-text mt-3">
-                            Let's start with some basic information...
+                            Any goals?
                             </p>
+                            <app-chips-multi-select [options]="goals"></app-chips-multi-select>
                             <button type="button" class=" btn btn-round btn-default">
                                 Cancel
                             </button>
