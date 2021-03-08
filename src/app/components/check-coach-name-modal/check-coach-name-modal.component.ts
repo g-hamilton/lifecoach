@@ -95,6 +95,11 @@ export class CheckCoachNameModalComponent implements OnInit {
   onGetStarted() {
     // if the user has not given data, pop get started modal wizard
 
+    if (this.checkF.coachName.value) { // the user has entered a coach name so don't continue..
+    this.alertService.alert('info-message', 'Just a second!', `If you know the name of the coach you're looking for, press the 'Search' button to search for them on Lifecoach. Otherwise, remove their name and press 'Continue'.`);
+    return;
+    }
+
     this.bsModalRef.hide(); // hide the current modal
 
     // we can send data to the modal & open in a another component via a service

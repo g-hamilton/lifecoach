@@ -1,39 +1,105 @@
-<form [formGroup]="checkForm" (submit)="onSubmit()">
-    <div class=" row">
-        <!-- coach name -->
-        <div class=" col-sm-12 col-md-6">
-            <div
-            class=" input-group"
-            [ngClass]="{
-              'has-danger': ((focusTouched && checkF.coachName.value != null || saveAttempt) && checkF.coachName.errors),
-              'has-success': !checkF.coachName.errors
-            }"
-            >
-              <div class=" input-group-prepend">
-                <div class=" input-group-text">
-                  <i class=" tim-icons icon-single-02"> </i>
-                </div>
-              </div>
-              <input
-                class=" form-control"
-                name="coachName"
-                formControlName="coachName"
-                placeholder="Coach Name"
-                type="text"
-                (focus)="focusTouched = true"
-                required=""
-              />
-            </div>
-            <div *ngIf="((focusTouched && checkF.coachName.value != null || saveAttempt) && checkF.coachName.errors)">
-              <label
-              *ngFor="let error of objKeys(checkF.coachName.errors)"
-              class="error custom-error-label"
-              >{{ showError('coachName', error) }}
-              </label>
-            </div>
-          </div>
-    </div>
-    <button type="submit" class=" btn btn-round btn-primary">Search Coaches</button>
-</form>
+<div id="find-coach-name-card" class=" card card-register card-white">
 
-<button type="button" class=" btn btn-round btn-primary" (click)="onGetStarted()">Continue</button>
+    <div class=" card-header">
+        <img
+        alt="Find a Coach"
+        id="find-coach-name-image"
+        class=" card-img"
+        src="assets/img/card-primary.png"
+        />
+
+        <h4 class=" card-title"> Find a Coach </h4>
+    </div>
+
+    <div class=" card-body">
+        <form [formGroup]="checkForm" (submit)="onSubmit()">
+
+            <!-- row -->
+            <div class=" row">
+                <div class=" col">
+                    <h3 class=" dark text-center">
+                        We'll help you find your perfect coach!
+                    </h3>
+                </div>
+            </div>
+            <!-- end row -->
+
+            <!-- row -->
+            <div class=" row">
+
+                <!-- col -->
+                <div class="col-md-6 col-xs-12">
+                    <div class="border-container">
+                        <h4 class="dark"> I know who I'm looking for </h4>
+                        <p class=" small text-muted pl-2 mb-2">
+                            <i class="fas fa-info-circle"></i> Have you had a specific coach recommneded to you? 
+                            Enter their name below and click 'Search'.
+                        </p>
+                        <div class=" row">
+                            <div class=" col">
+                                <div
+                                class=" input-group"
+                                [ngClass]="{
+                                'has-danger': ((focusTouched && checkF.coachName.value != null || saveAttempt) && checkF.coachName.errors),
+                                'has-success': !checkF.coachName.errors
+                                }"
+                                >
+                                <div class=" input-group-prepend">
+                                    <div class=" input-group-text">
+                                    <i class=" tim-icons icon-single-02"> </i>
+                                    </div>
+                                </div>
+                                <input
+                                    class=" form-control"
+                                    name="coachName"
+                                    formControlName="coachName"
+                                    placeholder="Coach Name"
+                                    type="text"
+                                    (focus)="focusTouched = true"
+                                    required=""
+                                />
+                                </div>
+                                <div *ngIf="((focusTouched && checkF.coachName.value != null || saveAttempt) && checkF.coachName.errors)">
+                                <label
+                                *ngFor="let error of objKeys(checkF.coachName.errors)"
+                                class="error custom-error-label"
+                                >{{ showError('coachName', error) }}
+                                </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-right mt-3">
+                            <button type="submit" class=" btn btn-round btn-primary">
+                                <i class="fas fa-search mr-2"></i>
+                                Search
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- end col -->
+
+                <!-- col -->
+                <div class="col-md-6 col-xs-12">
+                    <div class="border-container">
+                        <h4 class="dark"> Match me with top coaches </h4>
+                        <p class=" small text-muted pl-2 mb-2">
+                            <i class="fas fa-info-circle"></i> Answer a 
+                            few simple questions and get a personalised list of recommended coaches - just for you!
+                        </p>
+                        <div class="text-right mt-3">
+                            <button type="button" class=" btn btn-round btn-primary" (click)="onGetStarted()">
+                                <i class="fas fa-chevron-right mr-2"></i>
+                                Continue
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- end col -->
+
+            </div>
+            <!-- end row -->
+
+        </form>
+    </div>
+
+</div>
