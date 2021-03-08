@@ -1,4 +1,4 @@
-<mat-chip-list selectable multiple>
+<mat-chip-list #chipList selectable multiple>
     <mat-chip #c="matChip" *ngFor="let option of options" [value]="option" (click)="toggleSelection(c)">
         <i *ngIf="c.selected" class="fas fa-check-circle mr-2"></i>
         {{ option }}

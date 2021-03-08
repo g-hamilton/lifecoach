@@ -57,7 +57,7 @@ export class FindCoachWizardComponent implements OnInit {
 
           // Group 0
           this.formBuilder.group({
-            goals: [null]
+            goals: [['two']]
           }),
 
           // Group 1
