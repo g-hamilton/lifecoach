@@ -13,6 +13,7 @@ import { Subscription } from 'rxjs';
 import { VgAPI } from 'videogular2/compiled/core';
 import { BsModalRef, BsModalService, ModalOptions } from 'ngx-bootstrap/modal';
 import { CheckCoachNameModalComponent } from 'app/components/check-coach-name-modal/check-coach-name-modal.component';
+import { SearchCoachesRequest } from 'app/interfaces/search.coaches.request.interface';
 
 @Component({
   selector: 'app-home',
@@ -183,7 +184,11 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   async getNewestCoaches() {
-    const res = await this.searchService.searchCoaches(6, 0);
+    const request: SearchCoachesRequest = {
+      page: 0,
+      hitsPerPage: 6
+    };
+    const res = await this.searchService.searchCoaches(request);
     this.newestCoaches = res.hits; // so we can update the view
     return res.hits; // so we can save the state
   }
