@@ -1,2 +1,39 @@
-<button class=" btn btn-round btn-primary" (click)="onSubmit()">Find</button>
-<button class=" btn btn-round btn-primary" (click)="onGetStarted()">Continue</button>
+<form [formGroup]="checkForm" (submit)="onSubmit()">
+    <div class=" row">
+        <!-- coach name -->
+        <div class=" col-sm-12 col-md-6">
+            <div
+            class=" input-group"
+            [ngClass]="{
+              'has-danger': ((focusTouched && checkF.coachName.value != null || saveAttempt) && checkF.coachName.errors),
+              'has-success': !checkF.coachName.errors
+            }"
+            >
+              <div class=" input-group-prepend">
+                <div class=" input-group-text">
+                  <i class=" tim-icons icon-single-02"> </i>
+                </div>
+              </div>
+              <input
+                class=" form-control"
+                name="coachName"
+                formControlName="coachName"
+                placeholder="Coach Name"
+                type="text"
+                (focus)="focusTouched = true"
+                required=""
+              />
+            </div>
+            <div *ngIf="((focusTouched && checkF.coachName.value != null || saveAttempt) && checkF.coachName.errors)">
+              <label
+              *ngFor="let error of objKeys(checkF.coachName.errors)"
+              class="error custom-error-label"
+              >{{ showError('coachName', error) }}
+              </label>
+            </div>
+          </div>
+    </div>
+    <button type="submit" class=" btn btn-round btn-primary">Search Coaches</button>
+</form>
+
+<button type="button" class=" btn btn-round btn-primary" (click)="onGetStarted()">Continue</button>

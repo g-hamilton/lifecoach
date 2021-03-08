@@ -27,13 +27,16 @@ export class CheckCoachNameModalComponent implements OnInit {
   private userId: string;
   public userType: string;
   public checkForm: FormGroup;
+  public focusTouched: boolean;
   public saving = false;
   public saveAttempt: boolean;
 
   public objKeys = Object.keys;
 
   public errorMessages = {
-    //
+    coachName: {
+      required: 'Please enter a coach name'
+    },
   };
 
   constructor(
@@ -52,7 +55,7 @@ export class CheckCoachNameModalComponent implements OnInit {
 
   buildCheckForm() {
     this.checkForm = this.formBuilder.group({
-      coachName: [null]
+      coachName: [null, [Validators.required]]
     });
   }
 
@@ -68,13 +71,25 @@ export class CheckCoachNameModalComponent implements OnInit {
   }
 
   onSubmit() {
+    this.saveAttempt = true;
+
+    // safety first!
+    if (this.checkForm.invalid) {
+      this.alertService.alert('warning-message', 'Oops', `Please complete all required fields to proceed.`);
+      return;
+    }
+
+    this.saving = true;
+
     // if the user has input search data, run the search...
-    const coachName = 'Greg Coachy'; // for TESTING
+    const coachName = this.checkF.coachName.value;
 
     this.bsModalRef.hide(); // hide the current modal
+    this.saving = false;
 
     // redirect to search page with param...
     this.router.navigate(['/coaches'], { queryParams: { q: coachName} });
+    this.saveAttempt = false;
   }
 
   onGetStarted() {
