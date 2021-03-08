@@ -39,8 +39,8 @@ export class BrowseComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     // console.log('Browse component init');
-    this.titleService.setTitle('Find a Life Coach');
-    this.metaTagService.updateTag({name: 'description', content: 'Top rated life coaches in your area'});
+    this.titleService.setTitle('Find a Coach');
+    this.metaTagService.updateTag({name: 'description', content: `Connect with the world's best coaches for every area of life.`});
     const body = this.document.getElementsByTagName('body')[0];
     body.classList.add('browse-page');
 
