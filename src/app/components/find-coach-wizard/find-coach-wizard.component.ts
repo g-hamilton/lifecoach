@@ -146,8 +146,10 @@ export class FindCoachWizardComponent implements OnInit {
     this.saveAttempt = false;
     this.saving = false;
 
-    // redirect to search/browse coaches page with params or localstorage saved data
-    this.router.navigate(['/coaches']); // TODO: params/localStorage
+    // shall we save to localstorage as a backup?
+
+    // redirect to search/browse coaches page with params
+    this.router.navigate(['/coaches'], { queryParams: merged });
   }
 
 }

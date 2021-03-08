@@ -53,7 +53,7 @@ export class BrowseComponent implements OnInit, OnDestroy {
     this.route.queryParamMap.subscribe(params => {
       if (params) {
         this.filters = {...params.keys, ...params};
-        // console.log(this.filters);
+        console.log(this.filters);
 
         if (this.filters.page) {
           this.page = this.filters.page;
