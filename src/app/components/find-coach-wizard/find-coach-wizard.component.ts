@@ -121,7 +121,30 @@ export class FindCoachWizardComponent implements OnInit {
 
   onSubmit() {
     console.log('Submit!');
+    console.log('formData', this.wizardForm.value);
+
+    this.saveAttempt = true;
+
+    // safety first
+    if (this.wizardForm.invalid) {
+      this.alertService.alert('warning-message', 'Oops', `Please complete all required fields to proceed.`);
+      return;
+    }
+
+    // form is valid...
+    this.saving = true;
+
+    // Restructure the form data as a flat object
+    const a = JSON.parse(JSON.stringify(((this.wizardForm.controls.formArray as FormArray).controls[0] as FormGroup).value));
+    const b = JSON.parse(JSON.stringify(((this.wizardForm.controls.formArray as FormArray).controls[1] as FormGroup).value));
+    const c = JSON.parse(JSON.stringify(((this.wizardForm.controls.formArray as FormArray).controls[2] as FormGroup).value));
+    const merged = {...a, ...b, ...c};
+
+    console.log('merged form data', merged);
+
     this.bsModalRef.hide(); // hide the current modal
+    this.saveAttempt = false;
+    this.saving = false;
 
     // redirect to search/browse coaches page with params or localstorage saved data
     this.router.navigate(['/coaches']); // TODO: params/localStorage
