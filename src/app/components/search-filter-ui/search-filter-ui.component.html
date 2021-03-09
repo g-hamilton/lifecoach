@@ -30,9 +30,42 @@
           role="button"> Go! </a>
       </div>
     </div>
+    <!-- end search bar -->
 
-    <!-- Browse coach filters -->
-    <div class=" row">
+    <!-- row -->
+    <div class=" row mt-3">
+      <!-- match goals -->
+      <div class=" col-md-4">
+        <h5 class=" card-title">
+          My Goals
+          <span *ngIf="numGoals > 0" class=" badge badge-primary">
+            {{ numGoals }}
+          </span>
+          <span class=" pull-right mr-3">
+            Expand
+          </span>
+        </h5>
+      </div>
+      <!-- end match goals -->
+
+      <!-- match challenges -->
+      <div class=" col-md-4">
+        <h5 class=" card-title">
+          My Challenges
+          <span *ngIf="numChallenges > 0" class=" badge badge-primary">
+            {{ numChallenges }}
+          </span>
+          <span class=" pull-right mr-3">
+            Expand
+          </span>
+        </h5>
+      </div>
+      <!-- end match challenges -->
+    </div>
+    <!-- end row -->
+
+    <!-- row -->
+    <div class=" row mt-3">
       <!-- Browse by coach speciality -->
         <div class=" col-md-4">
             <h5 class=" card-title"> Browse Coaches by Speciality </h5>
@@ -110,5 +143,7 @@
         </div>
 
     </div>
+    <!-- end row -->
+
   </div>
 </div>

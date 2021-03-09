@@ -39,6 +39,9 @@ export class SearchFilterUiComponent implements OnInit {
   public focus: boolean;
   public focusTouched: boolean;
 
+  public numGoals = 0;
+  public numChallenges = 0;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -47,10 +50,10 @@ export class SearchFilterUiComponent implements OnInit {
 
   ngOnInit() {
     // Check activated route query params
-    this.route.queryParamMap.subscribe(params => {
+    this.route.queryParams.subscribe(params => {
       if (params) {
         this.filters = {...params.keys, ...params};
-        // console.log('Navigator filters updated:', this.filters);
+        console.log('Navigator filters updated:', this.filters);
         // When route params change, update the UI with relevant data
         this.updateUI();
       }
@@ -58,8 +61,8 @@ export class SearchFilterUiComponent implements OnInit {
   }
 
   updateUI() {
-    if (this.filters.params.category) {
-      let cat = this.filters.params.category;
+    if (this.filters.category) {
+      let cat = this.filters.category;
       cat = cat.toLowerCase()
       .split(' ')
       .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
@@ -67,26 +70,40 @@ export class SearchFilterUiComponent implements OnInit {
       this.selectedSpecialities = [];
       this.selectedSpecialities.push({ itemName: cat });
     }
-    if (!this.filters.params.country) {
-      this.loadCoachCountries(this.filters.params.category);
+    if (!this.filters.country) {
+      this.loadCoachCountries(this.filters.category);
     }
-    if (this.filters.params.q) {
-      this.searchTerm = this.filters.params.q;
+    if (this.filters.q) {
+      this.searchTerm = this.filters.q;
     }
-    if (this.filters.params.q && this.filters.params.country) {
-      this.loadCoachCities(null, this.filters.params.country, this.filters.params.q);
+    if (this.filters.q && this.filters.country) {
+      this.loadCoachCities(null, this.filters.country, this.filters.q);
       this.selectedCountries = [];
-      this.selectedCountries.push({ itemName: this.filters.params.country });
+      this.selectedCountries.push({ itemName: this.filters.country });
     }
-    if (this.filters.params.category && this.filters.params.country) {
-      this.loadCoachCountries(this.filters.params.category);
-      this.loadCoachCities(this.filters.params.category, this.filters.params.country);
+    if (this.filters.category && this.filters.country) {
+      this.loadCoachCountries(this.filters.category);
+      this.loadCoachCities(this.filters.category, this.filters.country);
       this.selectedCountries = [];
-      this.selectedCountries.push({ itemName: this.filters.params.country });
+      this.selectedCountries.push({ itemName: this.filters.country });
     }
-    if (this.filters.params.category && this.filters.params.country && this.filters.params.city) {
+    if (this.filters.category && this.filters.country && this.filters.city) {
       this.selectedCities = [];
-      this.selectedCities.push({ itemName: this.filters.params.city });
+      this.selectedCities.push({ itemName: this.filters.city });
+    }
+    if (this.filters.goals) {
+      if (Array.isArray(this.filters.goals)) {
+        this.numGoals = this.filters.goals.length;
+      } else {
+        this.numGoals = 1;
+      }
+    }
+    if (this.filters.challenges) {
+      if (Array.isArray(this.filters.challenges)) {
+        this.numChallenges = this.filters.challenges.length;
+      } else {
+        this.numChallenges = 1;
+      }
     }
   }
 
@@ -124,7 +141,7 @@ export class SearchFilterUiComponent implements OnInit {
   }
 
   onCountrySelect(event: any) {
-    const newParams = Object.assign({}, this.filters.params);
+    const newParams = Object.assign({}, this.filters);
     newParams.country = event.itemName;
     if (newParams.city) {
       delete newParams.city;
@@ -134,7 +151,7 @@ export class SearchFilterUiComponent implements OnInit {
   }
 
   onCitySelect(event: any) {
-    const newParams = Object.assign({}, this.filters.params);
+    const newParams = Object.assign({}, this.filters);
     newParams.city = event.itemName;
     this.router.navigate(['/coaches'], { queryParams: newParams });
   }
