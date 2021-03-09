@@ -33,18 +33,26 @@
     <!-- end search bar -->
 
     <!-- row -->
-    <div class=" row mt-3">
+    <div class=" row mt-1">
       <!-- match goals -->
       <div class=" col-md-4">
         <h5 class=" card-title">
           My Goals
-          <span *ngIf="numGoals > 0" class=" badge badge-primary">
+          <span *ngIf="numGoals > 0" class=" badge badge-primary ml-1">
             {{ numGoals }}
           </span>
-          <span class=" pull-right mr-3">
-            Expand
-          </span>
+          <button type="button" class="btn btn-link btn-default ml-3" (click)="goalsIsCollapsed = !goalsIsCollapsed"
+          [attr.aria-expanded]="!goalsIsCollapsed" aria-controls="collapseGoals">
+            {{ goalsIsCollapsed ? 'Show' : 'Hide' }}
+          </button>
         </h5>
+        <div id="collapseGoals" [collapse]="goalsIsCollapsed" [isAnimated]="true">
+          <p>lorem</p>
+          <p>ipsum</p>
+          <p>dolor</p>
+          <p>simet</p>
+        </div>
+        
       </div>
       <!-- end match goals -->
 
@@ -52,13 +60,20 @@
       <div class=" col-md-4">
         <h5 class=" card-title">
           My Challenges
-          <span *ngIf="numChallenges > 0" class=" badge badge-primary">
+          <span *ngIf="numChallenges > 0" class=" badge badge-primary ml-1">
             {{ numChallenges }}
           </span>
-          <span class=" pull-right mr-3">
-            Expand
-          </span>
+          <button type="button" class="btn btn-link btn-default ml-3" (click)="challengesIsCollapsed = !challengesIsCollapsed"
+          [attr.aria-expanded]="!challengesIsCollapsed" aria-controls="collapseChallenges">
+            {{ challengesIsCollapsed ? 'Show' : 'Hide' }}
+          </button>
         </h5>
+        <div id="collapseChallenges" [collapse]="challengesIsCollapsed" [isAnimated]="true">
+          <p>lorem</p>
+          <p>ipsum</p>
+          <p>dolor</p>
+          <p>simet</p>
+        </div>
       </div>
       <!-- end match challenges -->
     </div>

@@ -40,7 +40,9 @@ export class SearchFilterUiComponent implements OnInit {
   public focusTouched: boolean;
 
   public numGoals = 0;
+  public goalsIsCollapsed = true;
   public numChallenges = 0;
+  public challengesIsCollapsed = true;
 
   constructor(
     private route: ActivatedRoute,
