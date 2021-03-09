@@ -1,4 +1,5 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 
 import { SearchService } from 'app/services/search.service';
@@ -15,6 +16,7 @@ export class SearchFilterUiComponent implements OnInit {
 
   public searchTerm: string;
   public filters: any;
+  public dataForm: FormGroup;
 
   public coachCountries = [];
   public selectedCountries = [];
@@ -41,19 +43,21 @@ export class SearchFilterUiComponent implements OnInit {
 
   public numGoals = 0;
   public goalsIsCollapsed = true;
-  public goalOptions = ['a', 'b', 'c'];
+  public goalOptions = ['one', 'two', 'three'];
 
   public numChallenges = 0;
   public challengesIsCollapsed = true;
-  public challengeOptions = ['a', 'b', 'c'];
+  public challengeOptions = ['one', 'two', 'three'];
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private searchService: SearchService
+    private searchService: SearchService,
+    public formBuilder: FormBuilder
   ) { }
 
   ngOnInit() {
+    this.buildDataForm();
     // Check activated route query params
     this.route.queryParams.subscribe(params => {
       if (params) {
@@ -62,6 +66,13 @@ export class SearchFilterUiComponent implements OnInit {
         // When route params change, update the UI with relevant data
         this.updateUI();
       }
+    });
+  }
+
+  buildDataForm() {
+    this.dataForm = this.formBuilder.group({
+      goals: [[]], // init with an empty array
+      challenges: [[]] // init with an empty array
     });
   }
 
@@ -96,18 +107,22 @@ export class SearchFilterUiComponent implements OnInit {
       this.selectedCities = [];
       this.selectedCities.push({ itemName: this.filters.city });
     }
-    if (this.filters.goals) {
+    if (this.filters.goals) { // note: may be string or array of strings
       if (Array.isArray(this.filters.goals)) {
         this.numGoals = this.filters.goals.length;
+        this.dataForm.patchValue({ goals: this.filters.goals});
       } else {
         this.numGoals = 1;
+        this.dataForm.patchValue({ goals: [this.filters.goals]});
       }
     }
-    if (this.filters.challenges) {
+    if (this.filters.challenges) { // note: may be string or array of strings
       if (Array.isArray(this.filters.challenges)) {
         this.numChallenges = this.filters.challenges.length;
+        this.dataForm.patchValue({ challenges: this.filters.challenges});
       } else {
         this.numChallenges = 1;
+        this.dataForm.patchValue({ challenges: [this.filters.challenges]});
       }
     }
   }

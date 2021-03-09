@@ -78,19 +78,23 @@
     <div class=" row">
       <div class=" col">
 
-        <div id="collapseGoals" [collapse]="goalsIsCollapsed" [isAnimated]="true">
-          <p>lorem</p>
-          <p>ipsum</p>
-          <p>dolor</p>
-          <p>simet</p>
-        </div>
+        <!-- form -->
+        <form [formGroup]="dataForm">
 
-        <div id="collapseChallenges" [collapse]="challengesIsCollapsed" [isAnimated]="true">
-          <p>lorem a</p>
-          <p>ipsum a</p>
-          <p>dolor a</p>
-          <p>simet a</p>
-        </div>
+          <!-- goals collapse -->
+          <div id="collapseGoals" [collapse]="goalsIsCollapsed" [isAnimated]="true">
+            <app-chips-multi-select [options]="goalOptions" formControlName="goals"></app-chips-multi-select>
+          </div>
+          <!-- end goals collapse -->
+
+          <!-- challenges collapse -->
+          <div id="collapseChallenges" [collapse]="challengesIsCollapsed" [isAnimated]="true">
+            <app-chips-multi-select [options]="challengeOptions" formControlName="challenges"></app-chips-multi-select>
+          </div>
+          <!-- end challenges collapse -->
+
+        </form>
+        <!-- end form -->
 
       </div>
     </div>
