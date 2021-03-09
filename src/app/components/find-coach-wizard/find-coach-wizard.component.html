@@ -9,92 +9,115 @@
     <!-- end modal header -->
 
     <!-- modal body -->
-    <div class="modal-body">
+    <div class=" modal-body">
 
         <!-- wizard container -->
         <div class=" wizard-container">
 
             <!-- wizard card -->
-            <div class="card card-wizard active" id="wizardProfile">
+            <div class=" card card-register card-white" id="wizardProfile">
 
-                <!-- form -->
-                <form [formGroup]="wizardForm" (ngSubmit)="onSubmit()">
+                <!-- card body -->
+                <div class=" card-body">
+                    <!-- form -->
+                    <form [formGroup]="wizardForm" (ngSubmit)="onSubmit()">
 
-                    <!-- stepper -->
-                    <mat-horizontal-stepper
-                    formArrayName="formArray"
-                    linear labelPosition="bottom"
-                    class=" card-body"
-                    (selectionChange)="onStepChange($event)"
-                    >
-                        <!-- Step 0 -->
-                        <mat-step formGroupName="0" [stepControl]="formArray.get([0])" label="Goals">
-                            <p class=" info-text mt-3">
-                            Any goals?
-                            </p>
-                            <app-chips-multi-select [options]="goals" formControlName="goals"></app-chips-multi-select>
-                            <button type="button" class=" btn btn-round btn-default">
-                                Cancel
-                            </button>
-                            <button
-                            type="button" 
-                            class=" btn btn-round btn-primary"
-                            mat-button
-                            matStepperNext>
-                                Next: Challenges
-                            </button>
-                        </mat-step>
-                        <!-- end step 0 -->
+                        <!-- stepper -->
+                        <mat-horizontal-stepper
+                        formArrayName="formArray"
+                        linear labelPosition="bottom"
+                        class=" card-body"
+                        (selectionChange)="onStepChange($event)"
+                        >
+                            <!-- Step 0 -->
+                            <mat-step formGroupName="0" [stepControl]="formArray.get([0])">
+                                <h3>
+                                    Goals
+                                </h3>
+                                <p>
+                                    Do you have any specific life goals in mind right now? Select them below...
+                                </p>
+                                <div class=" mt-4">
+                                    <app-chips-multi-select [options]="goals" formControlName="goals"></app-chips-multi-select>
+                                </div>
+                                <div class=" mt-4">
+                                    <button type="button" class=" btn btn-round btn-default">
+                                        Cancel
+                                    </button>
+                                    <button
+                                    type="button" 
+                                    class=" btn btn-round btn-primary pull-right"
+                                    mat-button
+                                    matStepperNext>
+                                        Next: Challenges
+                                    </button>
+                                </div>
+                            </mat-step>
+                            <!-- end step 0 -->
 
-                        <!-- Step 1 -->
-                        <mat-step formGroupName="1" [stepControl]="formArray.get([1])" label="One">
-                            <p class=" info-text mt-3">
-                            Any challenges?
-                            </p>
-                            <app-chips-multi-select [options]="challenges" formControlName="challenges"></app-chips-multi-select>
-                            <button
-                            type="button" 
-                            class=" btn btn-round btn-default"
-                            mat-button
-                            matStepperPrevious>
-                                Back
-                            </button>
-                            <button
-                            type="button" 
-                            class=" btn btn-round btn-primary"
-                            mat-button
-                            matStepperNext>
-                                Next: Details
-                            </button>
-                        </mat-step>
-                        <!-- end step 1 -->
+                            <!-- Step 1 -->
+                            <mat-step formGroupName="1" [stepControl]="formArray.get([1])">
+                                <h3>
+                                    Challenges
+                                </h3>
+                                <p>
+                                    Are you facing any specific challenges right now? Select them below...
+                                </p>
+                                <div class=" mt-4">
+                                    <app-chips-multi-select [options]="challenges" formControlName="challenges"></app-chips-multi-select>
+                                </div>
+                                <div class=" mt-4">
+                                    <button
+                                    type="button" 
+                                    class=" btn btn-round btn-default"
+                                    mat-button
+                                    matStepperPrevious>
+                                        Back
+                                    </button>
+                                    <button
+                                    type="button" 
+                                    class=" btn btn-round btn-primary pull-right"
+                                    mat-button
+                                    matStepperNext>
+                                        Next: Details
+                                    </button>
+                                </div>
+                            </mat-step>
+                            <!-- end step 1 -->
 
-                        <!-- Step 2 -->
-                        <mat-step formGroupName="2" [stepControl]="formArray.get([2])" label="Two">
-                            <p class=" info-text mt-3">
-                            Next this
-                            </p>
-                            <button
-                            type="button" 
-                            class=" btn btn-round btn-default"
-                            mat-button
-                            matStepperPrevious>
-                                Back
-                            </button>
-                            <button
-                            type="button" 
-                            class=" btn btn-round btn-primary"
-                            (click)="onSubmit()">
-                                Go!
-                            </button>
-                        </mat-step>
-                        <!-- end step 2 -->
+                            <!-- Step 2 -->
+                            <mat-step formGroupName="2" [stepControl]="formArray.get([2])">
+                                <h3>
+                                    Other
+                                </h3>
+                                <p>
+                                    Other stuff
+                                </p>
+                                <div class=" mt-4">
+                                    <button
+                                    type="button" 
+                                    class=" btn btn-round btn-default"
+                                    mat-button
+                                    matStepperPrevious>
+                                        Back
+                                    </button>
+                                    <button
+                                    type="button" 
+                                    class=" btn btn-round btn-primary pull-right"
+                                    (click)="onSubmit()">
+                                        Get Recommended Coaches!
+                                    </button>
+                                </div>
+                            </mat-step>
+                            <!-- end step 2 -->
 
-                    </mat-horizontal-stepper>
-                    <!-- end stepper -->
+                        </mat-horizontal-stepper>
+                        <!-- end stepper -->
 
-                </form>
-                <!-- end form -->
+                    </form>
+                    <!-- end form -->
+                </div>
+                <!-- end card body -->
 
             </div>
             <!-- end wizard card -->

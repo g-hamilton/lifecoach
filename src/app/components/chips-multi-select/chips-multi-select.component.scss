@@ -1,0 +1,12 @@
+.custom-tag {
+    background-color: white;
+    border: 1px solid #344675;
+    color: #344675;
+    padding: 14px;
+}
+
+.mat-chip.mat-standard-chip.mat-chip-selected.mat-primary.custom-tag {
+    background-image: linear-gradient(to bottom left, #e14eca, #ba54f5, #e14eca);
+    border: 1px solid #ba54f5;
+    color: white;
+}
