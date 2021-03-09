@@ -41,18 +41,15 @@
           <span *ngIf="numGoals > 0" class=" badge badge-primary ml-1">
             {{ numGoals }}
           </span>
-          <button type="button" class="btn btn-link btn-default ml-3" (click)="goalsIsCollapsed = !goalsIsCollapsed"
-          [attr.aria-expanded]="!goalsIsCollapsed" aria-controls="collapseGoals">
+          <button
+          type="button"
+          class="btn btn-link btn-default ml-3"
+          (click)="toggleGoals()"
+          [attr.aria-expanded]="!goalsIsCollapsed"
+          aria-controls="collapseGoals">
             {{ goalsIsCollapsed ? 'Show' : 'Hide' }}
           </button>
         </h5>
-        <div id="collapseGoals" [collapse]="goalsIsCollapsed" [isAnimated]="true">
-          <p>lorem</p>
-          <p>ipsum</p>
-          <p>dolor</p>
-          <p>simet</p>
-        </div>
-        
       </div>
       <!-- end match goals -->
 
@@ -63,21 +60,41 @@
           <span *ngIf="numChallenges > 0" class=" badge badge-primary ml-1">
             {{ numChallenges }}
           </span>
-          <button type="button" class="btn btn-link btn-default ml-3" (click)="challengesIsCollapsed = !challengesIsCollapsed"
-          [attr.aria-expanded]="!challengesIsCollapsed" aria-controls="collapseChallenges">
+          <button
+          type="button"
+          class="btn btn-link btn-default ml-3"
+          (click)="toggleChallenges()"
+          [attr.aria-expanded]="!challengesIsCollapsed"
+          aria-controls="collapseChallenges">
             {{ challengesIsCollapsed ? 'Show' : 'Hide' }}
           </button>
         </h5>
-        <div id="collapseChallenges" [collapse]="challengesIsCollapsed" [isAnimated]="true">
+      </div>
+      <!-- end match challenges -->
+    </div>
+    <!-- end row -->
+
+    <!-- collapsible row -->
+    <div class=" row">
+      <div class=" col">
+
+        <div id="collapseGoals" [collapse]="goalsIsCollapsed" [isAnimated]="true">
           <p>lorem</p>
           <p>ipsum</p>
           <p>dolor</p>
           <p>simet</p>
         </div>
+
+        <div id="collapseChallenges" [collapse]="challengesIsCollapsed" [isAnimated]="true">
+          <p>lorem a</p>
+          <p>ipsum a</p>
+          <p>dolor a</p>
+          <p>simet a</p>
+        </div>
+
       </div>
-      <!-- end match challenges -->
     </div>
-    <!-- end row -->
+    <!-- end collapsible row -->
 
     <!-- row -->
     <div class=" row mt-3">

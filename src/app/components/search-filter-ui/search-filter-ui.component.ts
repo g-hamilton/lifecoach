@@ -41,8 +41,11 @@ export class SearchFilterUiComponent implements OnInit {
 
   public numGoals = 0;
   public goalsIsCollapsed = true;
+  public goalOptions = ['a', 'b', 'c'];
+
   public numChallenges = 0;
   public challengesIsCollapsed = true;
+  public challengeOptions = ['a', 'b', 'c'];
 
   constructor(
     private route: ActivatedRoute,
@@ -156,6 +159,28 @@ export class SearchFilterUiComponent implements OnInit {
     const newParams = Object.assign({}, this.filters);
     newParams.city = event.itemName;
     this.router.navigate(['/coaches'], { queryParams: newParams });
+  }
+
+  toggleGoals() {
+    if (!this.challengesIsCollapsed) {
+      this.challengesIsCollapsed = true;
+      setTimeout(() => {
+        this.goalsIsCollapsed = !this.goalsIsCollapsed;
+      }, 1200);
+      return;
+    }
+    this.goalsIsCollapsed = !this.goalsIsCollapsed;
+  }
+
+  toggleChallenges() {
+    if (!this.goalsIsCollapsed) {
+      this.goalsIsCollapsed = true;
+      setTimeout(() => {
+        this.challengesIsCollapsed = !this.challengesIsCollapsed;
+      }, 1200);
+      return;
+    }
+    this.challengesIsCollapsed = !this.challengesIsCollapsed;
   }
 
 }
