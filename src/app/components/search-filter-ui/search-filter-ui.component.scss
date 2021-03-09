@@ -4,3 +4,19 @@
     border-bottom: 1px solid #E14ECA;
     border-left: 1px solid #E14ECA;
 }
+
+// Overrides for NGX Bootstrap Collapse (because the animations don't work out of the box)
+// may be something to do with browseranimationsmodule?
+.collapse {
+  transition: transform .35s, opacity .35s, max-height .9s ease-out;
+  opacity: 0;
+  max-height: 0;
+  // transform: translateY(100%);
+  display: block !important;
+
+}
+.collapse.show {
+  opacity: 1;
+  max-height: 600px;
+  // transform: translateY(0);
+}
