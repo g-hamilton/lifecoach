@@ -35,15 +35,20 @@ export class FindCoachWizardComponent implements OnInit {
   };
 
   public goals = ['Becoming a Better Leader', 'Growing Your Influence', 'Building Confidence', 'Developing Self-Awareness',
-  'Recovering from Injury', 'Creating Better Habits', 'Achieving Your Goals', 'Better Time-Management', 'Finding Your Purpose', 'Increasing Your Energy',
+  'Recovering from Injury', 'Creating Better Habits', 'Better Time-Management', 'Finding Your Purpose', 'Increasing Your Energy',
   'Teamwork', 'Determination', 'Managing Finances', 'Deeper Sleep', 'Forgiveness',
   'Healing From Trauma', 'Long-Term Planning', 'Overcoming Fear & Anxiety', 'Finding Clarity', 'Defining Your Vision',
-  'Moving Past Pain', 'Focus', 'Building Resilience to Stress', 'Authenticity', 'Improved Flexibility', 'Self-Acceptance', 'Love',
+  'Moving Past Pain', 'Finding Focus', 'Building Resilience to Stress', 'Authenticity', 'Improved Flexibility', 'Self-Acceptance', 'Love',
   'Stronger Relationships', 'Renewing Your Passion', 'Inspiring Others', 'Emotional Intelligence', 'Positive Thinking',
   'Better Ageing', 'Deeper Meditation', 'Athletic Performance', 'Healthier Immune System', 'Achieving More',
   'Emotional Balance', 'Getting Fit', 'Improving Your Posture', 'Resistance to Overwhelm', 'Finding Inner Peace'];
 
-  public challenges = ['one', 'two', 'three'];
+  public challenges = ['financial crisis', 'health crisis', 'difficult relationship', 'personal conflict', 'career pressure',
+  'unfair treatment', 'emptiness', 'boredom', 'confusion', 'friendship struggles', 'jealousy', 'physical pain', 'emotional pain',
+  'stress', 'anxiety', 'haunting past', 'failure', 'insecurity', 'feeling unsafe', 'forgiveness', 'lack of knowledge',
+  'understanding', 'loss', 'grief', 'complexity', 'citicism', 'redundancy', 'bankruptcy', 'making mistakes', 'breakup',
+  'low confidence', 'embarassment', 'low self-esteem', 'dark thoughts', 'fear', 'staying on track', 'too many options',
+  'finding the time', 'not sure how to plan', 'giving up', 'poor self-awareness'];
 
   constructor(
     public bsModalRef: BsModalRef,

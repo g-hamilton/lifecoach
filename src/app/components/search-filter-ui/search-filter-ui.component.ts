@@ -54,7 +54,12 @@ export class SearchFilterUiComponent implements OnInit {
 
   public numChallenges = 0;
   public challengesIsCollapsed = true;
-  public challengeOptions = ['one', 'two', 'three'];
+  public challengeOptions = ['financial crisis', 'health crisis', 'difficult relationship', 'personal conflict', 'career pressure',
+  'unfair treatment', 'emptiness', 'boredom', 'confusion', 'friendship struggles', 'jealousy', 'physical pain', 'emotional pain',
+  'stress', 'anxiety', 'haunting past', 'failure', 'insecurity', 'feeling unsafe', 'forgiveness', 'lack of knowledge',
+  'understanding', 'loss', 'grief', 'complexity', 'citicism', 'redundancy', 'bankruptcy', 'making mistakes', 'breakup',
+  'low confidence', 'embarassment', 'low self-esteem', 'dark thoughts', 'fear', 'staying on track', 'too many options',
+  'finding the time', 'not sure how to plan', 'giving up', 'poor self-awareness'];
 
   constructor(
     private route: ActivatedRoute,
