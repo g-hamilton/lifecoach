@@ -39,7 +39,7 @@
       <!-- row -->
       <div class=" row mt-1">
         <!-- match goals -->
-        <div class=" col-md-4">
+        <div class=" col-md-3">
           <h5 class=" card-title">
             My Goals
             <span *ngIf="numGoals > 0" class=" badge badge-primary ml-1">
@@ -58,7 +58,7 @@
         <!-- end match goals -->
 
         <!-- match challenges -->
-        <div class=" col-md-4">
+        <div class=" col-md-3">
           <h5 class=" card-title">
             My Challenges
             <span *ngIf="numChallenges > 0" class=" badge badge-primary ml-1">
@@ -77,16 +77,27 @@
         <!-- end match challenges -->
 
         <!-- must be certified -->
-        <div class=" col-md-4">
+        <div class=" col-md-3">
           <div class=" form-check">
             <label class=" form-check-label">
-              <input class=" form-check-input" type="checkbox" name="certified" formControlName="showCertified" />
+              <input class=" form-check-input" type="checkbox" name="certified" formControlName="showCertified" (change)="makeNewRequest()" />
               <span class=" form-check-sign"> </span>
               Certified Coaches Only
             </label>
-        </div>
+          </div>
         </div>
         <!-- end must be certified -->
+
+        <!-- reset -->
+        <div class=" col-md-3">
+          <button
+            type="button"
+            class="btn btn-link btn-primary pull-right"
+            (click)="reset()">
+              Reset all options
+            </button>
+        </div>
+        <!-- end reset -->
 
       </div>
       <!-- end row -->
@@ -113,7 +124,20 @@
 
       <!-- row -->
       <div class=" row mt-2">
-        <div class=" col-md-4">
+        <div class=" col-md-3">
+          <h5 class=" card-title"> Category </h5>
+          <div class="form-group">
+            <select class="form-control" formControlName="category">
+              <option [value]="null">
+                Any
+              </option>
+              <option *ngFor="let cat of specialitiesList" [value]="cat.itemName">
+                {{ cat.itemName }}
+              </option>
+            </select>
+          </div>
+        </div>
+        <div class=" col-md-3">
           <h5 class=" card-title"> Gender </h5>
           <div class="form-group">
             <select class="form-control" formControlName="gender">
@@ -129,12 +153,12 @@
             </select>
           </div>
         </div>
-        <div class=" col-md-4">
-          <h5 class=" card-title"> Location </h5>
+        <div class=" col-md-3">
+          <h5 class=" card-title"> Country </h5>
           <div class="form-group">
             <select class="form-control" formControlName="country">
               <option [value]="null">
-                Any location
+                Anywhere
               </option>
               <option *ngFor="let country of coachCountries" [value]="country.itemName">
                 {{ country.itemName }}
@@ -142,62 +166,19 @@
             </select>
           </div>
         </div>
-      </div>
-      <!-- end row -->
-
-      <!-- row -->
-      <div class=" row mt-3">
-        <!-- Browse by coach speciality -->
-          <div class=" col-md-4">
-              <h5 class=" card-title"> Browse Coaches by Speciality </h5>
-              <div class=" form-group">
-                <angular2-multiselect
-                  [data]="specialitiesList"
-                  [settings]="{
-                    enableSearchFilter: false,
-                    searchBy: ['itemName'],
-                    primaryKey: 'itemName',
-                    singleSelection: true,
-                    text: 'Speciality',
-                    classes: 'selectpicker btn-primary'
-                  }"
-                  [ngModel]="selectedSpecialities"
-                  [ngModelOptions]="{standalone: true}"
-                  (onSelect)="onSpecialitySelect($event)"
-                >
-                </angular2-multiselect>
-              </div>
+        <div class=" col-md-3">
+          <h5 class=" card-title"> City </h5>
+          <div class="form-group">
+            <select class="form-control" formControlName="city">
+              <option [value]="null">
+                Anywhere
+              </option>
+              <option *ngFor="let city of coachCities" [value]="city.itemName">
+                {{ city.itemName }}
+              </option>
+            </select>
           </div>
-
-          <!-- Refine coaches by city -->
-          <div class=" col-md-4">
-              <h5 class=" card-title"> Refine by City </h5>
-              <div class=" form-group">
-                <angular2-multiselect
-                  [data]="coachCities"
-                  [settings]="{
-                    enableSearchFilter: true,
-                    searchPlaceholderText: 'Search cities',
-                    searchBy: ['itemName'],
-                    primaryKey: 'itemName',
-                    singleSelection: true,
-                    text: 'City',
-                    classes: 'selectpicker btn-success',
-                    disabled: selectedCountries.length > 0 ? false : true
-                  }"
-                  [ngModel]="selectedCities"
-                  [ngModelOptions]="{standalone: true}"
-                  (onSelect)="onCitySelect($event)"
-                >
-                </angular2-multiselect>
-                  <!-- <c-item>
-                      <ng-template let-item="item">
-                      <label>{{ item.itemName + ' ' + item.itemCount }}</label>
-                      </ng-template>
-                  </c-item> -->
-              </div>
-          </div>
-
+        </div>
       </div>
       <!-- end row -->
 

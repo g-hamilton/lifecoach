@@ -19,9 +19,7 @@ export class SearchFilterUiComponent implements OnInit {
   public dataForm: FormGroup;
 
   public coachCountries = [];
-  public selectedCountries = [];
   public coachCities = [];
-  public selectedCities = [];
   public specialitiesList = [
     { itemName: 'Business & Career' },
     { itemName: 'Health, Fitness & Wellness' },
@@ -36,7 +34,6 @@ export class SearchFilterUiComponent implements OnInit {
     { itemName: 'Holistic' },
     { itemName: 'Productivity & Personal Organisation' }
   ];
-  public selectedSpecialities = [];
 
   public focus: boolean;
   public focusTouched: boolean;
@@ -85,7 +82,7 @@ export class SearchFilterUiComponent implements OnInit {
     this.dataForm = this.formBuilder.group({
       goals: [[]], // init with an empty array
       challenges: [[]], // init with an empty array
-      showCertified: [null],
+      showCertified: [false],
       anyCert: [null],
       icf: [null],
       emcc: [null],
@@ -94,40 +91,16 @@ export class SearchFilterUiComponent implements OnInit {
       foundation: [null],
       experienced: [null],
       master: [null],
-      gender: ['any']
+      gender: ['any'],
+      category: [null],
+      country: [null],
+      city: [null]
     });
   }
 
   updateUI() {
-    if (this.filters.category) {
-      let cat = this.filters.category;
-      cat = cat.toLowerCase()
-      .split(' ')
-      .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
-      .join(' '); // convert to title case
-      this.selectedSpecialities = [];
-      this.selectedSpecialities.push({ itemName: cat });
-    }
-    if (!this.filters.country) {
-      this.loadCoachCountries(this.filters.category);
-    }
     if (this.filters.q) {
       this.searchTerm = this.filters.q;
-    }
-    if (this.filters.q && this.filters.country) {
-      this.loadCoachCities(null, this.filters.country, this.filters.q);
-      this.selectedCountries = [];
-      this.selectedCountries.push({ itemName: this.filters.country });
-    }
-    if (this.filters.category && this.filters.country) {
-      this.loadCoachCountries(this.filters.category);
-      this.loadCoachCities(this.filters.category, this.filters.country);
-      this.selectedCountries = [];
-      this.selectedCountries.push({ itemName: this.filters.country });
-    }
-    if (this.filters.category && this.filters.country && this.filters.city) {
-      this.selectedCities = [];
-      this.selectedCities.push({ itemName: this.filters.city });
     }
     if (this.filters.goals) { // note: may be string or array of strings
       if (Array.isArray(this.filters.goals)) {
@@ -148,7 +121,7 @@ export class SearchFilterUiComponent implements OnInit {
       }
     }
     if (this.filters.showCertified) {
-      this.dataForm.patchValue({ showCertified: this.filters.showCertified });
+      this.dataForm.patchValue({ showCertified: this.filters.showCertified === 'true' ? true : false  });
     }
     if (this.filters.anyCert) {
       this.dataForm.patchValue({ anyCert: this.filters.anyCert });
@@ -176,6 +149,27 @@ export class SearchFilterUiComponent implements OnInit {
     }
     if (this.filters.gender) {
       this.dataForm.patchValue({ gender: this.filters.gender });
+    }
+    if (this.filters.category) {
+      let cat = this.filters.category;
+      cat = cat.toLowerCase()
+      .split(' ')
+      .map((s) => s.charAt(0).toUpperCase() + s.substring(1))
+      .join(' '); // convert to title case
+      this.dataForm.patchValue({ category: cat });
+    }
+    if (!this.filters.country) {
+      this.loadCoachCountries(this.filters.category);
+    }
+    if (!this.filters.category && this.filters.q && this.filters.country) {
+      this.loadCoachCities(null, this.filters.country, this.filters.q);
+    }
+    if (this.filters.category && this.filters.country) {
+      this.loadCoachCountries(this.filters.category);
+      this.loadCoachCities(this.filters.category, this.filters.country);
+    }
+    if (this.filters.city) {
+      this.dataForm.patchValue({ city: this.filters.city });
     }
   }
 
@@ -207,27 +201,6 @@ export class SearchFilterUiComponent implements OnInit {
     this.messageEventCities.emit(this.coachCities);
   }
 
-  onSpecialitySelect(event: any) {
-    const newParams = { category: event.itemName };
-    this.router.navigate(['/coaches'], { queryParams: newParams });
-  }
-
-  onCountrySelect(event: any) {
-    const newParams = Object.assign({}, this.filters);
-    newParams.country = event.itemName;
-    if (newParams.city) {
-      delete newParams.city;
-      this.selectedCities = [];
-    }
-    this.router.navigate(['/coaches'], { queryParams: newParams });
-  }
-
-  onCitySelect(event: any) {
-    const newParams = Object.assign({}, this.filters);
-    newParams.city = event.itemName;
-    this.router.navigate(['/coaches'], { queryParams: newParams });
-  }
-
   toggleGoals() {
     if (!this.challengesIsCollapsed) {
       this.challengesIsCollapsed = true;
@@ -248,6 +221,40 @@ export class SearchFilterUiComponent implements OnInit {
       return;
     }
     this.challengesIsCollapsed = !this.challengesIsCollapsed;
+  }
+
+  reset() {
+    // todo
+  }
+
+  makeNewRequest() {
+    const formData = this.dataForm.value;
+    console.log(formData);
+
+    // cleanup!
+    const newParams = {};
+    Object.keys(formData).forEach(key => {
+      if (key) {
+        if (!formData[key]) { // remove any null or undefined data
+          return;
+        }
+        if (formData[key] === 'false') { // remove any string false
+          return;
+        }
+        if (Array.isArray(formData[key]) && !formData[key].length) { // remove any empty arrays
+          return;
+        }
+        if (key === 'anyExp') { // remove the anyExp key
+          return;
+        }
+        if (key === 'gender' && formData[key] === 'any') { // remove any gender
+          return;
+        }
+        newParams[key] = formData[key];
+      }
+    });
+    console.log(newParams);
+    this.router.navigate(['/coaches'], { queryParams: newParams });
   }
 
 }

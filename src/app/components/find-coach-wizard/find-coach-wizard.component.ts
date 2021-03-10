@@ -149,8 +149,7 @@ export class FindCoachWizardComponent implements OnInit {
   }
 
   onSubmit() {
-    console.log('Submit!');
-    console.log('formData', this.wizardForm.value);
+    // console.log('formData', this.wizardForm.value);
 
     this.saveAttempt = true;
 
@@ -171,6 +170,31 @@ export class FindCoachWizardComponent implements OnInit {
 
     console.log('merged form data', merged);
 
+    // cleanup!
+    const newParams = {};
+    Object.keys(merged).forEach(key => {
+      if (key) {
+        if (!merged[key]) { // remove any null or undefined data
+          return;
+        }
+        if (merged[key] === 'false') { // remove any string false
+          return;
+        }
+        if (Array.isArray(merged[key]) && !merged[key].length) { // remove any empty arrays
+          return;
+        }
+        if (key === 'anyExp') { // remove the anyExp key
+          return;
+        }
+        if (key === 'gender' && merged[key] === 'any') { // remove any gender
+          return;
+        }
+        newParams[key] = merged[key];
+      }
+    });
+
+    console.log('newParams', newParams);
+
     this.bsModalRef.hide(); // hide the current modal
     this.saveAttempt = false;
     this.saving = false;
@@ -178,7 +202,7 @@ export class FindCoachWizardComponent implements OnInit {
     // shall we save to localstorage as a backup?
 
     // redirect to search/browse coaches page with params
-    this.router.navigate(['/coaches'], { queryParams: merged });
+    this.router.navigate(['/coaches'], { queryParams: newParams });
   }
 
 }
