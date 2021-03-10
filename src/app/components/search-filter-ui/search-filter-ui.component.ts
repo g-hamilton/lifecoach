@@ -84,7 +84,17 @@ export class SearchFilterUiComponent implements OnInit {
   buildDataForm() {
     this.dataForm = this.formBuilder.group({
       goals: [[]], // init with an empty array
-      challenges: [[]] // init with an empty array
+      challenges: [[]], // init with an empty array
+      showCertified: [null],
+      anyCert: [null],
+      icf: [null],
+      emcc: [null],
+      ac: [null],
+      anyExp: [null],
+      foundation: [null],
+      experienced: [null],
+      master: [null],
+      gender: ['any']
     });
   }
 
@@ -136,6 +146,36 @@ export class SearchFilterUiComponent implements OnInit {
         this.numChallenges = 1;
         this.dataForm.patchValue({ challenges: [this.filters.challenges]});
       }
+    }
+    if (this.filters.showCertified) {
+      this.dataForm.patchValue({ showCertified: this.filters.showCertified });
+    }
+    if (this.filters.anyCert) {
+      this.dataForm.patchValue({ anyCert: this.filters.anyCert });
+    }
+    if (this.filters.icf) {
+      this.dataForm.patchValue({ icf: this.filters.icf });
+    }
+    if (this.filters.emcc) {
+      this.dataForm.patchValue({ emcc: this.filters.emcc });
+    }
+    if (this.filters.ac) {
+      this.dataForm.patchValue({ ac: this.filters.ac });
+    }
+    if (this.filters.anyExp) {
+      this.dataForm.patchValue({ anyExp: this.filters.anyExp });
+    }
+    if (this.filters.foundation) {
+      this.dataForm.patchValue({ foundation: this.filters.foundation });
+    }
+    if (this.filters.experienced) {
+      this.dataForm.patchValue({ experienced: this.filters.experienced });
+    }
+    if (this.filters.master) {
+      this.dataForm.patchValue({ master: this.filters.master });
+    }
+    if (this.filters.gender) {
+      this.dataForm.patchValue({ gender: this.filters.gender });
     }
   }
 

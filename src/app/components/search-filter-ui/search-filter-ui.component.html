@@ -1,185 +1,189 @@
 <div class=" card">
   <div class=" card-body">
-    <!-- Search bar -->
-    <h5 class=" card-title"> Search Coaches </h5>
-    <div class=" row">
-      <div class=" col-md-10">
-        <div class="input-group input-group-lg" id="browse-search">
-          <div class="input-group-prepend">
-            <span class="input-group-text" id="inputGroup-sizing-lg" [ngClass]="{'focus': focus}">
-              <i class=" tim-icons icon-zoom-split mr-3"></i>
+    <!-- form -->
+    <form [formGroup]="dataForm">
+
+      <!-- Search bar -->
+      <h5 class=" card-title"> Search Coaches </h5>
+      <div class=" row">
+        <div class=" col-md-10">
+          <div class="input-group input-group-lg" id="browse-search">
+            <div class="input-group-prepend">
+              <span class="input-group-text" id="inputGroup-sizing-lg" [ngClass]="{'focus': focus}">
+                <i class=" tim-icons icon-zoom-split mr-3"></i>
+              </span>
+            </div>
+            <input
+            type="text"
+            class="form-control"
+            aria-label="Large"
+            aria-describedby="inputGroup-sizing-sm"
+            placeholder="eg. Health & Wellness Coach"
+            [(ngModel)]="searchTerm"
+            [ngModelOptions]="{standalone: true}"
+            (focus)="focus = true; focusTouched = true"
+            (blur)="focus = false"
+            >
+          </div>
+        </div>
+        <div class=" col-md-2">
+            <a
+            class="btn btn-primary btn-lg btn-round"
+            [routerLink]="['/coaches']"
+            [queryParams]="{q: searchTerm}"
+            role="button"> Go! </a>
+        </div>
+      </div>
+      <!-- end search bar -->
+
+      <!-- row -->
+      <div class=" row mt-1">
+        <!-- match goals -->
+        <div class=" col-md-4">
+          <h5 class=" card-title">
+            My Goals
+            <span *ngIf="numGoals > 0" class=" badge badge-primary ml-1">
+              {{ numGoals }}
             </span>
-          </div>
-          <input
-          type="text"
-          class="form-control"
-          aria-label="Large"
-          aria-describedby="inputGroup-sizing-sm"
-          placeholder="eg. Health & Wellness Coach"
-          [(ngModel)]="searchTerm"
-          (focus)="focus = true; focusTouched = true"
-          (blur)="focus = false"
-          >
+            <button
+            type="button"
+            class="btn btn-link btn-default ml-3"
+            (click)="toggleGoals()"
+            [attr.aria-expanded]="!goalsIsCollapsed"
+            aria-controls="collapseGoals">
+              {{ goalsIsCollapsed ? 'Show' : 'Hide' }}
+            </button>
+          </h5>
         </div>
-      </div>
-      <div class=" col-md-2">
-          <a
-          class="btn btn-primary btn-lg btn-round"
-          [routerLink]="['/coaches']"
-          [queryParams]="{q: searchTerm}"
-          role="button"> Go! </a>
-      </div>
-    </div>
-    <!-- end search bar -->
+        <!-- end match goals -->
 
-    <!-- row -->
-    <div class=" row mt-1">
-      <!-- match goals -->
-      <div class=" col-md-4">
-        <h5 class=" card-title">
-          My Goals
-          <span *ngIf="numGoals > 0" class=" badge badge-primary ml-1">
-            {{ numGoals }}
-          </span>
-          <button
-          type="button"
-          class="btn btn-link btn-default ml-3"
-          (click)="toggleGoals()"
-          [attr.aria-expanded]="!goalsIsCollapsed"
-          aria-controls="collapseGoals">
-            {{ goalsIsCollapsed ? 'Show' : 'Hide' }}
-          </button>
-        </h5>
-      </div>
-      <!-- end match goals -->
-
-      <!-- match challenges -->
-      <div class=" col-md-4">
-        <h5 class=" card-title">
-          My Challenges
-          <span *ngIf="numChallenges > 0" class=" badge badge-primary ml-1">
-            {{ numChallenges }}
-          </span>
-          <button
-          type="button"
-          class="btn btn-link btn-default ml-3"
-          (click)="toggleChallenges()"
-          [attr.aria-expanded]="!challengesIsCollapsed"
-          aria-controls="collapseChallenges">
-            {{ challengesIsCollapsed ? 'Show' : 'Hide' }}
-          </button>
-        </h5>
-      </div>
-      <!-- end match challenges -->
-    </div>
-    <!-- end row -->
-
-    <!-- collapsible row -->
-    <div class=" row">
-      <div class=" col">
-
-        <!-- form -->
-        <form [formGroup]="dataForm">
-
-          <!-- goals collapse -->
-          <div id="collapseGoals" [collapse]="goalsIsCollapsed" [isAnimated]="true">
-            <app-chips-multi-select [options]="goalOptions" formControlName="goals"></app-chips-multi-select>
-          </div>
-          <!-- end goals collapse -->
-
-          <!-- challenges collapse -->
-          <div id="collapseChallenges" [collapse]="challengesIsCollapsed" [isAnimated]="true">
-            <app-chips-multi-select [options]="challengeOptions" formControlName="challenges"></app-chips-multi-select>
-          </div>
-          <!-- end challenges collapse -->
-
-        </form>
-        <!-- end form -->
-
-      </div>
-    </div>
-    <!-- end collapsible row -->
-
-    <!-- row -->
-    <div class=" row mt-3">
-      <!-- Browse by coach speciality -->
+        <!-- match challenges -->
         <div class=" col-md-4">
-            <h5 class=" card-title"> Browse Coaches by Speciality </h5>
-            <div class=" form-group">
-              <angular2-multiselect
-                [data]="specialitiesList"
-                [settings]="{
-                  enableSearchFilter: false,
-                  searchBy: ['itemName'],
-                  primaryKey: 'itemName',
-                  singleSelection: true,
-                  text: 'Speciality',
-                  classes: 'selectpicker btn-primary'
-                }"
-                [ngModel]="selectedSpecialities"
-                (onSelect)="onSpecialitySelect($event)"
-              >
-              </angular2-multiselect>
-            </div>
+          <h5 class=" card-title">
+            My Challenges
+            <span *ngIf="numChallenges > 0" class=" badge badge-primary ml-1">
+              {{ numChallenges }}
+            </span>
+            <button
+            type="button"
+            class="btn btn-link btn-default ml-3"
+            (click)="toggleChallenges()"
+            [attr.aria-expanded]="!challengesIsCollapsed"
+            aria-controls="collapseChallenges">
+              {{ challengesIsCollapsed ? 'Show' : 'Hide' }}
+            </button>
+          </h5>
         </div>
+        <!-- end match challenges -->
+      </div>
+      <!-- end row -->
 
-        <!-- Refine by coach country -->
-        <div class=" col-md-4">
-            <h5 class=" card-title"> Refine by Country </h5>
-            <div class=" form-group">
-              <angular2-multiselect
-                [data]="coachCountries"
-                [settings]="{
-                  enableSearchFilter: true,
-                  searchPlaceholderText: 'Search countries',
-                  searchBy: ['itemName'],
-                  primaryKey: 'itemName',
-                  singleSelection: true,
-                  text: 'Country',
-                  classes: 'selectpicker btn-success'
-                }"
-                [ngModel]="selectedCountries"
-                (onSelect)="onCountrySelect($event)"
-              >
-                <!-- <c-item>
-                    <ng-template let-item="item">
-                    <label>{{ item.itemName + ' ' + item.itemCount }}</label>
-                    </ng-template>
-                </c-item> -->
-              </angular2-multiselect>
+      <!-- collapsible row -->
+      <div class=" row">
+        <div class=" col">
+
+            <!-- goals collapse -->
+            <div id="collapseGoals" [collapse]="goalsIsCollapsed" [isAnimated]="true">
+              <app-chips-multi-select [options]="goalOptions" formControlName="goals"></app-chips-multi-select>
             </div>
-        </div>
+            <!-- end goals collapse -->
 
-        <!-- Refine coaches by city -->
-        <div class=" col-md-4">
-            <h5 class=" card-title"> Refine by City </h5>
-            <div class=" form-group">
-              <angular2-multiselect
-                [data]="coachCities"
-                [settings]="{
-                  enableSearchFilter: true,
-                  searchPlaceholderText: 'Search cities',
-                  searchBy: ['itemName'],
-                  primaryKey: 'itemName',
-                  singleSelection: true,
-                  text: 'City',
-                  classes: 'selectpicker btn-success',
-                  disabled: selectedCountries.length > 0 ? false : true
-                }"
-                [ngModel]="selectedCities"
-                (onSelect)="onCitySelect($event)"
-              >
-              </angular2-multiselect>
-                <!-- <c-item>
-                    <ng-template let-item="item">
-                    <label>{{ item.itemName + ' ' + item.itemCount }}</label>
-                    </ng-template>
-                </c-item> -->
+            <!-- challenges collapse -->
+            <div id="collapseChallenges" [collapse]="challengesIsCollapsed" [isAnimated]="true">
+              <app-chips-multi-select [options]="challengeOptions" formControlName="challenges"></app-chips-multi-select>
             </div>
-        </div>
+            <!-- end challenges collapse -->
 
-    </div>
-    <!-- end row -->
+        </div>
+      </div>
+      <!-- end collapsible row -->
+
+      <!-- row -->
+      <div class=" row mt-3">
+        <!-- Browse by coach speciality -->
+          <div class=" col-md-4">
+              <h5 class=" card-title"> Browse Coaches by Speciality </h5>
+              <div class=" form-group">
+                <angular2-multiselect
+                  [data]="specialitiesList"
+                  [settings]="{
+                    enableSearchFilter: false,
+                    searchBy: ['itemName'],
+                    primaryKey: 'itemName',
+                    singleSelection: true,
+                    text: 'Speciality',
+                    classes: 'selectpicker btn-primary'
+                  }"
+                  [ngModel]="selectedSpecialities"
+                  [ngModelOptions]="{standalone: true}"
+                  (onSelect)="onSpecialitySelect($event)"
+                >
+                </angular2-multiselect>
+              </div>
+          </div>
+
+          <!-- Refine by coach country -->
+          <div class=" col-md-4">
+              <h5 class=" card-title"> Refine by Country </h5>
+              <div class=" form-group">
+                <angular2-multiselect
+                  [data]="coachCountries"
+                  [settings]="{
+                    enableSearchFilter: true,
+                    searchPlaceholderText: 'Search countries',
+                    searchBy: ['itemName'],
+                    primaryKey: 'itemName',
+                    singleSelection: true,
+                    text: 'Country',
+                    classes: 'selectpicker btn-success'
+                  }"
+                  [ngModel]="selectedCountries"
+                  [ngModelOptions]="{standalone: true}"
+                  (onSelect)="onCountrySelect($event)"
+                >
+                  <!-- <c-item>
+                      <ng-template let-item="item">
+                      <label>{{ item.itemName + ' ' + item.itemCount }}</label>
+                      </ng-template>
+                  </c-item> -->
+                </angular2-multiselect>
+              </div>
+          </div>
+
+          <!-- Refine coaches by city -->
+          <div class=" col-md-4">
+              <h5 class=" card-title"> Refine by City </h5>
+              <div class=" form-group">
+                <angular2-multiselect
+                  [data]="coachCities"
+                  [settings]="{
+                    enableSearchFilter: true,
+                    searchPlaceholderText: 'Search cities',
+                    searchBy: ['itemName'],
+                    primaryKey: 'itemName',
+                    singleSelection: true,
+                    text: 'City',
+                    classes: 'selectpicker btn-success',
+                    disabled: selectedCountries.length > 0 ? false : true
+                  }"
+                  [ngModel]="selectedCities"
+                  [ngModelOptions]="{standalone: true}"
+                  (onSelect)="onCitySelect($event)"
+                >
+                </angular2-multiselect>
+                  <!-- <c-item>
+                      <ng-template let-item="item">
+                      <label>{{ item.itemName + ' ' + item.itemCount }}</label>
+                      </ng-template>
+                  </c-item> -->
+              </div>
+          </div>
+
+      </div>
+      <!-- end row -->
+
+    </form>
+    <!-- end form -->
 
   </div>
 </div>
