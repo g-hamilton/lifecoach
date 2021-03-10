@@ -2,3 +2,29 @@ h3 {
     color: #222a42;
     margin-bottom: 0;
 }
+
+.border-container {
+  border: 1px solid rgb(228, 228, 228);
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.border-container .form-check {
+  margin: 0;
+}
+
+// Overrides for NGX Bootstrap Collapse (because the animations don't work out of the box)
+// Note: May break navbar if placing in styles.css so use where needed for now
+.collapse {
+  transition: transform .35s, opacity .35s, max-height .9s ease-out;
+  opacity: 0;
+  max-height: 0;
+  // transform: translateY(100%);
+  display: block !important;
+
+}
+.collapse.show {
+  opacity: 1;
+  max-height: 600px;
+  // transform: translateY(0);
+}

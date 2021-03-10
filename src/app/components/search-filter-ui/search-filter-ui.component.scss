@@ -6,7 +6,7 @@
 }
 
 // Overrides for NGX Bootstrap Collapse (because the animations don't work out of the box)
-// may be something to do with browseranimationsmodule?
+// Note: May break navbar if placing in styles.css so use where needed for now
 .collapse {
   transition: transform .35s, opacity .35s, max-height .9s ease-out;
   opacity: 0;

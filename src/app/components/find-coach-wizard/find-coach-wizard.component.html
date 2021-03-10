@@ -92,11 +92,167 @@
                             <!-- Step 2 -->
                             <mat-step formGroupName="2" [stepControl]="formArray.get([2])">
                                 <h3>
-                                    Other
+                                    Coach Preferences
                                 </h3>
                                 <p>
-                                    Other stuff
+                                    What's important to you when it comes to finding your perfect coach?
                                 </p>
+                                <!-- row -->
+                                <div class=" row mt-4">
+                                    <!-- certified -->
+                                    <div class=" col-12">
+                                        <div class="">
+                                            <label> Certified by a recognised body </label>
+                                            <p class=" small text-muted pl-2 mb-2">
+                                                <i class="fas fa-info-circle"></i> Does it matter that coaches are certified by a recognised 
+                                                coaching body? Some coaches may still be working toward their initial certification and while not 
+                                                yet certified, they may offer significantly lower rates while they build their experience.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class=" col-6">
+                                        <div class="form-group">
+                                            <select class="form-control" formControlName="showCertified" aria-controls="collapseCertifications" (change)="$event.target.value === 'true' ? isCertificationsCollapsed = false : isCertificationsCollapsed = true">
+                                                <option [value]="null">Select...</option>
+                                                <option value="true">
+                                                    Yes
+                                                </option>
+                                                <option value="false">
+                                                    No - I'm flexible
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <div *ngIf="saveAttempt && group2.showCertified.errors || group2.showCertified.value != null && group2.showCertified.errors">
+                                            <label
+                                            *ngFor="let error of objKeys(group2.showCertified.errors)"
+                                            class="error custom-error-label"
+                                            >{{ showError('showCertified', error) }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <!-- end certified -->
+                                </div>
+                                <!-- end row -->
+
+                                <!-- dynamic collapsible certification options -->
+                                <div id="collapseCertifications" [collapse]="isCertificationsCollapsed" [isAnimated]="true">
+                                    <div class=" row mt-3">
+                                        <div class=" col-12 mb-2">
+                                            <label>
+                                                Are you looking for coaches with a specific certification?
+                                            </label>
+                                        </div>
+                                        <div class=" col-md-3 col-xs-12">
+                                            <div class="border-container">
+                                                <div class=" form-check">
+                                                    <label class=" form-check-label">
+                                                      <input class=" form-check-input" type="checkbox" name="anyCert" formControlName="anyCert" />
+                                                      <span class=" form-check-sign"> </span>
+                                                        I don't mind, as long as my coach is certified.
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class=" col-md-3 col-xs-12">
+                                            <div class="border-container">
+                                                <div class=" form-check">
+                                                    <label class=" form-check-label">
+                                                      <input class=" form-check-input" type="checkbox" name="icf" formControlName="icf" />
+                                                      <span class=" form-check-sign"> </span>
+                                                        <a href="https://coachingfederation.org/" target="_blank">
+                                                            <img src="../../../assets/img/ICF_Horizontal_FullColor_Horizontal_FullColor.svg" style="width: 100%;" alt="International Coaching Federation">
+                                                        </a>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class=" col-md-3 col-xs-12">
+                                            <div class="border-container">
+                                                <div class=" form-check">
+                                                    <label class=" form-check-label">
+                                                      <input class=" form-check-input" type="checkbox" name="emcc" formControlName="emcc" />
+                                                      <span class=" form-check-sign"> </span>
+                                                        <a href="https://emccuk.org/" target="_blank">
+                                                            <img src="../../../assets/img/EMCCUK-logo-w200.jpg" alt="European Mentoring & Coaching Council">
+                                                        </a>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class=" col-md-3 col-xs-12">
+                                            <div class="border-container">
+                                                <div class=" form-check">
+                                                    <label class=" form-check-label">
+                                                      <input class=" form-check-input" type="checkbox" name="ac" formControlName="ac" />
+                                                      <span class=" form-check-sign"> </span>
+                                                        <a href="https://www.associationforcoaching.com/" target="_blank">
+                                                            <img src="../../../assets/img/ac-logo.png" alt="Association for Coaching">
+                                                        </a>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- end collapsible options -->
+
+                                <div class=" row mt-3">
+                                    <div class=" col-12">
+                                        <div class="">
+                                            <label> Experience level </label>
+                                            <p class=" small text-muted pl-2 mb-2">
+                                                <i class="fas fa-info-circle"></i> Generally speaking, being flexible with your coach's 
+                                                experience level can help to include more affordable options. For example, Foundation level 
+                                                coaches frequently offer very affordable rates while they build their experience.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class=" col-md-3 col-xs-12">
+                                        <div class="border-container">
+                                            <div class=" form-check">
+                                                <label class=" form-check-label">
+                                                  <input class=" form-check-input" type="checkbox" name="anyExp" formControlName="anyExp" />
+                                                  <span class=" form-check-sign"> </span>
+                                                    I'm flexible when it comes to my coach's experience.
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class=" col-md-3 col-xs-12">
+                                        <div class="border-container">
+                                            <div class=" form-check">
+                                                <label class=" form-check-label">
+                                                  <input class=" form-check-input" type="checkbox" name="foundation" formControlName="foundation" />
+                                                  <span class=" form-check-sign"> </span>
+                                                    Foundation level. These coaches typically have around 100 hours of coaching experience.
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class=" col-md-3 col-xs-12">
+                                        <div class="border-container">
+                                            <div class=" form-check">
+                                                <label class=" form-check-label">
+                                                  <input class=" form-check-input" type="checkbox" name="experienced" formControlName="experienced" />
+                                                  <span class=" form-check-sign"> </span>
+                                                    Experienced. These coaches typically have around 500 hours of coaching experience.
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class=" col-md-3 col-xs-12">
+                                        <div class="border-container">
+                                            <div class=" form-check">
+                                                <label class=" form-check-label">
+                                                  <input class=" form-check-input" type="checkbox" name="master" formControlName="master" />
+                                                  <span class=" form-check-sign"> </span>
+                                                    Master level. These coaches typically have over 2500 hours of coaching experience.
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div class=" mt-4">
                                     <button
                                     type="button" 

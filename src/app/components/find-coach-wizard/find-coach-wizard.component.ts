@@ -27,11 +27,14 @@ export class FindCoachWizardComponent implements OnInit {
   public wizardForm: FormGroup;
   public saving = false;
   public saveAttempt: boolean;
+  public isCertificationsCollapsed = true;
 
   public objKeys = Object.keys;
 
   public errorMessages = {
-    //
+    showCertified: {
+      required: `Please select an option`
+    }
   };
 
   public goals = ['Becoming a Better Leader', 'Growing Your Influence', 'Building Confidence', 'Developing Self-Awareness',
@@ -81,7 +84,15 @@ export class FindCoachWizardComponent implements OnInit {
 
           // Group 2
           this.formBuilder.group({
-            other: [null]
+            showCertified: [null, [Validators.required]],
+            anyCert: [null],
+            icf: [null],
+            emcc: [null],
+            ac: [null],
+            anyExp: [null],
+            foundation: [null],
+            experienced: [null],
+            master: [null]
           })
 
         ])
@@ -130,6 +141,10 @@ export class FindCoachWizardComponent implements OnInit {
 
   login() {
     //
+  }
+
+  onShowCertifiedChange(ev: any) {
+    console.log(ev.target.value);
   }
 
   onSubmit() {
