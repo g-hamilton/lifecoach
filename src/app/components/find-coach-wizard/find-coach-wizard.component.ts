@@ -92,7 +92,8 @@ export class FindCoachWizardComponent implements OnInit {
             anyExp: [null],
             foundation: [null],
             experienced: [null],
-            master: [null]
+            master: [null],
+            gender: ['any']
           })
 
         ])

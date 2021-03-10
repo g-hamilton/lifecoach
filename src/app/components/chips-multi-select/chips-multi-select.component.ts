@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, Input, OnInit, ViewChild, AfterViewInit, OnDestroy, AfterViewChecked, ChangeDetectorRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatChip, MatChipList } from '@angular/material';
 import { Subscription } from 'rxjs';
@@ -22,7 +22,7 @@ import { map } from 'rxjs/operators';
     },
   ]
 })
-export class ChipsMultiSelectComponent implements OnInit, ControlValueAccessor, AfterViewInit, OnDestroy {
+export class ChipsMultiSelectComponent implements OnInit, ControlValueAccessor, AfterViewInit, AfterViewChecked, OnDestroy {
 
   @Input() options: string[];
 
@@ -66,7 +66,9 @@ export class ChipsMultiSelectComponent implements OnInit, ControlValueAccessor, 
 
   // end of functions specifically for for ControlValueAccessor
 
-  constructor() { }
+  constructor(
+    private cdRef: ChangeDetectorRef
+  ) { }
 
   ngOnInit() {
   }
@@ -90,6 +92,10 @@ export class ChipsMultiSelectComponent implements OnInit, ControlValueAccessor, 
         this.propagateChange(this.value);
       })
     );
+  }
+
+  ngAfterViewChecked() {
+    this.cdRef.detectChanges();
   }
 
   selectChips(value: string[]) {
