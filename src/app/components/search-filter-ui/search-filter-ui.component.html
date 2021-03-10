@@ -75,6 +75,19 @@
           </h5>
         </div>
         <!-- end match challenges -->
+
+        <!-- must be certified -->
+        <div class=" col-md-4">
+          <div class=" form-check">
+            <label class=" form-check-label">
+              <input class=" form-check-input" type="checkbox" name="certified" formControlName="showCertified" />
+              <span class=" form-check-sign"> </span>
+              Certified Coaches Only
+            </label>
+        </div>
+        </div>
+        <!-- end must be certified -->
+
       </div>
       <!-- end row -->
 
@@ -99,6 +112,40 @@
       <!-- end collapsible row -->
 
       <!-- row -->
+      <div class=" row mt-2">
+        <div class=" col-md-4">
+          <h5 class=" card-title"> Gender </h5>
+          <div class="form-group">
+            <select class="form-control" formControlName="gender">
+              <option value="any">
+                Any gender
+              </option>
+              <option value="female">
+                Female coaches
+              </option>
+              <option value="male">
+                Male coaches
+              </option>
+            </select>
+          </div>
+        </div>
+        <div class=" col-md-4">
+          <h5 class=" card-title"> Location </h5>
+          <div class="form-group">
+            <select class="form-control" formControlName="country">
+              <option [value]="null">
+                Any location
+              </option>
+              <option *ngFor="let country of coachCountries" [value]="country.itemName">
+                {{ country.itemName }}
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <!-- end row -->
+
+      <!-- row -->
       <div class=" row mt-3">
         <!-- Browse by coach speciality -->
           <div class=" col-md-4">
@@ -118,34 +165,6 @@
                   [ngModelOptions]="{standalone: true}"
                   (onSelect)="onSpecialitySelect($event)"
                 >
-                </angular2-multiselect>
-              </div>
-          </div>
-
-          <!-- Refine by coach country -->
-          <div class=" col-md-4">
-              <h5 class=" card-title"> Refine by Country </h5>
-              <div class=" form-group">
-                <angular2-multiselect
-                  [data]="coachCountries"
-                  [settings]="{
-                    enableSearchFilter: true,
-                    searchPlaceholderText: 'Search countries',
-                    searchBy: ['itemName'],
-                    primaryKey: 'itemName',
-                    singleSelection: true,
-                    text: 'Country',
-                    classes: 'selectpicker btn-success'
-                  }"
-                  [ngModel]="selectedCountries"
-                  [ngModelOptions]="{standalone: true}"
-                  (onSelect)="onCountrySelect($event)"
-                >
-                  <!-- <c-item>
-                      <ng-template let-item="item">
-                      <label>{{ item.itemName + ' ' + item.itemCount }}</label>
-                      </ng-template>
-                  </c-item> -->
                 </angular2-multiselect>
               </div>
           </div>

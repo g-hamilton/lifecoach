@@ -1,6 +1,6 @@
 <div class=" botlinks">
     <div *ngIf="filters.params.category && !filters.params['country']">
-        <p>Find a {{ filters.params.category }} life coach in:</p>
+        <p>Find a {{ filters.params.category }} coach in:</p>
         <ul>
             <li *ngFor=" let country of countries">
                 <a
@@ -13,7 +13,7 @@
     </div>
     
     <div *ngIf="filters.params.category && filters.params['country']">
-        <p>Find a {{ filters.params.category }} life coach in:</p>
+        <p>Find a {{ filters.params.category }} coach in:</p>
         <ul>
             <li *ngFor=" let city of cities">
                 <a
