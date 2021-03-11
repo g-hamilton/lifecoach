@@ -200,7 +200,7 @@
         <div class=" col-md-3">
           <h5 class=" card-title"> Category </h5>
           <div class="form-group">
-            <select class="form-control" formControlName="category">
+            <select class="form-control" formControlName="category" (change)="makeNewRequest()">
               <option [value]="null">
                 Any
               </option>
@@ -213,7 +213,7 @@
         <div class=" col-md-3">
           <h5 class=" card-title"> Gender </h5>
           <div class="form-group">
-            <select class="form-control" formControlName="gender">
+            <select class="form-control" formControlName="gender" (change)="makeNewRequest()">
               <option value="any">
                 Any gender
               </option>
@@ -229,7 +229,7 @@
         <div class=" col-md-3">
           <h5 class=" card-title"> Country </h5>
           <div class="form-group">
-            <select class="form-control" formControlName="country">
+            <select class="form-control" formControlName="country" (change)="makeNewRequest()">
               <option [value]="null">
                 Anywhere
               </option>
@@ -246,7 +246,7 @@
               <option [value]="null">
                 Anywhere
               </option>
-              <option *ngFor="let city of coachCities" [value]="city.itemName">
+              <option *ngFor="let city of coachCities" [value]="city.itemName" (change)="makeNewRequest()">
                 {{ city.itemName }}
               </option>
             </select>

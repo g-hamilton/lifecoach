@@ -257,6 +257,9 @@ export class SearchFilterUiComponent implements OnInit {
         if (formData[key] === 'false') { // remove any string false
           return;
         }
+        if (formData[key] === 'null') { // remove any string null
+          return;
+        }
         if (Array.isArray(formData[key]) && !formData[key].length) { // remove any empty arrays
           return;
         }
