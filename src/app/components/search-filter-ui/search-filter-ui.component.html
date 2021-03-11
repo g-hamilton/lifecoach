@@ -111,6 +111,38 @@
           <div class=" col-md-2">
             <div class=" form-check mt-0">
               <label class=" form-check-label">
+                <input class=" form-check-input" type="checkbox" name="icf" formControlName="icf" (change)="makeNewRequest()" />
+                <span class=" form-check-sign"> </span>
+                ICF
+              </label>
+            </div>
+          </div>
+          <div class=" col-md-2">
+            <div class=" form-check mt-0">
+              <label class=" form-check-label">
+                <input class=" form-check-input" type="checkbox" name="emcc" formControlName="emcc" (change)="makeNewRequest()" />
+                <span class=" form-check-sign"> </span>
+                EMCC
+              </label>
+            </div>
+          </div>
+          <div class=" col-md-2">
+            <div class=" form-check mt-0">
+              <label class=" form-check-label">
+                <input class=" form-check-input" type="checkbox" name="ac" formControlName="ac" (change)="makeNewRequest()" />
+                <span class=" form-check-sign"> </span>
+                AC
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class=" row mb-3">
+          <div class=" col-md-6">
+            <!-- empty spacer col -->
+          </div>
+          <div class=" col-md-2">
+            <div class=" form-check mt-0">
+              <label class=" form-check-label">
                 <input class=" form-check-input" type="checkbox" name="foundation" formControlName="foundation" (change)="makeNewRequest()" />
                 <span class=" form-check-sign"> </span>
                 Foundation
