@@ -80,7 +80,7 @@
         <div class=" col-md-3">
           <div class=" form-check">
             <label class=" form-check-label">
-              <input class=" form-check-input" type="checkbox" name="certified" formControlName="showCertified" (change)="makeNewRequest()" />
+              <input class=" form-check-input" type="checkbox" name="certified" formControlName="showCertified" (change)="onCertifiedChange() ; makeNewRequest()" />
               <span class=" form-check-sign"> </span>
               Certified Coaches Only
             </label>
@@ -102,25 +102,66 @@
       </div>
       <!-- end row -->
 
-      <!-- collapsible row -->
+      <!-- experience collapsible -->
+      <div id="collapseExperience" [collapse]="experienceIsCollapsed" [isAnimated]="true">
+        <div class=" row mb-3">
+          <div class=" col-md-6">
+            <!-- empty spacer col -->
+          </div>
+          <div class=" col-md-2">
+            <div class=" form-check mt-0">
+              <label class=" form-check-label">
+                <input class=" form-check-input" type="checkbox" name="foundation" formControlName="foundation" (change)="makeNewRequest()" />
+                <span class=" form-check-sign"> </span>
+                Foundation
+              </label>
+            </div>
+          </div>
+          <div class=" col-md-2">
+            <div class=" form-check mt-0">
+              <label class=" form-check-label">
+                <input class=" form-check-input" type="checkbox" name="experienced" formControlName="experienced" (change)="makeNewRequest()" />
+                <span class=" form-check-sign"> </span>
+                Experienced
+              </label>
+            </div>
+          </div>
+          <div class=" col-md-2">
+            <div class=" form-check mt-0">
+              <label class=" form-check-label">
+                <input class=" form-check-input" type="checkbox" name="master" formControlName="master" (change)="makeNewRequest()" />
+                <span class=" form-check-sign"> </span>
+                Highly Experienced
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- end experience -->
+
+      <!-- row -->
       <div class=" row">
         <div class=" col">
 
             <!-- goals collapse -->
             <div id="collapseGoals" [collapse]="goalsIsCollapsed" [isAnimated]="true">
-              <app-chips-multi-select [options]="goalOptions" formControlName="goals"></app-chips-multi-select>
+              <div class=" mb-3">
+                <app-chips-multi-select [options]="goalOptions" formControlName="goals"></app-chips-multi-select>
+              </div>
             </div>
             <!-- end goals collapse -->
 
             <!-- challenges collapse -->
             <div id="collapseChallenges" [collapse]="challengesIsCollapsed" [isAnimated]="true">
-              <app-chips-multi-select [options]="challengeOptions" formControlName="challenges"></app-chips-multi-select>
+              <div class=" mb-3">
+                <app-chips-multi-select [options]="challengeOptions" formControlName="challenges"></app-chips-multi-select>
+              </div>
             </div>
             <!-- end challenges collapse -->
 
         </div>
       </div>
-      <!-- end collapsible row -->
+      <!-- end row -->
 
       <!-- row -->
       <div class=" row mt-2">

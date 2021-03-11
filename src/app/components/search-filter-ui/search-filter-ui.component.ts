@@ -58,6 +58,8 @@ export class SearchFilterUiComponent implements OnInit {
   'low confidence', 'embarassment', 'low self-esteem', 'dark thoughts', 'fear', 'staying on track', 'too many options',
   'finding the time', 'not sure how to plan', 'giving up', 'poor self-awareness'];
 
+  public experienceIsCollapsed = true;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -122,6 +124,7 @@ export class SearchFilterUiComponent implements OnInit {
     }
     if (this.filters.showCertified) {
       this.dataForm.patchValue({ showCertified: this.filters.showCertified === 'true' ? true : false  });
+      this.onCertifiedChange();
     }
     if (this.filters.anyCert) {
       this.dataForm.patchValue({ anyCert: this.filters.anyCert });
@@ -221,6 +224,15 @@ export class SearchFilterUiComponent implements OnInit {
       return;
     }
     this.challengesIsCollapsed = !this.challengesIsCollapsed;
+  }
+
+  onCertifiedChange() {
+    const val = this.dataForm.controls.showCertified.value;
+    if (val) {
+      this.experienceIsCollapsed = false;
+      return;
+    }
+    this.experienceIsCollapsed = true;
   }
 
   reset() {
