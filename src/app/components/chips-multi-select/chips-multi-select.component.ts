@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild, AfterViewInit, OnDestroy, AfterViewChecked, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, OnInit, ViewChild, AfterViewInit, OnDestroy, AfterViewChecked, ChangeDetectorRef, Output, EventEmitter } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatChip, MatChipList } from '@angular/material';
 import { Subscription } from 'rxjs';
@@ -25,7 +25,7 @@ import { map } from 'rxjs/operators';
 export class ChipsMultiSelectComponent implements OnInit, ControlValueAccessor, AfterViewInit, AfterViewChecked, OnDestroy {
 
   @Input() options: string[];
-
+  @Output() changeEvent = new EventEmitter<any>(); // <-- So we can emit onChange
   @ViewChild('chipList', {static: false}) public chipList: MatChipList;
 
   private disabled = false;
@@ -54,6 +54,7 @@ export class ChipsMultiSelectComponent implements OnInit, ControlValueAccessor, 
   propagateChange(value: string[]) {
     if (this.onChange) {
       this.onChange(value);
+      this.changeEvent.emit(); // in addition to the form stuff, emit when changed
     }
   }
 

@@ -112,6 +112,8 @@ export class SearchFilterUiComponent implements OnInit {
         this.numGoals = 1;
         this.dataForm.patchValue({ goals: [this.filters.goals]});
       }
+    } else {
+      this.numGoals = 0;
     }
     if (this.filters.challenges) { // note: may be string or array of strings
       if (Array.isArray(this.filters.challenges)) {
@@ -121,6 +123,8 @@ export class SearchFilterUiComponent implements OnInit {
         this.numChallenges = 1;
         this.dataForm.patchValue({ challenges: [this.filters.challenges]});
       }
+    } else {
+      this.numChallenges = 0;
     }
     if (this.filters.showCertified) {
       this.dataForm.patchValue({ showCertified: this.filters.showCertified === 'true' ? true : false  });

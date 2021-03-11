@@ -178,7 +178,7 @@
             <!-- goals collapse -->
             <div id="collapseGoals" [collapse]="goalsIsCollapsed" [isAnimated]="true">
               <div class=" mb-3">
-                <app-chips-multi-select [options]="goalOptions" formControlName="goals"></app-chips-multi-select>
+                <app-chips-multi-select [options]="goalOptions" formControlName="goals" (changeEvent)="makeNewRequest()"></app-chips-multi-select>
               </div>
             </div>
             <!-- end goals collapse -->
@@ -186,7 +186,7 @@
             <!-- challenges collapse -->
             <div id="collapseChallenges" [collapse]="challengesIsCollapsed" [isAnimated]="true">
               <div class=" mb-3">
-                <app-chips-multi-select [options]="challengeOptions" formControlName="challenges"></app-chips-multi-select>
+                <app-chips-multi-select [options]="challengeOptions" formControlName="challenges" (changeEvent)="makeNewRequest()"></app-chips-multi-select>
               </div>
             </div>
             <!-- end challenges collapse -->
