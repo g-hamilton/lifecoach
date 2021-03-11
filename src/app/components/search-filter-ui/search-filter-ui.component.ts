@@ -101,9 +101,11 @@ export class SearchFilterUiComponent implements OnInit {
   }
 
   updateUI() {
+    // update search term value
     if (this.filters.q) {
-      this.searchTerm = this.filters.q;
+      this.searchTerm = this.filters.q; // note: searchTerm is deliberately not part of the form!
     }
+    // update form & component values
     if (this.filters.goals) { // note: may be string or array of strings
       if (Array.isArray(this.filters.goals)) {
         this.numGoals = this.filters.goals.length;
@@ -165,24 +167,21 @@ export class SearchFilterUiComponent implements OnInit {
       .join(' '); // convert to title case
       this.dataForm.patchValue({ category: cat });
     }
-    if (!this.filters.country) {
-      this.loadCoachCountries(this.filters.category);
+    if (this.filters.country) {
+      this.dataForm.patchValue({ country: this.filters.country });
+      this.loadCoachCities(); // load city options when country selected
     }
-    if (!this.filters.category && this.filters.q && this.filters.country) {
-      this.loadCoachCities(null, this.filters.country, this.filters.q);
-    }
-    if (this.filters.category && this.filters.country) {
-      this.loadCoachCountries(this.filters.category);
-      this.loadCoachCities(this.filters.category, this.filters.country);
-    }
+    console.log('this.filters', this.filters);
     if (this.filters.city) {
       this.dataForm.patchValue({ city: this.filters.city });
     }
+    // load country options
+    this.loadCoachCountries();
   }
 
-  async loadCoachCountries(category: string) {
+  async loadCoachCountries() {
     this.coachCountries = [];
-    const res = await this.searchService.searchCoachCountries(category);
+    const res = await this.searchService.searchCoachCountries(this.searchTerm, this.filters);
     // console.log(res);
     const hits = res[0].facetHits;
     hits.forEach(hit => {
@@ -194,9 +193,9 @@ export class SearchFilterUiComponent implements OnInit {
     this.messageEventCountries.emit(this.coachCountries);
   }
 
-  async loadCoachCities(category: string, countryName: string, query?: string) {
+  async loadCoachCities() {
     this.coachCities = [];
-    const res = await this.searchService.searchCoachCities(category, countryName, query);
+    const res = await this.searchService.searchCoachCities(this.searchTerm, this.filters);
     // console.log(res);
     const hits = res[0].facetHits;
     hits.forEach(hit => {
@@ -241,6 +240,10 @@ export class SearchFilterUiComponent implements OnInit {
 
   reset() {
     // todo
+  }
+
+  clearCity() {
+    this.dataForm.patchValue({ city: null });
   }
 
   makeNewRequest() {

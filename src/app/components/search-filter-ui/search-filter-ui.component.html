@@ -229,7 +229,7 @@
         <div class=" col-md-3">
           <h5 class=" card-title"> Country </h5>
           <div class="form-group">
-            <select class="form-control" formControlName="country" (change)="makeNewRequest()">
+            <select class="form-control" formControlName="country" (change)="clearCity() ; makeNewRequest()">
               <option [value]="null">
                 Anywhere
               </option>
@@ -242,11 +242,11 @@
         <div class=" col-md-3">
           <h5 class=" card-title"> City </h5>
           <div class="form-group">
-            <select class="form-control" formControlName="city">
+            <select class="form-control" formControlName="city" (change)="makeNewRequest()">
               <option [value]="null">
                 Anywhere
               </option>
-              <option *ngFor="let city of coachCities" [value]="city.itemName" (change)="makeNewRequest()">
+              <option *ngFor="let city of coachCities" [value]="city.itemName">
                 {{ city.itemName }}
               </option>
             </select>

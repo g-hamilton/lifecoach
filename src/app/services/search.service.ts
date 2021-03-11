@@ -31,7 +31,7 @@ export class SearchService {
   // =====                         SEARCHING COACHES                           ======
   // ================================================================================
 
-  private buildAlgoliaCoachFacets(facets: any) {
+  private buildAlgoliaCoachFilters(filters: any) {
     /*
     Accepts a facets object containing search filters.
     Builds and returns a 'filters' query string from that object using Algolia rules.
@@ -40,12 +40,15 @@ export class SearchService {
     'category:business&career'
     */
     const andArray = [];
-    for (const p of Object.keys(facets)) {
+    for (const p of Object.keys(filters)) {
       // Map each param to an Algolia defined facet in the relevant index
       let facetKey: string;
-      const str: string = facets[p];
+      const str: string = filters[p];
       if (p === 'category') {
         facetKey = 'speciality1.itemName';
+      }
+      if (p === 'gender') {
+        facetKey = 'gender';
       }
       if (p === 'country') {
         facetKey = 'country.name';
@@ -123,7 +126,7 @@ export class SearchService {
       facets.accountType = req.accountType;
     }
     if (Object.keys(facets).length) {
-      params.filters = this.buildAlgoliaCoachFacets(facets); // update the algolia params if we have facets
+      params.filters = this.buildAlgoliaCoachFilters(facets); // update the algolia params if we have facets
     }
 
     console.log('Algolia query params constructed:', params);
@@ -143,20 +146,33 @@ export class SearchService {
     }
   }
 
-  async searchCoachCountries(category?: string) {
+  async searchCoachCountries(query: string, filters: any) {
+    // console.log('searchCoachCountries Filters:', filters);
+
+    // delete own key
+    const filtersCopy = Object.assign({}, filters);
+    if (filtersCopy.country) {
+      delete filtersCopy.country;
+    }
+    // delete city key as this is not backwards filtered
+    if (filtersCopy.city) {
+      delete filtersCopy.city;
+    }
 
     // Init search index & default params
     const searchIndex = 'prod_COACHES';
     const params: algoliasearch.SearchForFacetValues.Parameters = {
       facetName: 'country.name',
-      facetFilters: category ? [`speciality1.itemName:${category}`] : null,
-      facetQuery: ''
+      filters: filters ? this.buildAlgoliaCoachFilters(filtersCopy) : null,
+      facetQuery: query ? query : ''
     };
+
+    console.log('searchCoachCountries params:', params);
 
     // Run the search
     try {
       const res = await this.searchClient.searchForFacetValues([{indexName: searchIndex, params}]);
-      // console.log('Algolia search countries response:', res);
+      console.log('Algolia search countries response:', res);
       return res;
 
     } catch (err) {
@@ -165,23 +181,24 @@ export class SearchService {
 
   }
 
-  async searchCoachCities(category: string, countryName: string, query?: string) {
+  async searchCoachCities(query: string, filters: any) {
+    // console.log('searchCoachCities Filters:', filters);
+
+    // delete own key
+    const filtersCopy = Object.assign({}, filters);
+    if (filtersCopy.city) {
+      delete filtersCopy.city;
+    }
 
     // Init search index & default params
     const searchIndex = 'prod_COACHES';
-    const filters = [];
-    if (category) {
-      filters.push(`speciality1.itemName:${category}`);
-    }
-    if (countryName) {
-      filters.push(`country.name:${countryName}`);
-    }
     const params: algoliasearch.SearchForFacetValues.Parameters = {
       facetName: 'city',
-      facetFilters: filters,
-      facetQuery: '',
-      query: query ? query : ''
+      filters: filters ? this.buildAlgoliaCoachFilters(filtersCopy) : null,
+      facetQuery: query ? query : ''
     };
+
+    console.log('searchCoachCities params:', params);
 
     // Run the search
     try {
