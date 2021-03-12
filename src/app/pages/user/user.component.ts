@@ -387,7 +387,7 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
       photoPaths: p.photoPaths ? p.photoPaths : null,
       includeInCoachingForCoaches : p.includeInCoachingForCoaches ? p.includeInCoachingForCoaches : false,
       onlyIncludeInCoachingForCoaches : p.onlyIncludeInCoachingForCoaches ? p.onlyIncludeInCoachingForCoaches : false,
-      tagetIssues: p.targetIssues ? p.targetIssues : null,
+      targetIssues: p.targetIssues ? p.targetIssues : null,
       targetGoals: p.targetGoals ? p.targetGoals : null
     });
 

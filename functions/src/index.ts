@@ -3782,7 +3782,13 @@ exports.onWritePublicCoachesNode = functions
     proSummary: profile.proSummary,
     goalTags: profile.goalTags,
     profileVideo: profile.selectedProfileVideo,
-    photoPaths: profile.photoPaths ? profile.photoPaths : undefined
+    photoPaths: profile.photoPaths ? profile.photoPaths : null,
+    gender: profile.gender ? profile.gender : null,
+    fullDescription: profile.fullDescription ? profile.fullDescription : null,
+    targetIssues: profile.targetIssues ? profile.targetIssues : null,
+    targetGoals: profile.targetGoals ? profile.targetGoals : null,
+    includeInCoachingForCoaches: profile.includeInCoachingForCoaches,
+    onlyIncludeInCoachingForCoaches: profile.onlyIncludeInCoachingForCoaches
   };
   // Update Algolia.
   return index.saveObject(recordToSend);
