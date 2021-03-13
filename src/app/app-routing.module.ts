@@ -56,11 +56,6 @@ const routes: Routes = [
     pathMatch: 'full'
   },
   {
-    path: 'search-results',
-    loadChildren: () => import('./pages/home-search-results/home-search-results.module').then(m => m.HomeSearchResultsModule),
-    pathMatch: 'full'
-  },
-  {
     path: 'coaches',
     loadChildren: () => import('./pages/browse/browse.module').then(m => m.BrowseModule),
     pathMatch: 'full'

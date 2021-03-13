@@ -1,0 +1,342 @@
+<!-- wizard modal -->
+<div id="find-coach-wizard-modal">
+    <!-- modal header -->
+    <!-- <div class="modal-header">
+      <button type="button" class="close pull-right" aria-label="Close" (click)="bsModalRef.hide()">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div> -->
+    <!-- end modal header -->
+
+    <!-- modal body -->
+    <div class=" modal-body">
+
+        <!-- wizard container -->
+        <div class=" wizard-container">
+
+            <!-- wizard card -->
+            <div class=" card card-register card-white" id="wizardProfile">
+
+                <!-- card body -->
+                <div class=" card-body">
+                    <!-- form -->
+                    <form [formGroup]="wizardForm" (ngSubmit)="onSubmit()">
+
+                        <!-- stepper -->
+                        <mat-horizontal-stepper
+                        formArrayName="formArray"
+                        linear labelPosition="bottom"
+                        class=" card-body"
+                        (selectionChange)="onStepChange($event)"
+                        >
+                            <!-- Step 0 -->
+                            <mat-step formGroupName="0" [stepControl]="formArray.get([0])">
+                                <h3>
+                                    Goals
+                                </h3>
+                                <p>
+                                    Do you have any specific life goals in mind right now? Select them below...
+                                </p>
+                                <div class=" mt-4">
+                                    <app-chips-multi-select [options]="goals" formControlName="goals"></app-chips-multi-select>
+                                </div>
+                                <div class=" mt-4">
+                                    <button type="button" class=" btn btn-round btn-default">
+                                        <i class="fas fa-times mr-2"></i>
+                                        Cancel
+                                    </button>
+                                    <button
+                                    type="button" 
+                                    class=" btn btn-round btn-primary pull-right"
+                                    mat-button
+                                    matStepperNext>
+                                        Next: Challenges
+                                        <i class="fas fa-chevron-right ml-2"></i>
+                                    </button>
+                                </div>
+                            </mat-step>
+                            <!-- end step 0 -->
+
+                            <!-- Step 1 -->
+                            <mat-step formGroupName="1" [stepControl]="formArray.get([1])">
+                                <h3>
+                                    Challenges
+                                </h3>
+                                <p>
+                                    Are you facing any specific challenges right now? Select them below...
+                                </p>
+                                <div class=" mt-4">
+                                    <app-chips-multi-select [options]="challenges" formControlName="challenges"></app-chips-multi-select>
+                                </div>
+                                <div class=" mt-4">
+                                    <button
+                                    type="button" 
+                                    class=" btn btn-round btn-default"
+                                    mat-button
+                                    matStepperPrevious>
+                                        <i class="fas fa-chevron-left mr-2"></i>
+                                        Back: Goals
+                                    </button>
+                                    <button
+                                    type="button" 
+                                    class=" btn btn-round btn-primary pull-right"
+                                    mat-button
+                                    matStepperNext>
+                                        Next: Details
+                                        <i class="fas fa-chevron-right ml-2"></i>
+                                    </button>
+                                </div>
+                            </mat-step>
+                            <!-- end step 1 -->
+
+                            <!-- Step 2 -->
+                            <mat-step formGroupName="2" [stepControl]="formArray.get([2])">
+                                <h3>
+                                    Coach Preferences
+                                </h3>
+                                <p>
+                                    What's important to you when it comes to finding your perfect coach?
+                                </p>
+                                <!-- row -->
+                                <div class=" row mt-4">
+                                    <!-- certified -->
+                                    <div class=" col-12">
+                                        <div class="">
+                                            <label> Certified by a recognised body </label>
+                                            <p class=" small text-muted pl-2 mb-2">
+                                                <i class="fas fa-info-circle"></i> Does it matter that coaches are certified by a recognised 
+                                                coaching body? Some coaches may still be working toward their initial certification and while not 
+                                                yet certified, they may offer significantly lower rates while they build their experience.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class=" col-6">
+                                        <div class="form-group">
+                                            <select class="form-control" formControlName="showCertified" aria-controls="collapseCertifications" (change)="$event.target.value === 'true' ? isCertificationsCollapsed = false : isCertificationsCollapsed = true">
+                                                <option [value]="null">Select...</option>
+                                                <option value="true">
+                                                    Yes
+                                                </option>
+                                                <option value="false">
+                                                    No - I'm flexible
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <div *ngIf="saveAttempt && group2.showCertified.errors || group2.showCertified.value != null && group2.showCertified.errors">
+                                            <label
+                                            *ngFor="let error of objKeys(group2.showCertified.errors)"
+                                            class="error custom-error-label"
+                                            >{{ showError('showCertified', error) }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <!-- end certified -->
+                                </div>
+                                <!-- end row -->
+
+                                <!-- dynamic collapsible certification options -->
+                                <div id="collapseCertifications" [collapse]="isCertificationsCollapsed" [isAnimated]="true">
+                                    <div class=" row mt-3">
+                                        <div class=" col-12 mb-2">
+                                            <label>
+                                                Are you looking for coaches with a specific certification?
+                                            </label>
+                                        </div>
+                                        <div class=" col-md-3 col-xs-12">
+                                            <div class="border-container">
+                                                <div class=" form-check">
+                                                    <label class=" form-check-label">
+                                                      <input class=" form-check-input" type="checkbox" name="anyCert" formControlName="anyCert" />
+                                                      <span class=" form-check-sign"> </span>
+                                                        I don't mind, as long as my coach is certified.
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class=" col-md-3 col-xs-12">
+                                            <div class="border-container">
+                                                <div class=" form-check">
+                                                    <label class=" form-check-label">
+                                                      <input class=" form-check-input" type="checkbox" name="icf" formControlName="icf" />
+                                                      <span class=" form-check-sign"> </span>
+                                                        <a href="https://coachingfederation.org/" target="_blank">
+                                                            <img src="../../../assets/img/ICF_Horizontal_FullColor_Horizontal_FullColor.svg" style="width: 100%;" alt="International Coaching Federation">
+                                                        </a>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class=" col-md-3 col-xs-12">
+                                            <div class="border-container">
+                                                <div class=" form-check">
+                                                    <label class=" form-check-label">
+                                                      <input class=" form-check-input" type="checkbox" name="emcc" formControlName="emcc" />
+                                                      <span class=" form-check-sign"> </span>
+                                                        <a href="https://emccuk.org/" target="_blank">
+                                                            <img src="../../../assets/img/EMCCUK-logo-w200.jpg" alt="European Mentoring & Coaching Council">
+                                                        </a>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class=" col-md-3 col-xs-12">
+                                            <div class="border-container">
+                                                <div class=" form-check">
+                                                    <label class=" form-check-label">
+                                                      <input class=" form-check-input" type="checkbox" name="ac" formControlName="ac" />
+                                                      <span class=" form-check-sign"> </span>
+                                                        <a href="https://www.associationforcoaching.com/" target="_blank">
+                                                            <img src="../../../assets/img/ac-logo.png" alt="Association for Coaching">
+                                                        </a>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- end collapsible options -->
+
+                                <!-- experience level row -->
+                                <div class=" row mt-3">
+                                    <div class=" col-12">
+                                        <div class="">
+                                            <label> Experience level </label>
+                                            <p class=" small text-muted pl-2 mb-2">
+                                                <i class="fas fa-info-circle"></i> Generally speaking, being flexible with your coach's 
+                                                experience level can help to include more affordable options. For example, Foundation level 
+                                                coaches frequently offer very affordable rates while they build their experience.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class=" col-md-3 col-xs-12">
+                                        <div class="border-container">
+                                            <div class=" form-check">
+                                                <label class=" form-check-label">
+                                                  <input class=" form-check-input" type="checkbox" name="anyExp" formControlName="anyExp" />
+                                                  <span class=" form-check-sign"> </span>
+                                                    I'm flexible when it comes to my coach's experience.
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class=" col-md-3 col-xs-12">
+                                        <div class="border-container">
+                                            <div class=" form-check">
+                                                <label class=" form-check-label">
+                                                  <input class=" form-check-input" type="checkbox" name="foundation" formControlName="foundation" />
+                                                  <span class=" form-check-sign"> </span>
+                                                    Foundation level. These coaches typically have around 100 hours of coaching experience.
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class=" col-md-3 col-xs-12">
+                                        <div class="border-container">
+                                            <div class=" form-check">
+                                                <label class=" form-check-label">
+                                                  <input class=" form-check-input" type="checkbox" name="experienced" formControlName="experienced" />
+                                                  <span class=" form-check-sign"> </span>
+                                                    Experienced. These coaches typically have around 500 hours of coaching experience.
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class=" col-md-3 col-xs-12">
+                                        <div class="border-container">
+                                            <div class=" form-check">
+                                                <label class=" form-check-label">
+                                                  <input class=" form-check-input" type="checkbox" name="master" formControlName="master" />
+                                                  <span class=" form-check-sign"> </span>
+                                                    Master level. These coaches typically have over 2500 hours of coaching experience.
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- end experience level row -->
+
+                                <!-- gender row -->
+                                <div class=" row">
+                                    <div class=" col-12">
+                                        <div class="">
+                                            <label> Gender </label>
+                                            <p class=" small text-muted pl-2 mb-2">
+                                                <i class="fas fa-info-circle"></i> Is the gender of your coach important to you?
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class=" col-md-4">
+                                        <div class="form-check form-check-radio">
+                                            <label class="form-check-label">
+                                                <input class="form-check-input" type="radio" id="gender-radio-any" value="any" formControlName="gender">
+                                                No, it's not important
+                                                <span class="form-check-sign"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class=" col-md-4">
+                                        <div class="form-check form-check-radio">
+                                            <label class="form-check-label">
+                                                <input class="form-check-input" type="radio" id="gender-radio-female" value="female" formControlName="gender">
+                                                I'd prefer a female coach
+                                                <span class="form-check-sign"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class=" col-md-4">
+                                        <div class="form-check form-check-radio">
+                                            <label class="form-check-label">
+                                                <input class="form-check-input" type="radio" id="gender-radio-male" value="male" formControlName="gender">
+                                                I'd prefer a male coach
+                                                <span class="form-check-sign"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- end gender row -->
+
+                                <div class=" mt-4">
+                                    <button
+                                    type="button" 
+                                    class=" btn btn-round btn-default"
+                                    mat-button
+                                    matStepperPrevious>
+                                        <i class="fas fa-chevron-left mr-2"></i>
+                                        Back
+                                    </button>
+                                    <button
+                                    type="button" 
+                                    class=" btn btn-round btn-primary pull-right"
+                                    (click)="onSubmit()">
+                                        Get Recommended Coaches!
+                                        <i class="fas fa-flag-checkered ml-2"></i>
+                                    </button>
+                                </div>
+                            </mat-step>
+                            <!-- end step 2 -->
+
+                        </mat-horizontal-stepper>
+                        <!-- end stepper -->
+
+                    </form>
+                    <!-- end form -->
+                </div>
+                <!-- end card body -->
+
+            </div>
+            <!-- end wizard card -->
+
+        </div>
+        <!-- end wizard container -->
+        
+    </div>
+    <!-- end modal body -->
+  
+    <!-- modal footer -->
+    <!-- <div class="modal-footer">
+        
+    </div> -->
+    <!-- end modal footer -->
+
+  </div>
+  <!-- End of wizard modal -->
