@@ -50,17 +50,12 @@
                         Discover The Best Version of You
                     </h3>
                     <h4>
-                        Lifecoach brings you the best private video coaching for every area of personal transformation. <br>
+                        Lifecoach brings you the best private coaching for every area of personal transformation. <br>
                         Whatever your goal, our coaches can help you to discover the very best version of yourself.
                     </h4>
                 </div>
                 <div id="banners-image" class=" text-center mt-5">
                     <div class="main-banner"id="super-banner"></div>
-                </div>
-                <div class=" container text-center mt-5">
-                    <button class="btn btn-round btn-default" [routerLink]="['/programs']" (click)="onGoPrograms()">
-                        See What's Possible
-                    </button>
                 </div>
             </div>
         </div>
@@ -97,6 +92,15 @@
                         <h4 class=" mt-4">
                             And hundreds more areas of personal transformation.
                         </h4>
+
+                        <div class=" container text-center mt-5">
+                            <h2 class=" display-4">
+                               Get matched with top coaches, based on your unique goals...
+                            </h2>
+                            <button class="btn btn-round btn-primary" (click)="onFindCoach()">
+                                Find A Coach
+                            </button>
+                        </div>
 
                     </div>
                 </div>
@@ -224,7 +228,7 @@
                     </div>
                     <div class=" text-center mt-3">
                         <button class="btn btn-round btn-default" [routerLink]="['/coaches']" (click)="onGoCoaches()">
-                            Browse All Coaches
+                            Browse Coaches
                         </button>
                     </div>
                 </div>
@@ -246,8 +250,8 @@
                             Your transformation starts now
                         </h3>
                         <div class=" text-center">
-                            <button class="btn btn-round btn-primary" [routerLink]="['/programs']" (click)="onGoPrograms()">
-                                Explore Coaching
+                            <button class="btn btn-round btn-default" (click)="onFindCoach()">
+                                Find Your Coach Today
                             </button>
                         </div>
                     </div>
