@@ -32,6 +32,7 @@ export class SearchService {
   // ================================================================================
 
   private buildAlgoliaCoachFilters(filters: any) {
+    // console.log(filters);
     /*
     Accepts a facets object containing search filters.
     Builds and returns a 'filters' query string from that object using Algolia rules.
@@ -59,14 +60,24 @@ export class SearchService {
       if (p === 'accountType') {
         facetKey = 'accountType';
       }
-      if (p === 'page' || p === 'q') { // skip the query & page params as we deal with them higher up
-        return;
+      // any params we want to skip in the filters...
+      if (p === 'page') {
+        return null;
+      }
+      if (p === 'q') {
+        return null;
+      }
+      if (p === 'goals') {
+        return null;
+      }
+      if (p === 'challenges') {
+        return null;
       }
       // Add facet to the AND array
       andArray.push(`${facetKey}:'${str}'`);
     }
     const builtAndString = andArray.join(' AND ');
-    console.log('Algolia filters string constructed:', builtAndString);
+    // console.log('Algolia filters string constructed:', builtAndString);
 
     return builtAndString;
   }
@@ -76,7 +87,7 @@ export class SearchService {
   }
 
   async searchCoaches(req: SearchCoachesRequest) {
-    console.log('search coaches request:', req);
+    // console.log('search coaches request:', req);
 
     // Init search index & default params
     const searchIndex = 'prod_COACHES';
@@ -108,8 +119,9 @@ export class SearchService {
       }
     }
 
-    // for neatness
-    params.query.trim();
+    // remove any duplicate words from the query string prior to asking for results
+    params.query = params.query.trim().toLowerCase();
+    params.query = [...new Set(params.query.split(' '))].join(' ');
 
     // do we want to facet/filter?
     const facets = {} as any;
@@ -124,6 +136,9 @@ export class SearchService {
     }
     if (req.accountType) {
       facets.accountType = req.accountType;
+    }
+    if (req.gender) {
+      facets.gender = req.gender;
     }
     if (Object.keys(facets).length) {
       params.filters = this.buildAlgoliaCoachFilters(facets); // update the algolia params if we have facets
@@ -167,12 +182,17 @@ export class SearchService {
       facetQuery: query ? query : ''
     };
 
-    console.log('searchCoachCountries params:', params);
+    // delete null/undefined keys as they will break the search
+    if (!params.filters) {
+      delete params.filters;
+    }
+
+    // console.log('searchCoachCountries params:', params);
 
     // Run the search
     try {
       const res = await this.searchClient.searchForFacetValues([{indexName: searchIndex, params}]);
-      console.log('Algolia search countries response:', res);
+      // console.log('Algolia search countries response:', res);
       return res;
 
     } catch (err) {
@@ -198,7 +218,7 @@ export class SearchService {
       facetQuery: query ? query : ''
     };
 
-    console.log('searchCoachCities params:', params);
+    // console.log('searchCoachCities params:', params);
 
     // Run the search
     try {
