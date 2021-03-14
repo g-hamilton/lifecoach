@@ -7,6 +7,7 @@ import { AnalyticsService } from '../../services/analytics.service';
 import { SearchService } from 'app/services/search.service';
 
 import { AlgoliaCoachProfile } from '../../interfaces/algolia.coach.profile';
+import { SearchCoachesRequest } from 'app/interfaces/search.coaches.request.interface';
 
 @Component({
   selector: 'app-browse',
@@ -38,9 +39,9 @@ export class BrowseComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    console.log('Browse component init');
-    this.titleService.setTitle('Find a Life Coach');
-    this.metaTagService.updateTag({name: 'description', content: 'Top rated life coaches in your area'});
+    // console.log('Browse component init');
+    this.titleService.setTitle('Find a Coach');
+    this.metaTagService.updateTag({name: 'description', content: `Connect with the world's best coaches for every area of life.`});
     const body = this.document.getElementsByTagName('body')[0];
     body.classList.add('browse-page');
 
@@ -134,7 +135,18 @@ export class BrowseComponent implements OnInit, OnDestroy {
   }
 
   async getSearchResults() {
-    const res = await this.searchService.searchCoaches(this.hitsPerPage, this.page, this.filters);
+    const searchCoachesRequest: SearchCoachesRequest = {
+      hitsPerPage: this.hitsPerPage,
+      page: this.page,
+      query: this.filters.params.q,
+      goals: this.filters.params.goals,
+      challenges: this.filters.params.challenges,
+      category: this.filters.params.category,
+      country: this.filters.params.country,
+      city: this.filters.params.city
+    };
+
+    const res = await this.searchService.searchCoaches(searchCoachesRequest);
     this.totalHits = res.nbHits;
     this.hits = res.hits; // so we can update the view
     return res.hits; // so we can save the state

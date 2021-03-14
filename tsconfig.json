@@ -17,6 +17,11 @@
       "dom"
     ],
     "module": "esnext",
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "paths": {
+      "moment": [
+        "../node_modules/moment/min/moment.min.js"
+      ]
+    }
   }
 }

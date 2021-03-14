@@ -10,6 +10,7 @@ import { SsoService } from 'app/services/sso.service';
 import { UserTask } from '../../interfaces/user.tasks.interface';
 import { Subscription } from 'rxjs';
 import {CloudFunctionsService} from '../../services/cloud-functions.service';
+import { SearchCoachesRequest } from 'app/interfaces/search.coaches.request.interface';
 
 @Component({
   selector: 'app-dashboard',
@@ -145,7 +146,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     // users
 
-    const publicCoaches = await this.searchService.searchCoaches(1, 1);
+    const request: SearchCoachesRequest = {
+      page: 1,
+      hitsPerPage: 1
+    };
+    const publicCoaches = await this.searchService.searchCoaches(request);
     this.adminPublicCoachesCount = publicCoaches.nbHits;
 
     const allUsers = await this.searchService.searchUsers(10, 1);

@@ -4,6 +4,8 @@ import { isPlatformBrowser } from '@angular/common';
 
 import { AnalyticsService } from './analytics.service';
 import {environment} from '../../environments/environment';
+import { SearchCoachesRequest } from 'app/interfaces/search.coaches.request.interface';
+import { I } from '@angular/cdk/keycodes';
 
 
 
@@ -22,8 +24,7 @@ export class SearchService {
     @Inject(PLATFORM_ID) private platformId: object,
     private analyticsService: AnalyticsService
   ) {
-    this.searchClient = algoliasearch(environment.algoliaApplicationID, environment.algoliaApiKey, { protocol: 'https:' }); //work on test
-    // this.searchClient = algoliasearch(environment.algoliaApplicationID, environment.apiKey, { protocol: 'https:' }); // work on prod
+    this.searchClient = algoliasearch(environment.algoliaApplicationID, environment.algoliaApiKey, { protocol: 'https:' });
   }
 
   // ================================================================================
@@ -31,21 +32,24 @@ export class SearchService {
   // ================================================================================
 
   private buildAlgoliaCoachFilters(filters: any) {
+    // console.log(filters);
     /*
-    Accepts an object containing search filters that we capture from the route params, eg:
-    {"0":"category","params":{"category":"business&career"}}
+    Accepts a facets object containing search filters.
     Builds and returns a 'filters' query string from that object using Algolia rules.
     https://www.algolia.com/doc/api-reference/api-parameters/filters/
     We should end up with a string like:
     'category:business&career'
     */
     const andArray = [];
-    for (const p of Object.keys(filters.params)) {
+    for (const p of Object.keys(filters)) {
       // Map each param to an Algolia defined facet in the relevant index
       let facetKey: string;
-      const str: string = filters.params[p];
+      const str: string = filters[p];
       if (p === 'category') {
         facetKey = 'speciality1.itemName';
+      }
+      if (p === 'gender') {
+        facetKey = 'gender';
       }
       if (p === 'country') {
         facetKey = 'country.name';
@@ -56,10 +60,21 @@ export class SearchService {
       if (p === 'accountType') {
         facetKey = 'accountType';
       }
-      if (p !== 'page' && p !== 'q') { // skip the query & page params as we deal with them higher up
-        // Add facet to the AND array
-        andArray.push(`${facetKey}:'${str}'`);
+      // any params we want to skip in the filters...
+      if (p === 'page') {
+        return null;
       }
+      if (p === 'q') {
+        return null;
+      }
+      if (p === 'goals') {
+        return null;
+      }
+      if (p === 'challenges') {
+        return null;
+      }
+      // Add facet to the AND array
+      andArray.push(`${facetKey}:'${str}'`);
     }
     const builtAndString = andArray.join(' AND ');
     // console.log('Algolia filters string constructed:', builtAndString);
@@ -67,29 +82,74 @@ export class SearchService {
     return builtAndString;
   }
 
-  private recordCoachesSearch(filters: any, query?: string) {
-    this.analyticsService.searchCoaches(filters, query);
+  private recordCoachesSearch(request: any) {
+    this.analyticsService.searchCoaches(request);
   }
 
-  async searchCoaches(hitsPerPage?: number, page?: number, filters?: any) {
-    // console.log('filters:', filters);
+  async searchCoaches(req: SearchCoachesRequest) {
+    // console.log('search coaches request:', req);
 
     // Init search index & default params
     const searchIndex = 'prod_COACHES';
     const index = this.searchClient.initIndex(searchIndex);
+
     const params: algoliasearch.QueryParameters = {
-      query: (filters && filters.params && filters.params.q) ? filters.params.q : '',
-      hitsPerPage: hitsPerPage ? hitsPerPage : 6,
-      page: page ? page - 1 : 0, // because Algolia is zero indexed but we always start at 1
-      filters: filters ? this.buildAlgoliaCoachFilters(filters) : ''
+      query: req.query ? req.query : '',
+      hitsPerPage: req.hitsPerPage ? req.hitsPerPage : 6,
+      page: req.page ? req.page - 1 : 0, // because Algolia is zero indexed but we always start at 1
     };
-    // console.log('Algolia query params constructed:', params);
+
+    // do we want to extend the search query string?
+    if (req.goals) {
+      if (Array.isArray(req.goals)) {
+        req.goals.forEach(element => {
+          params.query = params.query.concat(` ${element}`);
+        });
+      } else {
+        params.query = params.query.concat(` ${req.goals}`);
+      }
+    }
+    if (req.challenges) {
+      if (Array.isArray(req.challenges)) {
+        req.challenges.forEach(element => {
+          params.query = params.query.concat(` ${element}`);
+        });
+      } else {
+        params.query = params.query.concat(` ${req.challenges}`);
+      }
+    }
+
+    // remove any duplicate words from the query string prior to asking for results
+    params.query = params.query.trim().toLowerCase();
+    params.query = [...new Set(params.query.split(' '))].join(' ');
+
+    // do we want to facet/filter?
+    const facets = {} as any;
+    if (req.category) {
+      facets.category = req.category;
+    }
+    if (req.country) {
+      facets.country = req.country;
+    }
+    if (req.city) {
+      facets.city = req.city;
+    }
+    if (req.accountType) {
+      facets.accountType = req.accountType;
+    }
+    if (req.gender) {
+      facets.gender = req.gender;
+    }
+    if (Object.keys(facets).length) {
+      params.filters = this.buildAlgoliaCoachFilters(facets); // update the algolia params if we have facets
+    }
+
+    console.log('Algolia query params constructed:', params);
 
     try {
       // Record the search if we're in the browser (not SSR)
       if (isPlatformBrowser(this.platformId)) {
-        const p = (filters && filters.params) ? filters.params : null;
-        this.recordCoachesSearch(p, params.query);
+        this.recordCoachesSearch(req);
       }
 
       // Run the search
@@ -101,15 +161,33 @@ export class SearchService {
     }
   }
 
-  async searchCoachCountries(category?: string) {
+  async searchCoachCountries(query: string, filters: any) {
+    // console.log('searchCoachCountries Filters:', filters);
+
+    // delete own key
+    const filtersCopy = Object.assign({}, filters);
+    if (filtersCopy.country) {
+      delete filtersCopy.country;
+    }
+    // delete city key as this is not backwards filtered
+    if (filtersCopy.city) {
+      delete filtersCopy.city;
+    }
 
     // Init search index & default params
     const searchIndex = 'prod_COACHES';
     const params: algoliasearch.SearchForFacetValues.Parameters = {
       facetName: 'country.name',
-      facetFilters: category ? [`speciality1.itemName:${category}`] : null,
-      facetQuery: ''
+      filters: filters ? this.buildAlgoliaCoachFilters(filtersCopy) : null,
+      facetQuery: query ? query : ''
     };
+
+    // delete null/undefined keys as they will break the search
+    if (!params.filters) {
+      delete params.filters;
+    }
+
+    // console.log('searchCoachCountries params:', params);
 
     // Run the search
     try {
@@ -123,23 +201,24 @@ export class SearchService {
 
   }
 
-  async searchCoachCities(category: string, countryName: string, query?: string) {
+  async searchCoachCities(query: string, filters: any) {
+    // console.log('searchCoachCities Filters:', filters);
+
+    // delete own key
+    const filtersCopy = Object.assign({}, filters);
+    if (filtersCopy.city) {
+      delete filtersCopy.city;
+    }
 
     // Init search index & default params
     const searchIndex = 'prod_COACHES';
-    const filters = [];
-    if (category) {
-      filters.push(`speciality1.itemName:${category}`);
-    }
-    if (countryName) {
-      filters.push(`country.name:${countryName}`);
-    }
     const params: algoliasearch.SearchForFacetValues.Parameters = {
       facetName: 'city',
-      facetFilters: filters,
-      facetQuery: '',
-      query: query ? query : ''
+      filters: filters ? this.buildAlgoliaCoachFilters(filtersCopy) : null,
+      facetQuery: query ? query : ''
     };
+
+    // console.log('searchCoachCities params:', params);
 
     // Run the search
     try {

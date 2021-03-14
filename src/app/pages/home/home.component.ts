@@ -11,6 +11,9 @@ import { DataService } from 'app/services/data.service';
 import { Subscription } from 'rxjs';
 
 import { VgAPI } from 'videogular2/compiled/core';
+import { BsModalRef, BsModalService, ModalOptions } from 'ngx-bootstrap/modal';
+import { CheckCoachNameModalComponent } from 'app/components/check-coach-name-modal/check-coach-name-modal.component';
+import { SearchCoachesRequest } from 'app/interfaces/search.coaches.request.interface';
 
 @Component({
   selector: 'app-home',
@@ -43,6 +46,8 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   private vgApi: VgAPI; // http://www.videogular.com/tutorials/videogular-api/
 
+  public bsModalRef: BsModalRef;
+
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
     private analyticsService: AnalyticsService,
@@ -50,7 +55,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     private metaTagService: Meta,
     private transferState: TransferState,
     private searchService: SearchService,
-    private dataService: DataService
+    private dataService: DataService,
+    private modalService: BsModalService
   ) {
   }
 
@@ -178,7 +184,11 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   async getNewestCoaches() {
-    const res = await this.searchService.searchCoaches(6, 0);
+    const request: SearchCoachesRequest = {
+      page: 0,
+      hitsPerPage: 6
+    };
+    const res = await this.searchService.searchCoaches(request);
     this.newestCoaches = res.hits; // so we can update the view
     return res.hits; // so we can save the state
   }
@@ -199,6 +209,19 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   onGoCoaches() {
     this.analyticsService.clickBrowseCoaches();
+  }
+
+  onFindCoach() {
+    // pop the check coach name modal
+    // we can send data to the modal & open in a another component via a service
+    // https://valor-software.com/ngx-bootstrap/#/modals#service-component
+    const config: ModalOptions = {
+      class: 'modal-lg', // let's make this a large one!
+      initialState: {
+        message: `Do you know the coach's name?`
+      } as any
+    };
+    this.bsModalRef = this.modalService.show(CheckCoachNameModalComponent, config);
   }
 
   ngOnDestroy() {

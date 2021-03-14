@@ -19,8 +19,8 @@
                     Get coached by the best professional coaches in the world, for every area of life,
                     on a platform that defies borders.
                 </h4>
-                <button class="btn btn-round btn-primary mt-4" [routerLink]="['/programs']" (click)="onGoPrograms()">
-                    Explore Coaching
+                <button class="btn btn-round btn-primary mt-4" (click)="onFindCoach()">
+                    Find A Coach
                 </button>
             </div>
 
@@ -50,17 +50,12 @@
                         Discover The Best Version of You
                     </h3>
                     <h4>
-                        Lifecoach brings you the best private video coaching for every area of personal transformation. <br>
+                        Lifecoach brings you the best private coaching for every area of personal transformation. <br>
                         Whatever your goal, our coaches can help you to discover the very best version of yourself.
                     </h4>
                 </div>
                 <div id="banners-image" class=" text-center mt-5">
                     <div class="main-banner"id="super-banner"></div>
-                </div>
-                <div class=" container text-center mt-5">
-                    <button class="btn btn-round btn-default" [routerLink]="['/programs']" (click)="onGoPrograms()">
-                        See What's Possible
-                    </button>
                 </div>
             </div>
         </div>
@@ -94,9 +89,14 @@
                             </div>
                         </div>
 
-                        <h4 class=" mt-4">
-                            And hundreds more areas of personal transformation.
-                        </h4>
+                        <div class=" container text-center mt-5">
+                            <h4>
+                               Get matched with top coaches, based on your goals...
+                            </h4>
+                            <button class="btn btn-round btn-primary" (click)="onFindCoach()">
+                                Find A Coach
+                            </button>
+                        </div>
 
                     </div>
                 </div>
@@ -121,18 +121,20 @@
                 <div class=" row mt-4">
                     <div class=" col-6">
                         <h4 class=" display-4 mb-1 pt-5">
-                            1. Explore
+                            1. Find
                         </h4>
                         <h4 class=" display-3">
-                            Discover the best coaching
+                            The Best Coaches
                         </h4>
                         <h4>
-                            Explore hundreds of private video coaching services and programs from the world's best coaches.
-                            Whatever your goal, coaching can help you get there.
+                            Use our <a href="javascript:void(0)" (click)="onFindCoach()">
+                                coach finder
+                            </a> to get matched with top coaches based on your own 
+                            unique goals, challenges and personal preferences.
                         </h4>
                     </div>
                     <div class=" col-6">
-                        <img src="../../../assets/img/homepage/explore-coaching-on-lifecoach.png" alt="Explore coaching programs and courses from Lifecoach Coaches">
+                        <img src="../../../assets/img/homepage/find-a-coach-at-lifecoach-online-coaching-hub.png" alt="Explore coaching programs and courses from Lifecoach Coaches">
                     </div>
                 </div>
 
@@ -143,14 +145,14 @@
                     </div>
                     <div class=" col-6">
                         <h3 class=" display-4 mb-1 pt-5">
-                            2. Connect
+                            2. Choose
                         </h3>
                         <h4 class=" display-3">
-                            With coaches
+                            Your Perfect Coach
                         </h4>
                         <h4>
-                            Schedule free discovery video sessions to make sure coaches are right for you.
-                            Ask coaches anything you like before getting started.
+                            Chat with coaches, build a shortlist, ask questions and choose the perfect coach
+                            to help you overcome your challenges & achieve your goals.
                         </h4>
                     </div>
                 </div>
@@ -159,17 +161,18 @@
                 <div class=" row top-row-margin">
                     <div class=" col-6">
                         <h3 class=" display-4 mb-1 pt-5">
-                            3. Transform
+                            3. Get
                         </h3>
                         <h4 class=" display-3">
-                            One session at a time
+                            Coached
                         </h4>
                         <h4>
-                            Enrol in private coaching services,
-                            coaching programs and even self-study eCourses.
-                            Get coached online through live 1-to-1 video sessions.
+                            Transform, one session at a time.
                             Imagine where you could be in just a few sessions!
                         </h4>
+                        <button class="btn btn-round btn-primary" (click)="onFindCoach()">
+                            Get Started
+                        </button>
                     </div>
                     <div class=" col-6">
                         <img src="../../../assets/img/homepage/get-online-video-coaching-through-lifecoach.png" alt="Get online video coaching through Lifecoach">
@@ -186,7 +189,7 @@
                             Enrol in an eCourse
                         </h4>
                         <h4>
-                            Learn personal transformation skills, completely on your own schedule.
+                            Learn personal transformation skills, completely on your own schedule at highly affordable prices.
                         </h4>
                         <div class="">
                             <button class="btn btn-round btn-default" [routerLink]="['/courses']" (click)="onGoCourses()">
@@ -224,7 +227,7 @@
                     </div>
                     <div class=" text-center mt-3">
                         <button class="btn btn-round btn-default" [routerLink]="['/coaches']" (click)="onGoCoaches()">
-                            Browse All Coaches
+                            Browse Coaches
                         </button>
                     </div>
                 </div>
@@ -246,8 +249,8 @@
                             Your transformation starts now
                         </h3>
                         <div class=" text-center">
-                            <button class="btn btn-round btn-primary" [routerLink]="['/programs']" (click)="onGoPrograms()">
-                                Explore Coaching
+                            <button class="btn btn-round btn-primary" (click)="onFindCoach()">
+                                Find Your Coach Today
                             </button>
                         </div>
                     </div>

@@ -20,26 +20,25 @@
       <ul class=" navbar-nav ml-auto">
         <li *ngIf="!userAuthorised" class=" nav-item">
           <a class=" nav-link" href="javascript:void(0)" (click)="login()">
-            <i class=" tim-icons icon-single-02">
-            </i>
+            <i class="fas fa-sign-in-alt mr-1"></i>
             Login
           </a>
         </li>
         <li *ngIf="userAuthorised" class=" nav-item">
           <a class=" nav-link" [routerLink]="['/dashboard']">
-            <i class="fas fa-columns"></i>
+            <i class="fas fa-columns mr-1"></i>
             My Dashboard
           </a>
         </li>
         <li class=" nav-item active">
           <a class=" nav-link" [routerLink]="['/for-coaches']">
-            <i class="fas fa-graduation-cap"></i>
+            <i class="fas fa-users mr-1"></i>
             For Coaches
           </a>
         </li>
         <li class=" nav-item">
           <a class=" nav-link" [routerLink]="['/about']">
-            <i class="fas fa-star"></i>
+            <i class="fas fa-info mr-1"></i>
             About Lifecoach
           </a>
         </li>
