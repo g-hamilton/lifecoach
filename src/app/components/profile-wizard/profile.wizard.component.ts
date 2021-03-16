@@ -172,6 +172,10 @@ export class ProfileWizardComponent implements OnInit, OnDestroy {
           qualCas: [false],
           qualCsa: [false],
           qualSa: [false],
+          qualEmccFoundation: [false],
+          qualEmccPractitioner: [false],
+          qualEmccSeniorPractitioner: [false],
+          qualEmccMasterPractitioner: [false],
           proSummary: ['', [Validators.required, Validators.minLength(90), Validators.minLength(this.summaryMinLength), Validators.maxLength(this.summaryMaxLength)]],
           goalTags: [this.formBuilder.array([new FormControl('', Validators.maxLength(this.goalTagMaxLength))]), Validators.compose([Validators.required, Validators.maxLength(this.goalTagsMax)])],
           isPublic: [true], // default to public display on
