@@ -32,7 +32,7 @@ export class SearchService {
   // ================================================================================
 
   private buildAlgoliaCoachFilters(filters: any) {
-    console.log('FILTERS:', filters);
+    // console.log('FILTERS:', filters);
     /*
     Accepts a facets object containing search filters.
     Builds and returns a 'filters' query string from that object using Algolia rules.
@@ -41,6 +41,8 @@ export class SearchService {
     'category:business&career'
     */
     const andArray = [];
+    const orArray = [];
+
     if (filters.category) {
       andArray.push(`speciality1.itemName:'${filters.category}'`);
     }
@@ -57,33 +59,40 @@ export class SearchService {
       andArray.push(`accountType:'${filters.accountType}'`);
     }
     if (filters.showCertified) {
-      andArray.push(`(qualAcc:true OR qualPcc:true OR qualMcc:true OR qualEia:true OR qualEqa:true OR qualEsia:true OR qualEsqa:true OR qualIsmcp:true OR qualEcas:true OR qualCas:true OR qualCsa:true OR qualSa:true)`);
+      andArray.push(`(qualAcc:true OR qualPcc:true OR qualMcc:true OR qualEmccFoundation:true OR qualEmccPractitioner:true OR qualEmccSeniorPractitioner:true OR qualEmccMasterPractitioner:true OR qualAcFoundation:true OR qualAcCoach:true OR qualAcProfessionalCoach:true OR qualAcMasterCoach:true OR qualApecsAssociate:true OR qualApecsProfessional:true OR qualApecsMaster:true)`);
     }
     if (filters.icf) {
       andArray.push(`(qualAcc:true OR qualPcc:true OR qualMcc:true)`);
     }
     if (filters.emcc) {
-      andArray.push(`(qualEia:true OR qualEqa:true OR qualEsia:true OR qualEsqa:true OR qualIsmcp:true)`);
+      andArray.push(`(qualEmccFoundation:true OR qualEmccPractitioner:true OR qualEmccSeniorPractitioner:true OR qualEmccMasterPractitioner:true)`);
     }
     if (filters.ac) {
-      andArray.push(`(qualEcas:true OR qualCas:true OR qualCsa:true OR qualSa:true)`);
+      andArray.push(`(qualAcFoundation:true OR qualAcCoach:true OR qualAcProfessionalCoach:true OR qualAcMasterCoach:true)`);
+    }
+    if (filters.apecs) {
+      andArray.push(`(qualApecsAssociate:true OR qualApecsProfessional:true OR qualApecsMaster:true)`);
     }
     if (filters.foundation) {
-      andArray.push(`(qualAcc:true OR qualEmccFoundation:true OR qualAcFoundation:true OR qualApecsAssociate)`);
+      orArray.push(`(qualAcc:true OR qualEmccFoundation:true OR qualAcFoundation:true OR qualApecsAssociate)`);
     }
     if (filters.experienced) {
-      andArray.push(`(qualPcc:true OR qualEmccPractitioner:true OR qualAcCoach:true OR qualAcProfessionalCoach:true OR qualApecsProfessional:true)`);
+      orArray.push(`(qualPcc:true OR qualEmccPractitioner:true OR qualAcCoach:true OR qualAcProfessionalCoach:true OR qualApecsProfessional:true)`);
     }
     if (filters.master) {
-      andArray.push(`(qualMcc:true OR qualEmccMasterPractitioner:true OR qualAcMasterCoach:true OR qualApecsMaster:true)`);
+      orArray.push(`(qualMcc:true OR qualEmccMasterPractitioner:true OR qualAcMasterCoach:true OR qualApecsMaster:true)`);
     }
 
-    console.log('ANDarray', andArray);
+    // console.log('AND array', andArray);
+    // console.log('OR Array', orArray);
 
     const builtAndString = andArray.join(' AND ');
-    console.log('Algolia filters string constructed:', builtAndString);
+    const builtOrString = orArray.join(' OR ');
 
-    return builtAndString;
+    const filterString = `${builtAndString} ${builtOrString.length ? ` AND ${builtOrString}` : ''}`;
+    // console.log('Algolia filters string constructed:', filterString);
+
+    return filterString;
   }
 
   private recordCoachesSearch(request: any) {
@@ -128,7 +137,7 @@ export class SearchService {
     params.query = params.query.trim().toLowerCase();
     params.query = [...new Set(params.query.split(' '))].join(' ');
 
-    console.log('Algolia query params constructed:', params);
+    // console.log('Algolia query params constructed:', params);
 
     try {
       // Record the search if we're in the browser (not SSR)
@@ -162,7 +171,7 @@ export class SearchService {
     const searchIndex = 'prod_COACHES';
     const params: algoliasearch.SearchForFacetValues.Parameters = {
       facetName: 'country.name',
-      // filters: filters ? this.buildAlgoliaCoachFilters(filtersCopy) : null,
+      filters: filters ? this.buildAlgoliaCoachFilters(filtersCopy) : null,
       facetQuery: query ? query : ''
     };
 
@@ -198,7 +207,7 @@ export class SearchService {
     const searchIndex = 'prod_COACHES';
     const params: algoliasearch.SearchForFacetValues.Parameters = {
       facetName: 'city',
-      // filters: filters ? this.buildAlgoliaCoachFilters(filtersCopy) : null,
+      filters: filters ? this.buildAlgoliaCoachFilters(filtersCopy) : null,
       facetQuery: query ? query : ''
     };
 
