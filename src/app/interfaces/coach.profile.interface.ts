@@ -39,6 +39,10 @@ export interface CoachProfile {
     qualEmccPractitioner: boolean;
     qualEmccSeniorPractitioner: boolean;
     qualEmccMasterPractitioner: boolean;
+    qualAcFoundation: boolean;
+    qualAcCoach: boolean;
+    qualAcProfessionalCoach: boolean;
+    qualAcMasterCoach: boolean;
     speciality1: { id: string, itemName: string };
     goalTags?: { display: string, value: string }[];
     credentials?: { display: string, value: string }[];
