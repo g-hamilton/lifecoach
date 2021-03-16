@@ -10,4 +10,10 @@ export interface SearchCoachesRequest {
     accountType?: 'regular' | 'coach' | 'partner' | 'provider' | 'admin';
     gender?: 'female' | 'male' | 'gnc' | 'prefer-not';
     showCertified?: string;
+    icf?: string;
+    emcc?: string;
+    ac?: string;
+    foundation?: string;
+    experienced?: string;
+    master?: string;
 }

@@ -57,7 +57,25 @@ export class SearchService {
       andArray.push(`accountType:'${filters.accountType}'`);
     }
     if (filters.showCertified) {
+      andArray.push(`(qualAcc:true OR qualPcc:true OR qualMcc:true OR qualEia:true OR qualEqa:true OR qualEsia:true OR qualEsqa:true OR qualIsmcp:true OR qualEcas:true OR qualCas:true OR qualCsa:true OR qualSa:true)`);
+    }
+    if (filters.icf) {
       andArray.push(`(qualAcc:true OR qualPcc:true OR qualMcc:true)`);
+    }
+    if (filters.emcc) {
+      andArray.push(`(qualEia:true OR qualEqa:true OR qualEsia:true OR qualEsqa:true OR qualIsmcp:true)`);
+    }
+    if (filters.ac) {
+      andArray.push(`(qualEcas:true OR qualCas:true OR qualCsa:true OR qualSa:true)`);
+    }
+    if (filters.foundation) {
+      //
+    }
+    if (filters.experienced) {
+      //
+    }
+    if (filters.master) {
+      //
     }
 
     console.log('ANDarray', andArray);

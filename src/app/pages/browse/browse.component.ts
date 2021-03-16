@@ -145,7 +145,13 @@ export class BrowseComponent implements OnInit, OnDestroy {
       country: this.filters.params.country,
       city: this.filters.params.city,
       showCertified: this.filters.params.showCertified,
-      gender: this.filters.params.gender
+      gender: this.filters.params.gender,
+      icf: this.filters.params.icf,
+      emcc: this.filters.params.emcc,
+      ac: this.filters.params.ac,
+      foundation: this.filters.params.foundation,
+      experienced: this.filters.params.experienced,
+      master: this.filters.params.master
     };
 
     const res = await this.searchService.searchCoaches(searchCoachesRequest);
