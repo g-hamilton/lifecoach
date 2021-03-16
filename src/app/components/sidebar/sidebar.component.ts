@@ -104,7 +104,7 @@ export const ROUTES: RouteInfo[] = [
     rtlTitle: 'التقويم',
     type: 'link',
     icontype: 'tim-icons icon-badge',
-    userTypes: ['regular', 'coach']
+    userTypes: ['coach']
   },
   {
     path: '/coach-products-services',
