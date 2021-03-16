@@ -352,74 +352,15 @@
               <!-- Qualifications -->
               <div class=" row mt-5">
                 <div class=" col-lg-10">
-                  <label> My Qualifications </label>
+                  <label> My Certifications </label>
                   <p class=" small text-muted pl-2 mb-2">
-                    <i class="fas fa-info-circle"></i> Do you have any professional qualifications or accreditations? Add them here.
+                    <i class="fas fa-info-circle"></i> Do you have any professional certifications? Add them here.
                   </p>
                 </div>
               </div>
               <div class=" row">
                 <!-- Col 1 -->
                 <div class=" col-sm-3">
-                  <div class=" form-check">
-                    <label class=" form-check-label">
-                      <input class=" form-check-input" type="checkbox" name="qualBa" formControlName="qualBa" />
-  
-                      <span class=" form-check-sign"> </span> BA
-                    </label>
-                  </div>
-                  <div class=" form-check">
-                    <label class=" form-check-label">
-                      <input class=" form-check-input" type="checkbox" name="qualBsc" formControlName="qualBsc" />
-  
-                      <span class=" form-check-sign"> </span> BSc
-                    </label>
-                  </div>
-                  <div class=" form-check">
-                    <label class=" form-check-label">
-                      <input class=" form-check-input" type="checkbox" name="qualBcomm" formControlName="qualBcomm" />
-  
-                      <span class=" form-check-sign"> </span> BComm
-                    </label>
-                  </div>
-                  <div class=" form-check">
-                    <label class=" form-check-label">
-                      <input class=" form-check-input" type="checkbox" name="qualMa" formControlName="qualMa" />
-  
-                      <span class=" form-check-sign"> </span> MA
-                    </label>
-                  </div>
-                  <div class=" form-check">
-                    <label class=" form-check-label">
-                      <input class=" form-check-input" type="checkbox" name="qualMs" formControlName="qualMs" />
-  
-                      <span class=" form-check-sign"> </span> MS
-                    </label>
-                  </div>
-                  <div class=" form-check">
-                    <label class=" form-check-label">
-                      <input class=" form-check-input" type="checkbox" name="qualMba" formControlName="qualMba" />
-  
-                      <span class=" form-check-sign"> </span> MBA
-                    </label>
-                  </div>
-                </div>
-                <!-- Col 2 -->
-                <div class=" col-sm-3">
-                  <div class=" form-check">
-                    <label class=" form-check-label">
-                      <input class=" form-check-input" type="checkbox" name="qualMapp" formControlName="qualMapp" />
-  
-                      <span class=" form-check-sign"> </span> MAPP
-                    </label>
-                  </div>
-                  <div class=" form-check">
-                    <label class=" form-check-label">
-                      <input class=" form-check-input" type="checkbox" name="qualPhd" formControlName="qualPhd" />
-  
-                      <span class=" form-check-sign"> </span> PhD
-                    </label>
-                  </div>
                   <div class=" form-check">
                     <label class=" form-check-label">
                       <input class=" form-check-input" type="checkbox" name="qualAcc" formControlName="qualAcc" />
@@ -442,7 +383,7 @@
                     </label>
                   </div>
                 </div>
-                <!-- Col 3 -->
+                <!-- Col 2 -->
                 <div class=" col-sm-3">
                   <div class=" form-check">
                     <label class=" form-check-label">
@@ -472,15 +413,8 @@
                       <span class=" form-check-sign"> </span> EMCC - Master Practitioner
                     </label>
                   </div>
-                  <div class=" form-check">
-                    <label class=" form-check-label">
-                      <input class=" form-check-input" type="checkbox" name="qualApecs" formControlName="qualApecs" />
-  
-                      <span class=" form-check-sign"> </span> APECS
-                    </label>
-                  </div>
                 </div>
-                <!-- col 4 -->
+                <!-- Col 3 -->
                 <div class=" col-sm-3">
                   <div class=" form-check">
                     <label class=" form-check-label">
@@ -510,11 +444,28 @@
                       <span class=" form-check-sign"> </span> AC - Master Coach
                     </label>
                   </div>
+                </div>
+                <!-- col 4 -->
+                <div class=" col-sm-3">
                   <div class=" form-check">
                     <label class=" form-check-label">
-                      <input class=" form-check-input" type="checkbox" name="qualOther" formControlName="qualOther" />
+                      <input class=" form-check-input" type="checkbox" name="qualApecsAssociate" formControlName="qualApecsAssociate" />
   
-                      <span class=" form-check-sign"> </span> Other
+                      <span class=" form-check-sign"> </span> APECS - Associate Coach
+                    </label>
+                  </div>
+                  <div class=" form-check">
+                    <label class=" form-check-label">
+                      <input class=" form-check-input" type="checkbox" name="qualApecsProfessional" formControlName="qualApecsProfessional" />
+  
+                      <span class=" form-check-sign"> </span> APECS - Professional Coach
+                    </label>
+                  </div>
+                  <div class=" form-check">
+                    <label class=" form-check-label">
+                      <input class=" form-check-input" type="checkbox" name="qualApecsMaster" formControlName="qualApecsMaster" />
+  
+                      <span class=" form-check-sign"> </span> APECS - Master Coach
                     </label>
                   </div>
                 </div>
@@ -866,6 +817,20 @@
               <h5 class=" title">
                 {{ profileF.speciality1?.itemName }}
               </h5>
+              <!-- Certifications? -->
+              <div
+              class=" text-center mb-3"
+              *ngIf="profileF.qualAcc.value || profileF.qualPcc.value || profileF.qualMcc.value || 
+              profileF.qualEmccFoundation.value || profileF.qualEmccPractitioner.value || 
+              profileF.qualEmccSeniorPractitioner.value || profileF.qualEmccMasterPractitioner.value || 
+              profileF.qualAcFoundation.value || profileF.qualAcCoach.value || profileF.qualAcProfessionalCoach.value || 
+              profileF.qualAcMasterCoach.value || profileF.qualApecsAssociate.value || profileF.qualApecsProfessional.value || 
+              profileF.qualApecsMaster.value"
+              >
+                <div class=" badge badge-primary mr-2">
+                  Certified Coach
+                </div>
+              </div>
               <!-- Tags -->
               <span *ngFor="let item of profileF.goalTags.value?.controls" class=" badge badge-success mr-2">
                 <span *ngIf="item.value">
@@ -880,27 +845,6 @@
             <!-- Location -->
             <h6 class=" text-muted text-center mt-3">
               <i class=" tim-icons icon-square-pin"></i> {{ profileF.city.value + ' | ' + getCountryName() }}
-            </h6>
-            <!-- Qualifications -->
-            <h6
-            class=" text-muted text-center mt-3"
-            *ngIf="profileF.qualBa.value || profileF.qualBsc.value || profileF.qualBcomm.value || profileF.qualMa.value ||
-            profileF.qualMs.value || profileF.qualMba.value || profileF.qualMapp.value || profileF.qualPhd.value ||
-            profileF.qualMba.value || profileF.qualAcc.value || profileF.qualPcc.value || profileF.qualMcc.value"
-            >
-              <i class=" tim-icons icon-paper"></i> 
-              {{ profileF.qualBa.value ? 'BA ' : '' }}
-              {{ profileF.qualBsc.value ? 'BSc ' : '' }}
-              {{ profileF.qualBcomm.value ? 'BComm ' : '' }}
-              {{ profileF.qualMa.value ? 'MA ' : '' }}
-              {{ profileF.qualMs.value ? 'MS ' : '' }}
-              {{ profileF.qualMba.value ? 'MBA ' : '' }}
-              {{ profileF.qualMapp.value ? 'MAPP ' : '' }}
-              {{ profileF.qualPhd.value ? 'PhD ' : '' }}
-              {{ profileF.qualMba.value ? 'MBA ' : '' }}
-              {{ profileF.qualAcc.value ? 'ICF-ACC ' : '' }}
-              {{ profileF.qualPcc.value ? 'ICF-PCC ' : '' }}
-              {{ profileF.qualMcc.value ? 'ICF-MCC ' : '' }}
             </h6>
           </div>
           <div class=" card-footer">
