@@ -73,7 +73,7 @@ export class SearchFilterUiComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
       if (params) {
         this.filters = {...params.keys, ...params};
-        console.log('Navigator filters updated:', this.filters);
+        // console.log('Navigator filters updated:', this.filters);
         // When route params change, update the UI with relevant data
         this.updateUI();
       }
@@ -171,7 +171,7 @@ export class SearchFilterUiComponent implements OnInit {
       this.dataForm.patchValue({ country: this.filters.country });
       this.loadCoachCities(); // load city options when country selected
     }
-    console.log('this.filters', this.filters);
+    // console.log('this.filters', this.filters);
     if (this.filters.city) {
       this.dataForm.patchValue({ city: this.filters.city });
     }

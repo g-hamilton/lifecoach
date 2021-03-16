@@ -126,11 +126,8 @@ export class FindCoachWizardComponent implements OnInit {
   }
 
   onStepChange(event: any) {
-    console.log('STEP CHANGED!', event);
-    console.log('formData', this.wizardForm.value);
-    // setTimeout(() => {
-    //   this.saveAttempt = false;
-    // }, 10);
+    // console.log('STEP CHANGED!', event);
+    // console.log('formData', this.wizardForm.value);
   }
 
   showError(control: string, error: string) {
@@ -145,7 +142,7 @@ export class FindCoachWizardComponent implements OnInit {
   }
 
   onShowCertifiedChange(ev: any) {
-    console.log(ev.target.value);
+    // console.log(ev.target.value);
   }
 
   onSubmit() {
@@ -168,7 +165,7 @@ export class FindCoachWizardComponent implements OnInit {
     const c = JSON.parse(JSON.stringify(((this.wizardForm.controls.formArray as FormArray).controls[2] as FormGroup).value));
     const merged = {...a, ...b, ...c};
 
-    console.log('merged form data', merged);
+    // console.log('merged form data', merged);
 
     // cleanup!
     const newParams = {};
@@ -193,7 +190,7 @@ export class FindCoachWizardComponent implements OnInit {
       }
     });
 
-    console.log('newParams', newParams);
+    // console.log('newParams', newParams);
 
     this.bsModalRef.hide(); // hide the current modal
     this.saveAttempt = false;

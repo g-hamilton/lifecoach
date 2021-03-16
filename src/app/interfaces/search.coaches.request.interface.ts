@@ -1,7 +1,7 @@
 export interface SearchCoachesRequest {
     hitsPerPage: number;
     page: number;
-    query?: string;
+    q?: string; // search query
     goals?: string[];
     challenges?: string[];
     category?: string;
@@ -9,4 +9,5 @@ export interface SearchCoachesRequest {
     city?: string;
     accountType?: 'regular' | 'coach' | 'partner' | 'provider' | 'admin';
     gender?: 'female' | 'male' | 'gnc' | 'prefer-not';
+    showCertified?: string;
 }
