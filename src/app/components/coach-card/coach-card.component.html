@@ -45,6 +45,20 @@
       <h5 class=" title">
         {{ coachProfile.speciality1?.itemName + ' ' + 'Coach' }}
       </h5>
+      <!-- Certifications? -->
+      <div
+      class=" text-center mb-3"
+      *ngIf="coachProfile.qualAcc || coachProfile.qualPcc || coachProfile.qualMcc || 
+      coachProfile.qualEmccFoundation || coachProfile.qualEmccPractitioner || 
+      coachProfile.qualEmccSeniorPractitioner || coachProfile.qualEmccMasterPractitioner || 
+      coachProfile.qualAcFoundation || coachProfile.qualAcCoach || coachProfile.qualAcProfessionalCoach || 
+      coachProfile.qualAcMasterCoach || coachProfile.qualApecsAssociate || coachProfile.qualApecsProfessional || 
+      coachProfile.qualApecsMaster"
+      >
+          <div class=" badge badge-primary mr-2">
+          Certified Coach
+          </div>
+      </div>
       <!-- Tags -->
       <span *ngFor="let tag of coachProfile.goalTags" class=" badge badge-success mr-2">
         {{ tag.value }}

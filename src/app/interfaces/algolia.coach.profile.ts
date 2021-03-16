@@ -14,28 +14,25 @@ export interface AlgoliaCoachProfile {
     email: string;
     phone: number;
     photo: string;
-    qualBa:	boolean;
-    qualBsc: boolean;
-    qualBcomm: boolean;
-    qualMa: boolean;
-    qualMs: boolean;
-    qualMba: boolean;
-    qualMapp: boolean;
-    qualPhd: boolean;
-    qualAcc: boolean;
-    qualPcc: boolean;
-    qualMcc: boolean;
-    qualOther: boolean;
-    qualEia: boolean;
-    qualEqa: boolean;
-    qualEsia: boolean;
-    qualEsqa: boolean;
-    qualIsmcp: boolean;
-    qualApecs: boolean;
-    qualEcas: boolean;
-    qualCas: boolean;
-    qualCsa: boolean;
-    qualSa: boolean;
+
+    // ICF
+    qualAcc?: boolean;
+    qualPcc?: boolean;
+    qualMcc?: boolean;
+    // EMCC
+    qualEmccFoundation?: boolean;
+    qualEmccPractitioner?: boolean;
+    qualEmccSeniorPractitioner?: boolean;
+    qualEmccMasterPractitioner?: boolean;
+    // AC
+    qualAcFoundation?: boolean;
+    qualAcCoach?: boolean;
+    qualAcProfessionalCoach?: boolean;
+    qualAcMasterCoach?: boolean;
+    // APECS
+    qualApecsAssociate?: boolean;
+    qualApecsProfessional?: boolean;
+    qualApecsMaster?: boolean;
     profileVideo: string;
     photoPaths: UserAvatarImagePaths;
 }
