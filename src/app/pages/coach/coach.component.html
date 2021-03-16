@@ -47,34 +47,24 @@
                         <h5 class=" title">
                             {{ userProfile.speciality1?.itemName + ' ' + 'Coach' }}
                         </h5>
+                        <!-- Certifications? -->
+                        <div
+                        class=" text-center mb-3"
+                        *ngIf="this.userProfile.qualAcc || this.userProfile.qualPcc || this.userProfile.qualMcc || 
+                        this.userProfile.qualEmccFoundation || this.userProfile.qualEmccPractitioner || 
+                        this.userProfile.qualEmccSeniorPractitioner || this.userProfile.qualEmccMasterPractitioner || 
+                        this.userProfile.qualAcFoundation || this.userProfile.qualAcCoach || this.userProfile.qualAcProfessionalCoach || 
+                        this.userProfile.qualAcMasterCoach || this.userProfile.qualApecsAssociate || this.userProfile.qualApecsProfessional || 
+                        this.userProfile.qualApecsMaster"
+                        >
+                            <div class=" badge badge-primary mr-2">
+                            Certified Coach
+                            </div>
+                        </div>
                         <!-- Coach Tags -->
                         <span *ngFor="let tag of this.userProfile.goalTags" class=" badge badge-success mr-2">
                             {{ tag.value }}
                         </span>
-                        </div>
-                        <!-- Qualification Tags -->
-                        <div class=" text-center">
-                            <span *ngIf="this.userProfile.qualBa" class=" badge badge-primary mr-2">BA QUALIFIED</span>
-                            <span *ngIf="this.userProfile.qualBsc" class=" badge badge-primary mr-2">BSC QUALIFIED</span>
-                            <span *ngIf="this.userProfile.qualBcomm" class=" badge badge-primary mr-2">BCOMM QUALIFIED</span>
-                            <span *ngIf="this.userProfile.qualMa" class=" badge badge-primary mr-2">MA QUALIFIED</span>
-                            <span *ngIf="this.userProfile.qualMs" class=" badge badge-primary mr-2">MS QUALIFIED</span>
-                            <span *ngIf="this.userProfile.qualMba" class=" badge badge-primary mr-2">MBA QUALIFIED</span>
-                            <span *ngIf="this.userProfile.qualMapp" class=" badge badge-primary mr-2">MAPP QUALIFIED</span>
-                            <span *ngIf="this.userProfile.qualPhd" class=" badge badge-primary mr-2">PhD QUALIFIED</span>
-                            <span *ngIf="this.userProfile.qualEia" class=" badge badge-primary mr-2">EUROPEAN MENTORING & COACHING COUNCIL - EIA ACCREDITED</span>
-                            <span *ngIf="this.userProfile.qualEqa" class=" badge badge-primary mr-2">EUROPEAN MENTORING & COACHING COUNCIL - EQA ACCREDITED</span>
-                            <span *ngIf="this.userProfile.qualEsia" class=" badge badge-primary mr-2">EUROPEAN MENTORING & COACHING COUNCIL - ESIA ACCREDITED</span>
-                            <span *ngIf="this.userProfile.qualEsqa" class=" badge badge-primary mr-2">EUROPEAN MENTORING & COACHING COUNCIL - ESQA ACCREDITED</span>
-                            <span *ngIf="this.userProfile.qualIsmcp" class=" badge badge-primary mr-2">EUROPEAN MENTORING & COACHING COUNCIL - ISMCP ACCREDITED</span>
-                            <span *ngIf="this.userProfile.qualApecs" class=" badge badge-primary mr-2">ASSOCIATION FOR PROFESSIONAL EXECUTIVE COACHING & SUPERVISION ACCREDITED</span>
-                            <span *ngIf="this.userProfile.qualEcas" class=" badge badge-primary mr-2">ASSOCIATION FOR COACHING - ECAS ACCREDITED</span>
-                            <span *ngIf="this.userProfile.qualCas" class=" badge badge-primary mr-2">ASSOCIATION FOR COACHING - CAS ACCREDITED</span>
-                            <span *ngIf="this.userProfile.qualCsa" class=" badge badge-primary mr-2">ASSOCIATION FOR COACHING - CSA ACCREDITED</span>
-                            <span *ngIf="this.userProfile.qualSa" class=" badge badge-primary mr-2">ASSOCIATION FOR COACHING - SA ACCREDITED</span>
-                            <span *ngIf="this.userProfile.qualAcc" class=" badge badge-primary mr-2">INTERNATIONAL COACHING FEDERATION - ACC ACCREDITED</span>
-                            <span *ngIf="this.userProfile.qualPcc" class=" badge badge-primary mr-2">INTERNATIONAL COACHING FEDERATION - PCC ACCREDITED</span>
-                            <span *ngIf="this.userProfile.qualMcc" class=" badge badge-primary mr-2">INTERNATIONAL COACHING FEDERATION - MCC ACCREDITED</span>
                         </div>
                         <!-- Short Summary -->
                         <div class=" card-description text-center ml-5 mr-5">
