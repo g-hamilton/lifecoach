@@ -69,13 +69,13 @@ export class SearchService {
       andArray.push(`(qualEcas:true OR qualCas:true OR qualCsa:true OR qualSa:true)`);
     }
     if (filters.foundation) {
-      andArray.push(`(qualAcc:true)`); // todo add other providers equivalent
+      andArray.push(`(qualAcc:true OR qualEmccFoundation:true OR qualAcFoundation:true OR qualApecsAssociate)`);
     }
     if (filters.experienced) {
-      andArray.push(`(qualPcc:true)`); // todo add other providers equivalent
+      andArray.push(`(qualPcc:true OR qualEmccPractitioner:true OR qualAcCoach:true OR qualAcProfessionalCoach:true OR qualApecsProfessional:true)`);
     }
     if (filters.master) {
-      andArray.push(`(qualMcc:true)`); // todo add other providers equivalent
+      andArray.push(`(qualMcc:true OR qualEmccMasterPractitioner:true OR qualAcMasterCoach:true OR qualApecsMaster:true)`);
     }
 
     console.log('ANDarray', andArray);
