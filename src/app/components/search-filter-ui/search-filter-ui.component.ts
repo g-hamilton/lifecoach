@@ -249,7 +249,7 @@ export class SearchFilterUiComponent implements OnInit {
 
   makeNewRequest() {
     const formData = this.dataForm.value;
-    console.log(formData);
+    // console.log(formData);
 
     // cleanup!
     const newParams = {};
@@ -276,7 +276,7 @@ export class SearchFilterUiComponent implements OnInit {
         newParams[key] = formData[key];
       }
     });
-    console.log(newParams);
+    // console.log(newParams);
     this.router.navigate(['/coaches'], { queryParams: newParams });
   }
 

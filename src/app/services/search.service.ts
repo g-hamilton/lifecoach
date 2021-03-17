@@ -141,7 +141,7 @@ export class SearchService {
     params.query = params.query.trim().toLowerCase();
     params.query = [...new Set(params.query.split(' '))].join(' ');
 
-    console.log('Algolia query params constructed:', params);
+    // console.log('Algolia query params constructed:', params);
 
     try {
       // Record the search if we're in the browser (not SSR)
