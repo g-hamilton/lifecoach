@@ -2943,7 +2943,7 @@ exports.adminApproveServiceReview = functions
     const event = {
       name: 'admin_approved_service',
       properties: {
-        service_title: service.title,
+        service_type: service.type,
         goto_url: `https://lifecoach.io/my-services/${serviceId}/content`
       }
     }
@@ -3012,7 +3012,7 @@ exports.adminRejectServiceReview = functions
     const event = {
       name: 'admin_rejected_service',
       properties: {
-        service_title: service.title,
+        service_type: service.type,
         reject_reason: reviewRequest.rejectData.reason,
         goto_url: `https://lifecoach.io/my-services/${serviceId}/content`
       }
@@ -4758,7 +4758,7 @@ exports.onNewAdminServiceReviewRequest = functions
       const event = {
         name: 'service_submitted_for_review',
         properties: {
-          service_title: service.title,
+          service_type: service.type,
         }
       }
       return logMailchimpEvent(service.sellerUid, event); // log event

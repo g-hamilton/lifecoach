@@ -44,8 +44,8 @@ export class ServiceSubmitComponent implements OnInit, OnChanges {
   buildServiceForm() {
     this.serviceForm = this.formBuilder.group({
       serviceId: ['', [Validators.required]],
-      title: ['', [Validators.required]],
-      subtitle: ['', [Validators.required]],
+      type: [null, [Validators.required]],
+      headline: ['', [Validators.required]],
       description: ['', [Validators.required]],
       language: [null, [Validators.required]],
       category: [null, [Validators.required]],
@@ -65,8 +65,8 @@ export class ServiceSubmitComponent implements OnInit, OnChanges {
   importServiceData() {
     this.serviceForm.patchValue({
       serviceId: this.service.serviceId,
-      title: this.service.title,
-      subtitle: this.service.subtitle,
+      type: this.service.type,
+      headline: this.service.headline,
       description: this.service.description,
       language: this.service.language,
       category: this.service.category,
