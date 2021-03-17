@@ -74,7 +74,7 @@ export class SearchService {
       andArray.push(`(qualApecsAssociate:true OR qualApecsProfessional:true OR qualApecsMaster:true)`);
     }
     if (filters.foundation) {
-      orArray.push(`(qualAcc:true OR qualEmccFoundation:true OR qualAcFoundation:true OR qualApecsAssociate)`);
+      orArray.push(`(qualAcc:true OR qualEmccFoundation:true OR qualAcFoundation:true OR qualApecsAssociate:true)`);
     }
     if (filters.experienced) {
       orArray.push(`(qualPcc:true OR qualEmccPractitioner:true OR qualAcCoach:true OR qualAcProfessionalCoach:true OR qualApecsProfessional:true)`);
@@ -89,10 +89,14 @@ export class SearchService {
     const builtAndString = andArray.join(' AND ');
     const builtOrString = orArray.join(' OR ');
 
-    const filterString = `${builtAndString} ${builtOrString.length ? ` AND ${builtOrString}` : ''}`;
-    // console.log('Algolia filters string constructed:', filterString);
-
-    return filterString;
+    if (builtAndString.length && builtOrString.length) {
+      return `${builtAndString} AND ${builtOrString}`;
+    } else if (builtAndString.length && !builtOrString.length) {
+      return builtAndString;
+    } else if (!builtAndString.length && builtOrString.length) {
+      return builtOrString;
+    }
+    return '';
   }
 
   private recordCoachesSearch(request: any) {
@@ -137,7 +141,7 @@ export class SearchService {
     params.query = params.query.trim().toLowerCase();
     params.query = [...new Set(params.query.split(' '))].join(' ');
 
-    // console.log('Algolia query params constructed:', params);
+    console.log('Algolia query params constructed:', params);
 
     try {
       // Record the search if we're in the browser (not SSR)

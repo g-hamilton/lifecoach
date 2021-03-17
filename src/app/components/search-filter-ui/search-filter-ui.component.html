@@ -4,7 +4,7 @@
     <form [formGroup]="dataForm">
 
       <!-- Search bar -->
-      <h5 class=" card-title"> Search Coaches </h5>
+      <h5 class=" card-title"> Search Coaches <i class="fas fa-info-circle" tooltip="Search coaches by name, location or tell us what you want to achieve to find relevant coaches..."></i> </h5>
       <div class=" row">
         <div class=" col-md-10">
           <div class="input-group input-group-lg" id="browse-search">
@@ -18,7 +18,7 @@
             class="form-control"
             aria-label="Large"
             aria-describedby="inputGroup-sizing-sm"
-            placeholder="eg. Health & Wellness Coach"
+            placeholder="eg. I want to find clarity and focus"
             [(ngModel)]="searchTerm"
             [ngModelOptions]="{standalone: true}"
             (focus)="focus = true; focusTouched = true"

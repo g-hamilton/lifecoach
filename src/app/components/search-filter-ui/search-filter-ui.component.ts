@@ -239,7 +239,8 @@ export class SearchFilterUiComponent implements OnInit {
   }
 
   reset() {
-    // todo
+    this.router.navigate(['/coaches']);
+    this.updateUI();
   }
 
   clearCity() {
