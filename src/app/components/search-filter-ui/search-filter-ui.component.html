@@ -41,7 +41,7 @@
         <!-- match goals -->
         <div class=" col-md-3">
           <h5 class=" card-title">
-            My Goals
+            My Goals <i class="fas fa-info-circle" tooltip="Select your current life goals to get matched with coaches who can help you to achieve them."></i>
             <span *ngIf="numGoals > 0" class=" badge badge-primary ml-1">
               {{ numGoals }}
             </span>
@@ -60,7 +60,7 @@
         <!-- match challenges -->
         <div class=" col-md-3">
           <h5 class=" card-title">
-            My Challenges
+            My Challenges <i class="fas fa-info-circle" tooltip="Select any challenges that you are currently facing to get matched with coaches who can help you."></i>
             <span *ngIf="numChallenges > 0" class=" badge badge-primary ml-1">
               {{ numChallenges }}
             </span>
@@ -82,7 +82,7 @@
             <label class=" form-check-label">
               <input class=" form-check-input" type="checkbox" name="certified" formControlName="showCertified" (change)="onCertifiedChange() ; makeNewRequest()" />
               <span class=" form-check-sign"> </span>
-              Certified Coaches Only
+              Certified Coaches Only <i class="fas fa-info-circle" tooltip="Show coaches who are certified by a recognised coaching body. Note: Some coaches may still be working toward their initial certification and while not yet certified, they may offer significantly lower rates while they build their experience."></i>
             </label>
           </div>
         </div>
@@ -104,9 +104,8 @@
 
       <!-- experience collapsible -->
       <div id="collapseExperience" [collapse]="experienceIsCollapsed" [isAnimated]="true">
-        <div class=" row mb-3">
+        <!-- <div class=" row mb-3">
           <div class=" col-md-6">
-            <!-- empty spacer col -->
           </div>
           <div class=" col-md-2">
             <div class=" form-check mt-0">
@@ -135,7 +134,7 @@
               </label>
             </div>
           </div>
-        </div>
+        </div> -->
         <div class=" row mb-3">
           <div class=" col-md-6">
             <!-- empty spacer col -->
@@ -145,7 +144,7 @@
               <label class=" form-check-label">
                 <input class=" form-check-input" type="checkbox" name="foundation" formControlName="foundation" (change)="makeNewRequest()" />
                 <span class=" form-check-sign"> </span>
-                Foundation
+                Foundation Level <i class="fas fa-info-circle" tooltip="These coaches typically have around 100 hours of coaching experience and typically offer very affordable pricing."></i>
               </label>
             </div>
           </div>
@@ -154,7 +153,7 @@
               <label class=" form-check-label">
                 <input class=" form-check-input" type="checkbox" name="experienced" formControlName="experienced" (change)="makeNewRequest()" />
                 <span class=" form-check-sign"> </span>
-                Experienced
+                Experienced <i class="fas fa-info-circle" tooltip="These coaches typically have around 500 hours of coaching experience."></i>
               </label>
             </div>
           </div>
@@ -163,7 +162,7 @@
               <label class=" form-check-label">
                 <input class=" form-check-input" type="checkbox" name="master" formControlName="master" (change)="makeNewRequest()" />
                 <span class=" form-check-sign"> </span>
-                Highly Experienced
+                Highly Experienced <i class="fas fa-info-circle" tooltip="These coaches typically have over 2500 hours of coaching experience."></i>
               </label>
             </div>
           </div>
