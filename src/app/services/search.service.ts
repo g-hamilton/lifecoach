@@ -32,7 +32,7 @@ export class SearchService {
   // ================================================================================
 
   private buildAlgoliaCoachFilters(filters: any) {
-    // console.log(filters);
+    // console.log('FILTERS:', filters);
     /*
     Accepts a facets object containing search filters.
     Builds and returns a 'filters' query string from that object using Algolia rules.
@@ -41,45 +41,62 @@ export class SearchService {
     'category:business&career'
     */
     const andArray = [];
-    for (const p of Object.keys(filters)) {
-      // Map each param to an Algolia defined facet in the relevant index
-      let facetKey: string;
-      const str: string = filters[p];
-      if (p === 'category') {
-        facetKey = 'speciality1.itemName';
-      }
-      if (p === 'gender') {
-        facetKey = 'gender';
-      }
-      if (p === 'country') {
-        facetKey = 'country.name';
-      }
-      if (p === 'city') {
-        facetKey = 'city';
-      }
-      if (p === 'accountType') {
-        facetKey = 'accountType';
-      }
-      // any params we want to skip in the filters...
-      if (p === 'page') {
-        return null;
-      }
-      if (p === 'q') {
-        return null;
-      }
-      if (p === 'goals') {
-        return null;
-      }
-      if (p === 'challenges') {
-        return null;
-      }
-      // Add facet to the AND array
-      andArray.push(`${facetKey}:'${str}'`);
-    }
-    const builtAndString = andArray.join(' AND ');
-    // console.log('Algolia filters string constructed:', builtAndString);
+    const orArray = [];
 
-    return builtAndString;
+    if (filters.category) {
+      andArray.push(`speciality1.itemName:'${filters.category}'`);
+    }
+    if (filters.gender) {
+      andArray.push(`gender:'${filters.gender}'`);
+    }
+    if (filters.country) {
+      andArray.push(`country.name:'${filters.country}'`);
+    }
+    if (filters.city) {
+      andArray.push(`city:'${filters.city}'`);
+    }
+    if (filters.accountType) {
+      andArray.push(`accountType:'${filters.accountType}'`);
+    }
+    if (filters.showCertified) {
+      andArray.push(`(qualAcc:true OR qualPcc:true OR qualMcc:true OR qualEmccFoundation:true OR qualEmccPractitioner:true OR qualEmccSeniorPractitioner:true OR qualEmccMasterPractitioner:true OR qualAcFoundation:true OR qualAcCoach:true OR qualAcProfessionalCoach:true OR qualAcMasterCoach:true OR qualApecsAssociate:true OR qualApecsProfessional:true OR qualApecsMaster:true)`);
+    }
+    if (filters.icf) {
+      andArray.push(`(qualAcc:true OR qualPcc:true OR qualMcc:true)`);
+    }
+    if (filters.emcc) {
+      andArray.push(`(qualEmccFoundation:true OR qualEmccPractitioner:true OR qualEmccSeniorPractitioner:true OR qualEmccMasterPractitioner:true)`);
+    }
+    if (filters.ac) {
+      andArray.push(`(qualAcFoundation:true OR qualAcCoach:true OR qualAcProfessionalCoach:true OR qualAcMasterCoach:true)`);
+    }
+    if (filters.apecs) {
+      andArray.push(`(qualApecsAssociate:true OR qualApecsProfessional:true OR qualApecsMaster:true)`);
+    }
+    if (filters.foundation) {
+      orArray.push(`(qualAcc:true OR qualEmccFoundation:true OR qualAcFoundation:true OR qualApecsAssociate:true)`);
+    }
+    if (filters.experienced) {
+      orArray.push(`(qualPcc:true OR qualEmccPractitioner:true OR qualAcCoach:true OR qualAcProfessionalCoach:true OR qualApecsProfessional:true)`);
+    }
+    if (filters.master) {
+      orArray.push(`(qualMcc:true OR qualEmccMasterPractitioner:true OR qualAcMasterCoach:true OR qualApecsMaster:true)`);
+    }
+
+    // console.log('AND array', andArray);
+    // console.log('OR Array', orArray);
+
+    const builtAndString = andArray.join(' AND ');
+    const builtOrString = orArray.join(' OR ');
+
+    if (builtAndString.length && builtOrString.length) {
+      return `${builtAndString} AND ${builtOrString}`;
+    } else if (builtAndString.length && !builtOrString.length) {
+      return builtAndString;
+    } else if (!builtAndString.length && builtOrString.length) {
+      return builtOrString;
+    }
+    return '';
   }
 
   private recordCoachesSearch(request: any) {
@@ -94,9 +111,10 @@ export class SearchService {
     const index = this.searchClient.initIndex(searchIndex);
 
     const params: algoliasearch.QueryParameters = {
-      query: req.query ? req.query : '',
+      query: req.q ? req.q : '',
       hitsPerPage: req.hitsPerPage ? req.hitsPerPage : 6,
       page: req.page ? req.page - 1 : 0, // because Algolia is zero indexed but we always start at 1
+      filters: this.buildAlgoliaCoachFilters(req) // can be empty string but NOT null/undefined!
     };
 
     // do we want to extend the search query string?
@@ -123,28 +141,7 @@ export class SearchService {
     params.query = params.query.trim().toLowerCase();
     params.query = [...new Set(params.query.split(' '))].join(' ');
 
-    // do we want to facet/filter?
-    const facets = {} as any;
-    if (req.category) {
-      facets.category = req.category;
-    }
-    if (req.country) {
-      facets.country = req.country;
-    }
-    if (req.city) {
-      facets.city = req.city;
-    }
-    if (req.accountType) {
-      facets.accountType = req.accountType;
-    }
-    if (req.gender) {
-      facets.gender = req.gender;
-    }
-    if (Object.keys(facets).length) {
-      params.filters = this.buildAlgoliaCoachFilters(facets); // update the algolia params if we have facets
-    }
-
-    console.log('Algolia query params constructed:', params);
+    // console.log('Algolia query params constructed:', params);
 
     try {
       // Record the search if we're in the browser (not SSR)

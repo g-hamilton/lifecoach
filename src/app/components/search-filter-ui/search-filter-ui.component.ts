@@ -73,7 +73,7 @@ export class SearchFilterUiComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
       if (params) {
         this.filters = {...params.keys, ...params};
-        console.log('Navigator filters updated:', this.filters);
+        // console.log('Navigator filters updated:', this.filters);
         // When route params change, update the UI with relevant data
         this.updateUI();
       }
@@ -171,7 +171,7 @@ export class SearchFilterUiComponent implements OnInit {
       this.dataForm.patchValue({ country: this.filters.country });
       this.loadCoachCities(); // load city options when country selected
     }
-    console.log('this.filters', this.filters);
+    // console.log('this.filters', this.filters);
     if (this.filters.city) {
       this.dataForm.patchValue({ city: this.filters.city });
     }
@@ -238,8 +238,9 @@ export class SearchFilterUiComponent implements OnInit {
     this.experienceIsCollapsed = true;
   }
 
-  reset() {
-    // todo
+  reset() { // forces a redirect that will reload the current page
+    this.router.navigateByUrl('/', {skipLocationChange: true})
+    .then(() => this.router.navigate(['/coaches']));
   }
 
   clearCity() {
@@ -248,7 +249,7 @@ export class SearchFilterUiComponent implements OnInit {
 
   makeNewRequest() {
     const formData = this.dataForm.value;
-    console.log(formData);
+    // console.log(formData);
 
     // cleanup!
     const newParams = {};
@@ -275,7 +276,7 @@ export class SearchFilterUiComponent implements OnInit {
         newParams[key] = formData[key];
       }
     });
-    console.log(newParams);
+    // console.log(newParams);
     this.router.navigate(['/coaches'], { queryParams: newParams });
   }
 
