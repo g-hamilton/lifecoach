@@ -238,9 +238,9 @@ export class SearchFilterUiComponent implements OnInit {
     this.experienceIsCollapsed = true;
   }
 
-  reset() {
-    this.router.navigate(['/coaches']);
-    this.updateUI();
+  reset() { // forces a redirect that will reload the current page
+    this.router.navigateByUrl('/', {skipLocationChange: true})
+    .then(() => this.router.navigate(['/coaches']));
   }
 
   clearCity() {
