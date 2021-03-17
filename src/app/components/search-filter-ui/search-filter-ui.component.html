@@ -4,7 +4,7 @@
     <form [formGroup]="dataForm">
 
       <!-- Search bar -->
-      <h5 class=" card-title"> Search Coaches <i class="fas fa-info-circle" tooltip="Search coaches by name, location or tell us what you want to achieve to find relevant coaches..."></i> </h5>
+      <h5 class=" card-title"> Search Coaches </h5>
       <div class=" row">
         <div class=" col-md-10">
           <div class="input-group input-group-lg" id="browse-search">
@@ -18,7 +18,7 @@
             class="form-control"
             aria-label="Large"
             aria-describedby="inputGroup-sizing-sm"
-            placeholder="eg. I want to find clarity and focus"
+            placeholder="Search by name, location or field of coaching..."
             [(ngModel)]="searchTerm"
             [ngModelOptions]="{standalone: true}"
             (focus)="focus = true; focusTouched = true"
@@ -42,7 +42,7 @@
         <div class=" col-md-3">
           <h5 class=" card-title">
             My Goals <i class="fas fa-info-circle" tooltip="Select your current life goals to get matched with coaches who can help you to achieve them."></i>
-            <span *ngIf="numGoals > 0" class=" badge badge-primary ml-1">
+            <span *ngIf="numGoals > 0" class=" badge badge-primary ml-2">
               {{ numGoals }}
             </span>
             <button
@@ -61,7 +61,7 @@
         <div class=" col-md-3">
           <h5 class=" card-title">
             My Challenges <i class="fas fa-info-circle" tooltip="Select any challenges that you are currently facing to get matched with coaches who can help you."></i>
-            <span *ngIf="numChallenges > 0" class=" badge badge-primary ml-1">
+            <span *ngIf="numChallenges > 0" class=" badge badge-primary ml-2">
               {{ numChallenges }}
             </span>
             <button
