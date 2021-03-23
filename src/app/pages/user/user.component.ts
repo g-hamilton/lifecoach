@@ -1,11 +1,7 @@
 import { Component, OnInit, Inject, PLATFORM_ID, AfterViewChecked, ChangeDetectorRef, AfterViewInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { isPlatformBrowser } from '@angular/common';
-
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-
-import { UrlScheme } from '../../custom-validators/urlscheme.validator';
-
 import { AuthService } from '../../services/auth.service';
 import { DataService } from '../../services/data.service';
 import { CountryService } from '../../services/country.service';
@@ -116,24 +112,6 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
     },
     speciality1: {
       required: `Please select a closest matching field`
-    },
-    facebook: {
-      missingUrlScheme: `Address must include either 'http://' or 'https://`
-    },
-    twitter: {
-      missingUrlScheme: `Address must include either 'http://' or 'https://`
-    },
-    linkedin: {
-      missingUrlScheme: `Address must include either 'http://' or 'https://`
-    },
-    youtube: {
-      missingUrlScheme: `Address must include either 'http://' or 'https://`
-    },
-    instagram: {
-      missingUrlScheme: `Address must include either 'http://' or 'https://`
-    },
-    website: {
-      missingUrlScheme: `Address must include either 'http://' or 'https://`
     },
     goalTags: {
       required: `Please add at least one goal focussed outcome`,
@@ -301,12 +279,6 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
       fullDescription: [''],
       goalTags: [this.formBuilder.array([new FormControl('', [Validators.minLength(this.goalTagMinLength), Validators.maxLength(this.goalTagMaxLength)])]), Validators.compose([Validators.maxLength(this.goalTagsMax)])],
       credentials: [this.formBuilder.array([new FormControl('', [Validators.minLength(this.credentialMinLength), Validators.maxLength(this.credentialMaxLength)])]), Validators.compose([Validators.maxLength(this.credentialsMax)])],
-      facebook: [''],
-      twitter: [''],
-      linkedin: [''],
-      youtube: [''],
-      instagram: [''],
-      website: [''],
       isPublic: [false],
       selectedProfileVideo: [null],
       dateCreated: [null],
@@ -314,15 +286,6 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
       onlyIncludeInCoachingForCoaches: [false],
       targetIssues: [null, [Validators.maxLength(this.targetIssuesMaxLength)]],
       targetGoals: [null, [Validators.maxLength(this.targetGoalsMaxLength)]],
-    }, {
-      validators: [
-        UrlScheme('facebook'),
-        UrlScheme('twitter'),
-        UrlScheme('linkedin'),
-        UrlScheme('youtube'),
-        UrlScheme('instagram'),
-        UrlScheme('website')
-      ]
     });
   }
 
@@ -359,12 +322,6 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
       fullDescription: p.fullDescription ? p.fullDescription : '',
       goalTags: this.importGoalTags(p.goalTags),
       credentials: this.importCredentials(p.credentials),
-      facebook: p.facebook ? p.facebook : '',
-      twitter: p.twitter ? p.twitter : '',
-      linkedin: p.linkedin ? p.linkedin : '',
-      youtube: p.youtube ? p.youtube : '',
-      instagram: p.instagram ? p.instagram : '',
-      website: p.website ? p.website : '',
       selectedProfileVideo: p.selectedProfileVideo ? p.selectedProfileVideo : null,
       isPublic: p.isPublic ? p.isPublic : false,
       dateCreated: p.dateCreated ? p.dateCreated : Math.round(new Date().getTime() / 1000), // unix timestamp if missing
