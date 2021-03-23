@@ -70,6 +70,15 @@
                         <div class=" card-description text-center ml-5 mr-5">
                         {{ this.userProfile.proSummary }}
                         </div>
+                        <!-- Contact button -->
+                        <div class=" text-center mt-3">
+                            <button
+                            class="btn btn-primary btn-round"
+                            (click)="scrollToElement('contact')">
+                            <i class="fas fa-comment-dots mr-2"></i>
+                            Contact {{ userProfile.firstName }}
+                        </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -209,8 +218,8 @@
                 </div>
             </div>
 
-            <!-- When Profile Loaded && Email Saved - Display Contact Coach -->
-            <div *ngIf="userProfile && userProfile.email">
+            <!-- When Profile Loaded - Display Contact Coach -->
+            <div id="contact" *ngIf="userProfile">
                 <h4 class=" card-title"> Contact {{ userProfile.firstName }} </h4>
                 <div class=" card">
                     <div class=" card-body">

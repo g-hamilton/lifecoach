@@ -295,6 +295,13 @@ export class CoachComponent implements OnInit, OnDestroy {
     this.bsModalRef = this.modalService.show(RegisterModalComponent, config);
   }
 
+  scrollToElement(elementId: string) {
+    if (this.browser) { // probably not the bet universal browser solution to scroll!
+      const $element = document.getElementById(elementId);
+      $element.scrollIntoView({behavior: "smooth", block: "start", inline: "nearest"});
+    }
+  }
+
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
 
