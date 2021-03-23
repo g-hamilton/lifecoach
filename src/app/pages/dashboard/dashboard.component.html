@@ -890,13 +890,25 @@
                   <td> {{ timestampToDate(user.dateCreated) }} </td>
                   <td> {{ user.userID }} </td>
                   <td class=" text-right">
+                    <!-- view public profile -->
                     <button
-                      class=" btn btn-success btn-link btn-icon btn-sm btn-simple"
-                      tooltip="Refresh"
-                      type="button"
+                    class=" btn btn-success btn-link btn-icon btn-sm btn-simple"
+                    tooltip="View public profile"
+                    type="button"
+                    (click)="viewPublicProfile(user.userID)"
                     >
-                      <i class=" tim-icons icon-refresh-01"> </i>
+                    <i class="fas fa-id-card"></i>
                     </button>
+                    <!-- manage user -->
+                    <button
+                    class=" btn btn-success btn-link btn-icon btn-sm btn-simple"
+                    tooltip="Manage user"
+                    type="button"
+                    (click)="manageUser(user.userID)"
+                    >
+                    <i class="fas fa-user"></i>
+                    </button>
+                    <!-- delete user -->
                     <button
                       class=" btn btn-danger btn-link btn-icon btn-sm btn-simple"
                       tooltip="Delete"

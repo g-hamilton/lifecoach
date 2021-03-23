@@ -11,6 +11,7 @@ import { UserTask } from '../../interfaces/user.tasks.interface';
 import { Subscription } from 'rxjs';
 import {CloudFunctionsService} from '../../services/cloud-functions.service';
 import { SearchCoachesRequest } from 'app/interfaces/search.coaches.request.interface';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
@@ -65,6 +66,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private searchService: SearchService,
     private ssoService: SsoService,
     private cloudFunctions: CloudFunctionsService,
+    private router: Router
   ) {
   }
 
@@ -284,5 +286,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     } catch (e) {
       console.log(e);
     }
+  }
+
+  viewPublicProfile(uid: string) {
+    this.router.navigate(['coach', uid]);
+  }
+
+  manageUser(uid: string) {
+      this.router.navigate(['admin-manage-user', uid]);
   }
 }
