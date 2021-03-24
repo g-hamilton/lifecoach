@@ -76,11 +76,9 @@ import { CourseSearchFilterUiComponent } from './course-search-filter-ui/course-
 import { CourseResultsComponent } from './course-results/course-results.component';
 import { CourseBotlinksComponent } from './course-botlinks/course-botlinks.component';
 import { CourseCardComponent } from './course-card/course-card.component';
-import { StarReviewComponent } from './star-review/star-review.component';
 import { StarsComponent } from './stars/stars.component';
 import { CourseContentsComponent } from './course-contents/course-contents.component';
 import { CourseFeedbackComponent } from './course-feedback/course-feedback.component';
-import { CourseBrowseReviewsComponent } from './course-browse-reviews/course-browse-reviews.component';
 import { LearnLecturesNavigatorComponent } from './learn-lectures-navigator/learn-lectures-navigator.component';
 import { AuthCourseNavbarComponent } from './auth-course-navbar/auth-course-navbar.component';
 import { CourseResourceUploaderComponent } from './course-resource-uploader/course-resource-uploader.component';
@@ -113,7 +111,6 @@ import { ProgramSubmitComponent } from './program-submit/program-submit.componen
 import { ProgramPromoteComponent } from './program-promote/program-promote.component';
 import { ProgramStarsComponent } from './program-stars/program-stars.component';
 import { ProgramFeedbackComponent } from './program-feedback/program-feedback.component';
-import { ProgramBrowseReviewsComponent } from './program-browse-reviews/program-browse-reviews.component';
 import { ProgramContentComponent } from './program-content/program-content.component';
 import { ProgramMoreComponent } from './program-more/program-more.component';
 import { VideoSessionCardComponent } from './video-session-card/video-session-card.component';
@@ -227,11 +224,9 @@ export function momentAdapterFactory() {
     CourseResultsComponent,
     CourseBotlinksComponent,
     CourseCardComponent,
-    StarReviewComponent,
     StarsComponent,
     CourseContentsComponent,
     CourseFeedbackComponent,
-    CourseBrowseReviewsComponent,
     LearnLecturesNavigatorComponent,
     AuthCourseNavbarComponent,
     CourseResourceUploaderComponent,
@@ -262,7 +257,6 @@ export function momentAdapterFactory() {
     ProgramPromoteComponent,
     ProgramStarsComponent,
     ProgramFeedbackComponent,
-    ProgramBrowseReviewsComponent,
     ProgramContentComponent,
     ProgramMoreComponent,
     ProgramSearchFilterUiComponent,
@@ -349,11 +343,9 @@ export function momentAdapterFactory() {
     CourseResultsComponent,
     CourseBotlinksComponent,
     CourseCardComponent,
-    StarReviewComponent,
     StarsComponent,
     CourseContentsComponent,
     CourseFeedbackComponent,
-    CourseBrowseReviewsComponent,
     LearnLecturesNavigatorComponent,
     AuthCourseNavbarComponent,
     ProgressbarModule,
@@ -386,7 +378,6 @@ export function momentAdapterFactory() {
     ProgramPromoteComponent,
     ProgramStarsComponent,
     ProgramFeedbackComponent,
-    ProgramBrowseReviewsComponent,
     ProgramContentComponent,
     ProgramMoreComponent,
     ProgramSearchFilterUiComponent,

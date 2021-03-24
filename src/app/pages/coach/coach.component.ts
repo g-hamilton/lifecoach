@@ -70,13 +70,6 @@ export class CoachComponent implements OnInit, OnDestroy {
       this.getUser();
     }
 
-    // testing!
-    this.clientTestimonials.push({
-      firstName: 'Greg',
-      lastName: 'Hamilton',
-      description: 'Hello world!'
-    });
-
     // Check activated route params for user ID
     this.route.params.subscribe(params => {
       this.coachId = params.uid;
