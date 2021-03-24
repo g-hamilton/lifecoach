@@ -19,6 +19,7 @@ import { AlertService } from 'app/services/alert.service';
 import { BsModalService, BsModalRef, ModalOptions } from 'ngx-bootstrap/modal';
 import { ScheduleCallComponent } from 'app/components/schedule-call/schedule-call.component';
 import { RegisterModalComponent } from 'app/components/register-modal/register-modal.component';
+import { ClientTestimonial } from 'app/interfaces/client.testimonial.interface';
 
 
 @Component({
@@ -42,6 +43,7 @@ export class CoachComponent implements OnInit, OnDestroy {
   public userId: string;
   public objKeys = Object.keys;
   public maxDiscountObj = { max: 0 };
+  public clientTestimonials = [] as ClientTestimonial[];
 
   constructor(
     @Inject(DOCUMENT) private document: any,
@@ -67,6 +69,13 @@ export class CoachComponent implements OnInit, OnDestroy {
       this.analyticsService.pageView();
       this.getUser();
     }
+
+    // testing!
+    this.clientTestimonials.push({
+      firstName: 'Greg',
+      lastName: 'Hamilton',
+      description: 'Hello world!'
+    });
 
     // Check activated route params for user ID
     this.route.params.subscribe(params => {

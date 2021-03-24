@@ -196,6 +196,16 @@
                 </div>
             </div>
 
+            <!-- client testimonials -->
+            <div *ngIf="clientTestimonials">
+                <h4 class=" card-title"> Kind Words From Happy Clients </h4>
+                <div class=" row">
+                    <div *ngFor="let testimonial of clientTestimonials" class=" col-md-4">
+                        <app-client-testimonial [testimonial]="testimonial"></app-client-testimonial>
+                    </div>
+                </div>
+            </div>
+
             <!-- Map Card -->
             <div *ngIf="userProfile" class=" col-md-12">
                 <h4 class=" card-title"> {{ userProfile.firstName }}'s Home City </h4>

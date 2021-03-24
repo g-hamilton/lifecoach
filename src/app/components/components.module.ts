@@ -142,6 +142,7 @@ import { CoachHistoryTimelineComponent } from './coach-history-timeline/coach-hi
 import { FindCoachWizardComponent } from './find-coach-wizard/find-coach-wizard.component';
 import { CheckCoachNameModalComponent } from './check-coach-name-modal/check-coach-name-modal.component';
 import { ChipsMultiSelectComponent } from './chips-multi-select/chips-multi-select.component';
+import { ClientTestimonialComponent } from './client-testimonial/client-testimonial.component';
 
 export function momentAdapterFactory() {
   return adapterFactory(moment);
@@ -287,7 +288,8 @@ export function momentAdapterFactory() {
     CoachHistoryTimelineComponent,
     FindCoachWizardComponent,
     CheckCoachNameModalComponent,
-    ChipsMultiSelectComponent
+    ChipsMultiSelectComponent,
+    ClientTestimonialComponent
   ],
   exports: [
     TabsModule,
@@ -406,7 +408,8 @@ export function momentAdapterFactory() {
     ServiceCardComponent,
     ItemStatusComponent,
     CoachHistoryTimelineComponent,
-    ChipsMultiSelectComponent
+    ChipsMultiSelectComponent,
+    ClientTestimonialComponent
   ],
   entryComponents: [
     LoginComponent,
