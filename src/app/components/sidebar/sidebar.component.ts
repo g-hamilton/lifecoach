@@ -115,6 +115,14 @@ export const ROUTES: RouteInfo[] = [
     userTypes: ['coach'],
   },
   {
+    path: '/client-testimonials',
+    title: 'My Testimonials',
+    type: 'link',
+    icontype: 'tim-icons icon-chat-33',
+    rtlTitle: 'لوحة القيادة',
+    userTypes: ['coach'],
+  },
+  {
     path: '/coach-journey',
     title: 'My Journey',
     type: 'link',
