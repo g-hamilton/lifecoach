@@ -307,7 +307,7 @@ export class CoachComponent implements OnInit, OnDestroy {
   scrollToElement(elementId: string) {
     if (this.browser) { // probably not the bet universal browser solution to scroll!
       const $element = document.getElementById(elementId);
-      $element.scrollIntoView({behavior: "smooth", block: "start", inline: "nearest"});
+      $element.scrollIntoView({behavior: 'smooth', block: 'start', inline: 'nearest'});
     }
   }
 
