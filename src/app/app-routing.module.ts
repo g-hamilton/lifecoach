@@ -342,6 +342,11 @@ const routes: Routes = [
         path: 'my-coaches',
         loadChildren: () => import('./pages/my-coaches/mycoaches.module').then(m => m.MyCoachesModule),
         pathMatch: 'full'
+      },
+      {
+        path: 'client-testimonials',
+        loadChildren: () => import('./pages/coach-manage-testimonials/manage.testimonials.module').then(m => m.ManageTestimonialsModule),
+        pathMatch: 'full'
       }
     ],
     canActivate: [AuthGuard]

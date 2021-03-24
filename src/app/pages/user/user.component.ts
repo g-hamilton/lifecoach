@@ -10,7 +10,7 @@ import { CoachingSpecialitiesService } from '../../services/coaching.specialitie
 import { AnalyticsService } from '../../services/analytics.service';
 import { StorageService } from '../../services/storage.service';
 import { AlertService } from 'app/services/alert.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { environment } from 'environments/environment';
 import {CloudFunctionsService} from '../../services/cloud-functions.service';
@@ -160,7 +160,8 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
     private analyticsService: AnalyticsService,
     private storageService: StorageService,
     private alertService: AlertService,
-    private cloudFunctions: CloudFunctionsService
+    private cloudFunctions: CloudFunctionsService,
+    private router: Router
   ) {
   }
 
@@ -503,7 +504,7 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
       }
       this.alertService.alert('warning-message', 'Oops', 'Please complete all required fields before saving.');
       this.savingProfile = false;
-      return;
+      return false;
     }
 
     // console.log('Profile is valid:', this.userProfile.value);
@@ -573,6 +574,7 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
 
     this.savingProfile = false;
     this.saveAttempt = false;
+    return true;
   }
 
   copyShareUrl(element: any) {
@@ -583,6 +585,15 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
     document.execCommand('copy');
     element.setSelectionRange(0, 0);
     this.alertService.alert('auto-close', 'Copied!', 'Link copied to clipboard.');
+  }
+
+  async manageTestimonials() {
+    // auto save
+    const res = await this.onSubmit();
+    // save successful, navigate...
+    if (res) {
+      this.router.navigate(['/client-testimonials']);
+    }
   }
 
   ngOnDestroy() {
