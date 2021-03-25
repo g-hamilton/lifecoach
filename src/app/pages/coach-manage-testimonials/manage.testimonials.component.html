@@ -1,3 +1,48 @@
 <div class=" content">
-    <p>Works!</p>
+    <h4 class=" title"> Testimonials </h4>
+    <p class=" small text-muted pl-2 mb-2">
+        <i class="fas fa-info-circle"></i> Manage your client testimonials here in your testimonials 
+        centre. Lifecoach helps you to capture new client testimonials by prompting clients at 
+        the optimum point in their coaching journey. If you don't yet have client history on the 
+        platform, you can upload a few of your best testimonials to give people a better idea of your 
+        coaching style. After capturing a few tistimonials here, you can decide which ones to 
+        showcase on your coach profile page and occasionally, we showcase our favourite 
+        testimonials on the Lifecoach home page.
+    </p>
+
+    <!-- add testimonial button -->
+    <div class=" row mt-2">
+        <div class=" col">
+            <button
+                type="button"
+                class=" btn btn-primary btn-fill btn-round pull-right mb-3"
+                (click)="createTestimonial()">
+                <i class=" tim-icons icon-simple-add"></i> Add Testimonial
+            </button>
+        </div>
+    </div>
+
+    <!-- no testimonials yet -->
+    <div *ngIf="!testimonials || !testimonials.length ; else testimonialsView">
+        <div class=" row mt-2">
+            <div class=" col">
+                <div class=" card">
+                    <div class=" card-body">
+                        <p class="p-4">
+                        You haven't received or uploaded any client testimonials yet. As soon as you 
+                        receive a new testimonial through Lifecoach, it will appear here. 
+                        Alternatively, you can add a few of your best existing client testimonials to showcase on your 
+                        profile page.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- got some testimonials -->
+    <ng-template #testimonialsView>
+        <!--  -->
+    </ng-template>
+
 </div>

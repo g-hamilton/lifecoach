@@ -4185,18 +4185,20 @@ exports.onWritePublicClientTestimonial = functions
 
   const before = change.before.data() as any;
   const after = change.after.data() as any;
+  const docId = context.params.docId;
+  const index = algolia.initIndex('prod_TESTIMONIALS');
 
   if (!after) { // Record Removed.
-    // decrement total count
     if (before) {
       const coachUid = before.coachUid;
       if (coachUid) {
-        return db.collection(`public-testimonial-totals/by-coach-id/${coachUid}`)
+        await db.collection(`public-testimonial-totals/by-coach-id/${coachUid}`)
         .doc('total-client-testimonials')
         .set({
           totalRecords: admin.firestore.FieldValue.increment(-1)
-        }, { merge: true });
+        }, { merge: true }); // decrement total count
       }
+      return index.deleteObject(docId); // remove record from algolia
     }
   }
 
@@ -4204,7 +4206,7 @@ exports.onWritePublicClientTestimonial = functions
     // increment total review count to allow cheaper lookups
     const coachUid = after.coachUid;
     if (coachUid) {
-      return db.collection(`public-testimonial-totals/by-coach-id/${coachUid}`)
+      await db.collection(`public-testimonial-totals/by-coach-id/${coachUid}`)
       .doc('total-client-testimonials')
       .set({
         totalRecords: admin.firestore.FieldValue.increment(1)
@@ -4212,8 +4214,19 @@ exports.onWritePublicClientTestimonial = functions
     }
   }
 
-  // existing record updated. Do nothing.
-  return null;
+  // record is new or updating existing
+  const recordToSend = {
+    objectID: docId,
+    created: after.created,
+    clientUid: after.clientUid,
+    coachUid: after.coachUid,
+    firstName: after.firstName,
+    lastName: after.lastName,
+    description: after.description,
+    img: after.img ? after.img : null
+    
+  };
+  return index.saveObject(recordToSend); // Update Algolia.
 
 });
 
