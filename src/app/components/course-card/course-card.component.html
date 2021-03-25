@@ -21,12 +21,6 @@
   <div class=" card-body">
     <h4 class="card-title"> {{ course?.title }} </h4>
     <h6 class="card-subtitle mb-2 text-muted"> {{ course?.subtitle }} </h6>
-    <div *ngIf="browser">
-      <!-- <app-stars
-        *ngIf="courseObject"
-        [course]="courseObject">
-      </app-stars> -->
-    </div>
     <div *ngIf="clientCurrency && rates" style="clear: both;">
       <h4 *ngIf="course?.pricingStrategy === 'paid'"> {{ currencySymbol + '' + displayPrice }} </h4>
       <h4 *ngIf="course?.pricingStrategy === 'free'"> FREE </h4>

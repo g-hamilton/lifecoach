@@ -4175,95 +4175,47 @@ exports.onWritePrivateUserCourse = functions
 });
 
 /*
-  Monitor course user reviews.
+  Monitor client testimonials.
 */
-exports.onWriteCourseReview = functions
+exports.onWritePublicClientTestimonial = functions
 .runWith({memory: '1GB', timeoutSeconds: 300})
 .firestore
-.document(`course-reviews/{reviewId}`)
+.document(`public-client-testimonials/{docId}`)
 .onWrite( async (change, context) => {
 
-  const index = algolia.initIndex('prod_COURSE_REVIEWS');
-  const reviewId = context.params.reviewId;
   const before = change.before.data() as any;
-  const review = change.after.data() as any;
+  const after = change.after.data() as any;
 
-  // Record Removed.
-
-  if (!review) {
-
-    // decrement total review count
+  if (!after) { // Record Removed.
+    // decrement total count
     if (before) {
-      await db.collection(`public-courses`)
-      .doc(review.courseId)
-      .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: admin.firestore.FieldValue.increment(-1) }, { merge: true })
-      .catch(err => console.error(err));
+      const coachUid = before.coachUid;
+      if (coachUid) {
+        return db.collection(`public-testimonial-totals/by-coach-id/${coachUid}`)
+        .doc('total-client-testimonials')
+        .set({
+          totalRecords: admin.firestore.FieldValue.increment(-1)
+        }, { merge: true });
+      }
     }
-
-    // sync with Algolia
-    return index.deleteObject(reviewId);
   }
 
-  // Record added/updated
-
-  // if rating has been updated, decrement the old value before incrementing the new value
-  if (before && before.starValue && review && review.starValue && (before.starValue !== review.starValue)) {
-    await db.collection(`public-courses`)
-    .doc(review.courseId)
-    .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: admin.firestore.FieldValue.increment(-1) }, { merge: true })
-    .catch(err => console.error(err));
+  if (!before) { // new record created
+    // increment total review count to allow cheaper lookups
+    const coachUid = after.coachUid;
+    if (coachUid) {
+      return db.collection(`public-testimonial-totals/by-coach-id/${coachUid}`)
+      .doc('total-client-testimonials')
+      .set({
+        totalRecords: admin.firestore.FieldValue.increment(1)
+      }, { merge: true });
+    }
   }
 
-  // increment total review count to allow cheaper lookups
-  await db.collection(`public-courses`)
-  .doc(review.courseId)
-  .set({ [`total${getRatingAsText(review.starValue)}StarReviews`]: admin.firestore.FieldValue.increment(1) }, { merge: true })
-  .catch(err => console.error(err));
+  // existing record updated. Do nothing.
+  return null;
 
-  // sync with Algolia
-  const recordToSend = {
-    objectID: reviewId,
-    courseId: review.courseId,
-    lastUpdated: review.lastUpdated,
-    reviewerUid: review.reviewerUid,
-    reviewerFirstName: review.reviewerFirstName,
-    reviewerLastName: review.reviewerLastName,
-    reviewerPhoto: review.reviewerPhoto ? review.reviewerPhoto : null,
-    sellerUid: review.sellerUid,
-    starValue: review.starValue,
-    summary: review.summary ? review.summary : null,
-    summaryExists: review.summary ? true : false,
-  };
-  // Update Algolia.
-  return index.saveObject(recordToSend);
 });
-
-function getRatingAsText(rating: number) {
-  switch (rating) {
-    case 5:
-      return 'Five';
-    case 4.5:
-      return 'FourPointFive';
-    case 4:
-      return 'Four';
-    case 3.5:
-      return 'ThreePointFive';
-    case 3:
-      return 'Three';
-    case 2.5:
-      return 'TwoPointFive';
-    case 2:
-      return 'Two';
-    case 1.5:
-      return 'OnePointFive';
-    case 1:
-      return 'One';
-    case 0.5:
-      return 'ZeroPointFive';
-    default:
-      return 'Zero';
-  }
-}
 
 /*
   Monitor newly created public course questions.
@@ -4664,70 +4616,6 @@ exports.onWritePrivateUserProgram = functions
 });
 
 /*
-  Monitor program user reviews.
-*/
-exports.onWriteProgramReview = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.firestore
-.document(`program-reviews/{reviewId}`)
-.onWrite( async (change, context) => {
-
-  const index = algolia.initIndex('prod_PROGRAM_REVIEWS');
-  const reviewId = context.params.reviewId;
-  const before = change.before.data() as any;
-  const review = change.after.data() as any;
-
-  // Record Removed.
-
-  if (!review) {
-
-    // decrement total review count
-    if (before) {
-      await db.collection(`public-programs`)
-      .doc(review.programId)
-      .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: admin.firestore.FieldValue.increment(-1) }, { merge: true })
-      .catch(err => console.error(err));
-    }
-
-    // sync with Algolia
-    return index.deleteObject(reviewId);
-  }
-
-  // Record added/updated
-
-  // if rating has been updated, decrement the old value before incrementing the new value
-  if (before && before.starValue && review && review.starValue && (before.starValue !== review.starValue)) {
-    await db.collection(`public-programs`)
-    .doc(review.programId)
-    .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: admin.firestore.FieldValue.increment(-1) }, { merge: true })
-    .catch(err => console.error(err));
-  }
-
-  // increment total review count to allow cheaper lookups
-  await db.collection(`public-programs`)
-  .doc(review.programId)
-  .set({ [`total${getRatingAsText(review.starValue)}StarReviews`]: admin.firestore.FieldValue.increment(1) }, { merge: true })
-  .catch(err => console.error(err));
-
-  // sync with Algolia
-  const recordToSend = {
-    objectID: reviewId,
-    programId: review.programId,
-    lastUpdated: review.lastUpdated,
-    reviewerUid: review.reviewerUid,
-    reviewerFirstName: review.reviewerFirstName,
-    reviewerLastName: review.reviewerLastName,
-    reviewerPhoto: review.reviewerPhoto ? review.reviewerPhoto : null,
-    sellerUid: review.sellerUid,
-    starValue: review.starValue,
-    summary: review.summary ? review.summary : null,
-    summaryExists: review.summary ? true : false,
-  };
-  // Update Algolia.
-  return index.saveObject(recordToSend);
-});
-
-/*
   Monitor new admin servicess in review (review requests).
 */
 exports.onNewAdminServiceReviewRequest = functions
@@ -4933,70 +4821,6 @@ exports.onWritePrivateUserService = functions
     return;
   }
 
-});
-
-/*
-  Monitor service user reviews.
-*/
-exports.onWriteServiceReview = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.firestore
-.document(`service-reviews/{reviewId}`)
-.onWrite( async (change, context) => {
-
-  const index = algolia.initIndex('prod_SERVICE_REVIEWS');
-  const reviewId = context.params.reviewId;
-  const before = change.before.data() as any;
-  const review = change.after.data() as any;
-
-  // Record Removed.
-
-  if (!review) {
-
-    // decrement total review count
-    if (before) {
-      await db.collection(`public-services`)
-      .doc(review.serviceId)
-      .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: admin.firestore.FieldValue.increment(-1) }, { merge: true })
-      .catch(err => console.error(err));
-    }
-
-    // sync with Algolia
-    return index.deleteObject(reviewId);
-  }
-
-  // Record added/updated
-
-  // if rating has been updated, decrement the old value before incrementing the new value
-  if (before && before.starValue && review && review.starValue && (before.starValue !== review.starValue)) {
-    await db.collection(`public-services`)
-    .doc(review.serviceId)
-    .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: admin.firestore.FieldValue.increment(-1) }, { merge: true })
-    .catch(err => console.error(err));
-  }
-
-  // increment total review count to allow cheaper lookups
-  await db.collection(`public-services`)
-  .doc(review.serviceId)
-  .set({ [`total${getRatingAsText(review.starValue)}StarReviews`]: admin.firestore.FieldValue.increment(1) }, { merge: true })
-  .catch(err => console.error(err));
-
-  // sync with Algolia
-  const recordToSend = {
-    objectID: reviewId,
-    serviceId: review.serviceId,
-    lastUpdated: review.lastUpdated,
-    reviewerUid: review.reviewerUid,
-    reviewerFirstName: review.reviewerFirstName,
-    reviewerLastName: review.reviewerLastName,
-    reviewerPhoto: review.reviewerPhoto ? review.reviewerPhoto : null,
-    sellerUid: review.sellerUid,
-    starValue: review.starValue,
-    summary: review.summary ? review.summary : null,
-    summaryExists: review.summary ? true : false,
-  };
-  // Update Algolia.
-  return index.saveObject(recordToSend);
 });
 
 /*
