@@ -140,6 +140,7 @@ import { FindCoachWizardComponent } from './find-coach-wizard/find-coach-wizard.
 import { CheckCoachNameModalComponent } from './check-coach-name-modal/check-coach-name-modal.component';
 import { ChipsMultiSelectComponent } from './chips-multi-select/chips-multi-select.component';
 import { ClientTestimonialComponent } from './client-testimonial/client-testimonial.component';
+import { EditClientTestimonialModalComponent } from './edit-client-testimonial-modal/edit-client-testimonial-modal.component';
 
 export function momentAdapterFactory() {
   return adapterFactory(moment);
@@ -283,7 +284,8 @@ export function momentAdapterFactory() {
     FindCoachWizardComponent,
     CheckCoachNameModalComponent,
     ChipsMultiSelectComponent,
-    ClientTestimonialComponent
+    ClientTestimonialComponent,
+    EditClientTestimonialModalComponent
   ],
   exports: [
     TabsModule,
@@ -408,7 +410,8 @@ export function momentAdapterFactory() {
     SessionManagerComponent,
     CoachInviteComponent,
     FindCoachWizardComponent,
-    CheckCoachNameModalComponent
+    CheckCoachNameModalComponent,
+    EditClientTestimonialModalComponent
   ]
 })
 export class ComponentsModule {}

@@ -1,8 +1,10 @@
 import { isPlatformBrowser } from '@angular/common';
 import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
+import { EditClientTestimonialModalComponent } from 'app/components/edit-client-testimonial-modal/edit-client-testimonial-modal.component';
 import { ClientTestimonial } from 'app/interfaces/client.testimonial.interface';
 import { AuthService } from 'app/services/auth.service';
 import { TestimonialsService } from 'app/services/testimonials.service';
+import { BsModalRef, BsModalService, ModalOptions } from 'ngx-bootstrap/modal';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -12,6 +14,7 @@ import { Subscription } from 'rxjs';
 })
 export class ManageTestimonialsComponent implements OnInit, OnDestroy {
 
+    public bsModalRef: BsModalRef;
     public browser: boolean;
     private userId: string;
     public testimonials: ClientTestimonial[];
@@ -20,7 +23,8 @@ export class ManageTestimonialsComponent implements OnInit, OnDestroy {
     constructor(
         @Inject(PLATFORM_ID) private platformId: object,
         private authService: AuthService,
-        private testimonialsService: TestimonialsService
+        private testimonialsService: TestimonialsService,
+        private modalService: BsModalService
     ) {}
 
     ngOnInit() {
@@ -52,7 +56,16 @@ export class ManageTestimonialsComponent implements OnInit, OnDestroy {
     }
 
     createTestimonial() {
-        //
+        // pop the modal
+        // we can send data to the modal & open in a another component via a service
+        // https://valor-software.com/ngx-bootstrap/#/modals#service-component
+        const config: ModalOptions = {
+            class: 'modal-lg', // let's make this a large one!
+            initialState: {
+            title: `Add Testimonial`
+            } as any
+        };
+        this.bsModalRef = this.modalService.show(EditClientTestimonialModalComponent, config);
     }
 
     ngOnDestroy() {
