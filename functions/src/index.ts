@@ -2558,7 +2558,7 @@ async function manageSubscriptionStatusChange(subscriptionId: string, uid: strin
   const ref2 = db.collection(`subscriptions`).doc(subscription.id)
   batch.set(ref2, subscription, { merge: true });
 
-  
+  await batch.commit();
 
 }
 
