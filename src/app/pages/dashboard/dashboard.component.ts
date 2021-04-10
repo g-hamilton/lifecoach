@@ -1,6 +1,9 @@
 import { Component, OnInit, Inject, PLATFORM_ID, OnDestroy } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 
+import { environment } from '../../../environments/environment';
+declare var Stripe: any;
+
 import { DataService } from '../../services/data.service';
 import { AuthService } from '../../services/auth.service';
 import { AnalyticsService } from '../../services/analytics.service';
@@ -9,9 +12,10 @@ import { SsoService } from 'app/services/sso.service';
 
 import { UserTask } from '../../interfaces/user.tasks.interface';
 import { Subscription } from 'rxjs';
-import {CloudFunctionsService} from '../../services/cloud-functions.service';
+import { CloudFunctionsService } from '../../services/cloud-functions.service';
 import { SearchCoachesRequest } from 'app/interfaces/search.coaches.request.interface';
 import { Router } from '@angular/router';
+import { CurrenciesService } from 'app/services/currencies.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -19,8 +23,24 @@ import { Router } from '@angular/router';
 })
 export class DashboardComponent implements OnInit, OnDestroy {
 
+  private stripe = Stripe(`${environment.stripeJsClientKey}`);
+
   private uid: string;
   public userType: 'coach' | 'regular' | 'partner' | 'provider' | 'admin';
+  public stripeCustomerId: string; // coach users may have a stripe customer id if they have previously subscribed
+  public subscriptionPlan: string; // if subscribed to a plan (active or trialing), this will be the plan's stripe price id
+  public userSubscriptions: any[]; // Stripe.Subscription[]
+  public subscribing: boolean;
+  public product = {
+    priceId: 'price_1IdF2bBulafdcV5tZKdSbed8',
+    image: '',
+    title: 'Spark',
+    price: 24.99,
+    currency: 'GBP'
+  };
+  public clientCurrency: string;
+  public clientCountry: string;
+  public rates: any;
 
   public adminCountAllUsers: number;
   public adminCountRegularUsers: number;
@@ -66,7 +86,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private searchService: SearchService,
     private ssoService: SsoService,
     private cloudFunctions: CloudFunctionsService,
-    private router: Router
+    private router: Router,
+    private currenciesService: CurrenciesService,
   ) {
   }
 
@@ -90,15 +111,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
           this.getUserSSOToken();
 
           // Check the user's custom auth claims for user type
-          user.getIdTokenResult()
+          user.getIdTokenResult(true)
             .then(tokenRes => {
-              // console.log('Custom user claims:', tokenRes.claims);
+              console.log('User claims:', tokenRes.claims);
               const c = tokenRes.claims;
               if (c.admin) {
                 this.userType = 'admin';
                 this.loadAdminData();
               } else if (c.coach) {
                 this.userType = 'coach';
+                if (c.subscriptionPlan) {
+                  this.subscriptionPlan = c.subscriptionPlan;
+                  console.log('Subscription plan:', this.subscriptionPlan);
+                }
+                this.loadUserAccount();
+                this.loadUserSubscriptions();
+                this.checkSavedClientCurrency();
+                this.monitorPlatformRates();
                 this.loadTodos();
                 // this.loadClients();
               } else if (c.regular) {
@@ -116,6 +145,51 @@ export class DashboardComponent implements OnInit, OnDestroy {
         tempAuthSub.unsubscribe();
       });
     this.subscriptions.add(tempAuthSub);
+  }
+
+  loadUserAccount() {
+    this.subscriptions.add(
+      this.dataService.getUserAccount(this.uid).subscribe(data => {
+        if (data) {
+          if (data.stripeCustomerId) {
+            this.stripeCustomerId = data.stripeCustomerId;
+            console.log('Stripe customer ID:', this.stripeCustomerId);
+          }
+        }
+      })
+    );
+  }
+
+  loadUserSubscriptions() {
+    this.subscriptions.add(
+      this.dataService.getUserSubscriptions(this.uid).subscribe(data => {
+        if (data) {
+          this.userSubscriptions = data;
+          console.log('User subscriptions:', this.userSubscriptions);
+          // check the user's custom auth claims
+          const tempAuthSub = this.authService.getAuthUser()
+          .subscribe(user => {
+            if (user) {
+              // Get a SSO token for this user
+              // this.getUserSSOToken();
+
+              // Check the user's custom auth claims for user type
+              user.getIdTokenResult(true)
+                .then(tokenRes => {
+                  console.log('Checking user claims:', tokenRes.claims);
+                  const c = tokenRes.claims;
+                  if (c.subscriptionPlan) {
+                    this.subscriptionPlan = c.subscriptionPlan;
+                    console.log('Subscription plan:', this.subscriptionPlan);
+                  }
+                });
+            }
+            tempAuthSub.unsubscribe();
+          });
+          this.subscriptions.add(tempAuthSub);
+        }
+      })
+    );
   }
 
   loadTodos() {
@@ -142,6 +216,39 @@ export class DashboardComponent implements OnInit, OnDestroy {
         ]
       }
     ];
+  }
+
+  async redirectToStripeCheckout() {
+    this.subscribing = true;
+    this.analyticsService.attemptCoachSubscription(this.product.priceId);
+    const data = {
+      product: this.product,
+      uid: this.uid,
+      successUrl: `${environment.baseUrl}/dashboard`,
+      cancelUrl: `${environment.baseUrl}/dashboard`,
+      partnerReferred: 'false', // TODO
+      saleItemType: 'coach_subscription'
+    };
+    console.log('creating checkout session with data:', data);
+    const res = await this.cloudFunctions.createStripeCheckoutSession(data) as any; // should return a session id string
+    // console.log('result', res);
+    if (res.error) {
+      console.error(res.error);
+      this.analyticsService.failCoachSubscription(this.product.priceId);
+      return null;
+    }
+    const res1 = await this.stripe.redirectToCheckout({
+      sessionId: res.sessionId
+    });
+    if (res1.error) {
+      console.error(res1.error);
+      this.subscribing = false;
+      this.analyticsService.failCoachSubscription(this.product.priceId);
+      return null;
+    }
+    // success!
+    this.subscribing = false;
+    this.analyticsService.completeCoachSubscription(this.product.priceId);
   }
 
   async loadAdminData() {
@@ -293,6 +400,83 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   manageUser(uid: string) {
-      this.router.navigate(['admin-manage-user', uid]);
+    this.router.navigate(['admin-manage-user', uid]);
   }
+
+  get displayPrice() {
+    if (!this.product.price || !this.rates || !this.product.currency || !this.clientCurrency) {
+      return null;
+    }
+
+    let amount: number;
+
+    if (this.product.currency === this.clientCurrency) { // no conversion needed
+      return this.product.price;
+    }
+
+    amount = Number((this.product.price / this.rates[this.product.currency.toUpperCase()] * this.rates[this.clientCurrency.toUpperCase()]));
+
+    if (!Number.isInteger(amount)) { // if price is not an integer
+      const rounded = Math.floor(amount) + .99; // round UP to .99
+      amount = rounded;
+    }
+
+    return amount;
+  }
+
+  get currencySymbol() {
+    const c = this.currenciesService.getCurrencies();
+    if (!this.clientCurrency) {
+      return '';
+    }
+    if (c != null) {
+      return c[this.clientCurrency].symbol;
+    }
+  }
+
+  checkSavedClientCurrency() {
+    // Check for saved client currency & country preference
+    const savedClientCurrencyPref = localStorage.getItem('client-currency');
+    const savedClientCountryPref = localStorage.getItem('client-country');
+    if (savedClientCurrencyPref && savedClientCountryPref) {
+      this.clientCurrency = savedClientCurrencyPref;
+      this.clientCountry = savedClientCountryPref;
+    } else {
+      this.getClientCurrencyAndCountryFromIP();
+    }
+  }
+
+  async getClientCurrencyAndCountryFromIP() {
+    const res = await fetch('https://ipapi.co/json/');
+    // console.log(res.status);
+    if (res.status === 200) {
+      const json = await res.json();
+      if (json.currency) {
+        this.clientCurrency = json.currency;
+        localStorage.setItem('client-currency', String(json.currency));
+      }
+      if (json.country) {
+        this.clientCountry = json.country;
+        localStorage.setItem('client-country', String(json.country));
+      }
+    }
+  }
+
+  onManualCurrencyChange(ev: string) {
+    console.log('User changed currency to:', ev);
+    this.clientCurrency = ev;
+  }
+
+  monitorPlatformRates() {
+    // Monitor platform rates for realtime price calculations
+    this.subscriptions.add(
+      this.dataService.getPlatformRates().subscribe(rates => {
+        if (rates) {
+          // console.log('Rates:', rates);
+          this.rates = rates;
+        }
+      })
+    );
+  }
+
 }

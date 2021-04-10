@@ -1,856 +1,248 @@
-<!-- COACH USERS -->
-<div *ngIf="userType === 'coach'" class=" content">
-  <div class=" row">
-    <div class=" col-lg-4">
-      <div class=" card card-tasks">
-        <div class=" card-header">
-          <h4 class=" card-title"> My Todos
-            <span *ngIf="todos && todos.length" class=" badge badge-primary" id="todos-badge">
-              {{ todos.length }}
-            </span>
-          </h4>
-          <!-- <div class=" dropdown" dropdown>
-            <button
-              class=" btn btn-link dropdown-toggle btn-icon dropdown-toggle"
-              data-toggle="dropdown"
-              dropdownToggle
-              type="button"
-            >
-              <i class=" tim-icons icon-settings-gear-63"> </i>
-            </button>
-            <div class=" dropdown-menu dropdown-menu-right" *dropdownMenu>
-              <a class=" dropdown-item" href="#pablo"> View completed </a>
-            </div>
-          </div> -->
-        </div>
-        <div class=" card-body">
-          <div class=" table-full-width table-responsive">
-            <table class=" table">
-              <!-- User has active tasks -->
-              <tbody *ngIf="todos && todos.length > 0">
-                <tr *ngFor="let task of todos ; let i = index">
-                  <td>
-                    <p class=" title">{{ (i + 1) + '. ' + task.title }}</p>
-                    <p class=" text-muted">{{ task.description }} 
-                      <a class=" pl-1 text-success" [routerLink]="['/', task.action]">
-                        Complete now >
-                      </a>
-                    </p>
-                  </td>
-                  <td class=" td-actions text-right">
-                    <button
-                      class=" btn btn-link"
-                      type="button"
-                      tooltip="Dismiss this todo"
-                      placement="left"
-                      (click)="dismissTodo(task.id)"
-                    >
-                      <i class=" tim-icons icon-simple-remove text-danger"> </i>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-              <!-- No active tasks -->
-              <tbody *ngIf="!todos || todos.length === 0">
-                <tr>
-                  <td>
-                    <p class=" mt-2"> 🎉 Aces! You're up to date. </p>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class=" col-lg-4">
-      <div class=" card">
-        <div class=" card-header">
-          <!-- <div class=" tools float-right">
-            <div class=" dropdown" dropdown>
-              <button
-                class=" btn btn-link dropdown-toggle btn-icon dropdown-toggle"
-                data-toggle="dropdown"
-                dropdownToggle
-                type="button"
-              >
-                <i class=" tim-icons icon-settings-gear-63"> </i>
-              </button>
-              <div class=" dropdown-menu dropdown-menu-right" *dropdownMenu>
-                <a class=" dropdown-item" href="#pablo"> Action </a>
-                <a class=" dropdown-item" href="#pablo"> Another action </a>
-                <a class=" dropdown-item" href="#pablo"> Something else </a>
-                <a class=" dropdown-item text-danger" href="#pablo">
-                  Remove Data
-                </a>
-              </div>
-            </div>
-          </div> -->
-          <h4 class=" card-title"> My Clients </h4>
-        </div>
-        <div class=" card-body">
-          <div class=" table-responsive">
-            <table class=" table">
-              <!-- User has active clients -->
-              <thead *ngIf="clients && clients.length > 0" class=" text-primary">
-                <tr>
-                  <th class=" text-center">#</th>
-                  <th>Name</th>
-                  <th>Job Position</th>
-                  <th>Milestone</th>
-                  <th class=" text-right">Salary</th>
-                  <th class=" text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody *ngIf="clients && clients.length > 0">
-                <tr *ngFor="let client of clients">
-                  <td class=" text-center">
-                    <div class=" photo">
-                      <img alt="photo" [src]="client.photo" />
-                    </div>
-                  </td>
-                  <td>{{ client.firstName + ' ' + client.lastName }}</td>
-                  <td>{{ client.jobRole }}</td>
-                  <td class=" text-center">
-                    <div class=" progress-container progress-sm">
-                      <div class=" progress">
-                        <span class=" progress-value"> 25% </span>
-                        <progressbar [value]="25"> </progressbar>
-                      </div>
-                    </div>
-                  </td>
-                  <td class=" text-right">€ 99,225</td>
-                  <td class=" text-right">
-                    <button
-                      class=" btn btn-success btn-link btn-icon btn-sm btn-simple"
-                      tooltip="Refresh"
-                      type="button"
-                    >
-                      <i class=" tim-icons icon-refresh-01"> </i>
-                    </button>
-                    <button
-                      class=" btn btn-danger btn-link btn-icon btn-sm btn-simple"
-                      tooltip="Delete"
-                      type="button"
-                    >
-                      <i class=" tim-icons icon-simple-remove"> </i>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-              <!-- No active clients -->
-              <tbody *ngIf="!clients || clients.length === 0">
-                <tr>
-                  <td>
-                    <p> Rest easy. You have no active clients. </p>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
+<div class=" content">
 
-    <!-- Vote Features -->
-    <div class=" col-lg-4">
-      <div class=" card">
-        <div class=" card-header">
-          <h4 class=" card-title"> Have Your Say! </h4>
-          <p class=" card-category"> What's next for Lifecoach? </p>
-        </div>
-        <div class=" card-body">
+  <!-- COACH USERS -->
+  <div *ngIf="userType === 'coach'">
+    
+    <!-- coach has no stripe customer id and billing subscription is not active -->
+    <div *ngIf="!stripeCustomerId && !subscriptionPlan">
+      <div class=" row">
+        <div class=" col">
           <p>
-            Looking for a new feature? Need an improvement? Got an idea how to make Lifecoach work better for you? Suggest a feature or add your vote to an existing idea and help to make Lifecoach better for everyone - we're always listening!
+            Not a stripe customer yet!
           </p>
-          <p class=" mt-3">
-            <a class=" btn btn-round btn-primary" [href]="feedbackUrl" target="_blank">
-              <i class="fas fa-lightbulb"></i> Have Your Say
-            </a>
-          </p>
+          <!-- subscribe button -->
+          <button
+          class=" btn btn-primary btn-round btn-block btn-fill"
+          id="subscribe"
+          type="button"
+          (click)="redirectToStripeCheckout()">
+            <span
+            *ngIf="subscribing"
+            class="spinner-border spinner-border-sm"
+            role="status"
+            ></span> {{ subscribing ? 'Preparing checkout...' : 'Buy Now'}} 
+          </button>
         </div>
       </div>
     </div>
+    <!-- end coach has no stripe customer id and billing subscription is not active -->
 
-  </div>
-</div>
-
-<!-- REGULAR USERS -->
-<div *ngIf="userType === 'regular'" class=" content">
-  <div class=" row">
-    <div class=" col-lg-5">
-      <p>
-        Welcome to Lifecoach!
-      </p>
-    </div>
-  </div>
-</div>
-
-<!-- PROMOTIONAL PARTNER USERS -->
-<div *ngIf="userType === 'partner'" class=" content">
-  <div class=" row">
-    <div class=" col-lg-6">
-      <div class=" card card-tasks">
-        <div class=" card-header">
-          <h4 class=" card-title"> My Todos
-            <span *ngIf="todos && todos.length" class=" badge badge-primary" id="todos-badge">
-              {{ todos.length }}
-            </span>
-          </h4>
-          <!-- <div class=" dropdown" dropdown>
-            <button
-              class=" btn btn-link dropdown-toggle btn-icon dropdown-toggle"
-              data-toggle="dropdown"
-              dropdownToggle
-              type="button"
-            >
-              <i class=" tim-icons icon-settings-gear-63"> </i>
-            </button>
-            <div class=" dropdown-menu dropdown-menu-right" *dropdownMenu>
-              <a class=" dropdown-item" href="#pablo"> View completed </a>
-            </div>
-          </div> -->
-        </div>
-        <div class=" card-body">
-          <div class=" table-full-width table-responsive">
-            <table class=" table">
-              <!-- User has active tasks -->
-              <tbody *ngIf="todos && todos.length > 0">
-                <tr *ngFor="let task of todos ; let i = index">
-                  <td>
-                    <p class=" title">{{ (i + 1) + '. ' + task.title }}</p>
-                    <p class=" text-muted">{{ task.description }} 
-                      <a class=" pl-1 text-success" [routerLink]="['/', task.action]">
-                        Complete now >
-                      </a>
-                    </p>
-                  </td>
-                  <td class=" td-actions text-right">
-                    <button
-                      class=" btn btn-link"
-                      type="button"
-                      tooltip="Dismiss this todo"
-                      placement="left"
-                      (click)="dismissTodo(task.id)"
-                    >
-                      <i class=" tim-icons icon-simple-remove text-danger"> </i>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-              <!-- No active tasks -->
-              <tbody *ngIf="!todos || todos.length === 0">
-                <tr>
-                  <td>
-                    <p class=" mt-2"> 🎉 Aces! You're up to date. </p>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Vote Features -->
-    <div class=" col-lg-6">
-      <div class=" card">
-        <div class=" card-header">
-          <h4 class=" card-title"> Have Your Say! </h4>
-          <p class=" card-category"> What's next for Lifecoach? </p>
-        </div>
-        <div class=" card-body">
+    <!-- coach has a stripe customer id but billing subscription is not active -->
+    <div *ngIf="stripeCustomerId && !subscriptionPlan">
+      <div class=" row">
+        <div class=" col">
           <p>
-            Looking for a new feature? Need an improvement? Got an idea how to make Lifecoach work better for you? Suggest a feature or add your vote to an existing idea and help to make Lifecoach better for everyone - we're always listening!
-          </p>
-          <p class=" mt-3">
-            <a class=" btn btn-round btn-primary" [href]="feedbackUrl" target="_blank">
-              <i class="fas fa-lightbulb"></i> Have Your Say
-            </a>
+            Stripe customer but billing not active!
           </p>
         </div>
       </div>
     </div>
+    <!-- end coach has a stripe customer id but billing subscription is not active -->
+
+    <!-- coach billing subscription is active -->
+    <div *ngIf="stripeCustomerId && subscriptionPlan">
+      <div class=" row">
+        <div class=" col-lg-4">
+          <div class=" card card-tasks">
+            <div class=" card-header">
+              <h4 class=" card-title"> My Todos
+                <span *ngIf="todos && todos.length" class=" badge badge-primary" id="todos-badge">
+                  {{ todos.length }}
+                </span>
+              </h4>
+              <!-- <div class=" dropdown" dropdown>
+                <button
+                  class=" btn btn-link dropdown-toggle btn-icon dropdown-toggle"
+                  data-toggle="dropdown"
+                  dropdownToggle
+                  type="button"
+                >
+                  <i class=" tim-icons icon-settings-gear-63"> </i>
+                </button>
+                <div class=" dropdown-menu dropdown-menu-right" *dropdownMenu>
+                  <a class=" dropdown-item" href="#pablo"> View completed </a>
+                </div>
+              </div> -->
+            </div>
+            <div class=" card-body">
+              <div class=" table-full-width table-responsive">
+                <table class=" table">
+                  <!-- User has active tasks -->
+                  <tbody *ngIf="todos && todos.length > 0">
+                    <tr *ngFor="let task of todos ; let i = index">
+                      <td>
+                        <p class=" title">{{ (i + 1) + '. ' + task.title }}</p>
+                        <p class=" text-muted">{{ task.description }} 
+                          <a class=" pl-1 text-success" [routerLink]="['/', task.action]">
+                            Complete now >
+                          </a>
+                        </p>
+                      </td>
+                      <td class=" td-actions text-right">
+                        <button
+                          class=" btn btn-link"
+                          type="button"
+                          tooltip="Dismiss this todo"
+                          placement="left"
+                          (click)="dismissTodo(task.id)"
+                        >
+                          <i class=" tim-icons icon-simple-remove text-danger"> </i>
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                  <!-- No active tasks -->
+                  <tbody *ngIf="!todos || todos.length === 0">
+                    <tr>
+                      <td>
+                        <p class=" mt-2"> 🎉 Aces! You're up to date. </p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class=" col-lg-4">
+          <div class=" card">
+            <div class=" card-header">
+              <!-- <div class=" tools float-right">
+                <div class=" dropdown" dropdown>
+                  <button
+                    class=" btn btn-link dropdown-toggle btn-icon dropdown-toggle"
+                    data-toggle="dropdown"
+                    dropdownToggle
+                    type="button"
+                  >
+                    <i class=" tim-icons icon-settings-gear-63"> </i>
+                  </button>
+                  <div class=" dropdown-menu dropdown-menu-right" *dropdownMenu>
+                    <a class=" dropdown-item" href="#pablo"> Action </a>
+                    <a class=" dropdown-item" href="#pablo"> Another action </a>
+                    <a class=" dropdown-item" href="#pablo"> Something else </a>
+                    <a class=" dropdown-item text-danger" href="#pablo">
+                      Remove Data
+                    </a>
+                  </div>
+                </div>
+              </div> -->
+              <h4 class=" card-title"> My Clients </h4>
+            </div>
+            <div class=" card-body">
+              <div class=" table-responsive">
+                <table class=" table">
+                  <!-- User has active clients -->
+                  <thead *ngIf="clients && clients.length > 0" class=" text-primary">
+                    <tr>
+                      <th class=" text-center">#</th>
+                      <th>Name</th>
+                      <th>Job Position</th>
+                      <th>Milestone</th>
+                      <th class=" text-right">Salary</th>
+                      <th class=" text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody *ngIf="clients && clients.length > 0">
+                    <tr *ngFor="let client of clients">
+                      <td class=" text-center">
+                        <div class=" photo">
+                          <img alt="photo" [src]="client.photo" />
+                        </div>
+                      </td>
+                      <td>{{ client.firstName + ' ' + client.lastName }}</td>
+                      <td>{{ client.jobRole }}</td>
+                      <td class=" text-center">
+                        <div class=" progress-container progress-sm">
+                          <div class=" progress">
+                            <span class=" progress-value"> 25% </span>
+                            <progressbar [value]="25"> </progressbar>
+                          </div>
+                        </div>
+                      </td>
+                      <td class=" text-right">€ 99,225</td>
+                      <td class=" text-right">
+                        <button
+                          class=" btn btn-success btn-link btn-icon btn-sm btn-simple"
+                          tooltip="Refresh"
+                          type="button"
+                        >
+                          <i class=" tim-icons icon-refresh-01"> </i>
+                        </button>
+                        <button
+                          class=" btn btn-danger btn-link btn-icon btn-sm btn-simple"
+                          tooltip="Delete"
+                          type="button"
+                        >
+                          <i class=" tim-icons icon-simple-remove"> </i>
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                  <!-- No active clients -->
+                  <tbody *ngIf="!clients || clients.length === 0">
+                    <tr>
+                      <td>
+                        <p> Rest easy. You have no active clients. </p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+    
+        <!-- Vote Features -->
+        <div class=" col-lg-4">
+          <div class=" card">
+            <div class=" card-header">
+              <h4 class=" card-title"> Have Your Say! </h4>
+              <p class=" card-category"> What's next for Lifecoach? </p>
+            </div>
+            <div class=" card-body">
+              <p>
+                Looking for a new feature? Need an improvement? Got an idea how to make Lifecoach work better for you? Suggest a feature or add your vote to an existing idea and help to make Lifecoach better for everyone - we're always listening!
+              </p>
+              <p class=" mt-3">
+                <a class=" btn btn-round btn-primary" [href]="feedbackUrl" target="_blank">
+                  <i class="fas fa-lightbulb"></i> Have Your Say
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
+    
+      </div>
+    </div>
+    <!-- end coach billing subscription is active -->
 
   </div>
-</div>
+  <!-- end coach users -->
 
-<!-- PROVIDER USERS -->
-<div *ngIf="userType === 'provider'" class=" content">
-  <div class=" row">
-    <div class=" col-lg-5">
-      <p>
-        Welcome to Lifecoach!
-      </p>
+  <!-- REGULAR USERS -->
+  <div *ngIf="userType === 'regular'">
+    <div class=" row">
+      <div class=" col-lg-5">
+        <p>
+          Welcome to Lifecoach!
+        </p>
+      </div>
     </div>
   </div>
-</div>
 
-
-<!-- ADMIN USERS -->
-<div *ngIf="userType === 'admin'" class=" content">
-  <div class=" row">
-    <!-- Total Users -->
-    <div class=" col-lg-3 col-md-4">
-      <div class=" card card-stats">
-        <div class=" card-body">
-          <div class=" row">
-            <div class=" col-5">
-              <div class=" info-icon text-center icon-primary">
-                <i class="fas fa-users"></i>
-              </div>
-            </div>
-            <div class=" col-7">
-              <div class=" numbers">
-                <p class=" card-category">
-                  All Users
-                </p>
-                <h3 class="card-title">
-                  {{ adminCountAllUsers ? adminCountAllUsers : '0' }}
-                </h3>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class=" card-footer">
-          <hr>
-          <div class=" stats">
-            <i class=" tim-icons icon-alert-circle-exc"></i> Total Users
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Total Regular -->
-    <div class=" col-lg-3 col-md-4">
-      <div class=" card card-stats">
-        <div class=" card-body">
-          <div class=" row">
-            <div class=" col-5">
-              <div class=" info-icon text-center icon-success">
-                <i class="fas fa-user"></i>
-              </div>
-            </div>
-            <div class=" col-7">
-              <div class=" numbers">
-                <p class=" card-category">
-                  Clients
-                </p>
-                <h3 class="card-title">
-                  {{ (adminCountRegularUsers || adminCountRegularUsers === 0) ? adminCountRegularUsers : '0' }}
-                </h3>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class=" card-footer">
-          <hr>
-          <div class=" stats">
-            <i class=" tim-icons icon-alert-circle-exc"></i> Total Clients
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Total Coaches -->
-    <div class=" col-lg-3 col-md-4">
-      <div class=" card card-stats">
-        <div class=" card-body">
-          <div class=" row">
-            <div class=" col-5">
-              <div class=" info-icon text-center icon-success">
-                <i class="fas fa-user"></i>
-              </div>
-            </div>
-            <div class=" col-7">
-              <div class=" numbers">
-                <p class=" card-category">
-                  Coaches
-                </p>
-                <h3 class="card-title">
-                  {{ adminCountCoachUsers ? adminCountCoachUsers : '0' }}
-                </h3>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class=" card-footer">
-          <hr>
-          <div class=" stats">
-            <i class=" tim-icons icon-alert-circle-exc"></i> Total Coaches
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Total Promotional Partners -->
-    <div class=" col-lg-3 col-md-4">
-      <div class=" card card-stats">
-        <div class=" card-body">
-          <div class=" row">
-            <div class=" col-5">
-              <div class=" info-icon text-center icon-success">
-                <i class="fas fa-user"></i>
-              </div>
-            </div>
-            <div class=" col-7">
-              <div class=" numbers">
-                <p class=" card-category">
-                  Partners
-                </p>
-                <h3 class="card-title">
-                  {{ adminCountPartnerUsers ? adminCountPartnerUsers : '0' }}
-                </h3>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class=" card-footer">
-          <hr>
-          <div class=" stats">
-            <i class=" tim-icons icon-alert-circle-exc"></i> Total Promotional Partners
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Total Providers -->
-    <div class=" col-lg-3 col-md-4">
-      <div class=" card card-stats">
-        <div class=" card-body">
-          <div class=" row">
-            <div class=" col-5">
-              <div class=" info-icon text-center icon-success">
-                <i class="fas fa-user"></i>
-              </div>
-            </div>
-            <div class=" col-7">
-              <div class=" numbers">
-                <p class=" card-category">
-                  Providers
-                </p>
-                <h3 class="card-title">
-                  {{ adminCountProviderUsers ? adminCountProviderUsers : '0' }}
-                </h3>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class=" card-footer">
-          <hr>
-          <div class=" stats">
-            <i class=" tim-icons icon-alert-circle-exc"></i> Total Coaches
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Total Admins -->
-    <div class=" col-lg-3 col-md-4">
-      <div class=" card card-stats">
-        <div class=" card-body">
-          <div class=" row">
-            <div class=" col-5">
-              <div class=" info-icon text-center icon-warning">
-                <i class="fas fa-lock"></i>
-              </div>
-            </div>
-            <div class=" col-7">
-              <div class=" numbers">
-                <p class=" card-category">
-                  Admins
-                </p>
-                <h3 class="card-title">
-                  {{ adminCountAdminUsers ? adminCountAdminUsers : '0' }}
-                </h3>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class=" card-footer">
-          <hr>
-          <div class=" stats">
-            <i class=" tim-icons icon-alert-circle-exc"></i> Total Admins
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Total Public Coach Profiles -->
-    <div class=" col-lg-3 col-md-4">
-      <div class=" card card-stats">
-        <div class=" card-body">
-          <div class=" row">
-            <div class=" col-5">
-              <div class=" info-icon text-center icon-primary">
-                <i class="fas fa-address-card"></i>
-              </div>
-            </div>
-            <div class=" col-7">
-              <div class=" numbers">
-                <p class=" card-category">
-                  Public Profiles
-                </p>
-                <h3 class="card-title">
-                  {{ adminPublicCoachesCount ? adminPublicCoachesCount : '0' }}
-                </h3>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class=" card-footer">
-          <hr>
-          <div class=" stats">
-            <i class=" tim-icons icon-alert-circle-exc"></i> Total Public Coach Profiles
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Total Draft Courses -->
-    <div class=" col-lg-3 col-md-4">
-      <div class=" card card-stats">
-        <div class=" card-body">
-          <div class=" row">
-            <div class=" col-5">
-              <div class=" info-icon text-center icon-warning">
-                <i class="fas fa-video"></i>
-              </div>
-            </div>
-            <div class=" col-7">
-              <div class=" numbers">
-                <p class=" card-category">
-                  Draft eCourses
-                </p>
-                <h3 class="card-title">
-                  {{ adminDraftCoursesCount ? adminDraftCoursesCount : '0' }}
-                </h3>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class=" card-footer">
-          <hr>
-          <div class=" stats">
-            <i class=" tim-icons icon-alert-circle-exc"></i> Total eCourses In Draft
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Total Published Courses -->
-    <div class=" col-lg-3 col-md-4">
-      <div class=" card card-stats">
-        <div class=" card-body">
-          <div class=" row">
-            <div class=" col-5">
-              <div class=" info-icon text-center icon-success">
-                <i class="fas fa-video"></i>
-              </div>
-            </div>
-            <div class=" col-7">
-              <div class=" numbers">
-                <p class=" card-category">
-                  Published eCourses
-                </p>
-                <h3 class="card-title">
-                  {{ adminPublishedCoursesCount ? adminPublishedCoursesCount : '0' }}
-                </h3>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class=" card-footer">
-          <hr>
-          <div class=" stats">
-            <i class=" tim-icons icon-alert-circle-exc"></i> Total eCourses Published
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Total Courses Review Requests -->
-    <div class=" col-lg-3 col-md-4">
-      <div class=" card card-stats">
-        <div class=" card-body">
-          <div class=" row">
-            <div class=" col-5">
-              <div class=" info-icon text-center icon-info">
-                <i class="fas fa-check-square"></i>
-              </div>
-            </div>
-            <div class=" col-7">
-              <div class=" numbers">
-                <p class=" card-category">
-                  eCourse Review Requests
-                </p>
-                <h3 class="card-title">
-                  {{ adminCourseReviewRequests ? adminCourseReviewRequests : '0' }}
-                </h3>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class=" card-footer">
-          <hr>
-          <div class=" stats">
-            <i class=" tim-icons icon-alert-circle-exc"></i> eCourses Awaiting Review
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Total Draft Programs -->
-    <div class=" col-lg-3 col-md-4">
-      <div class=" card card-stats">
-        <div class=" card-body">
-          <div class=" row">
-            <div class=" col-5">
-              <div class=" info-icon text-center icon-warning">
-                <i class="fas fa-video"></i>
-              </div>
-            </div>
-            <div class=" col-7">
-              <div class=" numbers">
-                <p class=" card-category">
-                  Draft Programs
-                </p>
-                <h3 class="card-title">
-                  {{ adminDraftProgramsCount ? adminDraftProgramsCount : '0' }}
-                </h3>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class=" card-footer">
-          <hr>
-          <div class=" stats">
-            <i class=" tim-icons icon-alert-circle-exc"></i> Total Programs In Draft
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Total Published Programs -->
-    <div class=" col-lg-3 col-md-4">
-      <div class=" card card-stats">
-        <div class=" card-body">
-          <div class=" row">
-            <div class=" col-5">
-              <div class=" info-icon text-center icon-success">
-                <i class="fas fa-video"></i>
-              </div>
-            </div>
-            <div class=" col-7">
-              <div class=" numbers">
-                <p class=" card-category">
-                  Published Programs
-                </p>
-                <h3 class="card-title">
-                  {{ adminPublishedProgramsCount ? adminPublishedProgramsCount : '0' }}
-                </h3>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class=" card-footer">
-          <hr>
-          <div class=" stats">
-            <i class=" tim-icons icon-alert-circle-exc"></i> Total Programs Published
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Total Program Review Requests -->
-    <div class=" col-lg-3 col-md-4">
-      <div class=" card card-stats">
-        <div class=" card-body">
-          <div class=" row">
-            <div class=" col-5">
-              <div class=" info-icon text-center icon-info">
-                <i class="fas fa-check-square"></i>
-              </div>
-            </div>
-            <div class=" col-7">
-              <div class=" numbers">
-                <p class=" card-category">
-                  Program Review Requests
-                </p>
-                <h3 class="card-title">
-                  {{ adminProgramReviewRequests ? adminProgramReviewRequests : '0' }}
-                </h3>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class=" card-footer">
-          <hr>
-          <div class=" stats">
-            <i class=" tim-icons icon-alert-circle-exc"></i> Programs Awaiting Review
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Total Draft Services -->
-    <div class=" col-lg-3 col-md-4">
-      <div class=" card card-stats">
-        <div class=" card-body">
-          <div class=" row">
-            <div class=" col-5">
-              <div class=" info-icon text-center icon-warning">
-                <i class="fas fa-video"></i>
-              </div>
-            </div>
-            <div class=" col-7">
-              <div class=" numbers">
-                <p class=" card-category">
-                  Draft Services
-                </p>
-                <h3 class="card-title">
-                  {{ adminDraftServicesCount ? adminDraftServicesCount : '0' }}
-                </h3>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class=" card-footer">
-          <hr>
-          <div class=" stats">
-            <i class=" tim-icons icon-alert-circle-exc"></i> Total Services In Draft
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Total Published Services -->
-    <div class=" col-lg-3 col-md-4">
-      <div class=" card card-stats">
-        <div class=" card-body">
-          <div class=" row">
-            <div class=" col-5">
-              <div class=" info-icon text-center icon-success">
-                <i class="fas fa-video"></i>
-              </div>
-            </div>
-            <div class=" col-7">
-              <div class=" numbers">
-                <p class=" card-category">
-                  Published Services
-                </p>
-                <h3 class="card-title">
-                  {{ adminPublishedServicesCount ? adminPublishedServicesCount : '0' }}
-                </h3>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class=" card-footer">
-          <hr>
-          <div class=" stats">
-            <i class=" tim-icons icon-alert-circle-exc"></i> Total Services Published
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Total Service Review Requests -->
-    <div class=" col-lg-3 col-md-4">
-      <div class=" card card-stats">
-        <div class=" card-body">
-          <div class=" row">
-            <div class=" col-5">
-              <div class=" info-icon text-center icon-info">
-                <i class="fas fa-check-square"></i>
-              </div>
-            </div>
-            <div class=" col-7">
-              <div class=" numbers">
-                <p class=" card-category">
-                  Service Review Requests
-                </p>
-                <h3 class="card-title">
-                  {{ adminServiceReviewRequests ? adminServiceReviewRequests : '0' }}
-                </h3>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class=" card-footer">
-          <hr>
-          <div class=" stats">
-            <i class=" tim-icons icon-alert-circle-exc"></i> Services Awaiting Review
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Total Refund Requests -->
-    <div class=" col-lg-3 col-md-4">
-      <div class=" card card-stats">
-        <div class=" card-body">
-          <div class=" row">
-            <div class=" col-5">
-              <div class=" info-icon text-center icon-danger">
-                <i class="fas fa-arrow-left"></i>
-              </div>
-            </div>
-            <div class=" col-7">
-              <div class=" numbers">
-                <p class=" card-category">
-                  Refund Requests
-                </p>
-                <h3 *ngIf="adminCourseRefundRequests && adminProgramRefundRequests" class="card-title">
-                  {{ adminCourseRefundRequests + adminProgramRefundRequests }}
-                </h3>
-                <h3 *ngIf="adminCourseRefundRequests && !adminProgramRefundRequests" class="card-title">
-                  {{ adminCourseRefundRequests }}
-                </h3>
-                <h3 *ngIf="!adminCourseRefundRequests && adminProgramRefundRequests" class="card-title">
-                  {{ adminProgramRefundRequests }}
-                </h3>
-                <h3 *ngIf="!adminCourseRefundRequests && !adminProgramRefundRequests" class="card-title">
-                  0
-                </h3>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class=" card-footer">
-          <hr>
-          <div class=" stats">
-            <i class=" tim-icons icon-alert-circle-exc"></i> Open Refund Requests
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Total unique leads -->
-    <div class=" col-lg-3 col-md-4">
-      <div class=" card card-stats">
-        <div class=" card-body">
-          <div class=" row">
-            <div class=" col-5">
-              <div class=" info-icon text-center icon-success">
-                <i class="fas fa-paper-plane"></i>
-              </div>
-            </div>
-            <div class=" col-7">
-              <div class=" numbers">
-                <p class=" card-category">
-                  Total Leads
-                </p>
-                <h3 class="card-title">
-                  {{ adminTotalLeads ? adminTotalLeads : '0' }}
-                </h3>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class=" card-footer">
-          <hr>
-          <div class=" stats">
-            <i class=" tim-icons icon-alert-circle-exc"></i> Total Unique Leads
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- End of widgets -->
-  </div>
-  <!-- End of row 1 -->
-  <!-- Row 2 -->
-
-  <!-- Newest Users -->
-  <div class=" row">
-    <div class=" col-lg-12">
-      <div class=" card">
-        <div class=" card-header">
-          <div class=" tools float-right">
-            <div class=" dropdown" dropdown>
+  <!-- PROMOTIONAL PARTNER USERS -->
+  <div *ngIf="userType === 'partner'">
+    <div class=" row">
+      <div class=" col-lg-6">
+        <div class=" card card-tasks">
+          <div class=" card-header">
+            <h4 class=" card-title"> My Todos
+              <span *ngIf="todos && todos.length" class=" badge badge-primary" id="todos-badge">
+                {{ todos.length }}
+              </span>
+            </h4>
+            <!-- <div class=" dropdown" dropdown>
               <button
                 class=" btn btn-link dropdown-toggle btn-icon dropdown-toggle"
                 data-toggle="dropdown"
@@ -860,144 +252,799 @@
                 <i class=" tim-icons icon-settings-gear-63"> </i>
               </button>
               <div class=" dropdown-menu dropdown-menu-right" *dropdownMenu>
-                <a class=" dropdown-item" href="#pablo"> Action </a>
-                <a class=" dropdown-item" href="#pablo"> Another action </a>
-                <a class=" dropdown-item" href="#pablo"> Something else </a>
-                <a class=" dropdown-item text-danger" href="#pablo">
-                  Remove Data
-                </a>
+                <a class=" dropdown-item" href="#pablo"> View completed </a>
               </div>
-            </div>
+            </div> -->
           </div>
-          <h5 class=" card-title"> Newest Users </h5>
-        </div>
-        <div class=" card-body">
-          <div class=" table-responsive">
-            <table class=" table">
-              <thead class=" text-primary">
-                <tr>
-                  <th> Name </th>
-                  <th> Account Type </th>
-                  <th> Join Date </th>
-                  <th> User ID </th>
-                  <th class=" text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let user of adminNewestUsers">
-                  <td> {{ user.firstName + ' ' + user.lastName }} </td>
-                  <td> {{ user.accountType }} </td>
-                  <td> {{ timestampToDate(user.dateCreated) }} </td>
-                  <td> {{ user.userID }} </td>
-                  <td class=" text-right">
-                    <!-- view public profile -->
-                    <button
-                    class=" btn btn-success btn-link btn-icon btn-sm btn-simple"
-                    tooltip="View public profile"
-                    type="button"
-                    (click)="viewPublicProfile(user.userID)"
-                    >
-                    <i class="fas fa-id-card"></i>
-                    </button>
-                    <!-- manage user -->
-                    <button
-                    class=" btn btn-success btn-link btn-icon btn-sm btn-simple"
-                    tooltip="Manage user"
-                    type="button"
-                    (click)="manageUser(user.userID)"
-                    >
-                    <i class="fas fa-user"></i>
-                    </button>
-                    <!-- delete user -->
-                    <button
-                      class=" btn btn-danger btn-link btn-icon btn-sm btn-simple"
-                      tooltip="Delete"
-                      type="button"
-                    >
-                      <i class=" tim-icons icon-simple-remove"> </i>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+          <div class=" card-body">
+            <div class=" table-full-width table-responsive">
+              <table class=" table">
+                <!-- User has active tasks -->
+                <tbody *ngIf="todos && todos.length > 0">
+                  <tr *ngFor="let task of todos ; let i = index">
+                    <td>
+                      <p class=" title">{{ (i + 1) + '. ' + task.title }}</p>
+                      <p class=" text-muted">{{ task.description }} 
+                        <a class=" pl-1 text-success" [routerLink]="['/', task.action]">
+                          Complete now >
+                        </a>
+                      </p>
+                    </td>
+                    <td class=" td-actions text-right">
+                      <button
+                        class=" btn btn-link"
+                        type="button"
+                        tooltip="Dismiss this todo"
+                        placement="left"
+                        (click)="dismissTodo(task.id)"
+                      >
+                        <i class=" tim-icons icon-simple-remove text-danger"> </i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+                <!-- No active tasks -->
+                <tbody *ngIf="!todos || todos.length === 0">
+                  <tr>
+                    <td>
+                      <p class=" mt-2"> 🎉 Aces! You're up to date. </p>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
+
+      <!-- Vote Features -->
+      <div class=" col-lg-6">
+        <div class=" card">
+          <div class=" card-header">
+            <h4 class=" card-title"> Have Your Say! </h4>
+            <p class=" card-category"> What's next for Lifecoach? </p>
+          </div>
+          <div class=" card-body">
+            <p>
+              Looking for a new feature? Need an improvement? Got an idea how to make Lifecoach work better for you? Suggest a feature or add your vote to an existing idea and help to make Lifecoach better for everyone - we're always listening!
+            </p>
+            <p class=" mt-3">
+              <a class=" btn btn-round btn-primary" [href]="feedbackUrl" target="_blank">
+                <i class="fas fa-lightbulb"></i> Have Your Say
+              </a>
+            </p>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
-  <!-- End of newest users -->
 
-  <!-- Newest Leads -->
-  <div class=" row">
-    <div class=" col-lg-12">
-      <div class=" card">
-        <div class=" card-header">
-          <div class=" tools float-right">
-            <div class=" dropdown" dropdown>
-              <button
-                class=" btn btn-link dropdown-toggle btn-icon dropdown-toggle"
-                data-toggle="dropdown"
-                dropdownToggle
-                type="button"
-              >
-                <i class=" tim-icons icon-settings-gear-63"> </i>
-              </button>
-              <div class=" dropdown-menu dropdown-menu-right" *dropdownMenu>
-                <a class=" dropdown-item" href="#pablo"> Action </a>
-                <a class=" dropdown-item" href="#pablo"> Another action </a>
-                <a class=" dropdown-item" href="#pablo"> Something else </a>
-                <a class=" dropdown-item text-danger" href="#pablo">
-                  Remove Data
-                </a>
+  <!-- PROVIDER USERS -->
+  <div *ngIf="userType === 'provider'">
+    <div class=" row">
+      <div class=" col-lg-5">
+        <p>
+          Welcome to Lifecoach!
+        </p>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ADMIN USERS -->
+  <div *ngIf="userType === 'admin'">
+    <div class=" row">
+      <!-- Total Users -->
+      <div class=" col-lg-3 col-md-4">
+        <div class=" card card-stats">
+          <div class=" card-body">
+            <div class=" row">
+              <div class=" col-5">
+                <div class=" info-icon text-center icon-primary">
+                  <i class="fas fa-users"></i>
+                </div>
+              </div>
+              <div class=" col-7">
+                <div class=" numbers">
+                  <p class=" card-category">
+                    All Users
+                  </p>
+                  <h3 class="card-title">
+                    {{ adminCountAllUsers ? adminCountAllUsers : '0' }}
+                  </h3>
+                </div>
               </div>
             </div>
           </div>
-          <h5 class=" card-title"> Newest Leads </h5>
+          <div class=" card-footer">
+            <hr>
+            <div class=" stats">
+              <i class=" tim-icons icon-alert-circle-exc"></i> Total Users
+            </div>
+          </div>
         </div>
-        <div class=" card-body">
-          <div class=" table-responsive">
-            <table class=" table">
-              <thead class=" text-primary">
-                <tr>
-                  <th> Date </th>
-                  <th> First Message </th>
-                  <th class=" text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let lead of adminNewestLeads">
-                  <td> {{ timestampToDate(lead.created) }} </td>
-                  <td> {{ lead.firstMessage }} </td>
-                  <td class=" text-right">
-                    <button
+      </div>
+      <!-- Total Regular -->
+      <div class=" col-lg-3 col-md-4">
+        <div class=" card card-stats">
+          <div class=" card-body">
+            <div class=" row">
+              <div class=" col-5">
+                <div class=" info-icon text-center icon-success">
+                  <i class="fas fa-user"></i>
+                </div>
+              </div>
+              <div class=" col-7">
+                <div class=" numbers">
+                  <p class=" card-category">
+                    Clients
+                  </p>
+                  <h3 class="card-title">
+                    {{ (adminCountRegularUsers || adminCountRegularUsers === 0) ? adminCountRegularUsers : '0' }}
+                  </h3>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class=" card-footer">
+            <hr>
+            <div class=" stats">
+              <i class=" tim-icons icon-alert-circle-exc"></i> Total Clients
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Total Coaches -->
+      <div class=" col-lg-3 col-md-4">
+        <div class=" card card-stats">
+          <div class=" card-body">
+            <div class=" row">
+              <div class=" col-5">
+                <div class=" info-icon text-center icon-success">
+                  <i class="fas fa-user"></i>
+                </div>
+              </div>
+              <div class=" col-7">
+                <div class=" numbers">
+                  <p class=" card-category">
+                    Coaches
+                  </p>
+                  <h3 class="card-title">
+                    {{ adminCountCoachUsers ? adminCountCoachUsers : '0' }}
+                  </h3>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class=" card-footer">
+            <hr>
+            <div class=" stats">
+              <i class=" tim-icons icon-alert-circle-exc"></i> Total Coaches
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Total Promotional Partners -->
+      <div class=" col-lg-3 col-md-4">
+        <div class=" card card-stats">
+          <div class=" card-body">
+            <div class=" row">
+              <div class=" col-5">
+                <div class=" info-icon text-center icon-success">
+                  <i class="fas fa-user"></i>
+                </div>
+              </div>
+              <div class=" col-7">
+                <div class=" numbers">
+                  <p class=" card-category">
+                    Partners
+                  </p>
+                  <h3 class="card-title">
+                    {{ adminCountPartnerUsers ? adminCountPartnerUsers : '0' }}
+                  </h3>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class=" card-footer">
+            <hr>
+            <div class=" stats">
+              <i class=" tim-icons icon-alert-circle-exc"></i> Total Promotional Partners
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Total Providers -->
+      <div class=" col-lg-3 col-md-4">
+        <div class=" card card-stats">
+          <div class=" card-body">
+            <div class=" row">
+              <div class=" col-5">
+                <div class=" info-icon text-center icon-success">
+                  <i class="fas fa-user"></i>
+                </div>
+              </div>
+              <div class=" col-7">
+                <div class=" numbers">
+                  <p class=" card-category">
+                    Providers
+                  </p>
+                  <h3 class="card-title">
+                    {{ adminCountProviderUsers ? adminCountProviderUsers : '0' }}
+                  </h3>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class=" card-footer">
+            <hr>
+            <div class=" stats">
+              <i class=" tim-icons icon-alert-circle-exc"></i> Total Coaches
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Total Admins -->
+      <div class=" col-lg-3 col-md-4">
+        <div class=" card card-stats">
+          <div class=" card-body">
+            <div class=" row">
+              <div class=" col-5">
+                <div class=" info-icon text-center icon-warning">
+                  <i class="fas fa-lock"></i>
+                </div>
+              </div>
+              <div class=" col-7">
+                <div class=" numbers">
+                  <p class=" card-category">
+                    Admins
+                  </p>
+                  <h3 class="card-title">
+                    {{ adminCountAdminUsers ? adminCountAdminUsers : '0' }}
+                  </h3>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class=" card-footer">
+            <hr>
+            <div class=" stats">
+              <i class=" tim-icons icon-alert-circle-exc"></i> Total Admins
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Total Public Coach Profiles -->
+      <div class=" col-lg-3 col-md-4">
+        <div class=" card card-stats">
+          <div class=" card-body">
+            <div class=" row">
+              <div class=" col-5">
+                <div class=" info-icon text-center icon-primary">
+                  <i class="fas fa-address-card"></i>
+                </div>
+              </div>
+              <div class=" col-7">
+                <div class=" numbers">
+                  <p class=" card-category">
+                    Public Profiles
+                  </p>
+                  <h3 class="card-title">
+                    {{ adminPublicCoachesCount ? adminPublicCoachesCount : '0' }}
+                  </h3>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class=" card-footer">
+            <hr>
+            <div class=" stats">
+              <i class=" tim-icons icon-alert-circle-exc"></i> Total Public Coach Profiles
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Total Draft Courses -->
+      <div class=" col-lg-3 col-md-4">
+        <div class=" card card-stats">
+          <div class=" card-body">
+            <div class=" row">
+              <div class=" col-5">
+                <div class=" info-icon text-center icon-warning">
+                  <i class="fas fa-video"></i>
+                </div>
+              </div>
+              <div class=" col-7">
+                <div class=" numbers">
+                  <p class=" card-category">
+                    Draft eCourses
+                  </p>
+                  <h3 class="card-title">
+                    {{ adminDraftCoursesCount ? adminDraftCoursesCount : '0' }}
+                  </h3>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class=" card-footer">
+            <hr>
+            <div class=" stats">
+              <i class=" tim-icons icon-alert-circle-exc"></i> Total eCourses In Draft
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Total Published Courses -->
+      <div class=" col-lg-3 col-md-4">
+        <div class=" card card-stats">
+          <div class=" card-body">
+            <div class=" row">
+              <div class=" col-5">
+                <div class=" info-icon text-center icon-success">
+                  <i class="fas fa-video"></i>
+                </div>
+              </div>
+              <div class=" col-7">
+                <div class=" numbers">
+                  <p class=" card-category">
+                    Published eCourses
+                  </p>
+                  <h3 class="card-title">
+                    {{ adminPublishedCoursesCount ? adminPublishedCoursesCount : '0' }}
+                  </h3>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class=" card-footer">
+            <hr>
+            <div class=" stats">
+              <i class=" tim-icons icon-alert-circle-exc"></i> Total eCourses Published
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Total Courses Review Requests -->
+      <div class=" col-lg-3 col-md-4">
+        <div class=" card card-stats">
+          <div class=" card-body">
+            <div class=" row">
+              <div class=" col-5">
+                <div class=" info-icon text-center icon-info">
+                  <i class="fas fa-check-square"></i>
+                </div>
+              </div>
+              <div class=" col-7">
+                <div class=" numbers">
+                  <p class=" card-category">
+                    eCourse Review Requests
+                  </p>
+                  <h3 class="card-title">
+                    {{ adminCourseReviewRequests ? adminCourseReviewRequests : '0' }}
+                  </h3>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class=" card-footer">
+            <hr>
+            <div class=" stats">
+              <i class=" tim-icons icon-alert-circle-exc"></i> eCourses Awaiting Review
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Total Draft Programs -->
+      <div class=" col-lg-3 col-md-4">
+        <div class=" card card-stats">
+          <div class=" card-body">
+            <div class=" row">
+              <div class=" col-5">
+                <div class=" info-icon text-center icon-warning">
+                  <i class="fas fa-video"></i>
+                </div>
+              </div>
+              <div class=" col-7">
+                <div class=" numbers">
+                  <p class=" card-category">
+                    Draft Programs
+                  </p>
+                  <h3 class="card-title">
+                    {{ adminDraftProgramsCount ? adminDraftProgramsCount : '0' }}
+                  </h3>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class=" card-footer">
+            <hr>
+            <div class=" stats">
+              <i class=" tim-icons icon-alert-circle-exc"></i> Total Programs In Draft
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Total Published Programs -->
+      <div class=" col-lg-3 col-md-4">
+        <div class=" card card-stats">
+          <div class=" card-body">
+            <div class=" row">
+              <div class=" col-5">
+                <div class=" info-icon text-center icon-success">
+                  <i class="fas fa-video"></i>
+                </div>
+              </div>
+              <div class=" col-7">
+                <div class=" numbers">
+                  <p class=" card-category">
+                    Published Programs
+                  </p>
+                  <h3 class="card-title">
+                    {{ adminPublishedProgramsCount ? adminPublishedProgramsCount : '0' }}
+                  </h3>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class=" card-footer">
+            <hr>
+            <div class=" stats">
+              <i class=" tim-icons icon-alert-circle-exc"></i> Total Programs Published
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Total Program Review Requests -->
+      <div class=" col-lg-3 col-md-4">
+        <div class=" card card-stats">
+          <div class=" card-body">
+            <div class=" row">
+              <div class=" col-5">
+                <div class=" info-icon text-center icon-info">
+                  <i class="fas fa-check-square"></i>
+                </div>
+              </div>
+              <div class=" col-7">
+                <div class=" numbers">
+                  <p class=" card-category">
+                    Program Review Requests
+                  </p>
+                  <h3 class="card-title">
+                    {{ adminProgramReviewRequests ? adminProgramReviewRequests : '0' }}
+                  </h3>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class=" card-footer">
+            <hr>
+            <div class=" stats">
+              <i class=" tim-icons icon-alert-circle-exc"></i> Programs Awaiting Review
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Total Draft Services -->
+      <div class=" col-lg-3 col-md-4">
+        <div class=" card card-stats">
+          <div class=" card-body">
+            <div class=" row">
+              <div class=" col-5">
+                <div class=" info-icon text-center icon-warning">
+                  <i class="fas fa-video"></i>
+                </div>
+              </div>
+              <div class=" col-7">
+                <div class=" numbers">
+                  <p class=" card-category">
+                    Draft Services
+                  </p>
+                  <h3 class="card-title">
+                    {{ adminDraftServicesCount ? adminDraftServicesCount : '0' }}
+                  </h3>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class=" card-footer">
+            <hr>
+            <div class=" stats">
+              <i class=" tim-icons icon-alert-circle-exc"></i> Total Services In Draft
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Total Published Services -->
+      <div class=" col-lg-3 col-md-4">
+        <div class=" card card-stats">
+          <div class=" card-body">
+            <div class=" row">
+              <div class=" col-5">
+                <div class=" info-icon text-center icon-success">
+                  <i class="fas fa-video"></i>
+                </div>
+              </div>
+              <div class=" col-7">
+                <div class=" numbers">
+                  <p class=" card-category">
+                    Published Services
+                  </p>
+                  <h3 class="card-title">
+                    {{ adminPublishedServicesCount ? adminPublishedServicesCount : '0' }}
+                  </h3>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class=" card-footer">
+            <hr>
+            <div class=" stats">
+              <i class=" tim-icons icon-alert-circle-exc"></i> Total Services Published
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Total Service Review Requests -->
+      <div class=" col-lg-3 col-md-4">
+        <div class=" card card-stats">
+          <div class=" card-body">
+            <div class=" row">
+              <div class=" col-5">
+                <div class=" info-icon text-center icon-info">
+                  <i class="fas fa-check-square"></i>
+                </div>
+              </div>
+              <div class=" col-7">
+                <div class=" numbers">
+                  <p class=" card-category">
+                    Service Review Requests
+                  </p>
+                  <h3 class="card-title">
+                    {{ adminServiceReviewRequests ? adminServiceReviewRequests : '0' }}
+                  </h3>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class=" card-footer">
+            <hr>
+            <div class=" stats">
+              <i class=" tim-icons icon-alert-circle-exc"></i> Services Awaiting Review
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Total Refund Requests -->
+      <div class=" col-lg-3 col-md-4">
+        <div class=" card card-stats">
+          <div class=" card-body">
+            <div class=" row">
+              <div class=" col-5">
+                <div class=" info-icon text-center icon-danger">
+                  <i class="fas fa-arrow-left"></i>
+                </div>
+              </div>
+              <div class=" col-7">
+                <div class=" numbers">
+                  <p class=" card-category">
+                    Refund Requests
+                  </p>
+                  <h3 *ngIf="adminCourseRefundRequests && adminProgramRefundRequests" class="card-title">
+                    {{ adminCourseRefundRequests + adminProgramRefundRequests }}
+                  </h3>
+                  <h3 *ngIf="adminCourseRefundRequests && !adminProgramRefundRequests" class="card-title">
+                    {{ adminCourseRefundRequests }}
+                  </h3>
+                  <h3 *ngIf="!adminCourseRefundRequests && adminProgramRefundRequests" class="card-title">
+                    {{ adminProgramRefundRequests }}
+                  </h3>
+                  <h3 *ngIf="!adminCourseRefundRequests && !adminProgramRefundRequests" class="card-title">
+                    0
+                  </h3>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class=" card-footer">
+            <hr>
+            <div class=" stats">
+              <i class=" tim-icons icon-alert-circle-exc"></i> Open Refund Requests
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Total unique leads -->
+      <div class=" col-lg-3 col-md-4">
+        <div class=" card card-stats">
+          <div class=" card-body">
+            <div class=" row">
+              <div class=" col-5">
+                <div class=" info-icon text-center icon-success">
+                  <i class="fas fa-paper-plane"></i>
+                </div>
+              </div>
+              <div class=" col-7">
+                <div class=" numbers">
+                  <p class=" card-category">
+                    Total Leads
+                  </p>
+                  <h3 class="card-title">
+                    {{ adminTotalLeads ? adminTotalLeads : '0' }}
+                  </h3>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class=" card-footer">
+            <hr>
+            <div class=" stats">
+              <i class=" tim-icons icon-alert-circle-exc"></i> Total Unique Leads
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- End of widgets -->
+    </div>
+    <!-- End of row 1 -->
+    <!-- Row 2 -->
+
+    <!-- Newest Users -->
+    <div class=" row">
+      <div class=" col-lg-12">
+        <div class=" card">
+          <div class=" card-header">
+            <div class=" tools float-right">
+              <div class=" dropdown" dropdown>
+                <button
+                  class=" btn btn-link dropdown-toggle btn-icon dropdown-toggle"
+                  data-toggle="dropdown"
+                  dropdownToggle
+                  type="button"
+                >
+                  <i class=" tim-icons icon-settings-gear-63"> </i>
+                </button>
+                <div class=" dropdown-menu dropdown-menu-right" *dropdownMenu>
+                  <a class=" dropdown-item" href="#pablo"> Action </a>
+                  <a class=" dropdown-item" href="#pablo"> Another action </a>
+                  <a class=" dropdown-item" href="#pablo"> Something else </a>
+                  <a class=" dropdown-item text-danger" href="#pablo">
+                    Remove Data
+                  </a>
+                </div>
+              </div>
+            </div>
+            <h5 class=" card-title"> Newest Users </h5>
+          </div>
+          <div class=" card-body">
+            <div class=" table-responsive">
+              <table class=" table">
+                <thead class=" text-primary">
+                  <tr>
+                    <th> Name </th>
+                    <th> Account Type </th>
+                    <th> Join Date </th>
+                    <th> User ID </th>
+                    <th class=" text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let user of adminNewestUsers">
+                    <td> {{ user.firstName + ' ' + user.lastName }} </td>
+                    <td> {{ user.accountType }} </td>
+                    <td> {{ timestampToDate(user.dateCreated) }} </td>
+                    <td> {{ user.userID }} </td>
+                    <td class=" text-right">
+                      <!-- view public profile -->
+                      <button
                       class=" btn btn-success btn-link btn-icon btn-sm btn-simple"
-                      tooltip="Refresh"
+                      tooltip="View public profile"
                       type="button"
-                    >
-                      <i class=" tim-icons icon-refresh-01"> </i>
-                    </button>
-                    <button
-                      class=" btn btn-danger btn-link btn-icon btn-sm btn-simple"
-                      tooltip="Delete"
+                      (click)="viewPublicProfile(user.userID)"
+                      >
+                      <i class="fas fa-id-card"></i>
+                      </button>
+                      <!-- manage user -->
+                      <button
+                      class=" btn btn-success btn-link btn-icon btn-sm btn-simple"
+                      tooltip="Manage user"
                       type="button"
-                    >
-                      <i class=" tim-icons icon-simple-remove"> </i>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                      (click)="manageUser(user.userID)"
+                      >
+                      <i class="fas fa-user"></i>
+                      </button>
+                      <!-- delete user -->
+                      <button
+                        class=" btn btn-danger btn-link btn-icon btn-sm btn-simple"
+                        tooltip="Delete"
+                        type="button"
+                      >
+                        <i class=" tim-icons icon-simple-remove"> </i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
     </div>
+    <!-- End of newest users -->
+
+    <!-- Newest Leads -->
+    <div class=" row">
+      <div class=" col-lg-12">
+        <div class=" card">
+          <div class=" card-header">
+            <div class=" tools float-right">
+              <div class=" dropdown" dropdown>
+                <button
+                  class=" btn btn-link dropdown-toggle btn-icon dropdown-toggle"
+                  data-toggle="dropdown"
+                  dropdownToggle
+                  type="button"
+                >
+                  <i class=" tim-icons icon-settings-gear-63"> </i>
+                </button>
+                <div class=" dropdown-menu dropdown-menu-right" *dropdownMenu>
+                  <a class=" dropdown-item" href="#pablo"> Action </a>
+                  <a class=" dropdown-item" href="#pablo"> Another action </a>
+                  <a class=" dropdown-item" href="#pablo"> Something else </a>
+                  <a class=" dropdown-item text-danger" href="#pablo">
+                    Remove Data
+                  </a>
+                </div>
+              </div>
+            </div>
+            <h5 class=" card-title"> Newest Leads </h5>
+          </div>
+          <div class=" card-body">
+            <div class=" table-responsive">
+              <table class=" table">
+                <thead class=" text-primary">
+                  <tr>
+                    <th> Date </th>
+                    <th> First Message </th>
+                    <th class=" text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let lead of adminNewestLeads">
+                    <td> {{ timestampToDate(lead.created) }} </td>
+                    <td> {{ lead.firstMessage }} </td>
+                    <td class=" text-right">
+                      <button
+                        class=" btn btn-success btn-link btn-icon btn-sm btn-simple"
+                        tooltip="Refresh"
+                        type="button"
+                      >
+                        <i class=" tim-icons icon-refresh-01"> </i>
+                      </button>
+                      <button
+                        class=" btn btn-danger btn-link btn-icon btn-sm btn-simple"
+                        tooltip="Delete"
+                        type="button"
+                      >
+                        <i class=" tim-icons icon-simple-remove"> </i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- End of newest leads -->
+    <button type="button" (click)="resizeImage()">
+      Resize Images
+    </button>
+    <input type="text" [(ngModel)]="this.pageToken"/>
+    <button type="button" (click)="resizeCoursesImage()">
+      Resize Images
+    </button>
   </div>
-  <!-- End of newest leads -->
-  <button type="button" (click)="resizeImage()">
-    Resize Images
-  </button>
-  <input type="text" [(ngModel)]="this.pageToken"/>
-  <button type="button" (click)="resizeCoursesImage()">
-    Resize Images
-  </button>
+
 </div>

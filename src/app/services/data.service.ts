@@ -967,6 +967,15 @@ export class DataService {
   }
 
 // ================================================================================
+// =====                             SUBSCRIPTIONS                           ======
+// ================================================================================
+
+getUserSubscriptions(uid: string) {
+  return this.db.collection(`users/${uid}/subscriptions`)
+    .valueChanges() as Observable<Stripe.Subscription[]>;
+}
+
+// ================================================================================
 // =====                            TESTING METHOD FOR DOC.REFERENCE         ======
 // ================================================================================
 

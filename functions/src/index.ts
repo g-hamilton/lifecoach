@@ -4,6 +4,7 @@ const firebase_tools = require('firebase-tools');
 
 const firebase = admin.initializeApp();
 const db = admin.firestore();
+db.settings({ ignoreUndefinedProperties: true }) // allow undefined values without throwing error
 const client = require('twilio')(functions.config().twilio.accountsid, functions.config().twilio.authtoken);
 import * as sharp from 'sharp';
 
@@ -18,10 +19,14 @@ import * as sharp from 'sharp';
 // =====                            INTERFACES                               ======
 // ================================================================================
 
-interface CustomTransfer extends Stripe.Transfer {
-  source_transaction_expanded: any; // will be a santised Stripe.Charge object
-  balance_transaction_expanded: Stripe.BalanceTransaction;
-}
+import {
+  // Product,
+  // Price,
+  // Subscription,
+  CustomerData,
+  // TaxRate,
+  CustomTransfer
+} from './interfaces';
 
 // ================================================================================
 // =====                     ANGULAR UNIVERSAL SSR                           ======
@@ -68,6 +73,8 @@ const shortUrlEndpoint = 'https://api.rebrandly.com/v1/links'
 // See Stripe keys here: https://dashboard.stripe.com/account/apikeys
 
 import { Stripe } from 'stripe';
+import * as logs from './logs';
+
 const config: Stripe.StripeConfig = { apiVersion: '2020-08-27', typescript: true }
 const stripe = new Stripe(functions.config().stripe.prod.secretkey, config);
 const stripeWebhookSecret = functions.config().stripe.prod.webhooksecret;
@@ -1386,18 +1393,73 @@ exports.stripeWebhookEvent = functions
   // Handle the event
   // https://stripe.com/docs/api/events/types
   switch (event.type) {
+    case 'checkout.session.completed':
+      try {
+        const checkoutSession = event.data.object as Stripe.Checkout.Session;
+        console.log(`✅Checkout session succeeded! ${JSON.stringify(checkoutSession)}`);
+
+        const promises = [];
+
+        // Handle checkouts for subscriptions
+        if (checkoutSession.mode === 'subscription') {
+          const subscriptionId = checkoutSession.subscription as string;
+          const promise1 = manageSubscriptionStatusChange(
+            subscriptionId,
+            (checkoutSession.metadata as any).client_UID
+          );
+          promises.push(promise1);
+        }
+
+        await Promise.all(promises);
+
+      } catch (err) {
+        console.error(err)
+      }
+      break;
+    case 'customer.subscription.created':
+    case 'customer.subscription.updated':
+    case 'customer.subscription.deleted':
+      try {
+        const subscription = event.data.object as Stripe.Subscription;
+
+        if (event.type === 'customer.subscription.created') {
+          console.log(`📄Customer.subscription created! ${JSON.stringify(subscription)}`);
+        } else if (event.type === 'customer.subscription.updated') {
+          console.log(`📄Customer.subscription updated! ${JSON.stringify(subscription)}`);
+        } else if (event.type === 'customer.subscription.deleted') {
+          console.log(`📄Customer.subscription deleted! ${JSON.stringify(subscription)}`);
+        }
+
+        await manageSubscriptionStatusChange(
+          subscription.id,
+          subscription.metadata.client_UID
+        );
+      } catch (err) {
+        console.error(err);
+      }
+      break;
     case 'payment_intent.succeeded':
       const paymentIntent = event.data.object as Stripe.PaymentIntent;
-      console.log(`PaymentIntent succeeded! ${JSON.stringify(paymentIntent)}`);
+      console.log(`✅PaymentIntent succeeded! ${JSON.stringify(paymentIntent)}`);
+
+      /*
+        If the metadata is empty here we can simply skip handling here
+      */
+      const metaObj = new Object(paymentIntent.metadata);
+      if (Object.keys(metaObj).length === 0) {
+        console.log('ℹ️ payment_intent.succeeded - paymentIntent metadata EMPTY. Skipping...');
+        break;
+      }
 
       const clientUid = paymentIntent.metadata.client_UID;
       const saleItemId = paymentIntent.metadata.sale_item_id;
       const saleItemType = paymentIntent.metadata.sale_item_type;
 
       try {
+
         const promises = [];
 
-        // Add the item ID of the purchased item to the user's auth token claims
+        // Update the user's auth token claims
         // so the user can access any content restricted by paywall.
         const promise1 = addCustomUserClaims(clientUid, { [saleItemId]: true }) as any;
         promises.push(promise1);
@@ -1453,7 +1515,7 @@ exports.stripeWebhookEvent = functions
         Received when a successful transfer occurs
         */
         const transfer = event.data.object as CustomTransfer;
-        console.log(`Transfer created: ${JSON.stringify(transfer)}`);
+        console.log(`✅Transfer created: ${JSON.stringify(transfer)}`);
 
         const transferDate = new Date(transfer.created * 1000); // create a date object so we can work with months/years
         const transferMonth = transferDate.getMonth() + 1; // go from zero index to jan === 1
@@ -1607,7 +1669,16 @@ exports.stripeWebhookEvent = functions
         Received when a successful charge occurs
         */
       const charge = event.data.object as Stripe.Charge;
-      console.log(`Charge succeeded! ${JSON.stringify(charge)}`);
+      console.log(`✅Charge succeeded! ${JSON.stringify(charge)}`);
+
+      /*
+        If the metadata is empty here we can simply skip handling here
+      */
+      const chargeMetaObj = new Object(charge.metadata);
+      if (Object.keys(chargeMetaObj).length === 0) {
+        console.log('ℹ️ charge.succeeded - charge metadata EMPTY. Skipping...');
+        break;
+      }
 
       const saleDate = new Date(charge.created * 1000); // create a date object so we can work with months/years
       const saleMonth = saleDate.getMonth() + 1; // go from zero index to jan === 1
@@ -1836,6 +1907,126 @@ exports.stripeWebhookConnectedEvent = functions
   // Return a response to acknowledge receipt of the event
   return response.status(200).send({ received: true });
 
+});
+
+/**
+ * Create a customer object in Stripe & add mapping data to firestore.
+ */
+ const createCustomerRecord = async ({
+  email,
+  uid,
+}: {
+  email?: string;
+  uid: string;
+}) => {
+  try {
+    logs.creatingCustomer(uid);
+    const customerData: CustomerData = {
+      metadata: {
+        firebaseUID: uid,
+      },
+    };
+    if (email) customerData.email = email;
+    const customer = await stripe.customers.create(customerData);
+    // Add a mapping record in Cloud Firestore.
+    const customerRecord = {
+      stripeCustomerId: customer.id,
+      stripeCustomerLink: `https://dashboard.stripe.com${
+        customer.livemode ? '' : '/test'
+      }/customers/${customer.id}`,
+    };
+    await admin
+      .firestore()
+      .collection(`users/${uid}/account`)
+      .doc(`account${uid}`)
+      .set(customerRecord, { merge: true });
+    logs.customerCreated(customer.id, customer.livemode);
+    return customerRecord;
+  } catch (error) {
+    logs.customerCreationError(error, uid);
+    return null;
+  }
+};
+
+/*
+  Create a stripe checkout session
+  https://stripe.com/docs/api/checkout/sessions/create?lang=node
+*/
+exports.createStripeCheckoutSession = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.https
+.onCall( async (data, context) => {
+
+  const priceId = data.product.priceId;
+  const uid = data.uid;
+  const successUrl = data.successUrl;
+  const cancelUrl = data.cancelUrl;
+  const partnerReferred = data.partnerReferred;
+  const saleItemType = data.saleItemType;
+  const productTitle = data.product.title;
+
+  try {
+    logs.creatingCheckoutSession();
+    // Get stripe customer id
+    let customerId;
+    const accountSnap = await db.collection(`users/${uid}/account`)
+    .doc(`account${uid}`)
+    .get();
+    if (accountSnap.exists) {
+      const account = accountSnap.data();
+      if (account && account.stripeCustomerId) {
+        customerId = account.stripeCustomerId;
+      }
+    }
+    if (!customerId) { // if no stored stripe customer id exists on the account, create one now...
+      const { email } = await admin.auth().getUser(uid);
+      const customerRecord = await createCustomerRecord({
+        uid: uid,
+        email,
+      });
+      if (customerRecord && customerRecord.stripeCustomerId) {
+        customerId = customerRecord.stripeCustomerId;
+      }
+    }
+    const session = await stripe.checkout.sessions.create({
+      mode: 'subscription',
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price: priceId,
+          // For metered billing, do not pass quantity
+          quantity: 1,
+        },
+      ],
+      // {CHECKOUT_SESSION_ID} is a string literal; do not change it!
+      // the actual Session ID is returned in the query parameter when your customer
+      // is redirected to the success page.
+      success_url: `${successUrl}?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${cancelUrl}?session_cancelled`,
+      customer: customerId,
+      metadata: {
+        partner_referred: partnerReferred,
+        client_UID: uid,
+        sale_item_id: priceId,
+        sale_item_type: saleItemType,
+        sale_item_title: productTitle
+      },
+      subscription_data: {
+        metadata: {
+          partner_referred: partnerReferred,
+          client_UID: uid,
+          sale_item_id: priceId,
+          sale_item_type: saleItemType,
+          sale_item_title: productTitle
+        }
+      }
+    });
+    logs.checkoutSessionCreated(session.id);
+    return { sessionId: session.id }; // return the session id
+  } catch (err) {
+    logs.checkoutSessionCreationError(err);
+    return { error: err.message };
+  }
 });
 
 // ================================================================================
@@ -2317,11 +2508,6 @@ async function recordServicePurchaseForClient(data: Stripe.PaymentIntent) {
 // ================================================================================
 
 async function recordEnrollmentForPlatform(data: Stripe.PaymentIntent) {
-  /*
-  Record all unique clients for our coaches on a public node so any users can see 
-  how many clients a coach has. A client is anyone who has purchased or enrolled 
-  in any product or service from a coach.
-  */
 
   const batch = admin.firestore().batch();
   const clientUid = data.metadata.client_UID;
@@ -2338,6 +2524,42 @@ async function recordEnrollmentForPlatform(data: Stripe.PaymentIntent) {
   batch.set(ref3, saveData, { merge: true });
 
   await batch.commit();
+}
+
+// ================================================================================
+// =====                     COACH SUBSCRIPTION FUNCTIONS                    ======
+// ================================================================================
+
+async function manageSubscriptionStatusChange(subscriptionId: string, uid: string) {
+  
+  // Retrieve the latest subscription status...
+  const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
+    expand: ['items.data.price.product'],
+  });
+
+  const price = subscription.items.data[0].price;
+
+  // before doing anything else, update the user's auth custom claims
+  if (['trialing', 'active'].includes(subscription.status)) { // the user is trailing or active
+    await addCustomUserClaims(uid, { subscriptionPlan: price.id });
+  } else { // the user should lose any subscription claim
+    await addCustomUserClaims(uid, { subscriptionPlan: null });
+  }
+
+  // prepare to write to firestore...
+
+  const batch = admin.firestore().batch();
+
+  // save the subscription to the user node...
+  const ref1 = db.collection(`users/${uid}/subscriptions`).doc(subscription.id)
+  batch.set(ref1, subscription, { merge: true });
+
+  // save the subscription to the platform node...
+  const ref2 = db.collection(`subscriptions`).doc(subscription.id)
+  batch.set(ref2, subscription, { merge: true });
+
+  
+
 }
 
 // ================================================================================

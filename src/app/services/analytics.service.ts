@@ -480,4 +480,22 @@ export class AnalyticsService {
     });
   }
 
+  attemptCoachSubscription(priceId: string) {
+    mixpanel.track('attempted coach subscription', {
+      priceId
+    });
+  }
+
+  failCoachSubscription(priceId: string) {
+    mixpanel.track('failed coach subscription', {
+      priceId
+    });
+  }
+
+  completeCoachSubscription(priceId: string) {
+    mixpanel.track('completed coach subscription', {
+      priceId
+    });
+  }
+
 }

@@ -23,4 +23,6 @@ export interface UserAccount {
     creatorExtendedPromotionsProgram?: boolean; // for coaches who are course creators to opt into the extended promotions program
     sessionDuration?: number;
     breakDuration?: number;
+    stripeCustomerId?: string; // the customer id of the user if they have been created in Stripe
+    stripeCustomerLink?: string; // the url for the customer's stripe dashboard
 }

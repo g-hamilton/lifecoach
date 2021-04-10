@@ -918,4 +918,16 @@ resizeCourseImage(data) {
       .set(course, {merge: true})
       .catch(err => console.error(err));
   }
+
+  createStripeCheckoutSession(data: any) {
+    return new Promise(resolve => {
+      const trigger = this.cloudFunctions.httpsCallable('createStripeCheckoutSession');
+      const tempSub = trigger(data)
+        .pipe(first())
+        .subscribe(res => {
+          resolve(res);
+          tempSub.unsubscribe();
+        });
+    });
+  }
 }
