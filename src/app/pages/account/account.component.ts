@@ -149,54 +149,11 @@ export class AccountComponent implements OnInit, OnDestroy {
                       this.updateAccountForm(account);
 
                       if (account.accountType === 'regular') { // user is a regular user
-                        // Fetch payment history
-                        this.subscriptions.add(
-                          this.dataService.getSuccessfulCharges(this.userId).subscribe(sp => {
-                            if (sp) {
-                              const sortedSp = sp.sort((a, b) => parseFloat(String(b.created)) - parseFloat(String(a.created))); // sort by date (desc)
-                              this.successfulPayments = sortedSp;
-                              console.log('Successful payments:', this.successfulPayments);
-                            }
-                          })
-                        );
+                        this.fetchSuccessfulCharges();
+                        this.fetchFailedCharges();
+                        this.fetchRefundRequests();
+                        this.fetchSuccessfulRefunds();
 
-                        // Fetch failed payment history
-                        this.subscriptions.add(
-                          this.dataService.getFailedPayments(this.userId).subscribe(fp => {
-                            if (fp) {
-                              const sortedFp = fp.sort((a, b) => parseFloat(String(b.created)) - parseFloat(String(a.created))); // sort by date (desc)
-                              this.failedPayments = sortedFp;
-                              console.log('Failed payments:', this.failedPayments);
-                            }
-                          })
-                        );
-
-                        // Fetch refund requests
-                        this.subscriptions.add(
-                          this.dataService.getUserRefundRequests(this.userId).subscribe(refunds => {
-                            if (refunds) {
-                              const sortedR = refunds.sort((a, b) => parseFloat(String(b.paymentIntent.created)) - parseFloat(String(a.paymentIntent.created))); // sort by date (desc)
-                              this.refundRequests = sortedR;
-                              console.log('Refund requests:', this.refundRequests);
-                              this.refundRequests.forEach(i => {
-                                this.refundsRequestedIds.push(i.paymentIntent.id);
-                              });
-                            }
-                          })
-                        );
-                        // Fetch successful refunds
-                        this.subscriptions.add(
-                          this.dataService.getUserSuccessfulRefunds(this.userId).subscribe(refunds => {
-                            if (refunds) {
-                              const sortedR = refunds.sort((a, b) => parseFloat(String(b.paymentIntent.created)) - parseFloat(String(a.paymentIntent.created))); // sort by date (desc)
-                              this.successfulRefunds = sortedR;
-                              console.log('Successful refunds:', this.successfulRefunds);
-                              this.successfulRefunds.forEach(i => {
-                                this.refundsRequestedIds.push(i.paymentIntent.id);
-                              });
-                            }
-                          })
-                        );
                       } else if (account.accountType === 'coach' ) { // user is a coach
                         if (account.stripeCustomerId) { // user has a stripe customer id
                           this.stripeCustomerId = account.stripeCustomerId;
@@ -240,54 +197,11 @@ export class AccountComponent implements OnInit, OnDestroy {
                         if (account.stripeUid) {
                           // this.retrieveStripeBalance(account.stripeUid);
                         }
-                        // Fetch payment history
-                        this.subscriptions.add(
-                          this.dataService.getSuccessfulCharges(this.userId).subscribe(sp => {
-                            if (sp) {
-                              const sortedSp = sp.sort((a, b) => parseFloat(String(b.created)) - parseFloat(String(a.created))); // sort by date (desc)
-                              this.successfulPayments = sortedSp;
-                              console.log('Successful payments:', this.successfulPayments);
-                            }
-                          })
-                        );
+                        this.fetchSuccessfulCharges();
+                        this.fetchFailedCharges();
+                        this.fetchRefundRequests();
+                        this.fetchSuccessfulRefunds();
 
-                        // Fetch failed payment history
-                        this.subscriptions.add(
-                          this.dataService.getFailedPayments(this.userId).subscribe(fp => {
-                            if (fp) {
-                              const sortedFp = fp.sort((a, b) => parseFloat(String(b.created)) - parseFloat(String(a.created))); // sort by date (desc)
-                              this.failedPayments = sortedFp;
-                              console.log('Failed payments:', this.failedPayments);
-                            }
-                          })
-                        );
-
-                        // Fetch refund requests
-                        this.subscriptions.add(
-                          this.dataService.getUserRefundRequests(this.userId).subscribe(refunds => {
-                            if (refunds) {
-                              const sortedR = refunds.sort((a, b) => parseFloat(String(b.paymentIntent.created)) - parseFloat(String(a.paymentIntent.created))); // sort by date (desc)
-                              this.refundRequests = sortedR;
-                              console.log('Refund requests:', this.refundRequests);
-                              this.refundRequests.forEach(i => {
-                                this.refundsRequestedIds.push(i.paymentIntent.id);
-                              });
-                            }
-                          })
-                        );
-                        // Fetch successful refunds
-                        this.subscriptions.add(
-                          this.dataService.getUserSuccessfulRefunds(this.userId).subscribe(refunds => {
-                            if (refunds) {
-                              const sortedR = refunds.sort((a, b) => parseFloat(String(b.paymentIntent.created)) - parseFloat(String(a.paymentIntent.created))); // sort by date (desc)
-                              this.successfulRefunds = sortedR;
-                              console.log('Successful refunds:', this.successfulRefunds);
-                              this.successfulRefunds.forEach(i => {
-                                this.refundsRequestedIds.push(i.paymentIntent.id);
-                              });
-                            }
-                          })
-                        );
                       } else if (account.accountType === 'partner' ) { // user is a partner
                         if (!account.stripeUid) { // user has not yet connected Stripe
 
@@ -380,6 +294,60 @@ export class AccountComponent implements OnInit, OnDestroy {
       breakDuration: account.breakDuration ? account.breakDuration : 0
     });
     // console.log(this.accountForm.value);
+  }
+
+  fetchSuccessfulCharges() {
+    this.subscriptions.add(
+      this.dataService.getSuccessfulCharges(this.userId).subscribe(sp => {
+        if (sp) {
+          const sortedSp = sp.sort((a, b) => parseFloat(String(b.created)) - parseFloat(String(a.created))); // sort by date (desc)
+          this.successfulPayments = sortedSp;
+          console.log('Successful charges:', this.successfulPayments);
+        }
+      })
+    );
+  }
+
+  fetchFailedCharges() {
+    this.subscriptions.add(
+      this.dataService.getFailedPayments(this.userId).subscribe(fp => {
+        if (fp) {
+          const sortedFp = fp.sort((a, b) => parseFloat(String(b.created)) - parseFloat(String(a.created))); // sort by date (desc)
+          this.failedPayments = sortedFp;
+          console.log('Failed charges:', this.failedPayments);
+        }
+      })
+    );
+  }
+
+  fetchRefundRequests() {
+    this.subscriptions.add(
+      this.dataService.getUserRefundRequests(this.userId).subscribe(refunds => {
+        if (refunds) {
+          const sortedR = refunds.sort((a, b) => parseFloat(String(b.paymentIntent.created)) - parseFloat(String(a.paymentIntent.created))); // sort by date (desc)
+          this.refundRequests = sortedR;
+          console.log('Refund requests:', this.refundRequests);
+          this.refundRequests.forEach(i => {
+            this.refundsRequestedIds.push(i.paymentIntent.id);
+          });
+        }
+      })
+    );
+  }
+
+  fetchSuccessfulRefunds() {
+    this.subscriptions.add(
+      this.dataService.getUserSuccessfulRefunds(this.userId).subscribe(refunds => {
+        if (refunds) {
+          const sortedR = refunds.sort((a, b) => parseFloat(String(b.paymentIntent.created)) - parseFloat(String(a.paymentIntent.created))); // sort by date (desc)
+          this.successfulRefunds = sortedR;
+          console.log('Successful refunds:', this.successfulRefunds);
+          this.successfulRefunds.forEach(i => {
+            this.refundsRequestedIds.push(i.paymentIntent.id);
+          });
+        }
+      })
+    );
   }
 
   async retrieveStripeBalance(stripeUid: string) {
