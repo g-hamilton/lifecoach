@@ -34,6 +34,17 @@
           <p>
             Stripe customer but billing not active!
           </p>
+          <button class=" btn btn-primary btn-round" (click)="onManageBilling()">
+            <span
+            *ngIf="redirectingToPortal"
+            class="spinner-border spinner-border-sm"
+            role="status"
+            ></span>
+            <span *ngIf="!redirectingToPortal">
+                <i class="fab fa-stripe-s"></i> | 
+            </span>
+            {{ redirectingToPortal ? ' loading...' : ' Manage My Billing' }}
+          </button>
         </div>
       </div>
     </div>

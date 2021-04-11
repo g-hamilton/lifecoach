@@ -31,6 +31,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   public subscriptionPlan: string; // if subscribed to a plan (active or trialing), this will be the plan's stripe price id
   public userSubscriptions: any[]; // Stripe.Subscription[]
   public subscribing: boolean;
+  public redirectingToPortal: boolean;
   public product = {
     priceId: 'price_1IdF2bBulafdcV5tZKdSbed8',
     image: '',
@@ -88,6 +89,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private cloudFunctions: CloudFunctionsService,
     private router: Router,
     private currenciesService: CurrenciesService,
+    private cloudFunctionsService: CloudFunctionsService
   ) {
   }
 
@@ -477,6 +479,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
         }
       })
     );
+  }
+
+  async onManageBilling() {
+    this.redirectingToPortal = true;
+    if (!this.stripeCustomerId) {
+      console.log('Missing Stripe customer ID');
+      this.redirectingToPortal = false;
+    }
+    // create a portal session
+    const data = {
+      customerId: this.stripeCustomerId,
+      returnUrl: `${environment.baseUrl}/account`
+    };
+    const res = await this.cloudFunctionsService.createStripePortalSession(data) as any;
+    if (res.error) {
+      console.error(res.error);
+      this.redirectingToPortal = false;
+      return null;
+    }
+    // redirect to session url
+    window.location.href = res.sessionUrl;
+    this.redirectingToPortal = false;
   }
 
 }
