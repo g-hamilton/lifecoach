@@ -97,3 +97,18 @@ export function webhookHandlerError(error: Error, id: string, type: string) {
     error.message
   );
 }
+
+export function creatingPortalSession() {
+  console.log(`⚙️ Creating Stripe portal session.`);
+}
+
+export function portalSessionCreated(sessionId: string) {
+  console.log(`✅Portal session created with ID [${sessionId}].`);
+}
+
+export function portalSessionCreationError(error: Error) {
+  console.error(
+    `❗️[Error]: Portal session creation failed:`,
+    error.message
+  );
+}

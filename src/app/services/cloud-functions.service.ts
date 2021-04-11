@@ -930,4 +930,16 @@ resizeCourseImage(data) {
         });
     });
   }
+
+  createStripePortalSession(data: any) {
+    return new Promise(resolve => {
+      const trigger = this.cloudFunctions.httpsCallable('createStripePortalSession');
+      const tempSub = trigger(data)
+        .pipe(first())
+        .subscribe(res => {
+          resolve(res);
+          tempSub.unsubscribe();
+        });
+    });
+  }
 }

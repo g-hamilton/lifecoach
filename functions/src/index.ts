@@ -2029,6 +2029,32 @@ exports.createStripeCheckoutSession = functions
   }
 });
 
+/*
+  Create a stripe portal session
+  https://stripe.com/docs/api/customer_portal/sessions/create?lang=node
+*/
+exports.createStripePortalSession = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.https
+.onCall( async (data, context) => {
+
+  const customer = data.customerId;
+  const return_url = data.returnUrl;
+
+  try {
+    logs.creatingPortalSession();
+    const session = await stripe.billingPortal.sessions.create({
+      customer,
+      return_url,
+    });
+    logs.portalSessionCreated(session.id);
+    return { sessionUrl: session.url }; // return the session url
+  } catch (err) {
+    logs.portalSessionCreationError(err);
+    return { error: err.message };
+  }
+});
+
 // ================================================================================
 // =====                FREE COURSE ENROLLMENT (NON STRIPE)                  ======
 // ================================================================================

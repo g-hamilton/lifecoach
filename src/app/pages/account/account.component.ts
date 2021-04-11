@@ -20,7 +20,7 @@ import { CurrenciesService } from 'app/services/currencies.service';
 import { CountryService } from 'app/services/country.service';
 import { Subscription } from 'rxjs';
 import { RefundRequest } from 'app/interfaces/refund.request.interface';
-import {environment} from '../../../environments/environment';
+import { environment } from '../../../environments/environment';
 import { Stripe } from 'stripe';
 
 @Component({
@@ -70,6 +70,8 @@ export class AccountComponent implements OnInit, OnDestroy {
   public connectingStripe: boolean;
   public stripeConnectUrl: string;
   public managingStripe: boolean;
+  public stripeCustomerId: string;
+  public redirectingToPortal: boolean;
 
   public successfulPayments: any[];
   public failedPayments: any;
@@ -196,6 +198,9 @@ export class AccountComponent implements OnInit, OnDestroy {
                           })
                         );
                       } else if (account.accountType === 'coach' ) { // user is a coach
+                        if (account.stripeCustomerId) { // user has a stripe customer id
+                          this.stripeCustomerId = account.stripeCustomerId;
+                        }
                         if (!account.stripeUid) { // user has not yet connected Stripe
 
                           // If redirecting to this component from Stripe, complete connection
@@ -680,6 +685,28 @@ export class AccountComponent implements OnInit, OnDestroy {
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const day = days[date.getDay()];
     return `${day} ${date.toLocaleDateString()}`;
+  }
+
+  async onManageBilling() {
+    this.redirectingToPortal = true;
+    if (!this.stripeCustomerId) {
+      console.log('Missing Stripe customer ID');
+      this.redirectingToPortal = false;
+    }
+    // create a portal session
+    const data = {
+      customerId: this.stripeCustomerId,
+      returnUrl: `${environment.baseUrl}/account`
+    };
+    const res = await this.cloudFunctionsService.createStripePortalSession(data) as any;
+    if (res.error) {
+      console.error(res.error);
+      this.redirectingToPortal = false;
+      return null;
+    }
+    // redirect to session url
+    window.location.href = res.sessionUrl;
+    this.redirectingToPortal = false;
   }
 
   async logout() {

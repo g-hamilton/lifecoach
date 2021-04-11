@@ -474,6 +474,29 @@
 
                         </tab>
 
+                        <!-- Billing tab for coach accounts -->
+                        <tab *ngIf="accountF.accountType.value === 'coach' && stripeCustomerId" heading="Billing">
+                            <div class="">
+                                <h6 class=" mt-4 pl-4">
+                                    Billing
+                                </h6>
+                                <p class=" small text-muted pl-4 mb-2">
+                                    <i class="fas fa-info-circle"></i> Lorem.
+                                </p>
+                                <button class=" btn btn-primary btn-round" (click)="onManageBilling()">
+                                    <span
+                                    *ngIf="redirectingToPortal"
+                                    class="spinner-border spinner-border-sm"
+                                    role="status"
+                                    ></span>
+                                    <span *ngIf="!redirectingToPortal">
+                                        <i class="fab fa-stripe-s"></i> | 
+                                    </span>
+                                    {{ redirectingToPortal ? ' loading...' : ' Manage My Billing' }}
+                                </button>
+                            </div>
+                        </tab>
+
                         <!-- Payments tab for coach accounts -->
                         <tab *ngIf="accountF.accountType.value === 'coach'" heading="Payout Settings">
                             <div class="">
