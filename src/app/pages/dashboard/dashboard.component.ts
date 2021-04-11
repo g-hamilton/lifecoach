@@ -123,7 +123,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
               } else if (c.coach) {
                 this.userType = 'coach';
                 if (c.subscriptionPlan) {
-                  this.subscriptionPlan = c.subscriptionPlan;
+                  // this.subscriptionPlan = c.subscriptionPlan;
                   console.log('Subscription plan:', this.subscriptionPlan);
                 }
                 this.loadUserAccount();
@@ -181,7 +181,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                   console.log('Checking user claims:', tokenRes.claims);
                   const c = tokenRes.claims;
                   if (c.subscriptionPlan) {
-                    this.subscriptionPlan = c.subscriptionPlan;
+                    // this.subscriptionPlan = c.subscriptionPlan;
                     console.log('Subscription plan:', this.subscriptionPlan);
                   }
                 });

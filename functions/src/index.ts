@@ -1823,7 +1823,21 @@ exports.stripeWebhookEvent = functions
   
           // execute atomic batch
           await batch.commit();
-        break;
+          break;
+        case 'invoice.paid':
+        case 'invoice.payment_succeeded':
+        case 'invoice.payment_failed':
+        case 'invoice.upcoming':
+        case 'invoice.marked_uncollectible':
+        case 'invoice.payment_action_required':
+          const invoice = event.data.object as Stripe.Invoice;
+          await manageInvoiceRecord(invoice);
+          break;
+        default:
+          logs.webhookHandlerError(
+            new Error('Unhandled relevant event!'),
+            event
+          );
       }
       logs.webhookHandlerSucceeded(event);
     } catch (err) {
@@ -1898,6 +1912,7 @@ exports.stripeWebhookConnectedEvent = functions
   uid: string;
 }) => {
   try {
+    const batch = admin.firestore().batch();
     logs.creatingCustomer(uid);
     const customerData: CustomerData = {
       metadata: {
@@ -1906,19 +1921,27 @@ exports.stripeWebhookConnectedEvent = functions
     };
     if (email) customerData.email = email;
     const customer = await stripe.customers.create(customerData);
-    // Add a mapping record in Cloud Firestore.
+    logs.customerCreated(customer.id, customer.livemode);
+
+    // add mapping records in firestore.
+    const customerRef = db.collection(`uids-by-stripe-customer-id`).doc(customer.id);
+    batch.set(customerRef, { uid });
+    const uidRef = db.collection(`stripe-customers-by-uid`).doc(uid);
+    batch.set(uidRef, { customerId: customer.id });
+
+    // add customer data to user's node in firestore
     const customerRecord = {
       stripeCustomerId: customer.id,
       stripeCustomerLink: `https://dashboard.stripe.com${
         customer.livemode ? '' : '/test'
       }/customers/${customer.id}`,
     };
-    await admin
-      .firestore()
-      .collection(`users/${uid}/account`)
-      .doc(`account${uid}`)
-      .set(customerRecord, { merge: true });
-    logs.customerCreated(customer.id, customer.livemode);
+    const userRef = db.collection(`users/${uid}/account`).doc(`account${uid}`);
+    batch.set(userRef, customerRecord, { merge: true });
+    
+    await batch.commit();
+
+    // success. return the customer record
     return customerRecord;
   } catch (error) {
     logs.customerCreationError(error, uid);
@@ -2564,6 +2587,34 @@ async function manageSubscriptionStatusChange(subscriptionId: string, uid: strin
 
   await batch.commit();
 
+}
+
+async function manageInvoiceRecord(invoice: Stripe.Invoice) {
+  // https://stripe.com/docs/api/invoices/object?lang=node
+
+  // lookup the customer's uid
+  const customerSnap = await db.collection(`uids-by-stripe-customer-id`).doc(invoice.customer as string)
+  .get();
+  if (!customerSnap.exists) {
+    throw new Error('User not found!');
+  }
+  const user = customerSnap.data();
+  if (!user) {
+    throw new Error('User data empty!');
+  }
+  if (!user.uid) {
+    throw new Error('User uid missing!');
+  }
+  const uid = user.uid;
+
+  // save the invoice to the relevant subscription on the user's node in firestore
+  await db.collection(`users/${uid}/subscriptions`)
+  .doc(invoice.subscription as string)
+  .collection('invoices')
+  .doc(invoice.id)
+  .set(invoice);
+  logs.firestoreDocCreated('invoices', invoice.id);
+  return;
 }
 
 // ================================================================================
