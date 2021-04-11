@@ -123,7 +123,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 } else {
                   this.loadProducts();
                 }
-                this.loadProducts(); // REMOVE
                 this.loadUserAccount();
                 this.loadUserSubscriptions();
                 this.loadTodos();

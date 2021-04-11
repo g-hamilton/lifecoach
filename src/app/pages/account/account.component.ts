@@ -238,7 +238,7 @@ export class AccountComponent implements OnInit, OnDestroy {
                           this.subscriptions.add(tempProfSub);
                         }
                         if (account.stripeUid) {
-                          this.retrieveStripeBalance(account.stripeUid);
+                          // this.retrieveStripeBalance(account.stripeUid);
                         }
                         // Fetch payment history
                         this.subscriptions.add(
@@ -309,7 +309,7 @@ export class AccountComponent implements OnInit, OnDestroy {
                           }
                         }
                         if (account.stripeUid) {
-                          this.retrieveStripeBalance(account.stripeUid);
+                          // this.retrieveStripeBalance(account.stripeUid);
                         }
                       }
                     }
