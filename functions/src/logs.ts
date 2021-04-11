@@ -1,3 +1,5 @@
+import { Stripe } from "stripe";
+
 export const creatingCustomer = (uid: string) => {
   console.log(`⚙️ Creating customer object for [${uid}].`);
 };
@@ -83,17 +85,17 @@ export function badWebhookSecret(error: Error) {
   );
 }
 
-export function startWebhookEventProcessing(id: string, type: string) {
-  console.log(`⚙️ Handling Stripe event [${id}] of type [${type}].`);
+export function startWebhookEventProcessing(event: Stripe.Event) {
+  console.log(`⚙️ Handling Stripe event [${event.id}] of type [${event.type}].`);
 }
 
-export function webhookHandlerSucceeded(id: string, type: string) {
-  console.log(`✅Successfully handled Stripe event [${id}] of type [${type}].`);
+export function webhookHandlerSucceeded(event: Stripe.Event) {
+  console.log(`✅Successfully handled Stripe event [${event.id}] of type [${event.type}].`);
 }
 
-export function webhookHandlerError(error: Error, id: string, type: string) {
+export function webhookHandlerError(error: Error, event: Stripe.Event) {
   console.error(
-    `❗️[Error]: Webhook handler for  Stripe event [${id}] of type [${type}] failed:`,
+    `❗️[Error]: Webhook handler for  Stripe event [${event.id}] of type [${event.type}] failed:`,
     error.message
   );
 }
