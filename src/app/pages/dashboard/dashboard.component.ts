@@ -15,7 +15,6 @@ import { Subscription } from 'rxjs';
 import { CloudFunctionsService } from '../../services/cloud-functions.service';
 import { SearchCoachesRequest } from 'app/interfaces/search.coaches.request.interface';
 import { Router } from '@angular/router';
-import { CurrenciesService } from 'app/services/currencies.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -32,13 +31,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   public userSubscriptions: any[]; // Stripe.Subscription[]
   public subscribing: boolean;
   public redirectingToPortal: boolean;
-  public product = {
-    priceId: 'price_1IdF2bBulafdcV5tZKdSbed8',
-    image: '',
-    title: 'Spark',
-    price: 24.99,
-    currency: 'GBP'
-  };
+  public products = {} as any;
+  public purchasingProduct: any;
   public clientCurrency: string;
   public clientCountry: string;
   public rates: any;
@@ -77,6 +71,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   private subscriptions: Subscription = new Subscription();
 
+  public objKeys = Object.keys;
+
   pageToken: string;
   public uniqUsers: Array<any>;
   constructor(
@@ -88,7 +84,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private ssoService: SsoService,
     private cloudFunctions: CloudFunctionsService,
     private router: Router,
-    private currenciesService: CurrenciesService,
     private cloudFunctionsService: CloudFunctionsService
   ) {
   }
@@ -123,13 +118,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
               } else if (c.coach) {
                 this.userType = 'coach';
                 if (c.subscriptionPlan) {
-                  // this.subscriptionPlan = c.subscriptionPlan;
+                  this.subscriptionPlan = c.subscriptionPlan;
                   console.log('Subscription plan:', this.subscriptionPlan);
+                } else {
+                  this.loadProducts();
                 }
+                this.loadProducts(); // REMOVE
                 this.loadUserAccount();
                 this.loadUserSubscriptions();
-                this.checkSavedClientCurrency();
-                this.monitorPlatformRates();
                 this.loadTodos();
                 // this.loadClients();
               } else if (c.regular) {
@@ -162,6 +158,30 @@ export class DashboardComponent implements OnInit, OnDestroy {
     );
   }
 
+  loadProducts() {
+    this.subscriptions.add(
+      this.dataService.getProducts().subscribe(data => {
+        if (data) {
+          this.products = {};
+          data.forEach(i => {
+            this.products[i.id] = i;
+            this.subscriptions.add(
+              this.dataService.getPrices(i.id).subscribe(prices => {
+                if (prices) {
+                  this.products[i.id].prices = [];
+                  prices.forEach(price => {
+                    this.products[i.id].prices.push(price);
+                  });
+                }
+              })
+            );
+          });
+          console.log('Products:', this.products);
+        }
+      })
+    );
+  }
+
   loadUserSubscriptions() {
     this.subscriptions.add(
       this.dataService.getUserSubscriptions(this.uid).subscribe(data => {
@@ -181,7 +201,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                   console.log('Checking user claims:', tokenRes.claims);
                   const c = tokenRes.claims;
                   if (c.subscriptionPlan) {
-                    // this.subscriptionPlan = c.subscriptionPlan;
+                    this.subscriptionPlan = c.subscriptionPlan;
                     console.log('Subscription plan:', this.subscriptionPlan);
                   }
                 });
@@ -222,9 +242,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   async redirectToStripeCheckout() {
     this.subscribing = true;
-    this.analyticsService.attemptCoachSubscription(this.product.priceId);
+    const product = this.products[this.purchasingProduct];
+    this.analyticsService.attemptCoachSubscription(product.id);
     const data = {
-      product: this.product,
+      product,
       uid: this.uid,
       successUrl: `${environment.baseUrl}/dashboard`,
       cancelUrl: `${environment.baseUrl}/dashboard`,
@@ -236,7 +257,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // console.log('result', res);
     if (res.error) {
       console.error(res.error);
-      this.analyticsService.failCoachSubscription(this.product.priceId);
+      this.analyticsService.failCoachSubscription(product.id);
       return null;
     }
     const res1 = await this.stripe.redirectToCheckout({
@@ -245,12 +266,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (res1.error) {
       console.error(res1.error);
       this.subscribing = false;
-      this.analyticsService.failCoachSubscription(this.product.priceId);
+      this.analyticsService.failCoachSubscription(product.id);
       return null;
     }
     // success!
     this.subscribing = false;
-    this.analyticsService.completeCoachSubscription(this.product.priceId);
+    this.analyticsService.completeCoachSubscription(product.id);
   }
 
   async loadAdminData() {
@@ -403,82 +424,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   manageUser(uid: string) {
     this.router.navigate(['admin-manage-user', uid]);
-  }
-
-  get displayPrice() {
-    if (!this.product.price || !this.rates || !this.product.currency || !this.clientCurrency) {
-      return null;
-    }
-
-    let amount: number;
-
-    if (this.product.currency === this.clientCurrency) { // no conversion needed
-      return this.product.price;
-    }
-
-    amount = Number((this.product.price / this.rates[this.product.currency.toUpperCase()] * this.rates[this.clientCurrency.toUpperCase()]));
-
-    if (!Number.isInteger(amount)) { // if price is not an integer
-      const rounded = Math.floor(amount) + .99; // round UP to .99
-      amount = rounded;
-    }
-
-    return amount;
-  }
-
-  get currencySymbol() {
-    const c = this.currenciesService.getCurrencies();
-    if (!this.clientCurrency) {
-      return '';
-    }
-    if (c != null) {
-      return c[this.clientCurrency].symbol;
-    }
-  }
-
-  checkSavedClientCurrency() {
-    // Check for saved client currency & country preference
-    const savedClientCurrencyPref = localStorage.getItem('client-currency');
-    const savedClientCountryPref = localStorage.getItem('client-country');
-    if (savedClientCurrencyPref && savedClientCountryPref) {
-      this.clientCurrency = savedClientCurrencyPref;
-      this.clientCountry = savedClientCountryPref;
-    } else {
-      this.getClientCurrencyAndCountryFromIP();
-    }
-  }
-
-  async getClientCurrencyAndCountryFromIP() {
-    const res = await fetch('https://ipapi.co/json/');
-    // console.log(res.status);
-    if (res.status === 200) {
-      const json = await res.json();
-      if (json.currency) {
-        this.clientCurrency = json.currency;
-        localStorage.setItem('client-currency', String(json.currency));
-      }
-      if (json.country) {
-        this.clientCountry = json.country;
-        localStorage.setItem('client-country', String(json.country));
-      }
-    }
-  }
-
-  onManualCurrencyChange(ev: string) {
-    console.log('User changed currency to:', ev);
-    this.clientCurrency = ev;
-  }
-
-  monitorPlatformRates() {
-    // Monitor platform rates for realtime price calculations
-    this.subscriptions.add(
-      this.dataService.getPlatformRates().subscribe(rates => {
-        if (rates) {
-          // console.log('Rates:', rates);
-          this.rates = rates;
-        }
-      })
-    );
   }
 
   async onManageBilling() {

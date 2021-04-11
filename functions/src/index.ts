@@ -25,7 +25,11 @@ import {
   // Subscription,
   CustomerData,
   // TaxRate,
-  CustomTransfer
+  CustomTransfer,
+  Price,
+  Product,
+  Subscription,
+  TaxRate
 } from './interfaces';
 
 // ================================================================================
@@ -1422,6 +1426,24 @@ exports.stripeWebhookEvent = functions
 
     try {
       switch (event.type) {
+        case 'product.created':
+        case 'product.updated':
+          await createProductRecord(event.data.object as Stripe.Product);
+          break;
+        case 'price.created':
+        case 'price.updated':
+          await insertPriceRecord(event.data.object as Stripe.Price);
+          break;
+        case 'product.deleted':
+          await deleteProductOrPrice(event.data.object as Stripe.Product);
+          break;
+        case 'price.deleted':
+          await deleteProductOrPrice(event.data.object as Stripe.Price);
+          break;
+        case 'tax_rate.created':
+        case 'tax_rate.updated':
+          await insertTaxRateRecord(event.data.object as Stripe.TaxRate);
+          break;
         case 'checkout.session.completed':
           const checkoutSession = event.data.object as Stripe.Checkout.Session;
     
@@ -1958,13 +1980,14 @@ exports.createStripeCheckoutSession = functions
 .https
 .onCall( async (data, context) => {
 
-  const priceId = data.product.priceId;
+  const priceId = data.product.prices[0].id;
   const uid = data.uid;
   const successUrl = data.successUrl;
   const cancelUrl = data.cancelUrl;
   const partnerReferred = data.partnerReferred;
   const saleItemType = data.saleItemType;
-  const productTitle = data.product.title;
+  const productTitle = data.product.name;
+  const role = data.product.role;
 
   try {
     logs.creatingCheckoutSession();
@@ -2010,7 +2033,8 @@ exports.createStripeCheckoutSession = functions
         client_UID: uid,
         sale_item_id: priceId,
         sale_item_type: saleItemType,
-        sale_item_title: productTitle
+        sale_item_title: productTitle,
+        firebaseRole: role ?? null
       },
       subscription_data: {
         metadata: {
@@ -2018,7 +2042,8 @@ exports.createStripeCheckoutSession = functions
           client_UID: uid,
           sale_item_id: priceId,
           sale_item_type: saleItemType,
-          sale_item_title: productTitle
+          sale_item_title: productTitle,
+          firebaseRole: role ?? null
         }
       }
     });
@@ -2055,6 +2080,226 @@ exports.createStripePortalSession = functions
     return { error: err.message };
   }
 });
+
+async function manageSubscriptionStatusChange(subscriptionId: string, uid: string) {
+  
+  // Retrieve the latest subscription status...
+  const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
+    expand: ['items.data.price.product'],
+  });
+
+  console.log('Subscription object:', JSON.stringify(subscription));
+
+  const price = subscription.items.data[0].price;
+  const prices = [];
+  for (const item of subscription.items.data) {
+    prices.push(
+      db
+      .collection(`stripe-products`)
+      .doc((item.price.product as Stripe.Product).id)
+      .collection('prices')
+      .doc(item.price.id)
+    );
+  }
+  const product= price.product as Stripe.Product;
+  const role = product.metadata.firebaseRole ?? null;
+
+  // before doing anything else, update the user's auth custom claims
+  if (['trialing', 'active'].includes(subscription.status)) { // the user is trailing or active
+    await addCustomUserClaims(uid, { subscriptionPlan: role });
+  } else { // the user should lose any subscription claim
+    await addCustomUserClaims(uid, { subscriptionPlan: null });
+  }
+
+  // prepare to write to firestore...
+
+  const batch = admin.firestore().batch();
+
+  // transform the data
+  const subscriptionData: Subscription = {
+    metadata: subscription.metadata,
+    role,
+    status: subscription.status,
+    stripeLink: `https://dashboard.stripe.com${
+      subscription.livemode ? '' : '/test'
+    }/subscriptions/${subscription.id}`,
+    product: db
+      .collection(`stripe-products`)
+      .doc(product.id),
+    price: db
+      .collection(`stripe-products`)
+      .doc(product.id)
+      .collection('prices')
+      .doc(price.id),
+    prices,
+    quantity: subscription.items.data[0].quantity ?? null,
+    items: subscription.items.data,
+    cancel_at_period_end: subscription.cancel_at_period_end,
+    cancel_at: subscription.cancel_at
+      ? admin.firestore.Timestamp.fromMillis(subscription.cancel_at * 1000)
+      : null,
+    canceled_at: subscription.canceled_at
+      ? admin.firestore.Timestamp.fromMillis(subscription.canceled_at * 1000)
+      : null,
+    current_period_start: admin.firestore.Timestamp.fromMillis(
+      subscription.current_period_start * 1000
+    ),
+    current_period_end: admin.firestore.Timestamp.fromMillis(
+      subscription.current_period_end * 1000
+    ),
+    created: admin.firestore.Timestamp.fromMillis(subscription.created * 1000),
+    ended_at: subscription.ended_at
+      ? admin.firestore.Timestamp.fromMillis(subscription.ended_at * 1000)
+      : null,
+    trial_start: subscription.trial_start
+      ? admin.firestore.Timestamp.fromMillis(subscription.trial_start * 1000)
+      : null,
+    trial_end: subscription.trial_end
+      ? admin.firestore.Timestamp.fromMillis(subscription.trial_end * 1000)
+      : null,
+  };
+
+  // save the subscription to the user node...
+  const ref1 = db.collection(`users/${uid}/subscriptions`).doc(subscription.id)
+  batch.set(ref1, subscriptionData, { merge: true });
+
+  // save the subscription to the platform node...
+  const ref2 = db.collection(`subscriptions`).doc(subscription.id)
+  batch.set(ref2, subscriptionData, { merge: true });
+
+  await batch.commit();
+
+}
+
+async function manageInvoiceRecord(invoice: Stripe.Invoice) {
+  // https://stripe.com/docs/api/invoices/object?lang=node
+
+  // lookup the customer's uid
+  const customerSnap = await db.collection(`uids-by-stripe-customer-id`).doc(invoice.customer as string)
+  .get();
+  if (!customerSnap.exists) {
+    throw new Error('User not found!');
+  }
+  const user = customerSnap.data();
+  if (!user) {
+    throw new Error('User data empty!');
+  }
+  if (!user.uid) {
+    throw new Error('User uid missing!');
+  }
+  const uid = user.uid;
+
+  // save the invoice to the relevant subscription on the user's node in firestore
+  await db.collection(`users/${uid}/subscriptions`)
+  .doc(invoice.subscription as string)
+  .collection('invoices')
+  .doc(invoice.id)
+  .set(invoice);
+  logs.firestoreDocCreated('invoices', invoice.id);
+  return;
+}
+
+/**
+ * Prefix Stripe metadata keys with `stripe_metadata_` to be spread onto Product and Price docs in Cloud Firestore.
+ */
+ function prefixMetadata(metadata: object | null) {
+  if (metadata) {
+    Object.keys(metadata).reduce((prefixedMetadata, key) => {
+      (prefixedMetadata as any)[`stripe_metadata_${key}`] = (metadata as any)[key];
+      return prefixedMetadata;
+    }, {});
+  }
+  return {};
+ }
+
+/*
+  Create a Product record in Firestore based on a Stripe Product object.
+*/
+const createProductRecord = async (product: Stripe.Product): Promise<void> => {
+  const { firebaseRole, ...rawMetadata } = product.metadata;
+
+  const productData: Product = {
+    active: product.active,
+    name: product.name,
+    description: product.description,
+    role: firebaseRole ?? null,
+    images: product.images,
+    ...prefixMetadata(rawMetadata),
+  };
+ await db.collection(`stripe-products`).doc(product.id)
+ .set(productData);
+ logs.firestoreDocCreated(`stripe-products`, product.id);
+};
+
+/*
+  Create a price (billing price plan) and insert it into a subcollection in Products.
+*/
+const insertPriceRecord = async (price: Stripe.Price): Promise<void> => {
+  if (price.billing_scheme === 'tiered')
+    // Tiers aren't included by default, we need to retireve and expand.
+    // tslint:disable-next-line: no-parameter-reassignment
+    price = await stripe.prices.retrieve(price.id, { expand: ['tiers'] });
+
+  const priceData: Price = {
+    active: price.active,
+    billing_scheme: price.billing_scheme,
+    tiers_mode: price.tiers_mode,
+    tiers: price.tiers ?? null,
+    currency: price.currency,
+    description: price.nickname,
+    type: price.type,
+    unit_amount: price.unit_amount,
+    recurring: price.recurring,
+    interval: price.recurring?.interval ?? null,
+    interval_count: price.recurring?.interval_count ?? null,
+    trial_period_days: price.recurring?.trial_period_days ?? null,
+    transform_quantity: price.transform_quantity,
+    ...prefixMetadata(price.metadata),
+  };
+ await db.collection(`stripe-products`)
+  .doc(price.product as string)
+  .collection('prices')
+  .doc(price.id)
+  .set(priceData);
+ logs.firestoreDocCreated('prices', price.id);
+};
+
+/**
+* Insert tax rates into the products collection in Cloud Firestore.
+*/
+const insertTaxRateRecord = async (taxRate: Stripe.TaxRate): Promise<void> => {
+ const taxRateData: TaxRate = {
+   ...taxRate,
+   ...prefixMetadata(taxRate.metadata),
+ };
+ taxRateData.metadata = null;
+ await db
+   .collection(`stripe-products`)
+   .doc('tax_rates')
+   .collection('tax_rates')
+   .doc(taxRate.id)
+   .set(taxRateData);
+ logs.firestoreDocCreated('tax_rates', taxRate.id);
+};
+
+const deleteProductOrPrice = async (pr: Stripe.Product | Stripe.Price) => {
+  if (pr.object === 'product') {
+    await db
+      .collection(`stripe-products`)
+      .doc(pr.id)
+      .delete();
+    logs.firestoreDocDeleted(`stripe-products`, pr.id);
+  }
+  if (pr.object === 'price') {
+    await db
+      .collection(`stripe-products`)
+      .doc(pr.product as string)
+      .collection('prices')
+      .doc(pr.id)
+      .delete();
+    logs.firestoreDocDeleted('prices', pr.id);
+  }
+};
 
 // ================================================================================
 // =====                FREE COURSE ENROLLMENT (NON STRIPE)                  ======
@@ -2551,70 +2796,6 @@ async function recordEnrollmentForPlatform(data: Stripe.PaymentIntent) {
   batch.set(ref3, saveData, { merge: true });
 
   await batch.commit();
-}
-
-// ================================================================================
-// =====                     COACH SUBSCRIPTION FUNCTIONS                    ======
-// ================================================================================
-
-async function manageSubscriptionStatusChange(subscriptionId: string, uid: string) {
-  
-  // Retrieve the latest subscription status...
-  const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
-    expand: ['items.data.price.product'],
-  });
-
-  const price = subscription.items.data[0].price;
-
-  // before doing anything else, update the user's auth custom claims
-  if (['trialing', 'active'].includes(subscription.status)) { // the user is trailing or active
-    await addCustomUserClaims(uid, { subscriptionPlan: price.id });
-  } else { // the user should lose any subscription claim
-    await addCustomUserClaims(uid, { subscriptionPlan: null });
-  }
-
-  // prepare to write to firestore...
-
-  const batch = admin.firestore().batch();
-
-  // save the subscription to the user node...
-  const ref1 = db.collection(`users/${uid}/subscriptions`).doc(subscription.id)
-  batch.set(ref1, subscription, { merge: true });
-
-  // save the subscription to the platform node...
-  const ref2 = db.collection(`subscriptions`).doc(subscription.id)
-  batch.set(ref2, subscription, { merge: true });
-
-  await batch.commit();
-
-}
-
-async function manageInvoiceRecord(invoice: Stripe.Invoice) {
-  // https://stripe.com/docs/api/invoices/object?lang=node
-
-  // lookup the customer's uid
-  const customerSnap = await db.collection(`uids-by-stripe-customer-id`).doc(invoice.customer as string)
-  .get();
-  if (!customerSnap.exists) {
-    throw new Error('User not found!');
-  }
-  const user = customerSnap.data();
-  if (!user) {
-    throw new Error('User data empty!');
-  }
-  if (!user.uid) {
-    throw new Error('User uid missing!');
-  }
-  const uid = user.uid;
-
-  // save the invoice to the relevant subscription on the user's node in firestore
-  await db.collection(`users/${uid}/subscriptions`)
-  .doc(invoice.subscription as string)
-  .collection('invoices')
-  .doc(invoice.id)
-  .set(invoice);
-  logs.firestoreDocCreated('invoices', invoice.id);
-  return;
 }
 
 // ================================================================================

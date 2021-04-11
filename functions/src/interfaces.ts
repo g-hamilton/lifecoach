@@ -17,7 +17,7 @@ export interface Price {
    */
   active: boolean;
   currency: string;
-  unit_amount: number;
+  unit_amount: number | null;
   /**
    * A brief description of the price.
    */
@@ -92,7 +92,7 @@ export interface Subscription {
   };
   stripeLink: string;
   role: string | null;
-  quantity: number;
+  quantity: number | null;
   items: Stripe.SubscriptionItem[];
   /**
    * Firestore reference to the product doc for this Subscription.
