@@ -72,6 +72,7 @@ export class AccountComponent implements OnInit, OnDestroy {
   public managingStripe: boolean;
   public stripeCustomerId: string;
   public redirectingToPortal: boolean;
+  public billingSubscriptions = [];
 
   public successfulPayments: any[];
   public failedPayments: any;
@@ -201,6 +202,7 @@ export class AccountComponent implements OnInit, OnDestroy {
                         this.fetchFailedCharges();
                         this.fetchRefundRequests();
                         this.fetchSuccessfulRefunds();
+                        this.fetchSubscriptions();
 
                       } else if (account.accountType === 'partner' ) { // user is a partner
                         if (!account.stripeUid) { // user has not yet connected Stripe
@@ -345,6 +347,31 @@ export class AccountComponent implements OnInit, OnDestroy {
           this.successfulRefunds.forEach(i => {
             this.refundsRequestedIds.push(i.paymentIntent.id);
           });
+        }
+      })
+    );
+  }
+
+  fetchSubscriptions() {
+    this.subscriptions.add(
+      this.dataService.getUserSubscriptions(this.userId).subscribe(data => {
+        if (data) {
+          this.billingSubscriptions = [];
+          data.forEach(i => {
+            const subObj = { ...i } as any;
+            this.subscriptions.add(
+              this.dataService.getUserInvoices(this.userId, i.id).subscribe(invoices => {
+                if (invoices) {
+                  subObj.invoices = [];
+                  invoices.forEach(invoice => {
+                    subObj.invoices.push(invoice);
+                  });
+                }
+              })
+            );
+            this.billingSubscriptions.push(subObj);
+          });
+          console.log(this.billingSubscriptions);
         }
       })
     );

@@ -972,7 +972,7 @@ export class DataService {
 
 getUserSubscriptions(uid: string) {
   return this.db.collection(`users/${uid}/subscriptions`)
-    .valueChanges({idField: 'id'}) as Observable<Stripe.Subscription[]>;
+  .valueChanges({idField: 'id'}) as Observable<Stripe.Subscription[]>;
 }
 
 getProducts() {
@@ -985,6 +985,11 @@ getPrices(productId: string) {
   .doc(productId)
   .collection(`prices`)
   .valueChanges({idField: 'id'}) as Observable<any[]>;
+}
+
+getUserInvoices(uid: string, subscriptionId: string) {
+  return this.db.collection(`users/${uid}/subscriptions/${subscriptionId}/invoices`)
+  .valueChanges({idField: 'id'}) as Observable<Stripe.Invoice[]>;
 }
 
 // ================================================================================
