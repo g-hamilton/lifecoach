@@ -11,7 +11,8 @@ import { AnalyticsService } from '../../services/analytics.service';
 })
 export class PricingComponent implements OnInit, OnDestroy {
 
-    public browser: boolean;
+  public browser: boolean;
+
   constructor(
     private analyticsService: AnalyticsService,
     private titleService: Title,
@@ -31,6 +32,10 @@ export class PricingComponent implements OnInit, OnDestroy {
       this.analyticsService.pageView();
       this.browser = true;
     }
+  }
+
+  clickEvent(buttonId: string) {
+    this.analyticsService.clickButton(buttonId);
   }
 
   onGetStarted() {

@@ -498,4 +498,8 @@ export class AnalyticsService {
     });
   }
 
+  clickButton(id: string) {
+    mixpanel.track(`Clicked button [${id}]`);
+  }
+
 }
