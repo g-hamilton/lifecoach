@@ -2117,6 +2117,7 @@ async function manageSubscriptionStatusChange(subscriptionId: string, uid: strin
 
   // transform the data
   const subscriptionData: Subscription = {
+    name: product.name,
     metadata: subscription.metadata,
     role,
     status: subscription.status,

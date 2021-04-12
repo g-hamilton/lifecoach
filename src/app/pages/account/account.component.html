@@ -475,15 +475,41 @@
                         </tab>
 
                         <!-- Billing tab for coach accounts -->
-                        <tab *ngIf="accountF.accountType.value === 'coach' && stripeCustomerId" heading="Billing">
+                        <tab *ngIf="accountF.accountType.value === 'coach'" heading="Billing">
                             <div class="">
                                 <h6 class=" mt-4 pl-4">
                                     Billing
                                 </h6>
                                 <p class=" small text-muted pl-4 mb-2">
-                                    <i class="fas fa-info-circle"></i> Lorem.
+                                    <i class="fas fa-info-circle"></i> Click 'Manage Billing' to change, update, renew or cancel your Lifecoach plan, update your payment details 
+                                     and view your payment history & invoices.
                                 </p>
-                                <button class=" btn btn-primary btn-round" (click)="onManageBilling()">
+                                <div *ngIf="stripeCustomerId && billingSubscriptions?.length > 0" class=" table-responsive">
+                                    <table class=" table">
+                                        <thead class=" text-primary">
+                                            <tr>
+                                            <th> Plan </th>
+                                            <th> Start </th>
+                                            <th> Expires </th>
+                                            <th> Status </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let subscription of billingSubscriptions" class="">
+                                                <td> {{ subscription.name }} </td>
+                                                <td> {{ timestampToDate(subscription.current_period_start.seconds) }} </td>
+                                                <td> {{ timestampToDate(subscription.current_period_end.seconds) }} </td>
+                                                <td> {{ subscription.status.toUpperCase() }} </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div *ngIf="!stripeCustomerId">
+                                    <p class=" mt-3">
+                                        You have no active billing plan.
+                                    </p>
+                                </div>
+                                <button class=" btn btn-primary btn-round pull-right" (click)="onManageBilling()">
                                     <span
                                     *ngIf="redirectingToPortal"
                                     class="spinner-border spinner-border-sm"
@@ -492,7 +518,7 @@
                                     <span *ngIf="!redirectingToPortal">
                                         <i class="fab fa-stripe-s"></i> | 
                                     </span>
-                                    {{ redirectingToPortal ? ' loading...' : ' Manage My Billing' }}
+                                    {{ redirectingToPortal ? ' Loading...' : ' Manage Billing' }}
                                 </button>
                             </div>
                         </tab>

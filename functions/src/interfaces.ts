@@ -87,6 +87,7 @@ export interface Subscription {
    * Set of key-value pairs that you can attach to an object.
    * This can be useful for storing additional information about the object in a structured format.
    */
+  name: string;
   metadata: {
     [name: string]: string;
   };
