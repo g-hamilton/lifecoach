@@ -50,7 +50,7 @@ export class PricingComponent implements OnInit, OnDestroy {
       initialState: {
         message: `Step 1: Create your account...`,
         successMessage: `Complete your payment to activate your plan...`,
-        redirectUrl: null,
+        redirectUrl: `/dashboard`,
         accountType,
         plan
       } as any

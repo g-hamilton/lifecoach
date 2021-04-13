@@ -6,6 +6,7 @@ import { AuthService } from 'app/services/auth.service';
 import { AnalyticsService } from 'app/services/analytics.service';
 import { AlertService } from 'app/services/alert.service';
 import { LoginComponent } from '../login/login.component';
+import { Router } from '@angular/router';
 
 /*
   This component is designed to be a re-usable modal.
@@ -61,7 +62,8 @@ export class RegisterModalComponent implements OnInit {
     private authService: AuthService,
     private analyticsService: AnalyticsService,
     private alertService: AlertService,
-    private modalService: BsModalService
+    private modalService: BsModalService,
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -123,6 +125,9 @@ export class RegisterModalComponent implements OnInit {
         this.analyticsService.registerUser(response.result.user.uid, 'email&password', newUserAccount);
         this.bsModalRef.hide();
         this.alertService.alert('success-message', 'Success!', `Welcome to Lifecoach ${firstName}. ${this.successMessage}`);
+        if (this.redirectUrl) {
+          this.router.navigate([this.redirectUrl]);
+        }
       } else {
         // Error
         this.register = false;
