@@ -172,22 +172,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.dataService.getProducts().subscribe(data => {
         if (data) {
-          this.products = {};
+          const products = {};
           data.forEach(i => {
-            this.products[i.id] = i;
+            products[i.id] = i;
             this.subscriptions.add(
               this.dataService.getPrices(i.id).subscribe(prices => {
                 if (prices) {
-                  this.products[i.id].prices = [];
+                  products[i.id].prices = [];
                   prices.forEach(price => {
-                    this.products[i.id].prices.push(price);
+                    products[i.id].prices.push(price);
                   });
+                  this.products = products;
+                  console.log(this.products);
                   this.productsLoaded = true;
                 }
               })
             );
           });
-          console.log('Products:', this.products);
         }
       })
     );

@@ -21,7 +21,9 @@
             <label for="plan"> Confirm your chosen plan </label>
             <select class="form-control" name="plan" id="starttime" [(ngModel)]="chosenPlan" [ngModelOptions]="{ standAlone: true }">
               <option *ngFor="let i of objKeys(products)" [value]="products[i].role">
-                {{ products[i].name + ' - ' + '£' + products[i].prices[0].unit_amount / 100 }}
+                {{ products[i].name }} <span *ngIf="products[i].prices">
+                  {{ ' - ' + '£' + products[i].prices[products[i].prices.length - 1].unit_amount / 100 }}
+                </span>
               </option>
             </select>
           </div>

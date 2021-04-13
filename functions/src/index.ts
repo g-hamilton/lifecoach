@@ -1981,7 +1981,7 @@ exports.createStripeCheckoutSession = functions
 .https
 .onCall( async (data, context) => {
 
-  const priceId = data.product.prices[0].id;
+  const priceId = data.product.prices[data.product.prices.length - 1].id;
   const uid = data.uid;
   const successUrl = data.successUrl;
   const cancelUrl = data.cancelUrl;
