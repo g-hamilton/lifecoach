@@ -36,7 +36,7 @@ export interface ChildrenItems2 {
 export const ROUTES: RouteInfo[] = [
   {
     path: '/dashboard',
-    title: 'My Dashboard',
+    title: 'Dashboard',
     type: 'link',
     icontype: 'tim-icons icon-chart-pie-36',
     rtlTitle: 'لوحة القيادة',
@@ -44,23 +44,23 @@ export const ROUTES: RouteInfo[] = [
   },
   {
     path: '/people',
-    title: 'My People',
+    title: 'CRM',
     type: 'link',
     icontype: 'tim-icons icon-single-02',
     rtlTitle: 'لوحة القيادة',
     userTypes: ['coach']
   },
-  {
-    path: '/calendar',
-    title: 'My Calendar',
-    rtlTitle: 'التقويم',
-    type: 'link',
-    icontype: 'tim-icons icon-calendar-60',
-    userTypes: ['coach']
-  },
+  // {
+  //   path: '/calendar',
+  //   title: 'My Calendar',
+  //   rtlTitle: 'التقويم',
+  //   type: 'link',
+  //   icontype: 'tim-icons icon-calendar-60',
+  //   userTypes: ['coach']
+  // },
   {
     path: '/messages',
-    title: 'My Messages',
+    title: 'Messages',
     rtlTitle: 'التقويم',
     type: 'link',
     icontype: 'tim-icons icon-email-85',
@@ -100,7 +100,7 @@ export const ROUTES: RouteInfo[] = [
   },
   {
     path: '/profile',
-    title: 'My Profile',
+    title: 'Profile',
     rtlTitle: 'التقويم',
     type: 'link',
     icontype: 'tim-icons icon-badge',
@@ -108,7 +108,7 @@ export const ROUTES: RouteInfo[] = [
   },
   {
     path: '/coach-products-services',
-    title: 'My Products & Services',
+    title: 'Products & Services',
     type: 'link',
     icontype: 'tim-icons icon-bullet-list-67',
     rtlTitle: 'لوحة القيادة',
@@ -116,7 +116,7 @@ export const ROUTES: RouteInfo[] = [
   },
   {
     path: '/client-testimonials',
-    title: 'My Testimonials',
+    title: 'Testimonials',
     type: 'link',
     icontype: 'tim-icons icon-chat-33',
     rtlTitle: 'لوحة القيادة',
@@ -199,7 +199,7 @@ export const ROUTES: RouteInfo[] = [
   },
   {
     path: '/account',
-    title: 'My Account',
+    title: 'Account',
     rtlTitle: 'التقويم',
     type: 'link',
     icontype: 'tim-icons icon-lock-circle',
