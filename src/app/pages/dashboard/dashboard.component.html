@@ -3,103 +3,62 @@
   <!-- COACH USERS -->
   <div *ngIf="userType === 'coach'">
     
-    <!-- coach has no stripe customer id and billing subscription is not active -->
-    <div *ngIf="!stripeCustomerId && !subscriptionPlan">
+    <!-- coach has no stripe customer id and no stripe subscriptions -->
+    <div *ngIf="!userAccount?.stripeCustomerId || (userAccount?.stripeCustomerId && userSubscriptions?.length === 0)">
       <div class=" row">
         <div class=" col">
+          <h3>
+            👋 Welcome to Lifecoach {{ userFirstName }}!
+          </h3>
           <p>
-            Not a stripe customer yet!
+            Step 2: Complete your payment now to activate your Lifecoach plan...
           </p>
-          <!-- payment options row -->
-          <div *ngIf="objKeys(products).length > 0" class=" row">
-
-            <!-- dynamic spacer col -->
-            <div *ngIf="objKeys(products).length === 1" class=" col-md-2 col-xs-12">
-            </div>
-            <!-- end dynamic spacer col -->
-
-            <!-- pricing plan cols -->
-            <div *ngFor="let key of objKeys(products) ; let i = index" 
-            [ngClass]="{
-              'col-lg-3 col-xs-12': objKeys(products).length === 3,
-              'col-lg-4 col-xs-12': objKeys(products).length === 2  || objKeys(products).length === 1
-            }">
-              <div class=" card card-pricing card-white"
-              [ngClass]="{
-                'card-success': i === 0,
-                'card-info': i === 1,
-                'card-danger': i === 2
-              }">
-                <div class=" card-body">
-                  <h1 class=" card-title">{{ products[key].name }}</h1>
-                  <img
-                  alt="Image"
-                  class=" card-img"
-                  [src]="i === 0 ? 'assets/img/card-success.png' :
-                  i === 1 ? 'assets/img/card-info.png' : 'assets/img/card-danger.png'"
-                  />
-        
-                  <ul class=" list-group">
-                    <li class=" list-group-item">Lorem</li>
-                  </ul>
-                  <div *ngIf="products[key] && products[key].prices" class=" card-prices pl-3 pr-3">
-                    <h3 class=" text-on-front">{{ '£' + (products[key].prices[0].unit_amount) / 100 }}</h3>
-                    <h5 class=" text-on-back">{{ '£' + (products[key].prices[0].unit_amount) / 100 }}</h5>
-                  </div>
-                </div>
-                <div class=" card-footer text-center mb-3 mt-3">
-                  <!-- purchase button -->
-                  <button
-                  class=" btn btn-round"
-                  [ngClass]="{
-                    'btn-success': i === 0,
-                    'btn-info': i === 1,
-                    'btn-danger': i === 2
-                  }"
-                  [id]="'purchase' + i"
-                  type="button"
-                  (click)="purchasingProduct = key ; redirectToStripeCheckout()">
-                  <span
-                  *ngIf="subscribing"
-                  class="spinner-border spinner-border-sm"
-                  role="status"
-                  ></span> {{ subscribing ? 'Loading...' : 'Buy Now'}}
-                  </button>
-                  <div class="mt-2">
-                    <small>
-                      7-Day Money-Back Guarantee.
-                      <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001123378-all-about-refunds" taget="_blank">
-                        Info
-                      </a>
-                    </small>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <!-- end pricing package cols -->
-
-            <!-- dynamic spacer col -->
-            <div *ngIf="objKeys(products).length === 1" class=" col-md-2 col-xs-12">
-            </div>
-            <!-- end dynamic spacer col -->
-
-            <!-- end pricing packages cols -->
-
+        </div>
+      </div>
+      <div class=" row mt-3" *ngIf="productsLoaded">
+        <div class=" col-md-6">
+          <div class=" form-group">
+            <label for="plan"> Confirm your chosen plan </label>
+            <select class="form-control" name="plan" id="starttime" [(ngModel)]="chosenPlan" [ngModelOptions]="{ standAlone: true }">
+              <option *ngFor="let i of objKeys(products)" [value]="products[i].role">
+                {{ products[i].name + ' - ' + '£' + products[i].prices[0].unit_amount / 100 }}
+              </option>
+            </select>
           </div>
-          <!-- end payment options row -->
-
+        </div>
+      </div>
+      <div class=" row mt-3">
+        <div class="col">
+          <button
+          id="dashboard-coach-complete-payment"
+          class=" btn btn-round btn-primary"
+          (click)="clickEvent('dashboard-coach-complete-payment') ; redirectToStripeCheckout()">
+            <span
+            *ngIf="subscribing"
+            class="spinner-border spinner-border-sm"
+            role="status"
+            ></span> {{ subscribing ? 'Preparing Account...' : 'Complete Payment'}} 
+          </button>
         </div>
       </div>
     </div>
-    <!-- end coach has no stripe customer id and billing subscription is not active -->
+    <!-- end coach has no stripe customer id and no stripe subscriptions -->
 
-    <!-- coach has a stripe customer id but billing subscription is not active -->
-    <div *ngIf="stripeCustomerId && !subscriptionPlan">
+    <!-- coach has a stripe customer id and subscription, but subscription is not active or trailing -->
+    <div *ngIf="userAccount?.stripeCustomerId && userSubscriptions?.length > 0 && !subscriptionPlan">
       <div class=" row">
         <div class=" col">
+          <h3>
+            👋 Welcome to Lifecoach {{ userFirstName }}!
+          </h3>
           <p>
-            Stripe customer but billing not active!
+            Your billing plan has expired. 
+            Click 'Manage My Billing' now to re-activate your Lifecoach plan...
           </p>
+        </div>
+      </div>
+      <div class=" row mt-3">
+        <div class=" col">
           <button class=" btn btn-primary btn-round" (click)="onManageBilling()">
             <span
             *ngIf="redirectingToPortal"
@@ -109,15 +68,15 @@
             <span *ngIf="!redirectingToPortal">
                 <i class="fab fa-stripe-s"></i> | 
             </span>
-            {{ redirectingToPortal ? ' loading...' : ' Manage My Billing' }}
+            {{ redirectingToPortal ? ' Loading Your Billing Portal...' : ' Manage My Billing' }}
           </button>
         </div>
       </div>
     </div>
-    <!-- end coach has a stripe customer id but billing subscription is not active -->
+    <!-- end coach has a stripe customer id and subscription, but subscription is not active or trailing -->
 
-    <!-- coach billing subscription is active -->
-    <div *ngIf="stripeCustomerId && subscriptionPlan">
+    <!-- coach billing subscription is active or trailing -->
+    <div *ngIf="userAccount?.stripeCustomerId && subscriptionPlan ">
       <div class=" row">
         <div class=" col-lg-4">
           <div class=" card card-tasks">

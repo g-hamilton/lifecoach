@@ -396,7 +396,7 @@ async function removeCustomUserClaims(uid: string, claims: any) {
 }
 
 async function createUserNode(uid: string, email: string, type: 'regular' | 'coach' | 'partner' | 'provider' | 'admin',
-firstName: string | null, lastName: string | null) {
+firstName: string | null, lastName: string | null, plan?: 'trial' | 'spark' | 'flame' | 'blaze') {
 
   const batch = admin.firestore().batch();
 
@@ -408,7 +408,8 @@ firstName: string | null, lastName: string | null) {
     accountType: type,
     accountEmail: email,
     firstName,
-    lastName
+    lastName,
+    plan: plan ? plan : null
   })
   .catch(err => console.error(err));
 
@@ -491,7 +492,7 @@ exports.createDbUserWithType = functions
   }
 
   // Create the user node in the DB.
-  await createUserNode(data.uid, data.email, data.type, data.firstName, data.lastName);
+  await createUserNode(data.uid, data.email, data.type, data.firstName, data.lastName, data.plan);
   console.log(`User node created successfully for ${data.type} account user ${data.uid}`);
 
   // Set custom claim on the user's auth object.

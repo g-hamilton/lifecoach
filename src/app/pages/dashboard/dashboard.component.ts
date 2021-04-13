@@ -15,6 +15,8 @@ import { Subscription } from 'rxjs';
 import { CloudFunctionsService } from '../../services/cloud-functions.service';
 import { SearchCoachesRequest } from 'app/interfaces/search.coaches.request.interface';
 import { Router } from '@angular/router';
+import { UserAccount } from 'app/interfaces/user.account.interface';
+import { AlertService } from 'app/services/alert.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -26,13 +28,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   private uid: string;
   public userType: 'coach' | 'regular' | 'partner' | 'provider' | 'admin';
-  public stripeCustomerId: string; // coach users may have a stripe customer id if they have previously subscribed
-  public subscriptionPlan: string; // if subscribed to a plan (active or trialing), this will be the plan's stripe price id
+  public userAccount: UserAccount;
+  public userFirstName = '';
+  public chosenPlan: 'trial' | 'spark' | 'flame' | 'blaze';
+  public subscriptionPlan: string; // if subscribed to a plan (active or trialing). Note: comes from custom auth calims!
   public userSubscriptions: any[]; // Stripe.Subscription[]
   public subscribing: boolean;
   public redirectingToPortal: boolean;
   public products = {} as any;
-  public purchasingProduct: any;
+  public productsLoaded: boolean;
   public clientCurrency: string;
   public clientCountry: string;
   public rates: any;
@@ -84,7 +88,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private ssoService: SsoService,
     private cloudFunctions: CloudFunctionsService,
     private router: Router,
-    private cloudFunctionsService: CloudFunctionsService
+    private cloudFunctionsService: CloudFunctionsService,
+    private alertService: AlertService
   ) {
   }
 
@@ -148,9 +153,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.dataService.getUserAccount(this.uid).subscribe(data => {
         if (data) {
+          console.log('User account:', data);
           if (data.stripeCustomerId) {
-            this.stripeCustomerId = data.stripeCustomerId;
-            console.log('Stripe customer ID:', this.stripeCustomerId);
+            this.userAccount = data;
+          }
+          if (data.plan) {
+            this.chosenPlan = data.plan;
+          }
+          if (data.firstName) {
+            this.userFirstName = data.firstName;
           }
         }
       })
@@ -171,6 +182,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                   prices.forEach(price => {
                     this.products[i.id].prices.push(price);
                   });
+                  this.productsLoaded = true;
                 }
               })
             );
@@ -241,7 +253,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   async redirectToStripeCheckout() {
     this.subscribing = true;
-    const product = this.products[this.purchasingProduct];
+    let productId: string;
+    Object.keys(this.products).forEach(key => {
+      if (this.products[key].role === this.chosenPlan) {
+        productId = key;
+      }
+    });
+    if (!productId) {
+      this.alertService.alert('warning-message', 'Oops!', 'Missing product ID. Please contact support.');
+      return;
+    }
+    const product = this.products[productId];
     this.analyticsService.attemptCoachSubscription(product.id);
     const data = {
       product,
@@ -388,10 +410,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.dataService.completeUserTask(this.uid, taskId);
   }
 
-  ngOnDestroy() {
-    this.subscriptions.unsubscribe();
-  }
-
   resizeImage() {
     console.log('Clicked');
     this.cloudFunctions.resizeProfileAvatarsManager({token: this.pageToken})
@@ -427,13 +445,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   async onManageBilling() {
     this.redirectingToPortal = true;
-    if (!this.stripeCustomerId) {
+    if (!this.userAccount.stripeCustomerId) {
       console.log('Missing Stripe customer ID');
       this.redirectingToPortal = false;
     }
     // create a portal session
     const data = {
-      customerId: this.stripeCustomerId,
+      customerId: this.userAccount.stripeCustomerId,
       returnUrl: `${environment.baseUrl}/account`
     };
     const res = await this.cloudFunctionsService.createStripePortalSession(data) as any;
@@ -445,6 +463,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // redirect to session url
     window.location.href = res.sessionUrl;
     this.redirectingToPortal = false;
+  }
+
+  clickEvent(buttonId: string) {
+    this.analyticsService.clickButton(buttonId);
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 
 }

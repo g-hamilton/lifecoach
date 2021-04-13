@@ -137,10 +137,11 @@ resizeCourseImage(data) {
     const type = account.accountType;
     const firstName = account.firstName;
     const lastName = account.lastName;
+    const plan = account.plan ? account.plan : null;
 
     return new Promise(resolve => {
       const createDbUserWithType = this.cloudFunctions.httpsCallable('createDbUserWithType');
-      const tempSub = createDbUserWithType({uid, email, type, firstName, lastName})
+      const tempSub = createDbUserWithType({ uid, email, type, firstName, lastName, plan })
         .pipe(first())
         .subscribe(res => {
           if (!res.error) {
