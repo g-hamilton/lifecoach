@@ -61,7 +61,8 @@ export class AnalyticsService {
     this.setPeopleProperties(account);
     mixpanel.track('Registered', {
       method,
-      accountType: account.accountType
+      accountType: account.accountType,
+      plan: account.plan ? account.plan : null
     });
   }
 

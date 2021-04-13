@@ -25,4 +25,5 @@ export interface UserAccount {
     breakDuration?: number;
     stripeCustomerId?: string; // the customer id of the user if they have been created in Stripe
     stripeCustomerLink?: string; // the url for the customer's stripe dashboard
+    plan?: 'trial' | 'spark' | 'flame' | 'blaze'; // if registering coach - billing plan
 }

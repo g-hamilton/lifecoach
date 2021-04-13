@@ -464,7 +464,8 @@ export class CourseComponent implements OnInit, OnDestroy {
       initialState: {
         message: `Just a second! You need a Lifecoach account to purchase & watch eCourses. Joining Lifecoach is free and only takes seconds!`,
         successMessage: `Click Buy Now again to complete your purchase.`,
-        redirectUrl: null
+        redirectUrl: null,
+        accountType: 'regular'
       } as any
     };
     this.bsModalRef = this.modalService.show(RegisterModalComponent, config);

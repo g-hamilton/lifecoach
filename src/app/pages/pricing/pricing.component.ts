@@ -1,8 +1,10 @@
 import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
 import { Title, Meta } from '@angular/platform-browser';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
+import { RegisterModalComponent } from 'app/components/register-modal/register-modal.component';
 
 import { AnalyticsService } from '../../services/analytics.service';
+import { BsModalRef, BsModalService, ModalOptions } from 'ngx-bootstrap/modal';
 
 @Component({
   selector: 'app-pricing',
@@ -11,12 +13,14 @@ import { AnalyticsService } from '../../services/analytics.service';
 })
 export class PricingComponent implements OnInit, OnDestroy {
 
+  public bsModalRef: BsModalRef;
   public browser: boolean;
 
   constructor(
     private analyticsService: AnalyticsService,
     private titleService: Title,
     private metaTagService: Meta,
+    private modalService: BsModalService,
     @Inject(DOCUMENT) private document: any,
     @Inject(PLATFORM_ID) private platformId: object
   ) {}
@@ -38,8 +42,20 @@ export class PricingComponent implements OnInit, OnDestroy {
     this.analyticsService.clickButton(buttonId);
   }
 
-  onGetStarted() {
-    this.analyticsService.clickGetStarted();
+  onRegister(accountType: string, plan?: string) {
+    // pop register modal
+    // we can send data to the modal & open in a another component via a service
+    // https://valor-software.com/ngx-bootstrap/#/modals#service-component
+    const config: ModalOptions = {
+      initialState: {
+        message: `Step 1: Create your account...`,
+        successMessage: `Complete your payment to activate your plan...`,
+        redirectUrl: null,
+        accountType,
+        plan
+      } as any
+    };
+    this.bsModalRef = this.modalService.show(RegisterModalComponent, config);
   }
 
   ngOnDestroy() {

@@ -26,12 +26,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
   public focusTouched1 = false;
   public focusTouched2 = false;
   public focusTouched3 = false;
-  public coachPlans = [
-    {id: '001', itemName: 'Free', price: 0},
-    {id: '002', itemName: 'Spark', price: 9},
-    {id: '003', itemName: 'Flame', price: 29},
-    {id: '004', itemName: 'Blaze', price: 49}
-  ]; // Not using these yet but if a selector is needed they're ready!
+  public coachPlan: string;
 
   public objKeys = Object.keys;
 
@@ -70,7 +65,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
   ngOnInit() {
     // console.log(this.registerF, 'register', this.registerF.accountType.value);
     this.titleService.setTitle('Signup to Lifecoach');
-    this.metaTagService.updateTag({name: 'description', content: 'Join the fastest growing life coaching community'});
+    this.metaTagService.updateTag({name: 'description', content: 'Get the leading software for professional coaches, access clients & join the fastest growing online coaching community'});
 
     const body = this.document.getElementsByTagName('body')[0];
     body.classList.add('register-page');
@@ -88,16 +83,32 @@ export class RegisterComponent implements OnInit, OnDestroy {
         email: ['', [Validators.required, Validators.pattern(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)]],
         password: ['', [Validators.required, Validators.minLength(6)]],
         accountType: [null, [Validators.required]],
-        termsAccepted: [false, Validators.pattern('true')]
+        termsAccepted: [false, Validators.pattern('true')],
+        plan: [null] // optional. if joining as a coach, we will try to save the selected plan here
       }
     );
 
-    // Check activated route params for user type to register
+    // Check activated route params
     this.route.params.subscribe(params => {
       console.log('Route params:', params);
-      this.registerForm.patchValue({
-        accountType: params.type // update the form with account type
-      });
+      if (params.type) {
+        this.registerForm.patchValue({
+          accountType: params.type
+        });
+      }
+      if (params.plan) {
+        this.registerForm.patchValue({
+          plan: params.plan
+        });
+      }
+    });
+    this.route.queryParams.subscribe(qp => {
+      console.log('Queryparams:', qp);
+      if (qp.plan) {
+        this.registerForm.patchValue({
+          plan: qp.plan
+        });
+      }
     });
   }
 

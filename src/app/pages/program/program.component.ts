@@ -493,7 +493,8 @@ export class ProgramComponent implements OnInit, OnDestroy {
       initialState: {
         message: `Just a second! You need a Lifecoach account to schedule Discovery sessions with coaches. Joining Lifecoach is free and only takes seconds!`,
         successMessage: `Click Schedule a Session again to continue.`,
-        redirectUrl: null
+        redirectUrl: null,
+        accountType: 'regular'
       } as any
     };
     this.bsModalRef = this.modalService.show(RegisterModalComponent, config);

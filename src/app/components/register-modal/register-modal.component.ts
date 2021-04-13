@@ -23,10 +23,11 @@ export class RegisterModalComponent implements OnInit {
   public message: string; // any message to display on the UI?
   private successMessage: string; // any message to display after successful register?
   private redirectUrl: string; // if we need to redirect the user, pass a full/partial url
+  private accountType: 'regular' | 'coach' | 'partner' | 'provider' | 'admin'; // important! we must have an account type
+  public plan: 'trial' | 'spark' | 'flame' | 'blaze'; // if registering coach - billing plan
 
   // component
   private userId: string;
-  public userType: string;
   public registerForm: FormGroup;
   public register = false;
   public rfocusTouched = false;
@@ -64,7 +65,6 @@ export class RegisterModalComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.userType = 'regular';
     this.buildRegisterForm();
   }
 
@@ -74,9 +74,17 @@ export class RegisterModalComponent implements OnInit {
         firstName: ['', [Validators.required]],
         lastName: ['', [Validators.required]],
         email: ['', [Validators.required, Validators.pattern(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)]],
-        password: ['', [Validators.required, Validators.minLength(6)]]
+        password: ['', [Validators.required, Validators.minLength(6)]],
+        accountType: [null, [Validators.required]],
+        plan: [null] // optional
       }
     );
+    if (this.accountType) {
+      this.registerForm.patchValue({ accountType: this.accountType });
+    }
+    if (this.plan) {
+      this.registerForm.patchValue({ plan: this.plan });
+    }
   }
 
   get registerF(): any {
@@ -92,12 +100,6 @@ export class RegisterModalComponent implements OnInit {
 
   async onRegister() {
     this.registerAttempt = true;
-    // Check we have captured a user type
-    // console.log('User type to register:', this.userType);
-    if (!this.userType) {
-      alert('Invalid user type');
-      return;
-    }
     // Check form validity
     if (this.registerForm.valid) {
       this.register = true;
@@ -105,9 +107,10 @@ export class RegisterModalComponent implements OnInit {
       const newUserAccount: UserAccount = {
         accountEmail: this.registerF.email.value,
         password: this.registerF.password.value,
-        accountType: this.userType as any,
+        accountType: this.registerF.accountType.value,
         firstName: this.registerF.firstName.value,
-        lastName: this.registerF.lastName.value
+        lastName: this.registerF.lastName.value,
+        plan: this.registerF.plan.value ? this.registerF.plan.value : null
       };
       const firstName = this.registerF.firstName.value;
       // Check account type & attempt registration
