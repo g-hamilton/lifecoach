@@ -232,7 +232,8 @@
                         new leads.
                         </p>
                         <div class=" mt-3">
-                          <button class=" btn btn-round btn-primary pull-right">
+                          <button class=" btn btn-round btn-primary">
+                            <i class="fas fa-share mr-2"></i>
                             Share My Profile
                           </button>
                         </div>
@@ -326,7 +327,15 @@
                   <tbody *ngIf="!clients || clients.length === 0">
                     <tr>
                       <td>
-                        <p> Rest easy. You have no active clients. </p>
+                        <p> You have no active clients.
+                          Why not use the CRM to add existing clients now.
+                        </p>
+                        <div class=" mt-3">
+                          <button class=" btn btn-round btn-primary">
+                            <i class="fas fa-user mr-2"></i>
+                            Go to CRM
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   </tbody>
