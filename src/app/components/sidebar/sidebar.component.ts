@@ -122,14 +122,14 @@ export const ROUTES: RouteInfo[] = [
     rtlTitle: 'لوحة القيادة',
     userTypes: ['coach'],
   },
-  {
-    path: '/coach-journey',
-    title: 'My Journey',
-    type: 'link',
-    icontype: 'tim-icons icon-compass-05',
-    rtlTitle: 'لوحة القيادة',
-    userTypes: ['coach'],
-  },
+  // { // Can we replace this with My Coaches (same as clients?)
+  //   path: '/coach-journey',
+  //   title: 'My Journey',
+  //   type: 'link',
+  //   icontype: 'tim-icons icon-compass-05',
+  //   rtlTitle: 'لوحة القيادة',
+  //   userTypes: ['coach'],
+  // },
   {
     path: '/admin-users',
     title: 'Users',
