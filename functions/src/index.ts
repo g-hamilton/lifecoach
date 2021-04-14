@@ -422,24 +422,24 @@ firstName: string | null, lastName: string | null, plan?: 'trial' | 'spark' | 'f
     batch.set(ref1, {
       id: 'taskDefault001',
       title: 'Complete your coach profile',
-      description: 'Everything at Lifecoach starts with your public Coach profile. Start creating yours now.',
+      description: 'Everything at Lifecoach starts with your SEO optimised coach profile. Start creating yours now.',
       action: 'profile'
     });
 
-    const ref3 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault004');
-    batch.set(ref3, {
-      id: 'taskDefault004',
-      title: 'Enable your payout account',
-      description: 'Enable your payout account now so you can charge for your products & services.',
-      action: 'account'
-    });
-
-    const ref4 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault003');
-    batch.set(ref4, {
+    const ref2 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault003');
+    batch.set(ref2, {
       id: 'taskDefault003',
       title: 'Add your products & services',
-      description: `Promote your coaching services, take bookings, run live 1-to-1 video sessions & sell eCourses. We'll help every step of the way.`,
+      description: `Adding your products & services will automatically link them to your coach profile; allowing you to promote them.`,
       action: 'coach-products-services'
+    });
+
+    const ref3 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault002');
+    batch.set(ref3, {
+      id: 'taskDefault002',
+      title: 'Add your best testimonials',
+      description: `Adding a few good client testimonials helps people to get a better insight into who you are as a coach & helps to increase leads.`,
+      action: 'client-testimonials'
     });
 
     return batch.commit() // execute batch ops
