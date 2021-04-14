@@ -229,6 +229,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.dataService.getUserTasksTodos(this.uid)
         .subscribe(todos => {
           this.todos = todos;
+          console.log('Todos:', this.todos);
         })
     );
   }
@@ -248,6 +249,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
         ]
       }
     ];
+  }
+
+  arrayContains(array: any[], property: string, value: any) {
+    if (!array) {
+      return null;
+    }
+    if (array.some(e => e[property] === value)) {
+      /* array contains the element we're looking for */
+      return true;
+    }
+    return null;
   }
 
   async redirectToStripeCheckout() {
