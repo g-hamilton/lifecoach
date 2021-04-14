@@ -152,4 +152,22 @@ export class AuthService {
     }
   }
 
+  async sendSignInLinkToEmail(email: string, actionCodeSettings: firebase.auth.ActionCodeSettings) {
+    try {
+      await this.afAuth.auth.sendSignInLinkToEmail(email, actionCodeSettings);
+      return true;
+    } catch (err) {
+      console.error(err.message);
+      return err.message;
+    }
+  }
+
+  isSignInWithEmailLink(url: string) {
+    return this.afAuth.auth.isSignInWithEmailLink(url);
+  }
+
+  async signInWithEmailLink(email: string, url: string) {
+    return this.afAuth.auth.signInWithEmailLink(email, url);
+  }
+
 }
