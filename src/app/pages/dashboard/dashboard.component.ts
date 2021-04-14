@@ -69,7 +69,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   public adminTotalLeads: number;
 
   public todos: UserTask[];
-  public clients: any;
+  public clients = [] as any[];
+  public leads = [] as any[];
 
   public feedbackUrl = 'https://lifecoach.nolt.io';
 
