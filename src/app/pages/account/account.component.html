@@ -523,23 +523,23 @@
                             </div>
                         </tab>
 
-                        <!-- Payments tab for coach accounts -->
-                        <tab *ngIf="accountF.accountType.value === 'coach'" heading="Payout Settings">
+                        <!-- Payments tab for coach accounts on the flame plan -->
+                        <tab *ngIf="accountF.accountType.value === 'coach' && subscriptionPlan === 'flame'" heading="Accept Payments">
                             <div class="">
                                 <h6 class=" mt-4 pl-4">
-                                    Enable Your Payout Account
+                                    Enable Client Payments
                                 </h6>
                                 <p class=" small text-muted pl-4 mb-2">
-                                    <i class="fas fa-info-circle"></i> To get paid for any of the products & services you promote through the Lifecoach platform, 
-                                    you need a secure payout account. We use Stripe to make sure you get paid on time and to keep your personal payment details secure. 
+                                    <i class="fas fa-info-circle"></i> To accept client payments for any of the products & services you promote through the Lifecoach platform, 
+                                    you need a secure payments account. We partner with Stripe for simple, fast & secure client payment processing. 
                                     Read more about <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001174512-how-to-enable-payments-on-lifecoach" target="_blank">
-                                        how to enable payouts on Lifecoach
+                                        how to enable client payments on Lifecoach
                                     </a>.
                                 </p>
                                 <div class=" row highlight-box">
                                     <div class=" col-md-8">
                                         <p *ngIf="!accountF.stripeUid.value" class="mt-4 pl-5">
-                                            Click 'Connect Stripe' now to enable your payout account so you can start getting paid.
+                                            Click 'Connect Stripe' now to enable client payments through Lifecoach.
                                         </p>
                                         <p *ngIf="accountF.stripeUid.value" class=" text-success mt-4 pl-5">
                                             <i class=" tim-icons icon-check-2"> </i> Connected
@@ -607,7 +607,7 @@
                         </tab>
 
                         <!-- Purchases & refunds tab for coaches and regular accounts -->
-                        <tab *ngIf="accountF.accountType.value === 'coach' || accountF.accountType.value === 'regular'" heading="Purchases & Refunds">
+                        <tab *ngIf="(accountF.accountType.value === 'coach' || accountF.accountType.value === 'regular') && (successfulPayments?.length > 0 || successfulRefunds?.length > 0 || failedPayments?.length > 0 || refundRequests?.length > 0)" heading="Purchases & Refunds">
                             <!-- Purchases table -->
                             <h6 class=" mt-4"> Purchases </h6>
                             <p class=" small text-muted pl-4 mb-2">
@@ -729,7 +729,7 @@
                         </tab>
 
                         <!-- Settings of each session duration -->
-                        <tab *ngIf="accountF.accountType.value === 'coach'" heading="Session settings">
+                        <!-- <tab *ngIf="accountF.accountType.value === 'coach'" heading="Session settings">
                         <div class="">
                             <h6 class=" mt-4 pl-4">
                             SESSION SETTINGS
@@ -745,7 +745,7 @@
                             <div class=" row pl-3 pr-3">
                             <div class=" col-md-12">
                                 <form>
-                                <!-- Settings -->
+
                                 <div class=" form-group mt-3">
                                     <label> My default discovery session duration (15 to 120 min)</label>
                                     <p class=" small text-muted pl-1 mb-2">
@@ -761,7 +761,7 @@
                                     </span>
                                 </div>
 
-                                <!-- EPP -->
+
                                 <div class=" form-group mt-3">
                                     <label> My default discovery session break time (0 to 30 min) </label>
                                     <p class=" small text-muted pl-1 mb-2">
@@ -810,7 +810,7 @@
                             </div>
                             </div>
                         </div>
-                        </tab>
+                        </tab> -->
                     </tabset>
                 </div>
             </div>

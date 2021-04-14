@@ -33,7 +33,7 @@ export class AccountComponent implements OnInit, OnDestroy {
   @ViewChild('refundModal', {static: false}) public refundModal: ModalDirective;
 
   public browser: boolean;
-
+  public subscriptionPlan: string; // is the user on a stripe subscription plan?
   private userId: string;
 
   // variable for checking user`s calendar events. Could be deleting in future
@@ -134,6 +134,15 @@ export class AccountComponent implements OnInit, OnDestroy {
           .subscribe(user => {
             if (user) {
               this.userId = user.uid;
+              // Check custom auth claims
+              user.getIdTokenResult(true)
+              .then(tokenRes => {
+                console.log('User claims:', tokenRes.claims);
+                const c = tokenRes.claims;
+                if (c.subscriptionPlan) {
+                  this.subscriptionPlan = c.subscriptionPlan;
+                }
+              });
               // Checking active events
               this.dataService.hasUserEvents(this.userId)
                 .then( val => {
@@ -371,7 +380,7 @@ export class AccountComponent implements OnInit, OnDestroy {
             );
             this.billingSubscriptions.push(subObj);
           });
-          console.log(this.billingSubscriptions);
+          console.log('Billing subscriptions', this.billingSubscriptions);
         }
       })
     );

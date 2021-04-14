@@ -204,9 +204,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
           const tempAuthSub = this.authService.getAuthUser()
           .subscribe(user => {
             if (user) {
-              // Get a SSO token for this user
-              // this.getUserSSOToken();
-
               // Check the user's custom auth claims for user type
               user.getIdTokenResult(true)
                 .then(tokenRes => {
