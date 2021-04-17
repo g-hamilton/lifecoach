@@ -17,6 +17,7 @@ import { SearchCoachesRequest } from 'app/interfaces/search.coaches.request.inte
 import { Router } from '@angular/router';
 import { UserAccount } from 'app/interfaces/user.account.interface';
 import { AlertService } from 'app/services/alert.service';
+import { CoachProfile } from 'app/interfaces/coach.profile.interface';
 
 @Component({
   selector: 'app-dashboard',
@@ -26,7 +27,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   private stripe = Stripe(`${environment.stripeJsClientKey}`);
 
-  private uid: string;
+  public uid: string;
   public userType: 'coach' | 'regular' | 'partner' | 'provider' | 'admin';
   public userAccount: UserAccount;
   public userFirstName = '';
@@ -71,6 +72,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   public todos: UserTask[];
   public clients = [] as any[];
   public leads = [] as any[];
+  public shareProfile: CoachProfile;
 
   public feedbackUrl = 'https://lifecoach.nolt.io';
 
@@ -133,6 +135,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 this.loadUserSubscriptions();
                 this.loadTodos();
                 // this.loadClients();
+                this.loadCoachProfile();
               } else if (c.regular) {
                 this.userType = 'regular';
               } else if (c.partner) {
@@ -249,6 +252,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
         ]
       }
     ];
+  }
+
+  loadCoachProfile() {
+    this.subscriptions.add(
+      this.dataService.getCoachProfile(this.uid).subscribe(profile => {
+        if (profile) {
+          this.shareProfile = profile;
+        }
+      })
+    );
   }
 
   arrayContains(array: any[], property: string, value: any) {

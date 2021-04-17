@@ -233,11 +233,8 @@
                           <p> You have no current leads. Why not share your coach profile to start generating 
                             new leads.
                             </p>
-                            <div class=" mt-3">
-                              <button class=" btn btn-round btn-primary">
-                                <i class="fas fa-share mr-2"></i>
-                                Share My Profile
-                              </button>
+                            <div class=" mt-3" *ngIf="uid && shareProfile">
+                              <app-social-media-share [id]="uid" [sharingType]="'profile'" [sharingObject]="this.shareProfile"></app-social-media-share>
                             </div>
                         </div>
                         <!-- end if coach has completed a public profile -->
