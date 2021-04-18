@@ -934,4 +934,16 @@ resizeCourseImage(data) {
         });
     });
   }
+
+  requestAccountClosure(data: any) {
+    return new Promise(resolve => {
+      const trigger = this.cloudFunctions.httpsCallable('requestAccountClosure');
+      const tempSub = trigger(data)
+        .pipe(first())
+        .subscribe(res => {
+          resolve(res);
+          tempSub.unsubscribe();
+        });
+    });
+  }
 }

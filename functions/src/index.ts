@@ -663,6 +663,32 @@ exports.adminChangeUserType = functions
   }
 });
 
+exports.requestAccountClosure = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.https
+.onCall( async (data, context) => {
+
+  // Reject any non admin user immediately.
+  if (!context.auth) {
+    return {error: 'Unauthorised!'}
+  }
+
+  try {
+    if (!data || !data.uid) {
+      throw new Error('Missing account data. Please contact support.');
+    }
+    // create a request in the db
+    await db.collection(`close-account-requests`)
+    .doc(data.uid)
+    .set(data, { merge: true }); // merge to avoid errors if requested again by user before actioned
+
+    return {success: true};
+
+  } catch (err) {
+    return {error: err}
+  }
+});
+
 // ================================================================================
 // =====                                                                     ======
 // =====                        MESSAGING FUNCTIONS                          ======

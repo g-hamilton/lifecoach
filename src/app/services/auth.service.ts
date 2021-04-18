@@ -7,6 +7,7 @@ import { CloudFunctionsService } from './cloud-functions.service';
 
 import { FirebaseLoginResponse} from '../interfaces/firebase.login.response.interface';
 import { UserAccount } from '../interfaces/user.account.interface';
+import { AnalyticsService } from './analytics.service';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +17,8 @@ export class AuthService {
   constructor(
     private afAuth: AngularFireAuth,
     private router: Router,
-    private cloudFunctions: CloudFunctionsService
+    private cloudFunctions: CloudFunctionsService,
+    private analyticsService: AnalyticsService
   ) { }
 
   getAuthUser() {
@@ -80,6 +82,7 @@ export class AuthService {
   async signOut() {
     try {
       await this.afAuth.auth.signOut();
+      this.analyticsService.signOut();
       await this.router.navigate(['/']);
     } catch (err) {
       console.error(err);

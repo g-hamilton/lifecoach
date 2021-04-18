@@ -22,6 +22,7 @@ import { Subscription } from 'rxjs';
 import { RefundRequest } from 'app/interfaces/refund.request.interface';
 import { environment } from '../../../environments/environment';
 import { Stripe } from 'stripe';
+import { AccountClosureRequest } from 'app/interfaces/account.closure.request.interface';
 
 @Component({
   selector: 'app-account',
@@ -647,27 +648,31 @@ export class AccountComponent implements OnInit, OnDestroy {
   }
 
   async deleteAccount() {
-    const res = await this.alertService.alert('special-delete-account') as any;
-    if (res.data) {
-      this.submitted = true;
-      const account: UserAccount = {
-        accountEmail: res.data.email,
-        accountType: this.accountF.accountType.value
+    const res = await this.alertService.alert('warning-message-and-confirmation', 'Are you sure?', `Once your account is deleted you will lose all saved data. This action is permanent & cannot be undone!`, 'Yes - Close My Account', 'Cancel') as any;
+    this.submitted = true;
+    console.log('Result:', res);
+    if (res.action) { // confirmed close
+      // create a request for admins to close account on the back end...
+      if (!this.userId) {
+        this.alertService.alert('warning-message', 'Oops!', 'Missing User ID, please contact support.');
+        return;
+      }
+      const data: AccountClosureRequest = {
+        uid: this.userId
       };
-      // Note: deleting auth account is classed as a a 'sensitive operation' by Firebase.
-      await this.cloudFunctionsService.deleteUserData(this.userId, account);
-      const authResponse = await this.authService.deleteAuthAccount(account);
-      if (authResponse.result === 'success') {
-        this.router.navigate(['/']);
-        this.alertService.alert('success-message', 'Success!', `Your account has been deleted. We're
-                  sorry to see you go.`);
-        this.analyticsService.deleteAccount();
-      } else {
-        this.alertService.alert('warning-message', 'Oops!', `${authResponse.msg}. Please contact support.`);
+      const closeResult = await this.cloudFunctionsService.requestAccountClosure(data) as any;
+      console.log('Close result:', closeResult);
+      if (closeResult.error) {
+        this.alertService.alert('warning-message', 'Oops!', `Error: ${closeResult.error.message}`);
+        this.submitted = false;
+        return;
       }
       this.submitted = false;
+      this.alertService.alert('success-message', 'Success!', `We are processing your closure request. You will now be logged out & your account will be permanently closed. We're sorry to see you go!`);
+      this.authService.signOut();
     }
-
+    // action cancelled
+    this.submitted = false;
   }
 
   connectStripe() {
@@ -758,7 +763,6 @@ export class AccountComponent implements OnInit, OnDestroy {
     console.log('Sign out successful.');
     this.alertService.alert('auto-close', 'Sign-Out Successful', 'See you again soon');
     this.router.navigate(['/']);
-    this.analyticsService.signOut();
   }
 
   ngOnDestroy() {

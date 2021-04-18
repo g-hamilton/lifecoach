@@ -84,8 +84,8 @@ export class AlertService {
             html: html ? html : null,
             type: 'warning',
             showCancelButton: true,
-            cancelButtonClass: 'btn btn-round btn-danger',
-            confirmButtonClass: 'btn btn-round btn-success mr-1',
+            cancelButtonClass: 'btn btn-round btn-success',
+            confirmButtonClass: 'btn btn-round btn-danger mr-1',
             confirmButtonText: confirmText ? confirmText : 'Yes, delete it!',
             buttonsStyling: false,
             onOpen: (modalElement: HTMLElement) => {
@@ -242,42 +242,6 @@ export class AlertService {
             .catch(err => console.error(err));
           }
         });
-      } else if (type === 'special-delete-account') {
-        swal
-        .fire({
-          title: 'Are you sure?',
-          html:
-            'Deleting your Lifecoach account is permanent & <b>cannot be undone!</b> <br /><br />' +
-            'If you wish to proceed, enter your login email & password to continue.<br /><br />' +
-            '<div class="form-group">' +
-            '<div class=" row">' +
-            '<div class=" col-md-6">' +
-            '<input id="alert-input-field1" type="text" placeholder="Login email..." class="form-control" />' +
-            '</div>' +
-            '<div class=" col-md-6">' +
-            '<input id="alert-input-field2" type="text" placeholder="Password..." class="form-control" />' +
-            '</div>' +
-            '</div>' +
-            '</div>',
-          showCancelButton: true,
-          confirmButtonText: `Delete my account!`,
-          cancelButtonText: 'Cancel',
-          confirmButtonClass: 'btn btn-round btn-danger mr-1',
-          cancelButtonClass: 'btn btn-round btn-primary',
-          buttonsStyling: false
-        })
-        .then(result => {
-          if (result.value) {
-            const data = {
-              email: (this.document.getElementById('alert-input-field1') as HTMLInputElement).value,
-              password: (this.document.getElementById('alert-input-field2') as HTMLInputElement).value
-            };
-            resolve({complete: true, data});
-          } else {
-            resolve({complete: true, data: null});
-          }
-        })
-        .catch(err => console.error(err));
       } else if ( type === 'loader') {
         swal.showLoading();
       }
