@@ -110,7 +110,7 @@
                                 <div class=" row">
                                     <div class=" col-md-6">
                                         <div class=" form-group">
-                                            <label> Login Email </label>
+                                            <label> Account Email </label>
                                             <input
                                                 class=" form-control"
                                                 name="accountemail"
@@ -127,350 +127,41 @@
                                         <label> Account Type </label>
                                         <p>
                                             <span class=" badge badge-pill badge-success">
-                                                {{ accountF.accountType.value }}
+                                                {{ accountF.accountType.value + ' Account' }}
                                             </span>
                                         </p>
                                     </div>
                                 </div>
                             </form>
 
-                            <div class=" row">
+                            <div class=" row mt-3">
                                 <div class=" col-md-12">
-                                    <div class=" pull-left">
-                                        <button
-                                        class=" btn btn-fill btn-default btn-round btn-sm mr-2"
-                                        type="button"
-                                        (click)="onChangeEmail()"
-                                        [disabled]="changeEmail || changePassword"
-                                        >  Change Login Email
-                                        </button>
-                                        <button
-                                        class=" btn btn-fill btn-default btn-round btn-sm"
-                                        type="button"
-                                        (click)="onChangePassword()"
-                                        [disabled]="changeEmail || changePassword"
-                                        >  Change Password
-                                        </button>
-                                    </div>
-                                    <div class=" clearfix"></div>
+                                    <h6 class=" mt-4"> Close your account </h6>
+                                    <button
+                                    class=" btn btn-fill btn-danger btn-round btn-sm"
+                                    name="deletebutton"
+                                    type="button"
+                                    (click)="deleteAccount()">
+                                        <span
+                                        *ngIf="submitted"
+                                        class="spinner-border spinner-border-sm"
+                                        role="status"
+                                        ></span> {{ submitted ? 'Processing...' : 'Request Closure' }}
+                                    </button>
                                 </div>
                             </div>
-
-                            <!-- Change Email Template -->
-                            <form [formGroup]="changeEmailForm" (ngSubmit)="saveNewEmail()">
-                                <div *ngIf="changeEmail" class=" row mt-5">
-                                    <div class=" container mb-3">
-                                        <p class=" lead">Change the email you use to login to your Lifecoach account.</p>
-                                    </div>
-                                    <div class=" col-md-6">
-                                        <!-- New Email -->
-                                        <div
-                                        class=" input-group"
-                                        [ngClass]="{
-                                            'input-group-focus': focus2 === true,
-                                            'has-danger':
-                                            ((focus2Touched || emailSubmitted) &&
-                                                emailF.newEmail.errors) ||
-                                            (emailF.newEmail.value != '' &&
-                                                emailF.newEmail.errors),
-                                            'has-success': !emailF.newEmail.errors
-                                        }"
-                                        >
-                                        <div class=" input-group-prepend">
-                                            <div class=" input-group-text">
-                                            <i class=" tim-icons icon-email-85"> </i>
-                                            </div>
-                                        </div>
-                                        <input
-                                            class=" form-control"
-                                            name="newemail"
-                                            placeholder="New Email..."
-                                            required=""
-                                            formControlName="newEmail"
-                                            type="email"
-                                            (focus)="focus2 = true; focus2Touched = true"
-                                            (blur)="focus2 = false"
-                                        />
-                                        </div>
-                                        <label
-                                            class="error custom-error-label"
-                                            *ngIf="
-                                            ((focus2Touched || emailSubmitted) &&
-                                                emailF.newEmail.errors) ||
-                                            (emailF.newEmail.value != '' &&
-                                                emailF.newEmail.errors)
-                                            "
-                                            >Please enter your new login email.</label
-                                        >
-                                    </div>
-                                    <div class=" col-md-6">
-                                        <!-- Confirm Password -->
-                                        <div
-                                        class=" input-group"
-                                        [ngClass]="{
-                                            'input-group-focus': focus3 === true,
-                                            'has-danger':
-                                            ((focus3Touched || emailSubmitted) &&
-                                                emailF.confirmPassword.errors) ||
-                                            (emailF.confirmPassword.value != '' &&
-                                                emailF.confirmPassword.errors),
-                                            'has-success': !emailF.confirmPassword.errors
-                                        }"
-                                        >
-                                        <div class=" input-group-prepend">
-                                            <div class=" input-group-text">
-                                            <i class=" tim-icons icon-lock-circle"> </i>
-                                            </div>
-                                        </div>
-                                        <input
-                                            class=" form-control"
-                                            name="confirmpassword"
-                                            placeholder="Enter your password..."
-                                            required=""
-                                            formControlName="confirmPassword"
-                                            type="password"
-                                            (focus)="focus3 = true; focus3Touched = true"
-                                            (blur)="focus3 = false"
-                                        />
-                                        </div>
-                                        <label
-                                            class="error custom-error-label"
-                                            *ngIf="
-                                            ((focus3Touched || emailSubmitted) &&
-                                                emailF.confirmPassword.errors) ||
-                                            (emailF.confirmPassword.value != '' &&
-                                                emailF.confirmPassword.errors)
-                                            "
-                                            >You must enter your current password.</label
-                                        >
-                                    </div>
+                            <div class=" row mt-3">
+                                <div class=" col-md-12">
+                                    <h6 class=" mt-4"> Log out of your Lifecoach account </h6>
+                                    <button
+                                    class=" btn btn-fill btn-default btn-round"
+                                    name="logout-button"
+                                    type="button"
+                                    (click)="logout()">
+                                        Log out
+                                    </button>
                                 </div>
-                                <div *ngIf="changeEmail" class=" row mt-2">
-                                    <div class=" col-md-12">
-                                        <div class=" pull-right">
-                                            <button
-                                            class=" btn btn-fill btn-default btn-round btn-wd mr-2"
-                                            type="button"
-                                            (click)="cancelChangeEmail()"
-                                            >  Cancel
-                                            </button>
-                                            <button
-                                            class=" btn btn-fill btn-primary btn-round btn-wd"
-                                            type="submit"
-                                            >  <span
-                                            *ngIf="emailSubmitted"
-                                            class="spinner-border spinner-border-sm"
-                                            role="status"
-                                            ></span> {{ emailSubmitted ? 'Saving...' : 'Save' }}
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
-
-                            <!-- Change Password Template -->
-                            <form [formGroup]="changePasswordForm" (ngSubmit)="saveNewPassword()">
-                                <div *ngIf="changePassword" class=" row mt-5">
-                                    <div class=" container mb-3">
-                                        <p class=" lead">Change the password you use to login to your Lifecoach account.</p>
-                                    </div>
-                                    <div class=" col-md-6">
-                                        <!-- Current Password -->
-                                        <div
-                                        class=" input-group"
-                                        [ngClass]="{
-                                            'input-group-focus': focus4 === true,
-                                            'has-danger':
-                                            ((focus4Touched || passwordSubmitted) &&
-                                                passwordF.currentPassword.errors) ||
-                                            (passwordF.currentPassword.value != '' &&
-                                                passwordF.currentPassword.errors),
-                                            'has-success': !passwordF.currentPassword.errors
-                                        }"
-                                        >
-                                        <div class=" input-group-prepend">
-                                            <div class=" input-group-text">
-                                            <i class=" tim-icons icon-lock-circle"> </i>
-                                            </div>
-                                        </div>
-                                        <input
-                                            class=" form-control"
-                                            name="currentpassword"
-                                            placeholder="Current password..."
-                                            required=""
-                                            formControlName="currentPassword"
-                                            type="password"
-                                            (focus)="focus4 = true; focus4Touched = true"
-                                            (blur)="focus4 = false"
-                                        />
-                                        </div>
-                                        <label
-                                            class="error custom-error-label"
-                                            *ngIf="
-                                            ((focus4Touched || passwordSubmitted) &&
-                                                passwordF.currentPassword.errors) ||
-                                            (passwordF.currentPassword.value != '' &&
-                                                passwordF.currentPassword.errors)
-                                            "
-                                            >Enter your current password.</label
-                                        >
-                                    </div>
-                                </div>
-                                <div *ngIf="changePassword" class=" row">
-                                    <div class=" col-md-6">
-                                        <!-- New Password -->
-                                        <div
-                                        class=" input-group"
-                                        [ngClass]="{
-                                            'input-group-focus': focus5 === true,
-                                            'has-danger':
-                                            ((focus5Touched || passwordSubmitted) &&
-                                                passwordF.newPassword.errors) ||
-                                            (passwordF.newPassword.value != '' &&
-                                                passwordF.newPassword.errors),
-                                            'has-success': !passwordF.newPassword.errors
-                                        }"
-                                        >
-                                        <div class=" input-group-prepend">
-                                            <div class=" input-group-text">
-                                            <i class=" tim-icons icon-lock-circle"> </i>
-                                            </div>
-                                        </div>
-                                        <input
-                                            class=" form-control"
-                                            name="newpassword"
-                                            placeholder="New password..."
-                                            required=""
-                                            formControlName="newPassword"
-                                            type="password"
-                                            (focus)="focus5 = true; focus5Touched = true"
-                                            (blur)="focus5 = false"
-                                        />
-                                        </div>
-                                        <label
-                                            class="error custom-error-label"
-                                            *ngIf="
-                                            ((focus5Touched || passwordSubmitted) &&
-                                                passwordF.newPassword.errors) ||
-                                            (passwordF.newPassword.value != '' &&
-                                                passwordF.newPassword.errors)
-                                            "
-                                            >Must be at least 6 characters.</label
-                                        >
-                                    </div>
-                                    <div class=" col-md-6">
-                                        <!-- Confirm New Password -->
-                                        <div
-                                        class=" input-group"
-                                        [ngClass]="{
-                                            'input-group-focus': focus6 === true,
-                                            'has-danger':
-                                            ((focus6Touched || passwordSubmitted) &&
-                                                passwordF.confirmNewPassword.errors) ||
-                                            (passwordF.confirmNewPassword.value != '' &&
-                                                passwordF.confirmNewPassword.errors),
-                                            'has-success': !passwordF.confirmNewPassword.errors
-                                        }"
-                                        >
-                                        <div class=" input-group-prepend">
-                                            <div class=" input-group-text">
-                                            <i class=" tim-icons icon-lock-circle"> </i>
-                                            </div>
-                                        </div>
-                                        <input
-                                            class=" form-control"
-                                            name="confirmnewpassword"
-                                            placeholder="Confirm new password..."
-                                            required=""
-                                            formControlName="confirmNewPassword"
-                                            type="password"
-                                            (focus)="focus6 = true; focus6Touched = true"
-                                            (blur)="focus6 = false"
-                                        />
-                                        </div>
-                                        <label
-                                            class="error custom-error-label"
-                                            *ngIf="
-                                            ((focus6Touched || passwordSubmitted) &&
-                                                passwordF.confirmNewPassword.errors) ||
-                                            (passwordF.confirmNewPassword.value != '' &&
-                                                passwordF.confirmNewPassword.errors)
-                                            "
-                                            >Passwords must match.</label
-                                        >
-                                    </div>
-                                </div>
-                                <div *ngIf="changePassword" class=" row mt-2">
-                                    <div class=" col-md-12">
-                                        <div class=" pull-right">
-                                            <button
-                                            class=" btn btn-fill btn-default btn-round btn-wd mr-2"
-                                            type="button"
-                                            (click)="cancelChangePassword()"
-                                            >  Cancel
-                                            </button>
-                                            <button
-                                            class=" btn btn-fill btn-primary btn-round btn-wd"
-                                            type="submit"
-                                            >  <span
-                                            *ngIf="passwordSubmitted"
-                                            class="spinner-border spinner-border-sm"
-                                            role="status"
-                                            ></span> {{ passwordSubmitted ? 'Saving...' : 'Save' }}
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class=" row mt-3">
-                                    <div class=" col-md-12">
-                                        <div class=" pull-right">
-                                            <button
-                                            *ngIf="!changeEmail && !changePassword"
-                                            class=" btn btn-fill btn-primary btn-round btn-wd"
-                                            name="next"
-                                            type="button"
-                                            (click)="onSubmit()"
-                                            > <span
-                                            *ngIf="submitted"
-                                            class="spinner-border spinner-border-sm"
-                                            role="status"
-                                            ></span> {{ submitted ? 'Saving...' : 'Save' }}
-                                            </button>
-                                        </div>
-                                        <div class=" clearfix"></div>
-                                    </div>
-                                </div>
-
-                                <div class=" row mt-3">
-                                    <div class=" col-md-12">
-                                        <h6 class=" mt-4"> Close your account </h6>
-                                        <button
-                                        class=" btn btn-fill btn-danger btn-round btn-sm"
-                                        name="deletebutton"
-                                        type="button"
-                                        (click)="deleteAccount()">
-                                            <span
-                                            *ngIf="submitted"
-                                            class="spinner-border spinner-border-sm"
-                                            role="status"
-                                            ></span> {{ submitted ? 'Processing...' : 'Request Closure' }}
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class=" row mt-3">
-                                    <div class=" col-md-12">
-                                        <h6 class=" mt-4"> Log out of your Lifecoach account </h6>
-                                        <button
-                                        class=" btn btn-fill btn-default btn-round"
-                                        name="logout-button"
-                                        type="button"
-                                        (click)="logout()">
-                                            Log out
-                                        </button>
-                                    </div>
-                                </div>
-                            </form>
+                            </div>
 
                         </tab>
 

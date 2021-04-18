@@ -4,10 +4,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { isPlatformBrowser, DOCUMENT } from '@angular/common';
 import { ModalDirective } from 'ngx-bootstrap/modal';
 
-
 import { TabsetComponent } from 'ngx-bootstrap/tabs';
-
-import { MustMatch } from '../../custom-validators/mustmatch.validator';
 
 import { AuthService } from '../../services/auth.service';
 import { DataService } from '../../services/data.service';
@@ -121,8 +118,6 @@ export class AccountComponent implements OnInit, OnDestroy {
 
       // Build the forms
       this.buildAccountForm();
-      this.buildChangeEmailForm();
-      this.buildChangePasswordForm();
       this.buildRefundForm();
 
       this.buildSessionDurationForm();
@@ -262,23 +257,6 @@ export class AccountComponent implements OnInit, OnDestroy {
       stripeCustomerLink: [null],
       sessionDuration: [ 30 ],
       breakDuration: [0]
-    });
-  }
-
-  buildChangeEmailForm() {
-    this.changeEmailForm = this.formBuilder.group({
-      newEmail: ['', [Validators.required, Validators.pattern(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)]],
-      confirmPassword: ['', [Validators.required, Validators.minLength(6)]]
-    });
-  }
-
-  buildChangePasswordForm() {
-    this.changePasswordForm = this.formBuilder.group({
-      currentPassword: ['', [Validators.required, Validators.minLength(6)]],
-      newPassword: ['', [Validators.required, Validators.minLength(6)]],
-      confirmNewPassword: ['', [Validators.required]]
-    }, {
-      validator: MustMatch('newPassword', 'confirmNewPassword')
     });
   }
 
@@ -512,24 +490,8 @@ export class AccountComponent implements OnInit, OnDestroy {
     return this.accountForm.controls;
   }
 
-  get emailF(): any {
-    return this.changeEmailForm.controls;
-  }
-
-  get passwordF(): any {
-    return this.changePasswordForm.controls;
-  }
-
   get refundF(): any {
     return this.refundForm.controls;
-  }
-
-  onCreatorDealsToggle(ev: any) {
-    this.accountForm.patchValue({creatorDealsProgram: ev.currentValue});
-  }
-
-  onCreatorExtendedPromotionsToggle(ev: any) {
-    this.accountForm.patchValue({creatorExtendedPromotionsProgram: ev.currentValue});
   }
 
   onSessionDurationInput(ev: any) {
@@ -577,73 +539,6 @@ export class AccountComponent implements OnInit, OnDestroy {
 
     } else {
       console.log('Account form invalid!');
-    }
-  }
-
-  onChangeEmail() {
-    this.changeEmail = true;
-  }
-
-  onChangePassword() {
-    this.changePassword = true;
-  }
-
-  cancelChangeEmail() {
-    this.changeEmail = false;
-    this.changeEmailForm.reset();
-  }
-
-  async saveNewEmail() {
-    if (this.changeEmailForm.valid) {
-      this.emailSubmitted = true;
-      const oldE = this.accountF.accountEmail.value;
-      const oldP = this.emailF.confirmPassword.value;
-      const newE = this.emailF.newEmail.value;
-      const res = await this.authService.updateAuthEmail(oldE, oldP, newE);
-      if (res.result === 'success') {
-        console.log('Email update successful. Updating DB...');
-        // Update the db node
-        await this.dataService.updateUserAccount(this.userId, {
-          accountEmail: newE
-        });
-        this.emailSubmitted = false;
-        this.alertService.alert('success-message', 'Success!', 'Login email address updated.');
-        this.changeEmail = false;
-        // Update mailing list
-        console.log('Updating mailing list with new email...');
-        this.cloudFunctionsService.updateUserEmailOnMailingList(this.accountF.accountType.value, oldE, newE);
-        this.changeEmailForm.reset();
-        this.analyticsService.updateAccountEmail();
-        this.analyticsService.updatePeopleEmail(newE);
-      } else {
-        this.emailSubmitted = false;
-        this.alertService.alert('warning-message', 'Oops', res.msg);
-      }
-    }
-  }
-
-  cancelChangePassword() {
-    this.changePassword = false;
-    this.changePasswordForm.reset();
-  }
-
-  async saveNewPassword() {
-    if (this.changePasswordForm.valid) {
-      this.passwordSubmitted = true;
-      const email = this.accountF.accountEmail.value;
-      const cP = this.passwordF.currentPassword.value;
-      const nP = this.passwordF.confirmNewPassword.value;
-      const res = await this.authService.updateAuthPassword(email, cP, nP);
-      if (res.result === 'success') {
-        this.passwordSubmitted = false;
-        this.alertService.alert('success-message', 'Success!', 'Your password has been updated.');
-        this.changePassword = false;
-        this.changePasswordForm.reset();
-        this.analyticsService.updateAccountPassword();
-      } else {
-        this.passwordSubmitted = false;
-        this.alertService.alert('warning-message', 'Oops', res.msg);
-      }
     }
   }
 
