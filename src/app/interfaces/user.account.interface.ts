@@ -11,19 +11,17 @@
 */
 
 export interface UserAccount {
-    accountEmail: string;
     accountType: 'regular' | 'coach' | 'partner' | 'provider' | 'admin';
-    password?: string; // Only on first creation
     firstName?: string;
     lastName?: string;
-    dateCreated?: Date;
+    uid?: string; // on first registration we can pass the uid to create the account node in the db
+    accountEmail?: string; //  set server side on first create
+    dateCreated?: Date; // set server side on first create
     stripeUid?: string; // if the user has a Stripe connected account
     stripeRequirementsCurrentlyDue?: string; // if Stripe needs user action to ensure unrestricted operation
-    creatorDealsProgram?: boolean; // for coaches who are course creators to opt into the deals program
-    creatorExtendedPromotionsProgram?: boolean; // for coaches who are course creators to opt into the extended promotions program
-    sessionDuration?: number;
-    breakDuration?: number;
     stripeCustomerId?: string; // the customer id of the user if they have been created in Stripe
     stripeCustomerLink?: string; // the url for the customer's stripe dashboard
     plan?: 'trial' | 'spark' | 'flame' | 'blaze'; // if registering coach - billing plan
+    sessionDuration?: number;
+    breakDuration?: number;
 }

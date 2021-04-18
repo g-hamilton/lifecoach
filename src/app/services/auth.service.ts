@@ -23,53 +23,6 @@ export class AuthService {
     return this.afAuth.authState as Observable<firebase.User>;
   }
 
-  async createUserWithEmailAndPassword(account: UserAccount) {
-    try {
-      /*
-      Attempts to register a new user with Firebase.
-      FirebasecompleteStripeConnect auth promises a user credential.
-      If signup successful, attempts to set a custom claim on the user object to always identify them by type,
-      either regular user or coach (business) user.
-      Refreshes the user credential client side with the newly set custom claim.
-      Returns the user credential (with new claim) as a login response.
-      */
-      const userCred = await this.afAuth.auth.createUserWithEmailAndPassword(account.accountEmail, account.password);
-      const res = await this.cloudFunctions.createUserWithSetType(userCred.user.uid, account);
-      if (res) {
-        // User type set successfully.
-        await userCred.user.getIdToken(true);
-        return {
-          result: userCred
-        } as FirebaseLoginResponse;
-      } else {
-        // There was a problem adding the custom claim / user type.
-        return {
-          error: 'There was a problem setting up your Lifecoach account. Please contact hello@lifecoach.io'
-        } as FirebaseLoginResponse;
-      }
-    } catch (err) {
-      return {
-        error: err
-      } as FirebaseLoginResponse;
-    }
-  }
-
-  async signInWithEmailAndPassword(account: UserAccount) {
-    try {
-      console.log('Attempting login...');
-      // Attemps to log a user in with Firebase.
-      // Firebase auth promises a user credential, which we cast as a login response & return.
-      return {
-        result: await this.afAuth.auth.signInWithEmailAndPassword(account.accountEmail, account.password)
-      } as FirebaseLoginResponse;
-    } catch (err) {
-      console.error(err);
-      return {
-        error: err
-      } as FirebaseLoginResponse;
-    }
-  }
-
   async updateAuthEmail(oldEmail: string, password: string, newEmail: string) {
     // Attempts to update the user's auth email.
     // Classed as 'sensitive op' so re-authentication is required prior to calling.
@@ -135,15 +88,11 @@ export class AuthService {
 
   async deleteAuthAccount(account: UserAccount) {
     // Attempts to update delete a user's account.
-    // Classed as 'sensitive op' so re-authentication is required prior to calling.
     try {
-      const res: firebase.auth.UserCredential = await this.afAuth.auth.signInWithEmailAndPassword(account.accountEmail, account.password);
-      if (res) {
-        await this.afAuth.auth.currentUser.delete();
-        return {
-          result: 'success'
-        };
-      }
+      await this.afAuth.auth.currentUser.delete();
+      return {
+        result: 'success'
+      };
     } catch (err) {
       return {
         result: 'error',
@@ -168,6 +117,10 @@ export class AuthService {
 
   async signInWithEmailLink(email: string, url: string) {
     return this.afAuth.auth.signInWithEmailLink(email, url);
+  }
+
+  async createDbUser(account: UserAccount) {
+    return this.cloudFunctions.createUserWithSetType(account);
   }
 
 }

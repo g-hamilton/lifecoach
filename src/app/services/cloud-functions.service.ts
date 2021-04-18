@@ -128,27 +128,18 @@ resizeCourseImage(data) {
     });
   }
 
-  createUserWithSetType(uid: string, account: UserAccount): Promise<boolean> {
+  createUserWithSetType(account: UserAccount) {
     /*
     Creates a new user in the DB.
     Sets a custom claim on a given user's auth object to assign custom roles/types/permissions
     */
-    const email = account.accountEmail;
-    const type = account.accountType;
-    const firstName = account.firstName;
-    const lastName = account.lastName;
-    const plan = account.plan ? account.plan : null;
 
     return new Promise(resolve => {
       const createDbUserWithType = this.cloudFunctions.httpsCallable('createDbUserWithType');
-      const tempSub = createDbUserWithType({ uid, email, type, firstName, lastName, plan })
+      const tempSub = createDbUserWithType(account)
         .pipe(first())
         .subscribe(res => {
-          if (!res.error) {
-            resolve(true);
-          } else {
-            resolve(false);
-          }
+          resolve(res);
           tempSub.unsubscribe();
         });
     });

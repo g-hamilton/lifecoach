@@ -20,16 +20,13 @@ import * as sharp from 'sharp';
 // ================================================================================
 
 import {
-  // Product,
-  // Price,
-  // Subscription,
   CustomerData,
-  // TaxRate,
   CustomTransfer,
   Price,
   Product,
   Subscription,
-  TaxRate
+  TaxRate,
+  UserAccount
 } from './interfaces';
 
 // ================================================================================
@@ -169,7 +166,7 @@ function getMcListId(userType: 'regular' | 'coach' | 'partner' | 'provider') {
   }
 }
 
-function addUserToMailchimp(email: string, firstName: string, lastName: string, type: 'regular' | 'coach' | 'partner' | 'provider') {
+function addUserToMailchimp(email: string, firstName: string, lastName: string, type: any) {
 
   // Assign the correct Mailchimp list (audience) ID
   const listID = getMcListId(type);
@@ -359,11 +356,11 @@ async function addCustomUserClaims(uid: string, claims: any) {
         updatedClaims[property] = claims[property];
       }
     };
-    console.log('Setting custom auth claims:', JSON.stringify(updatedClaims));
     await admin.auth().setCustomUserClaims(uid, updatedClaims);
+    logs.setCustomClaims(uid, updatedClaims);
     return {success: true};
   } catch (err) {
-    console.error('Error setting custom claims!:', err);
+    logs.errorSettingCustomClaims(err);
     return {error: err}
   }
 }
@@ -383,14 +380,14 @@ async function removeCustomUserClaims(uid: string, claims: any) {
           updatedClaims[property] = null;
         }
       };
-      console.log('Setting custom auth claims:', JSON.stringify(updatedClaims));
       await admin.auth().setCustomUserClaims(uid, updatedClaims);
+      logs.setCustomClaims(uid, updatedClaims);
     }
 
     return {success: true};
 
   } catch (err) {
-    console.error('Error removing custom claims!:', err);
+    logs.errorSettingCustomClaims(err);
     return {error: err}
   }
 }
@@ -404,6 +401,7 @@ firstName: string | null, lastName: string | null, plan?: 'trial' | 'spark' | 'f
   await db.collection(`users/${uid}/account`)
   .doc('account' + uid)
   .set({
+    uid,
     dateCreated: Math.round(new Date().getTime()/1000), // unix timestamp
     accountType: type,
     accountEmail: email,
@@ -484,30 +482,37 @@ firstName: string | null, lastName: string | null, plan?: 'trial' | 'spark' | 'f
 exports.createDbUserWithType = functions
 .runWith({memory: '1GB', timeoutSeconds: 300})
 .https
-.onCall( async (data, context) => {
+.onCall( async (data: UserAccount, context) => {
 
   // Reject any unauthorised user immediately.
   if (!context.auth) {
       return {error: 'You must be authorised!'}
   }
 
+  const uid = data.uid as string;
+  const type = data.accountType;
+  const email = data.accountEmail as string;
+  const fName = data.firstName as string;
+  const lName = data.lastName as string;
+  const plan = data.plan;
+
   // Create the user node in the DB.
-  await createUserNode(data.uid, data.email, data.type, data.firstName, data.lastName, data.plan);
-  console.log(`User node created successfully for ${data.type} account user ${data.uid}`);
+  await createUserNode(uid, email, type, fName, lName, plan);
+  logs.userNodeCreated(type, uid);
 
   // Set custom claim on the user's auth object.
-  const res = await addCustomUserClaims(data.uid, {
-    [data.type]: true
+  const res = await addCustomUserClaims(uid, {
+    [type]: true
   });
-  console.log(`Custom auth claim ${data.type} set successfully`);
 
-  addUserToMailchimp(data.email, data.firstName, data.lastName, data.type);
+  addUserToMailchimp(email, fName, lName, type);
+  logs.userAddedToMailingList(type, uid, email);
 
   // Return
   if (!res.error) {
       return {success: true};
   } else {
-      return {error: res.error}
+    return {error: res.error.message}
   }
 });
 

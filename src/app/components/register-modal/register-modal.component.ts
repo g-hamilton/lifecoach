@@ -7,6 +7,8 @@ import { AnalyticsService } from 'app/services/analytics.service';
 import { AlertService } from 'app/services/alert.service';
 import { LoginComponent } from '../login/login.component';
 import { Router } from '@angular/router';
+import { environment } from 'environments/environment';
+import { ToastService } from 'app/services/toast.service';
 
 /*
   This component is designed to be a re-usable modal.
@@ -24,35 +26,22 @@ export class RegisterModalComponent implements OnInit {
   public message: string; // any message to display on the UI?
   private successMessage: string; // any message to display after successful register?
   private redirectUrl: string; // if we need to redirect the user, pass a full/partial url
-  private accountType: 'regular' | 'coach' | 'partner' | 'provider' | 'admin'; // important! we must have an account type
   public plan: 'trial' | 'spark' | 'flame' | 'blaze'; // if registering coach - billing plan
+  public accountType: 'regular' | 'coach' | 'partner' | 'provider';
 
   // component
-  private userId: string;
   public registerForm: FormGroup;
   public register = false;
-  public rfocusTouched = false;
   public rfocusTouched1 = false;
-  public rfocusTouched2 = false;
-  public rfocusTouched3 = false;
   public registerAttempt: boolean;
+  public emailSent: boolean;
 
   public objKeys = Object.keys;
 
   public errorMessages = {
-    firstName: {
-      required: 'Please enter your first name'
-    },
-    lastName: {
-      required: 'Please enter your first name'
-    },
     email: {
       required: 'Please enter your email address',
-      pattern: `Please enter a valid email address`
-    },
-    password: {
-      required: 'Please create a password',
-      minlength: `Passwords must be at least 6 characters`
+      email: `Please enter a valid email address`
     }
   };
 
@@ -63,7 +52,8 @@ export class RegisterModalComponent implements OnInit {
     private analyticsService: AnalyticsService,
     private alertService: AlertService,
     private modalService: BsModalService,
-    private router: Router
+    private router: Router,
+    private toastService: ToastService,
   ) { }
 
   ngOnInit() {
@@ -73,20 +63,9 @@ export class RegisterModalComponent implements OnInit {
   buildRegisterForm() {
     this.registerForm = this.formBuilder.group(
       {
-        firstName: ['', [Validators.required]],
-        lastName: ['', [Validators.required]],
-        email: ['', [Validators.required, Validators.pattern(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)]],
-        password: ['', [Validators.required, Validators.minLength(6)]],
-        accountType: [null, [Validators.required]],
-        plan: [null] // optional
+        email: ['', [Validators.required, Validators.email]]
       }
     );
-    if (this.accountType) {
-      this.registerForm.patchValue({ accountType: this.accountType });
-    }
-    if (this.plan) {
-      this.registerForm.patchValue({ plan: this.plan });
-    }
   }
 
   get registerF(): any {
@@ -102,52 +81,64 @@ export class RegisterModalComponent implements OnInit {
 
   async onRegister() {
     this.registerAttempt = true;
+    // console.log(this.registerForm.value);
     // Check form validity
-    if (this.registerForm.valid) {
-      this.register = true;
-      // Create new account object
-      const newUserAccount: UserAccount = {
-        accountEmail: this.registerF.email.value,
-        password: this.registerF.password.value,
-        accountType: this.registerF.accountType.value,
-        firstName: this.registerF.firstName.value,
-        lastName: this.registerF.lastName.value,
-        plan: this.registerF.plan.value ? this.registerF.plan.value : null
-      };
-      const firstName = this.registerF.firstName.value;
-      // Check account type & attempt registration
-      const response = await this.authService.createUserWithEmailAndPassword(newUserAccount);
-      if (!response.error) {
-        // Success
-        this.register = false;
-        console.log('Registration successful:', response.result.user);
-        this.userId = response.result.user.uid;
-        this.analyticsService.registerUser(response.result.user.uid, 'email&password', newUserAccount);
-        this.bsModalRef.hide();
-        this.alertService.alert('success-message', 'Success!', `Welcome to Lifecoach ${firstName}. ${this.successMessage}`);
-        if (this.redirectUrl) {
-          this.router.navigate([this.redirectUrl]);
-        }
-      } else {
-        // Error
-        this.register = false;
-        if (response.error.code === 'auth/email-already-in-use') {
-          this.alertService.alert('warning-message', 'Oops', 'That email is already registered. Please log in.');
-        } else if (response.error.code === 'auth/invalid-email') {
-          this.alertService.alert('warning-message', 'Oops', 'Invalid email address. Please try a different email.');
-        } else if (response.error.code === 'auth/weak-password') {
-          this.alertService.alert('warning-message', 'Oops', 'Password is too weak. Please use a stronger password.');
-        } else {
-          this.alertService.alert('warning-message', 'Oops', 'Something went wrong. Please contact hello@lifecoach.io for help');
-        }
-      }
-      this.registerAttempt = false;
-    } else {
+    if (this.registerForm.invalid) {
       this.alertService.alert('warning-message', 'Oops', 'Please complete all required fields.');
+      return;
     }
+
+    const email = this.registerF.email.value;
+
+    if (this.plan) { // if we've captured a desired billing plan, save it to localStorage
+      localStorage.setItem('lifecoachBillingPlan', this.plan);
+    }
+
+    if (this.accountType) { // if we've captured a user account type, save it to localStorage
+      localStorage.setItem('lifecoachAccountType', this.accountType);
+    }
+
+    /*
+      Passwordless auth...
+      Attempt to send a sign in link to the email address given by the user.
+      Saves the user email to localStorage
+      Creates the auth user in Firebase
+    */
+    const actionCodeSettings = {
+      // redirect URL
+      url: `${environment.baseUrl}/login`,
+      handleCodeInApp: true,
+    };
+
+    try {
+      const res = await this.authService.sendSignInLinkToEmail( // send the email signin link
+        email,
+        actionCodeSettings
+      );
+      localStorage.setItem('emailForSignIn', email); // save the email to localStorage to prevent session fixation attacks
+      if (res) { // success
+        this.emailSent = true;
+        this.bsModalRef.hide();
+        this.register = false;
+        this.registerAttempt = false;
+        this.toastService.showToast(`We've sent an email to confirm your address. Please click the link in your email to complete sign up...`, 60000, 'success', 'bottom', 'center');
+        this.analyticsService.sendLoginEmail(email);
+        return;
+      }
+      this.alertService.alert(res.message); // error
+      this.emailSent = false;
+      this.register = false;
+    } catch (err) { // error (should be caught by auth service and passed back in the res above if error)
+      this.alertService.alert(err.message);
+      this.register = false;
+    }
+
   }
 
   login() {
+    if (this.router.url.includes('/login')) {
+      return;
+    }
     // pop login modal
     // we can send data to the modal & open in a another component via a service
     // https://valor-software.com/ngx-bootstrap/#/modals#service-component

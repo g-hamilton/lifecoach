@@ -167,3 +167,19 @@ export interface CustomTransfer extends Stripe.Transfer {
 /*
     END OF STRIPE INTERFACES
 */
+
+export interface UserAccount {
+  accountType: 'regular' | 'coach' | 'partner' | 'provider' | 'admin';
+  firstName?: string;
+  lastName?: string;
+  uid?: string; // on first registration we can pass the uid to create the account node in the db
+  accountEmail?: string; //  set server side on first create
+  dateCreated?: Date; // set server side on first create
+  stripeUid?: string; // if the user has a Stripe connected account
+  stripeRequirementsCurrentlyDue?: string; // if Stripe needs user action to ensure unrestricted operation
+  stripeCustomerId?: string; // the customer id of the user if they have been created in Stripe
+  stripeCustomerLink?: string; // the url for the customer's stripe dashboard
+  plan?: 'trial' | 'spark' | 'flame' | 'blaze'; // if registering coach - billing plan
+  sessionDuration?: number;
+  breakDuration?: number;
+}

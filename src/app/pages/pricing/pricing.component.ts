@@ -42,16 +42,16 @@ export class PricingComponent implements OnInit, OnDestroy {
     this.analyticsService.clickButton(buttonId);
   }
 
-  onRegister(accountType: string, plan?: string) {
+  onRegister(plan?: string) {
     // pop register modal
     // we can send data to the modal & open in a another component via a service
     // https://valor-software.com/ngx-bootstrap/#/modals#service-component
     const config: ModalOptions = {
       initialState: {
-        message: `Step 1: Create your account...`,
-        successMessage: `Complete your payment to activate your plan...`,
-        redirectUrl: `/dashboard`,
-        accountType,
+        message: `Joining Lifecoach takes seconds! Enter your email to get a secure signup link then follow the link in the email to sign in & complete payment...`,
+        successMessage: null,
+        redirectUrl: null,
+        accountType: 'coach',
         plan
       } as any
     };

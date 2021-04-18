@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { Title, Meta } from '@angular/platform-browser';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 
@@ -9,9 +9,8 @@ import { AlertService } from '../../services/alert.service';
 import { AnalyticsService } from '../../services/analytics.service';
 
 import { UserAccount } from '../../interfaces/user.account.interface';
-
-import { BsModalService, BsModalRef, ModalOptions } from 'ngx-bootstrap/modal';
-import { LoginComponent } from 'app/components/login/login.component';
+import { Subscription } from 'rxjs';
+import { User } from 'firebase';
 
 @Component({
   selector: 'app-register',
@@ -19,31 +18,27 @@ import { LoginComponent } from 'app/components/login/login.component';
 })
 export class RegisterComponent implements OnInit, OnDestroy {
 
-  public bsModalRef: BsModalRef;
+  private user: User;
   public registerForm: FormGroup;
-  public register = false;
-  public focusTouched = false;
-  public focusTouched1 = false;
-  public focusTouched2 = false;
-  public focusTouched3 = false;
+  public register: boolean;
+  public registerAttempt: boolean;
+  public focusTouched: boolean;
+  public focusTouched1: boolean;
   public coachPlan: string;
 
   public objKeys = Object.keys;
+
+  private subscriptions: Subscription = new Subscription();
 
   public errorMessages = {
     firstName: {
       required: 'Please enter your first name'
     },
     lastName: {
-      required: 'Please enter your first name'
+      required: 'Please enter your last name'
     },
-    email: {
-      required: 'Please enter your email address',
-      pattern: `Please enter a valid email address`
-    },
-    password: {
-      required: 'Please create a password',
-      minlength: `Passwords must be at least 6 characters`
+    accountType: {
+      required: 'Please confirm your account type'
     }
   };
 
@@ -53,10 +48,8 @@ export class RegisterComponent implements OnInit, OnDestroy {
     private alertService: AlertService,
     private analyticsService: AnalyticsService,
     private router: Router,
-    private route: ActivatedRoute,
     private titleService: Title,
     private metaTagService: Meta,
-    private modalService: BsModalService,
     @Inject(DOCUMENT) private document: any,
     @Inject(PLATFORM_ID) private platformId: object
   ) {
@@ -64,8 +57,8 @@ export class RegisterComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     // console.log(this.registerF, 'register', this.registerF.accountType.value);
-    this.titleService.setTitle('Signup to Lifecoach');
-    this.metaTagService.updateTag({name: 'description', content: 'Get the leading software for professional coaches, access clients & join the fastest growing online coaching community'});
+    this.titleService.setTitle('Complete Your Sign Up');
+    this.metaTagService.updateTag({name: 'description', content: 'Complete your sign up with Lifecoach, the premier online coaching & personal transformation platform.'});
 
     const body = this.document.getElementsByTagName('body')[0];
     body.classList.add('register-page');
@@ -75,41 +68,36 @@ export class RegisterComponent implements OnInit, OnDestroy {
       this.analyticsService.pageView();
     }
 
+    // If coming here post sign up, we should now have a Firebase auth user object, so try to get it...
+    this.getAuthUser();
+
     // Build the register form
     this.registerForm = this.formBuilder.group(
       {
         firstName: ['', [Validators.required]],
         lastName: ['', [Validators.required]],
-        email: ['', [Validators.required, Validators.pattern(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)]],
-        password: ['', [Validators.required, Validators.minLength(6)]],
         accountType: [null, [Validators.required]],
-        termsAccepted: [false, Validators.pattern('true')],
         plan: [null] // optional. if joining as a coach, we will try to save the selected plan here
       }
     );
 
-    // Check activated route params
-    this.route.params.subscribe(params => {
-      console.log('Route params:', params);
-      if (params.type) {
-        this.registerForm.patchValue({
-          accountType: params.type
-        });
-      }
-      if (params.plan) {
-        this.registerForm.patchValue({
-          plan: params.plan
-        });
-      }
-    });
-    this.route.queryParams.subscribe(qp => {
-      console.log('Queryparams:', qp);
-      if (qp.plan) {
-        this.registerForm.patchValue({
-          plan: qp.plan
-        });
-      }
-    });
+    // Check localStorage for account type
+    const accountType = localStorage.getItem('lifecoachAccountType');
+    if (accountType) {
+      this.registerForm.patchValue({ accountType });
+    }
+  }
+
+  getAuthUser() {
+    this.subscriptions.add(
+      this.authService.getAuthUser()
+        .subscribe(async user => { // subscribe to the user
+          if (user) {
+            console.log('Auth user:', user);
+            this.user = user;
+          }
+        })
+    );
   }
 
   ngOnDestroy() {
@@ -130,58 +118,51 @@ export class RegisterComponent implements OnInit, OnDestroy {
 
   async onRegister() {
 
+    this.registerAttempt = true;
+
     // Check form validity
-    if (this.registerForm.valid) {
-      this.register = true;
-      // Create new account object
-      const newUserAccount: UserAccount = {
-        accountEmail: this.registerF.email.value,
-        password: this.registerF.password.value,
-        // accountType: 'admin', // Uncomment and comment next-line to create admin acc
-        accountType: this.registerF.accountType.value,
-        firstName: this.registerF.firstName.value,
-        lastName: this.registerF.lastName.value
-      };
-      const firstName = this.registerF.firstName.value;
-      // Check account type & attempt registration
-      const response = await this.authService.createUserWithEmailAndPassword(newUserAccount);
-      if (!response.error) {
-        // Success
-        this.register = false;
-        console.log('Registration successful:', response.result.user);
-        this.analyticsService.registerUser(response.result.user.uid, 'email&password', newUserAccount);
-        await this.alertService.alert('success-message', 'Success!', `
-        Welcome to Lifecoach ${firstName}! Let's visit your new dashboard...`);
-        this.router.navigate(['/dashboard'], {state: {uid: response.result.user.uid}});
-      } else {
-        // Error
-        this.register = false;
-        if (response.error.code === 'auth/email-already-in-use') {
-          this.alertService.alert('warning-message', 'Oops', 'That email is already registered. Please log in.');
-        } else if (response.error.code === 'auth/invalid-email') {
-          this.alertService.alert('warning-message', 'Oops', 'Invalid email address. Please try a different email.');
-        } else if (response.error.code === 'auth/weak-password') {
-          this.alertService.alert('warning-message', 'Oops', 'Password is too weak. Please use a stronger password.');
-        } else {
-          this.alertService.alert('warning-message', 'Oops', 'Something went wrong. Please contact hello@lifecoach.io for help');
-        }
-      }
-    } else {
+    if (this.registerForm.invalid) {
       this.alertService.alert('warning-message', 'Oops', 'Please complete all required fields.');
+      return;
     }
+
+    // Check we have a uid
+    if (!this.user.uid) {
+      this.alertService.alert('warning-message', 'Oops', `Something went wrong. Please use the 'Report an Issue' button below to get support.`);
+      return;
+    }
+
+    this.register = true;
+
+    const plan = localStorage.getItem('lifecoachBillingPlan') as any;
+
+    // Create new account object
+    const newUserAccount: UserAccount = {
+      uid: this.user.uid,
+      accountEmail: this.user.email,
+      accountType: this.registerF.accountType.value,
+      firstName: this.registerF.firstName.value,
+      lastName: this.registerF.lastName.value,
+      plan: plan ? plan : null
+    };
+
+    // console.log(newUserAccount);
+
+    const name = this.registerF.firstName.value;
+
+    const res = await this.authService.createDbUser(newUserAccount) as any;
+
+    if (res.error) { // error
+      this.alertService.alert('warning-message', 'Oops!', `${res.error}. Please contact support.`);
+      return;
+    }
+
+    // success
+    this.analyticsService.registeredUser(newUserAccount, 'passwordless');
+    await this.alertService.alert('success-message', 'Success!', `Your account is ready ${name}. Let's visit your Lifecoach dashboard...`);
+    this.router.navigate(['/dashboard']);
+    this.registerAttempt = false;
+
   }
 
-  login() {
-    // pop login modal
-    // we can send data to the modal & open in a another component via a service
-    // https://valor-software.com/ngx-bootstrap/#/modals#service-component
-    const config: ModalOptions = {
-      initialState: {
-        message: null,
-        successMessage: null,
-        redirectUrl: ['/dashboard']
-      } as any
-    };
-    this.bsModalRef = this.modalService.show(LoginComponent, config);
-  }
 }

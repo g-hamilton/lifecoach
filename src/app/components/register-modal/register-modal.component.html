@@ -20,81 +20,11 @@
                 </div>
                 <div class=" card-body">
 
-                    <div *ngIf="message" class=" row">
+                    <div *ngIf="message" class=" row mb-3">
                         <div class=" col">
                             <p>
                                 {{ message }}
                             </p>
-                        </div>
-                    </div>
-
-                    <div class=" row mt-3">
-
-                        <!-- First Name -->
-                        <div class=" col-sm-12 col-md-6 pr-1">
-                            <div
-                            class=" input-group"
-                            [ngClass]="{
-                                'has-danger': (((rfocusTouched && registerF.firstName.value != '') || registerAttempt) && registerF.firstName.errors),
-                                'has-success': !registerF.firstName.errors
-                            }"
-                            >
-                                <div class=" input-group-prepend">
-                                    <div class=" input-group-text">
-                                        <i class=" tim-icons icon-single-02"> </i>
-                                    </div>
-                                </div>
-                                <input
-                                class=" form-control"
-                                name="firstName"
-                                formControlName="firstName"
-                                placeholder="First Name"
-                                type="text"
-                                (focus)="rfocusTouched = true"
-                                required=""
-                                />
-                            </div>
-                            <div *ngIf="(((rfocusTouched && registerF.firstName.value != '') || registerAttempt) && registerF.firstName.errors)">
-                                <label
-                                *ngFor="let error of objKeys(registerF.firstName.errors)"
-                                class="error custom-error-label"
-                                >{{ showError('firstName', error) }}
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- Last Name -->
-                        <div class=" col-sm-12 col-md-6">
-                            <div
-                            class=" input-group"
-                            [ngClass]="{
-                                'has-danger': (((rfocusTouched3 && registerF.lastName.value != '') || registerAttempt) && registerF.lastName.errors),
-                                'has-success': !registerF.lastName.errors
-                            }"
-                            >
-                                <div class=" input-group-prepend">
-                                    <div class=" input-group-text">
-                                        <i class=" tim-icons icon-single-02"> </i>
-                                    </div>
-                                </div>
-                                <input
-                                class=" form-control"
-                                name="lastName"
-                                formControlName="lastName"
-                                placeholder="Last Name"
-                                type="text"
-                                (focus)="rfocusTouched3 = true"
-                                required=""
-                                />
-                                
-                            </div>
-                            <div *ngIf="(((rfocusTouched3 && registerF.lastName.value != '') || registerAttempt) && registerF.lastName.errors)">
-                                <label
-                                *ngFor="let error of objKeys(registerF.lastName.errors)"
-                                class="error custom-error-label"
-                                >{{ showError('lastName', error) }}
-                                </label>
-                            </div>
                         </div>
                     </div>
 
@@ -129,47 +59,19 @@
                         </label>
                     </div>
 
-                    <!-- Create Password -->
-                    <div
-                        class=" input-group"
-                        [ngClass]="{
-                        'has-danger': (((rfocusTouched2 && registerF.password.value != '') || registerAttempt) && registerF.password.errors),
-                        'has-success': registerF.password.value != '' && !registerF.password.errors
-                        }"
-                    >
-                        <div class=" input-group-prepend">
-                        <div class=" input-group-text">
-                            <i class=" tim-icons icon-lock-circle"> </i>
-                        </div>
-                        </div>
-                        <input
-                        class=" form-control"
-                        name="password"
-                        formControlName="password"
-                        placeholder="Create Password"
-                        type="password"
-                        (focus)="rfocusTouched2 = true"
-                        required=""
-                        />
-                    </div>
-                    <div *ngIf="(((rfocusTouched2 && registerF.password.value != '') || registerAttempt) && registerF.password.errors)">
-                        <label
-                        *ngFor="let error of objKeys(registerF.password.errors)"
-                        class="error custom-error-label"
-                        >{{ showError('password', error) }}
-                        </label>
-                    </div>
-
                     <!-- Form Submit Button -->
                     <button
-                    class=" btn btn-primary btn-round btn-block mt-4"
+                    class=" btn btn-primary btn-lg btn-block mt-4"
                     type="submit"
                     >
                         <span
                         *ngIf="register"
                         class="spinner-border spinner-border-sm"
                         role="status"
-                        ></span> {{ register ? 'Creating Account...' : 'Sign Up'}} 
+                        ></span> 
+                        <span *ngIf="!register">
+                            <i class="fas fa-link mr-2"></i>
+                          </span>{{ register ? 'Sending Email...' : 'Get My Signup Link'}} 
                     </button>
 
                     <!-- Terms & Conditions -->
@@ -181,8 +83,13 @@
                     </div>
 
                     <hr>
-                    <div class=" text-center">
-                        <strong>Already have an account? <a href="javascript:void(0)" (click)="bsModalRef.hide() ; login()">Log in</a></strong>
+                   
+                    <div class=" pull-left">
+                    <h6>
+                        <a class=" link footer-link" href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001181428-signing-in-out-of-your-lifecoach-account" target="_blank">
+                        Need Help?
+                        </a>
+                    </h6>
                     </div>
 
                 </div>

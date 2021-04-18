@@ -7,6 +7,9 @@ import { AuthService } from 'app/services/auth.service';
 import { ToastService } from 'app/services/toast.service';
 import { environment } from 'environments/environment';
 import { Observable } from 'rxjs';
+import { BsModalService, BsModalRef, ModalOptions } from 'ngx-bootstrap/modal';
+import { RegisterModalComponent } from 'app/components/register-modal/register-modal.component';
+import { DataService } from 'app/services/data.service';
 
 @Component({
   selector: 'app-login',
@@ -15,12 +18,13 @@ import { Observable } from 'rxjs';
 })
 export class LoginComponent implements OnInit, OnDestroy {
 
+  public bsModalRef: BsModalRef;
   private user: Observable<any>;
   public loginForm: FormGroup;
   public login: boolean;
   public loginAttempt: boolean;
   public focusTouched: boolean;
-  public emailSent = false;
+  public emailSent: boolean;
   public objKeys = Object.keys;
   public errorMessages = {
     email: {
@@ -35,7 +39,9 @@ export class LoginComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private analyticsService: AnalyticsService,
     private alertService: AlertService,
-    private router: Router
+    private router: Router,
+    private modalService: BsModalService,
+    private dataService: DataService
   ) {}
 
   ngOnInit() {
@@ -93,9 +99,10 @@ export class LoginComponent implements OnInit, OnDestroy {
       localStorage.setItem('emailForSignIn', this.loginF.email.value); // save the email to localStorage to prevent session fixation attacks
       if (res) { // success
         this.emailSent = true;
-        this.toastService.showToast('Email sent successfully!', 10000, 'success', 'bottom', 'center');
+        this.toastService.showToast('Email sent successfully! Click on the link in the email to log into your Lifecoach account...', 60000, 'success', 'bottom', 'center');
         this.login = false;
         this.loginAttempt = false;
+        this.analyticsService.sendLoginEmail(this.loginF.email.value);
         return;
       }
       this.alertService.alert(res.message); // error
@@ -121,14 +128,51 @@ export class LoginComponent implements OnInit, OnDestroy {
           email = window.prompt('Please provide your email for confirmation');
         }
 
-        // Signin user and remove the email localStorage
+        // Attempt to sign the user in...
         const result = await this.authService.signInWithEmailLink(email, url);
-        window.localStorage.removeItem('emailForSignIn');
-        this.router.navigate(['/dashboard']);
+
+        // sign in sucess!
+        window.localStorage.removeItem('emailForSignIn'); // clean up localStorage
+
+        /*
+          Is this user logging in for the first time (post registration)?
+          Check firestore to see if we've already created a user node.
+          If not, the user must be new so ask for more details to complete registration.
+          If the user node exists, they are simply returning, so nav to dashboard...
+        */
+
+        this.dataService.getUserAccount(result.user.uid).subscribe(acct => {
+
+          if (acct) { // user account exists...
+            this.analyticsService.signIn(result.user.uid, 'Passwordless', email);
+            this.router.navigate(['/dashboard']);
+            return;
+          }
+
+          // user account does NOT exist. Redirect to complete registration page...
+          this.analyticsService.gotoCompleteRegistration();
+          this.router.navigate(['/register']);
+        });
+
       }
     } catch (err) {
       this.alertService.alert('warning-message', 'Oops!', err.message);
     }
+  }
+
+  register() {
+    // pop register modal
+    // we can send data to the modal & open in a another component via a service
+    // https://valor-software.com/ngx-bootstrap/#/modals#service-component
+    const config: ModalOptions = {
+      initialState: {
+        message: `Joining Lifecoach is free and only takes seconds!`,
+        successMessage: null,
+        redirectUrl: '/dashboard',
+        accountType: null
+      } as any
+    };
+    this.bsModalRef = this.modalService.show(RegisterModalComponent, config);
   }
 
   ngOnDestroy() {

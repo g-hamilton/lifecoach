@@ -114,3 +114,22 @@ export function portalSessionCreationError(error: Error) {
     error.message
   );
 }
+
+export function userNodeCreated(type: any, uid: string) {
+  console.log(`✅User node created successfully for [${type}] account user [${uid}]`);
+}
+
+export function setCustomClaims(uid: string, claims: object) {
+  console.log(`✅Custom claims set for user [${uid}]: ${JSON.stringify(claims)}`);
+}
+
+export function errorSettingCustomClaims(error: Error) {
+  console.error(
+    `❗️[Error]: Setting custom claims:`,
+    error.message
+  );
+}
+
+export function userAddedToMailingList(type: any, uid: string, email: string) {
+  console.log(`✅Added user [${uid}] to mailing list with email [${email}]`);
+}

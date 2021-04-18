@@ -257,8 +257,8 @@ export class AccountComponent implements OnInit, OnDestroy {
       accountEmail: new FormControl({value: '', disabled: true}),
       stripeUid: [null],
       stripeRequirementsCurrentlyDue: [null],
-      creatorDealsProgram: [false],
-      creatorExtendedPromotionsProgram: [false],
+      stripeCustomerId: [null],
+      stripeCustomerLink: [null],
       sessionDuration: [ 30 ],
       breakDuration: [0]
     });
@@ -299,8 +299,8 @@ export class AccountComponent implements OnInit, OnDestroy {
       accountEmail: account.accountEmail,
       stripeUid: account.stripeUid ? account.stripeUid : null,
       stripeRequirementsCurrentlyDue: account.stripeRequirementsCurrentlyDue ? account.stripeRequirementsCurrentlyDue : null,
-      creatorDealsProgram: account.creatorDealsProgram ? account.creatorDealsProgram : false,
-      creatorExtendedPromotionsProgram: account.creatorExtendedPromotionsProgram ? account.creatorExtendedPromotionsProgram : false,
+      stripeCustomerId: account.stripeCustomerId ? account.stripeCustomerId : null,
+      stripeCustomerLink: account.stripeCustomerLink ? account.stripeCustomerLink : null,
       sessionDuration: account.sessionDuration ? account.sessionDuration : 30,
       breakDuration: account.breakDuration ? account.breakDuration : 0
     });
@@ -652,29 +652,20 @@ export class AccountComponent implements OnInit, OnDestroy {
       this.submitted = true;
       const account: UserAccount = {
         accountEmail: res.data.email,
-        password: res.data.password,
         accountType: this.accountF.accountType.value
       };
-      // Must attempt sign in first as deleting auth account is a 'sensitive operation'.
-      const response = await this.authService.signInWithEmailAndPassword(account);
-      if (response.result) {
-        // Proceed with delete.
-        await this.cloudFunctionsService.deleteUserData(this.userId, account);
-        const authResponse = await this.authService.deleteAuthAccount(account);
-        if (authResponse.result === 'success') {
-          this.router.navigate(['/']);
-          this.alertService.alert('success-message', 'Success!', `Your account has been deleted. We're
-                    sorry to see you go.`);
-          this.analyticsService.deleteAccount();
-        } else {
-          console.log(authResponse.msg);
-        }
-        this.submitted = false;
+      // Note: deleting auth account is classed as a a 'sensitive operation' by Firebase.
+      await this.cloudFunctionsService.deleteUserData(this.userId, account);
+      const authResponse = await this.authService.deleteAuthAccount(account);
+      if (authResponse.result === 'success') {
+        this.router.navigate(['/']);
+        this.alertService.alert('success-message', 'Success!', `Your account has been deleted. We're
+                  sorry to see you go.`);
+        this.analyticsService.deleteAccount();
       } else {
-        this.alertService.alert('warning-message', 'Oops', `Looks like you entered the wrong
-                details. Please check your login email and password then try again.`);
-        this.submitted = false;
+        this.alertService.alert('warning-message', 'Oops!', `${authResponse.msg}. Please contact support.`);
       }
+      this.submitted = false;
     }
 
   }

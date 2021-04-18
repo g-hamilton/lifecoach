@@ -55,15 +55,23 @@ export class AnalyticsService {
     });
   }
 
-  registerUser(uid: string, method: string, account: UserAccount) {
-    this.aliasUser(uid);
-    this.identifyUser(uid);
+  gotoCompleteRegistration() {
+    mixpanel.track('Redirected to complete registration');
+  }
+
+  registeredUser(account: UserAccount, method: string) {
+    this.aliasUser(account.uid);
+    this.identifyUser(account.uid);
     this.setPeopleProperties(account);
     mixpanel.track('Registered', {
       method,
       accountType: account.accountType,
       plan: account.plan ? account.plan : null
     });
+  }
+
+  sendLoginEmail(email: string) {
+    mixpanel.track('Sent login email', { email });
   }
 
   signIn(uid: string, method: string, email: string) {
