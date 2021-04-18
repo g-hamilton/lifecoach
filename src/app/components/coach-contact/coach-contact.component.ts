@@ -139,8 +139,8 @@ export class CoachContactComponent implements OnInit, OnDestroy {
         // User is not authenticated. Require login or register to send message.
         this.submitted = false;
         this.loginRequired = true; // will trigger 'login-in-flow.component'
-        await this.alertService.alert('info-message', 'Just a second...', `You must be logged in
-        to contact coaches. If you're new to Lifecoach, signing up is totally FREE and only takes a second...`, 'OK');
+        await this.alertService.alert('info-message', 'Just a second...', `You need a Lifeocoach account
+        to message coaches. Signing up is totally FREE and takes seconds...`, 'OK');
       }
     } else {
       console.log('Invalid contact form!');

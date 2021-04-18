@@ -15,7 +15,7 @@
         class=" form"
         id="loginValidation"
         [formGroup]="loginForm"
-        (ngSubmit)="onLogin()"
+        (ngSubmit)="sendEmailLink()"
         >
           <div class="">
             <div class="">
@@ -24,6 +24,9 @@
             <div class="">
 
               <!-- Email -->
+              <label>
+                Important! Only use your registered Lifecoach account email...
+              </label>
               <div
                 class=" input-group"
                 [ngClass]="{
@@ -59,60 +62,23 @@
                 > Please enter your login email address.
               </div>
 
-              <!-- Password -->
-              <div
-                class=" input-group"
-                [ngClass]="{
-                  'input-group-focus': focus1 === true,
-                  'has-danger':
-                    ((focusTouched1 || login) && loginF.password.errors) ||
-                    (loginF.password.value != '' && loginF.password.errors),
-                  'has-success': loginF.password.value != '' && !loginF.password.errors
-                }"
-              >
-                <div class=" input-group-prepend">
-                  <div class=" input-group-text">
-                    <i class=" tim-icons icon-lock-circle"> </i>
-                  </div>
-                </div>
-                <input
-                  class=" form-control"
-                  name="password"
-                  formControlName="password"
-                  placeholder="Password"
-                  type="password"
-                  (focus)="focus1 = true; focusTouched1 = true"
-                  (blur)="focus1 = false"
-                  required=""
-                />
-              </div>
-              <div
-                class="error custom-error-label"
-                *ngIf="
-                  ((focusTouched1 || login) && loginF.password.errors) ||
-                  (loginF.password.value != '' && loginF.password.errors)
-                "
-                > Your password has at least 6 characters.
-              </div>
-
-            </div>
-            <div class=" pull-left">
-              <a class=" link footer-link" href="javascript:void(0)" (click)="forgotPassword()">
-                Forgotten Password? 
-              </a>
             </div>
             <div class=" pull-right">
               <!-- Login Submit Button -->
               <button
               class=" btn btn-primary btn-round btn-lg"
               type="submit"
-              [disabled]="loginForm.invalid"
+              [disabled]="loginForm.invalid || emailSent"
               >
                 <span
                 *ngIf="login"
                 class="spinner-border spinner-border-sm"
                 role="status"
-                ></span> {{ login ? 'Logging in...' : 'Login' }}
+                ></span> 
+                <span *ngIf="!login">
+                  <i class="fas fa-link mr-2"></i>
+                </span>
+                {{ login ? 'Sending Email...' : 'Get Login Link' }}
               </button>
             </div>
           </div>
@@ -129,90 +95,16 @@
             class=" form"
             id="RegisterValidation"
             [formGroup]="registerForm"
-            (ngSubmit)="onRegister()"
+            (ngSubmit)="sendEmailLinkRegister()"
           >
             <div class="">
 
               <div class=" row">
 
-                <!-- First Name -->
-                <div class=" col-sm-12 col-md-6">
-                  <div
-                  class=" input-group"
-                  [ngClass]="{
-                    'input-group-focus': focus2 === true,
-                    'has-danger':
-                      ((focusTouched2 || register) && registerF.firstName.errors) ||
-                      (registerF.firstName.value != '' && registerF.firstName.errors),
-                    'has-success': registerF.firstName.value != '' && !registerF.firstName.errors
-                  }"
-                  >
-                    <div class=" input-group-prepend">
-                      <div class=" input-group-text">
-                        <i class=" tim-icons icon-single-02"> </i>
-                      </div>
-                    </div>
-                    <input
-                      class=" form-control"
-                      name="firstName"
-                      formControlName="firstName"
-                      placeholder="First Name"
-                      type="text"
-                      (focus)="focus2 = true; focusTouched2 = true"
-                      (blur)="focus2 = false"
-                      required=""
-                    />
-                    <label
-                    class="error custom-error-label"
-                    *ngIf="
-                      ((focusTouched2 || register) && registerF.firstName.errors) ||
-                      (registerF.firstName.value != '' && registerF.firstName.errors)
-                    "
-                    > Please enter your first name.
-                    </label>
-                  </div>
-                </div>
-
-                <!-- Last Name -->
-                <div class=" col-sm-12 col-md-6">
-                  <div
-                  class=" input-group"
-                  [ngClass]="{
-                    'input-group-focus': focus3 === true,
-                    'has-danger':
-                      ((focusTouched3 || register) && registerF.lastName.errors) ||
-                      (registerF.lastName.value != '' && registerF.lastName.errors),
-                    'has-success': registerF.lastName.value != '' && !registerF.lastName.errors
-                  }"
-                  >
-                    <div class=" input-group-prepend">
-                      <div class=" input-group-text">
-                        <i class=" tim-icons icon-single-02"> </i>
-                      </div>
-                    </div>
-                    <input
-                      class=" form-control"
-                      name="lastName"
-                      formControlName="lastName"
-                      placeholder="Last Name"
-                      type="text"
-                      (focus)="focus3 = true; focusTouched3 = true"
-                      (blur)="focus3 = false"
-                      required=""
-                    />
-                    <label
-                    class="error custom-error-label"
-                    *ngIf="
-                      ((focusTouched3 || register) && registerF.lastName.errors) ||
-                      (registerF.lastName.value != '' && registerF.lastName.errors)
-                    "
-                    > Please enter your last name.
-                  </label>
-                  </div>
-                </div>
-              </div>
-
               <!-- Email -->
+              <label>
+                Enter your email to register & receive a secure login link...
+              </label>
               <div
                 class=" input-group"
                 [ngClass]="{
@@ -248,54 +140,6 @@
                 </label>
               </div>
 
-              <!-- Create Password -->
-              <div
-                class=" input-group"
-                [ngClass]="{
-                  'input-group-focus': focus5 === true,
-                  'has-danger':
-                    ((focusTouched5 || register) && registerF.password.errors) ||
-                    (registerF.password.value != '' && registerF.password.errors),
-                  'has-success': registerF.password.value != '' && !registerF.password.errors
-                }"
-              >
-                <div class=" input-group-prepend">
-                  <div class=" input-group-text">
-                    <i class=" tim-icons icon-lock-circle"> </i>
-                  </div>
-                </div>
-                <input
-                  class=" form-control"
-                  name="password"
-                  formControlName="password"
-                  placeholder="Create Password"
-                  type="password"
-                  (focus)="focus5 = true; focusTouched5 = true"
-                  (blur)="focus5 = false"
-                  required=""
-                />
-                <label
-                class="error custom-error-label"
-                *ngIf="
-                  ((focusTouched5 || register) && registerF.password.errors) ||
-                  (registerF.password.value != '' && registerF.password.errors)
-                "
-                > Password must be at least 6 characters.
-              </label>
-              </div>
-
-              <!-- Terms & Conditions -->
-              <div class=" form-check text-left">
-                <label class=" form-check-label">
-                  <input class=" form-check-input" type="checkbox" formControlName="termsAccepted" />
-
-                  <span class=" form-check-sign"> </span> I agree to the
-                  <a href="https://lifecoach.freshdesk.com/a/solutions/articles/47000883660" target="_blank"> 
-                    terms and conditions 
-                  </a> .
-                </label>
-              </div>
-
             </div>
             <div class=" pull-right">
               <!-- Form Submit Button -->
@@ -308,8 +152,10 @@
                 *ngIf="register"
                 class="spinner-border spinner-border-sm"
                 role="status"
-                ></span> {{ register ? 'Creating Account...' : 'Continue'}} 
+                ></span>
+                {{ register ? 'Sending Email...' : 'Sign Up!' }}
               </button>
+            </div>
             </div>
           </form>
         </div>

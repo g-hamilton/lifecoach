@@ -197,7 +197,7 @@
             </div>
 
             <!-- client testimonials -->
-            <div *ngIf="clientTestimonials">
+            <div *ngIf="clientTestimonials && clientTestimonials.length > 0">
                 <h4 class=" card-title"> Kind Words From Happy Clients </h4>
                 <div class=" row">
                     <div *ngFor="let testimonial of clientTestimonials" class=" col-md-4">
@@ -233,23 +233,10 @@
                 <h4 class=" card-title"> Contact {{ userProfile.firstName }} </h4>
                 <div class=" card">
                     <div class=" card-body">
-                        <div class=" row justify-content-center border-between">
-                            <div class=" col-md-8">
-                                <h5 class=" card-title"> Send {{ userProfile.firstName }} a message </h5>
+                        <div class=" row justify-content-center">
+                            <div class=" col">
+                                <h5 class=" card-title"> Send {{ userProfile.firstName }} a message to start an informal chat, or request a FREE Discovery Session...</h5>
                                 <app-coach-contact [coachUid]="coachId"></app-coach-contact>
-                            </div>
-                            <div class=" col-md-4 text-center pt-5">
-                                <h5 class=" card-title"> Or schedule a discovery session with {{ userProfile.firstName }} </h5>
-                                <!-- scheduler button. User must be logged in to schedule a call. -->
-                                <button
-                                  class=" btn btn-fill btn-round btn-primary mr-2 mb-2"
-                                  id="schedule-button"
-                                  type="button"
-                                  (click)="this.userId ? openScheduleCallModal() : registerToDiscover()"
-                                  [disabled]="this.userId === this.coachId"
-                                ><i class="fas fa-phone">&nbsp;</i>
-                                    <span>Schedule a Session</span>
-                                </button>
                             </div>
                         </div>
                     </div>
