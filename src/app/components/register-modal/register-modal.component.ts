@@ -121,7 +121,7 @@ export class RegisterModalComponent implements OnInit {
         this.bsModalRef.hide();
         this.register = false;
         this.registerAttempt = false;
-        this.toastService.showToast(`We've sent an email to confirm your address. Please click the link in your email to complete sign up...`, 60000, 'success', 'bottom', 'center');
+        this.toastService.showToast(`We've sent an email to confirm your address. Please click the link in your email to complete sign up. This will open a new tab so you can now safely close this browser tab.`, 60000, 'success', 'bottom', 'center');
         this.analyticsService.sendLoginEmail(email);
         return;
       }

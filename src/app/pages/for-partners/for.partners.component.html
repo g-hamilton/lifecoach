@@ -8,15 +8,15 @@
           <div class="container">
             <div class="row justify-content-center text-center">
               <div class="col-md-10">
-              <h1 class="display-1"> Get Paid To Promote Coaching </h1>
+              <h1 class="display-1"> Get Paid To Promote Lifecoach </h1>
 
               <h3>
-                Become a Promotional Partner today & earn a generous 50% profit share on all successful referrals.
+                Tell coaches about Lifecoach & earn a generous £10GBP for every coach who signs up.
               </h3>
   
               <p class="lead">
-                  <a class="btn btn-primary btn-lg btn-round" [routerLink]="['/register', 'partner']" (click)="onGetStarted()" role="button">
-                    Join Today
+                  <a id="for-partners-hero-button" class="btn btn-primary btn-lg btn-round" (click)="clickEvent('for-partners-hero-button') ; onRegister()" role="button">
+                    Become a Partner
                   </a>
               </p>
 
@@ -36,25 +36,18 @@
               <div class="row justify-content-center text-center">
                   <div class="col pt-4">
                     <h2 class="display-2">
-                      Your Audience <span class="text-success"> + </span> 
-                      Our Coaches <span class="text-success"> = </span> 
-                      <span class=" text-danger"><i class="fas fa-heart"></i></span>
+                      Do You Help Coaches...
                     </h2>
 
                     <h4>
-                      <strong>The world needs coaching more than ever right now.</strong><br><br>
-                      Can you help people to discover the benefits? 
-                      The Lifecoach Promotional Partner Program pays anyone with a voice to promote the benefits of online 
-                      coaching to a relevant audience.
-                      Connect your audience to our coaching platform to boost your kudos, help people to genuinely transform their lives for the better
-                       & earn a generous commission in the process.
+                      <strong>To find more clients? To grow their businesses? To stand out from the crowd?</strong><br><br>
+                      Can you help Coaches to discover the benefits of the Lifecoach platform? 
+                      Lifecoach provides leading software for professional Coaches; including unique tools to help 
+                      Coaches get discovered by more relevant clients, sell products & services online, create & host 
+                      eCourses and actively advertise themselves in relevant channels. Join our Partnership Program today and 
+                      spread the word through your network, earning you kudos and a generous fixed commission in the process.
                     </h4>
 
-                    <p class=" mt-5">
-                      <button class="btn btn-default btn-round" [routerLink]="['/register', 'partner']" (click)="onGetStarted()" role="button">
-                        Start Promoting Lifecoach Today
-                      </button>
-                    </p>
                   </div>
               </div>
           </div>
@@ -71,11 +64,11 @@
               How It Works
             </h2>
             <h3 class=" display-2">
-              Our Partner Program is simple & rewarding
+              Our Partner Program Is Simple & Rewarding
             </h3>
 
             <h4>
-              Anyone with an audience can earn commission by promoting Lifecoach.
+              Anyone can earn commission by promoting Lifecoach to professional Coaches.
             </h4>
 
             <div class=" row mt-5">
@@ -92,16 +85,16 @@
                   </p>
               </div>
               <div class=" col-4">
-                  <div class=" text-success display-2 mb-3"><i class="fas fa-percent"></i></div>
+                  <div class=" text-success display-2 mb-3"><i class="fas fa-pound-sign"></i></div>
                   <p class=" pl-3 pr-3">
-                    <span class=" text-success">Step 3:</span> Promote any Lifecoach page using your link & earn a <strong>50%</strong> profit 
-                    share on <strong>all referred revenue, including repeat purchases</strong>.
+                    <span class=" text-success">Step 3:</span> Promote Lifecoach using your link & earn <strong>£10GBP</strong> 
+                    for every Coach who signs up.
                   </p>
               </div>
           </div>
 
           <p class=" mt-5">
-            <button class="btn btn-default btn-round" [routerLink]="['/register', 'partner']" (click)="onGetStarted()" role="button">
+            <button id="for-partners-how-it-works-get-started" class="btn btn-primary btn-round" (click)="clickEvent('for-partners-how-it-works-get-started') ; onRegister()" role="button">
               Get Started
             </button>
           </p>
@@ -110,73 +103,6 @@
       </div>
     </div>
   </section>
-
-  <!-- Section -->
-  <section id="what-promote" class=" padded-section">
-    <div class=" content">
-      <div class=" container">
-        <div class="row justify-content-center text-center mb-5">
-          <div class="col">
-            <h2 class=" display-4 mb-1">
-              One Link Tracks Everything
-            </h2>
-            <h3 class=" display-2">
-              What Can I Promote?
-            </h3>
-
-            <h4>
-              Lifecoach is a digital coaching platform. Our coaching community offers a diverse mix of professional online 
-              coaching services, programs & eCourses. Promote any part of the platform that's relevant to your audience:
-            </h4>
-
-          </div>
-        </div>
-        <div class=" row justify-content-center text-center mt-5">
-          <div class=" col-4">
-              <div class=" text-info display-2 mb-3"><i class="fas fa-laptop"></i></div>
-              <h5 class=" font-weight-bold"> The Platform </h5>
-              <p>
-                Lifecoach is the perfect resource for anyone looking for self-improvement, overcoming obstacles & personal development.
-                Promote the platform as a great place to connect with high quality online coaching.
-              </p>
-          </div>
-          <div class=" col-4">
-              <div class=" text-info display-2 mb-3"><i class="fas fa-user"></i></div>
-              <h5 class=" font-weight-bold"> Coaches & Services </h5>
-              <p> 
-                Our Coaches cover a diverse range of coaching specialities and offer a wide array of services. Promote specific 
-                coaching specialities, individual coaches or specific services depending on your audience.
-              </p>
-          </div>
-          <div class=" col-4">
-              <div class=" text-info display-2 mb-3"><i class="fas fa-play-circle"></i></div>
-              <h5 class=" font-weight-bold"> eCourses </h5>
-              <p class=" mb-5">
-                Online eCourses are the perfect way for students to progress on their own schedules. We also run 
-                regular special offers to make our community eCourses highly attractive and perfect for you to promote.
-              </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- banner section -->
-  <div id="section-banner">
-    <div class=" row scroll-fix">
-        <div id="banners-col" class=" col scroll-fix">
-            <div id="banners-image" class=" text-center mt-5">
-                <div class="main-banner"id="super-banner"></div>
-            </div>
-            <div class=" container text-center mt-5">
-                <h4>
-                  Lifecoach offers a wealth of high quality coaching resources. What would your audience like to discover?
-                </h4>
-            </div>
-        </div>
-    </div>
-  </div>
-  <!-- end of banner section -->
 
   <!-- Section -->
   <section id="payouts" class=" padded-section">
@@ -192,8 +118,8 @@
             </h3>
 
             <h4>
-              We'll pay your partner earnings monthly by PayPal. All you need is a personal or business PayPal address to start receiving 
-              your partner payouts. It's that easy!
+              Partner with us, wherever you are in the world. We'll pay your partner earnings monthly by PayPal. All you need is a personal or business PayPal address to start receiving 
+              your partner payouts for conversion into your own currency. It's that easy!
             </h4>
 
           </div>
@@ -226,7 +152,7 @@
                         How do I join Lifecoach as a Promotional Partner?
                       </strong>
                       <p>
-                        Click <a [routerLink]="['/register', 'partner']">here</a> to get started.
+                        Click <a id="for-partners-faq-get-started" (click)="clickEvent('for-partners-faq-get-started') ; onRegister()">here</a> to get started.
                         Signing up takes under 60 seconds. Get your unique link and start promoting! We'll guide you every step of the way.
                       </p>
                     </div>
@@ -235,9 +161,7 @@
                         Do I qualify as a Partner?
                       </strong>
                       <p>
-                        If you have an audience, following or mailing list who would be interested in 
-                        discovering the Lifecoach platform, our coaching community, coaching services
-                        and/or our eCourses, you qualify for our Partner Program.
+                        If you have an active network of Coaches or regularly promote your own services to the coaching community, you qualify for our Partner Program.
                       </p>
                     </div>
                     <div class=" col-md-6 mb-3">
@@ -245,9 +169,7 @@
                         Are there any special requirements?
                       </strong>
                       <p>
-                        The only requirement is your ability to reach people who might be interested in or in need of coaching
-                        and personal development / personal transformation. If you're keen to help your audience move forward in life through better 
-                        access to high quality coaching, we'd love to partner with you.
+                        The only requirement is your ability to reach professional Coaches in the personal or professional development & transformation space.
                       </p>
                     </div>
                     <div class=" col-md-6 mb-3">
@@ -255,9 +177,9 @@
                         How does it work?
                       </strong>
                       <p>
-                        Sign up in 60 seconds, enable your payment account and get your unique referral link. 
-                        Use your link to promote any Lifecoach page to your existing audience (we'll show you how). Earn a 50% profit share on all 
-                        referred revenue, including repeat purchases. No technical skills/development required and we'll provide you with 
+                        Sign up in 60 seconds and get your unique referral link. 
+                        Use your link to promote Lifecoach to Coaches. Earn a fixed commission for every coach who signs up. 
+                        No technical skills/development required and we'll provide you with 
                         detailed but simple instructions to get you started.
                       </p>
                     </div>
@@ -268,8 +190,8 @@
                       <p>
                         No! Our tracking system is uniquely simple. All you need to do is append (add) your tracking 
                         link onto the end of any normal link to any Lifecoach.io page (we'll show you how), or use our ready made shareabe links.  
-                        Wherever you choose to send your audience, we'll detect your unique link and credit you for 
-                        all referred revenue, including any repeat purchases made within 30 days of your initial referral.
+                        Wherever you choose to send Coaches, we'll detect your unique link and credit you for 
+                        all referred unique signups.
                       </p>
                     </div>
                     <div class=" col-md-6 mb-3">
@@ -285,25 +207,17 @@
                         How much can I earn?
                       </strong>
                       <p>
-                        There's no cap on earnings so the more you promote Lifecoach to your audience(s), 
-                        the more you can earn. What's more, Lifecoach is a global platform and we handle international currency conversion, maximising your 
-                        ability to earn. To see an example 'typical' transaction 
-                        <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001173826-your-unique-tracking-link-explained" target=" _blank">
-                          Read more.
-                        </a>
+                        There's no cap on earnings, so the more you promote Lifecoach to professional Coaches, 
+                        the more you can earn. What's more, Lifecoach is a global platform, maximising your 
+                        ability to earn by promoting the benefits to Coaches all over the world.
                       </p>
                     </div>
                     <div class=" col-md-6 mb-3">
                       <strong>
-                        What % will I earn?
+                        How much will I earn per sign up?
                       </strong>
                       <p>
-                        We operate a generous 50/50 profit share meaning we'll share an industry leading 50% of our platform 
-                        revenue with you on any sale, from any page when we detect that a user has been referred to us through 
-                        your unique tracking link. Want to see an example transaction and full technical details? 
-                        <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001173826-your-unique-tracking-link-explained" target=" _blank">
-                          read more.
-                        </a>
+                        Our fixed commission is currently set at £10GBP and you can get paid out wherever you are, as long as you have a PayPal account.
                       </p>
                     </div>
                     <div class=" col-md-6 mb-3">
@@ -346,12 +260,14 @@
                 <h2 class="display-3"> Heard Enough? </h2>
 
                 <h4>
-                  Join the Partner Program today.
+                  Join the Partner Program today and start earning...
                 </h4>
 
-                <p><a class="btn btn-primary btn-lg btn-round" [routerLink]="['/register', 'partner']" role="button">
-                  Let's go!
-                </a></p>
+                <p>
+                  <a id="for-partners-heard-enough-button" class="btn btn-primary btn-lg btn-round" (click)="clickEvent('for-partners-heard-enough-button') ; onRegister()" role="button">
+                    Become a Partner
+                  </a>
+                </p>
     
                 </div>
             </div>
