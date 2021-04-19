@@ -9,6 +9,7 @@ import { AlertService } from 'app/services/alert.service';
 import { environment } from 'environments/environment';
 
 import { FirebaseLoginResponse } from 'app/interfaces/firebase.login.response.interface';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login-in-flow',
@@ -45,7 +46,8 @@ export class LoginInFlowComponent implements OnInit {
     private authService: AuthService,
     private analyticsService: AnalyticsService,
     private toastService: ToastService,
-    private alertService: AlertService
+    private alertService: AlertService,
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -86,7 +88,7 @@ export class LoginInFlowComponent implements OnInit {
     }
     const actionCodeSettings = {
       // redirect URL
-      url: `${environment.baseUrl}/login`,
+      url: this.router.url,
       handleCodeInApp: true,
     };
     try {
@@ -127,7 +129,7 @@ export class LoginInFlowComponent implements OnInit {
     }
     const actionCodeSettings = {
       // redirect URL
-      url: `${environment.baseUrl}/login`,
+      url: this.router.url,
       handleCodeInApp: true,
     };
     try {

@@ -228,15 +228,22 @@
                 </div>
             </div>
 
-            <!-- When Profile Loaded - Display Contact Coach -->
+            <!-- When coach profile loaded && user is signed in - display contact coach -->
             <div id="contact" *ngIf="userProfile">
                 <h4 class=" card-title"> Contact {{ userProfile.firstName }} </h4>
                 <div class=" card">
                     <div class=" card-body">
                         <div class=" row justify-content-center">
                             <div class=" col">
-                                <h5 class=" card-title"> Send {{ userProfile.firstName }} a message to start an informal chat, or request a FREE Discovery Session...</h5>
-                                <app-coach-contact [coachUid]="coachId"></app-coach-contact>
+                                <h5 class=" mb-5">
+                                    Login or join Lifecoach FREE to start an informal chat or book a free discovery session with {{ userProfile.firstName }}...
+                                </h5>
+                                <div *ngIf="userId ; else login">
+                                    <app-coach-contact [coachUid]="coachId"></app-coach-contact>
+                                </div>
+                                <ng-template #login>
+                                    <app-login-in-flow></app-login-in-flow>
+                                </ng-template>
                             </div>
                         </div>
                     </div>
