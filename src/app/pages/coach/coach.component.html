@@ -228,7 +228,7 @@
                 </div>
             </div>
 
-            <!-- When coach profile loaded && user is signed in - display contact coach -->
+            <!-- contact coach -->
             <div id="contact" *ngIf="userProfile">
                 <h4 class=" card-title"> Contact {{ userProfile.firstName }} </h4>
                 <div class=" card">
@@ -236,14 +236,17 @@
                         <div class=" row justify-content-center">
                             <div class=" col">
                                 <h5 class=" mb-5">
-                                    Login or join Lifecoach FREE to start an informal chat or book a free discovery session with {{ userProfile.firstName }}...
+                                    Start an informal chat or book a FREE Discovery Session with {{ userProfile.firstName }}...
                                 </h5>
-                                <div *ngIf="userId ; else login">
+                                <!-- contact form only if user authorised -->
+                                <div *ngIf="userId">
                                     <app-coach-contact [coachUid]="coachId"></app-coach-contact>
                                 </div>
-                                <ng-template #login>
-                                    <app-login-in-flow></app-login-in-flow>
-                                </ng-template>
+                                <!-- 
+                                    login in flow should always be loaded 
+                                    (user authorised or not) 
+                                -->
+                                <app-login-in-flow></app-login-in-flow>
                             </div>
                         </div>
                     </div>

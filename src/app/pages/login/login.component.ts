@@ -99,7 +99,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       localStorage.setItem('emailForSignIn', this.loginF.email.value); // save the email to localStorage to prevent session fixation attacks
       if (res) { // success
         this.emailSent = true;
-        this.toastService.showToast('Email sent successfully! Click on the link in the email to log into your Lifecoach account...', 60000, 'success', 'bottom', 'center');
+        this.toastService.showToast('Email sent successfully! Click on the link in the email to log into your Lifecoach account. This will open a new tab. It is now safe to close this browser tab.', 60000, 'success', 'bottom', 'center');
         this.login = false;
         this.loginAttempt = false;
         this.analyticsService.sendLoginEmail(this.loginF.email.value);
