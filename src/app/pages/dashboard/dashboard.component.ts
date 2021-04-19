@@ -28,6 +28,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   private stripe = Stripe(`${environment.stripeJsClientKey}`);
 
   public uid: string;
+  private claimsUpdated: boolean;
   public userType: 'coach' | 'regular' | 'partner' | 'provider' | 'admin';
   public userAccount: UserAccount;
   public userFirstName = '';
@@ -104,53 +105,99 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   async loadUserData() {
-    // Get user ID
-    const tempAuthSub = this.authService.getAuthUser()
+    this.subscriptions.add(
+      this.authService.getAuthUser()
       .subscribe(user => {
         if (user) {
           // User is authorised
           // console.log(`User ${user.uid} is authorised`);
-          this.uid = user.uid; // <-- Ensure we get an authorised uid before calling for user data
+          this.uid = user.uid;
 
           // Get a SSO token for this user
           this.getUserSSOToken();
 
-          // Check the user's custom auth claims for user type
-          user.getIdTokenResult(true)
-            .then(tokenRes => {
-              console.log('User claims:', tokenRes.claims);
-              const c = tokenRes.claims;
-              if (c.admin) {
-                this.userType = 'admin';
-                this.loadAdminData();
-              } else if (c.coach) {
-                this.userType = 'coach';
-                if (c.subscriptionPlan) {
-                  this.subscriptionPlan = c.subscriptionPlan;
-                  console.log('Subscription plan:', this.subscriptionPlan);
-                } else {
-                  this.loadProducts();
-                }
-                this.loadUserAccount();
-                this.loadUserSubscriptions();
-                this.loadTodos();
-                // this.loadClients();
-                this.loadCoachProfile();
-              } else if (c.regular) {
-                this.userType = 'regular';
-              } else if (c.partner) {
-                this.userType = 'partner';
-                this.loadTodos();
-              } else if (c.provider) {
-                this.userType = 'provider';
-              } else {
-                this.userType = null;
-              }
-            });
+          // load the user's custom claims
+          this.loadClaims(user);
         }
-        tempAuthSub.unsubscribe();
-      });
-    this.subscriptions.add(tempAuthSub);
+      })
+    );
+  }
+
+  async loadClaims(user: firebase.User) {
+    const result = await user.getIdTokenResult();
+    const c = result.claims;
+    if (c.admin || c.coach || c.regular || c.partner || c.provider) {
+      // claims now updated. Proceed with load...
+      this.claimsUpdated = true;
+      console.log('User claims updated!:', c);
+      if (c.admin) {
+        this.userType = 'admin';
+        this.loadAdminData();
+      } else if (c.coach) {
+        this.userType = 'coach';
+        if (c.subscriptionPlan) {
+          this.subscriptionPlan = c.subscriptionPlan;
+          console.log('Subscription plan:', this.subscriptionPlan);
+        } else {
+          this.loadProducts();
+        }
+        this.loadUserAccount();
+        this.loadUserSubscriptions();
+        this.loadTodos();
+        // this.loadClients();
+        this.loadCoachProfile();
+      } else if (c.regular) {
+        this.userType = 'regular';
+      } else if (c.partner) {
+        this.userType = 'partner';
+        this.loadTodos();
+      } else if (c.provider) {
+        this.userType = 'provider';
+      } else {
+        this.userType = null;
+      }
+    }
+
+    // loop through checking claims until a valid user type is found
+    // because changes to custom claims do not trigger subscription and may take time to propagate...
+
+    const timer = ms => new Promise(res => setTimeout(res, ms));
+
+    while (!this.claimsUpdated) {
+      console.log('Looping claims...');
+      await timer(2000);
+      const newResult = await user.getIdTokenResult(true);
+      const n = newResult.claims;
+      if (n.admin || n.coach || n.regular || n.partner || n.provider) {
+        this.claimsUpdated = true;
+        if (n.admin) {
+          this.userType = 'admin';
+          this.loadAdminData();
+        } else if (n.coach) {
+          this.userType = 'coach';
+          if (n.subscriptionPlan) {
+            this.subscriptionPlan = n.subscriptionPlan;
+            console.log('Subscription plan:', this.subscriptionPlan);
+          } else {
+            this.loadProducts();
+          }
+          this.loadUserAccount();
+          this.loadUserSubscriptions();
+          this.loadTodos();
+          // this.loadClients();
+          this.loadCoachProfile();
+        } else if (n.regular) {
+          this.userType = 'regular';
+        } else if (n.partner) {
+          this.userType = 'partner';
+          this.loadTodos();
+        } else if (n.provider) {
+          this.userType = 'provider';
+        } else {
+          this.userType = null;
+        }
+      }
+    }
   }
 
   loadUserAccount() {

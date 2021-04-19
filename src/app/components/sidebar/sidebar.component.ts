@@ -254,7 +254,7 @@ export class SidebarComponent implements OnInit, OnChanges {
     // console.log('Sidebar user claims:', this.userClaims);
 
     if (this.userClaims) { // we know the type of user now
-      let userType = 'regular'; // default
+      let userType = null; // default
       if (this.userClaims.coach) {
         userType = 'coach';
       } else if (this.userClaims.admin) {

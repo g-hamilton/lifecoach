@@ -162,7 +162,6 @@ export class RegisterComponent implements OnInit, OnDestroy {
     await this.alertService.alert('success-message', 'Success!', `Your account is ready ${name}. Let's visit your Lifecoach dashboard...`);
     this.router.navigate(['/dashboard']);
     this.registerAttempt = false;
-
   }
 
 }
