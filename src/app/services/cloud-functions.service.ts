@@ -239,13 +239,10 @@ resizeCourseImage(data) {
     });
   }
 
-  completeStripeConnection(uid: string, code: string) {
+  connectStripe(data) {
     return new Promise(resolve => {
-      const complete = this.cloudFunctions.httpsCallable('completeStripeConnect');
-      const tempSub = complete({
-        uid,
-        code
-      })
+      const trigger = this.cloudFunctions.httpsCallable('completeStripeConnect');
+      const tempSub = trigger(data)
         .pipe(first())
         .subscribe(res => {
           resolve(res);

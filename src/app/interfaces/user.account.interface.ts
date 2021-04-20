@@ -17,7 +17,8 @@ export interface UserAccount {
     uid?: string; // on first registration we can pass the uid to create the account node in the db
     accountEmail?: string; //  set server side on first create
     dateCreated?: Date; // set server side on first create
-    stripeUid?: string; // if the user has a Stripe connected account
+    stripeUid?: string; // Deprecated! if the user has a Stripe connect EXPRESS account
+    stripeAccountId?: string; // If the user has a Stripe Connect STANDARD account (replaces Express flow)
     stripeRequirementsCurrentlyDue?: string; // if Stripe needs user action to ensure unrestricted operation
     stripeCustomerId?: string; // the customer id of the user if they have been created in Stripe
     stripeCustomerLink?: string; // the url for the customer's stripe dashboard

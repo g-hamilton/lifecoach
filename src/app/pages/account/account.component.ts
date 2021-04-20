@@ -20,6 +20,7 @@ import { RefundRequest } from 'app/interfaces/refund.request.interface';
 import { environment } from '../../../environments/environment';
 import { Stripe } from 'stripe';
 import { AccountClosureRequest } from 'app/interfaces/account.closure.request.interface';
+import { CompleteStripeConnectRequest } from 'app/interfaces/complete.stripe.connect.request.interface';
 
 @Component({
   selector: 'app-account',
@@ -63,7 +64,7 @@ export class AccountComponent implements OnInit, OnDestroy {
   public changeEmail = false;
   public changePassword = false;
 
-  private accountSnapshot: UserAccount;
+  public accountSnapshot: UserAccount;
 
   public connectingStripe: boolean;
   public stripeConnectUrl: string;
@@ -120,7 +121,6 @@ export class AccountComponent implements OnInit, OnDestroy {
       this.buildAccountForm();
       this.buildRefundForm();
 
-      this.buildSessionDurationForm();
       // Import currencies
       this.currencies = this.currenciesService.getCurrencies();
 
@@ -140,12 +140,12 @@ export class AccountComponent implements OnInit, OnDestroy {
                 }
               });
               // Checking active events
-              this.dataService.hasUserEvents(this.userId)
-                .then( val => {
-                  this.hasUserEvents = val;
-                  // console.log(this.hasUserEvents);
-                })
-                .catch(e => console.log(e));
+              // this.dataService.hasUserEvents(this.userId)
+              //   .then( val => {
+              //     this.hasUserEvents = val;
+              //     // console.log(this.hasUserEvents);
+              //   })
+              //   .catch(e => console.log(e));
 
               this.subscriptions.add(
                 this.dataService.getUserAccount(user.uid)
@@ -154,84 +154,57 @@ export class AccountComponent implements OnInit, OnDestroy {
                       this.accountSnapshot = JSON.parse(JSON.stringify(account));
                       this.updateAccountForm(account);
 
-                      if (account.accountType === 'regular') { // user is a regular user
+                      if (account.accountType === 'regular') {
                         this.fetchSuccessfulCharges();
                         this.fetchFailedCharges();
                         this.fetchRefundRequests();
                         this.fetchSuccessfulRefunds();
 
-                      } else if (account.accountType === 'coach' ) { // user is a coach
-                        if (account.stripeCustomerId) { // user has a stripe customer id
+                      } else if (account.accountType === 'coach' ) {
+                        if (account.stripeCustomerId) { // user has a stripe CUSTOMER id
                           this.stripeCustomerId = account.stripeCustomerId;
                         }
-                        if (!account.stripeUid) { // user has not yet connected Stripe
+                        // if (!account.stripeUid) { // user has not yet connected Stripe
 
-                          // If redirecting to this component from Stripe, complete connection
-                          this.checkStripeOAuth();
+                        //   this.buildStripeUrl(); // create an oauth link to connect Stripe
 
-                          this.buildStripeUrl(); // create an oauth link to connect Stripe
+                        //   // If we've got the user data, append it to the Stripe url for better UX through the onboarding flow
+                        //   if (account.accountEmail && this.stripeConnectUrl) {
+                        //     this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[email]=${account.accountEmail}`);
+                        //   }
+                        //   if (account.firstName) {
+                        //     // tslint:disable-next-line: max-line-length
+                        //     this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[first_name]=${account.firstName}`);
+                        //   }
+                        //   if (account.lastName) {
+                        //     this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[last_name]=${account.lastName}`);
+                        //   }
 
-                          // If we've got the user data, append it to the Stripe url for better UX through the onboarding flow
-                          if (account.accountEmail && this.stripeConnectUrl) {
-                            this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[email]=${account.accountEmail}`);
-                          }
-                          if (account.firstName) {
-                            // tslint:disable-next-line: max-line-length
-                            this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[first_name]=${account.firstName}`);
-                          }
-                          if (account.lastName) {
-                            this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[last_name]=${account.lastName}`);
-                          }
-
-                          // Subscribe to profile and add any additional user data
-                          // See: https://stripe.com/docs/connect/oauth-reference
-                          const tempProfSub = this.dataService.getCoachProfile(this.userId).subscribe(profile => {
-                            if (profile) {
-                              if (profile.country) {
-                                this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[country]=${profile.country.code}`);
-                              }
-                              if (profile.profileUrl) {
-                                this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[url]=${profile.profileUrl}`);
-                              } else {
-                                this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[url]=${environment.baseUrl}`);
-                              }
-                            }
-                            tempProfSub.unsubscribe();
-                          });
-                          this.subscriptions.add(tempProfSub);
-                        }
-                        if (account.stripeUid) {
-                          // this.retrieveStripeBalance(account.stripeUid);
-                        }
+                        //   // Subscribe to profile and add any additional user data
+                        //   // See: https://stripe.com/docs/connect/oauth-reference
+                        //   const tempProfSub = this.dataService.getCoachProfile(this.userId).subscribe(profile => {
+                        //     if (profile) {
+                        //       if (profile.country) {
+                        //         this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[country]=${profile.country.code}`);
+                        //       }
+                        //       if (profile.profileUrl) {
+                        //         this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[url]=${profile.profileUrl}`);
+                        //       } else {
+                        //         this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[url]=${environment.baseUrl}`);
+                        //       }
+                        //     }
+                        //     tempProfSub.unsubscribe();
+                        //   });
+                        //   this.subscriptions.add(tempProfSub);
+                        // }
                         this.fetchSuccessfulCharges();
                         this.fetchFailedCharges();
                         this.fetchRefundRequests();
                         this.fetchSuccessfulRefunds();
                         this.fetchSubscriptions();
 
-                      } else if (account.accountType === 'partner' ) { // user is a partner
-                        if (!account.stripeUid) { // user has not yet connected Stripe
-
-                          // If redirecting to this component from Stripe, complete connection
-                          this.checkStripeOAuth();
-
-                          this.buildStripeUrl(); // create an oauth link to connect Stripe
-
-                          // If we've got the user data, append it to the Stripe url for better UX through the onboarding flow
-                          if (account.accountEmail && this.stripeConnectUrl) {
-                            this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[email]=${account.accountEmail}`);
-                          }
-                          if (account.firstName) {
-                            // tslint:disable-next-line: max-line-length
-                            this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[first_name]=${account.firstName}`);
-                          }
-                          if (account.lastName) {
-                            this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[last_name]=${account.lastName}`);
-                          }
-                        }
-                        if (account.stripeUid) {
-                          // this.retrieveStripeBalance(account.stripeUid);
-                        }
+                      } else if (account.accountType === 'partner' ) {
+                        // anything?
                       }
                     }
                   })
@@ -264,9 +237,6 @@ export class AccountComponent implements OnInit, OnDestroy {
     this.refundForm = this.formBuilder.group({
       reason: ['', [Validators.required, Validators.minLength(6)]]
     });
-  }
-
-  buildSessionDurationForm() {
   }
 
   updateAccountForm(account: UserAccount) {
@@ -363,94 +333,6 @@ export class AccountComponent implements OnInit, OnDestroy {
         }
       })
     );
-  }
-
-  async retrieveStripeBalance(stripeUid: string) {
-    const res = await this.cloudFunctionsService.getStripeAccountBalance(stripeUid);
-    console.log(res);
-  }
-
-  checkStripeOAuth() { // NB: Don't call until we have a user id
-    // Check active URL
-    if (this.router.url.includes('stripe/oauth')) { // incoming redirect from Stripe must be handled
-      this.connectingStripe = true;
-      this.alertService.alert('info-message', 'Connecting Stripe...', `Important: After clicking OK, please don't refresh or navigate away from this page until you see another success message. Finalising your account may take up to a minute.`);
-
-      // check active route params for Stripe redirect data
-      this.route.queryParamMap.subscribe(async params => {
-        if (params) {
-          const orderObj = {...params.keys, ...params} as any;
-          const routeParams = orderObj.params;
-
-          if (!routeParams.state) { // oops, oauth redirect from Stripe with no state data
-            this.alertService.closeOpenAlert();
-            this.alertService.alert('warning-message', 'Unauthorised!', 'Unable To Complete Stripe Setup. Error: No Stripe state.');
-            this.connectingStripe = false;
-            return;
-          }
-          const savedState = localStorage.getItem('stripeState');
-          if (!savedState) { // oops, no saved state exists so we can't compare with the data from Stripe
-            this.alertService.closeOpenAlert();
-            this.alertService.alert('warning-message', 'Oops!', 'Unable To Complete Stripe Setup. Error: No saved Stripe state.');
-            this.connectingStripe = false;
-            return;
-          }
-          if (savedState !== routeParams.state) { // oops, saved state does not match redirect state from Stripe
-            this.alertService.closeOpenAlert();
-            this.alertService.alert('warning-message', 'Unauthorised!', 'Unable To Complete Stripe Setup. Error: Stripe state mismatch.');
-            this.connectingStripe = false;
-            return;
-          }
-          if (!routeParams.code) { // oops, no auth code from Stripe. Unable to continue oauth flow
-            this.alertService.closeOpenAlert();
-            this.alertService.alert('warning-message', 'Oops!', 'Unable To Complete Stripe Setup. Error: No Stripe code received.');
-            this.connectingStripe = false;
-            return;
-          }
-
-          // If we got this far we have a successful redirect from Stripe oauth with matching state data
-          // so it's time to complete the Stripe account connection process
-          const res = await this.cloudFunctionsService.completeStripeConnection(this.userId, routeParams.code) as any;
-          if (!res.error) { // success
-            console.log('Stripe connect setup complete', res);
-            this.analyticsService.completeStripeConnect();
-            this.dataService.completeUserTask(this.userId, 'taskDefault004'); // mark user task complete
-            this.connectingStripe = false;
-            this.staticTabs.tabs[1].active = true; // auto navigate to Stripe related account tab
-            this.alertService.closeOpenAlert();
-            this.alertService.alert('success-message', 'Success!', 'Stripe setup complete. You can now receive payments from Lifecoach into your connected Stripe account.');
-          } else { // error
-            console.error(res.error);
-            this.connectingStripe = false;
-            this.alertService.closeOpenAlert();
-            this.alertService.alert('warning-message', 'Oops', `Something went wrong. Please contact support quoting error: ${JSON.stringify(res.error)}`);
-          }
-        }
-      });
-    }
-  }
-
-  buildStripeUrl() {
-    // See: https://stripe.com/docs/connect/oauth-reference
-    const stripeState = this.createStripeState();
-    const base = `https://connect.stripe.com/express/oauth/authorize?`;
-    const redirect = `${environment.stripeRedirectUri}`;
-    const clientId = `${environment.stripeClientId}`;
-    const state = `&state=${stripeState}`;
-    const userType = `&stripe_user[business_type]=individual`;
-    const cap = `&suggested_capabilities[]=transfers`;
-    const url = `${base}${redirect}${clientId}${state}${userType}${cap}`;
-    this.stripeConnectUrl = url;
-  }
-
-  createStripeState() {
-    // To protect against CSRF attacks.
-    // Create a random string value to send to Stripe on connected account creation.
-    const state = Math.random().toString(36).substr(2, 9);
-    // Save to local storage so we can compare with the state we get back from Stripe.
-    localStorage.setItem('stripeState', state);
-    // Return
-    return state;
   }
 
   async manageStripe() {
@@ -570,10 +452,34 @@ export class AccountComponent implements OnInit, OnDestroy {
     this.submitted = false;
   }
 
-  connectStripe() {
+  async connectStripe() {
     if (!this.connectingStripe) {
       this.connectingStripe = true;
       this.analyticsService.attemptStripeConnect();
+
+      // call the back end to create a Stripe STANDARD account & generate an accountLink redirect URL
+      // to send the user directly into the Stripe account setup flow...
+
+      const data: CompleteStripeConnectRequest = {
+        uid: this.userId,
+        returnUrl: `${environment.baseUrl}/account/payments`,
+        refreshUrl: `${environment.baseUrl}/account/payments?reauth`,
+        type: 'account_onboarding'
+      };
+
+      const res = await this.cloudFunctionsService.connectStripe(data) as any;
+      if (res.error) { // error!
+        this.alertService.alert('warning-message', 'Oops!', `Error: ${res.error}. Please contact support.`);
+        return;
+      }
+
+      // success
+      // we've got the redirect url. Send the user into the flow...
+      // they will be redirected back to the app on completion.
+      // https://stripe.com/docs/connect/enable-payment-acceptance-guide
+
+      window.location.href = res.url;
+      this.connectingStripe = false;
     }
   }
 

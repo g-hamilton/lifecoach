@@ -27,7 +27,8 @@ import {
   Subscription,
   TaxRate,
   UserAccount,
-  CheckoutSessionRequest
+  CheckoutSessionRequest,
+  CompleteStripeConnectRequest
 } from './interfaces';
 
 // ================================================================================
@@ -1071,66 +1072,37 @@ exports.manualUpdateRates = functions
 });
 
 /*
-  Attempts to complete Stripe connected account setup.
+  Attempts to complete Stripe connect STANDARD account setup.
+  https://stripe.com/docs/connect/standard-accounts
+  https://stripe.com/docs/api/accounts/create
 */
 exports.completeStripeConnect = functions
 .runWith({memory: '1GB', timeoutSeconds: 300})
 .https
-.onCall( async (data, context) => {
-
-  const uid = data.uid;
-  const code = data.code;
+.onCall( async (data: CompleteStripeConnectRequest, context) => {
 
   try {
 
-    // Call Stripe to convert an auth code into an access token to complete connect setup
-    const res = await stripe.oauth.token({
-      grant_type: 'authorization_code',
-      code,
+    const account = await stripe.accounts.create({
+      type: 'standard',
     });
 
-    // success. 'res' now contains the user's Stripe ID
-    console.log('Stripe OAuth token result:', JSON.stringify(res));
+    await db.collection(`users/${data.uid}/account`)
+    .doc(`account${data.uid}`)
+    .set({ stripeAccountId: account.id }, { merge: true });
 
-    if (res.stripe_user_id) { // success
+    const accountLink = await stripe.accountLinks.create({
+      account: account.id,
+      refresh_url: data.refreshUrl,
+      return_url: data.returnUrl,
+      type: data.type,
+    });
 
-      const promises = [];
-
-      // Save the user's Stripe ID to the DB
-      const promise1 = db.collection(`users/${uid}/account`)
-      .doc(`account${uid}`)
-      .set({
-        stripeUid: res.stripe_user_id
-      }, { merge: true });
-      promises.push(promise1);
-
-      // Immediately update the account to ensure correct data & settings
-      const promise2 = stripe.accounts.update(res.stripe_user_id, {
-        metadata: {
-          lifecoachUID: uid // associate our UID to identify user from Stripe webhooks
-        },
-        settings: {
-          payouts: {
-            schedule: { // Update the Stripe account to ensure correct payout schedule
-              delay_days: 28,
-              interval: 'monthly',
-              monthly_anchor: 31
-            }
-          }
-        }
-      });
-      promises.push(promise2);
-
-      await Promise.all(promises as any); // run concurrent ops
-
-      return { stripeUid: res.stripe_user_id }
-    } else { // error should be caught by catch
-      return { error: 'No stripe user ID' }
-    }
+    return { url: accountLink.url }
 
   } catch (err) {
     console.error(err);
-    return { error: err }
+    return { error: err.message }
   }
 });
 
@@ -2173,21 +2145,30 @@ async function manageSubscriptionStatusChange(subscriptionId: string, uid: strin
   const ref2 = db.collection(`subscriptions`).doc(subscription.id)
   batch.set(ref2, subscriptionData, { merge: true });
 
+  // for quick lookup of which coaches have an active subscription plan with client payments enabled...
+  if (['trialing', 'active'].includes(subscription.status)) { // the user is trailing or active
+    const ref3 = db.collection(`public-coach-plan-settings-by-uid`).doc(uid)
+    batch.set(ref3, { role }, { merge: true });
+  } else { // user is not trailing or active
+    const ref3 = db.collection(`public-coach-plan-settings-by-uid`).doc(uid)
+    batch.set(ref3, { role: null }, { merge: true });
+  }
+
   // if the subscription was partner referred, save to the partner-referrals node...
   if (subscriptionData.metadata.partner_referred && subscriptionData.metadata.partner_referred !== 'false') {
   
     // flatten the data for easier lookups by platform and partners
 
-    const csRef1 = db.collection(`partner-referrals/by-partner-id/${subscriptionData.metadata.partner_referred}/by-date/${saleYear}/${saleMonth}/referrals`).doc(subscriptionData.id);
-    batch.set(csRef1, subscriptionData);
-    const csRef2 = db.collection(`partner-referrals/by-partner-id/${subscriptionData.metadata.partner_referred}/all/referrals`).doc(subscriptionData.id);
-    batch.set(csRef2, subscriptionData);
-    const csRef3 = db.collection(`partner-referrals/by-date/${saleYear}/${saleMonth}/referrals`).doc(subscriptionData.id);
-    batch.set(csRef3, subscriptionData);
-    const csRef4 = db.collection(`partner-referrals/by-date/${saleYear}/${saleMonth}/by-partner-id/${subscriptionData.metadata.partner_referred}/referrals`).doc(subscriptionData.id);
-    batch.set(csRef4, subscriptionData);
-    const csRef5 = db.collection(`partner-referrals/all/referrals`).doc(subscriptionData.id);
-    batch.set(csRef5, subscriptionData);
+    const ref4 = db.collection(`partner-referrals/by-partner-id/${subscriptionData.metadata.partner_referred}/by-date/${saleYear}/${saleMonth}/referrals`).doc(subscriptionData.id);
+    batch.set(ref4, subscriptionData);
+    const ref5 = db.collection(`partner-referrals/by-partner-id/${subscriptionData.metadata.partner_referred}/all/referrals`).doc(subscriptionData.id);
+    batch.set(ref5, subscriptionData);
+    const ref6 = db.collection(`partner-referrals/by-date/${saleYear}/${saleMonth}/referrals`).doc(subscriptionData.id);
+    batch.set(ref6, subscriptionData);
+    const ref7 = db.collection(`partner-referrals/by-date/${saleYear}/${saleMonth}/by-partner-id/${subscriptionData.metadata.partner_referred}/referrals`).doc(subscriptionData.id);
+    batch.set(ref7, subscriptionData);
+    const ref8 = db.collection(`partner-referrals/all/referrals`).doc(subscriptionData.id);
+    batch.set(ref8, subscriptionData);
 
     // completed the task to test the partners promo link is working (may already be done, doesn't matter to repeat)
     const csPromise1 = completeUserTask(subscriptionData.metadata.partner_referred, 'taskDefault005');

@@ -230,73 +230,88 @@
                                             how to enable client payments on Lifecoach
                                         </a>.
                                     </p>
-                                    <div class=" row highlight-box">
-                                        <div class=" col-md-8">
-                                            <p *ngIf="!accountF.stripeUid.value" class="mt-4 pl-5">
-                                                Click 'Connect Stripe' now to enable client payments through Lifecoach.
-                                            </p>
-                                            <p *ngIf="accountF.stripeUid.value" class=" text-success mt-4 pl-5">
-                                                <i class=" tim-icons icon-check-2"> </i> Connected
-                                            </p>
-                                        </div>
-                                        <div class=" col-md-4">
-                                            <div style="font-size: 5rem; line-height: 0; text-align: center;">
-                                                <i class="fab fa-stripe"></i>
+
+                                    <!-- User has a Stripe Standard Connect Account -->
+                                    <div *ngIf="accountSnapshot?.stripeAccountId ; else enableStripe">
+                                        <div class=" row mb-4">
+                                            <div class=" col-md-8">
+                                                <div 
+                                                *ngIf="accountF.stripeUid.value && accountF.stripeRequirementsCurrentlyDue.value && accountF.stripeRequirementsCurrentlyDue.value.length > 0" 
+                                                class=" pull-left pl-3">
+                                                    <p>
+                                                        <span class=" text-warning">
+                                                            <i class=" tim-icons icon-alert-circle-exc"> </i> Needs action!
+                                                        </span> - Payouts may be restricted until you complete all verification requirements for your country. 
+                                                        Click 'Manage' and complete any outstanding actions to ensure you can receive payouts.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class=" col-md-4">
+                                                <div *ngIf="accountF.stripeUid.value" class=" pull-right pr-3">
+                                                    <button
+                                                    class=" btn btn-fill btn-info btn-round btn-wd"
+                                                    name="manage-stripe"
+                                                    type="button"
+                                                    (click)="manageStripe()">
+                                                        <span
+                                                        *ngIf="managingStripe"
+                                                        class="spinner-border spinner-border-sm"
+                                                        role="status"
+                                                        ></span>
+                                                        <span *ngIf="!managingStripe">
+                                                            <i class="fab fa-stripe-s"></i> | 
+                                                        </span>
+                                                        {{ managingStripe ? ' Loading...' : ' Manage' }}
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div *ngIf="!accountF.stripeUid.value && stripeConnectUrl" class=" pull-right pr-3">
-                                        <a [href]="stripeConnectUrl">
-                                            <button
-                                            class=" btn btn-fill btn-info btn-round btn-wd"
-                                            name="connect-stripe"
-                                            type="button"
-                                            (click)="connectStripe()">
-                                                <span
-                                                *ngIf="connectingStripe"
-                                                class="spinner-border spinner-border-sm"
-                                                role="status"
-                                                ></span>
-                                                <span *ngIf="!connectingStripe">
-                                                    <i class="fab fa-stripe-s"></i> | 
-                                                </span>
-                                                {{ connectingStripe ? ' connecting...' : ' Connect Stripe' }}
-                                            </button>
-                                        </a>
-                                    </div>
-                                    <div class=" row mb-4">
-                                        <div class=" col-md-8">
-                                            <div 
-                                            *ngIf="accountF.stripeUid.value && accountF.stripeRequirementsCurrentlyDue.value && accountF.stripeRequirementsCurrentlyDue.value.length > 0" 
-                                            class=" pull-left pl-3">
-                                                <p>
-                                                    <span class=" text-warning">
-                                                        <i class=" tim-icons icon-alert-circle-exc"> </i> Needs action!
-                                                    </span> - Payouts may be restricted until you complete all verification requirements for your country. 
-                                                    Click 'Manage' and complete any outstanding actions to ensure you can receive payouts.
-                                                </p>
+
+                                    <!-- User does not have a (or has not connected an existing) Stripe Standard Connect Account -->
+                                    <ng-template #enableStripe>
+                                        <div>
+                                            <div class=" row highlight-box">
+                                                <div class=" col-md-8">
+                                                    <p class="mt-4 pl-5">
+                                                        New to Stripe payments? We've made creating your payment account a breeze!
+                                                        With a Stripe account you'll be able to take client payments directly from your 
+                                                        Lifecoach product & service pages; meaning you can sell sessions, programs & 
+                                                        eCourses seamlessly (and in multiple currencies) through a simple, secure client 
+                                                        payment form, while keeping full control over your payments, 
+                                                        refunds policy & payment account management.
+                                                    </p>
+                                                    <p class=" mt-4 pl-5">
+                                                        Click 'Get Started' to create your 
+                                                        Stripe account & connect it seamlessly to Lifecoach...
+                                                    </p>
+                                                </div>
+                                                <div class=" col-md-4">
+                                                    <div style="font-size: 5rem; line-height: 0; text-align: center;">
+                                                        <i class="fab fa-stripe"></i>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class=" col-md-4">
-                                            <div *ngIf="accountF.stripeUid.value" class=" pull-right pr-3">
+                                            <div *ngIf="stripeConnectUrl" class=" pull-right pr-3">
                                                 <button
-                                                class=" btn btn-fill btn-info btn-round btn-wd"
-                                                name="manage-stripe"
+                                                class=" btn btn-fill btn-info btn-round"
+                                                name="connect-stripe"
                                                 type="button"
-                                                (click)="manageStripe()">
+                                                (click)="connectStripe()">
                                                     <span
-                                                    *ngIf="managingStripe"
+                                                    *ngIf="connectingStripe"
                                                     class="spinner-border spinner-border-sm"
                                                     role="status"
                                                     ></span>
-                                                    <span *ngIf="!managingStripe">
+                                                    <span *ngIf="!connectingStripe">
                                                         <i class="fab fa-stripe-s"></i> | 
                                                     </span>
-                                                    {{ managingStripe ? ' Loading...' : ' Manage' }}
+                                                    {{ connectingStripe ? ' Connecting Stripe...' : ' Get Started' }}
                                                 </button>
                                             </div>
                                         </div>
-                                    </div>
+                                    </ng-template>
+
                                 </div>
 
                                 <!-- template if user is not on the flame or blaze plan -->
