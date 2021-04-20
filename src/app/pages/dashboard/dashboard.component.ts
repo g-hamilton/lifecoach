@@ -18,6 +18,8 @@ import { Router } from '@angular/router';
 import { UserAccount } from 'app/interfaces/user.account.interface';
 import { AlertService } from 'app/services/alert.service';
 import { CoachProfile } from 'app/interfaces/coach.profile.interface';
+import { PartnerTrackingService } from 'app/services/partner-tracking.service';
+import { CheckoutSessionRequest } from 'app/interfaces/checkout.session.request.interface';
 
 @Component({
   selector: 'app-dashboard',
@@ -34,6 +36,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   public userFirstName = '';
   public chosenPlan: 'trial' | 'spark' | 'flame' | 'blaze';
   public subscriptionPlan: string; // if subscribed to a plan (active or trialing). Note: comes from custom auth calims!
+  private partnerTrackingCode: string | null; // will hold a partner tracking code if a promotional partner referred the user anywhere on the app within the last 30 days
   public userSubscriptions: any[]; // Stripe.Subscription[]
   public subscribing: boolean;
   public redirectingToPortal: boolean;
@@ -93,7 +96,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private cloudFunctions: CloudFunctionsService,
     private router: Router,
     private cloudFunctionsService: CloudFunctionsService,
-    private alertService: AlertService
+    private alertService: AlertService,
+    private partnerTrackingService: PartnerTrackingService,
   ) {
   }
 
@@ -101,6 +105,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (isPlatformBrowser(this.platformId)) {
       this.analyticsService.pageView();
       this.loadUserData();
+      this.checkStoredPartnerTrackingCode();
     }
   }
 
@@ -219,6 +224,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
     );
   }
 
+  checkStoredPartnerTrackingCode() {
+    // inspect localstorage for a saved partner tracking code.
+    // if a valid tracking code is found, update the component
+    // so any purchase can place the code in a payment intent
+
+    const validTrackingCode = this.partnerTrackingService.checkForSavedPartnerTrackingCode();
+    if (validTrackingCode) {
+      this.partnerTrackingCode = validTrackingCode;
+    }
+  }
+
   loadProducts() {
     this.subscriptions.add(
       this.dataService.getProducts().subscribe(data => {
@@ -234,7 +250,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
                     products[i.id].prices.push(price);
                   });
                   this.products = products;
-                  console.log(this.products);
+                  console.log('Billing Products:', this.products);
                   this.productsLoaded = true;
                 }
               })
@@ -336,12 +352,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
     const product = this.products[productId];
     this.analyticsService.attemptCoachSubscription(product.id);
-    const data = {
+    const data: CheckoutSessionRequest = {
       product,
       uid: this.uid,
       successUrl: `${environment.baseUrl}/dashboard`,
       cancelUrl: `${environment.baseUrl}/dashboard`,
-      partnerReferred: 'false', // TODO
+      partnerReferred: this.partnerTrackingCode ? this.partnerTrackingCode : null,
       saleItemType: 'coach_subscription'
     };
     console.log('creating checkout session with data:', data);

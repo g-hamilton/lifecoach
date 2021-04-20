@@ -26,7 +26,8 @@ import {
   Product,
   Subscription,
   TaxRate,
-  UserAccount
+  UserAccount,
+  CheckoutSessionRequest
 } from './interfaces';
 
 // ================================================================================
@@ -1752,28 +1753,6 @@ exports.stripeWebhookEvent = functions
           chargeData.transfer_data = charge.transfer_data;
           chargeData.transfer_group = charge.transfer_group;
   
-          // Because we cannot split stripe connect payments 3 ways using our current setup, and because the stripe 
-          // 'seperate charges & transfers' flow requires that our platform and any conected accounts must be in the same 
-          // territory, (which limits us geographically in terms of promo partner network), if the sale was referred by 
-          // a promotional partner, we need to track this ourselves and use a seperate process to record and pay our partners.
-  
-          if (charge.metadata.partner_referred && charge.metadata.partner_referred !== 'false') { // this sale (charge) was partner referred...
-  
-            // flatten the data for easier lookups by platform and partners
-  
-            const csRef1 = db.collection(`partner-referrals/by-partner-id/${charge.metadata.partner_referred}/by-date/${saleYear}/${saleMonth}/referrals`).doc(charge.payment_intent as string);
-            batch.set(csRef1, chargeData);
-            const csRef2 = db.collection(`partner-referrals/by-partner-id/${charge.metadata.partner_referred}/all/referrals`).doc(charge.payment_intent as string);
-            batch.set(csRef2, chargeData);
-            const csRef3 = db.collection(`partner-referrals/by-date/${saleYear}/${saleMonth}/referrals`).doc(charge.payment_intent as string);
-            batch.set(csRef3, chargeData);
-            const csRef4 = db.collection(`partner-referrals/by-date/${saleYear}/${saleMonth}/by-partner-id/${charge.metadata.partner_referred}/referrals`).doc(charge.payment_intent as string);
-            batch.set(csRef4, chargeData);
-            const csRef5 = db.collection(`partner-referrals/all/referrals`).doc(charge.payment_intent as string);
-            batch.set(csRef5, chargeData);
-  
-          } // end of if charge was partner referred
-  
           // record the charge for the purchaser (flatten data)
   
           const csRef6 = db.collection(`users/${charge.metadata.client_UID}/successful-charges/all/charges`).doc(charge.id);
@@ -1791,17 +1770,6 @@ exports.stripeWebhookEvent = functions
           // execute atomic batch
           await batch.commit(); // any error should trigger catch.
   
-          // if we got this far all batch ops were successful...
-  
-          const promises = [];
-  
-          if (charge.metadata.partner_referred && charge.metadata.partner_referred !== 'false') {
-            // if not yet completed, completed the task to test the partners promo link is working
-            const csPromise1 = completeUserTask(charge.metadata.partner_referred, 'taskDefault005');
-            promises.push(csPromise1);
-          }
-  
-          await Promise.all(promises);
           break;
         case 'charge.refunded':
           /*
@@ -2010,7 +1978,7 @@ exports.stripeWebhookConnectedEvent = functions
 exports.createStripeCheckoutSession = functions
 .runWith({memory: '1GB', timeoutSeconds: 300})
 .https
-.onCall( async (data, context) => {
+.onCall( async (data: CheckoutSessionRequest, context) => {
 
   const priceId = data.product.prices[data.product.prices.length - 1].id;
   const uid = data.uid;
@@ -2146,9 +2114,14 @@ async function manageSubscriptionStatusChange(subscriptionId: string, uid: strin
   // prepare to write to firestore...
 
   const batch = admin.firestore().batch();
+  const promises = [];
+  const subscriptionDate = new Date(subscription.created * 1000); // create a date object so we can work with months/years
+  const saleMonth = subscriptionDate.getMonth() + 1; // go from zero index to jan === 1
+  const saleYear = subscriptionDate.getFullYear();
 
   // transform the data
   const subscriptionData: Subscription = {
+    id: subscription.id,
     name: product.name,
     metadata: subscription.metadata,
     role,
@@ -2200,7 +2173,30 @@ async function manageSubscriptionStatusChange(subscriptionId: string, uid: strin
   const ref2 = db.collection(`subscriptions`).doc(subscription.id)
   batch.set(ref2, subscriptionData, { merge: true });
 
+  // if the subscription was partner referred, save to the partner-referrals node...
+  if (subscriptionData.metadata.partner_referred && subscriptionData.metadata.partner_referred !== 'false') {
+  
+    // flatten the data for easier lookups by platform and partners
+
+    const csRef1 = db.collection(`partner-referrals/by-partner-id/${subscriptionData.metadata.partner_referred}/by-date/${saleYear}/${saleMonth}/referrals`).doc(subscriptionData.id);
+    batch.set(csRef1, subscriptionData);
+    const csRef2 = db.collection(`partner-referrals/by-partner-id/${subscriptionData.metadata.partner_referred}/all/referrals`).doc(subscriptionData.id);
+    batch.set(csRef2, subscriptionData);
+    const csRef3 = db.collection(`partner-referrals/by-date/${saleYear}/${saleMonth}/referrals`).doc(subscriptionData.id);
+    batch.set(csRef3, subscriptionData);
+    const csRef4 = db.collection(`partner-referrals/by-date/${saleYear}/${saleMonth}/by-partner-id/${subscriptionData.metadata.partner_referred}/referrals`).doc(subscriptionData.id);
+    batch.set(csRef4, subscriptionData);
+    const csRef5 = db.collection(`partner-referrals/all/referrals`).doc(subscriptionData.id);
+    batch.set(csRef5, subscriptionData);
+
+    // completed the task to test the partners promo link is working (may already be done, doesn't matter to repeat)
+    const csPromise1 = completeUserTask(subscriptionData.metadata.partner_referred, 'taskDefault005');
+    promises.push(csPromise1);
+
+  } // end of if charge was partner referred
+
   await batch.commit();
+  await Promise.all(promises);
 
 }
 

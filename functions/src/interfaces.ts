@@ -87,6 +87,7 @@ export interface Subscription {
    * Set of key-value pairs that you can attach to an object.
    * This can be useful for storing additional information about the object in a structured format.
    */
+  id: string;
   name: string;
   metadata: {
     [name: string]: string;
@@ -162,6 +163,15 @@ export interface Subscription {
 export interface CustomTransfer extends Stripe.Transfer {
     source_transaction_expanded: any; // will be a santised Stripe.Charge object
     balance_transaction_expanded: Stripe.BalanceTransaction;
+}
+
+export interface CheckoutSessionRequest {
+  product: any;
+  uid: string;
+  successUrl: string;
+  cancelUrl: string;
+  partnerReferred: string | null;
+  saleItemType: 'coach_subscription';
 }
 
 /*

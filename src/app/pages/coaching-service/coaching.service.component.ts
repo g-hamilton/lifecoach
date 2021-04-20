@@ -23,7 +23,6 @@ import { ScheduleCallComponent } from 'app/components/schedule-call/schedule-cal
 import {take} from 'rxjs/operators';
 import {ToastrService} from 'ngx-toastr';
 import { RegisterModalComponent } from 'app/components/register-modal/register-modal.component';
-import { PartnerTrackingService } from 'app/services/partner-tracking.service';
 
 declare var Stripe: any;
 
@@ -55,7 +54,6 @@ export class CoachingServiceComponent implements OnInit, AfterContentChecked, On
   public totalReviews: number;
   public avgRating: number;
   private referralCode: string;
-  private partnerTrackingCode: string | null; // will hold a partner tracking code if a promotional partner referred the user anywhere on the app within the last 30 days
 
   public pricingSessions: string; // how many sessions is the user purchasing?
   public purchaseDisplayPrice: number; // what price is the client expecting to pay?
@@ -84,7 +82,6 @@ export class CoachingServiceComponent implements OnInit, AfterContentChecked, On
     private languagesService: IsoLanguagesService,
     private modalService: BsModalService,
     private toastrService: ToastrService,
-    private partnerTrackingService: PartnerTrackingService,
     private cdRef: ChangeDetectorRef
   ) { }
 
@@ -96,7 +93,6 @@ export class CoachingServiceComponent implements OnInit, AfterContentChecked, On
     if (isPlatformBrowser(this.platformId)) {
       this.browser = true;
       this.analyticsService.pageView();
-      this.checkStoredPartnerTrackingCode();
 
       // Init Stripe.js
       const stripe = Stripe(`${environment.stripeJsClientKey}`);
@@ -155,7 +151,7 @@ export class CoachingServiceComponent implements OnInit, AfterContentChecked, On
           currency: this.clientCurrency,
           buyerUid: this.userId,
           referralCode: this.referralCode ? this.referralCode : null,
-          partnerTrackingCode: this.partnerTrackingCode ? this.partnerTrackingCode : null
+          partnerTrackingCode: null
         };
 
         this.analyticsService.attemptStripePayment(piRequest);
@@ -392,17 +388,6 @@ export class CoachingServiceComponent implements OnInit, AfterContentChecked, On
     this.metaTagService.updateTag({
       property: 'og:image:url', content: this.service.image ? this.service.image : this.service.coachPhoto
     }, `property='og:image:url'`);
-  }
-
-  checkStoredPartnerTrackingCode() {
-    // inspect localstorage for a saved partner tracking code.
-    // if a valid tracking code is found, update the component
-    // so any purchase can place the code in a payment intent
-
-    const validTrackingCode = this.partnerTrackingService.checkForSavedPartnerTrackingCode();
-    if (validTrackingCode) {
-      this.partnerTrackingCode = validTrackingCode;
-    }
   }
 
   checkForReferralCode() {
