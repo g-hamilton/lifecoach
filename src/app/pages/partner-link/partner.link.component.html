@@ -46,7 +46,7 @@
                           Homepage:</p>
                       <p>
                         <a [href]="'lifecoach.io' + partnerF.trackingCode.value" target="_blank">
-                            https://lifecoach.io{{ partnerF.trackingCode.value }}
+                            {{ baseUrl + partnerF.trackingCode.value }}
                         </a>
                       </p>
                       <div class=" mt-3">
@@ -67,7 +67,7 @@
                           Coach Signup Page:</p>
                       <p>
                         <a [href]="'lifecoach.io' + partnerF.trackingCode.value" target="_blank">
-                            https://lifecoach.io/for-coaches{{ partnerF.trackingCode.value }}
+                            {{ baseUrl + '/for-coaches' + partnerF.trackingCode.value }}
                         </a>
                       </p>
                       <div class=" mt-3">

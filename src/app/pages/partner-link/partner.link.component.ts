@@ -7,6 +7,7 @@ import { UserAccount } from 'app/interfaces/user.account.interface';
 import { DataService } from 'app/services/data.service';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { AlertService } from 'app/services/alert.service';
+import { environment } from 'environments/environment';
 
 @Component({
   selector: 'app-partner-link',
@@ -20,6 +21,7 @@ export class PartnerLinkComponent implements OnInit, OnDestroy {
   public account: UserAccount;
   public partnerForm: FormGroup;
   private subscriptions: Subscription = new Subscription();
+  public baseUrl: string;
 
   public shareObjectHome = {
     title: `Lifecoach | The Premier Personal Coaching & Transformation Platform`,
@@ -50,6 +52,7 @@ export class PartnerLinkComponent implements OnInit, OnDestroy {
       this.browser = true;
       this.buildPartnerForm();
       this.getUserData();
+      this.baseUrl = environment.baseUrl;
     }
   }
 
