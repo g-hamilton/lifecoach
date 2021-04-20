@@ -5,6 +5,10 @@
     <p class=" small text-muted pl-2 mb-2">
         <i class="fas fa-info-circle"></i> Add your coaching products and services to link them to your Lifecoach profile 
         landing page & promote them through the platform.
+        <span *ngIf="subscriptionPlan !== 'flame' || subscriptionPlan !== 'blaze'">
+            Want to accept client payments directly through Lifecoach? We offer a fast, secure & user-friendly payment system 
+            on the Flame or the Blaze plan. Visit '<a [routerLink]="['/account']">Account</a> > Billing' to upgrade your plan today.
+        </span>
     </p>
 
     <!-- services -->

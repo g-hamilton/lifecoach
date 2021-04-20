@@ -214,86 +214,118 @@
                             </div>
                         </tab>
 
-                        <!-- Payments tab for coach accounts on the flame plan -->
-                        <tab *ngIf="accountF.accountType.value === 'coach' && subscriptionPlan === 'flame'" heading="Accept Payments">
+                        <!-- Payments tab for coach accounts -->
+                        <tab *ngIf="accountF.accountType.value === 'coach'" heading="Accept Payments">
                             <div class="">
                                 <h6 class=" mt-4 pl-4">
-                                    Enable Client Payments
+                                    Accept Client Payments
                                 </h6>
-                                <p class=" small text-muted pl-4 mb-2">
-                                    <i class="fas fa-info-circle"></i> To accept client payments for any of the products & services you promote through the Lifecoach platform, 
-                                    you need a secure payments account. We partner with Stripe for simple, fast & secure client payment processing. 
-                                    Read more about <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001174512-how-to-enable-payments-on-lifecoach" target="_blank">
-                                        how to enable client payments on Lifecoach
-                                    </a>.
-                                </p>
-                                <div class=" row highlight-box">
-                                    <div class=" col-md-8">
-                                        <p *ngIf="!accountF.stripeUid.value" class="mt-4 pl-5">
-                                            Click 'Connect Stripe' now to enable client payments through Lifecoach.
-                                        </p>
-                                        <p *ngIf="accountF.stripeUid.value" class=" text-success mt-4 pl-5">
-                                            <i class=" tim-icons icon-check-2"> </i> Connected
-                                        </p>
-                                    </div>
-                                    <div class=" col-md-4">
-                                        <div style="font-size: 5rem; line-height: 0; text-align: center;">
-                                            <i class="fab fa-stripe"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div *ngIf="!accountF.stripeUid.value && stripeConnectUrl" class=" pull-right pr-3">
-                                    <a [href]="stripeConnectUrl">
-                                        <button
-                                        class=" btn btn-fill btn-info btn-round btn-wd"
-                                        name="connect-stripe"
-                                        type="button"
-                                        (click)="connectStripe()">
-                                            <span
-                                            *ngIf="connectingStripe"
-                                            class="spinner-border spinner-border-sm"
-                                            role="status"
-                                            ></span>
-                                            <span *ngIf="!connectingStripe">
-                                                <i class="fab fa-stripe-s"></i> | 
-                                            </span>
-                                            {{ connectingStripe ? ' connecting...' : ' Connect Stripe' }}
-                                        </button>
-                                    </a>
-                                </div>
-                                <div class=" row mb-4">
-                                    <div class=" col-md-8">
-                                        <div 
-                                        *ngIf="accountF.stripeUid.value && accountF.stripeRequirementsCurrentlyDue.value && accountF.stripeRequirementsCurrentlyDue.value.length > 0" 
-                                        class=" pull-left pl-3">
-                                            <p>
-                                                <span class=" text-warning">
-                                                    <i class=" tim-icons icon-alert-circle-exc"> </i> Needs action!
-                                                </span> - Payouts may be restricted until you complete all verification requirements for your country. 
-                                                Click 'Manage' and complete any outstanding actions to ensure you can receive payouts.
+
+                                <!-- template if user is on flame or blaze plan -->
+                                <div *ngIf="subscriptionPlan && (subscriptionPlan === 'flame' || subscriptionPlan === 'blaze') ; else noPayments">
+                                    <p class=" small text-muted pl-4 mb-2">
+                                        <i class="fas fa-info-circle"></i> To accept client payments for any of the products & services you add to Lifecoach, 
+                                        you need a secure payments account. We partner with Stripe for simple, fast & secure client payment processing. 
+                                        Read more about <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001174512-how-to-enable-payments-on-lifecoach" target="_blank">
+                                            how to enable client payments on Lifecoach
+                                        </a>.
+                                    </p>
+                                    <div class=" row highlight-box">
+                                        <div class=" col-md-8">
+                                            <p *ngIf="!accountF.stripeUid.value" class="mt-4 pl-5">
+                                                Click 'Connect Stripe' now to enable client payments through Lifecoach.
+                                            </p>
+                                            <p *ngIf="accountF.stripeUid.value" class=" text-success mt-4 pl-5">
+                                                <i class=" tim-icons icon-check-2"> </i> Connected
                                             </p>
                                         </div>
+                                        <div class=" col-md-4">
+                                            <div style="font-size: 5rem; line-height: 0; text-align: center;">
+                                                <i class="fab fa-stripe"></i>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class=" col-md-4">
-                                        <div *ngIf="accountF.stripeUid.value" class=" pull-right pr-3">
+                                    <div *ngIf="!accountF.stripeUid.value && stripeConnectUrl" class=" pull-right pr-3">
+                                        <a [href]="stripeConnectUrl">
                                             <button
                                             class=" btn btn-fill btn-info btn-round btn-wd"
-                                            name="manage-stripe"
+                                            name="connect-stripe"
                                             type="button"
-                                            (click)="manageStripe()">
+                                            (click)="connectStripe()">
                                                 <span
-                                                *ngIf="managingStripe"
+                                                *ngIf="connectingStripe"
                                                 class="spinner-border spinner-border-sm"
                                                 role="status"
                                                 ></span>
-                                                <span *ngIf="!managingStripe">
+                                                <span *ngIf="!connectingStripe">
                                                     <i class="fab fa-stripe-s"></i> | 
                                                 </span>
-                                                {{ managingStripe ? ' Loading...' : ' Manage' }}
+                                                {{ connectingStripe ? ' connecting...' : ' Connect Stripe' }}
                                             </button>
+                                        </a>
+                                    </div>
+                                    <div class=" row mb-4">
+                                        <div class=" col-md-8">
+                                            <div 
+                                            *ngIf="accountF.stripeUid.value && accountF.stripeRequirementsCurrentlyDue.value && accountF.stripeRequirementsCurrentlyDue.value.length > 0" 
+                                            class=" pull-left pl-3">
+                                                <p>
+                                                    <span class=" text-warning">
+                                                        <i class=" tim-icons icon-alert-circle-exc"> </i> Needs action!
+                                                    </span> - Payouts may be restricted until you complete all verification requirements for your country. 
+                                                    Click 'Manage' and complete any outstanding actions to ensure you can receive payouts.
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class=" col-md-4">
+                                            <div *ngIf="accountF.stripeUid.value" class=" pull-right pr-3">
+                                                <button
+                                                class=" btn btn-fill btn-info btn-round btn-wd"
+                                                name="manage-stripe"
+                                                type="button"
+                                                (click)="manageStripe()">
+                                                    <span
+                                                    *ngIf="managingStripe"
+                                                    class="spinner-border spinner-border-sm"
+                                                    role="status"
+                                                    ></span>
+                                                    <span *ngIf="!managingStripe">
+                                                        <i class="fab fa-stripe-s"></i> | 
+                                                    </span>
+                                                    {{ managingStripe ? ' Loading...' : ' Manage' }}
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- template if user is not on the flame or blaze plan -->
+                                <ng-template #noPayments>
+                                    <div>
+                                        <p class=" small text-muted pl-4 mb-2">
+                                            <i class="fas fa-info-circle"></i> Upgrade to the Flame or Blaze plan to sell your products & services directly through Lifecoach.
+                                        </p>
+                                        <div class=" row highlight-box">
+                                            <div class=" col">
+                                                <p class=" mt-4">
+                                                    Available on the 
+                                                <span class=" badge badge-warning">
+                                                    Flame
+                                                </span>
+                                                and
+                                                <span class=" badge badge-danger">
+                                                    Blaze
+                                                </span>
+                                                plans. Click 
+                                                    <a href="https://lifecoach.io/for-coaches#section-pricing" target="_blank">
+                                                    here
+                                                    </a> to view plans or visit '<a [routerLink]="['/account']">Account</a> > Billing' to upgrade your plan.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </ng-template>
+
                             </div>
                         </tab>
 
