@@ -28,6 +28,13 @@ export class PartnerLinkComponent implements OnInit, OnDestroy {
     url: `` // deliberately empty string
   };
 
+  public shareObjectForCoaches = {
+    title: `Get The Leading Software For Professional Coaches`,
+    subtitle: `Access a fast growing pool of clients in need of coaching. Join Lifecoach today!`,
+    image: `https://lifecoach.io/assets/img/become-a-life-coach-lifecoach.png`,
+    url: `for-coaches`
+  };
+
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
     private authService: AuthService,
