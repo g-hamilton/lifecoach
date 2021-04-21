@@ -236,7 +236,7 @@
                                         <div class=" row mb-4">
                                             <div class=" col-md-8">
                                                 <div 
-                                                *ngIf="accountF.stripeUid.value && accountF.stripeRequirementsCurrentlyDue.value && accountF.stripeRequirementsCurrentlyDue.value.length > 0" 
+                                                *ngIf="accountF.stripeRequirementsCurrentlyDue.value && accountF.stripeRequirementsCurrentlyDue.value.length > 0" 
                                                 class=" pull-left pl-3">
                                                     <p>
                                                         <span class=" text-warning">
@@ -247,22 +247,18 @@
                                                 </div>
                                             </div>
                                             <div class=" col-md-4">
-                                                <div *ngIf="accountF.stripeUid.value" class=" pull-right pr-3">
-                                                    <button
-                                                    class=" btn btn-fill btn-info btn-round btn-wd"
-                                                    name="manage-stripe"
-                                                    type="button"
-                                                    (click)="manageStripe()">
-                                                        <span
-                                                        *ngIf="managingStripe"
-                                                        class="spinner-border spinner-border-sm"
-                                                        role="status"
-                                                        ></span>
-                                                        <span *ngIf="!managingStripe">
-                                                            <i class="fab fa-stripe-s"></i> | 
-                                                        </span>
-                                                        {{ managingStripe ? ' Loading...' : ' Manage' }}
-                                                    </button>
+                                                <div class=" pull-right pr-3">
+                                                    <a [href]="'https://dashboard.stripe.com/' + accountSnapshot.stripeAccountId" target="_blank">
+                                                        <button
+                                                        class=" btn btn-fill btn-info btn-round btn-wd"
+                                                        name="manage-stripe"
+                                                        type="button">
+                                                            <span *ngIf="!managingStripe">
+                                                                <i class="fab fa-stripe-s"></i> | 
+                                                            </span>
+                                                            Manage My Stripe Account
+                                                        </button>
+                                                    </a>
                                                 </div>
                                             </div>
                                         </div>

@@ -197,6 +197,7 @@ export class AccountComponent implements OnInit, OnDestroy, AfterViewInit {
                 .subscribe(account => {
                   if (account) {
                     this.accountSnapshot = JSON.parse(JSON.stringify(account));
+                    console.log('Account Snap:', this.accountSnapshot);
                     this.updateAccountForm(account);
 
                     if (account.accountType === 'regular') {
@@ -353,34 +354,6 @@ export class AccountComponent implements OnInit, OnDestroy, AfterViewInit {
         }
       })
     );
-  }
-
-  async manageStripe() {
-    if (isPlatformBrowser(this.platformId)) {
-      this.managingStripe = true;
-      if (this.accountF.stripeUid.value) {
-        const res = await this.cloudFunctionsService.getStripeLoginLink(this.accountF.stripeUid.value) as any;
-        // console.log(res);
-        if (!res.error) { // success
-          // Create a new anchor element and open the Stripe login url in a new tab
-          const link = document.createElement('a');
-          link.target = '_blank';
-          link.href = res.stripeLoginUrl;
-          link.setAttribute('visibility', 'hidden');
-          link.click();
-
-          // this.document.location.href = res.stripeLoginUrl;
-
-          this.analyticsService.manageStripeConnect();
-
-          this.managingStripe = false;
-        } else { // error
-
-        }
-      } else { // no stripe uid
-        this.managingStripe = false;
-      }
-    }
   }
 
   timestampToDate(timestamp: number) {
