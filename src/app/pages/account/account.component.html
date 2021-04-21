@@ -274,7 +274,7 @@
                                             <div class=" row highlight-box">
                                                 <div class=" col-md-8">
                                                     <p class="mt-4 pl-5">
-                                                        New to Stripe payments? We've made creating your payment account a breeze!
+                                                        We've made accepting client payments a breeze!
                                                         With a Stripe account you'll be able to take client payments directly from your 
                                                         Lifecoach product & service pages; meaning you can sell sessions, programs & 
                                                         eCourses seamlessly (and in multiple currencies) through a simple, secure client 
@@ -282,8 +282,8 @@
                                                         refunds policy & payment account management.
                                                     </p>
                                                     <p class=" mt-4 pl-5">
-                                                        Click 'Get Started' to create your 
-                                                        Stripe account & connect it seamlessly to Lifecoach...
+                                                        Click 'Get Started' to create a 
+                                                        Stripe account or connect an existing account if you have one...
                                                     </p>
                                                 </div>
                                                 <div class=" col-md-4">
@@ -292,7 +292,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div *ngIf="stripeConnectUrl" class=" pull-right pr-3">
+                                            <div class=" pull-right pr-3">
                                                 <button
                                                 class=" btn btn-fill btn-info btn-round"
                                                 name="connect-stripe"
@@ -306,7 +306,7 @@
                                                     <span *ngIf="!connectingStripe">
                                                         <i class="fab fa-stripe-s"></i> | 
                                                     </span>
-                                                    {{ connectingStripe ? ' Connecting Stripe...' : ' Get Started' }}
+                                                    {{ connectingStripe ? ' Preparing Account...' : ' Get Started' }}
                                                 </button>
                                             </div>
                                         </div>
