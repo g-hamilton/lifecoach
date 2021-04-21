@@ -1085,11 +1085,21 @@ exports.completeStripeConnect = functions
 
     const account = await stripe.accounts.create({
       type: 'standard',
+      metadata: {
+        lifecoachUID: data.uid
+      }
     });
 
-    await db.collection(`users/${data.uid}/account`)
-    .doc(`account${data.uid}`)
-    .set({ stripeAccountId: account.id }, { merge: true });
+    const batch = admin.firestore().batch();
+
+    const ref1 = db.collection(`users/${data.uid}/account`).doc(`account${data.uid}`)
+    batch.set(ref1, { stripeAccountId: account.id }, { merge: true });
+    const ref2 = db.collection(`stripe-connect-accounts-by-uid`).doc(data.uid)
+    batch.set(ref2, { stripeAccountId: account.id }, { merge: true });
+    const ref3 = db.collection(`uids-by-stripe-connect-account-id`).doc(account.id)
+    batch.set(ref3, { uid: data.uid }, { merge: true });
+
+    await batch.commit();
 
     const accountLink = await stripe.accountLinks.create({
       account: account.id,
@@ -1869,25 +1879,45 @@ exports.stripeWebhookConnectedEvent = functions
     return response.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  // console.log('Stripe connected webhook event:', event);
+  const relevantEvents = new Set([ // these are the only events we need to handle
+    'account.updated'
+  ]);
 
-  // Handle the event
-  // https://stripe.com/docs/api/events/types
+  /*
+  Note: consider the possibility that a webhook may be received more than once!
+  If we fail to send a success response to the webhook or if our code times out beyond 300 seconds,
+  Stripe will try again up to 2 more times.
+  */
 
-  switch (event.type) {
-    case 'account.updated':
-      const account = event.data.object as Stripe.Account;
-      if (account.requirements && account.requirements.currently_due) { // requirements are due now for this account
-        if (account.metadata && account.metadata.lifecoachUID) { // ensure the stripe account can be linked to a lifecoach account
-          await db.collection(`users/${account.metadata.lifecoachUID}/account`)
-          .doc(`account${account.metadata.lifecoachUID}`)
-          .set({ // save any verification requirements due now to the db for monitoring client side
-            stripeRequirementsCurrentlyDue: account.requirements.currently_due
-          }, { merge: true })
-          .catch(err => console.error(err));
-        }
+  // only handle relevant events...
+  if (relevantEvents.has(event.type)) {
+
+    // Handle the event
+    // https://stripe.com/docs/api/events/types
+
+    logs.startWebhookEventProcessing(event);
+
+    try {
+      switch (event.type) {
+        case 'account.updated':
+          const account = event.data.object as Stripe.Account;
+          // save the account object to the user's node in the db...
+          if (account.metadata && account.metadata.lifecoachUID) { // ensure the stripe account can be linked to a lifecoach account
+            await db.collection(`users/${account.metadata.lifecoachUID}/account`)
+            .doc(`account${account.metadata.lifecoachUID}`)
+            .set({ // save any verification requirements due now to the db for monitoring client side
+              stripeAccount: account
+            }, { merge: true });
+          }
+          logs.webhookHandlerSucceeded(event);
+          break;
       }
-      break;
+    } catch (err) {
+      logs.webhookHandlerError(err, event);
+      // Return a response to acknowledge receipt of the event with error (to avoid retries)
+      // https://stripe.com/docs/webhooks/build
+      return response.status(200).send({  error: 'Webhook handler failed. View function logs in Firebase.' });
+    }
   }
 
   // Return a response to acknowledge receipt of the event

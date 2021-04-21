@@ -457,11 +457,15 @@ export class AccountComponent implements OnInit, OnDestroy, AfterViewInit {
         uid: this.userId,
         returnUrl: `${environment.baseUrl}/account/payments`,
         refreshUrl: `${environment.baseUrl}/account/payments?reauth`,
-        type: 'account_onboarding'
+        type: 'account_onboarding',
+        email: this.accountSnapshot.accountEmail,
+        firstName: this.accountSnapshot.firstName,
+        lastName: this.accountSnapshot.lastName
       };
 
       const res = await this.cloudFunctionsService.connectStripe(data) as any;
       if (res.error) { // error!
+        this.connectingStripe = false;
         this.alertService.alert('warning-message', 'Oops!', `Error: ${res.error}. Please contact support.`);
         return;
       }

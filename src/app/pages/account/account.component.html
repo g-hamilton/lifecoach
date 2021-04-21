@@ -181,7 +181,7 @@
                                             <tr>
                                             <th> Plan </th>
                                             <th> Start </th>
-                                            <th> Expires </th>
+                                            <th> Renews </th>
                                             <th> Status </th>
                                             </tr>
                                         </thead>
@@ -223,16 +223,13 @@
 
                                 <!-- template if user is on flame or blaze plan -->
                                 <div *ngIf="subscriptionPlan && (subscriptionPlan === 'flame' || subscriptionPlan === 'blaze') ; else noPayments">
-                                    <p class=" small text-muted pl-4 mb-2">
-                                        <i class="fas fa-info-circle"></i> To accept client payments for any of the products & services you add to Lifecoach, 
-                                        you need a secure payments account. We partner with Stripe for simple, fast & secure client payment processing. 
-                                        Read more about <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001174512-how-to-enable-payments-on-lifecoach" target="_blank">
-                                            how to enable client payments on Lifecoach
-                                        </a>.
-                                    </p>
 
                                     <!-- User has a Stripe Standard Connect Account -->
                                     <div *ngIf="accountSnapshot?.stripeAccountId ; else enableStripe">
+                                        <p class=" small text-muted pl-4 mb-2">
+                                            <i class="fas fa-info-circle"></i> Your Stripe account has been successfully connected to Lifecoach. 
+                                            Click 'Manage My Stripe Account' to visit your Stripe dashboard.
+                                        </p>
                                         <div class=" row mb-4">
                                             <div class=" col-md-8">
                                                 <div 
@@ -267,6 +264,13 @@
                                     <!-- User does not have a (or has not connected an existing) Stripe Standard Connect Account -->
                                     <ng-template #enableStripe>
                                         <div>
+                                            <p class=" small text-muted pl-4 mb-2">
+                                                <i class="fas fa-info-circle"></i> To accept client payments for any of the products & services you add to Lifecoach, 
+                                                you need a secure payments account. We partner with Stripe for simple, fast & secure client payment processing. 
+                                                Read more about <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001174512-how-to-enable-payments-on-lifecoach" target="_blank">
+                                                    how to enable client payments on Lifecoach
+                                                </a>.
+                                            </p>
                                             <div class=" row highlight-box">
                                                 <div class=" col-md-8">
                                                     <p class="mt-4 pl-5">
