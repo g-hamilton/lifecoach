@@ -156,11 +156,15 @@ const routes: Routes = [
         loadChildren: () => import('./pages/account/account.module').then(m => m.AccountModule)
       },
       {
-        path: 'account/payout-settings',
+        path: 'account/billing',
         loadChildren: () => import('./pages/account/account.module').then(m => m.AccountModule)
       },
       {
-        path: 'account/stripe/oauth',
+        path: 'account/payments',
+        loadChildren: () => import('./pages/account/account.module').then(m => m.AccountModule)
+      },
+      {
+        path: 'account/charges',
         loadChildren: () => import('./pages/account/account.module').then(m => m.AccountModule)
       },
       {

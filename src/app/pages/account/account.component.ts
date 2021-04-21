@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID, ViewChild, OnDestroy } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, ViewChild, OnDestroy, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { isPlatformBrowser, DOCUMENT } from '@angular/common';
@@ -26,7 +26,7 @@ import { CompleteStripeConnectRequest } from 'app/interfaces/complete.stripe.con
   selector: 'app-account',
   templateUrl: 'account.component.html'
 })
-export class AccountComponent implements OnInit, OnDestroy {
+export class AccountComponent implements OnInit, OnDestroy, AfterViewInit {
 
   @ViewChild('staticTabs', {static: false}) staticTabs: TabsetComponent;
   @ViewChild('refundModal', {static: false}) public refundModal: ModalDirective;
@@ -98,7 +98,6 @@ export class AccountComponent implements OnInit, OnDestroy {
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
     @Inject(DOCUMENT) private document: Document,
-    private route: ActivatedRoute,
     public formBuilder: FormBuilder,
     private router: Router,
     private authService: AuthService,
@@ -116,105 +115,36 @@ export class AccountComponent implements OnInit, OnDestroy {
     if (isPlatformBrowser(this.platformId)) {
       this.browser = true;
       this.analyticsService.pageView();
-
-      // Build the forms
       this.buildAccountForm();
       this.buildRefundForm();
-
-      // Import currencies
       this.currencies = this.currenciesService.getCurrencies();
-
-      // Update the form with saved user data
-      this.subscriptions.add(
-        this.authService.getAuthUser()
-          .subscribe(user => {
-            if (user) {
-              this.userId = user.uid;
-              // Check custom auth claims
-              user.getIdTokenResult(true)
-              .then(tokenRes => {
-                console.log('User claims:', tokenRes.claims);
-                const c = tokenRes.claims;
-                if (c.subscriptionPlan) {
-                  this.subscriptionPlan = c.subscriptionPlan;
-                }
-              });
-              // Checking active events
-              // this.dataService.hasUserEvents(this.userId)
-              //   .then( val => {
-              //     this.hasUserEvents = val;
-              //     // console.log(this.hasUserEvents);
-              //   })
-              //   .catch(e => console.log(e));
-
-              this.subscriptions.add(
-                this.dataService.getUserAccount(user.uid)
-                  .subscribe(account => {
-                    if (account) {
-                      this.accountSnapshot = JSON.parse(JSON.stringify(account));
-                      this.updateAccountForm(account);
-
-                      if (account.accountType === 'regular') {
-                        this.fetchSuccessfulCharges();
-                        this.fetchFailedCharges();
-                        this.fetchRefundRequests();
-                        this.fetchSuccessfulRefunds();
-
-                      } else if (account.accountType === 'coach' ) {
-                        if (account.stripeCustomerId) { // user has a stripe CUSTOMER id
-                          this.stripeCustomerId = account.stripeCustomerId;
-                        }
-                        // if (!account.stripeUid) { // user has not yet connected Stripe
-
-                        //   this.buildStripeUrl(); // create an oauth link to connect Stripe
-
-                        //   // If we've got the user data, append it to the Stripe url for better UX through the onboarding flow
-                        //   if (account.accountEmail && this.stripeConnectUrl) {
-                        //     this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[email]=${account.accountEmail}`);
-                        //   }
-                        //   if (account.firstName) {
-                        //     // tslint:disable-next-line: max-line-length
-                        //     this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[first_name]=${account.firstName}`);
-                        //   }
-                        //   if (account.lastName) {
-                        //     this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[last_name]=${account.lastName}`);
-                        //   }
-
-                        //   // Subscribe to profile and add any additional user data
-                        //   // See: https://stripe.com/docs/connect/oauth-reference
-                        //   const tempProfSub = this.dataService.getCoachProfile(this.userId).subscribe(profile => {
-                        //     if (profile) {
-                        //       if (profile.country) {
-                        //         this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[country]=${profile.country.code}`);
-                        //       }
-                        //       if (profile.profileUrl) {
-                        //         this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[url]=${profile.profileUrl}`);
-                        //       } else {
-                        //         this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[url]=${environment.baseUrl}`);
-                        //       }
-                        //     }
-                        //     tempProfSub.unsubscribe();
-                        //   });
-                        //   this.subscriptions.add(tempProfSub);
-                        // }
-                        this.fetchSuccessfulCharges();
-                        this.fetchFailedCharges();
-                        this.fetchRefundRequests();
-                        this.fetchSuccessfulRefunds();
-                        this.fetchSubscriptions();
-
-                      } else if (account.accountType === 'partner' ) {
-                        // anything?
-                      }
-                    }
-                  })
-              );
-            }
-          })
-      );
+      this.loadUserData();
     }
-    // console.log(this.accountF);
 
+  }
+
+  ngAfterViewInit() {
+    this.checkRoute();
+  }
+
+  checkRoute() {
+    // check the active route url and open relevant tabs if appropriate
+    // using timeouts to avoid changedAfterChecked errors
+    // staticTabs is the ngx-bootstrap tabs component
+    // tab index 0 is the default ('Account Settings' tab)
+    if (this.router.url.includes('/billing')) {
+      setTimeout(() => {
+        this.staticTabs.tabs[1].active = true;
+      }, 10);
+    } else if (this.router.url.includes('/payments')) {
+      setTimeout(() => {
+        this.staticTabs.tabs[2].active = true;
+      }, 10);
+    } else if (this.router.url.includes('/charges')) {
+      setTimeout(() => {
+        this.staticTabs.tabs[3].active = true;
+      }, 10);
+    }
   }
 
   buildAccountForm() {
@@ -237,6 +167,96 @@ export class AccountComponent implements OnInit, OnDestroy {
     this.refundForm = this.formBuilder.group({
       reason: ['', [Validators.required, Validators.minLength(6)]]
     });
+  }
+
+  loadUserData() {
+    this.subscriptions.add(
+      this.authService.getAuthUser()
+        .subscribe(user => {
+          if (user) {
+            this.userId = user.uid;
+            // Check custom auth claims
+            user.getIdTokenResult(true)
+            .then(tokenRes => {
+              console.log('User claims:', tokenRes.claims);
+              const c = tokenRes.claims;
+              if (c.subscriptionPlan) {
+                this.subscriptionPlan = c.subscriptionPlan;
+              }
+            });
+            // Checking active events
+            // this.dataService.hasUserEvents(this.userId)
+            //   .then( val => {
+            //     this.hasUserEvents = val;
+            //     // console.log(this.hasUserEvents);
+            //   })
+            //   .catch(e => console.log(e));
+
+            this.subscriptions.add(
+              this.dataService.getUserAccount(user.uid)
+                .subscribe(account => {
+                  if (account) {
+                    this.accountSnapshot = JSON.parse(JSON.stringify(account));
+                    this.updateAccountForm(account);
+
+                    if (account.accountType === 'regular') {
+                      this.fetchSuccessfulCharges();
+                      this.fetchFailedCharges();
+                      this.fetchRefundRequests();
+                      this.fetchSuccessfulRefunds();
+
+                    } else if (account.accountType === 'coach' ) {
+                      if (account.stripeCustomerId) { // user has a stripe CUSTOMER id
+                        this.stripeCustomerId = account.stripeCustomerId;
+                      }
+                      // if (!account.stripeUid) { // user has not yet connected Stripe
+
+                      //   this.buildStripeUrl(); // create an oauth link to connect Stripe
+
+                      //   // If we've got the user data, append it to the Stripe url for better UX through the onboarding flow
+                      //   if (account.accountEmail && this.stripeConnectUrl) {
+                      //     this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[email]=${account.accountEmail}`);
+                      //   }
+                      //   if (account.firstName) {
+                      //     // tslint:disable-next-line: max-line-length
+                      //     this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[first_name]=${account.firstName}`);
+                      //   }
+                      //   if (account.lastName) {
+                      //     this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[last_name]=${account.lastName}`);
+                      //   }
+
+                      //   // Subscribe to profile and add any additional user data
+                      //   // See: https://stripe.com/docs/connect/oauth-reference
+                      //   const tempProfSub = this.dataService.getCoachProfile(this.userId).subscribe(profile => {
+                      //     if (profile) {
+                      //       if (profile.country) {
+                      //         this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[country]=${profile.country.code}`);
+                      //       }
+                      //       if (profile.profileUrl) {
+                      //         this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[url]=${profile.profileUrl}`);
+                      //       } else {
+                      //         this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[url]=${environment.baseUrl}`);
+                      //       }
+                      //     }
+                      //     tempProfSub.unsubscribe();
+                      //   });
+                      //   this.subscriptions.add(tempProfSub);
+                      // }
+                      this.fetchSuccessfulCharges();
+                      this.fetchFailedCharges();
+                      this.fetchRefundRequests();
+                      this.fetchSuccessfulRefunds();
+                      this.fetchSubscriptions();
+
+                    } else if (account.accountType === 'partner' ) {
+                      // anything?
+                    }
+                  }
+                })
+            );
+          }
+        })
+    );
   }
 
   updateAccountForm(account: UserAccount) {

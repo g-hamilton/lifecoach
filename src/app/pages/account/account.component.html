@@ -166,7 +166,7 @@
                         </tab>
 
                         <!-- Billing tab for coach accounts -->
-                        <tab *ngIf="accountF.accountType.value === 'coach'" heading="Billing">
+                        <tab [customClass]="accountF.accountType.value === 'coach' ? '' : 'display-none'" heading="Billing">
                             <div class="">
                                 <h6 class=" mt-4 pl-4">
                                     Billing
@@ -215,7 +215,7 @@
                         </tab>
 
                         <!-- Payments tab for coach accounts -->
-                        <tab *ngIf="accountF.accountType.value === 'coach'" heading="Accept Payments">
+                        <tab [customClass]="accountF.accountType.value === 'coach' ? '' : 'display-none'" heading="Accept Payments">
                             <div class="">
                                 <h6 class=" mt-4 pl-4">
                                     Accept Client Payments
@@ -345,7 +345,7 @@
                         </tab>
 
                         <!-- Purchases & refunds tab for coaches and regular accounts -->
-                        <tab *ngIf="(accountF.accountType.value === 'coach' || accountF.accountType.value === 'regular') && (successfulPayments?.length > 0 || successfulRefunds?.length > 0 || failedPayments?.length > 0 || refundRequests?.length > 0)" heading="Purchases & Refunds">
+                        <tab [customClass]="(accountF.accountType.value === 'coach' || accountF.accountType.value === 'regular') && (successfulPayments?.length > 0 || successfulRefunds?.length > 0 || failedPayments?.length > 0 || refundRequests?.length > 0) ? '' : 'display-none'" heading="Purchases & Refunds">
                             <!-- Purchases table -->
                             <h6 class=" mt-4"> Purchases </h6>
                             <p class=" small text-muted pl-4 mb-2">
