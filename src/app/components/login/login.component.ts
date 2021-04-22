@@ -96,44 +96,4 @@ export class LoginComponent implements OnInit {
       }
     }
   }
-
-  async onLogin() {
-    // Log the user in
-    if (this.loginForm.valid) {
-      this.login = true;
-      const account: UserAccount = {
-        accountEmail: this.loginF.email.value,
-        password: this.loginF.password.value,
-        accountType: null
-      };
-      const res = await this.authService.signInWithEmailAndPassword(account);
-      if (!res.error) {
-        // Login successful.
-        this.bsModalRef.hide();
-        if (this.redirectUrl) {
-          this.router.navigate(this.redirectUrl);
-        }
-        if (this.successMessage) {
-          this.alertService.alert('auto-close', 'Login Successful', this.successMessage);
-        } else {
-          this.alertService.alert('auto-close', 'Login Successful', 'Welcome back!');
-        }
-        this.analyticsService.signIn(res.result.user.uid, 'email&password', account.accountEmail);
-      } else {
-        // Login error.
-        this.login = false;
-        // Check auth provider error codes.
-        if (res.error.code === 'auth/wrong-password') {
-          this.alertService.alert('warning-message', 'Oops', 'Incorrect password. Please try again.');
-        } else if (res.error.code === 'auth/user-not-found') {
-          this.alertService.alert('warning-message', 'Oops', 'Email address not found. Please check your login email address is correct.');
-        } else {
-          // Fall back for unknown / no error code
-          this.alertService.alert('warning-message', 'Oops', 'Something went wrong. Please try again or contact hello@lifecoach.io for assistance.');
-        }
-      }
-    } else {
-      this.alertService.alert('warning-message', 'Almost Done!', 'Please complete all required fields.');
-    }
-  }
 }
