@@ -51,8 +51,7 @@ export class ProgramComponent implements OnInit, OnDestroy {
   public program: CoachingProgram;
   public purchasingProgram: boolean;
   public languages: any;
-  // public totalReviews: number;
-  // public avgRating: number;
+  public coachPaymentsEnabled: boolean;
   private referralCode: string;
   public purchaseType: 'full' | 'session'; // value should be set depending on which purchase button is pressed
 
@@ -548,6 +547,16 @@ export class ProgramComponent implements OnInit, OnDestroy {
       return 0;
     }
     return (100 - (this.program.fullPrice / (this.program.numSessions * this.program.pricePerSession)) * 100).toFixed();
+  }
+
+  async navToContact() {
+    // allows navigation to the relevant page section multiple times, even if the fragment is already in the active route
+    await this.router.navigate(['/program', this.program.programId], {skipLocationChange: true});
+    this.router.navigate(['/program', this.program.programId], { fragment: 'contact-coach' });
+  }
+
+  clickEvent(buttonId: string) {
+    this.analyticsService.clickButton(buttonId);
   }
 
   ngOnDestroy() {

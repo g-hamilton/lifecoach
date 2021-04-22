@@ -253,26 +253,6 @@
               </div>
               <!-- end card -->
 
-              <!-- coach card -->
-              <div class=" mt-5"></div>
-              <app-coach-mini-profile [coachId]="program.sellerUid"></app-coach-mini-profile>
-              <!-- end coach card -->
-
-              <!-- program feedback *BROWSER ONLY* -->
-              <!-- <div *ngIf="browser">
-                <div class=" col-md-6 ml-auto mr-auto text-center mt-5">
-                  <h2 class=" title"> What others are saying </h2>
-                </div>
-                <div class=" card">
-                  <div class=" card-body mr-3">
-                    <h4 class=" card-title d-inline-block"> Program Feedback </h4>
-                    <div>
-                    </div>
-                  </div>
-                </div>
-              </div> -->
-              <!-- end program feedback -->
-
               <!-- program pricing & call booking -->
 
               <!-- template if program pricing strategy is full -->
@@ -282,7 +262,7 @@
                   <div class=" col-md-6 ml-auto mr-auto text-center">
                     <h1 class=" title">Join the program</h1>
                     <h4 class=" description">
-                      Got questions? Schedule a free discovery session with your coach before you get started.
+                      Got questions? Request a FREE discovery session with {{ program.coachName }} before you get started...
                     </h4>
                   </div>
                 </div>
@@ -305,22 +285,23 @@
                         />
           
                         <ul class=" list-group">
-                          <li class=" list-group-item">Schedule a discovery session</li>
+                          <li class=" list-group-item">Request a Discovery Session</li>
                         </ul>
                         <div class=" card-prices pl-3 pr-3">
                           <h3 class=" text-on-front">FREE</h3>
                           <h5 class=" text-on-back">FREE</h5>
-                          <p class=" plan">Check this program is right for you. <br>Ask your coach anything you like prior to starting.</p>
+                          <p class=" plan">Check this program is right for you</p>
                         </div>
                       </div>
                       <div class=" card-footer text-center mb-3 mt-3">
-                        <!-- schedule call button -->
+                        <!-- request discovery button -->
                         <!-- disabled for program seller -->
-                        <!-- userId === program.sellerUid -->
-                        <button class=" btn btn-round btn-just-icon btn-primary"
+                        <button
+                        id="coach-program-request-discover"
+                        class=" btn btn-round btn-just-icon btn-primary"
                         [disabled]="userId === program.sellerUid"
-                        (click)="this.userId ? openScheduleCallModal() : registerToDiscover()">
-                         Schedule a Session
+                        (click)="clickEvent('coach-program-request-discover') ; navToContact()">
+                         Request a Session
                         </button>
                       </div>
                     </div>
@@ -348,30 +329,42 @@
                         </div>
                       </div>
                       <div class=" card-footer text-center mb-3 mt-3">
-                        <!-- purchase button -->
-                        <!-- disabled for program seller or if already purchased -->
-                        <!-- userId === program.sellerUid || userClaims && userClaims[program.programId] -->
-                        <button
-                        class=" btn btn-round btn-success"
-                        id="buynowfull"
-                        type="button"
-                        data-target="#payModal"
-                        (click)="purchaseType = 'full' ; userId ? payModal.show() : registerToPurchase()"
-                        [disabled]="userId === program.sellerUid || userClaims && userClaims[program.programId]">
-                          <span
-                          *ngIf="purchasingProgram"
-                          class="spinner-border spinner-border-sm"
-                          role="status"
-                          ></span> {{ purchasingProgram ? 'Purchasing...' : 'Buy Now'}}
-                        </button>
-                        <div class="mt-2">
-                          <small>
-                            7-Day Money-Back Guarantee.
-                            <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001123378-all-about-refunds" taget="_blank">
-                              Info
-                            </a>
-                          </small>
+
+                        <!-- dynamic buttons - enquire or buy now -->
+
+                        <!-- enquire button if payments not enabled by coach -->
+                        <!-- disabled if user is the coach -->
+                        <div *ngIf="!coachPaymentsEnabled ; else buyNow">
+                          <button
+                          id="coach-program-pricing-enquire"
+                          class=" btn btn-round btn-success"
+                          type="button"
+                          [disabled]="userId === program.sellerUid"
+                          (click)="clickEvent('coach-program-pricing-enquire') ; navToContact()">
+                          Enquire Now
+                          </button>
                         </div>
+                        <!-- end enquire button -->
+
+                        <!-- buy now button if payments are enabled by coach -->
+                        <!-- disabled if user is coach or user owns the program -->
+                        <ng-template #buyNow>
+                          <button
+                          class=" btn btn-round btn-success"
+                          id="coach-program-pricing-buy-now-full"
+                          type="button"
+                          data-target="#payModal"
+                          (click)="clickEvent('coach-program-pricing-buy-now-full') ; purchaseType = 'full' ; userId ? payModal.show() : registerToPurchase()"
+                          [disabled]="userId === program.sellerUid || userClaims && userClaims[program.programId]">
+                            <span
+                            *ngIf="purchasingProgram"
+                            class="spinner-border spinner-border-sm"
+                            role="status"
+                            ></span> {{ purchasingProgram ? 'Purchasing...' : 'Buy Now'}}
+                          </button>
+                        </ng-template>
+                        <!-- end buy now button -->
+
                       </div>
                     </div>
                   </div>
@@ -414,7 +407,7 @@
                   <div class=" col-md-6 ml-auto mr-auto text-center">
                     <h1 class=" title">Join the program</h1>
                     <h4 class=" description">
-                      Got questions? Schedule a free discovery session with your coach before you get started.
+                      Got questions? Request a FREE discovery session with {{ program.coachName }} before you get started...
                     </h4>
                   </div>
                 </div>
@@ -435,22 +428,23 @@
                         />
           
                         <ul class=" list-group">
-                          <li class=" list-group-item mt-4">Schedule a discovery session</li>
+                          <li class=" list-group-item mt-4">Request a Discovery Session</li>
                         </ul>
                         <div class=" card-prices pl-3 pr-3">
                           <h3 class=" text-on-front">FREE</h3>
                           <h5 class=" text-on-back">FREE</h5>
-                          <p class=" plan">Check this program is right for you. <br>Ask your coach anything you like prior to starting.</p>
+                          <p class=" plan">Check this program is right for you</p>
                         </div>
                       </div>
                       <div class=" card-footer text-center mb-3 mt-3">
-                        <!-- schedule call button -->
+                        <!-- request discovery button -->
                         <!-- disabled for program seller -->
-                        <!-- userId === program.sellerUid -->
-                        <button class=" btn btn-round btn-just-icon btn-primary"
+                        <button
+                        id="coach-program-request-discover"
+                        class=" btn btn-round btn-just-icon btn-primary"
                         [disabled]="userId === program.sellerUid"
-                        (click)="this.userId ? openScheduleCallModal() : registerToDiscover()">
-                         Schedule a Session
+                        (click)="clickEvent('coach-program-request-discover') ; navToContact()">
+                         Request a Session
                         </button>
                       </div>
                     </div>
@@ -479,30 +473,40 @@
                         </div>
                       </div>
                       <div class=" card-footer text-center mb-3 mt-3">
-                        <!-- purchase button -->
-                        <!-- disabled for program seller or if already purchased -->
-                        <!-- userId === program.sellerUid || userClaims && userClaims[program.programId] -->
-                        <button
-                        class=" btn btn-round btn-success"
-                        id="buynowfull"
-                        type="button"
-                        data-target="#payModal"
-                        (click)="purchaseType = 'full' ; userId ? payModal.show() : registerToPurchase()"
-                        [disabled]="userId === program.sellerUid || userClaims && userClaims[program.programId]">
-                          <span
-                          *ngIf="purchasingProgram"
-                          class="spinner-border spinner-border-sm"
-                          role="status"
-                          ></span> {{ purchasingProgram ? 'Purchasing...' : 'Buy Now'}} 
-                        </button>
-                        <div class="mt-2">
-                          <small>
-                            28-Day Money-Back Guarantee.
-                            <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001123378-refunds" taget="_blank">
-                              Info
-                            </a>
-                          </small>
+                        <!-- dynamic buttons - enquire or buy now -->
+
+                        <!-- enquire button if payments not enabled by coach -->
+                        <!-- disabled if user is the coach -->
+                        <div *ngIf="!coachPaymentsEnabled ; else buyNow">
+                          <button
+                          id="coach-program-pricing-enquire"
+                          class=" btn btn-round btn-success"
+                          type="button"
+                          [disabled]="userId === program.sellerUid"
+                          (click)="clickEvent('coach-program-pricing-enquire') ; navToContact()">
+                          Enquire Now
+                          </button>
                         </div>
+                        <!-- end enquire button -->
+
+                        <!-- buy now button if payments are enabled by coach -->
+                        <!-- disabled if user is coach or user owns the program -->
+                        <ng-template #buyNow>
+                          <button
+                          class=" btn btn-round btn-success"
+                          id="coach-program-pricing-buy-now-full"
+                          type="button"
+                          data-target="#payModal"
+                          (click)="clickEvent('coach-program-pricing-buy-now-full') ; purchaseType = 'full' ; userId ? payModal.show() : registerToPurchase()"
+                          [disabled]="userId === program.sellerUid || userClaims && userClaims[program.programId]">
+                            <span
+                            *ngIf="purchasingProgram"
+                            class="spinner-border spinner-border-sm"
+                            role="status"
+                            ></span> {{ purchasingProgram ? 'Purchasing...' : 'Buy Now'}}
+                          </button>
+                        </ng-template>
+                        <!-- end buy now button -->
                       </div>
                     </div>
                   </div>
@@ -510,13 +514,13 @@
 
                   <!-- pay per session col -->
                   <div *ngIf="program?.currency && program?.fullPrice && program?.pricePerSession" class=" col-lg-4 col-xs-12">
-                    <div class=" card card-pricing card-success card-white">
+                    <div class=" card card-pricing card-danger card-white">
                       <div class=" card-body">
                         <h1 class=" card-title">session</h1>
                         <img
                           alt="Image"
                           class=" card-img"
-                          src="assets/img/card-warning.png"
+                          src="assets/img/card-danger.png"
                         />
 
                         <ul class=" list-group">
@@ -529,30 +533,40 @@
                         </div>
                       </div>
                       <div class=" card-footer text-center mb-3 mt-3">
-                        <!-- purchase button -->
-                        <!-- disabled for program seller or if already purchased -->
-                        <!-- userId === program.sellerUid || userClaims && userClaims[program.programId] -->
-                        <button
-                        class=" btn btn-round btn-warning"
-                        id="buynowfull"
-                        type="button"
-                        data-target="#payModal"
-                        (click)="purchaseType = 'session' ; userId ? payModal.show() : registerToPurchase()"
-                        [disabled]="userId === program.sellerUid || userClaims && userClaims[program.programId]">
-                          <span
-                          *ngIf="purchasingProgram"
-                          class="spinner-border spinner-border-sm"
-                          role="status"
-                          ></span> {{ purchasingProgram ? 'Purchasing...' : 'Buy Now'}} 
-                        </button>
-                        <div class="mt-2">
-                          <small>
-                            28-Day Money-Back Guarantee.
-                            <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001123378-refunds" taget="_blank">
-                              Info
-                            </a>
-                          </small>
+                        <!-- dynamic buttons - enquire or buy now -->
+
+                        <!-- enquire button if payments not enabled by coach -->
+                        <!-- disabled if user is the coach -->
+                        <div *ngIf="!coachPaymentsEnabled ; else buyNow">
+                          <button
+                          id="coach-program-pricing-enquire"
+                          class=" btn btn-round btn-danger"
+                          type="button"
+                          [disabled]="userId === program.sellerUid"
+                          (click)="clickEvent('coach-program-pricing-enquire') ; navToContact()">
+                          Enquire Now
+                          </button>
                         </div>
+                        <!-- end enquire button -->
+
+                        <!-- buy now button if payments are enabled by coach -->
+                        <!-- disabled if user is coach or user owns the program -->
+                        <ng-template #buyNow>
+                          <button
+                          class=" btn btn-round btn-danger"
+                          id="coach-program-pricing-buy-now-full"
+                          type="button"
+                          data-target="#payModal"
+                          (click)="clickEvent('coach-program-pricing-buy-now-full') ; purchaseType = 'session' ; userId ? payModal.show() : registerToPurchase()"
+                          [disabled]="userId === program.sellerUid || userClaims && userClaims[program.programId]">
+                            <span
+                            *ngIf="purchasingProgram"
+                            class="spinner-border spinner-border-sm"
+                            role="status"
+                            ></span> {{ purchasingProgram ? 'Purchasing...' : 'Buy Now'}}
+                          </button>
+                        </ng-template>
+                        <!-- end buy now button -->
                       </div>
                     </div>
                   </div>
@@ -578,6 +592,36 @@
 
               </ng-template>
               <!-- end template if pricing strategy is flexible -->
+
+              <!-- coach card -->
+              <div class=" mt-5"></div>
+              <app-coach-mini-profile [coachId]="program.sellerUid"></app-coach-mini-profile>
+              <!-- end coach card -->
+
+              <!-- contact coach -->
+              <div id="contact-coach">
+                <!-- <h4 class=" card-title"> Contact {{ program.coachName }} </h4> -->
+                <div class=" card">
+                    <div class=" card-body">
+                        <div class=" row justify-content-center">
+                            <div class=" col">
+                                <h5 class=" mb-5">
+                                    Start an informal chat or request a FREE Discovery Session with {{ program.coachName }}...
+                                </h5>
+                                <!-- contact form only if user authorised -->
+                                <div *ngIf="userId">
+                                    <app-coach-contact [coachUid]="program.sellerUid"></app-coach-contact>
+                                </div>
+                                <!-- 
+                                    login in flow should always be loaded 
+                                    (user authorised or not) 
+                                -->
+                                <app-login-in-flow></app-login-in-flow>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+              </div>
 
             </div>
             <!-- end col -->

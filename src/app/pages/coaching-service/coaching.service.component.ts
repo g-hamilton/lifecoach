@@ -11,7 +11,7 @@ import { AuthService } from 'app/services/auth.service';
 import { CurrenciesService } from 'app/services/currencies.service';
 import { CountryService } from 'app/services/country.service';
 import { EmojiCountry } from 'app/interfaces/emoji.country.interface';
-import { FormGroup, FormBuilder } from '@angular/forms';
+import { FormBuilder } from '@angular/forms';
 import { UserAccount } from 'app/interfaces/user.account.interface';
 import { CoachingService } from 'app/interfaces/coaching.service.interface';
 import { IsoLanguagesService } from 'app/services/iso-languages.service';
@@ -20,8 +20,8 @@ import { StripePaymentIntentRequest } from 'app/interfaces/stripe.payment.intent
 import { environment } from '../../../environments/environment';
 import { BsModalService, BsModalRef, ModalOptions } from 'ngx-bootstrap/modal';
 import { ScheduleCallComponent } from 'app/components/schedule-call/schedule-call.component';
-import {take} from 'rxjs/operators';
-import {ToastrService} from 'ngx-toastr';
+import { take } from 'rxjs/operators';
+import { ToastrService } from 'ngx-toastr';
 import { RegisterModalComponent } from 'app/components/register-modal/register-modal.component';
 
 declare var Stripe: any;
@@ -39,6 +39,7 @@ export class CoachingServiceComponent implements OnInit, AfterContentChecked, On
 
   public browser: boolean;
   public userId: string;
+  public coachPaymentsEnabled: boolean;
   public now: number; // unix timestamp at load time
   public userClaims: any;
   public account: UserAccount;
@@ -469,14 +470,18 @@ export class CoachingServiceComponent implements OnInit, AfterContentChecked, On
     this.bsModalRef = this.modalService.show(ScheduleCallComponent, config);
   }
 
+  clickEvent(buttonId: string) {
+    this.analyticsService.clickButton(buttonId);
+  }
+
   registerToDiscover() {
     // pop register modal
     // we can send data to the modal & open in a another component via a service
     // https://valor-software.com/ngx-bootstrap/#/modals#service-component
     const config: ModalOptions = {
       initialState: {
-        message: `Just a second! You need a Lifecoach account to schedule Discovery sessions with coaches. Joining Lifecoach is free and only takes seconds!`,
-        successMessage: `Click Schedule a Session again to continue.`,
+        message: `Just a second! You need a Lifecoach account to contact Coaches. Joining Lifecoach is free and only takes seconds!`,
+        successMessage: null,
         redirectUrl: null,
         accountType: 'regular'
       } as any
@@ -591,6 +596,12 @@ export class CoachingServiceComponent implements OnInit, AfterContentChecked, On
     }
 
     return discount;
+  }
+
+  async navToContact() {
+    // allows navigation to the relevant page section multiple times, even if the fragment is already in the active route
+    await this.router.navigate(['/coaching-service', this.service.serviceId], {skipLocationChange: true});
+    this.router.navigate(['/coaching-service', this.service.serviceId], { fragment: 'contact-coach' });
   }
 
   ngOnDestroy() {

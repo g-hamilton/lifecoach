@@ -48,7 +48,7 @@ export class CourseComponent implements OnInit, OnDestroy {
   public rates: any;
   private courseId: string;
   public course: CoachingCourse;
-
+  public coachPaymentsEnabled: boolean;
   public purchasingCourse: boolean;
 
   public languages: any;
@@ -478,6 +478,16 @@ export class CourseComponent implements OnInit, OnDestroy {
     if (result && result.action) {
       this.router.navigate(['/my-courses']);
     }
+  }
+
+  async navToContact() {
+    // allows navigation to the relevant page section multiple times, even if the fragment is already in the active route
+    await this.router.navigate(['/course', this.course.courseId], {skipLocationChange: true});
+    this.router.navigate(['/course', this.course.courseId], { fragment: 'contact-coach' });
+  }
+
+  clickEvent(buttonId: string) {
+    this.analyticsService.clickButton(buttonId);
   }
 
   ngOnDestroy() {

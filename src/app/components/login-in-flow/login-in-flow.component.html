@@ -19,7 +19,7 @@
           [formGroup]="loginForm"
           (ngSubmit)="sendEmailLink()"
           >
-            <div class="">
+            <div class=" pl-3 pr-2">
               <div class="">
                 <h4 class=""> Already a member? <span class=" text-success">Log in</span> </h4>
               </div>
@@ -68,9 +68,11 @@
               <div class=" pull-right">
                 <!-- Login Submit Button -->
                 <button
+                id="login-in-flow-login"
                 class=" btn btn-primary btn-round btn-lg"
                 type="submit"
                 [disabled]="loginForm.invalid || emailSent"
+                (click)="clickEvent('login-in-flow-login')"
                 >
                   <span
                   *ngIf="login"
@@ -89,7 +91,7 @@
   
       <!-- register -->
       <div class=" col-md-6 register-col">
-          <div class="">
+          <div class=" pl-2 pr-3">
             <div class="">
               <h4 class=""> New to Lifecoach? <span class=" text-success">Join FREE</span> </h4>
             </div>
@@ -99,56 +101,52 @@
               [formGroup]="registerForm"
               (ngSubmit)="sendEmailLinkRegister()"
             >
-              <div class="">
-  
-                <div class=" row">
-  
-                <!-- Email -->
-                <label>
-                  Enter your email to register free & receive a secure login link...
-                </label>
-                <div
-                  class=" input-group"
-                  [ngClass]="{
-                    'input-group-focus': focus4 === true,
-                    'has-danger':
-                      ((focusTouched4 || register) && registerF.email.errors) ||
-                      (registerF.email.value != '' && registerF.email.errors),
-                    'has-success': registerF.email.value != '' && !registerF.email.errors
-                  }"
-                >
-                  <div class=" input-group-prepend">
-                    <div class=" input-group-text">
-                      <i class=" tim-icons icon-email-85"> </i>
-                    </div>
-                  </div>
-                  <input
-                    class=" form-control"
-                    name="email"
-                    formControlName="email"
-                    placeholder="Email"
-                    type="email"
-                    (focus)="focus4 = true; focusTouched4 = true"
-                    (blur)="focus4 = false"
-                    required=""
-                  />
-                  <label
-                  class="error custom-error-label"
-                  *ngIf="
+              <!-- Email -->
+              <label>
+                Enter your email to register free & receive a secure login link...
+              </label>
+              <div
+                class=" input-group"
+                [ngClass]="{
+                  'input-group-focus': focus4 === true,
+                  'has-danger':
                     ((focusTouched4 || register) && registerF.email.errors) ||
-                    (registerF.email.value != '' && registerF.email.errors)
-                  "
-                  > We will never share your email address without your permission.
-                  </label>
+                    (registerF.email.value != '' && registerF.email.errors),
+                  'has-success': registerF.email.value != '' && !registerF.email.errors
+                }"
+              >
+                <div class=" input-group-prepend">
+                  <div class=" input-group-text">
+                    <i class=" tim-icons icon-email-85"> </i>
+                  </div>
                 </div>
-  
+                <input
+                  class=" form-control"
+                  name="email"
+                  formControlName="email"
+                  placeholder="Email"
+                  type="email"
+                  (focus)="focus4 = true; focusTouched4 = true"
+                  (blur)="focus4 = false"
+                  required=""
+                />
+                <label
+                class="error custom-error-label"
+                *ngIf="
+                  ((focusTouched4 || register) && registerF.email.errors) ||
+                  (registerF.email.value != '' && registerF.email.errors)
+                "
+                > We will never share your email address without your permission.
+                </label>
               </div>
               <div class=" pull-right">
                 <!-- Form Submit Button -->
                 <button
-                class=" btn btn-primary btn-round btn-lg mt-3"
+                id="login-in-flow-signup"
+                class=" btn btn-primary btn-round btn-lg"
                 type="submit"
                 [disabled]="!this.registerForm.valid"
+                (click)="clickEvent('login-in-flow-signup')"
                 >
                   <span
                   *ngIf="register"
@@ -157,7 +155,6 @@
                   ></span>
                   {{ register ? 'Sending Email...' : 'Sign Up!' }}
                 </button>
-              </div>
               </div>
             </form>
           </div>

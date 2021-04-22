@@ -229,6 +229,10 @@ export class LoginInFlowComponent implements OnInit, OnDestroy {
     }
   }
 
+  clickEvent(buttonId: string) {
+    this.analyticsService.clickButton(buttonId);
+  }
+
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
   }
