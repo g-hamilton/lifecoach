@@ -943,4 +943,16 @@ resizeCourseImage(data) {
         });
     });
   }
+
+  deleteStripeConnectedExpressAccount(data: any) {
+    return new Promise(resolve => {
+      const trigger = this.cloudFunctions.httpsCallable('deleteStripeConnectedExpressAccount');
+      const tempSub = trigger(data)
+        .pipe(first())
+        .subscribe(res => {
+          resolve(res);
+          tempSub.unsubscribe();
+        });
+    });
+  }
 }

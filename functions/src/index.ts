@@ -1166,6 +1166,40 @@ exports.stripeRetrieveBalance = functions
 });
 
 /*
+  Attempts to delete a Stripe connected EXPRESS account.
+  Will fail if the account balance is not zero.
+  Will not work for STANDARD accounts.
+  https://stripe.com/docs/api/accounts/delete?lang=node
+*/
+exports.deleteStripeConnectedExpressAccount = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.https
+.onCall( async (data, context) => {
+
+  const stripeAccountId = data.stripeUid;
+  const uid = data.uid;
+
+  try {
+
+    await deleteStripeAccount(stripeAccountId);
+    await postStripeConnectedExpressAccountDelete(uid);
+
+    return { success: true } // success
+
+  } catch (err) {
+    return { error: err.message }
+  }
+});
+
+async function deleteStripeAccount(acctId: string) {
+  return stripe.accounts.del(acctId);
+}
+
+async function postStripeConnectedExpressAccountDelete(uid: string) {
+  return db.collection(`users/${uid}/account`).doc(`account${uid}`).set({ stripeUid: null }, { merge: true });
+}
+
+/*
   Attempts to generate a Stripe payment intent.
   See: https://stripe.com/docs/connect/destination-charges
 

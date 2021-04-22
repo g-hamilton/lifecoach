@@ -258,6 +258,16 @@ export class AdminManageUserComponent implements OnInit, OnDestroy {
     this.changeAccountTypeModal.hide();
   }
 
+  async adminDeleteStripeExpressAccount() {
+    if (!this.account.stripeUid) {
+      alert('Missing Stripe Express account ID');
+      return;
+    }
+    const data = { stripeUid: this.account.stripeUid, uid: this.targetUserUid };
+    const res = await this.cloudFunctionsService.deleteStripeConnectedExpressAccount(data) as any;
+    console.log('Result:', res);
+  }
+
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
   }
