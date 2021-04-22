@@ -5,7 +5,7 @@
 
     Regular = Users looking for coaching (coachees / students / clients of coaches)
     Coach = Users who provide coaching products and services on the platform
-    Partner = Users who want to promote coaching services / the platform to audiences (promotional partners)
+    Partner = Users who want to promote lifecoach to coaches for commission
     Provider = Users who want to promote their services to Coaches on the platform
     Admin = Platform admins (be careful!)
 */
