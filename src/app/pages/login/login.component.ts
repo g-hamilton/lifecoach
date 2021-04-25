@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AlertService } from 'app/services/alert.service';
@@ -10,6 +10,7 @@ import { Observable } from 'rxjs';
 import { BsModalService, BsModalRef, ModalOptions } from 'ngx-bootstrap/modal';
 import { RegisterModalComponent } from 'app/components/register-modal/register-modal.component';
 import { DataService } from 'app/services/data.service';
+import { DOCUMENT } from '@angular/common';
 
 @Component({
   selector: 'app-login',
@@ -41,7 +42,8 @@ export class LoginComponent implements OnInit, OnDestroy {
     private alertService: AlertService,
     private router: Router,
     private modalService: BsModalService,
-    private dataService: DataService
+    private dataService: DataService,
+    @Inject(DOCUMENT) private document: any,
   ) {}
 
   ngOnInit() {
