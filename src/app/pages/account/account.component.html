@@ -233,13 +233,16 @@
                                         <div class=" row mb-4">
                                             <div class=" col-md-8">
                                                 <div 
-                                                *ngIf="accountF.stripeRequirementsCurrentlyDue.value && accountF.stripeRequirementsCurrentlyDue.value.length > 0" 
-                                                class=" pull-left pl-3">
+                                                *ngIf="accountSnapshot.stripeAccount?.requirements?.currently_due && accountSnapshot.stripeAccount.requirements.currently_due.length > 0" 
+                                                class=" pull-left pl-3 mt-4">
                                                     <p>
                                                         <span class=" text-warning">
-                                                            <i class=" tim-icons icon-alert-circle-exc"> </i> Needs action!
-                                                        </span> - Payouts may be restricted until you complete all verification requirements for your country. 
-                                                        Click 'Manage' and complete any outstanding actions to ensure you can receive payouts.
+                                                            <i class=" tim-icons icon-alert-circle-exc"> </i> Your Stripe account needs action!
+                                                        </span>
+                                                    </p>
+                                                    <p>
+                                                        Client payment and/or your payouts may be restricted until you complete all verification requirements for your country. 
+                                                        Click 'Manage My Stripe Account' and complete any outstanding actions to ensure you can process & receive client payments...
                                                     </p>
                                                 </div>
                                             </div>
