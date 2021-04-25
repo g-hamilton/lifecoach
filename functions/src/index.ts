@@ -1166,7 +1166,10 @@ exports.stripeRetrieveBalance = functions
 });
 
 /*
-  Attempts to delete a Stripe connected EXPRESS account.
+  Attempts to:
+  1. Delete a Stripe connected EXPRESS account.
+  2. Carry out post-delete tasks such as removing the user's 'stripeUid' account property
+  3. Creating a new STANDARD Stripe connected account for the user
   Will fail if the account balance is not zero.
   Will not work for STANDARD accounts.
   https://stripe.com/docs/api/accounts/delete?lang=node
@@ -1178,11 +1181,14 @@ exports.deleteStripeConnectedExpressAccount = functions
 
   const stripeAccountId = data.stripeUid;
   const uid = data.uid;
+  const email = data.email;
 
   try {
 
     await deleteStripeAccount(stripeAccountId);
     await postStripeConnectedExpressAccountDelete(uid);
+    const account = await createStandardStripeConnectedAccount(email, uid);
+    await postStripeStandardAccountCreate(uid, account);
 
     return { success: true } // success
 
@@ -1192,11 +1198,29 @@ exports.deleteStripeConnectedExpressAccount = functions
 });
 
 async function deleteStripeAccount(acctId: string) {
+  // https://stripe.com/docs/api/accounts/delete?lang=node
   return stripe.accounts.del(acctId);
 }
 
 async function postStripeConnectedExpressAccountDelete(uid: string) {
   return db.collection(`users/${uid}/account`).doc(`account${uid}`).set({ stripeUid: null }, { merge: true });
+}
+
+async function createStandardStripeConnectedAccount(email: string, uid: string) {
+  return stripe.accounts.create({
+    type: 'standard',
+    email,
+    metadata: {
+      lifecoachUID: uid
+    }
+  });
+}
+
+async function postStripeStandardAccountCreate(uid: string, account: Stripe.Account) {
+  return db.collection(`users/${uid}/account`).doc(`account${uid}`).set({
+    stripeAccountId: account.id,
+    stripeAccount: account
+  }, { merge: true });
 }
 
 /*
