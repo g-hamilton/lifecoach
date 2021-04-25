@@ -27,7 +27,7 @@ export class CoachServicesComponent implements OnInit, OnDestroy {
   public objKeys = Object.keys;
   public currencies: any;
   public userProfile: CoachProfile;
-  public subscriptionPlan: string;
+  public subscriptionPlan: any;
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
