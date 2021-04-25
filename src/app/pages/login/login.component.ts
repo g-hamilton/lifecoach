@@ -47,7 +47,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    const body = document.getElementsByTagName('body')[0];
+    const body = this.document.getElementsByTagName('body')[0];
     body.classList.add('login-page');
 
     // Build the login form
@@ -178,7 +178,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    const body = document.getElementsByTagName('body')[0];
+    const body = this.document.getElementsByTagName('body')[0];
     body.classList.remove('login-page');
   }
 

@@ -1,16 +1,2 @@
-[1m[33m⚠ [39m[22m [1m[33mfunctions: [39m[22mpackage.json indicates an outdated version of firebase-functions.
-Please upgrade using [1mnpm install --save firebase-functions@latest[22m in your functions directory.
 
-[1m[37m===[39m Deploying to 'livecoach-dev'...[22m
-
-[1m[36mi [39m[22m deploying [1mfunctions[22m
-Running command: npm --prefix "$RESOURCE_DIR" run lint
-
-> lint
-> tslint --project tsconfig.json
-
-Running command: npm --prefix "$RESOURCE_DIR" run build
-
-> build
-> node cp-angular && tsc
-
+[1m[31mError:[39m[22m Cannot understand what targets to deploy/serve. No targets in firebase.json match '--only [22mfunctions:onPostNewChatMessage[22m'.
