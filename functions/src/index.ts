@@ -1174,10 +1174,15 @@ exports.stripeRetrieveBalance = functions
   Will not work for STANDARD accounts.
   https://stripe.com/docs/api/accounts/delete?lang=node
 */
-exports.deleteStripeConnectedExpressAccount = functions
+exports.adminDeleteStripeConnectedExpressAccount = functions
 .runWith({memory: '1GB', timeoutSeconds: 300})
 .https
 .onCall( async (data, context) => {
+
+  // Reject any non admin user immediately.
+  if (!context.auth || !context.auth.token.admin) {
+    return {error: 'Unauthorised!'}
+  }
 
   const stripeAccountId = data.stripeUid;
   const uid = data.uid;
@@ -1217,11 +1222,84 @@ async function createStandardStripeConnectedAccount(email: string, uid: string) 
 }
 
 async function postStripeStandardAccountCreate(uid: string, account: Stripe.Account) {
-  return db.collection(`users/${uid}/account`).doc(`account${uid}`).set({
-    stripeAccountId: account.id,
-    stripeAccount: account
-  }, { merge: true });
+
+  const batch = admin.firestore().batch();
+
+    const ref1 = db.collection(`users/${uid}/account`).doc(`account${uid}`)
+    batch.set(ref1, { stripeAccountId: account.id }, { merge: true });
+    const ref2 = db.collection(`users/${uid}/account`).doc(`account${uid}`)
+    batch.set(ref2, { stripeAccount: account }, { merge: true });
+    const ref3 = db.collection(`stripe-connect-accounts-by-uid`).doc(uid)
+    batch.set(ref3, { stripeAccountId: account.id }, { merge: true });
+    const ref4 = db.collection(`uids-by-stripe-connect-account-id`).doc(account.id)
+    batch.set(ref4, { uid }, { merge: true });
+
+  return batch.commit();
 }
+
+/*
+  Attempts to:
+  1. Create a Stripe subscription for a user.
+  https://stripe.com/docs/api/subscriptions/create?lang=node
+*/
+exports.adminCreateStripeSubscriptionForUser = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.https
+.onCall( async (data, context) => {
+
+  // Reject any non admin user immediately.
+  if (!context.auth || !context.auth.token.admin) {
+    return {error: 'Unauthorised!'}
+  }
+
+  const uid = data.uid;
+
+  try {
+
+    // Get stripe customer id
+    let customerId;
+    const accountSnap = await db.collection(`users/${uid}/account`)
+    .doc(`account${uid}`)
+    .get();
+    if (accountSnap.exists) {
+      const account = accountSnap.data();
+      if (account && account.stripeCustomerId) {
+        customerId = account.stripeCustomerId;
+      }
+    }
+    if (!customerId) { // if no stored stripe customer id exists on the account, create one now...
+      const { email } = await admin.auth().getUser(uid);
+      const customerRecord = await createCustomerRecord({
+        uid: uid,
+        email,
+      });
+      if (customerRecord && customerRecord.stripeCustomerId) {
+        customerId = customerRecord.stripeCustomerId;
+      }
+    }
+
+    // create the subscription
+    const subscription = await stripe.subscriptions.create({
+      customer: customerId,
+      items: [
+        {price: 'price_1Ik5QABulafdcV5ttOcbt77z'}, // priceId for £0 one-time Flame subscription
+      ],
+      metadata: {
+        partner_referred: null,
+        client_UID: uid,
+        sale_item_id: 'price_1Ik5QABulafdcV5ttOcbt77z',
+        sale_item_type: 'coach_subscription',
+        sale_item_title: 'Flame',
+        firebaseRole: 'flame'
+      }
+    });
+
+    return { success: true, subscription } // success
+
+  } catch (err) {
+    return { error: err.message }
+  }
+});
 
 /*
   Attempts to generate a Stripe payment intent.

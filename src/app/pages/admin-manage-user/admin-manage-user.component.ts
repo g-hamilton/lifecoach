@@ -280,6 +280,18 @@ export class AdminManageUserComponent implements OnInit, OnDestroy {
     console.log('Result:', res);
   }
 
+  async adminCreateStripeSubscriptionForUser() {
+    if (!this.targetUserUid) {
+      alert('Missing target user ID');
+      return;
+    }
+    const data = {
+      uid: this.targetUserUid
+    };
+    const res = await this.cloudFunctionsService.createStripeSubscriptionForUser(data) as any;
+    console.log('Result:', res);
+  }
+
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
   }

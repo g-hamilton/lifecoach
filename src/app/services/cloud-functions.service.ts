@@ -946,7 +946,19 @@ resizeCourseImage(data) {
 
   deleteStripeConnectedExpressAccount(data: any) {
     return new Promise(resolve => {
-      const trigger = this.cloudFunctions.httpsCallable('deleteStripeConnectedExpressAccount');
+      const trigger = this.cloudFunctions.httpsCallable('adminDeleteStripeConnectedExpressAccount');
+      const tempSub = trigger(data)
+        .pipe(first())
+        .subscribe(res => {
+          resolve(res);
+          tempSub.unsubscribe();
+        });
+    });
+  }
+
+  createStripeSubscriptionForUser(data: any) {
+    return new Promise(resolve => {
+      const trigger = this.cloudFunctions.httpsCallable('adminCreateStripeSubscriptionForUser');
       const tempSub = trigger(data)
         .pipe(first())
         .subscribe(res => {
