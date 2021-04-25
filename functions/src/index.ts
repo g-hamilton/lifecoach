@@ -2172,7 +2172,7 @@ exports.createStripeCheckoutSession = functions
         sale_item_id: priceId,
         sale_item_type: saleItemType,
         sale_item_title: productTitle,
-        firebaseRole: role ?? null
+        firebaseRole: role ? role : null
       },
       subscription_data: {
         metadata: {
@@ -2181,7 +2181,7 @@ exports.createStripeCheckoutSession = functions
           sale_item_id: priceId,
           sale_item_type: saleItemType,
           sale_item_title: productTitle,
-          firebaseRole: role ?? null
+          firebaseRole: role ? role : null
         }
       }
     });
@@ -2240,7 +2240,7 @@ async function manageSubscriptionStatusChange(subscriptionId: string, uid: strin
     );
   }
   const product= price.product as Stripe.Product;
-  const role = product.metadata.firebaseRole ?? null;
+  const role = product.metadata.firebaseRole ? product.metadata.firebaseRole : null;
 
   // before doing anything else, update the user's auth custom claims
   if (['trialing', 'active'].includes(subscription.status)) { // the user is trailing or active
@@ -2276,7 +2276,7 @@ async function manageSubscriptionStatusChange(subscriptionId: string, uid: strin
       .collection('prices')
       .doc(price.id),
     prices,
-    quantity: subscription.items.data[0].quantity ?? null,
+    quantity: subscription.items.data[0].quantity ? subscription.items.data[0].quantity : null,
     items: subscription.items.data,
     cancel_at_period_end: subscription.cancel_at_period_end,
     cancel_at: subscription.cancel_at
@@ -2398,7 +2398,7 @@ const createProductRecord = async (product: Stripe.Product): Promise<void> => {
     active: product.active,
     name: product.name,
     description: product.description,
-    role: firebaseRole ?? null,
+    role: firebaseRole ? firebaseRole : null,
     images: product.images,
     ...prefixMetadata(rawMetadata),
   };
@@ -2420,15 +2420,15 @@ const insertPriceRecord = async (price: Stripe.Price): Promise<void> => {
     active: price.active,
     billing_scheme: price.billing_scheme,
     tiers_mode: price.tiers_mode,
-    tiers: price.tiers ?? null,
+    tiers: price.tiers ? price.tiers : null,
     currency: price.currency,
     description: price.nickname,
     type: price.type,
     unit_amount: price.unit_amount,
     recurring: price.recurring,
-    interval: price.recurring?.interval ?? null,
-    interval_count: price.recurring?.interval_count ?? null,
-    trial_period_days: price.recurring?.trial_period_days ?? null,
+    interval: price.recurring?.interval ? price.recurring.interval : null,
+    interval_count: price.recurring?.interval_count ? price.recurring.interval_count : null,
+    trial_period_days: price.recurring?.trial_period_days ? price.recurring?.trial_period_days : null,
     transform_quantity: price.transform_quantity,
     ...prefixMetadata(price.metadata),
   };
