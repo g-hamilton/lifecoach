@@ -2426,9 +2426,9 @@ const insertPriceRecord = async (price: Stripe.Price): Promise<void> => {
     type: price.type,
     unit_amount: price.unit_amount,
     recurring: price.recurring,
-    interval: price.recurring?.interval ? price.recurring.interval : null,
-    interval_count: price.recurring?.interval_count ? price.recurring.interval_count : null,
-    trial_period_days: price.recurring?.trial_period_days ? price.recurring?.trial_period_days : null,
+    interval: price && price.recurring && price.recurring.interval ? price.recurring.interval : null,
+    interval_count: price && price.recurring && price.recurring.interval_count ? price.recurring.interval_count : null,
+    trial_period_days: price && price.recurring && price.recurring.trial_period_days ? price.recurring?.trial_period_days : null,
     transform_quantity: price.transform_quantity,
     ...prefixMetadata(price.metadata),
   };
