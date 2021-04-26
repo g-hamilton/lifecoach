@@ -1141,6 +1141,27 @@ exports.stripeCreateLoginLink = functions
 });
 
 /*
+  Attempts to generate a Stripe AccountLink for a connected account.
+  https://stripe.com/docs/api/account_links/create?lang=node
+*/
+exports.stripeCreateAccountLink = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.https
+.onCall( async (data, context) => {
+
+  try {
+
+    const res = await stripe.accountLinks.create(data);
+
+    return { url: res.url }
+
+  } catch (err) {
+    console.error(err);
+    return { error: err.message }
+  }
+});
+
+/*
   Attempts to retrieve a Stripe account balance.
 */
 exports.stripeRetrieveBalance = functions
