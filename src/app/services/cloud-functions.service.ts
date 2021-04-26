@@ -979,4 +979,28 @@ resizeCourseImage(data) {
         });
     });
   }
+
+  adminMassSubscribeCoachesToFlame(data: any) {
+    return new Promise(resolve => {
+      const trigger = this.cloudFunctions.httpsCallable('adminMassSubscribeCoachesToFlame');
+      const tempSub = trigger(data)
+        .pipe(first())
+        .subscribe(res => {
+          resolve(res);
+          tempSub.unsubscribe();
+        });
+    });
+  }
+
+  adminMassDeleteStripeExpressAccounts(data: any) {
+    return new Promise(resolve => {
+      const trigger = this.cloudFunctions.httpsCallable('adminMassDeleteStripeExpressAccounts');
+      const tempSub = trigger(data)
+        .pipe(first())
+        .subscribe(res => {
+          resolve(res);
+          tempSub.unsubscribe();
+        });
+    });
+  }
 }

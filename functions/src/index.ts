@@ -5735,6 +5735,142 @@ exports.updateAllProfilesInSequence = functions
   }
 });
 
+exports.adminMassDeleteStripeExpressAccounts = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.https
+.onCall( async (data, context) => {
+  try {
+
+    // If user is not an authorised admin reject immediately.
+    if (!context.auth || context.auth.token.admin !== true) {
+      return {error: 'Unauthorised!'}
+    }
+
+    // we have to query algolia as our users collection are all VIRTUAL docs and invisilbe to snapshots!
+    const searchIndex = 'prod_USERS';
+    const index = algolia.initIndex(searchIndex);
+    const algoliaRes = await index.browse(''); // use browse not search to get all records
+    console.log(`✅ Retrieved ${algoliaRes.hits.length} user profiles...`);
+    //console.log('Example profile sanity check:', algoliaRes.hits[400]);
+
+    let num = 0;
+
+    algoliaRes.hits.forEach(async (hit, i) => {
+      num = i;
+      const record = hit as any;
+      const uid = record.objectID;
+      console.log(`Admin mass update. Processing record: ${i} for user: ${uid}`);
+
+      const accountSnap = await db.collection(`users/${uid}/account`)
+      .doc(`account${uid}`)
+      .get();
+      if (accountSnap.exists) {
+        const account = accountSnap.data() as UserAccount;
+        if (account && account.stripeUid) { // user has a stripe express account
+          try {
+            await deleteStripeAccount(account.stripeUid);
+            await postStripeConnectedExpressAccountDelete(uid);
+          } catch (err) {
+            console.log(`❗️[Error]: ${err.message} for [${uid}]:`);
+          }
+        }
+      }
+    });
+
+    return {
+      success: true,
+      message: `Success! Processed ${num} records.`
+    }
+  }
+  catch(err) {
+    console.error(err);
+    return {error: err.message};
+  }
+});
+
+exports.adminMassSubscribeCoachesToFlame = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.https
+.onCall( async (data, context) => {
+  try {
+
+    // If user is not an authorised admin reject immediately.
+    if (!context.auth || context.auth.token.admin !== true) {
+      return {error: 'Unauthorised!'}
+    }
+
+    // we have to query algolia as our users collection are all VIRTUAL docs and invisilbe to snapshots!
+    const searchIndex = 'prod_USERS';
+    const index = algolia.initIndex(searchIndex);
+    const algoliaRes = await index.browse(''); // use browse not search to get all records
+    console.log(`✅ Retrieved ${algoliaRes.hits.length} user profiles...`);
+    //console.log('Example profile sanity check:', algoliaRes.hits[400]);
+
+    let num = 0;
+
+    algoliaRes.hits.forEach(async (hit, i) => {
+      num = i;
+      const record = hit as any;
+      const uid = record.objectID;
+      console.log(`Admin mass update. Processing record: ${i} for user: ${uid}`);
+
+      const accountSnap = await db.collection(`users/${uid}/account`)
+      .doc(`account${uid}`)
+      .get();
+      if (accountSnap.exists) {
+        const account = accountSnap.data() as UserAccount;
+        if (account && account.accountType === 'coach') { // user is a coach
+          try {
+
+            // Get stripe customer id
+            let customerId;
+            if (account.stripeCustomerId) {
+              customerId = account.stripeCustomerId;
+            }
+            if (!customerId) { // if no stored stripe customer id exists on the account, create one now...
+              const { email } = await admin.auth().getUser(uid);
+              const customerRecord = await createCustomerRecord({
+                uid: uid,
+                email,
+              });
+              if (customerRecord && customerRecord.stripeCustomerId) {
+                customerId = customerRecord.stripeCustomerId;
+              }
+            }
+
+            // create the subscription
+            await stripe.subscriptions.create({
+              customer: customerId as string,
+              items: [
+                {price: 'price_1Ik5QABulafdcV5ttOcbt77z'}, // priceId for £0 one-time Flame subscription
+              ],
+              metadata: {
+                partner_referred: null,
+                client_UID: uid,
+                sale_item_id: 'price_1Ik5QABulafdcV5ttOcbt77z',
+                sale_item_type: 'coach_subscription',
+                sale_item_title: 'Flame',
+                firebaseRole: 'flame'
+              }
+            });
+          } catch (err) {
+            console.log(`❗️[Error]: ${err.message} for [${uid}]:`);
+          }
+        }
+      }
+    });
+
+    return {
+      success: true,
+      message: `Success! Processed ${num} records.`
+    }
+  }
+  catch(err) {
+    console.error(err);
+    return {error: err.message};
+  }
+});
+
 exports.getTwilioToken = functions
   .runWith({memory: '1GB', timeoutSeconds: 300})
   .https

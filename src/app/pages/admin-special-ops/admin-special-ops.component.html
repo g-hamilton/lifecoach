@@ -14,18 +14,63 @@
                     </div>
                     <div class=" card-body">
                         <p class="text-danger">
-                            Danger!
+                            DANGER! DANGER! DANGER!
                         </p>
                         <p>
                             Be sure you know what you're doing and ALWAYS <a href="https://firebase.google.com/docs/firestore/manage-data/export-import" target="_blank">run a DB backup</a> before proceeding!
                         </p>
-                        <button type="button" class="btn btn-danger btn-round" (click)="triggerServerSideProfileUpdateInSequence()">
-                            <span
-                            *ngIf="runningProfileUpdate"
-                            class="spinner-border spinner-border-sm"
-                            role="status"
-                            ></span> {{ runningProfileUpdate ? 'Running...' : 'Run' }}
-                        </button>
+                        
+                        <div class=" row">
+                            <div class=" col">
+                                <h4>Mass Profile Update Timestamps</h4>
+                                <p>
+                                    Simply updates the admin updated timestamp on every user's profile object. 
+                                    Designed to trigger listener functions to run when profiles are updated.
+                                </p>
+                                <button type="button" class="btn btn-danger btn-round" (click)="triggerServerSideProfileUpdateInSequence()">
+                                    <span
+                                    *ngIf="runningProfileUpdate"
+                                    class="spinner-border spinner-border-sm"
+                                    role="status"
+                                    ></span> {{ runningProfileUpdate ? 'Running...' : 'Trigger Mass Profile Timestamp Update' }}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class=" row">
+                            <div class=" col">
+                                <h4>Mass Delete Stripe Express Accounts</h4>
+                                <p>
+                                    Designed to mass delete all user Stripe Express accounts (if users have an express account). 
+                                    Created to move all users from express flow to Standard flow.
+                                </p>
+                                <button type="button" class="btn btn-danger btn-round" (click)="triggerDeleteStripeExpressAccounts()">
+                                    <span
+                                    *ngIf="runningExpressDelete"
+                                    class="spinner-border spinner-border-sm"
+                                    role="status"
+                                    ></span> {{ runningExpressDelete ? 'Running...' : 'Trigger Mass Express Delete' }}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class=" row">
+                            <div class=" col">
+                                <h4>Mass Subscribe Users To Flame</h4>
+                                <p>
+                                    Designed to subscribe all Coach users to the Flame plan with a new Stripe 
+                                    subscription (auto renews at zero cost).
+                                </p>
+                                <button type="button" class="btn btn-danger btn-round" (click)="triggerMassSubscribeToFlame()">
+                                    <span
+                                    *ngIf="runningSubscribeFlame"
+                                    class="spinner-border spinner-border-sm"
+                                    role="status"
+                                    ></span> {{ runningSubscribeFlame ? 'Running...' : 'Trigger Mass Subscribe Flame' }}
+                                </button>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>

@@ -13,6 +13,8 @@ export class AdminSpecialOpsComponent implements OnInit {
     public browser: boolean;
 
     public runningProfileUpdate: boolean;
+    public runningExpressDelete: boolean;
+    public runningSubscribeFlame: boolean;
 
     constructor(
         @Inject(PLATFORM_ID) private platformId: object,
@@ -35,6 +37,20 @@ export class AdminSpecialOpsComponent implements OnInit {
             this.alertService.alert('warning-message', 'Oops!', res.error);
         }
         this.runningProfileUpdate = false;
+    }
+
+    async triggerDeleteStripeExpressAccounts() {
+        this.runningExpressDelete = true;
+        const res = await this.cloudFunctionsService.adminMassDeleteStripeExpressAccounts({}) as any;
+        console.log(res);
+        this.runningExpressDelete = false;
+    }
+
+    async triggerMassSubscribeToFlame() {
+        this.runningExpressDelete = true;
+        const res = await this.cloudFunctionsService.adminMassSubscribeCoachesToFlame({}) as any;
+        console.log(res);
+        this.runningExpressDelete = false;
     }
 
 }
