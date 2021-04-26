@@ -1186,14 +1186,11 @@ exports.adminDeleteStripeConnectedExpressAccount = functions
 
   const stripeAccountId = data.stripeUid;
   const uid = data.uid;
-  const email = data.email;
 
   try {
 
     await deleteStripeAccount(stripeAccountId);
     await postStripeConnectedExpressAccountDelete(uid);
-    const account = await createStandardStripeConnectedAccount(email, uid);
-    await postStripeStandardAccountCreate(uid, account);
 
     return { success: true } // success
 
@@ -1209,32 +1206,6 @@ async function deleteStripeAccount(acctId: string) {
 
 async function postStripeConnectedExpressAccountDelete(uid: string) {
   return db.collection(`users/${uid}/account`).doc(`account${uid}`).set({ stripeUid: null }, { merge: true });
-}
-
-async function createStandardStripeConnectedAccount(email: string, uid: string) {
-  return stripe.accounts.create({
-    type: 'standard',
-    email,
-    metadata: {
-      lifecoachUID: uid
-    }
-  });
-}
-
-async function postStripeStandardAccountCreate(uid: string, account: Stripe.Account) {
-
-  const batch = admin.firestore().batch();
-
-    const ref1 = db.collection(`users/${uid}/account`).doc(`account${uid}`)
-    batch.set(ref1, { stripeAccountId: account.id }, { merge: true });
-    const ref2 = db.collection(`users/${uid}/account`).doc(`account${uid}`)
-    batch.set(ref2, { stripeAccount: account }, { merge: true });
-    const ref3 = db.collection(`stripe-connect-accounts-by-uid`).doc(uid)
-    batch.set(ref3, { stripeAccountId: account.id }, { merge: true });
-    const ref4 = db.collection(`uids-by-stripe-connect-account-id`).doc(account.id)
-    batch.set(ref4, { uid }, { merge: true });
-
-  return batch.commit();
 }
 
 /*
