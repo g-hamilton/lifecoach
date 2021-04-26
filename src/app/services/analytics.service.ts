@@ -511,4 +511,8 @@ export class AnalyticsService {
     mixpanel.track(`Clicked button [${id}]`);
   }
 
+  redirectingToStripe() {
+    mixpanel.track(`Redirecting to Stripe`);
+  }
+
 }

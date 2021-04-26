@@ -21,6 +21,7 @@ import { environment } from '../../../environments/environment';
 import { Stripe } from 'stripe';
 import { AccountClosureRequest } from 'app/interfaces/account.closure.request.interface';
 import { CompleteStripeConnectRequest } from 'app/interfaces/complete.stripe.connect.request.interface';
+import { StripeAccountLinkRequest } from 'app/interfaces/stripe.accountlink.request.interface';
 
 @Component({
   selector: 'app-account',
@@ -67,6 +68,7 @@ export class AccountComponent implements OnInit, OnDestroy, AfterViewInit {
   public accountSnapshot: UserAccount;
 
   public connectingStripe: boolean;
+  public redirectingStripe: boolean;
   public stripeConnectUrl: string;
   public managingStripe: boolean;
   public stripeCustomerId: string;
@@ -563,6 +565,47 @@ export class AccountComponent implements OnInit, OnDestroy, AfterViewInit {
     console.log('Sign out successful.');
     this.alertService.alert('auto-close', 'Sign-Out Successful', 'See you again soon');
     this.router.navigate(['/']);
+  }
+
+  async redirectToStripe() {
+
+    if (!this.accountSnapshot.stripeAccountId) {
+      this.alertService.alert('warning-message', 'Oops!', 'Missing Stripe account ID. Please contact support.');
+      return;
+    }
+
+    if (!this.redirectingStripe) {
+      this.redirectingStripe = true;
+      this.analyticsService.redirectingToStripe();
+
+      // call the back end to create a Stripe accountLink redirect URL
+      // to send the user directly into the Stripe account onboarding flow.
+      // Provides a form for inputting outstanding requirements.
+      // Send the user to the form in this mode to just collect any new information you need.
+      // https://stripe.com/docs/api/account_links/create?lang=node
+
+      const data: StripeAccountLinkRequest = {
+        account: this.accountSnapshot.stripeAccountId,
+        return_url: `${environment.baseUrl}/account/payments`,
+        refresh_url: `${environment.baseUrl}/account/payments?reauth`,
+        type: 'account_onboarding'
+      };
+
+      const res = await this.cloudFunctionsService.getStripeAccountLink(data) as any;
+      if (res.error) { // error!
+        this.redirectingStripe = false;
+        this.alertService.alert('warning-message', 'Oops!', `Error: ${res.error}. Please contact support.`);
+        return;
+      }
+
+      // success
+      // we've got the redirect url. Send the user into the flow...
+      // they will be redirected back to the app on completion.
+      // https://stripe.com/docs/connect/enable-payment-acceptance-guide
+
+      window.location.href = res.url;
+      this.redirectingStripe = false;
+    }
   }
 
   ngOnDestroy() {

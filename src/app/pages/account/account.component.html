@@ -230,10 +230,12 @@
                                             <i class="fas fa-info-circle"></i> Your Stripe account has been successfully connected to Lifecoach. 
                                             Click 'Manage My Stripe Account' to visit your Stripe dashboard.
                                         </p>
-                                        <div class=" row mb-4">
+
+                                        <!-- if user stripe account needs action -->
+                                        <div class=" row mb-4"
+                                        *ngIf="accountSnapshot.stripeAccount?.requirements?.currently_due && accountSnapshot.stripeAccount.requirements.currently_due.length > 0 ; else healthyStripeAccount" >
                                             <div class=" col-md-8">
                                                 <div 
-                                                *ngIf="accountSnapshot.stripeAccount?.requirements?.currently_due && accountSnapshot.stripeAccount.requirements.currently_due.length > 0" 
                                                 class=" pull-left pl-3 mt-4">
                                                     <p>
                                                         <span class=" text-warning">
@@ -248,20 +250,48 @@
                                             </div>
                                             <div class=" col-md-4">
                                                 <div class=" pull-right pr-3">
-                                                    <a [href]="'https://dashboard.stripe.com/' + accountSnapshot.stripeAccountId" target="_blank">
-                                                        <button
-                                                        class=" btn btn-fill btn-info btn-round btn-wd"
-                                                        name="manage-stripe"
-                                                        type="button">
-                                                            <span *ngIf="!managingStripe">
-                                                                <i class="fab fa-stripe-s"></i> | 
-                                                            </span>
-                                                            Manage My Stripe Account
-                                                        </button>
-                                                    </a>
+                                                    <button
+                                                    class=" btn btn-fill btn-info btn-round btn-wd"
+                                                    name="manage-stripe"
+                                                    type="button"
+                                                    (click)="redirectToStripe()">
+                                                        <span
+                                                        *ngIf="redirectingStripe"
+                                                        class="spinner-border spinner-border-sm"
+                                                        role="status"
+                                                        ></span>
+                                                        <span *ngIf="!redirectingStripe">
+                                                            <i class="fab fa-stripe-s"></i> | 
+                                                        </span>
+                                                        {{ redirectingStripe ? 'Redirecting to Stripe' : 'Manage My Stripe Account' }}
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
+                                        <!-- end if user stripe account needs action -->
+
+                                        <!-- if user stripe account has no outstanding requirements -->
+                                        <ng-template #healthyStripeAccount>
+                                            <div class=" row">
+                                                <div class=" col">
+                                                    <div class=" pull-right pr-3 mt-4">
+                                                        <a [href]="'https://dashboard.stripe.com/' + accountSnapshot.stripeAccountId" target="_blank">
+                                                            <button
+                                                            class=" btn btn-fill btn-info btn-round btn-wd"
+                                                            name="manage-stripe"
+                                                            type="button">
+                                                                <span>
+                                                                    <i class="fab fa-stripe-s"></i> | 
+                                                                </span>
+                                                                Manage My Stripe Account
+                                                            </button>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </ng-template>
+                                        <!-- end if user stripe account has no outstanding requirements -->
+
                                     </div>
 
                                     <!-- User does not have a (or has not connected an existing) Stripe Standard Connect Account -->
