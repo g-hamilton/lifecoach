@@ -1,11 +1,7 @@
 import { Component, OnInit, Inject, PLATFORM_ID, AfterViewChecked, ChangeDetectorRef, AfterViewInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { isPlatformBrowser } from '@angular/common';
-
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-
-import { UrlScheme } from '../../custom-validators/urlscheme.validator';
-
 import { AuthService } from '../../services/auth.service';
 import { DataService } from '../../services/data.service';
 import { CountryService } from '../../services/country.service';
@@ -14,7 +10,7 @@ import { CoachingSpecialitiesService } from '../../services/coaching.specialitie
 import { AnalyticsService } from '../../services/analytics.service';
 import { StorageService } from '../../services/storage.service';
 import { AlertService } from 'app/services/alert.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { environment } from 'environments/environment';
 import {CloudFunctionsService} from '../../services/cloud-functions.service';
@@ -117,24 +113,6 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
     speciality1: {
       required: `Please select a closest matching field`
     },
-    facebook: {
-      missingUrlScheme: `Address must include either 'http://' or 'https://`
-    },
-    twitter: {
-      missingUrlScheme: `Address must include either 'http://' or 'https://`
-    },
-    linkedin: {
-      missingUrlScheme: `Address must include either 'http://' or 'https://`
-    },
-    youtube: {
-      missingUrlScheme: `Address must include either 'http://' or 'https://`
-    },
-    instagram: {
-      missingUrlScheme: `Address must include either 'http://' or 'https://`
-    },
-    website: {
-      missingUrlScheme: `Address must include either 'http://' or 'https://`
-    },
     goalTags: {
       required: `Please add at least one goal focussed outcome`,
       minlength: `Must be more than ${this.goalTagMinLength} characters`,
@@ -182,7 +160,8 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
     private analyticsService: AnalyticsService,
     private storageService: StorageService,
     private alertService: AlertService,
-    private cloudFunctions: CloudFunctionsService
+    private cloudFunctions: CloudFunctionsService,
+    private router: Router
   ) {
   }
 
@@ -301,12 +280,6 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
       fullDescription: [''],
       goalTags: [this.formBuilder.array([new FormControl('', [Validators.minLength(this.goalTagMinLength), Validators.maxLength(this.goalTagMaxLength)])]), Validators.compose([Validators.maxLength(this.goalTagsMax)])],
       credentials: [this.formBuilder.array([new FormControl('', [Validators.minLength(this.credentialMinLength), Validators.maxLength(this.credentialMaxLength)])]), Validators.compose([Validators.maxLength(this.credentialsMax)])],
-      facebook: [''],
-      twitter: [''],
-      linkedin: [''],
-      youtube: [''],
-      instagram: [''],
-      website: [''],
       isPublic: [false],
       selectedProfileVideo: [null],
       dateCreated: [null],
@@ -314,15 +287,6 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
       onlyIncludeInCoachingForCoaches: [false],
       targetIssues: [null, [Validators.maxLength(this.targetIssuesMaxLength)]],
       targetGoals: [null, [Validators.maxLength(this.targetGoalsMaxLength)]],
-    }, {
-      validators: [
-        UrlScheme('facebook'),
-        UrlScheme('twitter'),
-        UrlScheme('linkedin'),
-        UrlScheme('youtube'),
-        UrlScheme('instagram'),
-        UrlScheme('website')
-      ]
     });
   }
 
@@ -359,12 +323,6 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
       fullDescription: p.fullDescription ? p.fullDescription : '',
       goalTags: this.importGoalTags(p.goalTags),
       credentials: this.importCredentials(p.credentials),
-      facebook: p.facebook ? p.facebook : '',
-      twitter: p.twitter ? p.twitter : '',
-      linkedin: p.linkedin ? p.linkedin : '',
-      youtube: p.youtube ? p.youtube : '',
-      instagram: p.instagram ? p.instagram : '',
-      website: p.website ? p.website : '',
       selectedProfileVideo: p.selectedProfileVideo ? p.selectedProfileVideo : null,
       isPublic: p.isPublic ? p.isPublic : false,
       dateCreated: p.dateCreated ? p.dateCreated : Math.round(new Date().getTime() / 1000), // unix timestamp if missing
@@ -546,7 +504,7 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
       }
       this.alertService.alert('warning-message', 'Oops', 'Please complete all required fields before saving.');
       this.savingProfile = false;
-      return;
+      return false;
     }
 
     // console.log('Profile is valid:', this.userProfile.value);
@@ -607,15 +565,13 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
     // console.log(`Saving profile form to DB:`, saveProfile);
 
     await this.dataService.saveCoachProfile(this.userId, saveProfile);
-    // if (this.profileF.isPublic.value) {
-    //   this.dataService.completeUserTask(this.userId, 'taskDefault002'); // this is done by default now
-    // }
 
     this.alertService.alert('auto-close', 'Success!', 'Profile updated successfully.');
     this.analyticsService.saveUserProfile(saveProfile);
 
     this.savingProfile = false;
     this.saveAttempt = false;
+    return true;
   }
 
   copyShareUrl(element: any) {
@@ -626,6 +582,15 @@ export class UserComponent implements OnInit, AfterViewChecked, AfterViewInit, O
     document.execCommand('copy');
     element.setSelectionRange(0, 0);
     this.alertService.alert('auto-close', 'Copied!', 'Link copied to clipboard.');
+  }
+
+  async manageTestimonials() {
+    // auto save
+    const res = await this.onSubmit();
+    // save successful, navigate...
+    if (res) {
+      this.router.navigate(['/client-testimonials']);
+    }
   }
 
   ngOnDestroy() {

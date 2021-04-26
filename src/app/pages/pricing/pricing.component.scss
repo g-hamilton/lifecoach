@@ -28,22 +28,16 @@
     margin-top: 50px;
 }
 
-.card-pricing .card-body img {
-    z-index: -99;
-}
-
-.card-pricing ul {
-    margin: 30px auto 40px;
-}
-
 .explainer-text {
     color: #263148;
 }
 
-// #section-four {
-//     background: linear-gradient(rgba(0,0,0,.75), rgba(0,0,0,.75)), url('../../../assets/img/lifecoach-coaching-online-courses.png') no-repeat bottom center / cover;
-//     .container {
-//         padding-top: 10vh;
-//         padding-bottom: 10vh;
-//     }
-// }
+.card-pricing .card-body .card-title {
+    position: relative;
+    font-size: 5em;
+    font-weight: 900;
+    color: white;
+    text-transform: lowercase;
+    margin-left: -4px;
+    z-index: 1;
+}

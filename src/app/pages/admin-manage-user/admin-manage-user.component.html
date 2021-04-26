@@ -66,11 +66,21 @@
                             <div *ngIf="accountType === 'coach'" class=" row">
                                 <div class=" col-md-6">
                                     <div class="form-group">
-                                        <label for="stripe-uid"> Stripe UID
+                                        <label for="stripe-uid"> Stripe Account ID
                                         </label>
                                         <input type="text" class="form-control" id="stripe-uid"
                                         [value]="account.stripeUid ? account.stripeUid : 'Not enabled'">
                                     </div>
+                                </div>
+                                <div class=" col-md-6">
+                                    <button class=" btn btn-round btn-danger" (click)="adminDeleteStripeExpressAccount()">
+                                        Delete Stripe Account
+                                    </button>
+                                </div>
+                                <div class=" col-md-6">
+                                    <button class=" btn btn-round btn-danger" (click)="adminCreateStripeSubscriptionForUser()">
+                                        Create Flame Subscription
+                                    </button>
                                 </div>
                             </div>
                         </form>

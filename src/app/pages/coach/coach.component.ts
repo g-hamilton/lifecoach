@@ -19,6 +19,7 @@ import { AlertService } from 'app/services/alert.service';
 import { BsModalService, BsModalRef, ModalOptions } from 'ngx-bootstrap/modal';
 import { ScheduleCallComponent } from 'app/components/schedule-call/schedule-call.component';
 import { RegisterModalComponent } from 'app/components/register-modal/register-modal.component';
+import { ClientTestimonial } from 'app/interfaces/client.testimonial.interface';
 
 
 @Component({
@@ -42,6 +43,7 @@ export class CoachComponent implements OnInit, OnDestroy {
   public userId: string;
   public objKeys = Object.keys;
   public maxDiscountObj = { max: 0 };
+  public clientTestimonials = [] as ClientTestimonial[];
 
   constructor(
     @Inject(DOCUMENT) private document: any,
@@ -289,10 +291,18 @@ export class CoachComponent implements OnInit, OnDestroy {
       initialState: {
         message: `Just a second! You need a Lifecoach account to schedule Discovery sessions with coaches. Joining Lifecoach is free and only takes seconds!`,
         successMessage: `Click Schedule a Session again to continue.`,
-        redirectUrl: null
+        redirectUrl: null,
+        accountType: 'regular'
       } as any
     };
     this.bsModalRef = this.modalService.show(RegisterModalComponent, config);
+  }
+
+  scrollToElement(elementId: string) {
+    if (this.browser) { // probably not the bet universal browser solution to scroll!
+      const $element = document.getElementById(elementId);
+      $element.scrollIntoView({behavior: 'smooth', block: 'start', inline: 'nearest'});
+    }
   }
 
   ngOnDestroy() {

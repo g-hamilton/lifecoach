@@ -234,7 +234,7 @@
                       Save up to {{ maxDiscountObj.max }}% with a multi-session purchase
                     </h3>
                     <h4 class=" description">
-                      Got questions? Schedule a free discovery session with {{ service.coachName }} before you get started.
+                      Got questions? Request a FREE discovery session with {{ service.coachName }} before you get started...
                     </h4>
                   </div>
                 </div>
@@ -262,7 +262,7 @@
                         />
           
                         <ul class=" list-group">
-                          <li class=" list-group-item mt-4">Schedule a free discovery session</li>
+                          <li class=" list-group-item mt-4">Request a Discovery Session</li>
                         </ul>
                         <div class=" card-prices pl-3 pr-3">
                           <h3 class=" text-on-front">FREE</h3>
@@ -274,10 +274,12 @@
                         <!-- schedule call button -->
                         <!-- disabled for service seller -->
                         <!-- userId === service.sellerUid -->
-                        <button class=" btn btn-round btn-just-icon btn-primary"
+                        <button
+                        id="coach-service-request-discover"
+                        class=" btn btn-round btn-just-icon btn-primary"
                         [disabled]="userId === service.sellerUid"
-                        (click)="this.userId ? openScheduleCallModal() : registerToDiscover()">
-                         Schedule a Session
+                        (click)="clickEvent('coach-service-request-discover') ; navToContact()">
+                         Request a Session
                         </button>
                       </div>
                     </div>
@@ -297,7 +299,7 @@
                       'card-danger': i === 2
                     }">
                       <div class=" card-body">
-                        <h1 class=" card-title">{{ package }} Session{{package === '1' ? '' : 's'}}</h1>
+                        <h1 class=" card-title" style="font-size: 3.2em;">{{ package }} Session{{package === '1' ? '' : 's'}}</h1>
                         <img
                         alt="Image"
                         class=" card-img"
@@ -315,37 +317,56 @@
                         </div>
                       </div>
                       <div class=" card-footer text-center mb-3 mt-3">
-                        <!-- purchase button -->
-                        <!-- disabled for service seller -->
+
+                        <!-- dynamic buttons - enquire or buy now -->
+                        <!-- disabled for service seller in both cases -->
                         <!-- userId === service.sellerUid || userClaims && userClaims[service.serviceId] -->
-                        <button
-                        class=" btn btn-round"
-                        [ngClass]="{
-                          'btn-success': i === 0,
-                          'btn-info': i === 1,
-                          'btn-danger': i === 2
-                        }"
-                        id="buynowfull"
-                        type="button"
-                        data-target="#payModal"
-                        (click)="purchasingService = i ; purchaseDisplayPrice = calcDisplayPrice(service.pricing[package].price) ; pricingSessions = package ; userId ? payModal.show() : registerToPurchase()"
-                        [disabled]="userId === service.sellerUid">
-                          <span
-                          *ngIf="purchaseInProgress && purchasingService === i"
-                          class="spinner-border spinner-border-sm"
-                          role="status"
-                          ></span> {{ purchaseInProgress && purchasingService === i ? 'Purchasing...' : 'Buy Now'}} 
-                        </button>
-                        <div class="mt-2">
-                          <small>
-                            7-Day Money-Back Guarantee.
-                            <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001123378-all-about-refunds" taget="_blank">
-                              Info
-                            </a>
-                          </small>
+
+                        <!-- enquire button if payments not enabled by coach -->
+                        <div *ngIf="!coachPaymentsEnabled ; else buyNow">
+                          <button
+                          id="coach-service-pricing-enquire"
+                          class=" btn btn-round"
+                          [ngClass]="{
+                            'btn-success': i === 0,
+                            'btn-info': i === 1,
+                            'btn-danger': i === 2
+                          }"
+                          type="button"
+                          [disabled]="userId === service.sellerUid"
+                          (click)="clickEvent('coach-service-pricing-enquire') ; navToContact()">
+                          Enquire Now
+                          </button>
                         </div>
+                        <!-- end enquire button -->
+
+                        <!-- buy now button if payments are enabled by coach -->
+                        <ng-template #buyNow>
+                          <button
+                          id="coach-service-pricing-buy-now"
+                          class=" btn btn-round"
+                          [ngClass]="{
+                            'btn-success': i === 0,
+                            'btn-info': i === 1,
+                            'btn-danger': i === 2
+                          }"
+                          type="button"
+                          data-target="#payModal"
+                          (click)="clickEvent('coach-service-pricing-buy-now') ; purchasingService = i ; purchaseDisplayPrice = calcDisplayPrice(service.pricing[package].price) ; pricingSessions = package ; userId ? payModal.show() : registerToPurchase()"
+                          [disabled]="userId === service.sellerUid">
+                            <span
+                            *ngIf="purchaseInProgress && purchasingService === i"
+                            class="spinner-border spinner-border-sm"
+                            role="status"
+                            ></span> {{ purchaseInProgress && purchasingService === i ? 'Purchasing...' : 'Buy Now'}} 
+                          </button>
+                        </ng-template>
+                        <!-- end buy now button -->
+
                       </div>
+                      <!-- end card footer -->
                     </div>
+                    <!-- end card -->
                   </div>
                   <!-- end pricing package cols -->
 
@@ -376,7 +397,32 @@
                 <!-- coach card -->
                 <div class=" mt-5"></div>
                 <app-coach-mini-profile [coachId]="service.sellerUid"></app-coach-mini-profile>
-                <!-- end coach card --> 
+                <!-- end coach card -->
+
+                <!-- contact coach -->
+                <div id="contact-coach">
+                  <!-- <h4 class=" card-title"> Contact {{ service.coachName }} </h4> -->
+                  <div class=" card">
+                      <div class=" card-body">
+                          <div class=" row justify-content-center">
+                              <div class=" col">
+                                  <h5 class=" mb-5">
+                                      Start an informal chat or request a FREE Discovery Session with {{ service.coachName }}...
+                                  </h5>
+                                  <!-- contact form only if user authorised -->
+                                  <div *ngIf="userId">
+                                      <app-coach-contact [coachUid]="service.sellerUid"></app-coach-contact>
+                                  </div>
+                                  <!-- 
+                                      login in flow should always be loaded 
+                                      (user authorised or not) 
+                                  -->
+                                  <app-login-in-flow></app-login-in-flow>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                </div>
 
             </div>
             <!-- end pricing -->

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, Inject, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { AuthService } from '../../services/auth.service';
@@ -6,15 +6,28 @@ import { AnalyticsService } from '../../services/analytics.service';
 import { ToastService } from '../../services/toast.service';
 import { AlertService } from 'app/services/alert.service';
 
-import { UserAccount } from '../../interfaces/user.account.interface';
 import { FirebaseLoginResponse } from 'app/interfaces/firebase.login.response.interface';
+import { Router } from '@angular/router';
+import * as firebase from 'firebase';
+import { DataService } from 'app/services/data.service';
+import { DOCUMENT } from '@angular/common';
+import { Subscription } from 'rxjs';
+
+/*
+  This component is designed to offer signup/registration at any point in the app.
+  It will send a login email to the user.
+  If the user is not already registered in Firebase it will create a new user.
+  After clicking the link in the login email it will redirect the user back to the current
+  page that this component is loaded in and then process the sign in.
+  Once the user is authorised, the component template will be hidden.
+*/
 
 @Component({
   selector: 'app-login-in-flow',
   templateUrl: './login-in-flow.component.html',
   styleUrls: ['./login-in-flow.component.scss']
 })
-export class LoginInFlowComponent implements OnInit {
+export class LoginInFlowComponent implements OnInit, OnDestroy {
 
   @Input() email: string;
   @Input() firstName: string;
@@ -25,44 +38,46 @@ export class LoginInFlowComponent implements OnInit {
   @Output() loginEvent = new EventEmitter<FirebaseLoginResponse>();
   @Output() registerEvent = new EventEmitter<FirebaseLoginResponse>();
 
+  public user: firebase.User;
   public loginForm: FormGroup;
   public login: boolean;
 
   public focus: boolean;
-  public focus1: boolean;
-  public focus2: boolean;
-  public focus3: boolean;
   public focus4: boolean;
-  public focus5: boolean;
 
   public focusTouched: boolean;
-  public focusTouched1: boolean;
-  public focusTouched2: boolean;
-  public focusTouched3: boolean;
   public focusTouched4: boolean;
-  public focusTouched5: boolean;
 
   public registerForm: FormGroup;
   public register: boolean;
 
+  public emailSent: boolean;
+
+  private subscriptions: Subscription = new Subscription();
+
   constructor(
+    @Inject(DOCUMENT) private document,
     public formBuilder: FormBuilder,
     private authService: AuthService,
     private analyticsService: AnalyticsService,
     private toastService: ToastService,
-    private alertService: AlertService
+    private alertService: AlertService,
+    private dataService: DataService,
+    private router: Router
   ) { }
 
   ngOnInit() {
     this.buildLoginForm();
     this.buildRegisterForm();
+    // confirm signin
+    const url = document.location.href;
+    this.confirmSignIn(url);
   }
 
   buildLoginForm() {
     this.loginForm = this.formBuilder.group(
       {
-        email: [this.email ? this.email : '', [Validators.required, Validators.email]],
-        password: ['', [Validators.required, Validators.minLength(6)]],
+        email: [this.email ? this.email : '', [Validators.required, Validators.email]]
       }
     );
   }
@@ -70,11 +85,7 @@ export class LoginInFlowComponent implements OnInit {
   buildRegisterForm() {
     this.registerForm = this.formBuilder.group(
       {
-        firstName: [this.firstName ? this.firstName : '', [Validators.required]],
-        lastName: [this.lastName ? this.lastName : '', [Validators.required]],
-        email: [this.email ? this.email : '', [Validators.required, Validators.pattern(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)]],
-        password: ['', [Validators.required, Validators.minLength(6)]],
-        termsAccepted: [false, Validators.pattern('true')]
+        email: [this.email ? this.email : '', [Validators.required, Validators.email]]
       }
     );
   }
@@ -83,38 +94,40 @@ export class LoginInFlowComponent implements OnInit {
     return this.loginForm.controls;
   }
 
-  async onLogin() {
-
-    if (this.loginForm.valid) {
-      this.login = true;
-      const account: UserAccount = {
-        accountEmail: this.loginF.email.value,
-        password: this.loginF.password.value,
-        accountType: null
-      };
-      const res = await this.authService.signInWithEmailAndPassword(account);
-
-      if (!res.error) { // successful login
-
-        this.analyticsService.signIn(res.result.user.uid, 'email&password', account.accountEmail);
-        this.loginEvent.emit(res); // emit the login response
-
-      } else { // error logging in
-
+  async sendEmailLink() {
+    /*
+      Attempts to send a sign in link to the email address given by the user.
+      Saves the user email to localStorage
+    */
+    this.login = true;
+    if (this.loginForm.invalid) {
+      this.alertService.alert('warning-message', 'Oops!', 'Please check your email has been entered correctly or contact support for help.');
+      this.login = false;
+      return;
+    }
+    const actionCodeSettings = {
+      // redirect URL
+      url: document.location.href,
+      handleCodeInApp: true,
+    };
+    try {
+      const res = await this.authService.sendSignInLinkToEmail( // send the email signin link
+        this.loginF.email.value,
+        actionCodeSettings
+      );
+      localStorage.setItem('emailForSignIn', this.loginF.email.value); // save the email to localStorage to prevent session fixation attacks
+      if (res) { // success
+        this.emailSent = true;
+        this.toastService.showToast('Email sent successfully! Click on the link in the email to log into your Lifecoach account. This will open a new tab. It is now safe to close this browser tab.', 60000, 'success', 'bottom', 'center');
         this.login = false;
-        // Check auth provider error codes.
-        if (res.error.code === 'auth/wrong-password') {
-          this.toastService.showToast('Oops! Incorrect password. Please try again.', 0, 'danger');
-        } else if (res.error.code === 'auth/user-not-found') {
-          this.toastService.showToast('Oops! Email address not found. Please check your login email address is correct.', 0, 'danger');
-        } else {
-          // Fall back for unknown / no error code
-          // tslint:disable-next-line: max-line-length
-          this.toastService.showToast('Oops! Something went wrong. Please try again or contact hello@lifecoach.io for assistance.', 0, 'danger');
-        }
+        this.analyticsService.sendLoginEmail(this.loginF.email.value);
+        return;
       }
-    } else {
-      this.toastService.showToast('Please complete all required fields.', 0, 'danger');
+      this.alertService.alert(res.message); // error
+      this.login = false;
+    } catch (err) { // error (should be caught by auth service and passed back in the res above if error)
+      this.alertService.alert(err.message);
+      this.login = false;
     }
   }
 
@@ -122,64 +135,106 @@ export class LoginInFlowComponent implements OnInit {
     return this.registerForm.controls;
   }
 
-  async onRegister() {
-    // Check form validity
-    if (this.registerForm.valid) {
-      this.register = true;
-      // Create new account object
-      const newUserAccount: UserAccount = {
-        accountEmail: this.registerF.email.value,
-        password: this.registerF.password.value,
-        accountType: 'regular',
-        firstName: this.registerF.firstName.value,
-        lastName: this.registerF.lastName.value
-      };
-
-      // Attempt registration
-      const response = await this.authService.createUserWithEmailAndPassword(newUserAccount);
-
-      if (!response.error) { // Successful registration
-
+  async sendEmailLinkRegister() {
+    /*
+      Attempts to send a sign in link to the email address given by the user.
+      Saves the user email to localStorage
+    */
+    this.register = true;
+    if (this.registerForm.invalid) {
+      this.alertService.alert('warning-message', 'Oops!', 'Please check your email has been entered correctly or contact support for help.');
+      this.register = false;
+      return;
+    }
+    const actionCodeSettings = {
+      // redirect URL
+      url: document.location.href,
+      handleCodeInApp: true,
+    };
+    try {
+      const res = await this.authService.sendSignInLinkToEmail( // send the email signin link
+        this.registerF.email.value,
+        actionCodeSettings
+      );
+      localStorage.setItem('emailForSignIn', this.registerF.email.value); // save the email to localStorage to prevent session fixation attacks
+      if (res) { // success
+        this.emailSent = true;
+        this.toastService.showToast('Email sent successfully! Click on the link in the email to log into your Lifecoach account. This will open a new tab. It is now safe to close this browser tab.', 60000, 'success', 'bottom', 'center');
         this.register = false;
-        this.analyticsService.registerUser(response.result.user.uid, 'email&password', newUserAccount);
-        this.registerEvent.emit(response);
-
-      } else { // Registration error
-
-        this.register = false;
-        if (response.error.code === 'auth/email-already-in-use') {
-          this.toastService.showToast('Oops! That email is already registered. Please log in.', 0, 'danger');
-        } else if (response.error.code === 'auth/invalid-email') {
-          this.toastService.showToast('Oops! Invalid email address. Please try a different email.', 0, 'danger');
-        } else if (response.error.code === 'auth/weak-password') {
-          this.toastService.showToast('Oops! Password is too weak. Please use a stronger password.', 0, 'danger');
-        } else {
-          this.toastService.showToast('Oops! Something went wrong. Please contact hello@lifecoach.io for help', 0, 'danger');
-        }
+        this.analyticsService.sendLoginEmail(this.registerF.email.value);
+        return;
       }
-    } else {
-      this.toastService.showToast('Please complete all required fields.', 5000, 'danger');
+      this.alertService.alert(res.message); // error
+      this.register = false;
+    } catch (err) { // error (should be caught by auth service and passed back in the res above if error)
+      this.alertService.alert(err.message);
+      this.register = false;
     }
   }
 
-  async forgotPassword() {
-    const res = await this.alertService.alert('input-field', 'Forgot your password?',
-    'No problem! Simply request a password reset email...') as any;
-    if (res.complete && res.data) {
-      const email = (res.data as string).toLowerCase().trim();
-      const response = await this.authService.resetPassword(email) as any;
-      console.log(response);
-      if (response.result !== 'error') {
-        this.alertService.alert('success-message', 'Success!', `Your password reset email is on the way. Please check your inbox.`);
-      } else {
-        console.log(response.msg);
-        if (response.msg === 'auth/user-not-found') {
-          this.alertService.alert('warning-message', 'Oops!', 'That email address has not been found. Please check it and try again.');
-        } else {
-          this.alertService.alert('warning-message', 'Oops!', 'Something went wrong. Please contact hello@lifecoach.io for help.');
+  async confirmSignIn(url) {
+    /*
+      If the user is returning here from the link in their login email,
+      we'll detect the link in the route and action login.
+      If not, we'll check if the user is authorised anyway, and hide the template if they are.
+    */
+    try {
+      if (this.authService.isSignInWithEmailLink(url)) {
+        let email = window.localStorage.getItem('emailForSignIn');
+
+        // If missing email, prompt user for it
+        if (!email) {
+          email = window.prompt('Please provide your email for confirmation');
         }
+
+        // Attempt to sign the user in...
+        const result = await this.authService.signInWithEmailLink(email, url);
+
+        // sign in sucess!
+        this.user = result.user; // the html template will now hide!
+        window.localStorage.removeItem('emailForSignIn'); // clean up localStorage
+
+        /*
+          Is this user logging in for the first time (post registration)?
+          Check firestore to see if we've already created a user node.
+          If not, the user must be new so ask for more details to complete registration.
+          If the user node exists, they are simply returning, so nav to dashboard...
+        */
+
+        this.subscriptions.add(
+          this.dataService.getUserAccount(result.user.uid).subscribe(acct => {
+
+            if (acct) { // user account exists...
+              this.analyticsService.signIn(result.user.uid, 'Passwordless', email);
+              return;
+            }
+
+            // user account does NOT exist. Redirect to complete registration page...
+            this.analyticsService.gotoCompleteRegistration();
+            this.router.navigate(['/register']); // TODO! Perhaps capture register details in flow as well without redirect??
+          })
+        );
+
+      } else {
+        this.subscriptions.add(
+          this.authService.getAuthUser().subscribe(user => {
+            if (user) {
+              this.user = user;
+            }
+          })
+        );
       }
+    } catch (err) {
+      this.alertService.alert('warning-message', 'Oops!', err.message);
     }
+  }
+
+  clickEvent(buttonId: string) {
+    this.analyticsService.clickButton(buttonId);
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 
 }

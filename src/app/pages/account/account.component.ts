@@ -1,13 +1,10 @@
-import { Component, OnInit, Inject, PLATFORM_ID, ViewChild, OnDestroy } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, ViewChild, OnDestroy, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { isPlatformBrowser, DOCUMENT } from '@angular/common';
 import { ModalDirective } from 'ngx-bootstrap/modal';
 
-
 import { TabsetComponent } from 'ngx-bootstrap/tabs';
-
-import { MustMatch } from '../../custom-validators/mustmatch.validator';
 
 import { AuthService } from '../../services/auth.service';
 import { DataService } from '../../services/data.service';
@@ -20,20 +17,23 @@ import { CurrenciesService } from 'app/services/currencies.service';
 import { CountryService } from 'app/services/country.service';
 import { Subscription } from 'rxjs';
 import { RefundRequest } from 'app/interfaces/refund.request.interface';
-import {environment} from '../../../environments/environment';
+import { environment } from '../../../environments/environment';
 import { Stripe } from 'stripe';
+import { AccountClosureRequest } from 'app/interfaces/account.closure.request.interface';
+import { CompleteStripeConnectRequest } from 'app/interfaces/complete.stripe.connect.request.interface';
+import { StripeAccountLinkRequest } from 'app/interfaces/stripe.accountlink.request.interface';
 
 @Component({
   selector: 'app-account',
   templateUrl: 'account.component.html'
 })
-export class AccountComponent implements OnInit, OnDestroy {
+export class AccountComponent implements OnInit, OnDestroy, AfterViewInit {
 
   @ViewChild('staticTabs', {static: false}) staticTabs: TabsetComponent;
   @ViewChild('refundModal', {static: false}) public refundModal: ModalDirective;
 
   public browser: boolean;
-
+  public subscriptionPlan: string; // is the user on a stripe subscription plan?
   private userId: string;
 
   // variable for checking user`s calendar events. Could be deleting in future
@@ -65,11 +65,15 @@ export class AccountComponent implements OnInit, OnDestroy {
   public changeEmail = false;
   public changePassword = false;
 
-  private accountSnapshot: UserAccount;
+  public accountSnapshot: UserAccount;
 
   public connectingStripe: boolean;
+  public redirectingStripe: boolean;
   public stripeConnectUrl: string;
   public managingStripe: boolean;
+  public stripeCustomerId: string;
+  public redirectingToPortal: boolean;
+  public billingSubscriptions = [];
 
   public successfulPayments: any[];
   public failedPayments: any;
@@ -96,7 +100,6 @@ export class AccountComponent implements OnInit, OnDestroy {
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
     @Inject(DOCUMENT) private document: Document,
-    private route: ActivatedRoute,
     public formBuilder: FormBuilder,
     private router: Router,
     private authService: AuthService,
@@ -114,160 +117,36 @@ export class AccountComponent implements OnInit, OnDestroy {
     if (isPlatformBrowser(this.platformId)) {
       this.browser = true;
       this.analyticsService.pageView();
-
-      // Build the forms
       this.buildAccountForm();
-      this.buildChangeEmailForm();
-      this.buildChangePasswordForm();
       this.buildRefundForm();
-
-      this.buildSessionDurationForm();
-      // Import currencies
       this.currencies = this.currenciesService.getCurrencies();
-
-      // Update the form with saved user data
-      this.subscriptions.add(
-        this.authService.getAuthUser()
-          .subscribe(user => {
-            if (user) {
-              this.userId = user.uid;
-              // Checking active events
-              this.dataService.hasUserEvents(this.userId)
-                .then( val => {
-                  this.hasUserEvents = val;
-                  // console.log(this.hasUserEvents);
-                })
-                .catch(e => console.log(e));
-
-              this.subscriptions.add(
-                this.dataService.getUserAccount(user.uid)
-                  .subscribe(account => {
-                    if (account) {
-                      this.accountSnapshot = JSON.parse(JSON.stringify(account));
-                      this.updateAccountForm(account);
-
-                      if (account.accountType === 'regular') { // user is a regular user
-                        // Fetch payment history
-                        this.subscriptions.add(
-                          this.dataService.getSuccessfulCharges(this.userId).subscribe(sp => {
-                            if (sp) {
-                              const sortedSp = sp.sort((a, b) => parseFloat(String(b.created)) - parseFloat(String(a.created))); // sort by date (desc)
-                              this.successfulPayments = sortedSp;
-                              console.log('Successful payments:', this.successfulPayments);
-                            }
-                          })
-                        );
-
-                        // Fetch failed payment history
-                        this.subscriptions.add(
-                          this.dataService.getFailedPayments(this.userId).subscribe(fp => {
-                            if (fp) {
-                              const sortedFp = fp.sort((a, b) => parseFloat(String(b.created)) - parseFloat(String(a.created))); // sort by date (desc)
-                              this.failedPayments = sortedFp;
-                              console.log('Failed payments:', this.failedPayments);
-                            }
-                          })
-                        );
-
-                        // Fetch refund requests
-                        this.subscriptions.add(
-                          this.dataService.getUserRefundRequests(this.userId).subscribe(refunds => {
-                            if (refunds) {
-                              const sortedR = refunds.sort((a, b) => parseFloat(String(b.paymentIntent.created)) - parseFloat(String(a.paymentIntent.created))); // sort by date (desc)
-                              this.refundRequests = sortedR;
-                              console.log('Refund requests:', this.refundRequests);
-                              this.refundRequests.forEach(i => {
-                                this.refundsRequestedIds.push(i.paymentIntent.id);
-                              });
-                            }
-                          })
-                        );
-                        // Fetch successful refunds
-                        this.subscriptions.add(
-                          this.dataService.getUserSuccessfulRefunds(this.userId).subscribe(refunds => {
-                            if (refunds) {
-                              const sortedR = refunds.sort((a, b) => parseFloat(String(b.paymentIntent.created)) - parseFloat(String(a.paymentIntent.created))); // sort by date (desc)
-                              this.successfulRefunds = sortedR;
-                              console.log('Successful refunds:', this.successfulRefunds);
-                              this.successfulRefunds.forEach(i => {
-                                this.refundsRequestedIds.push(i.paymentIntent.id);
-                              });
-                            }
-                          })
-                        );
-                      } else if (account.accountType === 'coach' ) { // user is a coach
-                        if (!account.stripeUid) { // user has not yet connected Stripe
-
-                          // If redirecting to this component from Stripe, complete connection
-                          this.checkStripeOAuth();
-
-                          this.buildStripeUrl(); // create an oauth link to connect Stripe
-
-                          // If we've got the user data, append it to the Stripe url for better UX through the onboarding flow
-                          if (account.accountEmail && this.stripeConnectUrl) {
-                            this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[email]=${account.accountEmail}`);
-                          }
-                          if (account.firstName) {
-                            // tslint:disable-next-line: max-line-length
-                            this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[first_name]=${account.firstName}`);
-                          }
-                          if (account.lastName) {
-                            this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[last_name]=${account.lastName}`);
-                          }
-
-                          // Subscribe to profile and add any additional user data
-                          // See: https://stripe.com/docs/connect/oauth-reference
-                          const tempProfSub = this.dataService.getCoachProfile(this.userId).subscribe(profile => {
-                            if (profile) {
-                              if (profile.country) {
-                                this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[country]=${profile.country.code}`);
-                              }
-                              if (profile.profileUrl) {
-                                this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[url]=${profile.profileUrl}`);
-                              } else {
-                                this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[url]=${environment.baseUrl}`);
-                              }
-                            }
-                            tempProfSub.unsubscribe();
-                          });
-                          this.subscriptions.add(tempProfSub);
-                        }
-                        if (account.stripeUid) {
-                          this.retrieveStripeBalance(account.stripeUid);
-                        }
-                      } else if (account.accountType === 'partner' ) { // user is a partner
-                        if (!account.stripeUid) { // user has not yet connected Stripe
-
-                          // If redirecting to this component from Stripe, complete connection
-                          this.checkStripeOAuth();
-
-                          this.buildStripeUrl(); // create an oauth link to connect Stripe
-
-                          // If we've got the user data, append it to the Stripe url for better UX through the onboarding flow
-                          if (account.accountEmail && this.stripeConnectUrl) {
-                            this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[email]=${account.accountEmail}`);
-                          }
-                          if (account.firstName) {
-                            // tslint:disable-next-line: max-line-length
-                            this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[first_name]=${account.firstName}`);
-                          }
-                          if (account.lastName) {
-                            this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[last_name]=${account.lastName}`);
-                          }
-                        }
-                        if (account.stripeUid) {
-                          this.retrieveStripeBalance(account.stripeUid);
-                        }
-                      }
-                    }
-                  })
-              );
-            }
-          })
-      );
+      this.loadUserData();
     }
-    // console.log(this.accountF);
 
+  }
+
+  ngAfterViewInit() {
+    this.checkRoute();
+  }
+
+  checkRoute() {
+    // check the active route url and open relevant tabs if appropriate
+    // using timeouts to avoid changedAfterChecked errors
+    // staticTabs is the ngx-bootstrap tabs component
+    // tab index 0 is the default ('Account Settings' tab)
+    if (this.router.url.includes('/billing')) {
+      setTimeout(() => {
+        this.staticTabs.tabs[1].active = true;
+      }, 10);
+    } else if (this.router.url.includes('/payments')) {
+      setTimeout(() => {
+        this.staticTabs.tabs[2].active = true;
+      }, 10);
+    } else if (this.router.url.includes('/charges')) {
+      setTimeout(() => {
+        this.staticTabs.tabs[3].active = true;
+      }, 10);
+    }
   }
 
   buildAccountForm() {
@@ -278,28 +157,12 @@ export class AccountComponent implements OnInit, OnDestroy {
       lastName: ['', [Validators.required]],
       accountEmail: new FormControl({value: '', disabled: true}),
       stripeUid: [null],
-      stripeRequirementsCurrentlyDue: [null],
-      creatorDealsProgram: [false],
-      creatorExtendedPromotionsProgram: [false],
+      stripeAccountId: [null],
+      stripeAccount: [null],
+      stripeCustomerId: [null],
+      stripeCustomerLink: [null],
       sessionDuration: [ 30 ],
       breakDuration: [0]
-    });
-  }
-
-  buildChangeEmailForm() {
-    this.changeEmailForm = this.formBuilder.group({
-      newEmail: ['', [Validators.required, Validators.pattern(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)]],
-      confirmPassword: ['', [Validators.required, Validators.minLength(6)]]
-    });
-  }
-
-  buildChangePasswordForm() {
-    this.changePasswordForm = this.formBuilder.group({
-      currentPassword: ['', [Validators.required, Validators.minLength(6)]],
-      newPassword: ['', [Validators.required, Validators.minLength(6)]],
-      confirmNewPassword: ['', [Validators.required]]
-    }, {
-      validator: MustMatch('newPassword', 'confirmNewPassword')
     });
   }
 
@@ -309,7 +172,95 @@ export class AccountComponent implements OnInit, OnDestroy {
     });
   }
 
-  buildSessionDurationForm() {
+  loadUserData() {
+    this.subscriptions.add(
+      this.authService.getAuthUser()
+        .subscribe(user => {
+          if (user) {
+            this.userId = user.uid;
+            // Check custom auth claims
+            user.getIdTokenResult(true)
+            .then(tokenRes => {
+              console.log('User claims:', tokenRes.claims);
+              const c = tokenRes.claims;
+              if (c.subscriptionPlan) {
+                this.subscriptionPlan = c.subscriptionPlan;
+              }
+            });
+            // Checking active events
+            // this.dataService.hasUserEvents(this.userId)
+            //   .then( val => {
+            //     this.hasUserEvents = val;
+            //     // console.log(this.hasUserEvents);
+            //   })
+            //   .catch(e => console.log(e));
+
+            this.subscriptions.add(
+              this.dataService.getUserAccount(user.uid)
+                .subscribe(account => {
+                  if (account) {
+                    this.accountSnapshot = JSON.parse(JSON.stringify(account));
+                    console.log('Account Snap:', this.accountSnapshot);
+                    this.updateAccountForm(account);
+
+                    if (account.accountType === 'regular') {
+                      this.fetchSuccessfulCharges();
+                      this.fetchFailedCharges();
+                      this.fetchRefundRequests();
+                      this.fetchSuccessfulRefunds();
+
+                    } else if (account.accountType === 'coach' ) {
+                      if (account.stripeCustomerId) { // user has a stripe CUSTOMER id
+                        this.stripeCustomerId = account.stripeCustomerId;
+                      }
+                      // if (!account.stripeUid) { // user has not yet connected Stripe
+
+                      //   this.buildStripeUrl(); // create an oauth link to connect Stripe
+
+                      //   // If we've got the user data, append it to the Stripe url for better UX through the onboarding flow
+                      //   if (account.accountEmail && this.stripeConnectUrl) {
+                      //     this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[email]=${account.accountEmail}`);
+                      //   }
+                      //   if (account.firstName) {
+                      //     // tslint:disable-next-line: max-line-length
+                      //     this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[first_name]=${account.firstName}`);
+                      //   }
+                      //   if (account.lastName) {
+                      //     this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[last_name]=${account.lastName}`);
+                      //   }
+
+                      //   // Subscribe to profile and add any additional user data
+                      //   // See: https://stripe.com/docs/connect/oauth-reference
+                      //   const tempProfSub = this.dataService.getCoachProfile(this.userId).subscribe(profile => {
+                      //     if (profile) {
+                      //       if (profile.country) {
+                      //         this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[country]=${profile.country.code}`);
+                      //       }
+                      //       if (profile.profileUrl) {
+                      //         this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[url]=${profile.profileUrl}`);
+                      //       } else {
+                      //         this.stripeConnectUrl = this.stripeConnectUrl.concat(`&stripe_user[url]=${environment.baseUrl}`);
+                      //       }
+                      //     }
+                      //     tempProfSub.unsubscribe();
+                      //   });
+                      //   this.subscriptions.add(tempProfSub);
+                      // }
+                      this.fetchSuccessfulCharges();
+                      this.fetchFailedCharges();
+                      this.fetchRefundRequests();
+                      this.fetchSuccessfulRefunds();
+                      this.fetchSubscriptions();
+
+                    } else if (account.accountType === 'partner' ) {
+                      // anything?
+                    }
+                  }
+                })
+            );
+          }
+        })
+    );
   }
 
   updateAccountForm(account: UserAccount) {
@@ -320,129 +271,93 @@ export class AccountComponent implements OnInit, OnDestroy {
       lastName: account.lastName,
       accountEmail: account.accountEmail,
       stripeUid: account.stripeUid ? account.stripeUid : null,
-      stripeRequirementsCurrentlyDue: account.stripeRequirementsCurrentlyDue ? account.stripeRequirementsCurrentlyDue : null,
-      creatorDealsProgram: account.creatorDealsProgram ? account.creatorDealsProgram : false,
-      creatorExtendedPromotionsProgram: account.creatorExtendedPromotionsProgram ? account.creatorExtendedPromotionsProgram : false,
+      stripeAccountId: account.stripeAccountId ? account.stripeAccountId : null,
+      stripeAccount: account.stripeAccount ? account.stripeAccount : null,
+      stripeCustomerId: account.stripeCustomerId ? account.stripeCustomerId : null,
+      stripeCustomerLink: account.stripeCustomerLink ? account.stripeCustomerLink : null,
       sessionDuration: account.sessionDuration ? account.sessionDuration : 30,
       breakDuration: account.breakDuration ? account.breakDuration : 0
     });
     // console.log(this.accountForm.value);
   }
 
-  async retrieveStripeBalance(stripeUid: string) {
-    const res = await this.cloudFunctionsService.getStripeAccountBalance(stripeUid);
-    console.log(res);
-  }
-
-  checkStripeOAuth() { // NB: Don't call until we have a user id
-    // Check active URL
-    if (this.router.url.includes('stripe/oauth')) { // incoming redirect from Stripe must be handled
-      this.connectingStripe = true;
-      this.alertService.alert('info-message', 'Connecting Stripe...', `Important: After clicking OK, please don't refresh or navigate away from this page until you see another success message. Finalising your account may take up to a minute.`);
-
-      // check active route params for Stripe redirect data
-      this.route.queryParamMap.subscribe(async params => {
-        if (params) {
-          const orderObj = {...params.keys, ...params} as any;
-          const routeParams = orderObj.params;
-
-          if (!routeParams.state) { // oops, oauth redirect from Stripe with no state data
-            this.alertService.closeOpenAlert();
-            this.alertService.alert('warning-message', 'Unauthorised!', 'Unable To Complete Stripe Setup. Error: No Stripe state.');
-            this.connectingStripe = false;
-            return;
-          }
-          const savedState = localStorage.getItem('stripeState');
-          if (!savedState) { // oops, no saved state exists so we can't compare with the data from Stripe
-            this.alertService.closeOpenAlert();
-            this.alertService.alert('warning-message', 'Oops!', 'Unable To Complete Stripe Setup. Error: No saved Stripe state.');
-            this.connectingStripe = false;
-            return;
-          }
-          if (savedState !== routeParams.state) { // oops, saved state does not match redirect state from Stripe
-            this.alertService.closeOpenAlert();
-            this.alertService.alert('warning-message', 'Unauthorised!', 'Unable To Complete Stripe Setup. Error: Stripe state mismatch.');
-            this.connectingStripe = false;
-            return;
-          }
-          if (!routeParams.code) { // oops, no auth code from Stripe. Unable to continue oauth flow
-            this.alertService.closeOpenAlert();
-            this.alertService.alert('warning-message', 'Oops!', 'Unable To Complete Stripe Setup. Error: No Stripe code received.');
-            this.connectingStripe = false;
-            return;
-          }
-
-          // If we got this far we have a successful redirect from Stripe oauth with matching state data
-          // so it's time to complete the Stripe account connection process
-          const res = await this.cloudFunctionsService.completeStripeConnection(this.userId, routeParams.code) as any;
-          if (!res.error) { // success
-            console.log('Stripe connect setup complete', res);
-            this.analyticsService.completeStripeConnect();
-            this.dataService.completeUserTask(this.userId, 'taskDefault004'); // mark user task complete
-            this.connectingStripe = false;
-            this.staticTabs.tabs[1].active = true; // auto navigate to Stripe related account tab
-            this.alertService.closeOpenAlert();
-            this.alertService.alert('success-message', 'Success!', 'Stripe setup complete. You can now receive payments from Lifecoach into your connected Stripe account.');
-          } else { // error
-            console.error(res.error);
-            this.connectingStripe = false;
-            this.alertService.closeOpenAlert();
-            this.alertService.alert('warning-message', 'Oops', `Something went wrong. Please contact support quoting error: ${JSON.stringify(res.error)}`);
-          }
+  fetchSuccessfulCharges() {
+    this.subscriptions.add(
+      this.dataService.getSuccessfulCharges(this.userId).subscribe(sp => {
+        if (sp) {
+          const sortedSp = sp.sort((a, b) => parseFloat(String(b.created)) - parseFloat(String(a.created))); // sort by date (desc)
+          this.successfulPayments = sortedSp;
+          console.log('Successful charges:', this.successfulPayments);
         }
-      });
-    }
+      })
+    );
   }
 
-  buildStripeUrl() {
-    // See: https://stripe.com/docs/connect/oauth-reference
-    const stripeState = this.createStripeState();
-    const base = `https://connect.stripe.com/express/oauth/authorize?`;
-    const redirect = `${environment.stripeRedirectUri}`;
-    const clientId = `${environment.stripeClientId}`;
-    const state = `&state=${stripeState}`;
-    const userType = `&stripe_user[business_type]=individual`;
-    const cap = `&suggested_capabilities[]=transfers`;
-    const url = `${base}${redirect}${clientId}${state}${userType}${cap}`;
-    this.stripeConnectUrl = url;
-  }
-
-  createStripeState() {
-    // To protect against CSRF attacks.
-    // Create a random string value to send to Stripe on connected account creation.
-    const state = Math.random().toString(36).substr(2, 9);
-    // Save to local storage so we can compare with the state we get back from Stripe.
-    localStorage.setItem('stripeState', state);
-    // Return
-    return state;
-  }
-
-  async manageStripe() {
-    if (isPlatformBrowser(this.platformId)) {
-      this.managingStripe = true;
-      if (this.accountF.stripeUid.value) {
-        const res = await this.cloudFunctionsService.getStripeLoginLink(this.accountF.stripeUid.value) as any;
-        // console.log(res);
-        if (!res.error) { // success
-          // Create a new anchor element and open the Stripe login url in a new tab
-          const link = document.createElement('a');
-          link.target = '_blank';
-          link.href = res.stripeLoginUrl;
-          link.setAttribute('visibility', 'hidden');
-          link.click();
-
-          // this.document.location.href = res.stripeLoginUrl;
-
-          this.analyticsService.manageStripeConnect();
-
-          this.managingStripe = false;
-        } else { // error
-
+  fetchFailedCharges() {
+    this.subscriptions.add(
+      this.dataService.getFailedPayments(this.userId).subscribe(fp => {
+        if (fp) {
+          const sortedFp = fp.sort((a, b) => parseFloat(String(b.created)) - parseFloat(String(a.created))); // sort by date (desc)
+          this.failedPayments = sortedFp;
+          console.log('Failed charges:', this.failedPayments);
         }
-      } else { // no stripe uid
-        this.managingStripe = false;
-      }
-    }
+      })
+    );
+  }
+
+  fetchRefundRequests() {
+    this.subscriptions.add(
+      this.dataService.getUserRefundRequests(this.userId).subscribe(refunds => {
+        if (refunds) {
+          const sortedR = refunds.sort((a, b) => parseFloat(String(b.paymentIntent.created)) - parseFloat(String(a.paymentIntent.created))); // sort by date (desc)
+          this.refundRequests = sortedR;
+          console.log('Refund requests:', this.refundRequests);
+          this.refundRequests.forEach(i => {
+            this.refundsRequestedIds.push(i.paymentIntent.id);
+          });
+        }
+      })
+    );
+  }
+
+  fetchSuccessfulRefunds() {
+    this.subscriptions.add(
+      this.dataService.getUserSuccessfulRefunds(this.userId).subscribe(refunds => {
+        if (refunds) {
+          const sortedR = refunds.sort((a, b) => parseFloat(String(b.paymentIntent.created)) - parseFloat(String(a.paymentIntent.created))); // sort by date (desc)
+          this.successfulRefunds = sortedR;
+          console.log('Successful refunds:', this.successfulRefunds);
+          this.successfulRefunds.forEach(i => {
+            this.refundsRequestedIds.push(i.paymentIntent.id);
+          });
+        }
+      })
+    );
+  }
+
+  fetchSubscriptions() {
+    this.subscriptions.add(
+      this.dataService.getUserSubscriptions(this.userId).subscribe(data => {
+        if (data) {
+          this.billingSubscriptions = [];
+          data.forEach(i => {
+            const subObj = { ...i } as any;
+            this.subscriptions.add(
+              this.dataService.getUserInvoices(this.userId, i.id).subscribe(invoices => {
+                if (invoices) {
+                  subObj.invoices = [];
+                  invoices.forEach(invoice => {
+                    subObj.invoices.push(invoice);
+                  });
+                }
+              })
+            );
+            this.billingSubscriptions.push(subObj);
+          });
+          console.log('Billing subscriptions', this.billingSubscriptions);
+        }
+      })
+    );
   }
 
   timestampToDate(timestamp: number) {
@@ -454,24 +369,8 @@ export class AccountComponent implements OnInit, OnDestroy {
     return this.accountForm.controls;
   }
 
-  get emailF(): any {
-    return this.changeEmailForm.controls;
-  }
-
-  get passwordF(): any {
-    return this.changePasswordForm.controls;
-  }
-
   get refundF(): any {
     return this.refundForm.controls;
-  }
-
-  onCreatorDealsToggle(ev: any) {
-    this.accountForm.patchValue({creatorDealsProgram: ev.currentValue});
-  }
-
-  onCreatorExtendedPromotionsToggle(ev: any) {
-    this.accountForm.patchValue({creatorExtendedPromotionsProgram: ev.currentValue});
   }
 
   onSessionDurationInput(ev: any) {
@@ -522,110 +421,66 @@ export class AccountComponent implements OnInit, OnDestroy {
     }
   }
 
-  onChangeEmail() {
-    this.changeEmail = true;
-  }
-
-  onChangePassword() {
-    this.changePassword = true;
-  }
-
-  cancelChangeEmail() {
-    this.changeEmail = false;
-    this.changeEmailForm.reset();
-  }
-
-  async saveNewEmail() {
-    if (this.changeEmailForm.valid) {
-      this.emailSubmitted = true;
-      const oldE = this.accountF.accountEmail.value;
-      const oldP = this.emailF.confirmPassword.value;
-      const newE = this.emailF.newEmail.value;
-      const res = await this.authService.updateAuthEmail(oldE, oldP, newE);
-      if (res.result === 'success') {
-        console.log('Email update successful. Updating DB...');
-        // Update the db node
-        await this.dataService.updateUserAccount(this.userId, {
-          accountEmail: newE
-        });
-        this.emailSubmitted = false;
-        this.alertService.alert('success-message', 'Success!', 'Login email address updated.');
-        this.changeEmail = false;
-        // Update mailing list
-        console.log('Updating mailing list with new email...');
-        this.cloudFunctionsService.updateUserEmailOnMailingList(this.accountF.accountType.value, oldE, newE);
-        this.changeEmailForm.reset();
-        this.analyticsService.updateAccountEmail();
-        this.analyticsService.updatePeopleEmail(newE);
-      } else {
-        this.emailSubmitted = false;
-        this.alertService.alert('warning-message', 'Oops', res.msg);
-      }
-    }
-  }
-
-  cancelChangePassword() {
-    this.changePassword = false;
-    this.changePasswordForm.reset();
-  }
-
-  async saveNewPassword() {
-    if (this.changePasswordForm.valid) {
-      this.passwordSubmitted = true;
-      const email = this.accountF.accountEmail.value;
-      const cP = this.passwordF.currentPassword.value;
-      const nP = this.passwordF.confirmNewPassword.value;
-      const res = await this.authService.updateAuthPassword(email, cP, nP);
-      if (res.result === 'success') {
-        this.passwordSubmitted = false;
-        this.alertService.alert('success-message', 'Success!', 'Your password has been updated.');
-        this.changePassword = false;
-        this.changePasswordForm.reset();
-        this.analyticsService.updateAccountPassword();
-      } else {
-        this.passwordSubmitted = false;
-        this.alertService.alert('warning-message', 'Oops', res.msg);
-      }
-    }
-  }
-
   async deleteAccount() {
-    const res = await this.alertService.alert('special-delete-account') as any;
-    if (res.data) {
-      this.submitted = true;
-      const account: UserAccount = {
-        accountEmail: res.data.email,
-        password: res.data.password,
-        accountType: this.accountF.accountType.value
-      };
-      // Must attempt sign in first as deleting auth account is a 'sensitive operation'.
-      const response = await this.authService.signInWithEmailAndPassword(account);
-      if (response.result) {
-        // Proceed with delete.
-        await this.cloudFunctionsService.deleteUserData(this.userId, account);
-        const authResponse = await this.authService.deleteAuthAccount(account);
-        if (authResponse.result === 'success') {
-          this.router.navigate(['/']);
-          this.alertService.alert('success-message', 'Success!', `Your account has been deleted. We're
-                    sorry to see you go.`);
-          this.analyticsService.deleteAccount();
-        } else {
-          console.log(authResponse.msg);
-        }
-        this.submitted = false;
-      } else {
-        this.alertService.alert('warning-message', 'Oops', `Looks like you entered the wrong
-                details. Please check your login email and password then try again.`);
-        this.submitted = false;
+    const res = await this.alertService.alert('warning-message-and-confirmation', 'Are you sure?', `Once your account is deleted you will lose all saved data. This action is permanent & cannot be undone!`, 'Yes - Close My Account', 'Cancel') as any;
+    this.submitted = true;
+    console.log('Result:', res);
+    if (res.action) { // confirmed close
+      // create a request for admins to close account on the back end...
+      if (!this.userId) {
+        this.alertService.alert('warning-message', 'Oops!', 'Missing User ID, please contact support.');
+        return;
       }
+      const data: AccountClosureRequest = {
+        uid: this.userId
+      };
+      const closeResult = await this.cloudFunctionsService.requestAccountClosure(data) as any;
+      console.log('Close result:', closeResult);
+      if (closeResult.error) {
+        this.alertService.alert('warning-message', 'Oops!', `Error: ${closeResult.error.message}`);
+        this.submitted = false;
+        return;
+      }
+      this.submitted = false;
+      this.alertService.alert('success-message', 'Success!', `We are processing your closure request. You will now be logged out & your account will be permanently closed. We're sorry to see you go!`);
+      this.authService.signOut();
     }
-
+    // action cancelled
+    this.submitted = false;
   }
 
-  connectStripe() {
+  async connectStripe() {
     if (!this.connectingStripe) {
       this.connectingStripe = true;
       this.analyticsService.attemptStripeConnect();
+
+      // call the back end to create a Stripe STANDARD account & generate an accountLink redirect URL
+      // to send the user directly into the Stripe account setup flow...
+
+      const data: CompleteStripeConnectRequest = {
+        uid: this.userId,
+        returnUrl: `${environment.baseUrl}/account/payments`,
+        refreshUrl: `${environment.baseUrl}/account/payments?reauth`,
+        type: 'account_onboarding',
+        email: this.accountSnapshot.accountEmail,
+        firstName: this.accountSnapshot.firstName,
+        lastName: this.accountSnapshot.lastName
+      };
+
+      const res = await this.cloudFunctionsService.connectStripe(data) as any;
+      if (res.error) { // error!
+        this.connectingStripe = false;
+        this.alertService.alert('warning-message', 'Oops!', `Error: ${res.error}. Please contact support.`);
+        return;
+      }
+
+      // success
+      // we've got the redirect url. Send the user into the flow...
+      // they will be redirected back to the app on completion.
+      // https://stripe.com/docs/connect/enable-payment-acceptance-guide
+
+      window.location.href = res.url;
+      this.connectingStripe = false;
     }
   }
 
@@ -682,13 +537,75 @@ export class AccountComponent implements OnInit, OnDestroy {
     return `${day} ${date.toLocaleDateString()}`;
   }
 
+  async onManageBilling() {
+    this.redirectingToPortal = true;
+    if (!this.stripeCustomerId) {
+      console.log('Missing Stripe customer ID');
+      this.redirectingToPortal = false;
+    }
+    // create a portal session
+    const data = {
+      customerId: this.stripeCustomerId,
+      returnUrl: `${environment.baseUrl}/account`
+    };
+    const res = await this.cloudFunctionsService.createStripePortalSession(data) as any;
+    if (res.error) {
+      console.error(res.error);
+      this.redirectingToPortal = false;
+      return null;
+    }
+    // redirect to session url
+    window.location.href = res.sessionUrl;
+    this.redirectingToPortal = false;
+  }
+
   async logout() {
     this.subscriptions.unsubscribe();
     await this.authService.signOut();
     console.log('Sign out successful.');
     this.alertService.alert('auto-close', 'Sign-Out Successful', 'See you again soon');
     this.router.navigate(['/']);
-    this.analyticsService.signOut();
+  }
+
+  async redirectToStripe() {
+
+    if (!this.accountSnapshot.stripeAccountId) {
+      this.alertService.alert('warning-message', 'Oops!', 'Missing Stripe account ID. Please contact support.');
+      return;
+    }
+
+    if (!this.redirectingStripe) {
+      this.redirectingStripe = true;
+      this.analyticsService.redirectingToStripe();
+
+      // call the back end to create a Stripe accountLink redirect URL
+      // to send the user directly into the Stripe account onboarding flow.
+      // Provides a form for inputting outstanding requirements.
+      // Send the user to the form in this mode to just collect any new information you need.
+      // https://stripe.com/docs/api/account_links/create?lang=node
+
+      const data: StripeAccountLinkRequest = {
+        account: this.accountSnapshot.stripeAccountId,
+        return_url: `${environment.baseUrl}/account/payments`,
+        refresh_url: `${environment.baseUrl}/account/payments?reauth`,
+        type: 'account_onboarding'
+      };
+
+      const res = await this.cloudFunctionsService.getStripeAccountLink(data) as any;
+      if (res.error) { // error!
+        this.redirectingStripe = false;
+        this.alertService.alert('warning-message', 'Oops!', `Error: ${res.error}. Please contact support.`);
+        return;
+      }
+
+      // success
+      // we've got the redirect url. Send the user into the flow...
+      // they will be redirected back to the app on completion.
+      // https://stripe.com/docs/connect/enable-payment-acceptance-guide
+
+      window.location.href = res.url;
+      this.redirectingStripe = false;
+    }
   }
 
   ngOnDestroy() {

@@ -1,11 +1,12 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BrowserModule } from '@angular/platform-browser';
-import {Routes, RouterModule, PreloadAllModules} from '@angular/router';
+import { Routes, RouterModule } from '@angular/router';
 
 import { AuthGuardService as AuthGuard } from './services/auth-guard.service';
 import { AdminAuthGuardService as AdminAuthGuard } from './services/admin-auth-guard.service';
 import { PaywallAuthGuardService as PaywallAuthGuard } from './services/paywall-auth-guard.service';
+import { SubscriptionAuthGuardService as SubscriptionAuthGuard } from './services/subscription-auth-guard.service';
 
 import { AdminLayoutComponent } from './layouts/admin-layout/admin-layout.component';
 
@@ -16,7 +17,12 @@ const routes: Routes = [
     pathMatch: 'full'
   },
   {
-    path: 'register/:type',
+    path: 'login',
+    loadChildren: () => import('./pages/login/login.module').then(m => m.LoginModule),
+    pathMatch: 'full'
+  },
+  {
+    path: 'register',
     loadChildren: () => import('./pages/register/register.module').then(m => m.RegisterModule),
     pathMatch: 'full'
   },
@@ -113,27 +119,33 @@ const routes: Routes = [
       },
       {
         path: 'profile',
-        loadChildren: () => import('./pages/user/user-profile.module').then(m => m.UserModule)
+        loadChildren: () => import('./pages/user/user-profile.module').then(m => m.UserModule),
+        canActivate: [SubscriptionAuthGuard]
       },
       {
         path: 'calendar',
-        loadChildren: () => import('./pages/calendar/calendar.page.module').then(m => m.CalendarPageModule)
+        loadChildren: () => import('./pages/calendar/calendar.page.module').then(m => m.CalendarPageModule),
+        canActivate: [SubscriptionAuthGuard]
       },
       {
         path: 'coach-products-services',
-        loadChildren: () => import('./pages/coach-services/coach.services.module').then(m => m.CoachServicesModule)
+        loadChildren: () => import('./pages/coach-services/coach.services.module').then(m => m.CoachServicesModule),
+        canActivate: [SubscriptionAuthGuard]
       },
       {
         path: 'coach-journey',
-        loadChildren: () => import('./pages/coach-as-regular-user/coach.as.regular.user.module').then(m => m.CoachAsRegularUserModule)
+        loadChildren: () => import('./pages/coach-as-regular-user/coach.as.regular.user.module').then(m => m.CoachAsRegularUserModule),
+        canActivate: [SubscriptionAuthGuard]
       },
       {
         path: 'people',
-        loadChildren: () => import('./pages/coach-people/coach.people.module').then(m => m.CoachPeopleModule)
+        loadChildren: () => import('./pages/coach-people/coach.people.module').then(m => m.CoachPeopleModule),
+        canActivate: [SubscriptionAuthGuard]
       },
       {
         path: 'person-history/:uid',
-        loadChildren: () => import('./pages/person-history/person.history.module').then(m => m.PersonHistoryModule)
+        loadChildren: () => import('./pages/person-history/person.history.module').then(m => m.PersonHistoryModule),
+        canActivate: [SubscriptionAuthGuard]
       },
       {
         path: 'coach-history/:coachId',
@@ -144,11 +156,15 @@ const routes: Routes = [
         loadChildren: () => import('./pages/account/account.module').then(m => m.AccountModule)
       },
       {
-        path: 'account/payout-settings',
+        path: 'account/billing',
         loadChildren: () => import('./pages/account/account.module').then(m => m.AccountModule)
       },
       {
-        path: 'account/stripe/oauth',
+        path: 'account/payments',
+        loadChildren: () => import('./pages/account/account.module').then(m => m.AccountModule)
+      },
+      {
+        path: 'account/charges',
         loadChildren: () => import('./pages/account/account.module').then(m => m.AccountModule)
       },
       {
@@ -162,11 +178,13 @@ const routes: Routes = [
 
       {
         path: 'messages',
-        loadChildren: () => import('./pages/chatroom/chatroom.module').then(m => m.ChatroomModule)
+        loadChildren: () => import('./pages/chatroom/chatroom.module').then(m => m.ChatroomModule),
+        canActivate: [SubscriptionAuthGuard]
       },
       {
         path: 'messages/rooms/:roomId',
-        loadChildren: () => import('./pages/chatroom/chatroom.module').then(m => m.ChatroomModule)
+        loadChildren: () => import('./pages/chatroom/chatroom.module').then(m => m.ChatroomModule),
+        canActivate: [SubscriptionAuthGuard]
       },
       {
         path: 'course-discussions',
@@ -218,47 +236,56 @@ const routes: Routes = [
       {
         path: 'my-programs',
         loadChildren: () => import('./pages/my-programs/myprograms.module').then(m => m.MyProgramsModule),
-        pathMatch: 'full'
+        pathMatch: 'full',
+        canActivate: [SubscriptionAuthGuard]
       },
       {
         path: 'my-programs/new-program',
         loadChildren: () => import('./pages/edit-coach-program/edit-coach.program.module').then(m => m.EditCoachProgramModule),
-        pathMatch: 'full'
+        pathMatch: 'full',
+        canActivate: [SubscriptionAuthGuard]
       },
       {
         path: 'my-programs/:programId/content',
         loadChildren: () => import('./pages/edit-coach-program/edit-coach.program.module').then(m => m.EditCoachProgramModule),
-        pathMatch: 'full'
+        pathMatch: 'full',
+        canActivate: [SubscriptionAuthGuard]
       },
       {
         path: 'my-programs/:programId/clients/:clientId/sessions/:sessionId',
         loadChildren: () => import('./pages/session-history/session-history.module').then(m => m.SessionHistoryModule),
-        pathMatch: 'full'
+        pathMatch: 'full',
+        canActivate: [SubscriptionAuthGuard]
       },
       {
         path: 'my-programs/:programId/clients/:clientId/sessions',
         loadChildren: () => import('./pages/session-history/session-history.module').then(m => m.SessionHistoryModule),
-        pathMatch: 'full'
+        pathMatch: 'full',
+        canActivate: [SubscriptionAuthGuard]
       },
       {
         path: 'my-services/new-service',
         loadChildren: () => import('./pages/edit-coach-service/edit.coach.service.module').then(m => m.EditCoachServiceModule),
-        pathMatch: 'full'
+        pathMatch: 'full',
+        canActivate: [SubscriptionAuthGuard]
       },
       {
         path: 'my-services/:serviceId/content',
         loadChildren: () => import('./pages/edit-coach-service/edit.coach.service.module').then(m => m.EditCoachServiceModule),
-        pathMatch: 'full'
+        pathMatch: 'full',
+        canActivate: [SubscriptionAuthGuard]
       },
       {
         path: 'my-sessions',
         loadChildren: () => import('./pages/video/video.module').then(m => m.VideoModule),
-        pathMatch: 'full'
+        pathMatch: 'full',
+        canActivate: [SubscriptionAuthGuard]
       },
       {
         path: 'my-sessions/:sessionId',
         loadChildren: () => import('./pages/video-chatroom/videochatroom.module').then(m => m.VideochatroomModule),
-        pathMatch: 'full'
+        pathMatch: 'full',
+        canActivate: [SubscriptionAuthGuard]
       },
       {
         path: 'admin-users',
@@ -342,6 +369,12 @@ const routes: Routes = [
         path: 'my-coaches',
         loadChildren: () => import('./pages/my-coaches/mycoaches.module').then(m => m.MyCoachesModule),
         pathMatch: 'full'
+      },
+      {
+        path: 'client-testimonials',
+        loadChildren: () => import('./pages/coach-manage-testimonials/manage.testimonials.module').then(m => m.ManageTestimonialsModule),
+        pathMatch: 'full',
+        canActivate: [SubscriptionAuthGuard]
       }
     ],
     canActivate: [AuthGuard]

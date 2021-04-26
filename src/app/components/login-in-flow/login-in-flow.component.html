@@ -1,218 +1,110 @@
-<div *ngIf="showAlert" class=" row mt-4">
-  <div class=" col-md-12">
-    <alert class="alert-with-icon" [type]="'success alert-with-icon'"  [dismissible]="true">
-      <span class=" tim-icons icon-alert-circle-exc" data-notify="icon"></span>
-      <span>{{ alertText }}</span>
-    </alert>
-  </div>
-</div>
-
-<div class=" row mt-4 mb-4">
-
-    <!-- LOGIN -->
-    <div class=" col-md-6 login-col">
-        <form
-        class=" form"
-        id="loginValidation"
-        [formGroup]="loginForm"
-        (ngSubmit)="onLogin()"
-        >
-          <div class="">
-            <div class="">
-              <h4 class=""> Already a member? <span class=" text-success">Log in</span> </h4>
-            </div>
-            <div class="">
-
-              <!-- Email -->
-              <div
-                class=" input-group"
-                [ngClass]="{
-                  'input-group-focus': focus === true,
-                  'has-danger':
-                    ((focusTouched || login) && loginF.email.errors) ||
-                    (loginF.email.value != '' && loginF.email.errors),
-                  'has-success': loginF.email.value != '' && !loginF.email.errors
-                }"
-              >
-                <div class=" input-group-prepend">
-                  <div class=" input-group-text">
-                    <i class=" tim-icons icon-email-85"> </i>
-                  </div>
-                </div>
-                <input
-                  class=" form-control"
-                  name="email"
-                  formControlName="email"
-                  placeholder="Email"
-                  type="email"
-                  (focus)="focus = true; focusTouched = true"
-                  (blur)="focus = false"
-                  required=""
-                />
-              </div>
-              <div
-                class="error custom-error-label"
-                *ngIf="
-                  ((focusTouched || login) && loginF.email.errors) ||
-                  (loginF.email.value != '' && loginF.email.errors)
-                "
-                > Please enter your login email address.
-              </div>
-
-              <!-- Password -->
-              <div
-                class=" input-group"
-                [ngClass]="{
-                  'input-group-focus': focus1 === true,
-                  'has-danger':
-                    ((focusTouched1 || login) && loginF.password.errors) ||
-                    (loginF.password.value != '' && loginF.password.errors),
-                  'has-success': loginF.password.value != '' && !loginF.password.errors
-                }"
-              >
-                <div class=" input-group-prepend">
-                  <div class=" input-group-text">
-                    <i class=" tim-icons icon-lock-circle"> </i>
-                  </div>
-                </div>
-                <input
-                  class=" form-control"
-                  name="password"
-                  formControlName="password"
-                  placeholder="Password"
-                  type="password"
-                  (focus)="focus1 = true; focusTouched1 = true"
-                  (blur)="focus1 = false"
-                  required=""
-                />
-              </div>
-              <div
-                class="error custom-error-label"
-                *ngIf="
-                  ((focusTouched1 || login) && loginF.password.errors) ||
-                  (loginF.password.value != '' && loginF.password.errors)
-                "
-                > Your password has at least 6 characters.
-              </div>
-
-            </div>
-            <div class=" pull-left">
-              <a class=" link footer-link" href="javascript:void(0)" (click)="forgotPassword()">
-                Forgotten Password? 
-              </a>
-            </div>
-            <div class=" pull-right">
-              <!-- Login Submit Button -->
-              <button
-              class=" btn btn-primary btn-round btn-lg"
-              type="submit"
-              [disabled]="loginForm.invalid"
-              >
-                <span
-                *ngIf="login"
-                class="spinner-border spinner-border-sm"
-                role="status"
-                ></span> {{ login ? 'Logging in...' : 'Login' }}
-              </button>
-            </div>
-          </div>
-        </form>
+<!-- template for unauthorised users (not logged in) -->
+<div *ngIf="!user">
+  <div *ngIf="showAlert" class=" row mt-4">
+    <div class=" col-md-12">
+      <alert class="alert-with-icon" [type]="'success alert-with-icon'"  [dismissible]="true">
+        <span class=" tim-icons icon-alert-circle-exc" data-notify="icon"></span>
+        <span>{{ alertText }}</span>
+      </alert>
     </div>
-
-    <!-- REGISTER -->
-    <div class=" col-md-6 register-col">
-        <div class="">
-          <div class="">
-            <h4 class=""> New to Lifecoach? <span class=" text-success">Join FREE</span> </h4>
-          </div>
+  </div>
+  
+  <div class=" row mt-4 mb-4">
+  
+      <!-- login -->
+      <div class=" col-md-6 login-col">
           <form
-            class=" form"
-            id="RegisterValidation"
-            [formGroup]="registerForm"
-            (ngSubmit)="onRegister()"
+          class=" form"
+          id="loginValidation"
+          [formGroup]="loginForm"
+          (ngSubmit)="sendEmailLink()"
           >
-            <div class="">
-
-              <div class=" row">
-
-                <!-- First Name -->
-                <div class=" col-sm-12 col-md-6">
-                  <div
-                  class=" input-group"
-                  [ngClass]="{
-                    'input-group-focus': focus2 === true,
-                    'has-danger':
-                      ((focusTouched2 || register) && registerF.firstName.errors) ||
-                      (registerF.firstName.value != '' && registerF.firstName.errors),
-                    'has-success': registerF.firstName.value != '' && !registerF.firstName.errors
-                  }"
-                  >
-                    <div class=" input-group-prepend">
-                      <div class=" input-group-text">
-                        <i class=" tim-icons icon-single-02"> </i>
-                      </div>
-                    </div>
-                    <input
-                      class=" form-control"
-                      name="firstName"
-                      formControlName="firstName"
-                      placeholder="First Name"
-                      type="text"
-                      (focus)="focus2 = true; focusTouched2 = true"
-                      (blur)="focus2 = false"
-                      required=""
-                    />
-                    <label
-                    class="error custom-error-label"
-                    *ngIf="
-                      ((focusTouched2 || register) && registerF.firstName.errors) ||
-                      (registerF.firstName.value != '' && registerF.firstName.errors)
-                    "
-                    > Please enter your first name.
-                    </label>
-                  </div>
-                </div>
-
-                <!-- Last Name -->
-                <div class=" col-sm-12 col-md-6">
-                  <div
-                  class=" input-group"
-                  [ngClass]="{
-                    'input-group-focus': focus3 === true,
-                    'has-danger':
-                      ((focusTouched3 || register) && registerF.lastName.errors) ||
-                      (registerF.lastName.value != '' && registerF.lastName.errors),
-                    'has-success': registerF.lastName.value != '' && !registerF.lastName.errors
-                  }"
-                  >
-                    <div class=" input-group-prepend">
-                      <div class=" input-group-text">
-                        <i class=" tim-icons icon-single-02"> </i>
-                      </div>
-                    </div>
-                    <input
-                      class=" form-control"
-                      name="lastName"
-                      formControlName="lastName"
-                      placeholder="Last Name"
-                      type="text"
-                      (focus)="focus3 = true; focusTouched3 = true"
-                      (blur)="focus3 = false"
-                      required=""
-                    />
-                    <label
-                    class="error custom-error-label"
-                    *ngIf="
-                      ((focusTouched3 || register) && registerF.lastName.errors) ||
-                      (registerF.lastName.value != '' && registerF.lastName.errors)
-                    "
-                    > Please enter your last name.
-                  </label>
-                  </div>
-                </div>
+            <div class=" pl-3 pr-2">
+              <div class="">
+                <h4 class=""> Already a member? <span class=" text-success">Log in</span> </h4>
               </div>
-
+              <div class="">
+  
+                <!-- Email -->
+                <label>
+                  Get your login link...
+                </label>
+                <div
+                  class=" input-group"
+                  [ngClass]="{
+                    'input-group-focus': focus === true,
+                    'has-danger':
+                      ((focusTouched || login) && loginF.email.errors) ||
+                      (loginF.email.value != '' && loginF.email.errors),
+                    'has-success': loginF.email.value != '' && !loginF.email.errors
+                  }"
+                >
+                  <div class=" input-group-prepend">
+                    <div class=" input-group-text">
+                      <i class=" tim-icons icon-email-85"> </i>
+                    </div>
+                  </div>
+                  <input
+                    class=" form-control"
+                    name="email"
+                    formControlName="email"
+                    placeholder="Email"
+                    type="email"
+                    (focus)="focus = true; focusTouched = true"
+                    (blur)="focus = false"
+                    required=""
+                  />
+                </div>
+                <div
+                  class="error custom-error-label"
+                  *ngIf="
+                    ((focusTouched || login) && loginF.email.errors) ||
+                    (loginF.email.value != '' && loginF.email.errors)
+                  "
+                  > Please enter your login email address.
+                </div>
+  
+              </div>
+              <div class=" pull-right">
+                <!-- Login Submit Button -->
+                <button
+                id="login-in-flow-login"
+                class=" btn btn-primary btn-round btn-lg"
+                type="submit"
+                [disabled]="loginForm.invalid || emailSent"
+                (click)="clickEvent('login-in-flow-login')"
+                >
+                  <span
+                  *ngIf="login"
+                  class="spinner-border spinner-border-sm"
+                  role="status"
+                  ></span> 
+                  <span *ngIf="!login">
+                    <i class="fas fa-link mr-2"></i>
+                  </span>
+                  {{ login ? 'Sending Email...' : 'Get Login Link' }}
+                </button>
+              </div>
+            </div>
+          </form>
+      </div>
+  
+      <!-- register -->
+      <div class=" col-md-6 register-col">
+          <div class=" pl-2 pr-3">
+            <div class="">
+              <h4 class=""> New to Lifecoach? <span class=" text-success">Join FREE</span> </h4>
+            </div>
+            <form
+              class=" form"
+              id="RegisterValidation"
+              [formGroup]="registerForm"
+              (ngSubmit)="sendEmailLinkRegister()"
+            >
               <!-- Email -->
+              <label>
+                Enter your email to register free & receive a secure login link...
+              </label>
               <div
                 class=" input-group"
                 [ngClass]="{
@@ -247,80 +139,37 @@
                 > We will never share your email address without your permission.
                 </label>
               </div>
-
-              <!-- Create Password -->
-              <div
-                class=" input-group"
-                [ngClass]="{
-                  'input-group-focus': focus5 === true,
-                  'has-danger':
-                    ((focusTouched5 || register) && registerF.password.errors) ||
-                    (registerF.password.value != '' && registerF.password.errors),
-                  'has-success': registerF.password.value != '' && !registerF.password.errors
-                }"
-              >
-                <div class=" input-group-prepend">
-                  <div class=" input-group-text">
-                    <i class=" tim-icons icon-lock-circle"> </i>
-                  </div>
-                </div>
-                <input
-                  class=" form-control"
-                  name="password"
-                  formControlName="password"
-                  placeholder="Create Password"
-                  type="password"
-                  (focus)="focus5 = true; focusTouched5 = true"
-                  (blur)="focus5 = false"
-                  required=""
-                />
-                <label
-                class="error custom-error-label"
-                *ngIf="
-                  ((focusTouched5 || register) && registerF.password.errors) ||
-                  (registerF.password.value != '' && registerF.password.errors)
-                "
-                > Password must be at least 6 characters.
-              </label>
+              <div class=" pull-right">
+                <!-- Form Submit Button -->
+                <button
+                id="login-in-flow-signup"
+                class=" btn btn-primary btn-round btn-lg"
+                type="submit"
+                [disabled]="!this.registerForm.valid"
+                (click)="clickEvent('login-in-flow-signup')"
+                >
+                  <span
+                  *ngIf="register"
+                  class="spinner-border spinner-border-sm"
+                  role="status"
+                  ></span>
+                  {{ register ? 'Sending Email...' : 'Sign Up!' }}
+                </button>
               </div>
-
-              <!-- Terms & Conditions -->
-              <div class=" form-check text-left">
-                <label class=" form-check-label">
-                  <input class=" form-check-input" type="checkbox" formControlName="termsAccepted" />
-
-                  <span class=" form-check-sign"> </span> I agree to the
-                  <a href="https://lifecoach.freshdesk.com/a/solutions/articles/47000883660" target="_blank"> 
-                    terms and conditions 
-                  </a> .
-                </label>
-              </div>
-
-            </div>
-            <div class=" pull-right">
-              <!-- Form Submit Button -->
-              <button
-              class=" btn btn-primary btn-round btn-lg mt-3"
-              type="submit"
-              [disabled]="!this.registerForm.valid"
-              >
-                <span
-                *ngIf="register"
-                class="spinner-border spinner-border-sm"
-                role="status"
-                ></span> {{ register ? 'Creating Account...' : 'Continue'}} 
-              </button>
-            </div>
-          </form>
-        </div>
-    </div>
-
-    <div class=" col-md-12 text-center">
-        <h6>
-            <a class=" link footer-link" href="https://lifecoach.freshdesk.com/support/home" target="_blank">
-                Need Help?
-            </a>
-        </h6>
-    </div>
-
+            </form>
+          </div>
+      </div>
+  
+      <div class=" col-md-12 text-right">
+          <h6 class=" mt-3">
+              <a class=" link footer-link" href="https://lifecoach.freshdesk.com/support/home" target="_blank">
+                  Need Help?
+              </a>
+          </h6>
+      </div>
+  
+  </div>
 </div>
+<!-- end of template for unauthorised users (not logged in) -->
+
+<!-- authorsied users get a blank template (this component remains hidden) -->

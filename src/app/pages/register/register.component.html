@@ -5,151 +5,16 @@
     <div class=" container">
       <div class=" row">
 
-        <!-- Coach account type promo -->
-        <div *ngIf="registerF?.accountType?.value === 'coach' || registerF?.accountType?.value == null" class=" col-md-5 ml-auto">
+        <!-- Steps -->
+        <div class=" col-md-5 ml-auto">
           <div class=" info-area info-horizontal mt-5">
-            <div class=" icon display-3 text-info">
-              1
+            <div class=" icon display-5 text-success">
+              <i class="far fa-check-circle"></i>
             </div>
             <div class=" description">
-              <h3 class=" info-title"> Join FREE </h3>
+              <h3 class=" info-title"> Email Confirmed! </h3>
               <p class=" description">
-                Join us on our mission to empower the world through high quality personal coaching. 
-                Joining is 100% free and always will be. No hidden fees or charges.
-              </p>
-            </div>
-          </div>
-          <div class=" info-area info-horizontal">
-            <div class=" icon display-3 text-primary">
-              2
-            </div>
-            <div class=" description">
-              <h3 class=" info-title"> Create Your Profile </h3>
-              <p class=" description">
-                Get a beautiful, lead generating profile you can promote anywhere.
-              </p>
-            </div>
-          </div>
-          <div class=" info-area info-horizontal">
-            <div class=" icon display-3 text-success">
-              3
-            </div>
-            <div class=" description">
-              <h3 class=" info-title"> Grow Your Business </h3>
-              <p class=" description">
-                Promote your coaching services, take bookings, run online video coaching sessions & sell eCourses through our commission based platform.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Regular account type promo -->
-        <div *ngIf="registerF?.accountType?.value === 'regular'" class=" col-md-5 ml-auto">
-          <div class=" info-area info-horizontal mt-5">
-            <div class=" icon display-3 text-info">
-              1
-            </div>
-            <div class=" description">
-              <h3 class=" info-title"> Join FREE </h3>
-              <p class=" description">
-                Joining is 100% free and takes only seconds.
-              </p>
-            </div>
-          </div>
-          <div class=" info-area info-horizontal">
-            <div class=" icon display-3 text-primary">
-              2
-            </div>
-            <div class=" description">
-              <h3 class=" info-title"> Access Top Coaches </h3>
-              <p class=" description">
-                Discover & connect with leading Personal Development & Transformation Coaches from around the world.
-              </p>
-            </div>
-          </div>
-          <div class=" info-area info-horizontal">
-            <div class=" icon display-3 text-success">
-              3
-            </div>
-            <div class=" description">
-              <h3 class=" info-title"> Succeed </h3>
-              <p class=" description">
-                Transform yourself through private coaching or self study eCourses. 
-                We've got everything you need to help you succeed.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Partner account type promo -->
-        <div *ngIf="registerF?.accountType?.value === 'partner'" class=" col-md-5 ml-auto">
-          <div class=" info-area info-horizontal mt-5">
-            <div class=" icon display-3 text-info">
-              1
-            </div>
-            <div class=" description">
-              <h3 class=" info-title"> Join FREE </h3>
-              <p class=" description">
-                Joining is 100% free and takes only seconds.
-              </p>
-            </div>
-          </div>
-          <div class=" info-area info-horizontal">
-            <div class=" icon display-3 text-primary">
-              2
-            </div>
-            <div class=" description">
-              <h3 class=" info-title"> Promote Lifecoach </h3>
-              <p class=" description">
-                Start promoting Lifecoach through your existing audiences & channels. We'll show you how inside...
-              </p>
-            </div>
-          </div>
-          <div class=" info-area info-horizontal">
-            <div class=" icon display-3 text-success">
-              3
-            </div>
-            <div class=" description">
-              <h3 class=" info-title"> Get Paid </h3>
-              <p class=" description">
-                Earn a generous 50% profit share on all referred revenue, while helping people all over the world to succeed.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Provider account type promo -->
-        <div *ngIf="registerF?.accountType?.value === 'provider'" class=" col-md-5 ml-auto">
-          <div class=" info-area info-horizontal mt-5">
-            <div class=" icon display-3 text-info">
-              1
-            </div>
-            <div class=" description">
-              <h3 class=" info-title"> Join FREE </h3>
-              <p class=" description">
-                Joining is 100% free and takes only seconds.
-              </p>
-            </div>
-          </div>
-          <div class=" info-area info-horizontal">
-            <div class=" icon display-3 text-primary">
-              2
-            </div>
-            <div class=" description">
-              <h3 class=" info-title"> Access Our Coaching Community </h3>
-              <p class=" description">
-                Reach our highly engaged community of professional Coaches.
-              </p>
-            </div>
-          </div>
-          <div class=" info-area info-horizontal">
-            <div class=" icon display-3 text-success">
-              3
-            </div>
-            <div class=" description">
-              <h3 class=" info-title"> Showcase Your Services </h3>
-              <p class=" description">
-                Offer your specialist services to help our Coaches succeed.
+                Now let's complete a few simple details to get your Lifecoach account set up...
               </p>
             </div>
           </div>
@@ -165,7 +30,7 @@
                 src="assets/img/card-primary.png"
               />
 
-              <h4 class=" card-title"> Register </h4>
+              <h4 class=" card-title"> name </h4>
             </div>
             <form
               class=" form"
@@ -176,13 +41,39 @@
               <div class=" card-body">
 
                 <div class=" row">
+                  <div class=" col-sm-12 col-md-6">
+                    <!-- user type -->
+                    <div class="form-group">
+                      <select id="account-type" class="form-control" formControlName="accountType">
+                        <option [ngValue]="null"> Select Account Type... </option>
+                        <option value='regular'>
+                          I'm looking for coaching
+                        </option>
+                        <option value='coach'>
+                          I'm a Coach
+                        </option>
+                        <option value='partner'>
+                          I'm a Promotinal Partner
+                        </option>
+                      </select>
+                    </div>
+                    <div *ngIf="(registerAttempt && registerF.accountType.errors)" class=" mt-2">
+                      <label
+                      *ngFor="let error of objKeys(registerF.accountType.errors)"
+                      class="error custom-error-label"
+                      >{{ showError('accountType', error) }}
+                      </label>
+                  </div>
+                  </div>
+                </div>
 
+                <div class=" row mt-2">
                   <!-- First Name -->
                   <div class=" col-sm-12 col-md-6">
                     <div
                     class=" input-group"
                     [ngClass]="{
-                      'has-danger': ((focusTouched && registerF.firstName.value != '' || register) && registerF.firstName.errors),
+                      'has-danger': ((focusTouched && registerF.firstName.value != '' || registerAttempt) && registerF.firstName.errors),
                       'has-success': !registerF.firstName.errors
                     }"
                     >
@@ -201,7 +92,7 @@
                         required=""
                       />
                     </div>
-                    <div *ngIf="((focusTouched && registerF.firstName.value != '' || register) && registerF.firstName.errors)">
+                    <div *ngIf="((focusTouched && registerF.firstName.value != '' || registerAttempt) && registerF.firstName.errors)">
                       <label
                       *ngFor="let error of objKeys(registerF.firstName.errors)"
                       class="error custom-error-label"
@@ -215,7 +106,7 @@
                     <div
                     class=" input-group"
                     [ngClass]="{
-                      'has-danger': ((focusTouched3 && registerF.lastName.value != '' || register) && registerF.lastName.errors),
+                      'has-danger': ((focusTouched1 && registerF.lastName.value != '' || registerAttempt) && registerF.lastName.errors),
                       'has-success': !registerF.lastName.errors
                     }"
                     >
@@ -230,11 +121,11 @@
                         formControlName="lastName"
                         placeholder="Last Name"
                         type="text"
-                        (focus)="focusTouched3 = true"
+                        (focus)="focusTouched1 = true"
                         required=""
                       />
                     </div>
-                    <div *ngIf="((focusTouched3 && registerF.lastName.value != '' || register) && registerF.lastName.errors)">
+                    <div *ngIf="((focusTouched1 && registerF.lastName.value != '' || registerAttempt) && registerF.lastName.errors)">
                       <label
                       *ngFor="let error of objKeys(registerF.lastName.errors)"
                       class="error custom-error-label"
@@ -244,136 +135,36 @@
                   </div>
                 </div>
 
-                <div class=" row">
-                  <!-- Email -->
-                  <div class=" col-sm-12 col-md-6">
-                    <div
-                    class=" input-group"
-                    [ngClass]="{
-                      'has-danger': ((focusTouched1 && registerF.email.value != '' || register) && registerF.email.errors),
-                      'has-success': !registerF.email.errors
-                    }"
-                    >
-                      <div class=" input-group-prepend">
-                        <div class=" input-group-text">
-                          <i class=" tim-icons icon-email-85"> </i>
-                        </div>
-                      </div>
-                      <input
-                        class=" form-control"
-                        name="email"
-                        formControlName="email"
-                        placeholder="Email"
-                        type="email"
-                        (focus)="focusTouched1 = true"
-                        required=""
-                      />
-                    </div>
-                    <div *ngIf="((focusTouched1 && registerF.email.value != '' || register) && registerF.email.errors)">
-                      <label
-                      *ngFor="let error of objKeys(registerF.email.errors)"
-                      class="error custom-error-label"
-                      >{{ showError('email', error) }}
-                      </label>
-                    </div>
-                  </div>
-
-                  <!-- Create Password -->
-                  <div class=" col-sm-12 col-md-6">
-                    <div
-                    class=" input-group"
-                    [ngClass]="{
-                      'has-danger': ((focusTouched2 && registerF.password.value != '' || register) && registerF.password.errors),
-                      'has-success': !registerF.password.errors
-                    }"
-                    >
-                      <div class=" input-group-prepend">
-                        <div class=" input-group-text">
-                          <i class=" tim-icons icon-lock-circle"> </i>
-                        </div>
-                      </div>
-                      <input
-                        class=" form-control"
-                        name="password"
-                        formControlName="password"
-                        placeholder="Create Password"
-                        type="password"
-                        (focus)="focusTouched2 = true"
-                        required=""
-                      />
-                    </div>
-                    <div *ngIf="((focusTouched2 && registerF.password.value != '' || register) && registerF.password.errors)">
-                      <label
-                      *ngFor="let error of objKeys(registerF.password.errors)"
-                      class="error custom-error-label"
-                      >{{ showError('password', error) }}
-                      </label>
-                    </div>
-                  </div>
+                <div class=" mt-3 text-right">
+                  <button
+                  class=" btn btn-primary btn-block btn-lg"
+                  type="submit"
+                  >
+                    <span
+                    *ngIf="register"
+                    class="spinner-border spinner-border-sm"
+                    role="status"
+                    ></span> {{ register ? 'Preparing Your Account ' + registerF.firstName.value + '...' : 'Complete Sign Up!'}} 
+                  </button>
                 </div>
 
-                <!-- user type -->
-                <div class="form-group">
-                  <select class="form-control" formControlName="accountType">
-                    <option [ngValue]="null"> Select... </option>
-                    <option value='coach'>
-                      I am a Coach, looking to help others progress
-                    </option>
-                    <option value='regular'>
-                      I am looking for coaching to help me progress
-                    </option>
-                    <option value='partner'>
-                      I am a Promotional Partner, looking to promote coaching to others
-                    </option>
-                    <option value='provider'>
-                      I am a Services Provider, offering services to support Coaches
-                    </option>
-                  </select>
-                </div>
+                <hr>
 
                 <!-- Terms & Conditions -->
-                <div class=" form-check text-left">
-                  <label class=" form-check-label">
-                    <input class=" form-check-input" type="checkbox" formControlName="termsAccepted" />
-
-                    <span class=" form-check-sign"> </span> I agree to the
-                    <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47000883660-where-to-find-our-policies" target="_blank"> 
-                      terms and conditions 
-                    </a>.
-                  </label>
-                </div>
-
-                <!-- Got an account? -->
-                <div class=" pull-right mr-3 text-right">
-                  <small> Already got an account? 
-                    <a href="javascript:void(0)" (click)="login()"> 
-                      Log in
-                    </a> <br>
-                    <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47000880610-support-options" target="_blank"> 
-                      Need help?
-                    </a>
-                  </small>
+                <div class=" text-center text-muted mt-3">
+                  By signing up, you agree to our
+                  <a href="https://lifecoach.freshdesk.com/a/solutions/articles/47000883660" target="_blank"> 
+                  terms and conditions. 
+                  </a>
                 </div>
 
               </div>
-              <div class=" card-footer mt-0">
-                <!-- Form Submit Button -->
-                <button
-                class=" btn btn-primary btn-round btn-lg"
-                type="submit"
-                [disabled]="!this.registerForm.valid"
-                >
-                  <span
-                  *ngIf="register"
-                  class="spinner-border spinner-border-sm"
-                  role="status"
-                  ></span> {{ register ? 'Creating Account...' : 'Get Started'}} 
-                </button>
-              </div>
+
             </form>
           </div>
         </div>
       </div>
     </div>
+    <app-footer></app-footer>
   </div>
 </div>

@@ -14,7 +14,7 @@ import { AuthService } from 'app/services/auth.service';
 import { CurrenciesService } from 'app/services/currencies.service';
 import { CountryService } from 'app/services/country.service';
 import { EmojiCountry } from 'app/interfaces/emoji.country.interface';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder } from '@angular/forms';
 import { UserAccount } from 'app/interfaces/user.account.interface';
 import { CoachingCourse } from 'app/interfaces/course.interface';
 import { IsoLanguagesService } from 'app/services/iso-languages.service';
@@ -23,7 +23,6 @@ import { StripePaymentIntentRequest } from 'app/interfaces/stripe.payment.intent
 import { environment } from '../../../environments/environment';
 import { BsModalService, BsModalRef, ModalOptions } from 'ngx-bootstrap/modal';
 import { RegisterModalComponent } from 'app/components/register-modal/register-modal.component';
-import { PartnerTrackingService } from 'app/services/partner-tracking.service';
 
 @Component({
   selector: 'app-course',
@@ -49,13 +48,12 @@ export class CourseComponent implements OnInit, OnDestroy {
   public rates: any;
   private courseId: string;
   public course: CoachingCourse;
-
+  public coachPaymentsEnabled: boolean;
   public purchasingCourse: boolean;
 
   public languages: any;
 
   private referralCode: string; // will hold a referral code if a coach referred the user here
-  private partnerTrackingCode: string | null; // will hold a partner tracking code if a promotional partner referred the user anywhere on the app within the last 30 days
 
   private subscriptions: Subscription = new Subscription();
 
@@ -76,8 +74,7 @@ export class CourseComponent implements OnInit, OnDestroy {
     private countryService: CountryService,
     public formBuilder: FormBuilder,
     private languagesService: IsoLanguagesService,
-    private modalService: BsModalService,
-    private partnerTrackingService: PartnerTrackingService
+    private modalService: BsModalService
   ) {
   }
 
@@ -92,9 +89,6 @@ export class CourseComponent implements OnInit, OnDestroy {
 
       this.browser = true;
       this.analyticsService.pageView();
-
-      // Check for a stored partner tracking code
-      this.checkStoredPartnerTrackingCode();
 
       // Init Stripe.js
       const stripe = Stripe(`${environment.stripeJsClientKey}`);
@@ -148,7 +142,7 @@ export class CourseComponent implements OnInit, OnDestroy {
           currency: this.clientCurrency,
           buyerUid: this.userId,
           referralCode: this.referralCode ? this.referralCode : null,
-          partnerTrackingCode: this.partnerTrackingCode ? this.partnerTrackingCode : null
+          partnerTrackingCode: null
         };
 
         this.analyticsService.attemptStripePayment(piRequest);
@@ -345,17 +339,6 @@ export class CourseComponent implements OnInit, OnDestroy {
 
   } // end of onInit
 
-  checkStoredPartnerTrackingCode() {
-    // inspect localstorage for a saved partner tracking code.
-    // if a valid tracking code is found, update the component
-    // so any purchase can place the code in a payment intent
-
-    const validTrackingCode = this.partnerTrackingService.checkForSavedPartnerTrackingCode();
-    if (validTrackingCode) {
-      this.partnerTrackingCode = validTrackingCode;
-    }
-  }
-
   checkForReferralCode() {
     // check the activated route for a referral code query param
     this.route.queryParams.subscribe(params => {
@@ -464,7 +447,8 @@ export class CourseComponent implements OnInit, OnDestroy {
       initialState: {
         message: `Just a second! You need a Lifecoach account to purchase & watch eCourses. Joining Lifecoach is free and only takes seconds!`,
         successMessage: `Click Buy Now again to complete your purchase.`,
-        redirectUrl: null
+        redirectUrl: null,
+        accountType: 'regular'
       } as any
     };
     this.bsModalRef = this.modalService.show(RegisterModalComponent, config);
@@ -494,6 +478,16 @@ export class CourseComponent implements OnInit, OnDestroy {
     if (result && result.action) {
       this.router.navigate(['/my-courses']);
     }
+  }
+
+  async navToContact() {
+    // allows navigation to the relevant page section multiple times, even if the fragment is already in the active route
+    await this.router.navigate(['/course', this.course.courseId], {skipLocationChange: true});
+    this.router.navigate(['/course', this.course.courseId], { fragment: 'contact-coach' });
+  }
+
+  clickEvent(buttonId: string) {
+    this.analyticsService.clickButton(buttonId);
   }
 
   ngOnDestroy() {

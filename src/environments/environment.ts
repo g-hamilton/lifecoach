@@ -20,7 +20,7 @@ export const environment = {
   stripeClientId: '&client_id=ca_Gl8JdfxtwHJFDika4cUSThpPTDfCYZa3',
   stripeJsClientKey: 'pk_test_HtSpdTqwGC86g7APo4XLBgms00TVXJLOf8',
   stripeRedirectUri: 'redirect_uri=http://localhost:4200/account/stripe/oauth',
-  baseUrl: 'https://localhost:4200'
+  baseUrl: 'http://localhost:4200'
 };
 
 /*

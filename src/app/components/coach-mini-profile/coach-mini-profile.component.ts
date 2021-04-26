@@ -6,7 +6,7 @@ import { Observable, Subscription } from 'rxjs';
 import { DataService } from 'app/services/data.service';
 import { CoachingProgram } from 'app/interfaces/coach.program.interface';
 import { CoachProfile } from 'app/interfaces/coach.profile.interface';
-import { ReviewsService } from 'app/services/reviews.service';
+import { TestimonialsService } from 'app/services/testimonials.service';
 import { CoachingService } from 'app/interfaces/coaching.service.interface';
 
 
@@ -31,7 +31,7 @@ export class CoachMiniProfileComponent implements OnInit, OnChanges, OnDestroy {
     @Inject(PLATFORM_ID) private platformId: object,
     private transferState: TransferState,
     private dataService: DataService,
-    private reviewsService: ReviewsService
+    private testimonialsService: TestimonialsService
   ) { }
 
   ngOnInit() {

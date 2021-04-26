@@ -27,6 +27,7 @@ export class CoachServicesComponent implements OnInit, OnDestroy {
   public objKeys = Object.keys;
   public currencies: any;
   public userProfile: CoachProfile;
+  public subscriptionPlan: any;
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: object,
@@ -52,45 +53,68 @@ export class CoachServicesComponent implements OnInit, OnDestroy {
         if (user) {
           this.userId = user.uid;
 
-          // Check for a public coach profile.
-          // Important: Profile must be completed & made public before we allow creation of products & services
-          this.subscriptions.add(
-            this.dataService.getPublicCoachProfile(this.userId).subscribe(profile => {
-              if (profile) {
-                this.userProfile = profile;
-                // console.log('Fetched profile:', profile);
+          // check custom user claims
+          user.getIdTokenResult(true)
+          .then(tokenRes => {
+            console.log('User claims:', tokenRes.claims);
+            const c = tokenRes.claims;
+            if (c.subscriptionPlan) {
+              this.subscriptionPlan = c.subscriptionPlan;
+              console.log('Subscription plan:', this.subscriptionPlan);
+              if (this.subscriptionPlan === 'flame' || this.subscriptionPlan === 'blaze') { // load courses if on flame or blaze plan
+                this.getCoacheCourses();
               }
-            })
-          );
+            }
+          });
 
-          // Check for created programs
-          this.subscriptions.add(
-            this.dataService.getPrivatePrograms(this.userId).subscribe(programs => {
-              if (programs) {
-                this.publishedPrograms = programs;
-                // console.log('Published Programs:', programs);
-              }
-            })
-          );
+          // for all plan users...
+          this.getCoachProfile(); // Important: Profile must be completed & made public before we allow creation of products & services
+          this.getCoachServices();
+          this.getCoachPrograms();
+        }
+      })
+    );
+  }
 
-          // Check for created ecourses
-          this.subscriptions.add(
-            this.dataService.getPrivateCourses(this.userId).subscribe(courses => {
-              if (courses) {
-                this.publishedCourses = courses;
-                // console.log('Published Courses:', courses);
-              }
-            })
-          );
+  getCoachProfile() {
+    this.subscriptions.add(
+      this.dataService.getPublicCoachProfile(this.userId).subscribe(profile => {
+        if (profile) {
+          this.userProfile = profile;
+          // console.log('Fetched profile:', profile);
+        }
+      })
+    );
+  }
 
-          // check coach services
-          this.subscriptions.add(
-            this.dataService.getPrivateServices(this.userId).subscribe(services => {
-              if (services) {
-                this.publishedServices = services;
-              }
-            })
-          );
+  getCoachServices() {
+    this.subscriptions.add(
+      this.dataService.getPrivateServices(this.userId).subscribe(services => {
+        if (services) {
+          this.publishedServices = services;
+          // console.log('Services:', services);
+        }
+      })
+    );
+  }
+
+  getCoachPrograms() {
+    this.subscriptions.add(
+      this.dataService.getPrivatePrograms(this.userId).subscribe(programs => {
+        if (programs) {
+          this.publishedPrograms = programs;
+          // console.log('Programs:', programs);
+        }
+      })
+    );
+  }
+
+  getCoacheCourses() {
+    this.subscriptions.add(
+      this.dataService.getPrivateCourses(this.userId).subscribe(courses => {
+        if (courses) {
+          this.publishedCourses = courses;
+          // console.log('eCourses:', courses);
         }
       })
     );

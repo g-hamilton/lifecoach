@@ -8,19 +8,15 @@
           <div class="container">
             <div class="row justify-content-center text-center">
               <div class="col-md-10">
-              <h1 class="display-1"> Join The World's Fastest Growing Online Coaching Platform </h1>
+              <h1 class="display-1"> Get The Leading Software For Professional Coaches </h1>
 
               <h3>
-                Promote your coaching. Take bookings. Coach online. Get paid seamlessly.
+                Access a fast growing pool of clients in need of coaching.
               </h3>
-
-              <h6>
-                Join FREE. No monthly fees. No hidden charges.
-              </h6>
   
               <p class=" mt-4">
-                  <button class="btn btn-primary btn-round" [routerLink]="['/register', 'coach']" (click)="onGetStarted()" role="button">
-                    Get Started
+                  <button id="for-coaches-hero" class="btn btn-primary btn-round" [routerLink]="['/for-coaches']" [fragment]="'section-pricing'" (click)="clickEvent('for-coaches-hero')" role="button">
+                    View Plans
                   </button>
               </p>
 
@@ -34,32 +30,25 @@
   </section>
   <!-- end of hero section -->
 
-  <!-- mission section -->
-  <div id="section-mission" class=" top-section-margin">
-    <div class=" row">
-        <div id="mission-col" class=" col">
-            <div class=" container text-center">
-                <h2 class=" display-4 mb-1">
-                    Empower. Enable. Encourage.
-                </h2>
-                <h3 class=" display-2">
-                    Calling All Coaches
-                </h3>
-                <h4>
-                  We don't believe that the best coaches should be limited by geography. Lifecoach is an all-in-one 
-                  global online coaching platform with a vision to empower the world through access to high quality 
-                  coaching across all areas of personal transformation.
-                </h4>
-                <p class=" mt-4">
-                  <button class="btn btn-default btn-round" [routerLink]="['/register', 'coach']" (click)="onGetStarted()" role="button">
-                    Join FREE today
-                  </button>
-                </p>
-            </div>
-        </div>
+    <!-- mission section -->
+    <div id="section-mission" class=" top-section-margin">
+      <div class=" row">
+          <div id="mission-col" class=" col">
+              <div class=" container text-center">
+                  <h3 class=" display-2">
+                      About Us
+                  </h3>
+                  <h4>
+                    Traditional coaching directories don't give clients what they need to find the <strong>most relevant coaches</strong> 
+                    and get a strong sense of whether a coach is right for them <strong>before making contact</strong>. Lifecoach is an 
+                    all-in-one coaching platform; giving you a next-generation coaching directory, the software you need 
+                    to run & grow your coaching business and access to a fast growing client pool.
+                  </h4>
+              </div>
+          </div>
+      </div>
     </div>
-  </div>
-  <!-- end of mission section -->
+    <!-- end of mission section -->
 
   <!-- benefits section -->
   <div id="section-benefits" class=" top-section-margin">
@@ -67,189 +56,106 @@
         <div id="benefits-col" class=" col">
             <div class=" container text-center">
                 <h2 class=" display-4 mb-1">
-                    Discover The Benefits
+                  Why Join Lifecoach?
                 </h2>
                 <h3 class=" display-2">
-                    Why Join Lifecoach?
+                  Discover The Benefits
                 </h3>
                 <div class=" row mt-5">
-                  <div class=" col-4">
+                  <div class=" col-4 mb-5">
                       <img src="../../../assets/img/pricing/lifecoach-coach-profile.png" alt="Lifecoach better coach profile">
                       <h6 class=" mt-3">
                         A better coach profile
                       </h6>
                       <p class=" pl-3 pr-3">
-                        Search engine optimised. Video intro. Links to all of your products & services. 
-                        Integrated booking form (synced with your calendar). Integrated messenger for taking client enquiries.
+                        Create a search engine optimised landing page that links seamlessly to your products & services. 
+                        Upload a video intro and showcase your top resources. 
+                        With an integrated messenger for taking client enquiries, it's the perfect place to send prospective clients 
+                        to give them a better sense of who you are and the coaching services you offer. Available on 
+                        <a [routerLink]="['/for-coaches']" [fragment]="'section-pricing'">Spark</a> and above.
                       </p>
                   </div>
-                  <div class=" col-4">
+                  <div class=" col-4 mb-5">
+                    <img src="../../../assets/img/pricing/lifecoach-coaching-coaches-find-clients-as-coach.png" alt="Lifecoach better coach profile">
+                    <h6 class=" mt-3">
+                      Growing client pools
+                    </h6>
+                    <p class=" pl-3 pr-3">
+                      Lifecoach helps individuals and companies to find & access the very best coaches based on their 
+                      specific needs. Whenever individuals or companies ask us to help them find coaches, we place these 
+                      leads into a suitable pool and invite relevant coaches to apply. Access our ever growing individual 
+                      client pool on 
+                      <a [routerLink]="['/for-coaches']" [fragment]="'section-pricing'">Spark</a> and above. Access the 
+                      corporate client pool on <a [routerLink]="['/for-coaches']" [fragment]="'section-pricing'">Blaze</a>.
+                    </p>
+                </div>
+                  <div class=" col-4 mb-5">
                     <img src="../../../assets/img/pricing/lifecoach-promote-coaching.png" alt="Lifecoach helps coaches to promote coaching">
                     <h6 class=" mt-3">
-                      Active promotion
+                      Active Advertising
                     </h6>
                       <p class=" pl-3 pr-3">
-                        Add your coaching services, create coaching programs and 
-                        turn existing coaching material into eCourses. 
-                        We'll actively promote your landing pages via our global partner network 
-                        to reach the widest possible audience.
+                        Lifecoach automatically funnels revenue from your monthly subscription into highly relevant paid advertising, 
+                        meaning joining Lifecoach is like having your own advertising manager. We'll create professional, image 
+                        rich ads across multiple channels and send all warm leads through to your 
+                        landing page where prospective clients can discover more about you and send you enquiries. Available on 
+                        <a [routerLink]="['/for-coaches']" [fragment]="'section-pricing'">Blaze</a>.
                       </p>
                   </div>
-                  <div class=" col-4">
-                    <img src="../../../assets/img/pricing/lifecoach-book-coaching-session-online.png" alt="Lifecoach helps clients book coaching sessions on-demand">
+                  <div class=" col-4 mb-5">
+                    <img src="../../../assets/img/pricing/lifecoach-crm-for-coaches.png" alt="Lifecoach CRM for coaches">
                     <h6 class=" mt-3">
-                      Faster bookings
+                      Simple CRM
                     </h6>
                       <p class=" pl-3 pr-3">
-                        Skip the email back and forth. Cleints can book discovery sessions with you on-demand.
-                        Sync your calendar and take scheduled client bookings directly from your profile and product landing pages.
+                        Get a lightweight Customer Relationship Manager built specifically for coaches. 
+                        As prospective clients submit leads 
+                        via your Lifecoach coach landing page, our CRM will help you keep track. Invite leads to your programs, share 
+                        resources, schedule check-ins & coaching sessions and much more. And why not add your existing clients to manage 
+                        all of your client history in one place. Available on 
+                        <a [routerLink]="['/for-coaches']" [fragment]="'section-pricing'">Spark</a> and above.
                       </p>
                   </div>
-                </div>
-                <div class=" row mt-5">
-                  <div class=" col-4">
+                  <div class=" col-4 mb-5">
                     <img src="../../../assets/img/pricing/lifecoach-sell-coaching-programs-courses-online.png" alt="Lifecoach helps coaches to sell coaching programs & courses online">
                     <h6 class=" mt-3">
                       Seamless payments
                     </h6>
                       <p class=" pl-3 pr-3">
-                        Take secure payments through a highly trusted payment provider 
-                        directly from your landing pages. Clients trust our Stripe powered payment system & impartial refund guarantee.
+                        Need a simple & secure payment system to accept client payments? No problem! Join the Flame plan to accept online 
+                        payments for coaching sessions, programs & eCourses directly through your Lifecoach pages. Our payment flow allows you to take payments in multiple 
+                        currencies from clients all over the world while managing your own payment terms and refund policy. Available on 
+                        <a [routerLink]="['/for-coaches']" [fragment]="'section-pricing'">Flame</a> and above.
                       </p>
                   </div>
-                  <div class=" col-4">
-                    <img src="../../../assets/img/pricing/lifecoach-online-video-coaching-platform-for-coaches.png" alt="Lifecoach online video coaching platform for coaches">
+                  <div class=" col-4 mb-5">
+                    <img src="../../../assets/img/pricing/lifecoach-publish-coaching-blog-content.png" alt="Lifecoach helps coaches to sell coaching programs & courses online">
                     <h6 class=" mt-3">
-                      Borderless coaching
+                      Publish Content
                     </h6>
                       <p class=" pl-3 pr-3">
-                        Expand your reach with truly borderless coaching. 
-                        Coach clients all over the world through our video platform while maintaining your normal working hours.
-                      </p>
-                  </div>
-                  <div class=" col-4">
-                    <img src="../../../assets/img/pricing/lifecoach-crm-for-coaches.png" alt="Lifecoach CRM for coaches">
-                    <h6 class=" mt-3">
-                      Keep track
-                    </h6>
-                      <p class=" pl-3 pr-3">
-                        Spend less time on admin and more time coaching. Our lightweight CRM 
-                        (Customer Relationship Manager) helps you keep track of all your clients, leads and their histories.
+                        Publishing content via the Lifecoach blog helps to build your reputation as a subject matter expert, improve the search engine performance 
+                        of your landing page and promote your services in a more engaging way across social media. Join in to shape the thought leadership 
+                        of the industry - your posts could even feature in our 
+                        newsletter. Available on 
+                        <a [routerLink]="['/for-coaches']" [fragment]="'section-pricing'">Blaze</a> and above.
                       </p>
                   </div>
                 </div>
             </div>
         </div>
+    </div>
+    <div class=" row">
+      <div class=" col">
+        <p class=" mt-4 text-center">
+          <button id="for-coaches-benefits-view-pricing" class="btn btn-primary btn-round" [routerLink]="['/for-coaches']" [fragment]="'section-pricing'" (click)="clickEvent('for-coaches-benefits-view-pricing')" role="button">
+            View Pricing
+          </button>
+      </p>
+      </div>
     </div>
   </div>
   <!-- end of benefits section -->
-
-  <!-- how it works section -->
-  <div id="section-how-it-works" class=" top-section-margin">
-    <div class=" content">
-        <div class=" container">
-            <div class="row mb-5">
-                <div class="col text-center">
-                    <h2 class=" display-2 mb-1">
-                        How Lifecoach Works
-                    </h2>
-                </div>
-            </div>
-
-            <!-- step 1 row -->
-            <div class=" row mt-5 mb-5">
-                <div class=" col-6">
-                    <h4 class=" display-4 mb-1 pt-4">
-                        1. Profile
-                    </h4>
-                    <h4 class=" display-3">
-                        Start with a free profile
-                    </h4>
-                    <h4>
-                        Here at Lifecoach, everything starts with a free coach profile. Add a friendly video intro, 
-                        showcase your products & services & collect leads.
-                    </h4>
-                </div>
-                <div class=" col-6 pl-4">
-                    <img src="../../../assets/img/pricing/lifecoach-free-coach-profile-directory-coaches.png" alt="Add your free coach profile to Lifecoach directory of coaches">
-                </div>
-            </div>
-
-            <!-- step 2 row -->
-            <div class=" row mt-5 mb-5">
-                <div class=" col-6 pr-4">
-                    <img src="../../../assets/img/pricing/lifecoach-promote-coaching-services-programs-courses.png" alt="Promote your coaching services, programs & courses through Lifecoach">
-                </div>
-                <div class=" col-6">
-                    <h3 class=" display-4 mb-1 pt-3">
-                        2. Products & Services
-                    </h3>
-                    <h4 class=" display-3">
-                        Add your products and services
-                    </h4>
-                    <h4>
-                        Create coaching services, coaching programs and even eCourses. We'll guide you 
-                        every step of the way through creation, publishing & promotion. 
-                        We'll even promote your products & services actively through our global network of 
-                        promotional partners to reach new clients you may not normally reach.
-                    </h4>
-                </div>
-            </div>
-
-            <!-- step 3 row -->
-            <div class=" row mt-5 mb-5">
-                <div class=" col-6">
-                    <h3 class=" display-4 mb-1 pt-1">
-                        3. Discovery
-                    </h3>
-                    <h4 class=" display-3">
-                        Take bookings & convert leads
-                    </h4>
-                    <h4>
-                        Prospective clients book discovery video sessions directly on your calendar or message you from 
-                        your landing pages. See all your leads in one place, answer questions and ensure clients are right for you 
-                        before inviting them to enrol. When they do enrol, we make payment a breeze.
-                    </h4>
-                </div>
-                <div class=" col-6 pl-4">
-                    <img src="../../../assets/img/pricing/lifecoach-convert-coaching-leads.png" alt="Convert your coaching leads through Lifecoach CRM for coaches">
-                </div>
-            </div>
-
-            <!-- step 4 row -->
-            <div class=" row mt-5 mb-5">
-              <div class=" col-6 pr-4">
-                <img src="../../../assets/img/pricing/lifecoach-helps-coaches-coach-clients-without-borders.png" alt="Lifecoach helps coaches to coach without borders">
-                </div>
-                <div class=" col-6">
-                    <h3 class=" display-4 mb-1 pt-1">
-                        4. Coach
-                    </h3>
-                    <h4 class=" display-3">
-                        Coach online without borders
-                    </h4>
-                    <h4>
-                        Coach clients online through the Lifecoach video platform. Schedule sessions, send payment requests, 
-                        share resources and take notes. Keep track of every interaction between client sessions with our 
-                        lightweight CRM.
-                    </h4>
-                </div>
-            </div>
-
-            <div class=" row mt-5">
-              <div class=" col">
-                <div class=" text-center">
-                  <button class="btn btn-round btn-primary" [routerLink]="['/register', 'coach']" (click)="onGetStarted()">
-                      Create My Profile
-                  </button>
-              </div>
-              </div>
-            </div>
-
-        </div>
-    </div>
-  </div>
-  <!-- end of how it works section -->
 
   <!-- promotion section -->
   <div id="section-promotion" class=" top-section-margin">
@@ -257,17 +163,17 @@
         <div id="promotion-col" class=" col">
             <div class=" container text-center">
                 <h2 class=" display-4 mb-1">
-                  Active Promotion
+                  Active Advertising
                 </h2>
                 <h3 class=" display-2">
-                  Leverage Our Global Partner Network
+                  Your Automated Ad Manager
                 </h3>
                 <h4>
-                  We actively select & promote relevant coaches, services & eCourses to target audiences 
-                  all over the world through our global network of promotional partners. Our mission is 
-                  to reach the people who need your services the most, so you can spend less time 
-                  marketing and more time transforming people's lives for the better. 
-                  Included as standard when you join our community.
+                  The Lifecoach Ad Manager automatically places highly relevant & personalised paid ads directly into 
+                  the market on your behalf, targeting popular channels using AI to improve conversion rates. 
+                  It's like having your own ad agency worker, placing ads 24/7 and sending warm leads straight to 
+                  your Lifecoach landing page - all so you can spend less time advertising and more time coaching. 
+                  Available on the <a [routerLink]="['/for-coaches']" [fragment]="'section-pricing'">Blaze</a> plan.
                 </h4>
             </div>
         </div>
@@ -280,9 +186,6 @@
     <div class=" row">
         <div id="features-col" class=" col">
             <div class=" container text-center">
-                <h2 class=" display-4 mb-1">
-                    Made for Coaches
-                </h2>
                 <h3 class=" display-2">
                     Summary of Features
                 </h3>
@@ -293,35 +196,47 @@
                         Better Profile
                       </h6>
                       <p class=" pl-3 pr-3 mb-4">
-                        SEO optimised. Video intro. Lead capture. Showcase all of your coaching products and services.
+                        The perfect place to send prospective clients. SEO optimised. Video intro. Lead capture. Showcase all of your coaching products and services in one place.
                       </p>
+                      <div class=" badge badge-success mb-5"> Spark </div>
+                      <div class=" badge badge-warning mb-5 ml-2"> Flame </div>
+                      <div class=" badge badge-danger mb-5 ml-2"> Blaze </div>
                   </div>
                   <div class=" col-3">
-                      <div class=" text-success display-2 mb-3"><i class="fas fa-dollar-sign"></i></div>
+                      <div class=" text-success display-2 mb-3"><i class="fa fa-bullseye"></i></div>
                       <h6>
-                        Sell Coaching Services
+                        Client Lead Pool
                       </h6>
                       <p class=" pl-3 pr-3 mb-4">
-                        Sell online video coaching sessions & programs. Charge per session & offer bundle discounts.
+                        Get access to the client lead pool and receive notifications when new leads are posted by clients matching your coach profile.
                       </p>
+                      <div class=" badge badge-success mb-5"> Spark </div>
+                      <div class=" badge badge-warning mb-5 ml-2"> Flame </div>
+                      <div class=" badge badge-danger mb-5 ml-2"> Blaze </div>
                   </div>
                   <div class=" col-3">
-                    <div class=" text-success display-2 mb-3"><i class="fas fa-dollar-sign"></i></div>
+                    <div class=" text-success display-2 mb-3"><i class="fas fa-users"></i></div>
                     <h6>
-                      Sell eCourses
+                      Coach CRM
                     </h6>
                     <p class=" pl-3 pr-3 mb-4">
-                      Turn your coaching material into fully hosted video eCourses that clients can follow online.
+                      Get a lightweight and user friendly CRM, built specifically for coaches. Track every lead, client, key action & history in one convenient place.
                     </p>
+                    <div class=" badge badge-success mb-5"> Spark </div>
+                    <div class=" badge badge-warning mb-5 ml-2"> Flame </div>
+                      <div class=" badge badge-danger mb-5 ml-2"> Blaze </div>
                   </div>
                   <div class=" col-3">
-                    <div class=" text-success display-2 mb-3"><i class="fas fa-bullhorn"></i></div>
+                    <div class=" text-success display-2 mb-3"><i class="fas fa-arrow-circle-down"></i></div>
                     <h6>
-                      ACTIVE Promotion
+                      Coach Blog
                     </h6>
                     <p class=" pl-3 pr-3 mb-4">
-                      We actively promote your landing pages through our global network of promotional partners.
+                      Write blog posts on your subject of expertise & publish them on Lifecoach. Feature your best posts on your profile & get featured in our newsletter.
                     </p>
+                    <div class=" badge badge-success mb-5"> Spark </div>
+                    <div class=" badge badge-warning mb-5 ml-2"> Flame </div>
+                      <div class=" badge badge-danger mb-5 ml-2"> Blaze </div>
                   </div>
                   <div class=" col-3">
                     <div class=" text-success display-2 mb-3"><i class="fab fa-linkedin"></i></div>
@@ -329,72 +244,54 @@
                       1-Click Sharing
                     </h6>
                     <p class=" pl-3 pr-3 mb-4">
-                      Promote your Lifecoach landing pages via social media.
+                      Promote your profile, blog posts, programs, services and eCourses via social media with just a single click.
                     </p>
-                  </div>
-                  <div class=" col-3">
-                    <div class=" text-success display-2 mb-3"><i class="fas fa-question-circle"></i></div>
-                    <h6>
-                      Discovery Video Sessions
-                    </h6>
-                    <p class=" pl-3 pr-3 mb-4">
-                      Prospective clients can see your real-time availability & book discovery video sessions straight onto your calendar.
-                    </p>
-                  </div>
-                  <div class=" col-3">
-                    <div class=" text-success display-2 mb-3"><i class="fas fa-users"></i></div>
-                    <h6>
-                      Lifecoach People
-                    </h6>
-                    <p class=" pl-3 pr-3 mb-4">
-                      Our lightweight and user friendly CRM built specifically for coaches. Track every lead, client, key action & history in one convenient place.
-                    </p>
-                  </div>
-                  <div class=" col-3">
-                    <div class=" text-success display-2 mb-3"><i class="fas fa-video"></i></div>
-                    <h6>
-                      Coach Online
-                    </h6>
-                    <p class=" pl-3 pr-3 mb-4">
-                      Run live video coaching sessions directly through the platform so every session links to your calendar & CRM.
-                    </p>
-                  </div>
-                  <div class=" col-3">
-                    <div class=" text-success display-2 mb-3"><i class="fas fa-calendar-check"></i></div>
-                    <h6>
-                      Calendar Sync
-                    </h6>
-                    <p class=" pl-3 pr-3 mb-4">
-                      Automatically sync all of your life coach discovery & coaching sessions with your own personal calendar.
-                    </p>
+                    <div class=" badge badge-success mb-5"> Spark </div>
+                    <div class=" badge badge-warning mb-5 ml-2"> Flame </div>
+                      <div class=" badge badge-danger mb-5 ml-2"> Blaze </div>
                   </div>
                   <div class=" col-3">
                     <div class=" text-success display-2 mb-3"><i class="fab fa-stripe"></i></div>
                     <h6>
-                      Seamless Payments
+                      Accept Payments
                     </h6>
                     <p class=" pl-3 pr-3 mb-4">
-                      Clients trust our secure payment flow & impartial refund process. No more asking for card details over the phone.
+                      Seamlessly accept client payments for your products & services, directly from your landing pages.
                     </p>
+                    <div class=" badge badge-warning mb-5"> Flame </div>
+                    <div class=" badge badge-danger mb-5 ml-2"> Blaze </div>
                   </div>
                   <div class=" col-3">
-                    <div class=" text-success display-2 mb-3"><i class="fas fa-arrow-circle-down"></i></div>
+                    <div class=" text-success display-2 mb-3"><i class="fa fa-laptop"></i></div>
                     <h6>
-                      Automatic Payouts
+                      Create eCourses
                     </h6>
                     <p class=" pl-3 pr-3 mb-4">
-                      Receive all of your earnings via a single automated monthly payout, direct to a bank account of your choice.
+                      Turn your coaching material into fully hosted eCourses that clients can purchase & complete online. Unlike other platforms, we don't charge commission.
                     </p>
+                    <div class=" badge badge-warning mb-5"> Flame </div>
+                    <div class=" badge badge-danger mb-5 ml-2"> Blaze </div>
                   </div>
                   <div class=" col-3">
-                    <div class=" text-success display-2 mb-3"><i class="fas fa-user-plus"></i></div>
+                    <div class=" text-success display-2 mb-3"><i class="fas fa-bullhorn"></i></div>
                     <h6>
-                      Client Import
+                      Active Advertising
                     </h6>
                     <p class=" pl-3 pr-3 mb-4">
-                      Easily add your existing clients to Lifecoach so you can manage everything from one place.
+                      Acting as your automated ad manager, Lifecoach funnels your monthly subscription into personalised, paid advertising to reach new clients.
                     </p>
+                    <div class=" badge badge-danger mb-5"> Blaze </div>
                   </div>
+                  <div class=" col-3">
+                    <div class=" text-success display-2 mb-3"><i class="fa fa-bullseye"></i></div>
+                    <h6>
+                      Business Lead Pool
+                    </h6>
+                    <p class=" pl-3 pr-3 mb-4">
+                      Get access to the corporate client lead pool and receive notifications when new leads are posted by corporate clients matching your coach profile.
+                    </p>
+                    <div class=" badge badge-danger mb-5"> Blaze </div>
+                </div>
                 </div>
             </div>
         </div>
@@ -404,112 +301,151 @@
 
   <!-- pricing section -->
   <div id="section-pricing" class=" top-section-margin">
-    <div class=" row">
-        <div id="pricing-col" class=" col">
-            <div class=" container text-center">
-                <h2 class=" display-4 mb-1">
-                    Pay on Success
-                </h2>
-                <h3 class=" display-2">
-                    % Based Pricing. No Monthly Fees.
-                </h3>
-                <h4>
-                    With Lifecoach you only pay a small commission when you make a sale through the platform. 
-                    There are no fixed monthly fees and no hidden pricing. All the features above are included. 
-                    We simply deduct our platform fee automatically as you get paid, so it's literally risk free 
-                    to move your online coaching to Lifecoach. Nice.
-                </h4>
-            </div>
+    <div class=" container">
+      <div class=" row">
+        <div class=" col-md-8 ml-auto mr-auto text-center">
+          <h3 class=" display-2">Pick the best plan for you</h3>
+          <h4 class=" description">
+            Join over 1000 professional coaches on a plan that suits your needs. Change your plan at any time.
+          </h4>
         </div>
+      </div>
+      <div class=" row">
+        <div class=" col-lg-1"></div>
+        <div class=" col-lg-10">
+          <div class=" row">
+            <!-- <div class=" col-lg-3 col-md-6">
+              <div class=" card card-pricing card-primary">
+                <div class=" card-body">
+                  <h1 class=" card-title">trial</h1>
+                  <img
+                    alt="Image"
+                    class=" card-img"
+                    src="assets/img/card-primary.png"
+                  />
+      
+                  <ul class=" list-group">
+                    <li class=" list-group-item">300 messages</li>
+                    <li class=" list-group-item">150 emails</li>
+                    <li class=" list-group-item">24/7 Support</li>
+                  </ul>
+                  <div class=" card-prices">
+                    <h3 class=" text-on-front"><span> $ </span> 95</h3>
+                    <h5 class=" text-on-back">95</h5>
+                    <p class=" plan">Trial plan</p>
+                  </div>
+                </div>
+                <div class=" card-footer text-center mb-3 mt-3">
+                  <button
+                  id="for-coaches-get-started-trial"
+                  class=" btn btn-round btn-just-icon btn-primary"
+                  (click)="clickEvent('for-coaches-get-started-trial') ; onRegister('trial')">
+                    Get started
+                  </button>
+                </div>
+              </div>
+            </div> -->
+    
+            <div class=" col-lg-4 col-md-6">
+              <div class=" card card-pricing card-success card-white">
+                <div class=" card-body">
+                  <h1 class=" card-title">spark</h1>
+                  <img
+                    alt="Image"
+                    class=" card-img"
+                    src="assets/img/card-success.png"
+                  />
+      
+                  <ul class=" list-group">
+                    <li class=" list-group-item">Profile Page</li>
+                    <li class=" list-group-item">Client Lead Pool</li>
+                    <li class=" list-group-item">Coach CRM</li>
+                  </ul>
+                  <div class=" card-prices">
+                    <h3 class=" text-on-front"><span> £ </span> 19</h3>
+                    <h5 class=" text-on-back">19</h5>
+                    <p class=" plan">Spark plan</p>
+                  </div>
+                </div>
+                <div class=" card-footer text-center mb-3 mt-3">
+                  <button
+                  id="for-coaches-get-started-spark"
+                  class=" btn btn-round btn-just-icon btn-success"
+                  (click)="clickEvent('for-coaches-get-started-spark') ; onRegister('spark')">
+                    Get started
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class=" col-lg-4 col-md-6">
+              <div class=" card card-pricing card-warning card-white card-raised">
+                <div class=" card-body">
+                  <h1 class=" card-title">flame</h1>
+                  <img
+                    alt="Image"
+                    class=" card-img"
+                    src="assets/img/card-warning.png"
+                  />
+      
+                  <ul class=" list-group">
+                    <li class=" list-group-item">Spark +</li>
+                    <li class=" list-group-item">Take Payments</li>
+                    <li class=" list-group-item">Create eCourses</li>
+                  </ul>
+                  <div class=" card-prices">
+                    <h3 class=" text-on-front"><span> £ </span> 42</h3>
+                    <h5 class=" text-on-back">42</h5>
+                    <p class=" plan">Flame plan</p>
+                  </div>
+                </div>
+                <div class=" card-footer text-center mb-3 mt-3">
+                  <button
+                  id="for-coaches-get-started-flame"
+                  class=" btn btn-round btn-just-icon btn-warning"
+                  (click)="clickEvent('for-coaches-get-started-flame') ; onRegister('flame')">
+                    Get started
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class=" col-lg-4 col-md-6">
+              <div class=" card card-pricing card-danger card-white">
+                <div class=" card-body">
+                  <h1 class=" card-title">Blaze</h1>
+                  <img
+                    alt="Image"
+                    class=" card-img"
+                    src="assets/img/card-danger.png"
+                  />
+      
+                  <ul class=" list-group">
+                    <li class=" list-group-item">Flame +</li>
+                    <li class=" list-group-item">Active Advertising</li>
+                    <li class=" list-group-item">Business Lead Pool</li>
+                  </ul>
+                  <div class=" card-prices">
+                    <h3 class=" text-on-front"><span> £ </span> 99</h3>
+                    <h5 class=" text-on-back">99</h5>
+                    <p class=" plan">Blaze plan</p>
+                  </div>
+                </div>
+                <div class=" card-footer text-center mb-3 mt-3">
+                  <button
+                  id="for-coaches-get-started-blaze"
+                  class=" btn btn-round btn-just-icon btn-danger"
+                  (click)="clickEvent('for-coaches-get-started-blaze') ; onRegister('blaze')">
+                    Get started
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class=" col-lg-1"></div>
+      </div>
+      <!-- end payment options row -->
     </div>
-
-    <!-- payment options row -->
-    <div class=" row top-row-margin ml-2 mr-2">
-
-      <div class=" col-lg-2 col-xs-0">
-        <!-- empty spacer col -->
-      </div>
-
-      <!-- standard pricing col -->
-      <div class=" col-lg-4 col-xs-12">
-        <div class=" card card-pricing card-success card-white">
-          <div class=" card-body">
-            <h1 class=" card-title">Standard</h1>
-            <img
-                  alt="Image"
-                  class=" card-img"
-                  src="assets/img/card-success.png"
-            />
-            <ul class=" list-group">
-              <li class=" list-group-item">
-                When we bring you new clients, we deduct...
-              </li>
-            </ul>
-            <div class=" card-prices pl-3 pr-3">
-              <h3 class=" text-on-front">20%</h3>
-              <h5 class=" text-on-back">20%</h5>
-              <p class=" plan">of each <strong>session or program</strong> purchased</p>
-            </div>
-            <div class=" card-prices pl-3 pr-3">
-              <h3 class=" text-on-front">50%</h3>
-              <h5 class=" text-on-back">50%</h5>
-              <p class=" plan">of each <strong>eCourse</strong> purchased</p>
-            </div>
-          </div>
-          <div class=" card-footer text-center mb-3 mt-3">
-            <p class=" explainer-text"> 
-              Standard pricing applies on all sales driven by active promotion through our 
-              global partner network.
-              <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001123913-getting-paid-through-lifecoach" target="_blank">
-                Read more.
-              </a>
-            </p>
-          </div>
-        </div>
-      </div>
-      <!-- end standard pricing col -->
-
-      <!-- reduced pricing -->
-      <div class=" col-lg-4 col-xs-12">
-        <div class=" card card-pricing card-raised card-primary">
-          <div class=" card-body">
-            <h1 class=" card-title">Reduced</h1>
-            <img
-              alt="Image"
-              class=" card-img"
-              src="assets/img/card-primary.png"
-            />
-            <ul class=" list-group">
-              <li class=" list-group-item">
-                When you bring your own clients, we deduct...
-              </li>
-            </ul>
-            <div class=" card-prices pl-3 pr-3">
-              <h3 class=" text-on-front">7.5%</h3>
-              <h5 class=" text-on-back">7.5%</h5>
-              <p class=" plan">of each <strong>session or program</strong> purchased</p>
-            </div>
-            <div class=" card-prices pl-3 pr-3">
-              <h3 class=" text-on-front">25%</h3>
-              <h5 class=" text-on-back">25%</h5>
-              <p class=" plan">of each <strong>eCourse</strong> purchased</p>
-            </div>
-          </div>
-          <div class=" card-footer text-center mb-3 mt-3">
-            <p class="">
-              Reduced pricing applies on all self-promoted sales where you do your own promotion.
-              <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001123913-getting-paid-through-lifecoach" target="_blank">
-                Read more.
-              </a>
-            </p>
-          </div>
-        </div>
-      </div>
-      <!--  end reduced pricing col -->
-
-    </div>
-    <!-- end payment options row -->
-
+    <!-- end container -->
   </div>
   <!-- end of pricing section -->
 
@@ -519,15 +455,18 @@
         <div class=" container">
             <div class="row">
                 <div class="col text-center">
-                    <h2 class=" display-2 mb-1">
-                        Heard Enough?
-                    </h2>
+                    <h3 class=" display-2 mb-1">
+                        Still Got Questions?
+                    </h3>
                     <h4 class="">
-                        <strong> Join Lifecoach free today</strong> and get started with your coach profile.
+                      Ask us anything prior to getting started.
                     </h4>
                     <div class=" text-center">
-                        <button class="btn btn-round btn-primary" [routerLink]="['/register', 'coach']" (click)="onGetStarted()">
-                            Join Free
+                      <a href="https://lifecoach.freshdesk.com/support/home" target="_blank" (click)="clickEvent('coach-get-support')">
+
+                      </a>
+                        <button id="coach-get-support" class="btn btn-round btn-primary">
+                          Get Support
                         </button>
                     </div>
                 </div>

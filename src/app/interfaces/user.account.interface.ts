@@ -5,22 +5,26 @@
 
     Regular = Users looking for coaching (coachees / students / clients of coaches)
     Coach = Users who provide coaching products and services on the platform
-    Partner = Users who want to promote coaching services / the platform to audiences (promotional partners)
+    Partner = Users who want to promote lifecoach to coaches for commission
     Provider = Users who want to promote their services to Coaches on the platform
     Admin = Platform admins (be careful!)
 */
 
+import Stripe from 'stripe';
+
 export interface UserAccount {
-    accountEmail: string;
     accountType: 'regular' | 'coach' | 'partner' | 'provider' | 'admin';
-    password?: string; // Only on first creation
     firstName?: string;
     lastName?: string;
-    dateCreated?: Date;
-    stripeUid?: string; // if the user has a Stripe connected account
-    stripeRequirementsCurrentlyDue?: string; // if Stripe needs user action to ensure unrestricted operation
-    creatorDealsProgram?: boolean; // for coaches who are course creators to opt into the deals program
-    creatorExtendedPromotionsProgram?: boolean; // for coaches who are course creators to opt into the extended promotions program
+    uid?: string; // on first registration we can pass the uid to create the account node in the db
+    accountEmail?: string; //  set server side on first create
+    dateCreated?: Date; // set server side on first create
+    stripeAccountId?: string; // if the user has a Stripe Connect STANDARD account
+    stripeAccount?: Stripe.Account; // should be kept in sync using the stripe account.updated connected webhook
+    stripeCustomerId?: string; // the customer id of the user if they have been created in Stripe
+    stripeCustomerLink?: string; // the url for the customer's stripe dashboard
+    plan?: 'trial' | 'spark' | 'flame' | 'blaze'; // if registering coach - billing plan
     sessionDuration?: number;
     breakDuration?: number;
+    stripeUid?: string; // DEPRECATED
 }

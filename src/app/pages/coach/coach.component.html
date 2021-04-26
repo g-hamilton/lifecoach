@@ -70,6 +70,15 @@
                         <div class=" card-description text-center ml-5 mr-5">
                         {{ this.userProfile.proSummary }}
                         </div>
+                        <!-- Contact button -->
+                        <div class=" text-center mt-3">
+                            <button
+                            class="btn btn-primary btn-round"
+                            (click)="scrollToElement('contact')">
+                            <i class="fas fa-comment-dots mr-2"></i>
+                            Contact {{ userProfile.firstName }}
+                        </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -187,6 +196,16 @@
                 </div>
             </div>
 
+            <!-- client testimonials -->
+            <div *ngIf="clientTestimonials && clientTestimonials.length > 0">
+                <h4 class=" card-title"> Kind Words From Happy Clients </h4>
+                <div class=" row">
+                    <div *ngFor="let testimonial of clientTestimonials" class=" col-md-4">
+                        <app-client-testimonial [testimonial]="testimonial"></app-client-testimonial>
+                    </div>
+                </div>
+            </div>
+
             <!-- Map Card -->
             <div *ngIf="userProfile" class=" col-md-12">
                 <h4 class=" card-title"> {{ userProfile.firstName }}'s Home City </h4>
@@ -209,99 +228,27 @@
                 </div>
             </div>
 
-            <!-- When Profile Loaded && Email Saved - Display Contact Coach -->
-            <div *ngIf="userProfile && userProfile.email">
+            <!-- contact coach -->
+            <div id="contact" *ngIf="userProfile">
                 <h4 class=" card-title"> Contact {{ userProfile.firstName }} </h4>
                 <div class=" card">
                     <div class=" card-body">
-                        <div class=" row justify-content-center border-between">
-                            <div class=" col-md-8">
-                                <h5 class=" card-title"> Send {{ userProfile.firstName }} a message </h5>
-                                <app-coach-contact [coachUid]="coachId"></app-coach-contact>
-                            </div>
-                            <div class=" col-md-4 text-center pt-5">
-                                <h5 class=" card-title"> Or schedule a discovery session with {{ userProfile.firstName }} </h5>
-                                <!-- scheduler button. User must be logged in to schedule a call. -->
-                                <button
-                                  class=" btn btn-fill btn-round btn-primary mr-2 mb-2"
-                                  id="schedule-button"
-                                  type="button"
-                                  (click)="this.userId ? openScheduleCallModal() : registerToDiscover()"
-                                  [disabled]="this.userId === this.coachId"
-                                ><i class="fas fa-phone">&nbsp;</i>
-                                    <span>Schedule a Session</span>
-                                </button>
+                        <div class=" row justify-content-center">
+                            <div class=" col">
+                                <h5 class=" mb-5">
+                                    Start an informal chat or book a FREE Discovery Session with {{ userProfile.firstName }}...
+                                </h5>
+                                <!-- contact form only if user authorised -->
+                                <div *ngIf="userId">
+                                    <app-coach-contact [coachUid]="coachId"></app-coach-contact>
+                                </div>
+                                <!-- 
+                                    login in flow should always be loaded 
+                                    (user authorised or not) 
+                                -->
+                                <app-login-in-flow></app-login-in-flow>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Social/Channels Card -->
-            <div *ngIf="userProfile" class=" card card-plain">
-                <div class=" card-body">
-                    <!-- Social Buttons -->
-                    <div class=" button-container text-center">
-                        <button
-                            *ngIf="this.userProfile.facebook"
-                            class=" btn btn-icon btn-round btn-facebook mr-1"
-                        >
-                            <a
-                            [href]="this.userProfile.facebook"
-                            target="_blank">
-                            <i class=" fab fa-facebook"> </i>
-                            </a>
-                        </button>
-                        <button
-                            *ngIf="this.userProfile.twitter"
-                            class=" btn btn-icon btn-round btn-twitter mr-1"
-                        >
-                            <a
-                            [href]="this.userProfile.twitter"
-                            target="_blank">
-                            <i class=" fab fa-twitter"> </i>
-                            </a>
-                        </button>
-                        <button
-                            *ngIf="this.userProfile.linkedin"
-                            class=" btn btn-icon btn-round btn-linkedin mr-1"
-                        >
-                            <a
-                            [href]="this.userProfile.linkedin"
-                            target="_blank">
-                            <i class=" fab fa-linkedin"> </i>
-                            </a>
-                        </button>
-                        <button
-                            *ngIf="this.userProfile.youtube"
-                            class=" btn btn-icon btn-round btn-youtube mr-1"
-                        >
-                            <a
-                            [href]="this.userProfile.youtube"
-                            target="_blank">
-                            <i class=" fab fa-youtube"> </i>
-                            </a>
-                        </button>
-                        <button
-                        *ngIf="this.userProfile.instagram"
-                        class=" btn btn-icon btn-round btn-instagram mr-1"
-                        >
-                        <a
-                        [href]="this.userProfile.instagram"
-                        target="_blank">
-                            <i class=" fab fa-instagram"> </i>
-                        </a>
-                        </button>
-                        <button
-                        *ngIf="this.userProfile.website"
-                        class=" btn btn-icon btn-round btn-website mr-1"
-                        >
-                        <a
-                        [href]="this.userProfile.website"
-                        target="_blank">
-                            <i class=" fas fa-laptop"> </i>
-                        </a>
-                        </button>
                     </div>
                 </div>
             </div>

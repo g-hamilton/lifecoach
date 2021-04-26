@@ -1,0 +1,47 @@
+<div class=" content">
+    <h4 class=" title"> Testimonials </h4>
+    <p class=" small text-muted pl-2 mb-2">
+        <i class="fas fa-info-circle"></i> Manage your client testimonials. 
+        Lifecoach helps you to capture new client testimonials by prompting clients through your CRM at 
+        optimum points in their coaching journey. You can also add a few of your best testimonials here 
+        to feature on your coach landing page & give people a better idea of your 
+        coaching style. Occasionally, we also choose to showcase our favourite 
+        testimonials on the Lifecoach home page.
+    </p>
+
+    <!-- add testimonial button -->
+    <div class=" row mt-2">
+        <div class=" col">
+            <button
+                type="button"
+                class=" btn btn-primary btn-fill btn-round pull-right mb-3"
+                (click)="createTestimonial()">
+                <i class=" tim-icons icon-simple-add"></i> Add Testimonial
+            </button>
+        </div>
+    </div>
+
+    <!-- no testimonials yet -->
+    <div *ngIf="!testimonials || !testimonials.length ; else testimonialsView">
+        <div class=" row mt-2">
+            <div class=" col">
+                <div class=" card">
+                    <div class=" card-body">
+                        <p class="p-4">
+                        You haven't received or added any client testimonials yet. As soon as you 
+                        receive a new testimonial through Lifecoach, it will appear here. 
+                        Alternatively, you can add a few of your best existing client testimonials to showcase on your 
+                        profile page.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- got some testimonials -->
+    <ng-template #testimonialsView>
+        <!--  -->
+    </ng-template>
+
+</div>

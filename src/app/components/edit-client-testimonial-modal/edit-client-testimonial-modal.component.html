@@ -1,0 +1,24 @@
+<div id="add-testimonial-card" class=" card card-white">
+    <div class=" card-header">
+        <h3 class=" card-title"> {{ title }} </h3>
+    </div>
+    <div class=" card-body">
+        <form [formGroup]="testimonialForm" (submit)="onSubmit()">
+            <!-- row -->
+            <div class=" row">
+                <div class=" col">
+                    <!--  -->
+                </div>
+            </div>
+            <!-- end row -->
+        </form>
+    </div>
+    <div class=" card-footer">
+        <button class=" btn btn-round btn-default pull-left">
+            Back
+        </button>
+        <button class=" btn btn-round btn-primary pull-right">
+            Save
+        </button>
+    </div>
+</div>

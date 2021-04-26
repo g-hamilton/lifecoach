@@ -1,10 +1,14 @@
 <div class=" content">
 
-    <h4 class=" title"> My Coaching Products & Services 
+    <h4 class=" title"> Products & Services 
     </h4>
     <p class=" small text-muted pl-2 mb-2">
         <i class="fas fa-info-circle"></i> Add your coaching products and services to link them to your Lifecoach profile 
-        and promote them through the platform. Enjoy all of the benefits listed below...
+        landing page & promote them through the platform.
+        <span *ngIf="subscriptionPlan !== 'flame' || subscriptionPlan !== 'blaze'">
+            Want to accept client payments directly through Lifecoach? We offer a fast, secure & user-friendly payment system 
+            on the Flame or the Blaze plan. Visit '<a [routerLink]="['/account']">Account</a> > Billing' to upgrade your plan today.
+        </span>
     </p>
 
     <!-- services -->
@@ -14,8 +18,7 @@
             <div class="col">
                 <h5 class=" title"> My Services </h5>
                 <p class=" small text-muted pl-2 mb-2">
-                    <i class="fas fa-info-circle"></i> Promote your coaching services & sell online video coaching sessions through Lifecoach. 
-                    Simply add your services to start coaching through the platform.
+                    <i class="fas fa-info-circle"></i> Services allow you to sell totally bespoke individual coaching sessions or session bundles.
                         Want to read more? <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001170594-what-are-lifecoach-coaching-services-" target="_blank">Read the guide.</a>
                 </p>
             </div>
@@ -83,8 +86,8 @@
             <div class="col">
                 <h5 class=" title"> My Programs </h5>
                 <p class=" small text-muted pl-2 mb-2">
-                    <i class="fas fa-info-circle"></i> Package your coaching sessions into well defined goal
-                    or outcome based coaching programs with a set number of sessions.
+                    <i class="fas fa-info-circle"></i> Programs allow you to package a set number of sessions up with a well defined goal
+                    or outcome.
                     Users can purchase your full program or pay per session if you choose to allow it. 
                     Want to read more? <a href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001167911-what-are-lifecoach-coaching-programs-" target="_blank">Read the guide.</a>
                 </p>
@@ -148,75 +151,100 @@
     <!-- end of programs -->
 
     <!-- eCourses -->
+    <!-- Only on the flame & blaze plans -->
     <div id="coach-e-courses">
 
         <div class="row mt-5">
             <div class="col">
                 <h5 class=" title"> My eCourses </h5>
                 <p class=" small text-muted pl-2 mb-2">
-                    <i class="fas fa-info-circle"></i> Turn your coaching material into online eCourses that clients can 
-                    access on-demand. Perfect as a lead-in to professional coaching for those people who are not yet aware 
-                    of the benefits of coaching or ready to make the committment, eCourses allow clients to get started in 
+                    <i class="fas fa-info-circle"></i> eCourses allow you to turn your coaching material into online courses that clients can 
+                    access completely on-demand. Perfect as a lead-in to professional coaching for those people who are not yet aware 
+                    of the benefits of coaching or ready to make the commitment, eCourses allow clients to get started in 
                     a very affordable way, learn completely on their own schedule and hopefully build a rapport with you so 
                     that they are eager to take the next step after completing your eCourse.
                     Want to read more? <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001135032-what-are-courses-" target="_blank">Read the guide.</a>
                 </p>
             </div>
         </div>
-        <div class=" row mt-2">
-            <div class=" col">
-                <button
-                    type="button"
-                    class=" btn btn-primary btn-fill btn-round pull-right mb-3"
-                    (click)="createCourse()"
-                    [disabled]="!userProfile">
-                    <i class=" tim-icons icon-simple-add"></i> Create eCourse
-                </button>
-            </div>
-        </div>
 
-        <!-- No public coach profile -->
-        <div class=" row" *ngIf="!userProfile">
-            <div class=" col">
-                <div class=" card">
-                    <div class=" card-body">
-                        <p class="p-4">
-                            Before you can create eCourses, you must complete your public coach profile. 
-                            Let's <a [routerLink]="['/profile']">
-                                complete your profile now.
-                            </a>
-                        </p>
+        <!-- user has flame or blaze plan -->
+        <div *ngIf="subscriptionPlan === 'flame' || subscriptionPlan === 'blaze'">
+            <div class=" row mt-2">
+                <div class=" col">
+                    <button
+                        type="button"
+                        class=" btn btn-primary btn-fill btn-round pull-right mb-3"
+                        (click)="createCourse()"
+                        [disabled]="!userProfile">
+                        <i class=" tim-icons icon-simple-add"></i> Create eCourse
+                    </button>
+                </div>
+            </div>
+            <!-- No public coach profile -->
+            <div class=" row" *ngIf="!userProfile">
+                <div class=" col">
+                    <div class=" card">
+                        <div class=" card-body">
+                            <p class="p-4">
+                                Before you can create eCourses, you must complete your public coach profile. 
+                                Let's <a [routerLink]="['/profile']">
+                                    complete your profile now.
+                                </a>
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- public profile but no ecourses created yet -->
-        <div class=" row" *ngIf="userProfile && (!publishedCourses || publishedCourses && publishedCourses.length === 0)">
-            <div class=" col">
-                <div class=" card">
-                    <div class=" card-body">
-                        <p class="p-4">
-                            You haven't created any eCourses yet. Let's 
-                            <a [routerLink]="['/my-courses', 'new-course']">
-                                create one now!
-                            </a>
-                        </p>
+            <!-- public profile but no ecourses created yet -->
+            <div class=" row" *ngIf="userProfile && (!publishedCourses || publishedCourses && publishedCourses.length === 0)">
+                <div class=" col">
+                    <div class=" card">
+                        <div class=" card-body">
+                            <p class="p-4">
+                                You haven't created any eCourses yet. Let's 
+                                <a [routerLink]="['/my-courses', 'new-course']">
+                                    create one now!
+                                </a>
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- coach has created at least 1 ecourse -->
-        <div class=" row mt-3" *ngIf="publishedCourses && publishedCourses.length > 0">
-            <div *ngFor="let course of publishedCourses ; let i = index" class=" col-md-4">
-                <a [routerLink]="['/my-courses', course.courseId, 'content']">
-                    <app-course-card [course]="course"></app-course-card>
-                    <app-item-status [reviewRequest]="course.reviewRequest"></app-item-status>
-                </a>
-                
+            <!-- coach has created at least 1 ecourse -->
+            <div class=" row mt-3" *ngIf="publishedCourses && publishedCourses.length > 0">
+                <div *ngFor="let course of publishedCourses ; let i = index" class=" col-md-4">
+                    <a [routerLink]="['/my-courses', course.courseId, 'content']">
+                        <app-course-card [course]="course"></app-course-card>
+                        <app-item-status [reviewRequest]="course.reviewRequest"></app-item-status>
+                    </a>
+                </div>
             </div>
         </div>
+        <!-- end user has flame or blaze plan -->
+
+        <!-- user does not have flame or blaze plan -->
+        <div *ngIf="subscriptionPlan != 'flame' && subscriptionPlan != 'blaze'">
+            <p class=" mt-4">
+                Available on the 
+            <span class=" badge badge-warning">
+                Flame
+            </span>
+            and
+            <span class=" badge badge-danger">
+                Blaze
+            </span>
+            plans. Click 
+                <a href="https://lifecoach.io/for-coaches#section-pricing" target="_blank">
+                here
+                </a> to view plans or visit '<a [routerLink]="['/account']">Account</a> > Billing' to upgrade your plan.
+            </p>
+        </div>
+        <!-- end user does not have flame or blaze plan -->
+
     </div>
+    <!-- end ecourses -->
 
 </div>

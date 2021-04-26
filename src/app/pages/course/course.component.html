@@ -28,31 +28,6 @@
                       <!-- subtitle -->
                       <h4 class=" card-subtitle text-muted"> {{ course.subtitle }} </h4>
 
-                      <!-- overall rating & enrollments -->
-                      <div class=" mt-3">
-                        <!-- rating stars *BROWSER ONLY* -->
-                        <!-- <app-stars
-                        *ngIf="browser"
-                        [course]="course"
-                        (totalReviewsEvent)="onTotalReviewsEvent($event)">
-                        </app-stars> -->
-                        <!-- <span class=" d-inline-block ml-2" style="margin-top: 0.3rem;">
-                          {{ avgRating?.toFixed(2) }} ({{ totalReviews ? totalReviews : '0' }} {{ totalReviews === 1 ? 'review' : 'reviews'}})
-                        </span> -->
-                        <!-- if zero enrollments -->
-                        <!-- <span class=" ml-3 badge badge-danger">
-                          🔥 New eCourse
-                        </span> -->
-                        <!-- if 1 enrollment -->
-                        <!-- <span *ngIf="courseEnrollments?.totalEnrollments && courseEnrollments?.totalEnrollments == 1" class=" ml-3">
-                          1 student enrolled
-                        </span> -->
-                        <!-- if more than 1 enrollment -->
-                        <!-- <span *ngIf="courseEnrollments?.totalEnrollments && courseEnrollments?.totalEnrollments > 1" class=" ml-3">
-                          {{ courseEnrollments.totalEnrollments }} students enrolled
-                        </span> -->
-                      </div>
-
                       <!-- coach -->
                       <div class=" mt-4">
                         <p class=" h5">
@@ -132,10 +107,6 @@
                   </div>
                   <!-- end card -->
 
-                  <!-- coach card -->
-                  <app-coach-mini-profile [coachId]="course.sellerUid"></app-coach-mini-profile>
-                  <!-- end coach card -->
-
                   <!-- course content card -->
                   <div class=" card">
                     <div class=" card-body">
@@ -145,23 +116,34 @@
                   </div>
                   <!-- end course content card -->
 
-                  <!-- course feedback card *BROWSER ONLY* -->
-                  <!-- <div *ngIf="browser" class=" card">
-                    <div class=" card-body mr-3">
-                      <h4 class=" card-title d-inline-block"> eCourse Feedback </h4>
-                      <div>
-                        <app-course-feedback
-                        [course]="course"
-                        (avgRatingEvent)="onAvgRatingEvent($event)"
-                        (totalReviewsEvent)="onTotalReviewsEvent($event)">
-                        </app-course-feedback>
-                      </div>
-                      <app-course-browse-reviews
-                      [course]="course">
-                      </app-course-browse-reviews>
+                  <!-- coach card -->
+                  <app-coach-mini-profile [coachId]="course.sellerUid"></app-coach-mini-profile>
+                  <!-- end coach card -->
+
+                  <!-- contact coach -->
+                  <div id="contact-coach">
+                    <!-- <h4 class=" card-title"> Contact {{ course.coachName }} </h4> -->
+                    <div class=" card">
+                        <div class=" card-body">
+                            <div class=" row justify-content-center">
+                                <div class=" col">
+                                    <h5 class=" mb-5">
+                                        Start an informal chat with {{ course.coachName }}...
+                                    </h5>
+                                    <!-- contact form only if user authorised -->
+                                    <div *ngIf="userId">
+                                        <app-coach-contact [coachUid]="course.sellerUid"></app-coach-contact>
+                                    </div>
+                                    <!-- 
+                                        login in flow should always be loaded 
+                                        (user authorised or not) 
+                                    -->
+                                    <app-login-in-flow></app-login-in-flow>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                  </div> -->
-                  <!-- end course feedback card -->
+                  </div>
 
                 </div>
                 <!-- end left col -->
@@ -228,73 +210,77 @@
                       </div>
 
                       <div class=" text-center pl-2 pr-2">
-                        <!-- Paid pricing strategy -->
-                        <div *ngIf="course?.pricingStrategy && course?.pricingStrategy === 'paid'">
-                          <!-- buy now button -->
-                          <!-- disabled for course seller or if already purchased -->
-                          <!-- userId === course.sellerUid || userClaims && userClaims[course.courseId] -->
-                          <button
-                          class=" btn btn-primary btn-round btn-block btn-fill"
-                          id="buynow"
-                          type="button"
-                          data-target="#payModal"
-                          (click)="userId ? payModal.show() : onRegister()"
-                          [disabled]="userId === course.sellerUid || userClaims && userClaims[course.courseId]">
-                            <span
-                            *ngIf="purchasingCourse"
-                            class="spinner-border spinner-border-sm"
-                            role="status"
-                            ></span> {{ purchasingCourse ? 'Purchasing...' : 'Buy Now'}} 
-                          </button>
-                          <!-- course owned button -->
-                          <button
-                          *ngIf="userId === course.sellerUid || userClaims && userClaims[course.courseId]"
-                          class=" btn btn-success btn-round btn-block btn-fill"
-                          id="gotocourse"
-                          type="button"
-                          [routerLink]="['/course', course.courseId, 'learn']">
-                            Go to Course
-                          </button>
-                          <!-- returns -->
-                          <small>
-                            28-Day Money-Back Guarantee.
-                            <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47001123378-refunds" taget="_blank">
-                              Info
-                            </a>
-                          </small>
-                        </div>
 
-                        <!-- Free pricing strategy -->
-                        <div *ngIf="course?.pricingStrategy && course?.pricingStrategy === 'free'">
+                        <!-- dynamic buttons -->
+                        
+                        <!-- user is the coach or owns the eCourse -->
+                        <div *ngIf="userId === course.sellerUid || userClaims && userClaims[course.courseId] ; else courseNotOwned">
                           <button
-                          class=" btn btn-primary btn-round btn-block btn-fill"
-                          id="enrollnow"
-                          type="button"
-                          (click)="userId ? enrollFree() : onRegister()"
-                          [disabled]="userId === course.sellerUid || userClaims && userClaims[course.courseId]">
-                            <span
-                            *ngIf="purchasingCourse"
-                            class="spinner-border spinner-border-sm"
-                            role="status"
-                            ></span> {{ purchasingCourse ? 'Enrolling...' : 'Enroll FREE'}} 
-                          </button>
-                          <!-- course owned button -->
-                          <button
-                          *ngIf="userId === course.sellerUid || userClaims && userClaims[course.courseId]"
                           class=" btn btn-success btn-round btn-block btn-fill"
-                          id="gotocourse"
+                          id="coach-course-go-to-course"
                           type="button"
+                          (click)="clickEvent('coach-course-go-to-course')"
                           [routerLink]="['/course', course.courseId, 'learn']">
                             Go to Course
                           </button>
-                          <!-- returns -->
-                          <small>
-                            By enrolling in this course, you agree to Lifecoach’s
-                            <a href="https://lifecoach.freshdesk.com/support/solutions/articles/47000883660"
-                              >Terms and Conditions.</a
-                            > 
-                          </small>
                         </div>
+                        <!-- end user is coach or owns the eCourse -->
+
+                        <!-- user doesn not own the eCourse -->
+                        <ng-template #courseNotOwned>
+
+                          <!-- if the eCourse is free, make it available -->
+                          <div *ngIf="course?.pricingStrategy && course?.pricingStrategy === 'free' ; else courseIsPaid">
+                            <button
+                            class=" btn btn-primary btn-round btn-block btn-fill"
+                            id="coach-course-enrol-free"
+                            type="button"
+                            (click)="clickEvent('coach-course-enrol-free') ; userId ? enrollFree() : onRegister()">
+                              <span
+                              *ngIf="purchasingCourse"
+                              class="spinner-border spinner-border-sm"
+                              role="status"
+                              ></span> {{ purchasingCourse ? 'Enrolling...' : 'Enroll FREE'}} 
+                            </button>
+                          </div>
+                          <!-- end if the eCourse is free -->
+
+                          <!-- if the eCourse is paid -->
+                          <ng-template #courseIsPaid>
+
+                            <!-- the coach has enabled payments - allow purchase -->
+                            <div *ngIf="coachPaymentsEnabled ; else paymentsNotEnabled">
+                              <button
+                              class=" btn btn-primary btn-round btn-block btn-fill"
+                              id="coach-course-buy-now"
+                              type="button"
+                              data-target="#payModal"
+                              (click)="clickEvent('coach-course-buy-now') ; userId ? payModal.show() : onRegister()">
+                                <span
+                                *ngIf="purchasingCourse"
+                                class="spinner-border spinner-border-sm"
+                                role="status"
+                                ></span> {{ purchasingCourse ? 'Purchasing...' : 'Buy Now'}} 
+                              </button>
+                            </div>
+                            <!-- end the coach has enabled payments -->
+
+                            <ng-template #paymentsNotEnabled>
+                              <div>
+                                <button
+                                id="coach-course-enquire"
+                                class=" btn btn-round btn-just-icon btn-primary"
+                                (click)="clickEvent('coach-course-enquire') ; navToContact()">
+                                Enquire Now
+                                </button>
+                              </div>
+                            </ng-template>
+
+                          </ng-template>
+                          <!-- end if the eCourse is paid -->
+
+                        </ng-template>
+                        <!-- end user does not own the Ecourse -->
 
                       </div>
 

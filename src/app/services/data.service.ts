@@ -967,6 +967,32 @@ export class DataService {
   }
 
 // ================================================================================
+// =====                             SUBSCRIPTIONS                           ======
+// ================================================================================
+
+getUserSubscriptions(uid: string) {
+  return this.db.collection(`users/${uid}/subscriptions`)
+  .valueChanges({idField: 'id'}) as Observable<Stripe.Subscription[]>;
+}
+
+getProducts() {
+  return this.db.collection(`stripe-products`)
+  .valueChanges({idField: 'id'}) as Observable<any[]>;
+}
+
+getPrices(productId: string) {
+  return this.db.collection(`stripe-products`)
+  .doc(productId)
+  .collection(`prices`)
+  .valueChanges({idField: 'id'}) as Observable<any[]>;
+}
+
+getUserInvoices(uid: string, subscriptionId: string) {
+  return this.db.collection(`users/${uid}/subscriptions/${subscriptionId}/invoices`)
+  .valueChanges({idField: 'id'}) as Observable<Stripe.Invoice[]>;
+}
+
+// ================================================================================
 // =====                            TESTING METHOD FOR DOC.REFERENCE         ======
 // ================================================================================
 

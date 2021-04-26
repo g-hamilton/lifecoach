@@ -1,0 +1,89 @@
+<app-auth-navbar></app-auth-navbar>
+
+<div class="full-page login-page ">
+  <div class=" content">
+    <div class=" container">
+      <div class=" col-lg-4 col-md-6 ml-auto mr-auto">
+        <form class=" form" [formGroup]="loginForm">
+          <div class=" card card-login card-white">
+            <div class=" card-header">
+              <img alt="" src="assets/img/card-primary.png" />
+
+              <h1 class=" card-title">Log in</h1>
+            </div>
+            <div class=" card-body">
+
+              <p class=" lead text-muted">
+                Enter your email to receive a login link.
+              </p>
+              
+              <!-- Email -->
+              <div
+                class=" input-group mt-2 mb-0"
+                [ngClass]="{
+                  'has-danger': (((focusTouched && loginF.email.value != '') || loginAttempt) && loginF.email.errors),
+                  'has-success': !loginF.email.errors
+                }"
+              >
+                <div class=" input-group-prepend">
+                  <div class=" input-group-text">
+                    <i class=" tim-icons icon-email-85"> </i>
+                  </div>
+                </div>
+                <input
+                  class=" form-control"
+                  name="email"
+                  formControlName="email"
+                  placeholder="Email"
+                  type="email"
+                  (focus)="focusTouched = true"
+                  required=""
+                />
+              </div>
+              <div *ngIf="(((focusTouched && loginF.email.value != '') || loginAttempt) && loginF.email.errors)">
+                <label
+                *ngFor="let error of objKeys(loginF.email.errors)"
+                class="error custom-error-label"
+                >{{ showError('email', error) }}
+                </label>
+              </div>
+
+            </div>
+            <div class=" card-footer">
+              <button
+              type="button"
+              class=" btn btn-primary btn-lg btn-block mb-3"
+              [disabled]="emailSent" 
+              (click)="sendEmailLink()">
+                <span
+                *ngIf="login"
+                class="spinner-border spinner-border-sm"
+                role="status"
+                ></span> 
+                <span *ngIf="!login">
+                  <i class="fas fa-link mr-2"></i>
+                </span>
+                {{ login ? 'Sending Email...' : 'Get Login Link'}} 
+              </button>
+              <div class=" pull-left">
+                <h6>
+                  <a class=" link footer-link" href="javascript:void(0)" (click)="register()">
+                    Create Account
+                  </a>
+                </h6>
+              </div>
+              <div class=" pull-right">
+                <h6>
+                  <a class=" link footer-link" href="https://lifecoach.freshdesk.com/en/support/solutions/articles/47001181428-signing-in-out-of-your-lifecoach-account" target="_blank">
+                    Need Help?
+                  </a>
+                </h6>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    <app-footer></app-footer>
+  </div>
+</div>

@@ -7,6 +7,7 @@ import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 
 import { AuthService } from 'app/services/auth.service';
 import { Subscription } from 'rxjs';
+import * as firebase from 'firebase';
 
 const misc: any = {
   sidebar_mini_active: true
@@ -21,6 +22,7 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
 
   public userAuthorised: boolean;
   public userClaims: any;
+  private claimsUpdated: boolean;
 
   private subscriptions: Subscription = new Subscription();
 
@@ -134,12 +136,7 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
           // console.log('User is authorised');
           // Auth state is not null. User is authorised.
           this.userAuthorised = true;
-          // Check the user's custom auth claims.
-          user.getIdTokenResult()
-            .then(tokenRes => {
-              // console.log('Custom user claims:', tokenRes.claims);
-              this.userClaims = tokenRes.claims;
-            });
+          this.loadClaims(user);
         } else {
           // User is not authorised.
           // console.log('User not authorised.');
@@ -147,6 +144,30 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
         }
       })
     );
+  }
+
+  async loadClaims(user: firebase.User) {
+    const result = await user.getIdTokenResult();
+    const c = result.claims;
+    if (c.admin || c.coach || c.regular || c.partner || c.provider) {
+      this.claimsUpdated = true;
+      this.userClaims = c;
+    }
+
+    // loop through checking claims until a valid user type is found
+    // because changes to custom claims do not trigger subscription and may take time to propagate...
+
+    const timer = ms => new Promise(res => setTimeout(res, ms));
+
+    while (!this.claimsUpdated) {
+      await timer(2000);
+      const newResult = await user.getIdTokenResult(true);
+      const n = newResult.claims;
+      if (n.admin || n.coach || n.regular || n.partner || n.provider) {
+        this.claimsUpdated = true;
+        this.userClaims = n;
+      }
+    }
   }
 
   ngOnDestroy() {

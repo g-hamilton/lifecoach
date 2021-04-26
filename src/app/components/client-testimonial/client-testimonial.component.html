@@ -1,0 +1,21 @@
+<div class=" card card-testimonial">
+    <div *ngIf="avatar" class=" card-header card-header-avatar">
+        <img class=" img img-raised" alt="Profile Photo" [src]="avatar"/>
+    </div>
+    <div class=" card-body">
+        <p class=" card-description">
+            {{ testimonial.description }}
+        </p>
+        <div class=" icon icon-primary ml-auto mr-auto">
+            <i class=" fa fa-quote-right"></i>
+        </div>
+    </div>
+    <div class=" card-footer">
+        <h4 class=" card-title">
+            {{ testimonial.firstName + ' ' + testimonial.lastName }}
+        </h4>
+        <p class=" category">
+            Happy Client
+        </p>
+    </div>
+</div>

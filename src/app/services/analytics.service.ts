@@ -55,14 +55,23 @@ export class AnalyticsService {
     });
   }
 
-  registerUser(uid: string, method: string, account: UserAccount) {
-    this.aliasUser(uid);
-    this.identifyUser(uid);
+  gotoCompleteRegistration() {
+    mixpanel.track('Redirected to complete registration');
+  }
+
+  registeredUser(account: UserAccount, method: string) {
+    this.aliasUser(account.uid);
+    this.identifyUser(account.uid);
     this.setPeopleProperties(account);
     mixpanel.track('Registered', {
       method,
-      accountType: account.accountType
+      accountType: account.accountType,
+      plan: account.plan ? account.plan : null
     });
+  }
+
+  sendLoginEmail(email: string) {
+    mixpanel.track('Sent login email', { email });
   }
 
   signIn(uid: string, method: string, email: string) {
@@ -478,6 +487,32 @@ export class AnalyticsService {
     mixpanel.track('detected partner tracking code', {
       partnerUid
     });
+  }
+
+  attemptCoachSubscription(priceId: string) {
+    mixpanel.track('attempted coach subscription', {
+      priceId
+    });
+  }
+
+  failCoachSubscription(priceId: string) {
+    mixpanel.track('failed coach subscription', {
+      priceId
+    });
+  }
+
+  completeCoachSubscription(priceId: string) {
+    mixpanel.track('completed coach subscription', {
+      priceId
+    });
+  }
+
+  clickButton(id: string) {
+    mixpanel.track(`Clicked button [${id}]`);
+  }
+
+  redirectingToStripe() {
+    mixpanel.track(`Redirecting to Stripe`);
   }
 
 }

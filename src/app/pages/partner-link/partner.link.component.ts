@@ -7,6 +7,7 @@ import { UserAccount } from 'app/interfaces/user.account.interface';
 import { DataService } from 'app/services/data.service';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { AlertService } from 'app/services/alert.service';
+import { environment } from 'environments/environment';
 
 @Component({
   selector: 'app-partner-link',
@@ -20,12 +21,20 @@ export class PartnerLinkComponent implements OnInit, OnDestroy {
   public account: UserAccount;
   public partnerForm: FormGroup;
   private subscriptions: Subscription = new Subscription();
+  public baseUrl: string;
 
   public shareObjectHome = {
     title: `Lifecoach | The Premier Personal Coaching & Transformation Platform`,
     subtitle: `Get coached online by the world's best personal development & transformation coaches. Find your coach today!`,
     image: `https://lifecoach.io/assets/img/homepage/lifecoach-online-coaching-programs-coaches-courses.jpg`,
     url: `` // deliberately empty string
+  };
+
+  public shareObjectForCoaches = {
+    title: `Get The Leading Software For Professional Coaches`,
+    subtitle: `Access a fast growing pool of clients in need of coaching. Join Lifecoach today!`,
+    image: `https://lifecoach.io/assets/img/become-a-life-coach-lifecoach.png`,
+    url: `for-coaches`
   };
 
   constructor(
@@ -43,6 +52,7 @@ export class PartnerLinkComponent implements OnInit, OnDestroy {
       this.browser = true;
       this.buildPartnerForm();
       this.getUserData();
+      this.baseUrl = environment.baseUrl;
     }
   }
 

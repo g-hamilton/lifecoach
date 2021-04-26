@@ -128,26 +128,18 @@ resizeCourseImage(data) {
     });
   }
 
-  createUserWithSetType(uid: string, account: UserAccount): Promise<boolean> {
+  createUserWithSetType(account: UserAccount) {
     /*
     Creates a new user in the DB.
     Sets a custom claim on a given user's auth object to assign custom roles/types/permissions
     */
-    const email = account.accountEmail;
-    const type = account.accountType;
-    const firstName = account.firstName;
-    const lastName = account.lastName;
 
     return new Promise(resolve => {
       const createDbUserWithType = this.cloudFunctions.httpsCallable('createDbUserWithType');
-      const tempSub = createDbUserWithType({uid, email, type, firstName, lastName})
+      const tempSub = createDbUserWithType(account)
         .pipe(first())
         .subscribe(res => {
-          if (!res.error) {
-            resolve(true);
-          } else {
-            resolve(false);
-          }
+          resolve(res);
           tempSub.unsubscribe();
         });
     });
@@ -247,13 +239,10 @@ resizeCourseImage(data) {
     });
   }
 
-  completeStripeConnection(uid: string, code: string) {
+  connectStripe(data) {
     return new Promise(resolve => {
-      const complete = this.cloudFunctions.httpsCallable('completeStripeConnect');
-      const tempSub = complete({
-        uid,
-        code
-      })
+      const trigger = this.cloudFunctions.httpsCallable('completeStripeConnect');
+      const tempSub = trigger(data)
         .pipe(first())
         .subscribe(res => {
           resolve(res);
@@ -917,5 +906,101 @@ resizeCourseImage(data) {
       .doc(course.courseId)
       .set(course, {merge: true})
       .catch(err => console.error(err));
+  }
+
+  createStripeCheckoutSession(data: any) {
+    return new Promise(resolve => {
+      const trigger = this.cloudFunctions.httpsCallable('createStripeCheckoutSession');
+      const tempSub = trigger(data)
+        .pipe(first())
+        .subscribe(res => {
+          resolve(res);
+          tempSub.unsubscribe();
+        });
+    });
+  }
+
+  createStripePortalSession(data: any) {
+    return new Promise(resolve => {
+      const trigger = this.cloudFunctions.httpsCallable('createStripePortalSession');
+      const tempSub = trigger(data)
+        .pipe(first())
+        .subscribe(res => {
+          resolve(res);
+          tempSub.unsubscribe();
+        });
+    });
+  }
+
+  requestAccountClosure(data: any) {
+    return new Promise(resolve => {
+      const trigger = this.cloudFunctions.httpsCallable('requestAccountClosure');
+      const tempSub = trigger(data)
+        .pipe(first())
+        .subscribe(res => {
+          resolve(res);
+          tempSub.unsubscribe();
+        });
+    });
+  }
+
+  deleteStripeConnectedExpressAccount(data: any) {
+    return new Promise(resolve => {
+      const trigger = this.cloudFunctions.httpsCallable('adminDeleteStripeConnectedExpressAccount');
+      const tempSub = trigger(data)
+        .pipe(first())
+        .subscribe(res => {
+          resolve(res);
+          tempSub.unsubscribe();
+        });
+    });
+  }
+
+  createStripeSubscriptionForUser(data: any) {
+    return new Promise(resolve => {
+      const trigger = this.cloudFunctions.httpsCallable('adminCreateStripeSubscriptionForUser');
+      const tempSub = trigger(data)
+        .pipe(first())
+        .subscribe(res => {
+          resolve(res);
+          tempSub.unsubscribe();
+        });
+    });
+  }
+
+  getStripeAccountLink(data: any) {
+    return new Promise(resolve => {
+      const trigger = this.cloudFunctions.httpsCallable('stripeCreateAccountLink');
+      const tempSub = trigger(data)
+        .pipe(first())
+        .subscribe(res => {
+          resolve(res);
+          tempSub.unsubscribe();
+        });
+    });
+  }
+
+  adminMassSubscribeCoachesToFlame(data: any) {
+    return new Promise(resolve => {
+      const trigger = this.cloudFunctions.httpsCallable('adminMassSubscribeCoachesToFlame');
+      const tempSub = trigger(data)
+        .pipe(first())
+        .subscribe(res => {
+          resolve(res);
+          tempSub.unsubscribe();
+        });
+    });
+  }
+
+  adminMassDeleteStripeExpressAccounts(data: any) {
+    return new Promise(resolve => {
+      const trigger = this.cloudFunctions.httpsCallable('adminMassDeleteStripeExpressAccounts');
+      const tempSub = trigger(data)
+        .pipe(first())
+        .subscribe(res => {
+          resolve(res);
+          tempSub.unsubscribe();
+        });
+    });
   }
 }

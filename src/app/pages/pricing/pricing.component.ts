@@ -1,8 +1,10 @@
 import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
 import { Title, Meta } from '@angular/platform-browser';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
+import { RegisterModalComponent } from 'app/components/register-modal/register-modal.component';
 
 import { AnalyticsService } from '../../services/analytics.service';
+import { BsModalRef, BsModalService, ModalOptions } from 'ngx-bootstrap/modal';
 
 @Component({
   selector: 'app-pricing',
@@ -11,11 +13,14 @@ import { AnalyticsService } from '../../services/analytics.service';
 })
 export class PricingComponent implements OnInit, OnDestroy {
 
-    public browser: boolean;
+  public bsModalRef: BsModalRef;
+  public browser: boolean;
+
   constructor(
     private analyticsService: AnalyticsService,
     private titleService: Title,
     private metaTagService: Meta,
+    private modalService: BsModalService,
     @Inject(DOCUMENT) private document: any,
     @Inject(PLATFORM_ID) private platformId: object
   ) {}
@@ -33,8 +38,24 @@ export class PricingComponent implements OnInit, OnDestroy {
     }
   }
 
-  onGetStarted() {
-    this.analyticsService.clickGetStarted();
+  clickEvent(buttonId: string) {
+    this.analyticsService.clickButton(buttonId);
+  }
+
+  onRegister(plan?: string) {
+    // pop register modal
+    // we can send data to the modal & open in a another component via a service
+    // https://valor-software.com/ngx-bootstrap/#/modals#service-component
+    const config: ModalOptions = {
+      initialState: {
+        message: `Joining Lifecoach takes seconds! Enter your email to get a secure signup link then follow the link in the email to sign in & complete payment...`,
+        successMessage: null,
+        redirectUrl: null,
+        accountType: 'coach',
+        plan
+      } as any
+    };
+    this.bsModalRef = this.modalService.show(RegisterModalComponent, config);
   }
 
   ngOnDestroy() {

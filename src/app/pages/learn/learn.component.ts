@@ -10,9 +10,9 @@ import { AuthService } from 'app/services/auth.service';
 import { CourseBookmark } from 'app/interfaces/course.bookmark.interface';
 import { FormGroup, FormBuilder } from '@angular/forms';
 import { ModalDirective } from 'ngx-bootstrap/modal';
-import { ReviewsService } from 'app/services/reviews.service';
-import { CourseReview } from 'app/interfaces/course-review';
+import { TestimonialsService } from 'app/services/testimonials.service';
 import { Subscription } from 'rxjs';
+import { ClientTestimonial } from 'app/interfaces/client.testimonial.interface';
 
 @Component({
   selector: 'app-learn',
@@ -38,11 +38,11 @@ export class LearnComponent implements OnInit, OnDestroy {
   public bookmarkForm: FormGroup;
   public bookmarks: CourseBookmark[];
   public bookmarkToRemove: CourseBookmark;
-  private userCourseReviews: CourseReview[];
+  private testimonials: ClientTestimonial[];
   private coursesComplete = [];
   public courseIsComplete: boolean;
-  public courseReviewPrompts = [];
-  public reviewPrompted: boolean;
+  public testimonialPrompts = [];
+  public testimonialPrompted: boolean;
   private subscriptions: Subscription = new Subscription();
 
   constructor(
@@ -55,7 +55,7 @@ export class LearnComponent implements OnInit, OnDestroy {
     private alertService: AlertService,
     private route: ActivatedRoute,
     private router: Router,
-    private reviewsService: ReviewsService
+    private testimonialsService: TestimonialsService
   ) {
   }
 
@@ -88,9 +88,9 @@ export class LearnComponent implements OnInit, OnDestroy {
                 if (user) {
                   this.userId = user.uid;
                   this.loadCourse();
-                  this.fetchUserCourseReviews();
+                  this.fetchTestimonials();
                   this.fetchUserCoursesComplete();
-                  this.fetchReviewPrompts();
+                  this.fetchTestimonialPrompts();
                 }
               })
             );
@@ -126,12 +126,12 @@ export class LearnComponent implements OnInit, OnDestroy {
     this.monitorSavedBookmarks();
   }
 
-  fetchUserCourseReviews() {
+  fetchTestimonials() {
     this.subscriptions.add(
-      this.reviewsService.getReviewerCourseReviews(this.userId).subscribe(reviews => {
-        if (reviews) {
-          // console.log(reviews);
-          this.userCourseReviews = reviews;
+      this.testimonialsService.getClientTestimonials(this.userId).subscribe(data => {
+        if (data) {
+          // console.log(data);
+          this.testimonials = data;
         }
       })
     );
@@ -178,15 +178,15 @@ export class LearnComponent implements OnInit, OnDestroy {
     this.subscriptions.add(courseSub);
   }
 
-  fetchReviewPrompts() {
+  fetchTestimonialPrompts() {
     this.subscriptions.add(
-      this.reviewsService.fetchUserCourseReviewPrompts(this.userId).subscribe(data => {
+      this.testimonialsService.fetchUserCoachTestimonialPrompts(this.userId).subscribe(data => {
         if (data) {
-          this.courseReviewPrompts = data;
-          const promptArr = this.courseReviewPrompts.map(i => i.id);
-          // console.log('Course review prompts', promptArr);
-          if (promptArr.includes(this.courseId)) {
-            this.reviewPrompted = true;
+          this.testimonialPrompts = data;
+          const promptArr = this.testimonialPrompts.map(i => i.id);
+          // console.log('client testimonial prompts', promptArr);
+          if (promptArr.includes(this.course.sellerUid)) {
+            this.testimonialPrompted = true;
           }
         }
       })
@@ -343,18 +343,18 @@ export class LearnComponent implements OnInit, OnDestroy {
     this.alertService.alert('success-message', 'Success!', `Bookmark saved to your bookmarks tab.`);
   }
 
-  async promptUserReviewIfRequired() {
+  async promptTestimonialIfRequired() {
     return new Promise(resolve => {
-      // check if already user reviewed
-      if (this.userCourseReviews && this.userCourseReviews.findIndex(i => i.courseId === this.courseId) !== -1) {
-        // console.log('Course already reviewed');
+      // check if user has already written coach testimonial
+      if (this.testimonials && this.testimonials.findIndex(i => i.coachUid === this.course.sellerUid) !== -1) {
+        // console.log('testimonial already written');
         resolve(false);
         return;
       }
 
-      // check if user has already been prompted for a review
-      console.log('reviewPrompted?:', this.reviewPrompted);
-      if (this.reviewPrompted) {
+      // check if user has already been prompted for a testimonial
+      console.log('testimonialPrompted?:', this.testimonialPrompted);
+      if (this.testimonialPrompted) {
         resolve(false);
         return;
       }
@@ -375,7 +375,7 @@ export class LearnComponent implements OnInit, OnDestroy {
           this.reviewModal.onHide.subscribe(res => {
             // console.log('result:', res);
             // whether or not review saved, mark as review prompted
-            this.markAsReviewPrompted();
+            this.markAsTestimonialPrompted();
             resolve(true);
             return;
           })
@@ -384,14 +384,14 @@ export class LearnComponent implements OnInit, OnDestroy {
     });
   }
 
-  async onReviewSavedEvent() {
-    await this.alertService.alert('success-message', 'Success!', `Thanks for leaving feedback! You can update your feedback at any time.`);
+  async onTestimonialSavedEvent() {
+    await this.alertService.alert('success-message', 'Success!', `Thanks for leaving a testimonial!`);
   }
 
-  markAsReviewPrompted() {
-    // mark that the user does not wish to leave a review now, and shouldn't be prompted again until
+  markAsTestimonialPrompted() {
+    // mark that the user does not wish to leave a testimonial now, and shouldn't be prompted again until
     // reaching a defined point (eg end of course)
-    this.reviewsService.markUserCourseReviewPrompted(this.userId, this.courseId);
+    this.testimonialsService.markUserCoachTestimonialPrompted(this.userId, this.course.sellerUid);
   }
 
   markCourseCompleted() {

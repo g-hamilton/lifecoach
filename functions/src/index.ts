@@ -4,6 +4,7 @@ const firebase_tools = require('firebase-tools');
 
 const firebase = admin.initializeApp();
 const db = admin.firestore();
+db.settings({ ignoreUndefinedProperties: true }) // allow undefined values without throwing error
 const client = require('twilio')(functions.config().twilio.accountsid, functions.config().twilio.authtoken);
 import * as sharp from 'sharp';
 
@@ -18,10 +19,17 @@ import * as sharp from 'sharp';
 // =====                            INTERFACES                               ======
 // ================================================================================
 
-interface CustomTransfer extends Stripe.Transfer {
-  source_transaction_expanded: any; // will be a santised Stripe.Charge object
-  balance_transaction_expanded: Stripe.BalanceTransaction;
-}
+import {
+  CustomerData,
+  CustomTransfer,
+  Price,
+  Product,
+  Subscription,
+  TaxRate,
+  UserAccount,
+  CheckoutSessionRequest,
+  CompleteStripeConnectRequest
+} from './interfaces';
 
 // ================================================================================
 // =====                     ANGULAR UNIVERSAL SSR                           ======
@@ -68,6 +76,8 @@ const shortUrlEndpoint = 'https://api.rebrandly.com/v1/links'
 // See Stripe keys here: https://dashboard.stripe.com/account/apikeys
 
 import { Stripe } from 'stripe';
+import * as logs from './logs';
+
 const config: Stripe.StripeConfig = { apiVersion: '2020-08-27', typescript: true }
 const stripe = new Stripe(functions.config().stripe.prod.secretkey, config);
 const stripeWebhookSecret = functions.config().stripe.prod.webhooksecret;
@@ -158,7 +168,7 @@ function getMcListId(userType: 'regular' | 'coach' | 'partner' | 'provider') {
   }
 }
 
-function addUserToMailchimp(email: string, firstName: string, lastName: string, type: 'regular' | 'coach' | 'partner' | 'provider') {
+function addUserToMailchimp(email: string, firstName: string, lastName: string, type: any) {
 
   // Assign the correct Mailchimp list (audience) ID
   const listID = getMcListId(type);
@@ -348,11 +358,11 @@ async function addCustomUserClaims(uid: string, claims: any) {
         updatedClaims[property] = claims[property];
       }
     };
-    console.log('Setting custom auth claims:', JSON.stringify(updatedClaims));
     await admin.auth().setCustomUserClaims(uid, updatedClaims);
+    logs.setCustomClaims(uid, updatedClaims);
     return {success: true};
   } catch (err) {
-    console.error('Error setting custom claims!:', err);
+    logs.errorSettingCustomClaims(err);
     return {error: err}
   }
 }
@@ -372,20 +382,20 @@ async function removeCustomUserClaims(uid: string, claims: any) {
           updatedClaims[property] = null;
         }
       };
-      console.log('Setting custom auth claims:', JSON.stringify(updatedClaims));
       await admin.auth().setCustomUserClaims(uid, updatedClaims);
+      logs.setCustomClaims(uid, updatedClaims);
     }
 
     return {success: true};
 
   } catch (err) {
-    console.error('Error removing custom claims!:', err);
+    logs.errorSettingCustomClaims(err);
     return {error: err}
   }
 }
 
 async function createUserNode(uid: string, email: string, type: 'regular' | 'coach' | 'partner' | 'provider' | 'admin',
-firstName: string | null, lastName: string | null) {
+firstName: string | null, lastName: string | null, plan?: 'trial' | 'spark' | 'flame' | 'blaze') {
 
   const batch = admin.firestore().batch();
 
@@ -393,11 +403,13 @@ firstName: string | null, lastName: string | null) {
   await db.collection(`users/${uid}/account`)
   .doc('account' + uid)
   .set({
+    uid,
     dateCreated: Math.round(new Date().getTime()/1000), // unix timestamp
     accountType: type,
     accountEmail: email,
     firstName,
-    lastName
+    lastName,
+    plan: plan ? plan : null
   })
   .catch(err => console.error(err));
 
@@ -410,24 +422,24 @@ firstName: string | null, lastName: string | null) {
     batch.set(ref1, {
       id: 'taskDefault001',
       title: 'Complete your coach profile',
-      description: 'Everything at Lifecoach starts with your public Coach profile. Start creating yours now.',
+      description: 'Everything at Lifecoach starts with your SEO optimised coach profile. Start creating yours now.',
       action: 'profile'
     });
 
-    const ref3 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault004');
-    batch.set(ref3, {
-      id: 'taskDefault004',
-      title: 'Enable your payout account',
-      description: 'Enable your payout account now so you can charge for your products & services.',
-      action: 'account'
-    });
-
-    const ref4 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault003');
-    batch.set(ref4, {
+    const ref2 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault003');
+    batch.set(ref2, {
       id: 'taskDefault003',
       title: 'Add your products & services',
-      description: `Promote your coaching services, take bookings, run live 1-to-1 video sessions & sell eCourses. We'll help every step of the way.`,
+      description: `Adding your products & services will automatically link them to your coach profile; allowing you to promote them.`,
       action: 'coach-products-services'
+    });
+
+    const ref3 = db.collection(`users/${uid}/tasks-todo/`).doc('taskDefault002');
+    batch.set(ref3, {
+      id: 'taskDefault002',
+      title: 'Add your best testimonials',
+      description: `Adding a few good client testimonials helps people to get a better insight into who you are as a coach & helps to increase leads.`,
+      action: 'client-testimonials'
     });
 
     return batch.commit() // execute batch ops
@@ -472,30 +484,37 @@ firstName: string | null, lastName: string | null) {
 exports.createDbUserWithType = functions
 .runWith({memory: '1GB', timeoutSeconds: 300})
 .https
-.onCall( async (data, context) => {
+.onCall( async (data: UserAccount, context) => {
 
   // Reject any unauthorised user immediately.
   if (!context.auth) {
       return {error: 'You must be authorised!'}
   }
 
+  const uid = data.uid as string;
+  const type = data.accountType;
+  const email = data.accountEmail as string;
+  const fName = data.firstName as string;
+  const lName = data.lastName as string;
+  const plan = data.plan;
+
   // Create the user node in the DB.
-  await createUserNode(data.uid, data.email, data.type, data.firstName, data.lastName);
-  console.log(`User node created successfully for ${data.type} account user ${data.uid}`);
+  await createUserNode(uid, email, type, fName, lName, plan);
+  logs.userNodeCreated(type, uid);
 
   // Set custom claim on the user's auth object.
-  const res = await addCustomUserClaims(data.uid, {
-    [data.type]: true
+  const res = await addCustomUserClaims(uid, {
+    [type]: true
   });
-  console.log(`Custom auth claim ${data.type} set successfully`);
 
-  addUserToMailchimp(data.email, data.firstName, data.lastName, data.type);
+  addUserToMailchimp(email, fName, lName, type);
+  logs.userAddedToMailingList(type, uid, email);
 
   // Return
   if (!res.error) {
       return {success: true};
   } else {
-      return {error: res.error}
+    return {error: res.error.message}
   }
 });
 
@@ -638,6 +657,32 @@ exports.adminChangeUserType = functions
     // update mailing list
     archiveMailchimpUser(data.oldType, acc.accountEmail); // removes from old list
     addUserToMailchimp(acc.accountEmail, acc.firstName, acc.lastName, data.newType); // adds to new list
+
+    return {success: true};
+
+  } catch (err) {
+    return {error: err}
+  }
+});
+
+exports.requestAccountClosure = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.https
+.onCall( async (data, context) => {
+
+  // Reject any non admin user immediately.
+  if (!context.auth) {
+    return {error: 'Unauthorised!'}
+  }
+
+  try {
+    if (!data || !data.uid) {
+      throw new Error('Missing account data. Please contact support.');
+    }
+    // create a request in the db
+    await db.collection(`close-account-requests`)
+    .doc(data.uid)
+    .set(data, { merge: true }); // merge to avoid errors if requested again by user before actioned
 
     return {success: true};
 
@@ -1027,66 +1072,47 @@ exports.manualUpdateRates = functions
 });
 
 /*
-  Attempts to complete Stripe connected account setup.
+  Attempts to complete Stripe connect STANDARD account setup.
+  https://stripe.com/docs/connect/standard-accounts
+  https://stripe.com/docs/api/accounts/create
 */
 exports.completeStripeConnect = functions
 .runWith({memory: '1GB', timeoutSeconds: 300})
 .https
-.onCall( async (data, context) => {
-
-  const uid = data.uid;
-  const code = data.code;
+.onCall( async (data: CompleteStripeConnectRequest, context) => {
 
   try {
 
-    // Call Stripe to convert an auth code into an access token to complete connect setup
-    const res = await stripe.oauth.token({
-      grant_type: 'authorization_code',
-      code,
+    const account = await stripe.accounts.create({
+      type: 'standard',
+      metadata: {
+        lifecoachUID: data.uid
+      }
     });
 
-    // success. 'res' now contains the user's Stripe ID
-    console.log('Stripe OAuth token result:', JSON.stringify(res));
+    const batch = admin.firestore().batch();
 
-    if (res.stripe_user_id) { // success
+    const ref1 = db.collection(`users/${data.uid}/account`).doc(`account${data.uid}`)
+    batch.set(ref1, { stripeAccountId: account.id }, { merge: true });
+    const ref2 = db.collection(`stripe-connect-accounts-by-uid`).doc(data.uid)
+    batch.set(ref2, { stripeAccountId: account.id }, { merge: true });
+    const ref3 = db.collection(`uids-by-stripe-connect-account-id`).doc(account.id)
+    batch.set(ref3, { uid: data.uid }, { merge: true });
 
-      const promises = [];
+    await batch.commit();
 
-      // Save the user's Stripe ID to the DB
-      const promise1 = db.collection(`users/${uid}/account`)
-      .doc(`account${uid}`)
-      .set({
-        stripeUid: res.stripe_user_id
-      }, { merge: true });
-      promises.push(promise1);
+    const accountLink = await stripe.accountLinks.create({
+      account: account.id,
+      refresh_url: data.refreshUrl,
+      return_url: data.returnUrl,
+      type: data.type,
+    });
 
-      // Immediately update the account to ensure correct data & settings
-      const promise2 = stripe.accounts.update(res.stripe_user_id, {
-        metadata: {
-          lifecoachUID: uid // associate our UID to identify user from Stripe webhooks
-        },
-        settings: {
-          payouts: {
-            schedule: { // Update the Stripe account to ensure correct payout schedule
-              delay_days: 28,
-              interval: 'monthly',
-              monthly_anchor: 31
-            }
-          }
-        }
-      });
-      promises.push(promise2);
-
-      await Promise.all(promises as any); // run concurrent ops
-
-      return { stripeUid: res.stripe_user_id }
-    } else { // error should be caught by catch
-      return { error: 'No stripe user ID' }
-    }
+    return { url: accountLink.url }
 
   } catch (err) {
     console.error(err);
-    return { error: err }
+    return { error: err.message }
   }
 });
 
@@ -1115,6 +1141,27 @@ exports.stripeCreateLoginLink = functions
 });
 
 /*
+  Attempts to generate a Stripe AccountLink for a connected account.
+  https://stripe.com/docs/api/account_links/create?lang=node
+*/
+exports.stripeCreateAccountLink = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.https
+.onCall( async (data, context) => {
+
+  try {
+
+    const res = await stripe.accountLinks.create(data);
+
+    return { url: res.url }
+
+  } catch (err) {
+    console.error(err);
+    return { error: err.message }
+  }
+});
+
+/*
   Attempts to retrieve a Stripe account balance.
 */
 exports.stripeRetrieveBalance = functions
@@ -1136,6 +1183,113 @@ exports.stripeRetrieveBalance = functions
   } catch (err) {
     console.error(err);
     return { error: err }
+  }
+});
+
+/*
+  Attempts to:
+  1. Delete a Stripe connected EXPRESS account.
+  2. Carry out post-delete tasks such as removing the user's 'stripeUid' account property
+  3. Creating a new STANDARD Stripe connected account for the user
+  Will fail if the account balance is not zero.
+  Will not work for STANDARD accounts.
+  https://stripe.com/docs/api/accounts/delete?lang=node
+*/
+exports.adminDeleteStripeConnectedExpressAccount = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.https
+.onCall( async (data, context) => {
+
+  // Reject any non admin user immediately.
+  if (!context.auth || !context.auth.token.admin) {
+    return {error: 'Unauthorised!'}
+  }
+
+  const stripeAccountId = data.stripeUid;
+  const uid = data.uid;
+
+  try {
+
+    await deleteStripeAccount(stripeAccountId);
+    await postStripeConnectedExpressAccountDelete(uid);
+
+    return { success: true } // success
+
+  } catch (err) {
+    return { error: err.message }
+  }
+});
+
+async function deleteStripeAccount(acctId: string) {
+  // https://stripe.com/docs/api/accounts/delete?lang=node
+  return stripe.accounts.del(acctId);
+}
+
+async function postStripeConnectedExpressAccountDelete(uid: string) {
+  return db.collection(`users/${uid}/account`).doc(`account${uid}`).set({ stripeUid: null }, { merge: true });
+}
+
+/*
+  Attempts to:
+  1. Create a Stripe subscription for a user.
+  https://stripe.com/docs/api/subscriptions/create?lang=node
+*/
+exports.adminCreateStripeSubscriptionForUser = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.https
+.onCall( async (data, context) => {
+
+  // Reject any non admin user immediately.
+  if (!context.auth || !context.auth.token.admin) {
+    return {error: 'Unauthorised!'}
+  }
+
+  const uid = data.uid;
+
+  try {
+
+    // Get stripe customer id
+    let customerId;
+    const accountSnap = await db.collection(`users/${uid}/account`)
+    .doc(`account${uid}`)
+    .get();
+    if (accountSnap.exists) {
+      const account = accountSnap.data();
+      if (account && account.stripeCustomerId) {
+        customerId = account.stripeCustomerId;
+      }
+    }
+    if (!customerId) { // if no stored stripe customer id exists on the account, create one now...
+      const { email } = await admin.auth().getUser(uid);
+      const customerRecord = await createCustomerRecord({
+        uid: uid,
+        email,
+      });
+      if (customerRecord && customerRecord.stripeCustomerId) {
+        customerId = customerRecord.stripeCustomerId;
+      }
+    }
+
+    // create the subscription
+    const subscription = await stripe.subscriptions.create({
+      customer: customerId,
+      items: [
+        {price: 'price_1Ik5QABulafdcV5ttOcbt77z'}, // priceId for £0 one-time Flame subscription
+      ],
+      metadata: {
+        partner_referred: null,
+        client_UID: uid,
+        sale_item_id: 'price_1Ik5QABulafdcV5ttOcbt77z',
+        sale_item_type: 'coach_subscription',
+        sale_item_title: 'Flame',
+        firebaseRole: 'flame'
+      }
+    });
+
+    return { success: true, subscription } // success
+
+  } catch (err) {
+    return { error: err.message }
   }
 });
 
@@ -1363,7 +1517,8 @@ exports.stripeWebhookEvent = functions
 .onRequest( async (request, response) => {
   const sig = request.headers["stripe-signature"] as string;
 
-  let event;
+  let event: Stripe.Event;
+  const batch = admin.firestore().batch();
 
   // Verify the request is authentic
   try {
@@ -1373,9 +1528,34 @@ exports.stripeWebhookEvent = functions
     return response.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  // console.log('Stripe webhook event:', event);
+  // https://stripe.com/docs/api/events/types
 
-  const batch = admin.firestore().batch();
+  const relevantEvents = new Set([ // these are the only events we need to handle
+    'product.created',
+    'product.updated',
+    'product.deleted',
+    'price.created',
+    'price.updated',
+    'price.deleted',
+    'checkout.session.completed',
+    'customer.subscription.created',
+    'customer.subscription.updated',
+    'customer.subscription.deleted',
+    'tax_rate.created',
+    'tax_rate.updated',
+    'invoice.paid',
+    'invoice.payment_succeeded',
+    'invoice.payment_failed',
+    'invoice.upcoming',
+    'invoice.marked_uncollectible',
+    'invoice.payment_action_required',
+    'payment_intent.succeeded',
+    'payment_intent.payment_failed',
+    'transfer.created',
+    'transfer.reversed',
+    'charge.succeeded',
+    'charge.refunded',
+  ]);
 
   /*
   Note: consider the possibility that a webhook may be received more than once!
@@ -1383,102 +1563,215 @@ exports.stripeWebhookEvent = functions
   Stripe will try again up to 2 more times.
   */
 
-  // Handle the event
-  // https://stripe.com/docs/api/events/types
-  switch (event.type) {
-    case 'payment_intent.succeeded':
-      const paymentIntent = event.data.object as Stripe.PaymentIntent;
-      console.log(`PaymentIntent succeeded! ${JSON.stringify(paymentIntent)}`);
+  // only handle relevant events...
+  if (relevantEvents.has(event.type)) {
+    logs.startWebhookEventProcessing(event);
 
-      const clientUid = paymentIntent.metadata.client_UID;
-      const saleItemId = paymentIntent.metadata.sale_item_id;
-      const saleItemType = paymentIntent.metadata.sale_item_type;
-
-      try {
-        const promises = [];
-
-        // Add the item ID of the purchased item to the user's auth token claims
-        // so the user can access any content restricted by paywall.
-        const promise1 = addCustomUserClaims(clientUid, { [saleItemId]: true }) as any;
-        promises.push(promise1);
-
-        // Record the appropriate purchase/enrollment for the purchaser & the seller
-        if (saleItemType === 'ecourse') {
-          const promise2 = recordCourseEnrollmentForClient(paymentIntent);
-          promises.push(promise2);
-          const promise3 = recordCourseEnrollmentForCreator(paymentIntent);
-          promises.push(promise3);
-
-        } else if (saleItemType === 'fullProgram' || saleItemType === 'programSession') {
-          const promise2 = recordProgramEnrollmentForClient(paymentIntent);
-          promises.push(promise2);
-          const promise3 = recordProgramEnrollmentForCreator(paymentIntent);
-          promises.push(promise3);
-
-        } else if (saleItemType === 'coachingPackage') {
-          const promise2 = recordServicePurchaseForClient(paymentIntent);
-          promises.push(promise2);
-          const promise3 = recordServicePurchaseForCreator(paymentIntent);
-          promises.push(promise3);
-        }
-
-        // record the enrollment for platform totals
-        const promise4 = recordEnrollmentForPlatform(paymentIntent);
-        promises.push(promise4);
-
-        await Promise.all(promises);
-
-      } catch (err) {
-        console.error(err)
-      }
-      break;
-    case 'payment_intent.payment_failed':
-      const paymentIntentFailed = event.data.object as Stripe.PaymentIntent;
-      console.log(`PaymentIntent failed! ${JSON.stringify(paymentIntentFailed)}`);
-
-      const uidFP = paymentIntentFailed.metadata.client_UID;
-
-      try {
-        // Save the successful payment intent object to the user's account
-        await db.collection(`users/${uidFP}/failed-payments`)
-        .doc(paymentIntentFailed.id)
-        .create(paymentIntentFailed);
-      } catch (err) {
-        console.error(err)
-      }
-      break;
-    case 'transfer.created':
-        /*
-        https://stripe.com/docs/api/transfers/object
-        Received when a successful transfer occurs
-        */
-        const transfer = event.data.object as CustomTransfer;
-        console.log(`Transfer created: ${JSON.stringify(transfer)}`);
-
-        const transferDate = new Date(transfer.created * 1000); // create a date object so we can work with months/years
-        const transferMonth = transferDate.getMonth() + 1; // go from zero index to jan === 1
-        const transferYear = transferDate.getFullYear();
-
-        try {
+    try {
+      switch (event.type) {
+        case 'product.created':
+        case 'product.updated':
+          await createProductRecord(event.data.object as Stripe.Product);
+          break;
+        case 'price.created':
+        case 'price.updated':
+          await insertPriceRecord(event.data.object as Stripe.Price);
+          break;
+        case 'product.deleted':
+          await deleteProductOrPrice(event.data.object as Stripe.Product);
+          break;
+        case 'price.deleted':
+          await deleteProductOrPrice(event.data.object as Stripe.Price);
+          break;
+        case 'tax_rate.created':
+        case 'tax_rate.updated':
+          await insertTaxRateRecord(event.data.object as Stripe.TaxRate);
+          break;
+        case 'checkout.session.completed':
+          const checkoutSession = event.data.object as Stripe.Checkout.Session;
+    
+            const cscPromises = [];
+    
+            // Handle checkouts for subscriptions
+            if (checkoutSession.mode === 'subscription') {
+              const subscriptionId = checkoutSession.subscription as string;
+              const msPromise = manageSubscriptionStatusChange(
+                subscriptionId,
+                (checkoutSession.metadata as any).client_UID
+              );
+              cscPromises.push(msPromise);
+            }
+    
+            await Promise.all(cscPromises);
+          break;
+        case 'customer.subscription.created':
+        case 'customer.subscription.updated':
+        case 'customer.subscription.deleted':
+          const subscription = event.data.object as Stripe.Subscription;
+    
+            await manageSubscriptionStatusChange(
+              subscription.id,
+              subscription.metadata.client_UID
+            );
+          break;
+        case 'payment_intent.succeeded':
+          const paymentIntent = event.data.object as Stripe.PaymentIntent;
+    
+          /*
+            If the metadata is empty here we can simply skip handling here
+          */
+          const metaObj = new Object(paymentIntent.metadata);
+          if (Object.keys(metaObj).length === 0) {
+            console.log('ℹ️ payment_intent.succeeded - paymentIntent metadata EMPTY. Skipping...');
+            break;
+          }
+    
+          const clientUid = paymentIntent.metadata.client_UID;
+          const saleItemId = paymentIntent.metadata.sale_item_id;
+          const saleItemType = paymentIntent.metadata.sale_item_type;
+    
+          const pisPromises = [];
+    
+          // Update the user's auth token claims
+          // so the user can access any content restricted by paywall.
+          const promise1 = addCustomUserClaims(clientUid, { [saleItemId]: true }) as any;
+          pisPromises.push(promise1);
+  
+          // Record the appropriate purchase/enrollment for the purchaser & the seller
+          if (saleItemType === 'ecourse') {
+            const promise2 = recordCourseEnrollmentForClient(paymentIntent);
+            pisPromises.push(promise2);
+            const promise3 = recordCourseEnrollmentForCreator(paymentIntent);
+            pisPromises.push(promise3);
+  
+          } else if (saleItemType === 'fullProgram' || saleItemType === 'programSession') {
+            const promise2 = recordProgramEnrollmentForClient(paymentIntent);
+            pisPromises.push(promise2);
+            const promise3 = recordProgramEnrollmentForCreator(paymentIntent);
+            pisPromises.push(promise3);
+  
+          } else if (saleItemType === 'coachingPackage') {
+            const promise2 = recordServicePurchaseForClient(paymentIntent);
+            pisPromises.push(promise2);
+            const promise3 = recordServicePurchaseForCreator(paymentIntent);
+            pisPromises.push(promise3);
+          }
+  
+          // record the enrollment for platform totals
+          const promise4 = recordEnrollmentForPlatform(paymentIntent);
+          pisPromises.push(promise4);
+  
+          await Promise.all(pisPromises);
+          break;
+        case 'payment_intent.payment_failed':
+          const paymentIntentFailed = event.data.object as Stripe.PaymentIntent;
+    
+          const uidFP = paymentIntentFailed.metadata.client_UID;
+    
+          // Save the successful payment intent object to the user's account
+          await db.collection(`users/${uidFP}/failed-payments`)
+          .doc(paymentIntentFailed.id)
+          .create(paymentIntentFailed);
+          break;
+        case 'transfer.created':
+            /*
+            https://stripe.com/docs/api/transfers/object
+            Received when a successful transfer occurs
+            */
+            const transfer = event.data.object as CustomTransfer;
+            const transferDate = new Date(transfer.created * 1000); // create a date object so we can work with months/years
+            const transferMonth = transferDate.getMonth() + 1; // go from zero index to jan === 1
+            const transferYear = transferDate.getFullYear();
+    
+            // to cover cases where we want to know the effect of this transfer on our platform balance 
+            // in our platform currency (our real revenue), let's retrieve the associated balance transaction object...
+  
+            const txBalanceTransaction = await stripe.balanceTransactions.retrieve(transfer.balance_transaction as string);
+            console.log('Transfer balance transaction:', txBalanceTransaction);
+  
+            // now we have the transfer and the expanded balance transaction...
+  
+            // add the expanded balance transaction object into the tansfer object
+            transfer.balance_transaction_expanded = txBalanceTransaction;
+  
+            // Lookup the original charge to retrieve necessary metadata from the original paymentIntent
+            const txOriginalCharge = await stripe.charges.retrieve(transfer.source_transaction as string);
+            console.log('Original Charge:', txOriginalCharge);
+  
+            // transform the data to sanitise and only save what we need in our own db
+  
+            const txSanitisedCharge = {} as any;
+  
+            txSanitisedCharge.id = txOriginalCharge.id;
+            txSanitisedCharge.object = txOriginalCharge.object;
+            txSanitisedCharge.amount = txOriginalCharge.amount;
+            txSanitisedCharge.amount_captured = txOriginalCharge.amount_captured;
+            txSanitisedCharge.amount_refunded = txOriginalCharge.amount_refunded;
+            txSanitisedCharge.balance_transaction = txOriginalCharge.balance_transaction;
+            txSanitisedCharge.created = txOriginalCharge.created;
+            txSanitisedCharge.currency = txOriginalCharge.currency;
+            txSanitisedCharge.metadata = txOriginalCharge.metadata;
+            txSanitisedCharge.payment_intent = txOriginalCharge.payment_intent;
+            txSanitisedCharge.payment_method = txOriginalCharge.payment_method;
+            txSanitisedCharge.refunded = txOriginalCharge.refunded;
+            txSanitisedCharge.refunds = txOriginalCharge.refunds;
+            txSanitisedCharge.transfer = txOriginalCharge.transfer;
+            txSanitisedCharge.transfer_data = txOriginalCharge.transfer_data;
+            txSanitisedCharge.transfer_group = txOriginalCharge.transfer_group;
+  
+            // add the santised charge object into the tansfer object
+            transfer.source_transaction_expanded = txSanitisedCharge;
+  
+            // record the transfer for the recipient (flatten the data for easier lookups)
+            const ref1 = db.collection(`users/${txSanitisedCharge.metadata.seller_UID}/transfers/all/transfers`).doc(transfer.id);
+            batch.set(ref1, transfer);
+            const ref2 = db.collection(`users/${txSanitisedCharge.metadata.seller_UID}/transfers/by-item-id/${txSanitisedCharge.metadata.sale_item_id}`).doc(transfer.id);
+            batch.set(ref2, transfer);
+            const ref3 = db.collection(`users/${txSanitisedCharge.metadata.seller_UID}/transfers/by-date/${transferYear}/${transferMonth}/transfers`).doc(transfer.id);
+            batch.set(ref3, transfer);
+  
+            // record the transfer for the platform (flatten the data for easier lookups)
+            const ref4 = db.collection(`successful-transfers/all/transfers`).doc(transfer.id);
+            batch.set(ref4, transfer);
+            const ref5 = db.collection(`successful-transfers/by-seller-id/${txSanitisedCharge.metadata.seller_UID}`).doc(transfer.id);
+            batch.set(ref5, transfer);
+            const ref6 = db.collection(`successful-transfers/by-date/${transferYear}/${transferMonth}/transfers`).doc(transfer.id);
+            batch.set(ref6, transfer);
+            const ref7 = db.collection(`successful-transfers/by-item-id/${txSanitisedCharge.metadata.sale_item_id}`).doc(transfer.id);
+            batch.set(ref7, transfer);
+  
+            // execute atomic batch
+            await batch.commit();
+          break;
+        case 'transfer.reversed':
+          /*
+            https://stripe.com/docs/api/transfers/object
+            Received when a transfer is reversed fully or partially
+          */
+          const transferReversed = event.data.object as CustomTransfer;
+          const reverseDate = new Date(transferReversed.created * 1000); // create a date object so we can work with months/years
+          const reverseMonth = reverseDate.getMonth() + 1; // go from zero index to jan === 1
+          const reverseYear = reverseDate.getFullYear();
+    
           // to cover cases where we want to know the effect of this transfer on our platform balance 
           // in our platform currency (our real revenue), let's retrieve the associated balance transaction object...
-
-          const balanceTransaction = await stripe.balanceTransactions.retrieve(transfer.balance_transaction as string);
-          console.log('Transfer balance transaction:', balanceTransaction);
-
+  
+          const trBalanceTransaction = await stripe.balanceTransactions.retrieve(transferReversed.balance_transaction as string);
+          console.log('Transfer reversed balance transaction:', trBalanceTransaction);
+  
           // now we have the transfer and the expanded balance transaction...
-
+  
           // add the expanded balance transaction object into the tansfer object
-          transfer.balance_transaction_expanded = balanceTransaction;
-
+          transferReversed.balance_transaction_expanded = trBalanceTransaction;
+  
           // Lookup the original charge to retrieve necessary metadata from the original paymentIntent
-          const originalCharge = await stripe.charges.retrieve(transfer.source_transaction as string);
+          const originalCharge = await stripe.charges.retrieve(transferReversed.source_transaction as string);
           console.log('Original Charge:', originalCharge);
-
+  
           // transform the data to sanitise and only save what we need in our own db
-
+  
           const sanitisedCharge = {} as any;
-
+  
           sanitisedCharge.id = originalCharge.id;
           sanitisedCharge.object = originalCharge.object;
           sanitisedCharge.amount = originalCharge.amount;
@@ -1495,294 +1788,196 @@ exports.stripeWebhookEvent = functions
           sanitisedCharge.transfer = originalCharge.transfer;
           sanitisedCharge.transfer_data = originalCharge.transfer_data;
           sanitisedCharge.transfer_group = originalCharge.transfer_group;
-
+  
           // add the santised charge object into the tansfer object
-          transfer.source_transaction_expanded = sanitisedCharge;
-
-          // record the transfer for the recipient (flatten the data for easier lookups)
-          const ref1 = db.collection(`users/${sanitisedCharge.metadata.seller_UID}/transfers/all/transfers`).doc(transfer.id);
-          batch.set(ref1, transfer);
-          const ref2 = db.collection(`users/${sanitisedCharge.metadata.seller_UID}/transfers/by-item-id/${sanitisedCharge.metadata.sale_item_id}`).doc(transfer.id);
-          batch.set(ref2, transfer);
-          const ref3 = db.collection(`users/${sanitisedCharge.metadata.seller_UID}/transfers/by-date/${transferYear}/${transferMonth}/transfers`).doc(transfer.id);
-          batch.set(ref3, transfer);
-
+          transferReversed.source_transaction_expanded = sanitisedCharge;
+  
+          // update the transfer for the recipient (flatten the data for easier lookups)
+          const trRef1 = db.collection(`users/${sanitisedCharge.metadata.seller_UID}/transfers/all/transfers`).doc(transferReversed.id);
+          batch.set(trRef1, transferReversed, { merge: true });
+          const trRef2 = db.collection(`users/${sanitisedCharge.metadata.seller_UID}/transfers/by-item-id/${sanitisedCharge.metadata.sale_item_id}`).doc(transferReversed.id);
+          batch.set(trRef2, transferReversed, { merge: true });
+          const trRef3 = db.collection(`users/${sanitisedCharge.metadata.seller_UID}/transfers/by-date/${reverseYear}/${reverseMonth}/transfers`).doc(transferReversed.id);
+          batch.set(trRef3, transferReversed, { merge: true });
+  
           // record the transfer for the platform (flatten the data for easier lookups)
-          const ref4 = db.collection(`successful-transfers/all/transfers`).doc(transfer.id);
-          batch.set(ref4, transfer);
-          const ref5 = db.collection(`successful-transfers/by-seller-id/${sanitisedCharge.metadata.seller_UID}`).doc(transfer.id);
-          batch.set(ref5, transfer);
-          const ref6 = db.collection(`successful-transfers/by-date/${transferYear}/${transferMonth}/transfers`).doc(transfer.id);
-          batch.set(ref6, transfer);
-          const ref7 = db.collection(`successful-transfers/by-item-id/${sanitisedCharge.metadata.sale_item_id}`).doc(transfer.id);
-          batch.set(ref7, transfer);
-
+          const trRef4 = db.collection(`successful-transfers/all/transfers`).doc(transferReversed.id);
+          batch.set(trRef4, transferReversed, { merge: true });
+          const trRef5 = db.collection(`successful-transfers/by-seller-id/${sanitisedCharge.metadata.seller_UID}`).doc(transferReversed.id);
+          batch.set(trRef5, transferReversed, { merge: true });
+          const trRef6 = db.collection(`successful-transfers/by-date/${reverseYear}/${reverseMonth}/transfers`).doc(transferReversed.id);
+          batch.set(trRef6, transferReversed, { merge: true });
+          const trRef7 = db.collection(`successful-transfers/by-item-id/${sanitisedCharge.metadata.sale_item_id}`).doc(transferReversed.id);
+          batch.set(trRef7, transferReversed, { merge: true });
+  
+          // execute atomic batch
+          await batch.commit();
+          break;
+        case 'charge.succeeded':
+          /*
+            https://stripe.com/docs/api/charges/object
+            Received when a successful charge occurs
+            */
+          const charge = event.data.object as Stripe.Charge;
+    
+          /*
+            If the metadata is empty here we can simply skip handling here
+          */
+          const chargeMetaObj = new Object(charge.metadata);
+          if (Object.keys(chargeMetaObj).length === 0) {
+            console.log('ℹ️ charge.succeeded - charge metadata EMPTY. Skipping...');
+            break;
+          }
+    
+          const saleDate = new Date(charge.created * 1000); // create a date object so we can work with months/years
+          const saleMonth = saleDate.getMonth() + 1; // go from zero index to jan === 1
+          const saleYear = saleDate.getFullYear();
+    
+          // to cover cases where we want to know the effect of this charge on our platform balance 
+          // in our platform currency (our real revenue), let's retrieve the associated balance transaction object...
+  
+          const chargeBalanceTransaction = await stripe.balanceTransactions.retrieve(charge.balance_transaction as string);
+          console.log('Balance transaction:', chargeBalanceTransaction);
+  
+          // now we have the charge and the balance transaction...
+  
+          // transform the data to sanitise and only save what we need in our own db
+  
+          const chargeData = {} as any; // actually a custom SanitisedStripeCharge interface
+  
+          chargeData.id = charge.id;
+          chargeData.object = charge.object;
+          chargeData.amount = charge.amount;
+          chargeData.amount_captured = charge.amount_captured;
+          chargeData.amount_refunded = charge.amount_refunded;
+          chargeData.balance_transaction = charge.balance_transaction;
+          chargeData.balance_transaction_expanded = chargeBalanceTransaction;
+          chargeData.created = charge.created;
+          chargeData.currency = charge.currency;
+          chargeData.metadata = charge.metadata;
+          chargeData.payment_intent = charge.payment_intent;
+          chargeData.payment_method = charge.payment_method;
+          chargeData.refunded = charge.refunded;
+          chargeData.refunds = charge.refunds;
+          chargeData.transfer = charge.transfer;
+          chargeData.transfer_data = charge.transfer_data;
+          chargeData.transfer_group = charge.transfer_group;
+  
+          // record the charge for the purchaser (flatten data)
+  
+          const csRef6 = db.collection(`users/${charge.metadata.client_UID}/successful-charges/all/charges`).doc(charge.id);
+          batch.set(csRef6, chargeData);
+          const csRef7 = db.collection(`users/${charge.metadata.client_UID}/successful-charges/${saleYear}/${saleMonth}`).doc(charge.id);
+          batch.set(csRef7, chargeData);
+  
+          // record the charge for the platform (flatten data)
+  
+          const csRef8 = db.collection(`successful-charges/all/charges`).doc(charge.id);
+          batch.set(csRef8, chargeData);
+          const csRef9 = db.collection(`successful-charges/${saleYear}/${saleMonth}`).doc(charge.id);
+          batch.set(csRef9, chargeData);
+  
           // execute atomic batch
           await batch.commit(); // any error should trigger catch.
-
-        } catch (err) {
-          console.error(err);
-        }
-      break;
-    case 'transfer.reversed':
-      /*
-        https://stripe.com/docs/api/transfers/object
-        Received when a transfer is reversed fully or partially
-      */
-      const transferReversed = event.data.object as CustomTransfer;
-      console.log(`Transfer reversed: ${JSON.stringify(transferReversed)}`);
-
-      const reverseDate = new Date(transferReversed.created * 1000); // create a date object so we can work with months/years
-      const reverseMonth = reverseDate.getMonth() + 1; // go from zero index to jan === 1
-      const reverseYear = reverseDate.getFullYear();
-
-      try {
-        // to cover cases where we want to know the effect of this transfer on our platform balance 
-        // in our platform currency (our real revenue), let's retrieve the associated balance transaction object...
-
-        const balanceTransaction = await stripe.balanceTransactions.retrieve(transferReversed.balance_transaction as string);
-        console.log('Transfer reversed balance transaction:', balanceTransaction);
-
-        // now we have the transfer and the expanded balance transaction...
-
-        // add the expanded balance transaction object into the tansfer object
-        transferReversed.balance_transaction_expanded = balanceTransaction;
-
-        // Lookup the original charge to retrieve necessary metadata from the original paymentIntent
-        const originalCharge = await stripe.charges.retrieve(transferReversed.source_transaction as string);
-        console.log('Original Charge:', originalCharge);
-
-        // transform the data to sanitise and only save what we need in our own db
-
-        const sanitisedCharge = {} as any;
-
-        sanitisedCharge.id = originalCharge.id;
-        sanitisedCharge.object = originalCharge.object;
-        sanitisedCharge.amount = originalCharge.amount;
-        sanitisedCharge.amount_captured = originalCharge.amount_captured;
-        sanitisedCharge.amount_refunded = originalCharge.amount_refunded;
-        sanitisedCharge.balance_transaction = originalCharge.balance_transaction;
-        sanitisedCharge.created = originalCharge.created;
-        sanitisedCharge.currency = originalCharge.currency;
-        sanitisedCharge.metadata = originalCharge.metadata;
-        sanitisedCharge.payment_intent = originalCharge.payment_intent;
-        sanitisedCharge.payment_method = originalCharge.payment_method;
-        sanitisedCharge.refunded = originalCharge.refunded;
-        sanitisedCharge.refunds = originalCharge.refunds;
-        sanitisedCharge.transfer = originalCharge.transfer;
-        sanitisedCharge.transfer_data = originalCharge.transfer_data;
-        sanitisedCharge.transfer_group = originalCharge.transfer_group;
-
-        // add the santised charge object into the tansfer object
-        transferReversed.source_transaction_expanded = sanitisedCharge;
-
-        // update the transfer for the recipient (flatten the data for easier lookups)
-        const ref1 = db.collection(`users/${sanitisedCharge.metadata.seller_UID}/transfers/all/transfers`).doc(transferReversed.id);
-        batch.set(ref1, transferReversed, { merge: true });
-        const ref2 = db.collection(`users/${sanitisedCharge.metadata.seller_UID}/transfers/by-item-id/${sanitisedCharge.metadata.sale_item_id}`).doc(transferReversed.id);
-        batch.set(ref2, transferReversed, { merge: true });
-        const ref3 = db.collection(`users/${sanitisedCharge.metadata.seller_UID}/transfers/by-date/${reverseYear}/${reverseMonth}/transfers`).doc(transferReversed.id);
-        batch.set(ref3, transferReversed, { merge: true });
-
-        // record the transfer for the platform (flatten the data for easier lookups)
-        const ref4 = db.collection(`successful-transfers/all/transfers`).doc(transferReversed.id);
-        batch.set(ref4, transferReversed, { merge: true });
-        const ref5 = db.collection(`successful-transfers/by-seller-id/${sanitisedCharge.metadata.seller_UID}`).doc(transferReversed.id);
-        batch.set(ref5, transferReversed, { merge: true });
-        const ref6 = db.collection(`successful-transfers/by-date/${reverseYear}/${reverseMonth}/transfers`).doc(transferReversed.id);
-        batch.set(ref6, transferReversed, { merge: true });
-        const ref7 = db.collection(`successful-transfers/by-item-id/${sanitisedCharge.metadata.sale_item_id}`).doc(transferReversed.id);
-        batch.set(ref7, transferReversed, { merge: true });
-
-        // execute atomic batch
-        await batch.commit(); // any error should trigger catch.
-
-      } catch (err) {
-        console.error(err);
+  
+          break;
+        case 'charge.refunded':
+          /*
+            https://stripe.com/docs/api/charges/object
+            Received when a charge is refunded, including partial refunds.
+            */
+          const chargeRefunded = event.data.object as Stripe.Charge;
+          const chargeDate = new Date(chargeRefunded.created * 1000); // create a date object so we can work with months/years
+          const chargeMonth = chargeDate.getMonth() + 1; // go from zero index to jan === 1
+          const chargeYear = chargeDate.getFullYear();
+    
+          // to cover cases where we want to know the effect of this charge on our platform balance 
+          // in our platform currency (our real revenue), let's retrieve the associated balance transaction object...
+  
+          const balanceTransaction = await stripe.balanceTransactions.retrieve(chargeRefunded.balance_transaction as string);
+          console.log('Balance transaction:', balanceTransaction);
+  
+          // now we have the charge and the balance transaction...
+  
+          // transform the data to sanitise and only save what we need in our own db
+  
+          const data = {} as any; // actually a custom SanitisedStripeCharge interface
+  
+          data.id = chargeRefunded.id;
+          data.object = chargeRefunded.object;
+          data.amount = chargeRefunded.amount;
+          data.amount_captured = chargeRefunded.amount_captured;
+          data.amount_refunded = chargeRefunded.amount_refunded;
+          data.balance_transaction = chargeRefunded.balance_transaction;
+          data.balance_transaction_expanded = balanceTransaction;
+          data.created = chargeRefunded.created;
+          data.currency = chargeRefunded.currency;
+          data.metadata = chargeRefunded.metadata;
+          data.payment_intent = chargeRefunded.payment_intent;
+          data.payment_method = chargeRefunded.payment_method;
+          data.refunded = chargeRefunded.refunded;
+          data.refunds = chargeRefunded.refunds;
+          data.transfer = chargeRefunded.transfer;
+          data.transfer_data = chargeRefunded.transfer_data;
+          data.transfer_group = chargeRefunded.transfer_group;
+  
+          // As we pay our promotional partners a share of our platform revenue, in cases where charges are refunded, 
+          // we can update the original charge objects so that we can filter out charges where refunded = true
+  
+          if (chargeRefunded.metadata.partner_referred && chargeRefunded.metadata.partner_referred !== 'false') { // this sale (charge) was partner referred...
+  
+            const crRef1 = db.collection(`partner-referrals/by-partner-id/${chargeRefunded.metadata.partner_referred}/by-date/${chargeYear}/${chargeMonth}/referrals`).doc(chargeRefunded.payment_intent as string);
+            batch.set(crRef1, data, { merge: true });
+            const crRef2 = db.collection(`partner-referrals/by-partner-id/${chargeRefunded.metadata.partner_referred}/all/referrals`).doc(chargeRefunded.payment_intent as string);
+            batch.set(crRef2, data, { merge: true });
+            const crRef3 = db.collection(`partner-referrals/by-date/${chargeYear}/${chargeMonth}/referrals`).doc(chargeRefunded.payment_intent as string);
+            batch.set(crRef3, data, { merge: true });
+            const crRef4 = db.collection(`partner-referrals/by-date/${chargeYear}/${chargeMonth}/by-partner-id/${chargeRefunded.metadata.partner_referred}/referrals`).doc(chargeRefunded.payment_intent as string);
+            batch.set(crRef4, data, { merge: true });
+            const crRef5 = db.collection(`partner-referrals/all/referrals`).doc(chargeRefunded.payment_intent as string);
+            batch.set(crRef5, data, { merge: true });
+  
+          } // end of if charge was partner referred
+  
+          // update the charge for the purchaser
+  
+          const crRef6 = db.collection(`users/${chargeRefunded.metadata.client_UID}/successful-charges/all/charges`).doc(chargeRefunded.id);
+          batch.set(crRef6, data, { merge: true });
+          const crRef7 = db.collection(`users/${chargeRefunded.metadata.client_UID}/successful-charges/${chargeYear}/${chargeMonth}`).doc(chargeRefunded.id);
+          batch.set(crRef7, data, { merge: true });
+  
+          // update the charge for the platform
+  
+          const crRef8 = db.collection(`successful-charges/all/charges`).doc(chargeRefunded.id);
+          batch.set(crRef8, data, { merge: true });
+          const crRef9 = db.collection(`successful-charges/${chargeYear}/${chargeMonth}`).doc(chargeRefunded.id);
+          batch.set(crRef9, data, { merge: true });
+  
+          // execute atomic batch
+          await batch.commit();
+          break;
+        case 'invoice.paid':
+        case 'invoice.payment_succeeded':
+        case 'invoice.payment_failed':
+        case 'invoice.upcoming':
+        case 'invoice.marked_uncollectible':
+        case 'invoice.payment_action_required':
+          const invoice = event.data.object as Stripe.Invoice;
+          await manageInvoiceRecord(invoice);
+          break;
+        default:
+          logs.webhookHandlerError(
+            new Error('Unhandled relevant event!'),
+            event
+          );
       }
-      break;
-    case 'charge.succeeded':
-      /*
-        https://stripe.com/docs/api/charges/object
-        Received when a successful charge occurs
-        */
-      const charge = event.data.object as Stripe.Charge;
-      console.log(`Charge succeeded! ${JSON.stringify(charge)}`);
-
-      const saleDate = new Date(charge.created * 1000); // create a date object so we can work with months/years
-      const saleMonth = saleDate.getMonth() + 1; // go from zero index to jan === 1
-      const saleYear = saleDate.getFullYear();
-
-      try {
-
-        // to cover cases where we want to know the effect of this charge on our platform balance 
-        // in our platform currency (our real revenue), let's retrieve the associated balance transaction object...
-
-        const balanceTransaction = await stripe.balanceTransactions.retrieve(charge.balance_transaction as string);
-        console.log('Balance transaction:', balanceTransaction);
-
-        // now we have the charge and the balance transaction...
-
-        // transform the data to sanitise and only save what we need in our own db
-
-        const data = {} as any; // actually a custom SanitisedStripeCharge interface
-
-        data.id = charge.id;
-        data.object = charge.object;
-        data.amount = charge.amount;
-        data.amount_captured = charge.amount_captured;
-        data.amount_refunded = charge.amount_refunded;
-        data.balance_transaction = charge.balance_transaction;
-        data.balance_transaction_expanded = balanceTransaction;
-        data.created = charge.created;
-        data.currency = charge.currency;
-        data.metadata = charge.metadata;
-        data.payment_intent = charge.payment_intent;
-        data.payment_method = charge.payment_method;
-        data.refunded = charge.refunded;
-        data.refunds = charge.refunds;
-        data.transfer = charge.transfer;
-        data.transfer_data = charge.transfer_data;
-        data.transfer_group = charge.transfer_group;
-
-        // Because we cannot split stripe connect payments 3 ways using our current setup, and because the stripe 
-        // 'seperate charges & transfers' flow requires that our platform and any conected accounts must be in the same 
-        // territory, (which limits us geographically in terms of promo partner network), if the sale was referred by 
-        // a promotional partner, we need to track this ourselves and use a seperate process to record and pay our partners.
-
-        if (charge.metadata.partner_referred && charge.metadata.partner_referred !== 'false') { // this sale (charge) was partner referred...
-
-          // flatten the data for easier lookups by platform and partners
-
-          const ref1 = db.collection(`partner-referrals/by-partner-id/${charge.metadata.partner_referred}/by-date/${saleYear}/${saleMonth}/referrals`).doc(charge.payment_intent as string);
-          batch.set(ref1, data);
-          const ref2 = db.collection(`partner-referrals/by-partner-id/${charge.metadata.partner_referred}/all/referrals`).doc(charge.payment_intent as string);
-          batch.set(ref2, data);
-          const ref3 = db.collection(`partner-referrals/by-date/${saleYear}/${saleMonth}/referrals`).doc(charge.payment_intent as string);
-          batch.set(ref3, data);
-          const ref4 = db.collection(`partner-referrals/by-date/${saleYear}/${saleMonth}/by-partner-id/${charge.metadata.partner_referred}/referrals`).doc(charge.payment_intent as string);
-          batch.set(ref4, data);
-          const ref5 = db.collection(`partner-referrals/all/referrals`).doc(charge.payment_intent as string);
-          batch.set(ref5, data);
-
-        } // end of if charge was partner referred
-
-        // record the charge for the purchaser (flatten data)
-
-        const ref6 = db.collection(`users/${charge.metadata.client_UID}/successful-charges/all/charges`).doc(charge.id);
-        batch.set(ref6, data);
-        const ref7 = db.collection(`users/${charge.metadata.client_UID}/successful-charges/${saleYear}/${saleMonth}`).doc(charge.id);
-        batch.set(ref7, data);
-
-        // record the charge for the platform (flatten data)
-
-        const ref8 = db.collection(`successful-charges/all/charges`).doc(charge.id);
-        batch.set(ref8, data);
-        const ref9 = db.collection(`successful-charges/${saleYear}/${saleMonth}`).doc(charge.id);
-        batch.set(ref9, data);
-
-        // execute atomic batch
-        await batch.commit(); // any error should trigger catch.
-
-        // if we got this far all batch ops were successful...
-
-        const promises = [];
-
-        if (charge.metadata.partner_referred && charge.metadata.partner_referred !== 'false') {
-          // if not yet completed, completed the task to test the partners promo link is working
-          const promise1 = completeUserTask(charge.metadata.partner_referred, 'taskDefault005');
-          promises.push(promise1);
-        }
-
-        await Promise.all(promises);
-
-      } catch (err) {
-        console.error(err)
-      }
-      break;
-    case 'charge.refunded':
-      /*
-        https://stripe.com/docs/api/charges/object
-        Received when a charge is refunded, including partial refunds.
-        */
-      const chargeRefunded = event.data.object as Stripe.Charge;
-      console.log(`Charge refunded! ${JSON.stringify(chargeRefunded)}`);
-
-      const chargeDate = new Date(chargeRefunded.created * 1000); // create a date object so we can work with months/years
-      const chargeMonth = chargeDate.getMonth() + 1; // go from zero index to jan === 1
-      const chargeYear = chargeDate.getFullYear();
-
-      try {
-
-        // to cover cases where we want to know the effect of this charge on our platform balance 
-        // in our platform currency (our real revenue), let's retrieve the associated balance transaction object...
-
-        const balanceTransaction = await stripe.balanceTransactions.retrieve(chargeRefunded.balance_transaction as string);
-        console.log('Balance transaction:', balanceTransaction);
-
-        // now we have the charge and the balance transaction...
-
-        // transform the data to sanitise and only save what we need in our own db
-
-        const data = {} as any; // actually a custom SanitisedStripeCharge interface
-
-        data.id = chargeRefunded.id;
-        data.object = chargeRefunded.object;
-        data.amount = chargeRefunded.amount;
-        data.amount_captured = chargeRefunded.amount_captured;
-        data.amount_refunded = chargeRefunded.amount_refunded;
-        data.balance_transaction = chargeRefunded.balance_transaction;
-        data.balance_transaction_expanded = balanceTransaction;
-        data.created = chargeRefunded.created;
-        data.currency = chargeRefunded.currency;
-        data.metadata = chargeRefunded.metadata;
-        data.payment_intent = chargeRefunded.payment_intent;
-        data.payment_method = chargeRefunded.payment_method;
-        data.refunded = chargeRefunded.refunded;
-        data.refunds = chargeRefunded.refunds;
-        data.transfer = chargeRefunded.transfer;
-        data.transfer_data = chargeRefunded.transfer_data;
-        data.transfer_group = chargeRefunded.transfer_group;
-
-        // As we pay our promotional partners a share of our platform revenue, in cases where charges are refunded, 
-        // we can update the original charge objects so that we can filter out charges where refunded = true
-
-        if (chargeRefunded.metadata.partner_referred && chargeRefunded.metadata.partner_referred !== 'false') { // this sale (charge) was partner referred...
-
-          const ref1 = db.collection(`partner-referrals/by-partner-id/${chargeRefunded.metadata.partner_referred}/by-date/${chargeYear}/${chargeMonth}/referrals`).doc(chargeRefunded.payment_intent as string);
-          batch.set(ref1, data, { merge: true });
-          const ref2 = db.collection(`partner-referrals/by-partner-id/${chargeRefunded.metadata.partner_referred}/all/referrals`).doc(chargeRefunded.payment_intent as string);
-          batch.set(ref2, data, { merge: true });
-          const ref3 = db.collection(`partner-referrals/by-date/${chargeYear}/${chargeMonth}/referrals`).doc(chargeRefunded.payment_intent as string);
-          batch.set(ref3, data, { merge: true });
-          const ref4 = db.collection(`partner-referrals/by-date/${chargeYear}/${chargeMonth}/by-partner-id/${chargeRefunded.metadata.partner_referred}/referrals`).doc(chargeRefunded.payment_intent as string);
-          batch.set(ref4, data, { merge: true });
-          const ref5 = db.collection(`partner-referrals/all/referrals`).doc(chargeRefunded.payment_intent as string);
-          batch.set(ref5, data, { merge: true });
-
-        } // end of if charge was partner referred
-
-        // update the charge for the purchaser
-
-        const ref6 = db.collection(`users/${chargeRefunded.metadata.client_UID}/successful-charges/all/charges`).doc(chargeRefunded.id);
-        batch.set(ref6, data, { merge: true });
-        const ref7 = db.collection(`users/${chargeRefunded.metadata.client_UID}/successful-charges/${chargeYear}/${chargeMonth}`).doc(chargeRefunded.id);
-        batch.set(ref7, data, { merge: true });
-
-        // update the charge for the platform
-
-        const ref8 = db.collection(`successful-charges/all/charges`).doc(chargeRefunded.id);
-        batch.set(ref8, data, { merge: true });
-        const ref9 = db.collection(`successful-charges/${chargeYear}/${chargeMonth}`).doc(chargeRefunded.id);
-        batch.set(ref9, data, { merge: true });
-
-        // execute atomic batch
-        await batch.commit(); // any error should trigger catch.
-
-      } catch (err) {
-        console.error(err)
-      }
-      break;
+      logs.webhookHandlerSucceeded(event);
+    } catch (err) {
+      logs.webhookHandlerError(err, event);
+      // Return a response to acknowledge receipt of the event with error (to avoid retries)
+      // https://stripe.com/docs/webhooks/build
+      return response.status(200).send({  error: 'Webhook handler failed. View function logs in Firebase.' });
+    }
   }
 
   // Return a response to acknowledge receipt of the event
@@ -1812,31 +2007,467 @@ exports.stripeWebhookConnectedEvent = functions
     return response.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  // console.log('Stripe connected webhook event:', event);
+  const relevantEvents = new Set([ // these are the only events we need to handle
+    'account.updated'
+  ]);
 
-  // Handle the event
-  // https://stripe.com/docs/api/events/types
+  /*
+  Note: consider the possibility that a webhook may be received more than once!
+  If we fail to send a success response to the webhook or if our code times out beyond 300 seconds,
+  Stripe will try again up to 2 more times.
+  */
 
-  switch (event.type) {
-    case 'account.updated':
-      const account = event.data.object as Stripe.Account;
-      if (account.requirements && account.requirements.currently_due) { // requirements are due now for this account
-        if (account.metadata && account.metadata.lifecoachUID) { // ensure the stripe account can be linked to a lifecoach account
-          await db.collection(`users/${account.metadata.lifecoachUID}/account`)
-          .doc(`account${account.metadata.lifecoachUID}`)
-          .set({ // save any verification requirements due now to the db for monitoring client side
-            stripeRequirementsCurrentlyDue: account.requirements.currently_due
-          }, { merge: true })
-          .catch(err => console.error(err));
-        }
+  // only handle relevant events...
+  if (relevantEvents.has(event.type)) {
+
+    // Handle the event
+    // https://stripe.com/docs/api/events/types
+
+    logs.startWebhookEventProcessing(event);
+
+    try {
+      switch (event.type) {
+        case 'account.updated':
+          const account = event.data.object as Stripe.Account;
+          // save the account object to the user's node in the db...
+          if (account.metadata && account.metadata.lifecoachUID) { // ensure the stripe account can be linked to a lifecoach account
+            await db.collection(`users/${account.metadata.lifecoachUID}/account`)
+            .doc(`account${account.metadata.lifecoachUID}`)
+            .set({ // save any verification requirements due now to the db for monitoring client side
+              stripeAccount: account
+            }, { merge: true });
+          }
+          logs.webhookHandlerSucceeded(event);
+          break;
       }
-      break;
+    } catch (err) {
+      logs.webhookHandlerError(err, event);
+      // Return a response to acknowledge receipt of the event with error (to avoid retries)
+      // https://stripe.com/docs/webhooks/build
+      return response.status(200).send({  error: 'Webhook handler failed. View function logs in Firebase.' });
+    }
   }
 
   // Return a response to acknowledge receipt of the event
   return response.status(200).send({ received: true });
 
 });
+
+/**
+ * Create a customer object in Stripe & add mapping data to firestore.
+ */
+ const createCustomerRecord = async ({
+  email,
+  uid,
+}: {
+  email?: string;
+  uid: string;
+}) => {
+  try {
+    const batch = admin.firestore().batch();
+    logs.creatingCustomer(uid);
+    const customerData: CustomerData = {
+      metadata: {
+        firebaseUID: uid,
+      },
+    };
+    if (email) customerData.email = email;
+    const customer = await stripe.customers.create(customerData);
+    logs.customerCreated(customer.id, customer.livemode);
+
+    // add mapping records in firestore.
+    const customerRef = db.collection(`uids-by-stripe-customer-id`).doc(customer.id);
+    batch.set(customerRef, { uid });
+    const uidRef = db.collection(`stripe-customers-by-uid`).doc(uid);
+    batch.set(uidRef, { customerId: customer.id });
+
+    // add customer data to user's node in firestore
+    const customerRecord = {
+      stripeCustomerId: customer.id,
+      stripeCustomerLink: `https://dashboard.stripe.com${
+        customer.livemode ? '' : '/test'
+      }/customers/${customer.id}`,
+    };
+    const userRef = db.collection(`users/${uid}/account`).doc(`account${uid}`);
+    batch.set(userRef, customerRecord, { merge: true });
+    
+    await batch.commit();
+
+    // success. return the customer record
+    return customerRecord;
+  } catch (error) {
+    logs.customerCreationError(error, uid);
+    return null;
+  }
+};
+
+/*
+  Create a stripe checkout session
+  https://stripe.com/docs/api/checkout/sessions/create?lang=node
+*/
+exports.createStripeCheckoutSession = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.https
+.onCall( async (data: CheckoutSessionRequest, context) => {
+
+  const priceId = data.product.prices[data.product.prices.length - 1].id;
+  const uid = data.uid;
+  const successUrl = data.successUrl;
+  const cancelUrl = data.cancelUrl;
+  const partnerReferred = data.partnerReferred;
+  const saleItemType = data.saleItemType;
+  const productTitle = data.product.name;
+  const role = data.product.role;
+
+  try {
+    logs.creatingCheckoutSession();
+    // Get stripe customer id
+    let customerId;
+    const accountSnap = await db.collection(`users/${uid}/account`)
+    .doc(`account${uid}`)
+    .get();
+    if (accountSnap.exists) {
+      const account = accountSnap.data();
+      if (account && account.stripeCustomerId) {
+        customerId = account.stripeCustomerId;
+      }
+    }
+    if (!customerId) { // if no stored stripe customer id exists on the account, create one now...
+      const { email } = await admin.auth().getUser(uid);
+      const customerRecord = await createCustomerRecord({
+        uid: uid,
+        email,
+      });
+      if (customerRecord && customerRecord.stripeCustomerId) {
+        customerId = customerRecord.stripeCustomerId;
+      }
+    }
+    const session = await stripe.checkout.sessions.create({
+      mode: 'subscription',
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price: priceId,
+          // For metered billing, do not pass quantity
+          quantity: 1,
+        },
+      ],
+      // {CHECKOUT_SESSION_ID} is a string literal; do not change it!
+      // the actual Session ID is returned in the query parameter when your customer
+      // is redirected to the success page.
+      success_url: `${successUrl}?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${cancelUrl}?session_cancelled`,
+      customer: customerId,
+      metadata: {
+        partner_referred: partnerReferred,
+        client_UID: uid,
+        sale_item_id: priceId,
+        sale_item_type: saleItemType,
+        sale_item_title: productTitle,
+        firebaseRole: role ? role : null
+      },
+      subscription_data: {
+        metadata: {
+          partner_referred: partnerReferred,
+          client_UID: uid,
+          sale_item_id: priceId,
+          sale_item_type: saleItemType,
+          sale_item_title: productTitle,
+          firebaseRole: role ? role : null
+        }
+      }
+    });
+    logs.checkoutSessionCreated(session.id);
+    return { sessionId: session.id }; // return the session id
+  } catch (err) {
+    logs.checkoutSessionCreationError(err);
+    return { error: err.message };
+  }
+});
+
+/*
+  Create a stripe portal session
+  https://stripe.com/docs/api/customer_portal/sessions/create?lang=node
+*/
+exports.createStripePortalSession = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.https
+.onCall( async (data, context) => {
+
+  const customer = data.customerId;
+  const return_url = data.returnUrl;
+
+  try {
+    logs.creatingPortalSession();
+    const session = await stripe.billingPortal.sessions.create({
+      customer,
+      return_url,
+    });
+    logs.portalSessionCreated(session.id);
+    return { sessionUrl: session.url }; // return the session url
+  } catch (err) {
+    logs.portalSessionCreationError(err);
+    return { error: err.message };
+  }
+});
+
+async function manageSubscriptionStatusChange(subscriptionId: string, uid: string) {
+  
+  // Retrieve the latest subscription status...
+  const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
+    expand: ['items.data.price.product'],
+  });
+
+  console.log('Subscription object:', JSON.stringify(subscription));
+
+  const price = subscription.items.data[0].price;
+  const prices = [];
+  for (const item of subscription.items.data) {
+    prices.push(
+      db
+      .collection(`stripe-products`)
+      .doc((item.price.product as Stripe.Product).id)
+      .collection('prices')
+      .doc(item.price.id)
+    );
+  }
+  const product= price.product as Stripe.Product;
+  const role = product.metadata.firebaseRole ? product.metadata.firebaseRole : null;
+
+  // before doing anything else, update the user's auth custom claims
+  if (['trialing', 'active'].includes(subscription.status)) { // the user is trailing or active
+    await addCustomUserClaims(uid, { subscriptionPlan: role });
+  } else { // the user should lose any subscription claim
+    await addCustomUserClaims(uid, { subscriptionPlan: null });
+  }
+
+  // prepare to write to firestore...
+
+  const batch = admin.firestore().batch();
+  const promises = [];
+  const subscriptionDate = new Date(subscription.created * 1000); // create a date object so we can work with months/years
+  const saleMonth = subscriptionDate.getMonth() + 1; // go from zero index to jan === 1
+  const saleYear = subscriptionDate.getFullYear();
+
+  // transform the data
+  const subscriptionData: Subscription = {
+    id: subscription.id,
+    name: product.name,
+    metadata: subscription.metadata,
+    role,
+    status: subscription.status,
+    stripeLink: `https://dashboard.stripe.com${
+      subscription.livemode ? '' : '/test'
+    }/subscriptions/${subscription.id}`,
+    product: db
+      .collection(`stripe-products`)
+      .doc(product.id),
+    price: db
+      .collection(`stripe-products`)
+      .doc(product.id)
+      .collection('prices')
+      .doc(price.id),
+    prices,
+    quantity: subscription.items.data[0].quantity ? subscription.items.data[0].quantity : null,
+    items: subscription.items.data,
+    cancel_at_period_end: subscription.cancel_at_period_end,
+    cancel_at: subscription.cancel_at
+      ? admin.firestore.Timestamp.fromMillis(subscription.cancel_at * 1000)
+      : null,
+    canceled_at: subscription.canceled_at
+      ? admin.firestore.Timestamp.fromMillis(subscription.canceled_at * 1000)
+      : null,
+    current_period_start: admin.firestore.Timestamp.fromMillis(
+      subscription.current_period_start * 1000
+    ),
+    current_period_end: admin.firestore.Timestamp.fromMillis(
+      subscription.current_period_end * 1000
+    ),
+    created: admin.firestore.Timestamp.fromMillis(subscription.created * 1000),
+    ended_at: subscription.ended_at
+      ? admin.firestore.Timestamp.fromMillis(subscription.ended_at * 1000)
+      : null,
+    trial_start: subscription.trial_start
+      ? admin.firestore.Timestamp.fromMillis(subscription.trial_start * 1000)
+      : null,
+    trial_end: subscription.trial_end
+      ? admin.firestore.Timestamp.fromMillis(subscription.trial_end * 1000)
+      : null,
+  };
+
+  // save the subscription to the user node...
+  const ref1 = db.collection(`users/${uid}/subscriptions`).doc(subscription.id)
+  batch.set(ref1, subscriptionData, { merge: true });
+
+  // save the subscription to the platform node...
+  const ref2 = db.collection(`subscriptions`).doc(subscription.id)
+  batch.set(ref2, subscriptionData, { merge: true });
+
+  // for quick lookup of which coaches have an active subscription plan with client payments enabled...
+  if (['trialing', 'active'].includes(subscription.status)) { // the user is trailing or active
+    const ref3 = db.collection(`public-coach-plan-settings-by-uid`).doc(uid)
+    batch.set(ref3, { role }, { merge: true });
+  } else { // user is not trailing or active
+    const ref3 = db.collection(`public-coach-plan-settings-by-uid`).doc(uid)
+    batch.set(ref3, { role: null }, { merge: true });
+  }
+
+  // if the subscription was partner referred, save to the partner-referrals node...
+  if (subscriptionData.metadata.partner_referred && subscriptionData.metadata.partner_referred !== 'false') {
+  
+    // flatten the data for easier lookups by platform and partners
+
+    const ref4 = db.collection(`partner-referrals/by-partner-id/${subscriptionData.metadata.partner_referred}/by-date/${saleYear}/${saleMonth}/referrals`).doc(subscriptionData.id);
+    batch.set(ref4, subscriptionData);
+    const ref5 = db.collection(`partner-referrals/by-partner-id/${subscriptionData.metadata.partner_referred}/all/referrals`).doc(subscriptionData.id);
+    batch.set(ref5, subscriptionData);
+    const ref6 = db.collection(`partner-referrals/by-date/${saleYear}/${saleMonth}/referrals`).doc(subscriptionData.id);
+    batch.set(ref6, subscriptionData);
+    const ref7 = db.collection(`partner-referrals/by-date/${saleYear}/${saleMonth}/by-partner-id/${subscriptionData.metadata.partner_referred}/referrals`).doc(subscriptionData.id);
+    batch.set(ref7, subscriptionData);
+    const ref8 = db.collection(`partner-referrals/all/referrals`).doc(subscriptionData.id);
+    batch.set(ref8, subscriptionData);
+
+    // completed the task to test the partners promo link is working (may already be done, doesn't matter to repeat)
+    const csPromise1 = completeUserTask(subscriptionData.metadata.partner_referred, 'taskDefault005');
+    promises.push(csPromise1);
+
+  } // end of if charge was partner referred
+
+  await batch.commit();
+  await Promise.all(promises);
+
+}
+
+async function manageInvoiceRecord(invoice: Stripe.Invoice) {
+  // https://stripe.com/docs/api/invoices/object?lang=node
+
+  // lookup the customer's uid
+  const customerSnap = await db.collection(`uids-by-stripe-customer-id`).doc(invoice.customer as string)
+  .get();
+  if (!customerSnap.exists) {
+    throw new Error('User not found!');
+  }
+  const user = customerSnap.data();
+  if (!user) {
+    throw new Error('User data empty!');
+  }
+  if (!user.uid) {
+    throw new Error('User uid missing!');
+  }
+  const uid = user.uid;
+
+  // save the invoice to the relevant subscription on the user's node in firestore
+  await db.collection(`users/${uid}/subscriptions`)
+  .doc(invoice.subscription as string)
+  .collection('invoices')
+  .doc(invoice.id)
+  .set(invoice);
+  logs.firestoreDocCreated('invoices', invoice.id);
+  return;
+}
+
+/**
+ * Prefix Stripe metadata keys with `stripe_metadata_` to be spread onto Product and Price docs in Cloud Firestore.
+ */
+ function prefixMetadata(metadata: object | null) {
+  if (metadata) {
+    Object.keys(metadata).reduce((prefixedMetadata, key) => {
+      (prefixedMetadata as any)[`stripe_metadata_${key}`] = (metadata as any)[key];
+      return prefixedMetadata;
+    }, {});
+  }
+  return {};
+ }
+
+/*
+  Create a Product record in Firestore based on a Stripe Product object.
+*/
+const createProductRecord = async (product: Stripe.Product): Promise<void> => {
+  const { firebaseRole, ...rawMetadata } = product.metadata;
+
+  const productData: Product = {
+    active: product.active,
+    name: product.name,
+    description: product.description,
+    role: firebaseRole ? firebaseRole : null,
+    images: product.images,
+    ...prefixMetadata(rawMetadata),
+  };
+ await db.collection(`stripe-products`).doc(product.id)
+ .set(productData);
+ logs.firestoreDocCreated(`stripe-products`, product.id);
+};
+
+/*
+  Create a price (billing price plan) and insert it into a subcollection in Products.
+*/
+const insertPriceRecord = async (price: Stripe.Price): Promise<void> => {
+  if (price.billing_scheme === 'tiered')
+    // Tiers aren't included by default, we need to retireve and expand.
+    // tslint:disable-next-line: no-parameter-reassignment
+    price = await stripe.prices.retrieve(price.id, { expand: ['tiers'] });
+
+  const priceData: Price = {
+    active: price.active,
+    billing_scheme: price.billing_scheme,
+    tiers_mode: price.tiers_mode,
+    tiers: price.tiers ? price.tiers : null,
+    currency: price.currency,
+    description: price.nickname,
+    type: price.type,
+    unit_amount: price.unit_amount,
+    recurring: price.recurring,
+    interval: price && price.recurring && price.recurring.interval ? price.recurring.interval : null,
+    interval_count: price && price.recurring && price.recurring.interval_count ? price.recurring.interval_count : null,
+    trial_period_days: price && price.recurring && price.recurring.trial_period_days ? price.recurring.trial_period_days : null,
+    transform_quantity: price.transform_quantity,
+    ...prefixMetadata(price.metadata),
+  };
+ await db.collection(`stripe-products`)
+  .doc(price.product as string)
+  .collection('prices')
+  .doc(price.id)
+  .set(priceData);
+ logs.firestoreDocCreated('prices', price.id);
+};
+
+/**
+* Insert tax rates into the products collection in Cloud Firestore.
+*/
+const insertTaxRateRecord = async (taxRate: Stripe.TaxRate): Promise<void> => {
+ const taxRateData: TaxRate = {
+   ...taxRate,
+   ...prefixMetadata(taxRate.metadata),
+ };
+ taxRateData.metadata = null;
+ await db
+   .collection(`stripe-products`)
+   .doc('tax_rates')
+   .collection('tax_rates')
+   .doc(taxRate.id)
+   .set(taxRateData);
+ logs.firestoreDocCreated('tax_rates', taxRate.id);
+};
+
+const deleteProductOrPrice = async (pr: Stripe.Product | Stripe.Price) => {
+  if (pr.object === 'product') {
+    await db
+      .collection(`stripe-products`)
+      .doc(pr.id)
+      .delete();
+    logs.firestoreDocDeleted(`stripe-products`, pr.id);
+  }
+  if (pr.object === 'price') {
+    await db
+      .collection(`stripe-products`)
+      .doc(pr.product as string)
+      .collection('prices')
+      .doc(pr.id)
+      .delete();
+    logs.firestoreDocDeleted('prices', pr.id);
+  }
+};
 
 // ================================================================================
 // =====                FREE COURSE ENROLLMENT (NON STRIPE)                  ======
@@ -2317,11 +2948,6 @@ async function recordServicePurchaseForClient(data: Stripe.PaymentIntent) {
 // ================================================================================
 
 async function recordEnrollmentForPlatform(data: Stripe.PaymentIntent) {
-  /*
-  Record all unique clients for our coaches on a public node so any users can see 
-  how many clients a coach has. A client is anyone who has purchased or enrolled 
-  in any product or service from a coach.
-  */
 
   const batch = admin.firestore().batch();
   const clientUid = data.metadata.client_UID;
@@ -4175,95 +4801,60 @@ exports.onWritePrivateUserCourse = functions
 });
 
 /*
-  Monitor course user reviews.
+  Monitor client testimonials.
 */
-exports.onWriteCourseReview = functions
+exports.onWritePublicClientTestimonial = functions
 .runWith({memory: '1GB', timeoutSeconds: 300})
 .firestore
-.document(`course-reviews/{reviewId}`)
+.document(`public-client-testimonials/{docId}`)
 .onWrite( async (change, context) => {
 
-  const index = algolia.initIndex('prod_COURSE_REVIEWS');
-  const reviewId = context.params.reviewId;
   const before = change.before.data() as any;
-  const review = change.after.data() as any;
+  const after = change.after.data() as any;
+  const docId = context.params.docId;
+  const index = algolia.initIndex('prod_TESTIMONIALS');
 
-  // Record Removed.
-
-  if (!review) {
-
-    // decrement total review count
+  if (!after) { // Record Removed.
     if (before) {
-      await db.collection(`public-courses`)
-      .doc(review.courseId)
-      .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: admin.firestore.FieldValue.increment(-1) }, { merge: true })
-      .catch(err => console.error(err));
+      const coachUid = before.coachUid;
+      if (coachUid) {
+        await db.collection(`public-testimonial-totals/by-coach-id/${coachUid}`)
+        .doc('total-client-testimonials')
+        .set({
+          totalRecords: admin.firestore.FieldValue.increment(-1)
+        }, { merge: true }); // decrement total count
+      }
+      return index.deleteObject(docId); // remove record from algolia
     }
-
-    // sync with Algolia
-    return index.deleteObject(reviewId);
   }
 
-  // Record added/updated
-
-  // if rating has been updated, decrement the old value before incrementing the new value
-  if (before && before.starValue && review && review.starValue && (before.starValue !== review.starValue)) {
-    await db.collection(`public-courses`)
-    .doc(review.courseId)
-    .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: admin.firestore.FieldValue.increment(-1) }, { merge: true })
-    .catch(err => console.error(err));
+  if (!before) { // new record created
+    // increment total review count to allow cheaper lookups
+    const coachUid = after.coachUid;
+    if (coachUid) {
+      await db.collection(`public-testimonial-totals/by-coach-id/${coachUid}`)
+      .doc('total-client-testimonials')
+      .set({
+        totalRecords: admin.firestore.FieldValue.increment(1)
+      }, { merge: true });
+    }
   }
 
-  // increment total review count to allow cheaper lookups
-  await db.collection(`public-courses`)
-  .doc(review.courseId)
-  .set({ [`total${getRatingAsText(review.starValue)}StarReviews`]: admin.firestore.FieldValue.increment(1) }, { merge: true })
-  .catch(err => console.error(err));
-
-  // sync with Algolia
+  // record is new or updating existing
   const recordToSend = {
-    objectID: reviewId,
-    courseId: review.courseId,
-    lastUpdated: review.lastUpdated,
-    reviewerUid: review.reviewerUid,
-    reviewerFirstName: review.reviewerFirstName,
-    reviewerLastName: review.reviewerLastName,
-    reviewerPhoto: review.reviewerPhoto ? review.reviewerPhoto : null,
-    sellerUid: review.sellerUid,
-    starValue: review.starValue,
-    summary: review.summary ? review.summary : null,
-    summaryExists: review.summary ? true : false,
+    objectID: docId,
+    created: after.created,
+    clientUid: after.clientUid,
+    coachUid: after.coachUid,
+    firstName: after.firstName,
+    lastName: after.lastName,
+    description: after.description,
+    img: after.img ? after.img : null
+    
   };
-  // Update Algolia.
-  return index.saveObject(recordToSend);
-});
+  return index.saveObject(recordToSend); // Update Algolia.
 
-function getRatingAsText(rating: number) {
-  switch (rating) {
-    case 5:
-      return 'Five';
-    case 4.5:
-      return 'FourPointFive';
-    case 4:
-      return 'Four';
-    case 3.5:
-      return 'ThreePointFive';
-    case 3:
-      return 'Three';
-    case 2.5:
-      return 'TwoPointFive';
-    case 2:
-      return 'Two';
-    case 1.5:
-      return 'OnePointFive';
-    case 1:
-      return 'One';
-    case 0.5:
-      return 'ZeroPointFive';
-    default:
-      return 'Zero';
-  }
-}
+});
 
 /*
   Monitor newly created public course questions.
@@ -4664,70 +5255,6 @@ exports.onWritePrivateUserProgram = functions
 });
 
 /*
-  Monitor program user reviews.
-*/
-exports.onWriteProgramReview = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.firestore
-.document(`program-reviews/{reviewId}`)
-.onWrite( async (change, context) => {
-
-  const index = algolia.initIndex('prod_PROGRAM_REVIEWS');
-  const reviewId = context.params.reviewId;
-  const before = change.before.data() as any;
-  const review = change.after.data() as any;
-
-  // Record Removed.
-
-  if (!review) {
-
-    // decrement total review count
-    if (before) {
-      await db.collection(`public-programs`)
-      .doc(review.programId)
-      .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: admin.firestore.FieldValue.increment(-1) }, { merge: true })
-      .catch(err => console.error(err));
-    }
-
-    // sync with Algolia
-    return index.deleteObject(reviewId);
-  }
-
-  // Record added/updated
-
-  // if rating has been updated, decrement the old value before incrementing the new value
-  if (before && before.starValue && review && review.starValue && (before.starValue !== review.starValue)) {
-    await db.collection(`public-programs`)
-    .doc(review.programId)
-    .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: admin.firestore.FieldValue.increment(-1) }, { merge: true })
-    .catch(err => console.error(err));
-  }
-
-  // increment total review count to allow cheaper lookups
-  await db.collection(`public-programs`)
-  .doc(review.programId)
-  .set({ [`total${getRatingAsText(review.starValue)}StarReviews`]: admin.firestore.FieldValue.increment(1) }, { merge: true })
-  .catch(err => console.error(err));
-
-  // sync with Algolia
-  const recordToSend = {
-    objectID: reviewId,
-    programId: review.programId,
-    lastUpdated: review.lastUpdated,
-    reviewerUid: review.reviewerUid,
-    reviewerFirstName: review.reviewerFirstName,
-    reviewerLastName: review.reviewerLastName,
-    reviewerPhoto: review.reviewerPhoto ? review.reviewerPhoto : null,
-    sellerUid: review.sellerUid,
-    starValue: review.starValue,
-    summary: review.summary ? review.summary : null,
-    summaryExists: review.summary ? true : false,
-  };
-  // Update Algolia.
-  return index.saveObject(recordToSend);
-});
-
-/*
   Monitor new admin servicess in review (review requests).
 */
 exports.onNewAdminServiceReviewRequest = functions
@@ -4933,70 +5460,6 @@ exports.onWritePrivateUserService = functions
     return;
   }
 
-});
-
-/*
-  Monitor service user reviews.
-*/
-exports.onWriteServiceReview = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
-.firestore
-.document(`service-reviews/{reviewId}`)
-.onWrite( async (change, context) => {
-
-  const index = algolia.initIndex('prod_SERVICE_REVIEWS');
-  const reviewId = context.params.reviewId;
-  const before = change.before.data() as any;
-  const review = change.after.data() as any;
-
-  // Record Removed.
-
-  if (!review) {
-
-    // decrement total review count
-    if (before) {
-      await db.collection(`public-services`)
-      .doc(review.serviceId)
-      .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: admin.firestore.FieldValue.increment(-1) }, { merge: true })
-      .catch(err => console.error(err));
-    }
-
-    // sync with Algolia
-    return index.deleteObject(reviewId);
-  }
-
-  // Record added/updated
-
-  // if rating has been updated, decrement the old value before incrementing the new value
-  if (before && before.starValue && review && review.starValue && (before.starValue !== review.starValue)) {
-    await db.collection(`public-services`)
-    .doc(review.serviceId)
-    .set({ [`total${getRatingAsText(before.starValue)}StarReviews`]: admin.firestore.FieldValue.increment(-1) }, { merge: true })
-    .catch(err => console.error(err));
-  }
-
-  // increment total review count to allow cheaper lookups
-  await db.collection(`public-services`)
-  .doc(review.serviceId)
-  .set({ [`total${getRatingAsText(review.starValue)}StarReviews`]: admin.firestore.FieldValue.increment(1) }, { merge: true })
-  .catch(err => console.error(err));
-
-  // sync with Algolia
-  const recordToSend = {
-    objectID: reviewId,
-    serviceId: review.serviceId,
-    lastUpdated: review.lastUpdated,
-    reviewerUid: review.reviewerUid,
-    reviewerFirstName: review.reviewerFirstName,
-    reviewerLastName: review.reviewerLastName,
-    reviewerPhoto: review.reviewerPhoto ? review.reviewerPhoto : null,
-    sellerUid: review.sellerUid,
-    starValue: review.starValue,
-    summary: review.summary ? review.summary : null,
-    summaryExists: review.summary ? true : false,
-  };
-  // Update Algolia.
-  return index.saveObject(recordToSend);
 });
 
 /*
@@ -5269,6 +5732,142 @@ exports.updateAllProfilesInSequence = functions
   catch(err) {
     console.error(err);
     return {error: err};
+  }
+});
+
+exports.adminMassDeleteStripeExpressAccounts = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.https
+.onCall( async (data, context) => {
+  try {
+
+    // If user is not an authorised admin reject immediately.
+    if (!context.auth || context.auth.token.admin !== true) {
+      return {error: 'Unauthorised!'}
+    }
+
+    // we have to query algolia as our users collection are all VIRTUAL docs and invisilbe to snapshots!
+    const searchIndex = 'prod_USERS';
+    const index = algolia.initIndex(searchIndex);
+    const algoliaRes = await index.browse(''); // use browse not search to get all records
+    console.log(`✅ Retrieved ${algoliaRes.hits.length} user profiles...`);
+    //console.log('Example profile sanity check:', algoliaRes.hits[400]);
+
+    let num = 0;
+
+    algoliaRes.hits.forEach(async (hit, i) => {
+      num = i;
+      const record = hit as any;
+      const uid = record.objectID;
+      console.log(`Admin mass update. Processing record: ${i} for user: ${uid}`);
+
+      const accountSnap = await db.collection(`users/${uid}/account`)
+      .doc(`account${uid}`)
+      .get();
+      if (accountSnap.exists) {
+        const account = accountSnap.data() as UserAccount;
+        if (account && account.stripeUid) { // user has a stripe express account
+          try {
+            await deleteStripeAccount(account.stripeUid);
+            await postStripeConnectedExpressAccountDelete(uid);
+          } catch (err) {
+            console.log(`❗️[Error]: ${err.message} for [${uid}]:`);
+          }
+        }
+      }
+    });
+
+    return {
+      success: true,
+      message: `Success! Processed ${num} records.`
+    }
+  }
+  catch(err) {
+    console.error(err);
+    return {error: err.message};
+  }
+});
+
+exports.adminMassSubscribeCoachesToFlame = functions
+.runWith({memory: '1GB', timeoutSeconds: 300})
+.https
+.onCall( async (data, context) => {
+  try {
+
+    // If user is not an authorised admin reject immediately.
+    if (!context.auth || context.auth.token.admin !== true) {
+      return {error: 'Unauthorised!'}
+    }
+
+    // we have to query algolia as our users collection are all VIRTUAL docs and invisilbe to snapshots!
+    const searchIndex = 'prod_USERS';
+    const index = algolia.initIndex(searchIndex);
+    const algoliaRes = await index.browse(''); // use browse not search to get all records
+    console.log(`✅ Retrieved ${algoliaRes.hits.length} user profiles...`);
+    //console.log('Example profile sanity check:', algoliaRes.hits[400]);
+
+    let num = 0;
+
+    algoliaRes.hits.forEach(async (hit, i) => {
+      num = i;
+      const record = hit as any;
+      const uid = record.objectID;
+      console.log(`Admin mass update. Processing record: ${i} for user: ${uid}`);
+
+      const accountSnap = await db.collection(`users/${uid}/account`)
+      .doc(`account${uid}`)
+      .get();
+      if (accountSnap.exists) {
+        const account = accountSnap.data() as UserAccount;
+        if (account && account.accountType === 'coach') { // user is a coach
+          try {
+
+            // Get stripe customer id
+            let customerId;
+            if (account.stripeCustomerId) {
+              customerId = account.stripeCustomerId;
+            }
+            if (!customerId) { // if no stored stripe customer id exists on the account, create one now...
+              const { email } = await admin.auth().getUser(uid);
+              const customerRecord = await createCustomerRecord({
+                uid: uid,
+                email,
+              });
+              if (customerRecord && customerRecord.stripeCustomerId) {
+                customerId = customerRecord.stripeCustomerId;
+              }
+            }
+
+            // create the subscription
+            await stripe.subscriptions.create({
+              customer: customerId as string,
+              items: [
+                {price: 'price_1Ik5QABulafdcV5ttOcbt77z'}, // priceId for £0 one-time Flame subscription
+              ],
+              metadata: {
+                partner_referred: null,
+                client_UID: uid,
+                sale_item_id: 'price_1Ik5QABulafdcV5ttOcbt77z',
+                sale_item_type: 'coach_subscription',
+                sale_item_title: 'Flame',
+                firebaseRole: 'flame'
+              }
+            });
+          } catch (err) {
+            console.log(`❗️[Error]: ${err.message} for [${uid}]:`);
+          }
+        }
+      }
+    });
+
+    return {
+      success: true,
+      message: `Success! Processed ${num} records.`
+    }
+  }
+  catch(err) {
+    console.error(err);
+    return {error: err.message};
   }
 });
 

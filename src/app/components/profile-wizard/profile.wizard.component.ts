@@ -324,17 +324,6 @@ export class ProfileWizardComponent implements OnInit, OnDestroy {
       // console.log('Form updated with photo storage download URL:', this.group1.photo.value);
     }
 
-    // Ask user if they want to make their profile public at this point
-    // const qResult: any = await this.alertService.alert('question-and-confirmation', 'Go Public?', `Would you like to make your profile
-    // public now so potential clients can see it?`, 'Yes please!', 'Not now', 'Done!', `Your profile will be
-    // avalable for clients to see.`, 'OK', `Got it! You can always go public later on when you're ready.`);
-    // if (qResult.action) { // user wants to go public now
-    //   ((this.formWizard.controls.formArray as FormArray).controls[3] as FormGroup).patchValue({
-    //     isPublic: true
-    //   });
-    //   this.dataService.completeUserTask(this.userId, 'taskDefault002'); // mark the 'go public' todo as done
-    // }
-
     // update the form data from just country code to the full country object.
     const ct = this.countryService.getCountryByCode(this.group2.country.value);
     this.group2.country.patchValue(ct);
