@@ -4420,28 +4420,89 @@ exports.onWriteUserAccountNode = functions
 .runWith({memory: '1GB', timeoutSeconds: 300})
 .firestore
 .document(`/users/{userId}/account/{docID}`)
-.onWrite((change, context) => {
+.onWrite( async (change, context) => {
+
   const index = algolia.initIndex('prod_USERS');
   const docId = context.params.userId;
-  // console.log('Users node changed. Updating Algolia record...');
-  const account: any = change.after.data() as any;
-  // Record Removed.
-  if (!account) {
+  const before = change.before.data() as UserAccount;
+  const after = change.after.data() as UserAccount;
+
+  // Record removed
+  if (!after) {
+    // Delete the record in Algolia...
     return index.deleteObject(docId);
   }
-  // Record added/updated.
+
+  // Record created
+  if (after && !before) {
+    // any actions on create only?
+  }
+
+  // Record created or updated
+
+  // Update Algolia with the new/updated record...
   const recordToSend = {
     objectID: docId,
-    accountEmail: account.accountEmail,
-    accountType: account.accountType,
-    dateCreated: account.dateCreated,
-    firstName: account.firstName,
-    lastName: account.lastName,
+    accountEmail: after.accountEmail,
+    accountType: after.accountType,
+    dateCreated: after.dateCreated,
+    firstName: after.firstName,
+    lastName: after.lastName,
     userID: docId
   };
-  // Update Algolia.
-  return index.saveObject(recordToSend);
+  await index.saveObject(recordToSend);
+
+  // Check for a change to the 'stripeAccountId' property.
+  // If created or updated, check for any existing user products & keep the id in sync
+  // to ensure we route payment to the correct Stripe connected account...
+  if ((!before.stripeAccountId && after.stripeAccountId) || (after.stripeAccountId && before.stripeAccountId !== after.stripeAccountId)) {
+    await syncPaymentIdWithProducts(docId, after.stripeAccountId);
+  }
+
+  return null;
 });
+
+async function syncPaymentIdWithProducts(uid: string, newStripeId: string) {
+  /*
+    Checks if the user has any products (courses / programs / services).
+    If they do, we update the 'stripeId' property on the private product.
+    This triggers a monitor function to update the public product.
+  */
+
+  const batch = admin.firestore().batch();
+
+  // check for courses...
+  const courseDocs = await db.collection(`users/${uid}/courses`).listDocuments();
+  const courseIds = courseDocs.map(doc => doc.id);
+  if (courseIds && courseIds.length) { // the user has course(s)
+    for (const id of courseIds) { // add a 'stripeId' update to the batch for each course...
+      const courseRef = db.collection(`users/${uid}/courses`).doc(id);
+      batch.set(courseRef, { stripeId: newStripeId }, { merge: true });
+    }
+  }
+
+  // check for programs...
+  const programDocs = await db.collection(`users/${uid}/programs`).listDocuments();
+  const programIds = programDocs.map(doc => doc.id);
+  if (programIds && programIds.length) { // the user has program(s)
+    for (const id of programIds) { // add a 'stripeId' update to the batch for each program...
+      const programRef = db.collection(`users/${uid}/programs`).doc(id);
+      batch.set(programRef, { stripeId: newStripeId }, { merge: true });
+    }
+  }
+
+  // check for services...
+  const serviceDocs = await db.collection(`users/${uid}/services`).listDocuments();
+  const serviceIds = serviceDocs.map(doc => doc.id);
+  if (serviceIds && serviceIds.length) { // the user has service(s)
+    for (const id of serviceIds) { // add a 'stripeId' update to the batch for each service...
+      const serviceRef = db.collection(`users/${uid}/services`).doc(id);
+      batch.set(serviceRef, { stripeId: newStripeId }, { merge: true });
+    }
+  }
+  
+  return batch.commit();
+}
 
 /*
   Monitor all user to user chat messages.
@@ -5754,6 +5815,7 @@ exports.adminMassDeleteStripeExpressAccounts = functions
     //console.log('Example profile sanity check:', algoliaRes.hits[400]);
 
     let num = 0;
+    const promises = [] as any;
 
     algoliaRes.hits.forEach(async (hit, i) => {
       num = i;
@@ -5767,15 +5829,16 @@ exports.adminMassDeleteStripeExpressAccounts = functions
       if (accountSnap.exists) {
         const account = accountSnap.data() as UserAccount;
         if (account && account.stripeUid) { // user has a stripe express account
-          try {
-            await deleteStripeAccount(account.stripeUid);
-            await postStripeConnectedExpressAccountDelete(uid);
-          } catch (err) {
-            console.log(`❗️[Error]: ${err.message} for [${uid}]:`);
-          }
+          console.log(`User [${uid}] has a Stripe express account...`);
+          const prom1 = deleteStripeAccount(account.stripeUid);
+          promises.push(prom1);
+          const prom2 = postStripeConnectedExpressAccountDelete(uid);
+          promises.push(prom2);
         }
       }
     });
+
+    await Promise.all(promises);
 
     return {
       success: true,
@@ -5789,7 +5852,7 @@ exports.adminMassDeleteStripeExpressAccounts = functions
 });
 
 exports.adminMassSubscribeCoachesToFlame = functions
-.runWith({memory: '1GB', timeoutSeconds: 300})
+.runWith({memory: '1GB', timeoutSeconds: 540})
 .https
 .onCall( async (data, context) => {
   try {
@@ -5806,10 +5869,11 @@ exports.adminMassSubscribeCoachesToFlame = functions
     console.log(`✅ Retrieved ${algoliaRes.hits.length} user profiles...`);
     //console.log('Example profile sanity check:', algoliaRes.hits[400]);
 
-    let num = 0;
+    let i = 0;
+    const promises = [] as any;
 
-    algoliaRes.hits.forEach(async (hit, i) => {
-      num = i;
+    for (const hit of algoliaRes.hits) {
+      i ++;
       const record = hit as any;
       const uid = record.objectID;
       console.log(`Admin mass update. Processing record: ${i} for user: ${uid}`);
@@ -5820,49 +5884,46 @@ exports.adminMassSubscribeCoachesToFlame = functions
       if (accountSnap.exists) {
         const account = accountSnap.data() as UserAccount;
         if (account && account.accountType === 'coach') { // user is a coach
-          try {
-
-            // Get stripe customer id
-            let customerId;
-            if (account.stripeCustomerId) {
-              customerId = account.stripeCustomerId;
-            }
-            if (!customerId) { // if no stored stripe customer id exists on the account, create one now...
-              const { email } = await admin.auth().getUser(uid);
-              const customerRecord = await createCustomerRecord({
-                uid: uid,
-                email,
-              });
-              if (customerRecord && customerRecord.stripeCustomerId) {
-                customerId = customerRecord.stripeCustomerId;
-              }
-            }
-
-            // create the subscription
-            await stripe.subscriptions.create({
-              customer: customerId as string,
-              items: [
-                {price: 'price_1Ik5QABulafdcV5ttOcbt77z'}, // priceId for £0 one-time Flame subscription
-              ],
-              metadata: {
-                partner_referred: null,
-                client_UID: uid,
-                sale_item_id: 'price_1Ik5QABulafdcV5ttOcbt77z',
-                sale_item_type: 'coach_subscription',
-                sale_item_title: 'Flame',
-                firebaseRole: 'flame'
-              }
-            });
-          } catch (err) {
-            console.log(`❗️[Error]: ${err.message} for [${uid}]:`);
+          // Get stripe customer id
+          let customerId;
+          if (account.stripeCustomerId) {
+            customerId = account.stripeCustomerId;
           }
+          if (!customerId) { // if no stored stripe customer id exists on the account, create one now...
+            const { email } = await admin.auth().getUser(uid);
+            const customerRecord = await createCustomerRecord({
+              uid: uid,
+              email,
+            });
+            if (customerRecord && customerRecord.stripeCustomerId) {
+              customerId = customerRecord.stripeCustomerId;
+            }
+          }
+
+          // create the subscription
+          promises.push(stripe.subscriptions.create({
+            customer: customerId as string,
+            items: [
+              {price: 'price_1IkRM4BulafdcV5tmj5z0Hes'}, // priceId for £0 one-time Flame subscription
+            ],
+            metadata: {
+              partner_referred: null,
+              client_UID: uid,
+              sale_item_id: 'price_1IkRM4BulafdcV5tmj5z0Hes',
+              sale_item_type: 'coach_subscription',
+              sale_item_title: 'Flame',
+              firebaseRole: 'flame'
+            }
+          }));
         }
       }
-    });
+    }
+
+    await Promise.all(promises);
 
     return {
       success: true,
-      message: `Success! Processed ${num} records.`
+      message: `Success! Processed ${i} records.`
     }
   }
   catch(err) {
